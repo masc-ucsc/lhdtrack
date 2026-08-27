@@ -1,0 +1,33 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+
+pub mod br_ecc_secded_encoder::[timecheck=false](clk:u1, rst:u1, data_valid:u1, data:u32) -> (enc_valid:u1@[], enc_data:u32@[], enc_parity:u7@[], enc_codeword:u39@[]) {
+  mut parity:u7 = 0
+  parity = 0sb?
+  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk = clk, rst = rst, in_valid = data_valid, `in` = data)
+  const m__w1 = br_delay_valid_inputs.out
+  mut parity__w1 = parity
+  parity__w1#[0] = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 1) & 1)) & 1) ^ ((m__w1 >> 2) & 1)) & 1) ^ ((m__w1 >> 3) & 1)) & 1) ^ ((m__w1 >> 4) & 1)) & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1
+  mut parity__w2 = parity__w1
+  parity__w2#[1] = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 1) & 1)) & 1) ^ ((m__w1 >> 2) & 1)) & 1) ^ ((m__w1 >> 3) & 1)) & 1) ^ ((m__w1 >> 4) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1
+  mut parity__w3 = parity__w2
+  parity__w3#[2] = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
+  mut parity__w4 = parity__w3
+  parity__w4#[3] = (((((((((((((((((((((((((((m__w1 >> 1) & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
+  mut parity__w5 = parity__w4
+  parity__w5#[4] = (((((((((((((((((((((((((((m__w1 >> 2) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1
+  mut parity__w6 = parity__w5
+  parity__w6#[5] = (((((((((((((((((((((((((m__w1 >> 3) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1
+  mut parity__w7 = parity__w6
+  parity__w7#[6] = (((((((((((((((((((((((((m__w1 >> 4) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
+  const t370 = parity__w7#[0..=6]
+  const t372 = (t370 << 32) | m__w1#[0..=31]
+  const internal_codeword__w1 = t372
+  const t373 = internal_codeword__w1
+  const t374 = t373
+  mut br_delay_valid_outputs = br_delay_valid_p1::[name=br_delay_valid_outputs](clk = clk, rst = rst, in_valid = br_delay_valid_inputs.out_valid, `in` = t374)
+  enc_valid = br_delay_valid_outputs.out_valid
+  enc_data = br_delay_valid_outputs.out#[0..=31]
+  enc_parity = br_delay_valid_outputs.out#[32..=38]
+  enc_codeword = br_delay_valid_outputs.out
+}

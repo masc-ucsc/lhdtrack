@@ -1,0 +1,22 @@
+pub comb br_demux_bin::[timecheck=false](select:u3, in_valid:u1, `in`:u8) -> (out_valid:u8, out:u64) {
+  out_valid = 0sb?
+  mut out_valid__w1 = out_valid
+  out_valid__w1#[0] = unsigned((in_valid != 0) and (select == 0)) & 1
+  mut out_valid__w2 = out_valid__w1
+  out_valid__w2#[1] = unsigned((in_valid != 0) and (select == 1)) & 1
+  mut out_valid__w3 = out_valid__w2
+  out_valid__w3#[2] = unsigned((in_valid != 0) and (select == 2)) & 1
+  mut out_valid__w4 = out_valid__w3
+  out_valid__w4#[3] = unsigned((in_valid != 0) and (select == 3)) & 1
+  mut out_valid__w5 = out_valid__w4
+  out_valid__w5#[4] = unsigned((in_valid != 0) and (select == 4)) & 1
+  mut out_valid__w6 = out_valid__w5
+  out_valid__w6#[5] = unsigned((in_valid != 0) and (select == 5)) & 1
+  mut out_valid__w7 = out_valid__w6
+  out_valid__w7#[6] = unsigned((in_valid != 0) and (select == 6)) & 1
+  mut out_valid__w8 = out_valid__w7
+  out_valid__w8#[7] = unsigned((in_valid != 0) and (select == 7)) & 1
+  const t34 = `in`
+  out_valid = out_valid__w8
+  out = t34 | (t34 << 8) | (t34 << 16) | (t34 << 24) | (t34 << 32) | (t34 << 40) | (t34 << 48) | (t34 << 56)
+}

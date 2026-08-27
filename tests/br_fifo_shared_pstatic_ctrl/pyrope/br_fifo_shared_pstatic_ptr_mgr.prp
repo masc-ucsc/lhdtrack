@@ -1,0 +1,69 @@
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+
+pub mod br_fifo_shared_pstatic_ptr_mgr::[timecheck=false](clk:u1, rst:u1, config_base:u10, config_bound:u10, config_size:u12, advance_tail:(e1:u1, e0:u1), tail_next:u10, tail:u10, head_ready:u2) -> (push_full:(e1:u1, e0:u1)@[], head_valid:u2@[], head:u10@[], empty:(e1:u1, e0:u1)@[], items:u12@[]) {
+  reg push_full_q:u2
+  reg empty_q:u2
+  mut reinit_head:u2 = 0
+  mut head_next:u10 = 0
+  mut push_full_next:u2 = 0
+  mut empty_next:u2 = 0
+  mut head__wtmp:u10 = 0sb?
+  wire head:u10
+  push_full.e1 = (push_full_q >> 1) & 1
+  push_full.e0 = push_full_q & 1
+  empty.e1 = (empty_q >> 1) & 1
+  empty.e0 = empty_q & 1
+  reinit_head = 0sb?
+  head_next = 0sb?
+  push_full_next = 0sb?
+  empty_next = 0sb?
+  items = 0sb?
+  const head_valid__w1 = (~empty_q)#[0..=1]
+  mut _mux_1:u6 = if tail#[0..=4] >= head#[0..=4] { (tail#[0..=4] - head#[0..=4])#[0..=4] } else { (config_size#[0..=5] - (head#[0..=4] - tail#[0..=4])#[0..=4])#[0..=5] }
+  mut _mux_2:u6 = if (push_full_q & 1) != 0 { config_size#[0..=5] } else { _mux_1 }
+  mut items__w1 = items
+  items__w1#[0..=5] = _mux_2
+  mut _mux_3:u6 = if tail#[5..=9] >= head#[5..=9] { (tail#[5..=9] - head#[5..=9])#[0..=4] } else { (config_size#[6..=11] - (head#[5..=9] - tail#[5..=9])#[0..=4])#[0..=5] }
+  mut _mux_4:u6 = if ((push_full_q >> 1) & 1) != 0 { config_size#[6..=11] } else { _mux_3 }
+  mut items__w2 = items__w1
+  items__w2#[6..=11] = _mux_4
+  const advance_head__w1 = head_ready & head_valid__w1
+  mut reinit_head__w1 = reinit_head
+  reinit_head__w1#[0] = unsigned(((advance_head__w1 & 1) != 0) and (head#[0..=4] == config_bound#[0..=4])) & 1
+  mut reinit_head__w2 = reinit_head__w1
+  reinit_head__w2#[1] = unsigned((((advance_head__w1 >> 1) & 1) != 0) and (head#[5..=9] == config_bound#[5..=9])) & 1
+  mut br_counter_incr_head = br_counter_incr::[name=br_counter_incr_head](clk = clk, rst = rst, reinit = (reinit_head__w2 >> 1) & 1, initial_value = config_base#[5..=9], incr_valid = (advance_head__w1 >> 1) & 1, incr = 1)
+  head__wtmp#[5..=9] = br_counter_incr_head["value"]#[0..=4]
+  mut head_next__w1 = head_next
+  head_next__w1#[5..=9] = br_counter_incr_head["value_next"]#[0..=4]
+  br_counter_incr_head = br_counter_incr::[name=br_counter_incr_head](clk = clk, rst = rst, reinit = reinit_head__w2 & 1, initial_value = config_base#[0..=4], incr_valid = advance_head__w1 & 1, incr = 1)
+  mut head__wtmp__w1 = head__wtmp
+  head__wtmp__w1#[0..=4] = br_counter_incr_head["value"]#[0..=4]
+  mut head_next__w2 = head_next__w1
+  head_next__w2#[0..=4] = br_counter_incr_head["value_next"]#[0..=4]
+  if (advance_head__w1 & 1) == advance_tail.e0 {
+    push_full_next#[0] = push_full_q & 1
+    empty_next#[0] = empty_q & 1
+  } elif (advance_head__w1 & 1) != 0 {
+    push_full_next#[0] = 0
+    empty_next#[0] = unsigned(head_next__w2#[0..=4] == tail#[0..=4]) & 1
+  } else {
+    push_full_next#[0] = unsigned(tail_next#[0..=4] == head#[0..=4]) & 1
+    empty_next#[0] = 0
+  }
+  if ((advance_head__w1 >> 1) & 1) == advance_tail.e1 {
+    push_full_next#[1] = (push_full_q >> 1) & 1
+    empty_next#[1] = (empty_q >> 1) & 1
+  } elif ((advance_head__w1 >> 1) & 1) != 0 {
+    push_full_next#[1] = 0
+    empty_next#[1] = unsigned(head_next__w2#[5..=9] == tail#[5..=9]) & 1
+  } else {
+    push_full_next#[1] = unsigned(tail_next#[5..=9] == head#[5..=9]) & 1
+    empty_next#[1] = 0
+  }
+  push_full_q = if rst != 0 { 0 } else { push_full_next }
+  empty_q = if rst != 0 { 3 } else { empty_next }
+  head = head__wtmp__w1
+  head_valid = head_valid__w1
+  items = items__w2
+}

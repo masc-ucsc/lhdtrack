@@ -1,0 +1,70 @@
+const br_fifo_push_ctrl_core = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
+const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+
+pub mod br_fifo_shared_pstatic_push_ctrl::[timecheck=false](clk:u1, rst:u1, config_base:u10, config_bound:u10, push_valid:u1, push_data:u32, push_fifo_id:u1, push_full:(e1:u1, e0:u1), bypass_ready:(e1:u1, e0:u1)) -> (push_ready:u1@[], bypass_valid_unstable:(e1:u1, e0:u1)@[], bypass_data_unstable:u64@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], advance_tail:(e1:u1, e0:u1)@[], tail_next:u10@[], tail:u10@[]) {
+  wire core_push_valid:u2
+  wire core_push_data:u64
+  mut core_push_ready:u2 = 0
+  mut core_ram_wr_data:u64 = 0
+  mut core_ram_wr_valid__wtmp:u2 = 0sb?
+  wire core_ram_wr_valid:u2
+  mut core_ram_wr_addr__wtmp:u10 = 0sb?
+  wire core_ram_wr_addr:u10
+  core_push_ready = 0sb?
+  core_ram_wr_data = 0sb?
+  bypass_data_unstable = 0sb?
+  tail_next = 0sb?
+  tail = 0sb?
+  mut `advance_tail__bpo.e0` = core_ram_wr_valid & 1
+  mut tail__w1 = tail
+  tail__w1#[0..=4] = core_ram_wr_addr#[0..=4]
+  mut br_fifo_push_ctrl_core_inst = br_fifo_push_ctrl_core::[name=br_fifo_push_ctrl_core_inst](clk = clk, rst = rst, push_valid = core_push_valid & 1, push_data = core_push_data#[0..=31], bypass_ready = bypass_ready.e0, addr_base = config_base#[0..=4], addr_bound = config_bound#[0..=4], full = push_full.e0)
+  mut core_push_ready__w1 = core_push_ready
+  core_push_ready__w1#[0] = br_fifo_push_ctrl_core_inst["push_ready"] & 1
+  mut `bypass_valid_unstable__bpo.e0` = br_fifo_push_ctrl_core_inst["bypass_valid_unstable"]
+  mut bypass_data_unstable__w1 = bypass_data_unstable
+  bypass_data_unstable__w1#[0..=31] = br_fifo_push_ctrl_core_inst["bypass_data_unstable"]#[0..=31]
+  core_ram_wr_valid__wtmp#[0] = br_fifo_push_ctrl_core_inst["ram_wr_valid"] & 1
+  mut tail_next__w1 = tail_next
+  tail_next__w1#[0..=4] = br_fifo_push_ctrl_core_inst["ram_wr_addr_next"]#[0..=4]
+  core_ram_wr_addr__wtmp#[0..=4] = br_fifo_push_ctrl_core_inst["ram_wr_addr"]#[0..=4]
+  mut core_ram_wr_data__w1 = core_ram_wr_data
+  core_ram_wr_data__w1#[0..=31] = br_fifo_push_ctrl_core_inst["ram_wr_data"]#[0..=31]
+  mut `advance_tail__bpo.e1` = (core_ram_wr_valid >> 1) & 1
+  mut tail__w2 = tail__w1
+  tail__w2#[5..=9] = core_ram_wr_addr#[5..=9]
+  br_fifo_push_ctrl_core_inst = br_fifo_push_ctrl_core::[name=br_fifo_push_ctrl_core_inst](clk = clk, rst = rst, push_valid = (core_push_valid >> 1) & 1, push_data = core_push_data#[32..=63], bypass_ready = bypass_ready.e1, addr_base = config_base#[5..=9], addr_bound = config_bound#[5..=9], full = push_full.e1)
+  mut core_push_ready__w2 = core_push_ready__w1
+  core_push_ready__w2#[1] = br_fifo_push_ctrl_core_inst["push_ready"] & 1
+  mut `bypass_valid_unstable__bpo.e1` = br_fifo_push_ctrl_core_inst["bypass_valid_unstable"]
+  mut bypass_data_unstable__w2 = bypass_data_unstable__w1
+  bypass_data_unstable__w2#[32..=63] = br_fifo_push_ctrl_core_inst["bypass_data_unstable"]#[0..=31]
+  mut core_ram_wr_valid__wtmp__w1 = core_ram_wr_valid__wtmp
+  core_ram_wr_valid__wtmp__w1#[1] = br_fifo_push_ctrl_core_inst["ram_wr_valid"] & 1
+  mut tail_next__w2 = tail_next__w1
+  tail_next__w2#[5..=9] = br_fifo_push_ctrl_core_inst["ram_wr_addr_next"]#[0..=4]
+  mut core_ram_wr_addr__wtmp__w1 = core_ram_wr_addr__wtmp
+  core_ram_wr_addr__wtmp__w1#[5..=9] = br_fifo_push_ctrl_core_inst["ram_wr_addr"]#[0..=4]
+  mut core_ram_wr_data__w2 = core_ram_wr_data__w1
+  core_ram_wr_data__w2#[32..=63] = br_fifo_push_ctrl_core_inst["ram_wr_data"]#[0..=31]
+  mut br_flow_demux_select_unstable_inst = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_inst](clk = clk, rst = rst, select = push_fifo_id, push_valid = push_valid, push_data = push_data, pop_ready = core_push_ready__w2)
+  core_push_valid = br_flow_demux_select_unstable_inst.pop_valid_unstable
+  core_push_data = br_flow_demux_select_unstable_inst.pop_data_unstable
+  mut br_mux_onehot_ram_wr_addr = br_mux_onehot::[name=br_mux_onehot_ram_wr_addr](select = core_ram_wr_valid, `in` = core_ram_wr_addr)
+  mut br_mux_onehot_ram_wr_data = br_mux_onehot_p1::[name=br_mux_onehot_ram_wr_data](select = core_ram_wr_valid, `in` = core_ram_wr_data__w2)
+  core_ram_wr_valid = core_ram_wr_valid__wtmp__w1
+  core_ram_wr_addr = core_ram_wr_addr__wtmp__w1
+  bypass_valid_unstable.e1 = `bypass_valid_unstable__bpo.e1`
+  bypass_valid_unstable.e0 = `bypass_valid_unstable__bpo.e0`
+  advance_tail.e1 = `advance_tail__bpo.e1`
+  advance_tail.e0 = `advance_tail__bpo.e0`
+  push_ready = br_flow_demux_select_unstable_inst.push_ready
+  bypass_data_unstable = bypass_data_unstable__w2
+  ram_wr_valid = unsigned(core_ram_wr_valid != 0)
+  ram_wr_addr = br_mux_onehot_ram_wr_addr
+  ram_wr_data = br_mux_onehot_ram_wr_data
+  tail_next = tail_next__w2
+  tail = tail__w2
+}

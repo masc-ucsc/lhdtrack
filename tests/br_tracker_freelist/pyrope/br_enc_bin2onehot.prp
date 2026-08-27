@@ -1,0 +1,36 @@
+pub comb br_enc_bin2onehot::[timecheck=false](clk:u1, rst:u1, `in`:u4, in_valid:u1) -> (out:u16) {
+  out = 0sb?
+  mut out__w1 = out
+  out__w1#[0] = unsigned((in_valid != 0) and (`in` == 0)) & 1
+  mut out__w2 = out__w1
+  out__w2#[1] = unsigned((in_valid != 0) and (`in` == 1)) & 1
+  mut out__w3 = out__w2
+  out__w3#[2] = unsigned((in_valid != 0) and (`in` == 2)) & 1
+  mut out__w4 = out__w3
+  out__w4#[3] = unsigned((in_valid != 0) and (`in` == 3)) & 1
+  mut out__w5 = out__w4
+  out__w5#[4] = unsigned((in_valid != 0) and (`in` == 4)) & 1
+  mut out__w6 = out__w5
+  out__w6#[5] = unsigned((in_valid != 0) and (`in` == 5)) & 1
+  mut out__w7 = out__w6
+  out__w7#[6] = unsigned((in_valid != 0) and (`in` == 6)) & 1
+  mut out__w8 = out__w7
+  out__w8#[7] = unsigned((in_valid != 0) and (`in` == 7)) & 1
+  mut out__w9 = out__w8
+  out__w9#[8] = unsigned((in_valid != 0) and (`in` == 8)) & 1
+  mut out__w10 = out__w9
+  out__w10#[9] = unsigned((in_valid != 0) and (`in` == 9)) & 1
+  mut out__w11 = out__w10
+  out__w11#[10] = unsigned((in_valid != 0) and (`in` == 10)) & 1
+  mut out__w12 = out__w11
+  out__w12#[11] = unsigned((in_valid != 0) and (`in` == 11)) & 1
+  mut out__w13 = out__w12
+  out__w13#[12] = unsigned((in_valid != 0) and (`in` == 12)) & 1
+  mut out__w14 = out__w13
+  out__w14#[13] = unsigned((in_valid != 0) and (`in` == 13)) & 1
+  mut out__w15 = out__w14
+  out__w15#[14] = unsigned((in_valid != 0) and (`in` == 14)) & 1
+  mut out__w16 = out__w15
+  out__w16#[15] = unsigned((in_valid != 0) and (`in` == 15)) & 1
+  out = out__w16
+}

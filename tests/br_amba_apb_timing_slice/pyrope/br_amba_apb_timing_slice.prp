@@ -1,0 +1,25 @@
+pub mod br_amba_apb_timing_slice::[timecheck=false](clk:u1, rst:u1, paddr_in:u32, psel_in:u1, penable_in:u1, pprot_in:u3, pstrb_in:u4, pwrite_in:u1, pwdata_in:u32, prdata_in:u32, pready_in:u1, pslverr_in:u1) -> (prdata_out:u32@[], pready_out:u1@[], pslverr_out:u1@[], paddr_out:u32@[], psel_out:u1@[], penable_out:u1@[], pprot_out:u3@[], pstrb_out:u4@[], pwrite_out:u1@[], pwdata_out:u32@[]) {
+  reg prdata_out:u32
+  reg pready_out:u1
+  reg pslverr_out:u1
+  reg paddr_out:u32
+  reg psel_out:u1
+  reg penable_out:u1
+  reg pprot_out:u3
+  reg pstrb_out:u4
+  reg pwrite_out:u1
+  reg pwdata_out:u32
+  reg valid_handshake_d1:u1
+  paddr_out = paddr_in
+  pprot_out = pprot_in
+  pstrb_out = pstrb_in
+  pwrite_out = pwrite_in
+  pwdata_out = pwdata_in
+  pslverr_out = pslverr_in
+  prdata_out = prdata_in
+  const valid_handshake__w1 = unsigned((psel_out != 0) and (penable_out != 0) and (pready_in != 0))
+  psel_out = if rst != 0 { 0 } else { unsigned((psel_in != 0) and (valid_handshake__w1 == 0) and (valid_handshake_d1 == 0)) }
+  penable_out = if rst != 0 { 0 } else { unsigned((penable_in != 0) and (valid_handshake__w1 == 0) and (valid_handshake_d1 == 0)) }
+  pready_out = if rst != 0 { 0 } else { unsigned((psel_out != 0) and (penable_out != 0) and (pready_in != 0)) }
+  valid_handshake_d1 = if rst != 0 { 0 } else { valid_handshake__w1 }
+}

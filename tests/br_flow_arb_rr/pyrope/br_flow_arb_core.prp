@@ -1,0 +1,16 @@
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_flow_arb_core::[timecheck=false](clk:u1, rst:u1, can_grant:u16, grant:u16, push_valid:u16, pop_ready:u1) -> (request:u16@[], enable_priority_update:u1@[], push_ready:u16@[], pop_valid_unstable:u1@[]) {
+  mut _rep_1:u16 = if (pop_ready & 1) != 0 { 0xffff } else { 0 }
+  const push_ready__w1 = _rep_1 & can_grant
+  const pop_valid_unstable__w1 = unsigned(push_valid != 0)
+  br_misc_unused::[name=br_misc_unused_grant](`in` = grant)
+  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  request = push_valid
+  enable_priority_update = pop_ready
+  push_ready = push_ready__w1
+  pop_valid_unstable = pop_valid_unstable__w1
+}

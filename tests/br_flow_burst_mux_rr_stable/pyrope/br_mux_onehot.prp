@@ -1,0 +1,11 @@
+pub comb br_mux_onehot::[timecheck=false](select:u8, `in`:u264) -> (out:u33) {
+  mut _rep_1:u33 = if (select & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_2:u33 = if ((select >> 1) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_3:u33 = if ((select >> 2) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_4:u33 = if ((select >> 3) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_5:u33 = if ((select >> 4) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_6:u33 = if ((select >> 5) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_7:u33 = if ((select >> 6) & 1) != 0 { 0x1ffffffff } else { 0 }
+  mut _rep_8:u33 = if ((select >> 7) & 1) != 0 { 0x1ffffffff } else { 0 }
+  out = (((((((0 | (_rep_1 & `in`#[0..=32])) | (_rep_2 & `in`#[33..=65])) | (_rep_3 & `in`#[66..=98])) | (_rep_4 & `in`#[99..=131])) | (_rep_5 & `in`#[132..=164])) | (_rep_6 & `in`#[165..=197])) | (_rep_7 & `in`#[198..=230])) | (_rep_8 & `in`#[231..=263])
+}

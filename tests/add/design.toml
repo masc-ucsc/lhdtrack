@@ -1,0 +1,44 @@
+# add -- see README.md for provenance.
+[design]
+name  = "add"
+top   = "add"
+kind  = "combinational"
+suite = "comb"
+
+[provenance]
+upstream = "circt-synth-tracker"
+rev      = "85721d2fd9cf49ce6eb436f7d4671590b55288c1"
+path     = "benchmarks/comb/microbenchmarks/add.sv"
+license  = "Apache-2.0 WITH LLVM-exception"
+
+[status]
+# Hand-written, not a machine emission -- so `idiomatic`. Correctness is a
+# SEPARATE claim, tracked by `lec` below: until the prover agrees, this test is
+# reported but never aggregated into a headline comparison.
+pyrope = "idiomatic"
+lec    = "proven"
+
+[pyrope]
+# The .prp pins BW as a comptime constant, so this test declares ONE config.
+# Upstream sweeps BW with a lit -D parameter; adding a second width here needs
+# either a second monomorphic .prp or `param_binding = "set"` once the way lhd
+# binds a comptime constant from the command line is settled.
+param_binding = "monomorphic"
+
+[[config]]
+id     = "bw8"
+params = { BW = 8 }
+
+[synth]
+flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
+
+[sim]
+flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
+# A pure adder is fast; this lands the run in the 2-10 s window once the
+# harness LFSR is accounted for. Re-tune after any large simulator speedup.
+cycles = 20000000
+marker = "LHDTRACK-DONE"
+
+[lec]
+# lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

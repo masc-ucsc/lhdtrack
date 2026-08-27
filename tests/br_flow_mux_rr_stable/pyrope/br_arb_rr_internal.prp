@@ -1,0 +1,88 @@
+const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
+
+pub mod br_arb_rr_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u8) -> (can_grant:(e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)@[], grant:u8@[]) {
+  mut gen_n_req_request_priority:u64 = 0
+  wire grant:u8
+  gen_n_req_request_priority = 0sb?
+  mut gen_n_req_request_priority__w1 = gen_n_req_request_priority
+  gen_n_req_request_priority__w1#[9] = 0
+  mut gen_n_req_request_priority__w2 = gen_n_req_request_priority__w1
+  gen_n_req_request_priority__w2#[18] = 0
+  mut gen_n_req_request_priority__w3 = gen_n_req_request_priority__w2
+  gen_n_req_request_priority__w3#[27] = 0
+  mut gen_n_req_request_priority__w4 = gen_n_req_request_priority__w3
+  gen_n_req_request_priority__w4#[36] = 0
+  mut gen_n_req_request_priority__w5 = gen_n_req_request_priority__w4
+  gen_n_req_request_priority__w5#[45] = 0
+  mut gen_n_req_request_priority__w6 = gen_n_req_request_priority__w5
+  gen_n_req_request_priority__w6#[54] = 0
+  mut rr_state_internal = br_rr_state_internal::[name=rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
+  const gen_n_req_priority_mask__w1 = (rr_state_internal.priority_mask.e7 << 7) | (rr_state_internal.priority_mask.e6 << 6) | (rr_state_internal.priority_mask.e5 << 5) | (rr_state_internal.priority_mask.e4 << 4) | (rr_state_internal.priority_mask.e3 << 3) | (rr_state_internal.priority_mask.e2 << 2) | (rr_state_internal.priority_mask.e1 << 1) | rr_state_internal.priority_mask.e0
+  const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1)#[0..=7]
+  mut gen_n_req_request_priority__w7 = gen_n_req_request_priority__w6
+  gen_n_req_request_priority__w7#[0..=7] = gen_n_req_request_high__w1#[1..=7] << 1
+  mut _mux_2:u8 = if ((gen_n_req_priority_mask__w1 >> 7) & 1) != 0 { request#[0..=6] } else { gen_n_req_request_high__w1#[0..=6] }
+  mut gen_n_req_request_priority__w8 = gen_n_req_request_priority__w7
+  gen_n_req_request_priority__w8#[56..=63] = _mux_2
+  mut _mux_3:u1 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { request & 1 } else { gen_n_req_request_high__w1 & 1 }
+  mut gen_n_req_request_priority__w9 = gen_n_req_request_priority__w8
+  gen_n_req_request_priority__w9#[8] = _mux_3 & 1
+  mut _mux_4:u6 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { gen_n_req_request_high__w1#[2..=7] } else { 0 }
+  mut gen_n_req_request_priority__w10 = gen_n_req_request_priority__w9
+  gen_n_req_request_priority__w10#[10..=15] = _mux_4
+  mut _mux_5:u2 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { request#[0..=1] } else { gen_n_req_request_high__w1#[0..=1] }
+  mut gen_n_req_request_priority__w11 = gen_n_req_request_priority__w10
+  gen_n_req_request_priority__w11#[16..=17] = _mux_5
+  mut _mux_6:u5 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { gen_n_req_request_high__w1#[3..=7] } else { 0 }
+  mut gen_n_req_request_priority__w12 = gen_n_req_request_priority__w11
+  gen_n_req_request_priority__w12#[19..=23] = _mux_6
+  mut _mux_7:u3 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { request#[0..=2] } else { gen_n_req_request_high__w1#[0..=2] }
+  mut gen_n_req_request_priority__w13 = gen_n_req_request_priority__w12
+  gen_n_req_request_priority__w13#[24..=26] = _mux_7
+  mut _mux_8:u4 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { gen_n_req_request_high__w1#[4..=7] } else { 0 }
+  mut gen_n_req_request_priority__w14 = gen_n_req_request_priority__w13
+  gen_n_req_request_priority__w14#[28..=31] = _mux_8
+  mut _mux_9:u4 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { request#[0..=3] } else { gen_n_req_request_high__w1#[0..=3] }
+  mut gen_n_req_request_priority__w15 = gen_n_req_request_priority__w14
+  gen_n_req_request_priority__w15#[32..=35] = _mux_9
+  mut _mux_10:u3 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { gen_n_req_request_high__w1#[5..=7] } else { 0 }
+  mut gen_n_req_request_priority__w16 = gen_n_req_request_priority__w15
+  gen_n_req_request_priority__w16#[37..=39] = _mux_10
+  mut _mux_11:u5 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { request#[0..=4] } else { gen_n_req_request_high__w1#[0..=4] }
+  mut gen_n_req_request_priority__w17 = gen_n_req_request_priority__w16
+  gen_n_req_request_priority__w17#[40..=44] = _mux_11
+  mut _mux_12:u2 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { gen_n_req_request_high__w1#[6..=7] } else { 0 }
+  mut gen_n_req_request_priority__w18 = gen_n_req_request_priority__w17
+  gen_n_req_request_priority__w18#[46..=47] = _mux_12
+  mut _mux_13:u6 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { request#[0..=5] } else { gen_n_req_request_high__w1#[0..=5] }
+  mut gen_n_req_request_priority__w19 = gen_n_req_request_priority__w18
+  gen_n_req_request_priority__w19#[48..=53] = _mux_13
+  mut _mux_14:u1 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { (gen_n_req_request_high__w1 >> 7) & 1 } else { 0 }
+  mut gen_n_req_request_priority__w20 = gen_n_req_request_priority__w19
+  gen_n_req_request_priority__w20#[55] = _mux_14 & 1
+  const t117 = not (gen_n_req_request_priority__w20#[0..=7] != 0)
+  mut `can_grant__bpo.e0` = unsigned(t117)
+  const t120 = not (gen_n_req_request_priority__w20#[8..=15] != 0)
+  mut `can_grant__bpo.e1` = unsigned(t120)
+  const t123 = not (gen_n_req_request_priority__w20#[16..=23] != 0)
+  mut `can_grant__bpo.e2` = unsigned(t123)
+  const t126 = not (gen_n_req_request_priority__w20#[24..=31] != 0)
+  mut `can_grant__bpo.e3` = unsigned(t126)
+  const t129 = not (gen_n_req_request_priority__w20#[32..=39] != 0)
+  mut `can_grant__bpo.e4` = unsigned(t129)
+  const t132 = not (gen_n_req_request_priority__w20#[40..=47] != 0)
+  mut `can_grant__bpo.e5` = unsigned(t132)
+  const t135 = not (gen_n_req_request_priority__w20#[48..=55] != 0)
+  mut `can_grant__bpo.e6` = unsigned(t135)
+  const t138 = not (gen_n_req_request_priority__w20#[56..=63] != 0)
+  mut `can_grant__bpo.e7` = unsigned(t138)
+  grant = request & ((`can_grant__bpo.e7` << 7) | (`can_grant__bpo.e6` << 6) | (`can_grant__bpo.e5` << 5) | (`can_grant__bpo.e4` << 4) | (`can_grant__bpo.e3` << 3) | (`can_grant__bpo.e2` << 2) | (`can_grant__bpo.e1` << 1) | `can_grant__bpo.e0`)
+  can_grant.e7 = `can_grant__bpo.e7`
+  can_grant.e6 = `can_grant__bpo.e6`
+  can_grant.e5 = `can_grant__bpo.e5`
+  can_grant.e4 = `can_grant__bpo.e4`
+  can_grant.e3 = `can_grant__bpo.e3`
+  can_grant.e2 = `can_grant__bpo.e2`
+  can_grant.e1 = `can_grant__bpo.e1`
+  can_grant.e0 = `can_grant__bpo.e0`
+}

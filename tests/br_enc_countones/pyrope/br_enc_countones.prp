@@ -1,0 +1,67 @@
+pub comb br_enc_countones::[timecheck=false](`in`:u32) -> (count:u6) {
+  const count__w12 = (((((((((((0 + (`in` & 1))#[0..=5] + ((`in` >> 1) & 1))#[0..=5] + ((`in` >> 2) & 1))#[0..=5] + ((`in` >> 3) & 1))#[0..=5] + ((`in` >> 4) & 1))#[0..=5] + ((`in` >> 5) & 1))#[0..=5] + ((`in` >> 6) & 1))#[0..=5] + ((`in` >> 7) & 1))#[0..=5] + ((`in` >> 8) & 1))#[0..=5] + ((`in` >> 9) & 1))#[0..=5] + ((`in` >> 10) & 1))#[0..=5]
+  const t46 = count__w12 + ((`in` >> 11) & 1)
+  const t47 = t46#[0..=5]
+  const count__w13 = t47
+  const t50 = count__w13 + ((`in` >> 12) & 1)
+  const t51 = t50#[0..=5]
+  const count__w14 = t51
+  const t54 = count__w14 + ((`in` >> 13) & 1)
+  const t55 = t54#[0..=5]
+  const count__w15 = t55
+  const t58 = count__w15 + ((`in` >> 14) & 1)
+  const t59 = t58#[0..=5]
+  const count__w16 = t59
+  const t62 = count__w16 + ((`in` >> 15) & 1)
+  const t63 = t62#[0..=5]
+  const count__w17 = t63
+  const t66 = count__w17 + ((`in` >> 16) & 1)
+  const t67 = t66#[0..=5]
+  const count__w18 = t67
+  const t70 = count__w18 + ((`in` >> 17) & 1)
+  const t71 = t70#[0..=5]
+  const count__w19 = t71
+  const t74 = count__w19 + ((`in` >> 18) & 1)
+  const t75 = t74#[0..=5]
+  const count__w20 = t75
+  const t78 = count__w20 + ((`in` >> 19) & 1)
+  const t79 = t78#[0..=5]
+  const count__w21 = t79
+  const t82 = count__w21 + ((`in` >> 20) & 1)
+  const t83 = t82#[0..=5]
+  const count__w22 = t83
+  const t86 = count__w22 + ((`in` >> 21) & 1)
+  const t87 = t86#[0..=5]
+  const count__w23 = t87
+  const t90 = count__w23 + ((`in` >> 22) & 1)
+  const t91 = t90#[0..=5]
+  const count__w24 = t91
+  const t94 = count__w24 + ((`in` >> 23) & 1)
+  const t95 = t94#[0..=5]
+  const count__w25 = t95
+  const t98 = count__w25 + ((`in` >> 24) & 1)
+  const t99 = t98#[0..=5]
+  const count__w26 = t99
+  const t102 = count__w26 + ((`in` >> 25) & 1)
+  const t103 = t102#[0..=5]
+  const count__w27 = t103
+  const t106 = count__w27 + ((`in` >> 26) & 1)
+  const t107 = t106#[0..=5]
+  const count__w28 = t107
+  const t110 = count__w28 + ((`in` >> 27) & 1)
+  const t111 = t110#[0..=5]
+  const count__w29 = t111
+  const t114 = count__w29 + ((`in` >> 28) & 1)
+  const t115 = t114#[0..=5]
+  const count__w30 = t115
+  const t118 = count__w30 + ((`in` >> 29) & 1)
+  const t119 = t118#[0..=5]
+  const count__w31 = t119
+  const t122 = count__w31 + ((`in` >> 30) & 1)
+  const t123 = t122#[0..=5]
+  const count__w32 = t123
+  const t126 = count__w32 + ((`in` >> 31) & 1)
+  const t127 = t126#[0..=5]
+  const count__w33 = t127
+  count = count__w33
+}

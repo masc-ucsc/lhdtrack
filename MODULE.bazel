@@ -1,0 +1,83 @@
+# lhdtrack -- daily QoR regression for LiveHD.
+#
+# TOOLING POLICY: bazel-native, no Docker. Every tool in the measured path is
+# built from source at a pin recorded here, so wall-clock and peak-RSS numbers
+# are real on both macOS and Linux and nothing is measured through emulation.
+#
+# The runner NEVER resolves a tool from PATH. `bazel run //:sync-toolchain`
+# stages binaries + Liberty into var/toolchain/ together with a toolchain.json
+# carrying every version string; src/lhdtrack/toolchain.py reads only that file.
+# A stray Homebrew yosys must not be able to silently redefine a baseline.
+module(
+    name = "lhdtrack",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_shell", version = "0.8.0")
+bazel_dep(name = "rules_python", version = "1.9.0")
+bazel_dep(name = "bazel_skylib", version = "1.9.2")
+bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+
+# ---------------------------------------------------------------- livehd ----
+# Brings `lhd` AND OpenTimer (livehd pins masc-ucsc/OpenTimer). livehd is
+# self-contained as a dependency: iassert/hlop/hhds are fetched by use_repo_rule
+# pins inside its own MODULE.bazel.
+bazel_dep(name = "livehd", version = "0.2.0")
+
+local_path_override(
+    module_name = "livehd",
+    path = "../livehd",
+)
+# Once ../livehd is pushed, swap the override above for a pin:
+# git_override(
+#     module_name = "livehd",
+#     commit = "<pushed commit>",
+#     remote = "https://github.com/masc-ucsc/livehd.git",
+# )
+
+# ------------------------------------------------- reference synthesis ------
+# The baseline flow, from the Bazel Central Registry. livehd links yosys and abc
+# as LIBRARIES into lhd rather than exposing standalone binaries, so lhdtrack
+# pins its own -- which is correct anyway: the baseline must be a stock upstream
+# tool at a stated version, not whatever livehd happens to vendor.
+bazel_dep(name = "yosys", version = "0.64")
+bazel_dep(name = "abc", version = "0.64-yosyshq.bcr.2")
+
+# ------------------------------------------------ reference simulation ------
+bazel_dep(name = "verilator", version = "5.046.bcr.5")
+
+# ---------------------------------------------------------------- OpenSTA ---
+# NOT in the BCR. Built from source; it is the awkward pin of the five (TCL,
+# CUDD, Eigen, SWIG). See packages/opensta.BUILD.
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "opensta",
+    build_file = "//packages:opensta.BUILD",
+    # Pinned release. Refresh with `tools/pin_tech.py --update opensta`, which
+    # rewrites the sha256 below from the archive it actually downloads.
+    sha256 = "",  # TODO(pin): tools/pin_tech.py --update opensta
+    strip_prefix = "OpenSTA-2.7.0",
+    urls = ["https://github.com/parallaxsw/OpenSTA/archive/refs/tags/v2.7.0.tar.gz"],
+)
+
+# ---------------------------------------------------------------- Liberty ---
+# ONE version per technology, both applied to every test. These are real Liberty
+# files -- circt-synth-tracker's "ASAP7"/"sky130" are mockturtle genlib
+# abstractions embedded in its AIG judge, which OpenSTA cannot read and which
+# carry no real area or delay.
+http_archive(
+    name = "sky130_fd_sc_hd",
+    build_file = "//tech/sky130:sky130.BUILD",
+    sha256 = "",  # TODO(pin): tools/pin_tech.py --update sky130
+    strip_prefix = "skywater-pdk-libs-sky130_fd_sc_hd-b2540e39fa8730c2b1c2b1f9b3b1b5b1b2b1b2b1",
+    urls = ["https://github.com/google/skywater-pdk-libs-sky130_fd_sc_hd/archive/b2540e39fa8730c2b1c2b1f9b3b1b5b1b2b1b2b1.tar.gz"],
+)
+
+http_archive(
+    name = "asap7sc7p5t",
+    build_file = "//tech/asap7:asap7.BUILD",
+    sha256 = "",  # TODO(pin): tools/pin_tech.py --update asap7
+    strip_prefix = "asap7-master",
+    urls = ["https://github.com/The-OpenROAD-Project/asap7/archive/refs/heads/master.tar.gz"],
+)

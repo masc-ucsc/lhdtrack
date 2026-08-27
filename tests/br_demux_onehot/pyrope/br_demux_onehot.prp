@@ -1,0 +1,6 @@
+pub comb br_demux_onehot::[timecheck=false](select:u16, in_valid:u1, `in`:u32) -> (out_valid:u16, out:u512) {
+  mut _rep_1:u16 = if (in_valid & 1) != 0 { 0xffff } else { 0 }
+  const t7 = `in`
+  out_valid = _rep_1 & select
+  out = t7 | (t7 << 32) | (t7 << 0x40) | (t7 << 0x60) | (t7 << 0x80) | (t7 << 0xa0) | (t7 << 0xc0) | (t7 << 0xe0) | (t7 << 0x100) | (t7 << 0x120) | (t7 << 0x140) | (t7 << 0x160) | (t7 << 0x180) | (t7 << 0x1a0) | (t7 << 0x1c0) | (t7 << 0x1e0)
+}

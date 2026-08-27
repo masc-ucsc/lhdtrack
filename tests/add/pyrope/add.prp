@@ -1,0 +1,17 @@
+// add -- the Pyrope equivalent of verilog/add.sv.
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// The width is spelled as a sized type rather than carried in a constant, so
+// this module is monomorphic and design.toml pins the matching single config
+// (BW = 8). Keeping it monomorphic also keeps the emitted netlist name stable
+// across runs, which the ABC cache keys on.
+
+// `wrap` because the sum of two 8-bit values needs 9 bits and the Verilog
+// truncates. An unannotated narrowing assignment is a compile error in Pyrope,
+// which makes explicit exactly the overflow the SystemVerilog performs silently.
+pub comb add(a:u8, b:u8) -> (result:u8) {
+  wrap result = a + b
+}

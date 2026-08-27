@@ -1,0 +1,13 @@
+const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
+const br_flow_arb_core_t = import("br_flow_arb_core.br_flow_arb_core")
+
+pub mod br_flow_arb_rr::[timecheck=false](clk:u1, rst:u1, push_valid:u16, pop_ready:u1) -> (push_ready:u16@[], pop_valid_unstable:u1@[]) {
+  wire request:u16
+  wire enable_priority_update:u1
+  mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request)
+  mut br_flow_arb_core = br_flow_arb_core_t::[name=br_flow_arb_core](clk = clk, rst = rst, can_grant = (br_arb_rr_internal.can_grant.e15 << 15) | (br_arb_rr_internal.can_grant.e14 << 14) | (br_arb_rr_internal.can_grant.e13 << 13) | (br_arb_rr_internal.can_grant.e12 << 12) | (br_arb_rr_internal.can_grant.e11 << 11) | (br_arb_rr_internal.can_grant.e10 << 10) | (br_arb_rr_internal.can_grant.e9 << 9) | (br_arb_rr_internal.can_grant.e8 << 8) | (br_arb_rr_internal.can_grant.e7 << 7) | (br_arb_rr_internal.can_grant.e6 << 6) | (br_arb_rr_internal.can_grant.e5 << 5) | (br_arb_rr_internal.can_grant.e4 << 4) | (br_arb_rr_internal.can_grant.e3 << 3) | (br_arb_rr_internal.can_grant.e2 << 2) | (br_arb_rr_internal.can_grant.e1 << 1) | br_arb_rr_internal.can_grant.e0, grant = br_arb_rr_internal.grant, push_valid = push_valid, pop_ready = pop_ready)
+  request = br_flow_arb_core.request
+  enable_priority_update = br_flow_arb_core.enable_priority_update
+  push_ready = br_flow_arb_core.push_ready
+  pop_valid_unstable = br_flow_arb_core.pop_valid_unstable
+}

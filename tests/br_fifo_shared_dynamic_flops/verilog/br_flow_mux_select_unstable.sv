@@ -1,0 +1,177 @@
+// SPDX-License-Identifier: Apache-2.0
+
+
+// Bedrock-RTL Flow Mux with Select (Unstable)
+//
+// A dataflow pipeline mux with explicit binary select.
+// Uses the AMBA-inspired ready-valid handshake protocol
+// for synchronizing pipeline stages and stalling when
+// encountering backpressure hazards.
+//
+// Data progresses from one stage to another when both
+// the corresponding ready signal and valid signal are
+// both 1 on the same cycle. Otherwise, the stage is stalled.
+//
+// This is a purely combinational module with 0 delay.
+//
+// It is called "unstable" because the pop interface is not guaranteed
+// to follow the ready-valid stability convention, because the select
+// input could change while the selected push interface is backpressured.
+// If the select signal is actually stable (meaning that the select will not
+// be changed while the selected push flow is backpressured), then the pop valid
+// will be stable.
+
+`include "br_asserts_internal.svh"
+`include "br_unused.svh"
+
+module br_flow_mux_select_unstable #(
+    // Must be at least 1
+    parameter int NumFlows = 1,
+    // Must be at least 1
+    parameter int Width = 1,
+    // If 1, cover that the push side experiences backpressure.
+    // If 0, disable backpressure coverage. By default, this also
+    // asserts that backpressure is impossible.
+    parameter bit EnableCoverPushBackpressure = 1,
+    // If 1, assert that push_valid is stable when backpressured.
+    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    // If 1, assert that push_data is stable when backpressured.
+    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    // If 1, assert that select will not change when the selected push flow is backpressured.
+    // Otherwise, cover that select can be unstable.
+    parameter bit EnableAssertSelectStability = 0,
+    // If 1, assert that push_data is always known (not X) when push_valid is asserted.
+    parameter bit EnableAssertPushDataKnown = 1,
+    // If 1, then assert there are no valid bits asserted at the end of the test.
+    parameter bit EnableAssertFinalNotValid = 1,
+    // If 1, assert that push-side backpressure is impossible.
+    // Can only be enabled if EnableCoverPushBackpressure is disabled.
+    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam int SelectWidth = br_math::clamped_clog2(NumFlows)
+
+) (
+    // Used only for assertions
+    // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
+    input logic clk,
+    // Synchronous active-high reset. Used only for assertions.
+    // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
+    input logic rst,
+
+    input logic [SelectWidth-1:0] select,
+
+    output logic [NumFlows-1:0]            push_ready,
+    input  logic [NumFlows-1:0]            push_valid,
+    input  logic [NumFlows-1:0][Width-1:0] push_data,
+
+    input  logic             pop_ready,
+    // Unstable if select is changed while selected push flow is valid but not
+    // ready. This will be stable if EnableAssertSelectStability is 1.
+    // If pop stability is desired when push valid/select stability cannot be guaranteed,
+    // use br_flow_mux_select instead.
+    output logic             pop_valid_unstable,
+    output logic [Width-1:0] pop_data_unstable
+);
+
+  //------------------------------------------
+  // Integration checks
+  //------------------------------------------
+  `BR_ASSERT_STATIC(legal_assert_no_push_backpressure_a,
+                    !(EnableAssertNoPushBackpressure && EnableCoverPushBackpressure))
+  `BR_ASSERT_STATIC(num_flows_must_be_at_least_one_a, NumFlows >= 1)
+  `BR_ASSERT_STATIC(width_gte_1_a, Width >= 1)
+  `BR_ASSERT_STATIC(select_only_stable_if_valid_stable_a,
+                    EnableAssertPushValidStability || !EnableAssertSelectStability)
+
+  `BR_ASSERT_INTG(select_in_range_a, select < NumFlows)
+
+  br_flow_checks_valid_data_intg #(
+      .NumFlows(NumFlows),
+      .Width(Width),
+      .EnableCoverBackpressure(EnableCoverPushBackpressure),
+      .EnableAssertNoBackpressure(EnableAssertNoPushBackpressure),
+      .EnableAssertValidStability(EnableAssertPushValidStability),
+      .EnableAssertDataStability(EnableAssertPushDataStability),
+      .EnableAssertDataKnown(EnableAssertPushDataKnown),
+      .EnableAssertFinalNotValid(EnableAssertFinalNotValid)
+  ) br_flow_checks_valid_data_intg (
+      .clk,
+      .rst,
+      .ready(push_ready),
+      .valid(push_valid),
+      .data (push_data)
+  );
+
+  if (EnableCoverPushBackpressure && EnableAssertPushValidStability) begin : gen_select_checks
+    if (EnableAssertSelectStability) begin : gen_stable_select
+      `BR_ASSERT_INTG(select_stable_a,
+                      push_valid[select] && !push_ready[select] |=> $stable(select))
+    end else begin : gen_unstable_select
+      `BR_COVER_INTG(select_unstable_c,
+                     push_valid[select] && !push_ready[select] ##1 !$stable(select))
+    end
+  end
+
+  //------------------------------------------
+  // Implementation
+  //------------------------------------------
+  if (NumFlows == 1) begin : gen_single_flow
+    assign push_ready         = pop_ready;
+    assign pop_valid_unstable = push_valid;
+    assign pop_data_unstable  = push_data;
+    `BR_UNUSED(select)
+
+  end else begin : gen_multi_flow
+    // Lint waivers are safe because we assert select is always in range.
+    // ri lint_check_waive VAR_SHIFT TRUNC_LSHIFT
+    assign push_ready = pop_ready << select;
+    // ri lint_check_waive VAR_INDEX_READ
+    assign pop_valid_unstable = push_valid[select];
+    // ri lint_check_waive VAR_INDEX_READ
+    assign pop_data_unstable = push_data[select];
+  end
+
+  //------------------------------------------
+  // Implementation checks
+  //------------------------------------------
+  if (EnableAssertPushValidStability && !EnableAssertSelectStability)
+  begin : gen_stable_push_valid_unstable_select
+    `BR_ASSERT_IMPL(
+        pop_valid_instability_caused_by_select_a,
+        ##1 !pop_ready && $stable(pop_ready) && $fell(pop_valid_unstable) |-> !$stable(select))
+    if (EnableAssertPushDataStability) begin : gen_stable_push_data
+      `BR_ASSERT_IMPL(pop_data_instability_caused_by_select_a,
+                      ##1 !pop_ready && pop_valid_unstable && $stable(
+                          pop_ready
+                      ) && $stable(
+                          pop_valid_unstable
+                      ) && !$stable(
+                          pop_data_unstable
+                      ) |-> !$stable(
+                          select
+                      ))
+    end
+  end
+
+  // pop_valid could be unstable if push_valid or select is unstable.
+  localparam bit EnableAssertPopValidStability =
+      EnableAssertPushValidStability && EnableAssertSelectStability;
+  localparam bit EnableAssertPopDataStability =
+      EnableAssertPopValidStability && EnableAssertPushDataStability;
+
+  br_flow_checks_valid_data_impl #(
+      .NumFlows(1),
+      .Width(Width),
+      .EnableCoverBackpressure(EnableCoverPushBackpressure),
+      .EnableAssertNoBackpressure(EnableAssertNoPushBackpressure),
+      .EnableAssertValidStability(EnableAssertPopValidStability),
+      .EnableAssertDataStability(EnableAssertPopDataStability),
+      .EnableAssertFinalNotValid(EnableAssertFinalNotValid)
+  ) br_flow_checks_valid_data_impl (
+      .clk,
+      .rst,
+      .ready(pop_ready),
+      .valid(pop_valid_unstable),
+      .data (pop_data_unstable)
+  );
+
+endmodule : br_flow_mux_select_unstable

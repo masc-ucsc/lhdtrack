@@ -1,0 +1,15 @@
+pub comb br_shift_rotate::[timecheck=false](`in`:u4, right:u1, rotate:u3) -> (out:u4) {
+  mut stages:u12 = 0
+  stages = 0sb?
+  const real_rotate__w1 = (rotate % 4)#[0..=1]
+  mut _mux_1:u2 = if real_rotate__w1 == 0 { 0 } else { (4 - real_rotate__w1)#[0..=31]#[0..=2]#[0..=1] }
+  mut _mux_2:u2 = if right != 0 { _mux_1 } else { real_rotate__w1 }
+  const left_rotate__w1 = _mux_2
+  mut stages__w1 = stages
+  stages__w1#[0..=3] = `in`
+  mut _mux_3:u4 = if (left_rotate__w1 & 1) != 0 { (stages__w1#[0..=3]#[0..=2] << 1) | ((stages__w1#[0..=3] >> 3) & 1) } else { stages__w1#[0..=3] }
+  mut stages__w2 = stages__w1
+  stages__w2#[4..=7] = _mux_3
+  mut _mux_4:u4 = if ((left_rotate__w1 >> 1) & 1) != 0 { (stages__w2#[4..=7]#[0..=1] << 2) | stages__w2#[4..=7]#[2..=3] } else { stages__w2#[4..=7] }
+  out = stages__w1#[8..=11]
+}

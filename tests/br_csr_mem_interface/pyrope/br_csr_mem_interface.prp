@@ -1,0 +1,64 @@
+const br_csr_checks_intg = import("br_csr_checks_intg.br_csr_checks_intg")
+const br_csr_request_reg = import("br_csr_request_reg.br_csr_request_reg")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+
+pub mod br_csr_mem_interface::[timecheck=false](clk:u1, rst:u1, req_valid:u1, req_write:u1, req_addr:u16, req_wdata:u32, req_wstrb:u4, req_privileged:u1, req_secure:u1, req_abort:u1, mem_access_ready:u1, mem_read_data_valid:u1, mem_read_data:u32, mem_read_data_err:u1) -> (resp_valid:u1@[], resp_rdata:u32@[], resp_slverr:u1@[], resp_decerr:u1@[], mem_access_valid:u1@[], mem_access_addr:u4@[], mem_access_wr_en:u1@[], mem_access_wr_data:u32@[], mem_access_wr_strb:u4@[]) {
+  reg bypass_resp_valid:u1
+  reg write_resp_valid:u1
+  reg bypass_resp_error:u1
+  mut req_word_strb:u1 = 0
+  mut req_word_partial_strb:u1 = 0
+  req_word_strb = 0ub?
+  req_word_partial_strb = 0ub?
+  mut req_empty_strb = 0ub?
+  resp_valid = 0ub?
+  const req_error_alignment__w1 = unsigned(req_addr#[0..=1] != 0)
+  mut req_word_strb__w1 = req_word_strb
+  req_word_strb__w1#[0] = unsigned(req_wstrb != 0) & 1
+  mut req_word_partial_strb__w1 = req_word_partial_strb
+  req_word_partial_strb__w1#[0] = unsigned((req_wstrb != 0) and (not (req_wstrb == 15))) & 1
+  req_empty_strb = if (req_word_strb__w1 & 1) != 0 { 0 } else { 1 }
+  br_misc_unused::[name=br_misc_unused_req_privileged](`in` = req_privileged)
+  br_misc_unused::[name=br_misc_unused_req_secure](`in` = req_secure)
+  br_misc_unused_p1::[name=br_misc_unused_req_addr_msbs](`in` = req_addr#[6..=15])
+  mut _mux_6:u1 = if req_write != 0 { unsigned((req_error_alignment__w1 != 0) or (unsigned(req_word_partial_strb__w1 != 0) != 0) or false) & 1 } else { req_error_alignment__w1 & 1 }
+  const req_error__w1 = _mux_6
+  const req_bypass__w1 = unsigned((req_error__w1 != 0) or ((req_write != 0) and (req_empty_strb != 0)))
+  mut br_mux_onehot_write_data = br_mux_onehot::[name=br_mux_onehot_write_data](select = req_word_strb__w1, `in` = req_wdata)
+  mut br_mux_onehot_write_strb = br_mux_onehot_p1::[name=br_mux_onehot_write_strb](select = req_word_strb__w1, `in` = req_wstrb)
+  mut br_csr_request_reg_inst = br_csr_request_reg::[name=br_csr_request_reg_inst](clk = clk, rst = rst, push_valid = unsigned((req_valid != 0) and (req_bypass__w1 == 0)), push_abort = req_abort, push_req = (req_addr#[2..=5] << 37) | (br_mux_onehot_write_data#[0..=31] << 5) | (br_mux_onehot_write_strb#[0..=3] << 1) | (req_write & 1), pop_ready = mem_access_ready)
+  const mem_access_wr_en__w1 = br_csr_request_reg_inst.pop_req & 1
+  const read_resp_valid__w1 = mem_read_data_valid
+  if rst != 0 {
+    write_resp_valid = 0
+  } else {
+    write_resp_valid = unsigned((br_csr_request_reg_inst.pop_valid != 0) and (mem_access_ready != 0) and (mem_access_wr_en__w1 != 0))
+  }
+  if rst != 0 {
+    bypass_resp_valid = 0
+  } else {
+    bypass_resp_valid = unsigned((req_valid != 0) and (req_bypass__w1 != 0))
+  }
+  if rst != 0 {
+    bypass_resp_error = 0
+  } elif (req_valid != 0) and (req_bypass__w1 != 0) {
+    bypass_resp_error = req_error__w1
+  }
+  mut _mux_12:u1 = if read_resp_valid__w1 != 0 { mem_read_data_err & 1 } else { 0 }
+  mut _mux_13:u1 = if bypass_resp_valid != 0 { bypass_resp_error & 1 } else { _mux_12 & 1 }
+  const resp_valid__w1 = unsigned((bypass_resp_valid != 0) or (read_resp_valid__w1 != 0) or (write_resp_valid != 0))
+  mut _mux_14:u32 = if read_resp_valid__w1 != 0 { mem_read_data } else { 0 }
+  br_csr_checks_intg::[name=br_csr_checks_intg_inst](clk = clk, rst = rst, req_valid = req_valid, req_write = req_write, req_addr = req_addr#[0..=5], req_wdata = req_wdata, req_wstrb = req_wstrb, req_secure = req_secure, req_privileged = req_privileged, req_abort = req_abort, resp_valid = resp_valid__w1)
+  resp_valid = resp_valid__w1
+  resp_rdata = _mux_14
+  resp_slverr = _mux_13
+  resp_decerr = 0
+  mem_access_valid = br_csr_request_reg_inst.pop_valid
+  mem_access_addr = (br_csr_request_reg_inst.pop_req >> 37)#[0..=3]
+  mem_access_wr_en = mem_access_wr_en__w1
+  mem_access_wr_data = (br_csr_request_reg_inst.pop_req >> 5)#[0..=31]
+  mem_access_wr_strb = (br_csr_request_reg_inst.pop_req >> 1)#[0..=3]
+}

@@ -1,0 +1,40 @@
+# br_ecc_sed_decoder -- see README.md for provenance.
+[design]
+name  = "br_ecc_sed_decoder"
+top   = "br_ecc_sed_decoder"
+kind  = "sequential"          # combinational | sequential
+suite = "ecc"         # groups the report; NOT a path component
+
+[provenance]
+upstream = "bedrock-rtl"             # e.g. "bedrock-rtl"
+rev      = "0a990f222cd970fdaec42c6e0a4e372cf0e1400f"             # the exact commit this was taken from
+path     = "ecc/rtl/br_ecc_sed_decoder.sv"             # the upstream path of the source
+license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
+
+[status]
+# none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
+# measures FRONT ENDS, not languages, so it never enters a headline geomean.
+pyrope = "auto"
+# none | proven | failed | unsupported -- until `proven`, a QoR win might just
+# be a different circuit.
+lec    = "proven"
+
+# One elaborated parameter set per entry. Benchmark id is `br_ecc_sed_decoder#<id>`.
+[[config]]
+id     = "dw32_ri0_ro0"
+params = { DataWidth = 32, RegisterInputs = 0, RegisterOutputs = 0 }
+
+[synth]
+flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
+
+[sim]
+flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
+# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# simulator speedup: a benchmark that has outrun its cycle count reports
+# process startup, not the simulator.
+cycles = 1000000
+marker = "LHDTRACK-DONE"
+
+[lec]
+# lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

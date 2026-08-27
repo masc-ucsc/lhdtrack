@@ -1,0 +1,13 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+
+pub mod br_ecc_sed_encoder::[timecheck=false](clk:u1, rst:u1, data_valid:u1, data:u32) -> (enc_valid:u1@[], enc_codeword:u33@[]) {
+  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk = clk, rst = rst, in_valid = data_valid, `in` = data)
+  const t4 = br_delay_valid_inputs.out ^ (br_delay_valid_inputs.out >> 16)
+  const t6 = t4 ^ (t4 >> 8)
+  const t8 = t6 ^ (t6 >> 4)
+  const t10 = t8 ^ (t8 >> 2)
+  mut br_delay_valid_outputs = br_delay_valid_p1::[name=br_delay_valid_outputs](clk = clk, rst = rst, in_valid = br_delay_valid_inputs.out_valid, `in` = ((((t10 ^ (t10 >> 1)) & 1) & 1) << 32) | br_delay_valid_inputs.out#[0..=31])
+  enc_valid = br_delay_valid_outputs.out_valid
+  enc_codeword = br_delay_valid_outputs.out
+}

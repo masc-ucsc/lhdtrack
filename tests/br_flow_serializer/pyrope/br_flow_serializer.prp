@@ -1,0 +1,26 @@
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_mux_bin_t = import("br_mux_bin.br_mux_bin")
+
+pub mod br_flow_serializer::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u64, push_last:u1, push_last_dont_care_count:u3, push_metadata:u8, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u8@[], pop_last:u1@[], pop_metadata:u8@[]) {
+  wire gen_sr_gt_1_pop_flit_id:u3
+  mut _mux_1:u3 = 0
+  _mux_1 = gen_sr_gt_1_pop_flit_id
+  mut br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = _mux_1, `in` = push_data)
+  const pop_valid__w1 = push_valid
+  mut _mux_2:u3 = if push_last != 0 { push_last_dont_care_count } else { 0 }
+  const gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 = (gen_sr_gt_1_pop_flit_id + _mux_2)#[0..=2]
+  const pop_last__w1 = unsigned((push_last != 0) and (gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 == 7))
+  const pop_metadata__w1 = push_metadata
+  const push_ready__w1 = unsigned((pop_ready != 0) and (gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 == 7))
+  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  mut br_counter_incr_pop_flit_id = br_counter_incr::[name=br_counter_incr_pop_flit_id](clk = clk, rst = rst, reinit = unsigned((pop_ready != 0) and (pop_valid__w1 != 0) and (pop_last__w1 != 0)), initial_value = 0, incr_valid = unsigned((pop_ready != 0) and (pop_valid__w1 != 0) and (pop_last__w1 == 0)), incr = 1)
+  gen_sr_gt_1_pop_flit_id = br_counter_incr_pop_flit_id.value
+  push_ready = push_ready__w1
+  pop_valid = pop_valid__w1
+  pop_data = br_mux_bin.out
+  pop_last = pop_last__w1
+  pop_metadata = pop_metadata__w1
+}

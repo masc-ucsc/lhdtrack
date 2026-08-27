@@ -1,0 +1,148 @@
+const br_delay = import("br_delay.br_delay")
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
+
+pub mod br_csr_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_onehot:u4, upstream_req_valid:u1, upstream_req_write:u1, upstream_req_addr:u16, upstream_req_wdata:u32, upstream_req_wstrb:u4, upstream_req_privileged:u1, upstream_req_secure:u1, upstream_req_abort:u1, downstream_resp_valid:(e3:u1, e2:u1, e1:u1, e0:u1), downstream_resp_rdata:u128, downstream_resp_decerr:(e3:u1, e2:u1, e1:u1, e0:u1), downstream_resp_slverr:(e3:u1, e2:u1, e1:u1, e0:u1)) -> (upstream_resp_valid:u1@[], upstream_resp_rdata:u32@[], upstream_resp_decerr:u1@[], upstream_resp_slverr:u1@[], downstream_req_valid:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_req_write:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_req_addr:u64@[], downstream_req_wdata:u128@[], downstream_req_wstrb:u16@[], downstream_req_privileged:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_req_secure:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_req_abort:(e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  reg decerr_resp_valid:u1
+  mut `decerr_resp.rdata` = 0
+  mut `decerr_resp.decerr` = 0
+  mut `decerr_resp.slverr` = 0
+  mut downstream_resp:u136 = 0
+  mut downstream_resp_valid_int:u4 = 0
+  mut downstream_resp_int:u136 = 0
+  downstream_resp = 0sb?
+  downstream_resp_valid_int = 0sb?
+  downstream_resp_int = 0sb?
+  downstream_req_addr = 0sb?
+  downstream_req_wdata = 0sb?
+  downstream_req_wstrb = 0sb?
+  mut _rep_1:u4 = if (upstream_req_valid & 1) != 0 { 15 } else { 0 }
+  const downstream_req_valid_int__w1 = select_onehot & _rep_1
+  mut _rep_2:u4 = if (upstream_req_write & 1) != 0 { 15 } else { 0 }
+  const downstream_req_write_int__w1 = _rep_2
+  const t36 = upstream_req_addr
+  const downstream_req_addr_int__w1 = t36 | (t36 << 16) | (t36 << 32) | (t36 << 48)
+  const t44 = upstream_req_wdata
+  const downstream_req_wdata_int__w1 = t44 | (t44 << 32) | (t44 << 0x40) | (t44 << 0x60)
+  const t52 = upstream_req_wstrb
+  const downstream_req_wstrb_int__w1 = t52 | (t52 << 4) | (t52 << 8) | (t52 << 12)
+  mut _rep_3:u4 = if (upstream_req_privileged & 1) != 0 { 15 } else { 0 }
+  const downstream_req_privileged_int__w1 = _rep_3
+  mut _rep_4:u4 = if (upstream_req_secure & 1) != 0 { 15 } else { 0 }
+  const downstream_req_secure_int__w1 = _rep_4
+  mut _rep_5:u4 = if (upstream_req_abort & 1) != 0 { 15 } else { 0 }
+  const downstream_req_abort_int__w1 = _rep_5
+  mut br_delay_valid_req = br_delay_valid::[name=br_delay_valid_req](clk = clk, rst = rst, in_valid = downstream_req_valid_int__w1 & 1, `in` = ((downstream_req_write_int__w1 & 1) << 54) | (downstream_req_addr_int__w1#[0..=15] << 38) | (downstream_req_wdata_int__w1#[0..=31] << 6) | (downstream_req_wstrb_int__w1#[0..=3] << 2) | ((downstream_req_privileged_int__w1 & 1) << 1) | (downstream_req_secure_int__w1 & 1))
+  mut `downstream_req_valid__bpo.e0` = br_delay_valid_req["out_valid"]
+  mut `downstream_req_secure__bpo.e0` = br_delay_valid_req["out"] & 1
+  mut `downstream_req_privileged__bpo.e0` = (br_delay_valid_req["out"] >> 1) & 1
+  mut downstream_req_wstrb__w1 = downstream_req_wstrb
+  downstream_req_wstrb__w1#[0..=3] = (br_delay_valid_req["out"] >> 2)#[0..=3]
+  mut downstream_req_wdata__w1 = downstream_req_wdata
+  downstream_req_wdata__w1#[0..=31] = (br_delay_valid_req["out"] >> 6)#[0..=31]
+  mut downstream_req_addr__w1 = downstream_req_addr
+  downstream_req_addr__w1#[0..=15] = (br_delay_valid_req["out"] >> 38)#[0..=15]
+  mut `downstream_req_write__bpo.e0` = (br_delay_valid_req["out"] >> 54) & 1
+  mut br_delay_req_abort = br_delay::[name=br_delay_req_abort](clk = clk, rst = rst, `in` = downstream_req_abort_int__w1 & 1)
+  mut `downstream_req_abort__bpo.e0` = br_delay_req_abort["out"]
+  br_delay_valid_req = br_delay_valid::[name=br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 1) & 1, `in` = (((downstream_req_write_int__w1 >> 1) & 1) << 54) | (downstream_req_addr_int__w1#[16..=31] << 38) | (downstream_req_wdata_int__w1#[32..=63] << 6) | (downstream_req_wstrb_int__w1#[4..=7] << 2) | (((downstream_req_privileged_int__w1 >> 1) & 1) << 1) | ((downstream_req_secure_int__w1 >> 1) & 1))
+  mut `downstream_req_valid__bpo.e1` = br_delay_valid_req["out_valid"]
+  mut `downstream_req_secure__bpo.e1` = br_delay_valid_req["out"] & 1
+  mut `downstream_req_privileged__bpo.e1` = (br_delay_valid_req["out"] >> 1) & 1
+  mut downstream_req_wstrb__w2 = downstream_req_wstrb__w1
+  downstream_req_wstrb__w2#[4..=7] = (br_delay_valid_req["out"] >> 2)#[0..=3]
+  mut downstream_req_wdata__w2 = downstream_req_wdata__w1
+  downstream_req_wdata__w2#[32..=63] = (br_delay_valid_req["out"] >> 6)#[0..=31]
+  mut downstream_req_addr__w2 = downstream_req_addr__w1
+  downstream_req_addr__w2#[16..=31] = (br_delay_valid_req["out"] >> 38)#[0..=15]
+  mut `downstream_req_write__bpo.e1` = (br_delay_valid_req["out"] >> 54) & 1
+  br_delay_req_abort = br_delay::[name=br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 1) & 1)
+  mut `downstream_req_abort__bpo.e1` = br_delay_req_abort["out"]
+  br_delay_valid_req = br_delay_valid::[name=br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 2) & 1, `in` = (((downstream_req_write_int__w1 >> 2) & 1) << 54) | (downstream_req_addr_int__w1#[32..=47] << 38) | (downstream_req_wdata_int__w1#[64..=95] << 6) | (downstream_req_wstrb_int__w1#[8..=11] << 2) | (((downstream_req_privileged_int__w1 >> 2) & 1) << 1) | ((downstream_req_secure_int__w1 >> 2) & 1))
+  mut `downstream_req_valid__bpo.e2` = br_delay_valid_req["out_valid"]
+  mut `downstream_req_secure__bpo.e2` = br_delay_valid_req["out"] & 1
+  mut `downstream_req_privileged__bpo.e2` = (br_delay_valid_req["out"] >> 1) & 1
+  mut downstream_req_wstrb__w3 = downstream_req_wstrb__w2
+  downstream_req_wstrb__w3#[8..=11] = (br_delay_valid_req["out"] >> 2)#[0..=3]
+  mut downstream_req_wdata__w3 = downstream_req_wdata__w2
+  downstream_req_wdata__w3#[64..=95] = (br_delay_valid_req["out"] >> 6)#[0..=31]
+  mut downstream_req_addr__w3 = downstream_req_addr__w2
+  downstream_req_addr__w3#[32..=47] = (br_delay_valid_req["out"] >> 38)#[0..=15]
+  mut `downstream_req_write__bpo.e2` = (br_delay_valid_req["out"] >> 54) & 1
+  br_delay_req_abort = br_delay::[name=br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 2) & 1)
+  mut `downstream_req_abort__bpo.e2` = br_delay_req_abort["out"]
+  br_delay_valid_req = br_delay_valid::[name=br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 3) & 1, `in` = (((downstream_req_write_int__w1 >> 3) & 1) << 54) | (downstream_req_addr_int__w1#[48..=63] << 38) | (downstream_req_wdata_int__w1#[96..=127] << 6) | (downstream_req_wstrb_int__w1#[12..=15] << 2) | (((downstream_req_privileged_int__w1 >> 3) & 1) << 1) | ((downstream_req_secure_int__w1 >> 3) & 1))
+  mut `downstream_req_valid__bpo.e3` = br_delay_valid_req["out_valid"]
+  mut `downstream_req_secure__bpo.e3` = br_delay_valid_req["out"] & 1
+  mut `downstream_req_privileged__bpo.e3` = (br_delay_valid_req["out"] >> 1) & 1
+  mut downstream_req_wstrb__w4 = downstream_req_wstrb__w3
+  downstream_req_wstrb__w4#[12..=15] = (br_delay_valid_req["out"] >> 2)#[0..=3]
+  mut downstream_req_wdata__w4 = downstream_req_wdata__w3
+  downstream_req_wdata__w4#[96..=127] = (br_delay_valid_req["out"] >> 6)#[0..=31]
+  mut downstream_req_addr__w4 = downstream_req_addr__w3
+  downstream_req_addr__w4#[48..=63] = (br_delay_valid_req["out"] >> 38)#[0..=15]
+  mut `downstream_req_write__bpo.e3` = (br_delay_valid_req["out"] >> 54) & 1
+  br_delay_req_abort = br_delay::[name=br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 3) & 1)
+  mut `downstream_req_abort__bpo.e3` = br_delay_req_abort["out"]
+  decerr_resp_valid = if rst != 0 { 0 } else { unsigned((upstream_req_valid != 0) and (not (select_onehot != 0))) }
+  mut downstream_resp__w1 = downstream_resp
+  downstream_resp__w1#[0..=33] = (downstream_resp_slverr.e0 | (downstream_resp_decerr.e0 << 1) | (downstream_resp_rdata#[0..=31] << 2))#[0..=33]
+  mut downstream_resp__w2 = downstream_resp__w1
+  downstream_resp__w2#[34..=67] = (downstream_resp_slverr.e1 | (downstream_resp_decerr.e1 << 1) | (downstream_resp_rdata#[32..=63] << 2))#[0..=33]
+  mut downstream_resp__w3 = downstream_resp__w2
+  downstream_resp__w3#[68..=101] = (downstream_resp_slverr.e2 | (downstream_resp_decerr.e2 << 1) | (downstream_resp_rdata#[64..=95] << 2))#[0..=33]
+  mut downstream_resp__w4 = downstream_resp__w3
+  downstream_resp__w4#[102..=135] = (downstream_resp_slverr.e3 | (downstream_resp_decerr.e3 << 1) | (downstream_resp_rdata#[96..=127] << 2))#[0..=33]
+  mut br_delay_valid_resp = br_delay_valid_p1::[name=br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e3, `in` = downstream_resp__w4#[102..=135])
+  mut downstream_resp_valid_int__w1 = downstream_resp_valid_int
+  downstream_resp_valid_int__w1#[3] = br_delay_valid_resp["out_valid"] & 1
+  mut downstream_resp_int__w1 = downstream_resp_int
+  downstream_resp_int__w1#[102..=135] = br_delay_valid_resp["out"]#[0..=33]
+  br_delay_valid_resp = br_delay_valid_p1::[name=br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e0, `in` = downstream_resp__w4#[0..=33])
+  mut downstream_resp_valid_int__w2 = downstream_resp_valid_int__w1
+  downstream_resp_valid_int__w2#[0] = br_delay_valid_resp["out_valid"] & 1
+  mut downstream_resp_int__w2 = downstream_resp_int__w1
+  downstream_resp_int__w2#[0..=33] = br_delay_valid_resp["out"]#[0..=33]
+  br_delay_valid_resp = br_delay_valid_p1::[name=br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e1, `in` = downstream_resp__w4#[34..=67])
+  mut downstream_resp_valid_int__w3 = downstream_resp_valid_int__w2
+  downstream_resp_valid_int__w3#[1] = br_delay_valid_resp["out_valid"] & 1
+  mut downstream_resp_int__w3 = downstream_resp_int__w2
+  downstream_resp_int__w3#[34..=67] = br_delay_valid_resp["out"]#[0..=33]
+  br_delay_valid_resp = br_delay_valid_p1::[name=br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e2, `in` = downstream_resp__w4#[68..=101])
+  mut downstream_resp_valid_int__w4 = downstream_resp_valid_int__w3
+  downstream_resp_valid_int__w4#[2] = br_delay_valid_resp["out_valid"] & 1
+  mut downstream_resp_int__w4 = downstream_resp_int__w3
+  downstream_resp_int__w4#[68..=101] = br_delay_valid_resp["out"]#[0..=33]
+  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((decerr_resp_valid & 1) << 4) | downstream_resp_valid_int__w4#[0..=3], `in` = (2 << 136) | downstream_resp_int__w4#[0..=135])
+  mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
+  mut `upstream_resp.decerr` = (br_mux_onehot_resp >> 1) & 1
+  mut `upstream_resp.slverr` = br_mux_onehot_resp & 1
+  downstream_req_valid.e3 = `downstream_req_valid__bpo.e3`
+  downstream_req_valid.e2 = `downstream_req_valid__bpo.e2`
+  downstream_req_valid.e1 = `downstream_req_valid__bpo.e1`
+  downstream_req_valid.e0 = `downstream_req_valid__bpo.e0`
+  downstream_req_write.e3 = `downstream_req_write__bpo.e3`
+  downstream_req_write.e2 = `downstream_req_write__bpo.e2`
+  downstream_req_write.e1 = `downstream_req_write__bpo.e1`
+  downstream_req_write.e0 = `downstream_req_write__bpo.e0`
+  downstream_req_privileged.e3 = `downstream_req_privileged__bpo.e3`
+  downstream_req_privileged.e2 = `downstream_req_privileged__bpo.e2`
+  downstream_req_privileged.e1 = `downstream_req_privileged__bpo.e1`
+  downstream_req_privileged.e0 = `downstream_req_privileged__bpo.e0`
+  downstream_req_secure.e3 = `downstream_req_secure__bpo.e3`
+  downstream_req_secure.e2 = `downstream_req_secure__bpo.e2`
+  downstream_req_secure.e1 = `downstream_req_secure__bpo.e1`
+  downstream_req_secure.e0 = `downstream_req_secure__bpo.e0`
+  downstream_req_abort.e3 = `downstream_req_abort__bpo.e3`
+  downstream_req_abort.e2 = `downstream_req_abort__bpo.e2`
+  downstream_req_abort.e1 = `downstream_req_abort__bpo.e1`
+  downstream_req_abort.e0 = `downstream_req_abort__bpo.e0`
+  upstream_resp_valid = unsigned((decerr_resp_valid != 0) or (downstream_resp_valid_int__w4 != 0))
+  upstream_resp_rdata = `upstream_resp.rdata`
+  upstream_resp_decerr = `upstream_resp.decerr`
+  upstream_resp_slverr = `upstream_resp.slverr`
+  downstream_req_addr = downstream_req_addr__w4
+  downstream_req_wdata = downstream_req_wdata__w4
+  downstream_req_wstrb = downstream_req_wstrb__w4
+}

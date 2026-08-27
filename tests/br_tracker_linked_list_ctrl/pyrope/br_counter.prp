@@ -1,0 +1,13 @@
+pub mod br_counter::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u8, incr_valid:u1, incr:u3, decr_valid:u1, decr:u3) -> (value:u8@[], value_next:u8@[]) {
+  reg value:u8
+  mut _mux_1:u3 = if incr_valid != 0 { incr } else { 0 }
+  mut _mux_2:u3 = if decr_valid != 0 { decr } else { 0 }
+  mut _mux_3:u8 = if reinit != 0 { initial_value } else { value }
+  const value_next__w1 = ((_mux_3 + _mux_1)#[0..=7] - _mux_2)#[0..=7]
+  if rst != 0 {
+    value = initial_value
+  } elif unsigned((reinit != 0) or (incr_valid != 0) or (decr_valid != 0)) != 0 {
+    value = value_next__w1
+  }
+  value_next = value_next__w1
+}

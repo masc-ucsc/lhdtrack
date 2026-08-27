@@ -1,0 +1,12 @@
+const br_arb_fixed_internal_t = import("br_arb_fixed_internal.br_arb_fixed_internal")
+const br_flow_mux_core_stable_t = import("br_flow_mux_core_stable.br_flow_mux_core_stable")
+
+pub mod br_flow_mux_fixed_stable::[timecheck=false](clk:u1, rst:u1, push_valid:u8, push_data:u256, pop_ready:u1) -> (push_ready:u8@[], pop_valid:u1@[], pop_data:u32@[]) {
+  wire request:u8
+  mut br_arb_fixed_internal = br_arb_fixed_internal_t::[name=br_arb_fixed_internal](request = request)
+  mut br_flow_mux_core_stable = br_flow_mux_core_stable_t::[name=br_flow_mux_core_stable](clk = clk, rst = rst, can_grant = (br_arb_fixed_internal.can_grant.e7 << 7) | (br_arb_fixed_internal.can_grant.e6 << 6) | (br_arb_fixed_internal.can_grant.e5 << 5) | (br_arb_fixed_internal.can_grant.e4 << 4) | (br_arb_fixed_internal.can_grant.e3 << 3) | (br_arb_fixed_internal.can_grant.e2 << 2) | (br_arb_fixed_internal.can_grant.e1 << 1) | br_arb_fixed_internal.can_grant.e0, grant = br_arb_fixed_internal.grant, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready)
+  request = br_flow_mux_core_stable.request
+  push_ready = br_flow_mux_core_stable.push_ready
+  pop_valid = br_flow_mux_core_stable.pop_valid
+  pop_data = br_flow_mux_core_stable.pop_data
+}

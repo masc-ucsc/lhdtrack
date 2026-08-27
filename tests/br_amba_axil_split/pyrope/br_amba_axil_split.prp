@@ -1,0 +1,114 @@
+const br_counter = import("br_counter.br_counter")
+const br_flow_reg_both = import("br_flow_reg_both.br_flow_reg_both")
+const br_flow_reg_both_p1 = import("br_flow_reg_both_p1.br_flow_reg_both_p1")
+
+pub mod br_amba_axil_split::[timecheck=false](clk:u1, rst:u1, branch_start_addr:u32, branch_end_addr:u32, root_awaddr:u32, root_awprot:u3, root_awuser:u1, root_awvalid:u1, root_wdata:u32, root_wstrb:u4, root_wuser:u1, root_wvalid:u1, root_bready:u1, root_araddr:u32, root_arprot:u3, root_aruser:u1, root_arvalid:u1, root_rready:u1, trunk_awready:u1, trunk_wready:u1, trunk_bresp:u2, trunk_bvalid:u1, trunk_arready:u1, trunk_rdata:u32, trunk_rresp:u2, trunk_ruser:u1, trunk_rvalid:u1, branch_awready:u1, branch_wready:u1, branch_bresp:u2, branch_bvalid:u1, branch_arready:u1, branch_rdata:u32, branch_rresp:u2, branch_ruser:u1, branch_rvalid:u1) -> (root_awready:u1@[], root_wready:u1@[], root_bresp:u2@[], root_bvalid:u1@[], root_arready:u1@[], root_rdata:u32@[], root_rresp:u2@[], root_ruser:u1@[], root_rvalid:u1@[], trunk_awaddr:u32@[], trunk_awprot:u3@[], trunk_awuser:u1@[], trunk_awvalid:u1@[], trunk_wdata:u32@[], trunk_wstrb:u4@[], trunk_wuser:u1@[], trunk_wvalid:u1@[], trunk_bready:u1@[], trunk_araddr:u32@[], trunk_arprot:u3@[], trunk_aruser:u1@[], trunk_arvalid:u1@[], trunk_rready:u1@[], branch_awaddr:u32@[], branch_awprot:u3@[], branch_awuser:u1@[], branch_awvalid:u1@[], branch_wdata:u32@[], branch_wstrb:u4@[], branch_wuser:u1@[], branch_wvalid:u1@[], branch_bready:u1@[], branch_araddr:u32@[], branch_arprot:u3@[], branch_aruser:u1@[], branch_arvalid:u1@[], branch_rready:u1@[]) {
+  reg last_arvalid_is_branch:u1
+  reg last_awvalid_is_branch:u1
+  wire outstanding_reads_count:u3
+  wire outstanding_writes_count:u3
+  wire write_addr_flow_reg_push_valid:u1
+  wire write_addr_flow_reg_pop_ready:u1
+  wire write_data_flow_reg_push_valid:u1
+  wire write_data_flow_reg_pop_ready:u1
+  mut branch_awaddr_in_range:u1 = 0
+  mut branch_araddr_in_range:u1 = 0
+  wire root_awready:u1
+  branch_awaddr_in_range = 0ub?
+  branch_araddr_in_range = 0ub?
+  mut branch_awaddr_in_range__w1 = branch_awaddr_in_range
+  branch_awaddr_in_range__w1#[0] = unsigned((root_awaddr >= branch_start_addr) and (root_awaddr <= branch_end_addr)) & 1
+  mut branch_araddr_in_range__w1 = branch_araddr_in_range
+  branch_araddr_in_range__w1#[0] = unsigned((root_araddr >= branch_start_addr) and (root_araddr <= branch_end_addr)) & 1
+  const awaddr_is_branch__w1 = unsigned(branch_awaddr_in_range__w1 != 0)
+  const araddr_is_branch__w1 = unsigned(branch_araddr_in_range__w1 != 0)
+  const no_outstanding_reads__w1 = unsigned(outstanding_reads_count == 0)
+  const free_outstanding_reads__w1 = unsigned(outstanding_reads_count < 4)
+  const trunk_arvalid__w1 = unsigned((root_arvalid != 0) and (araddr_is_branch__w1 == 0) and (free_outstanding_reads__w1 != 0) and ((no_outstanding_reads__w1 != 0) or (last_arvalid_is_branch == 0)))
+  const branch_arvalid__w1 = unsigned((root_arvalid != 0) and (araddr_is_branch__w1 != 0) and (free_outstanding_reads__w1 != 0) and ((no_outstanding_reads__w1 != 0) or (last_arvalid_is_branch != 0)))
+  const root_arready__w1 = unsigned(((trunk_arvalid__w1 != 0) and (trunk_arready != 0)) or ((branch_arvalid__w1 != 0) and (branch_arready != 0)))
+  const write_okay__w1 = unsigned(((unsigned(outstanding_writes_count == 0) != 0) or (last_awvalid_is_branch == awaddr_is_branch__w1)) and (unsigned(outstanding_writes_count < 4) != 0))
+  const t50 = root_arprot
+  const t52 = t50 | (t50 << 3)
+  mut _rep_13:u2 = if (root_aruser & 1) != 0 { 3 } else { 0 }
+  const root_rvalid__w1 = unsigned((branch_rvalid != 0) or (trunk_rvalid != 0))
+  mut _rep_15:u2 = if (trunk_rvalid & 1) != 0 { 3 } else { 0 }
+  mut _rep_16:u2 = if (branch_rvalid & 1) != 0 { 3 } else { 0 }
+  mut _rep_17:u32 = if (trunk_rvalid & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_18:u32 = if (branch_rvalid & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_19:u2 = if (root_rready & 1) != 0 { 3 } else { 0 }
+  const root_bvalid__w1 = unsigned((branch_bvalid != 0) or (trunk_bvalid != 0))
+  mut _rep_21:u2 = if (trunk_bvalid & 1) != 0 { 3 } else { 0 }
+  mut _rep_22:u2 = if (branch_bvalid & 1) != 0 { 3 } else { 0 }
+  mut _rep_23:u2 = if (root_bready & 1) != 0 { 3 } else { 0 }
+  const ar_handshake_valid__w1 = unsigned((root_arvalid != 0) and (root_arready__w1 != 0))
+  mut br_counter_outstanding_reads = br_counter::[name=br_counter_outstanding_reads](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = ar_handshake_valid__w1, incr = 1, decr_valid = unsigned((root_rvalid__w1 != 0) and (root_rready != 0)), decr = 1)
+  outstanding_reads_count = br_counter_outstanding_reads.value
+  if ar_handshake_valid__w1 != 0 {
+    last_arvalid_is_branch = araddr_is_branch__w1
+  }
+  const aw_handshake_valid__w1 = unsigned((root_awvalid != 0) and (root_awready != 0))
+  mut br_counter_outstanding_writes = br_counter::[name=br_counter_outstanding_writes](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = aw_handshake_valid__w1, incr = 1, decr_valid = unsigned((root_bvalid__w1 != 0) and (root_bready != 0)), decr = 1)
+  outstanding_writes_count = br_counter_outstanding_writes.value
+  mut br_flow_reg_both_write_addr = br_flow_reg_both::[name=br_flow_reg_both_write_addr](clk = clk, rst = rst, push_valid = write_addr_flow_reg_push_valid, push_data = (root_awaddr << 5) | (root_awprot << 2) | ((root_awuser & 1) << 1) | (awaddr_is_branch__w1 & 1), pop_ready = write_addr_flow_reg_pop_ready)
+  const write_addr_flow_reg_is_branch__w1 = br_flow_reg_both_write_addr.pop_data & 1
+  const root_awaddr_reg__w1 = (br_flow_reg_both_write_addr.pop_data >> 5)#[0..=31]
+  mut br_flow_reg_both_write_data = br_flow_reg_both_p1::[name=br_flow_reg_both_write_data](clk = clk, rst = rst, push_valid = write_data_flow_reg_push_valid, push_data = (root_wdata << 6) | (root_wstrb << 2) | ((root_wuser & 1) << 1) | (awaddr_is_branch__w1 & 1), pop_ready = write_data_flow_reg_pop_ready)
+  const write_data_flow_reg_is_branch__w1 = br_flow_reg_both_write_data.pop_data & 1
+  write_addr_flow_reg_push_valid = unsigned((root_awvalid != 0) and (root_wvalid != 0) and (br_flow_reg_both_write_data.push_ready != 0) and (write_okay__w1 != 0))
+  write_data_flow_reg_push_valid = unsigned((root_awvalid != 0) and (root_wvalid != 0) and (br_flow_reg_both_write_addr.push_ready != 0) and (write_okay__w1 != 0))
+  if aw_handshake_valid__w1 != 0 {
+    last_awvalid_is_branch = awaddr_is_branch__w1
+  }
+  root_awready = unsigned((root_wvalid != 0) and (write_okay__w1 != 0) and (br_flow_reg_both_write_addr.push_ready != 0) and (br_flow_reg_both_write_data.push_ready != 0))
+  const trunk_awvalid__w1 = unsigned((br_flow_reg_both_write_addr.pop_valid != 0) and (write_addr_flow_reg_is_branch__w1 == 0))
+  const branch_awvalid__w1 = unsigned((br_flow_reg_both_write_addr.pop_valid != 0) and (write_addr_flow_reg_is_branch__w1 != 0))
+  const trunk_wvalid__w1 = unsigned((br_flow_reg_both_write_data.pop_valid != 0) and (write_data_flow_reg_is_branch__w1 == 0))
+  const branch_wvalid__w1 = unsigned((br_flow_reg_both_write_data.pop_valid != 0) and (write_data_flow_reg_is_branch__w1 != 0))
+  write_addr_flow_reg_pop_ready = unsigned(((trunk_awvalid__w1 != 0) and (trunk_awready != 0)) or ((branch_awvalid__w1 != 0) and (branch_awready != 0)))
+  write_data_flow_reg_pop_ready = unsigned(((trunk_wvalid__w1 != 0) and (trunk_wready != 0)) or ((branch_wvalid__w1 != 0) and (branch_wready != 0)))
+  const t227 = (br_flow_reg_both_write_addr.pop_data >> 2)#[0..=2]
+  const t229 = t227 | (t227 << 3)
+  mut _rep_38:u2 = if (((br_flow_reg_both_write_addr.pop_data >> 1) & 1) & 1) != 0 { 3 } else { 0 }
+  const t240 = (br_flow_reg_both_write_data.pop_data >> 6)#[0..=31]
+  const t242 = t240 | (t240 << 32)
+  const t247 = (br_flow_reg_both_write_data.pop_data >> 2)#[0..=3]
+  const t249 = t247 | (t247 << 4)
+  mut _rep_39:u2 = if (((br_flow_reg_both_write_data.pop_data >> 1) & 1) & 1) != 0 { 3 } else { 0 }
+  root_wready = unsigned((root_awvalid != 0) and (write_okay__w1 != 0) and (br_flow_reg_both_write_addr.push_ready != 0) and (br_flow_reg_both_write_data.push_ready != 0))
+  root_bresp = (_rep_21 & trunk_bresp) | (_rep_22 & branch_bresp)
+  root_bvalid = root_bvalid__w1
+  root_arready = root_arready__w1
+  root_rdata = (_rep_17 & trunk_rdata) | (_rep_18 & branch_rdata)
+  root_rresp = (_rep_15 & trunk_rresp) | (_rep_16 & branch_rresp)
+  root_ruser = (((trunk_rvalid & 1) & trunk_ruser & 1) | ((branch_rvalid & 1) & branch_ruser & 1)) & 1
+  root_rvalid = root_rvalid__w1
+  trunk_awaddr = root_awaddr_reg__w1
+  trunk_awprot = (t229 >> 3)#[0..=2]
+  trunk_awuser = (_rep_38 >> 1) & 1
+  trunk_awvalid = trunk_awvalid__w1
+  trunk_wdata = (t242 >> 32)#[0..=31]
+  trunk_wstrb = (t249 >> 4)#[0..=3]
+  trunk_wuser = (_rep_39 >> 1) & 1
+  trunk_wvalid = trunk_wvalid__w1
+  trunk_bready = (_rep_23 >> 1) & 1
+  trunk_araddr = root_araddr
+  trunk_arprot = (t52 >> 3)#[0..=2]
+  trunk_aruser = (_rep_13 >> 1) & 1
+  trunk_arvalid = trunk_arvalid__w1
+  trunk_rready = (_rep_19 >> 1) & 1
+  branch_awaddr = root_awaddr_reg__w1
+  branch_awprot = t229#[0..=2]
+  branch_awuser = _rep_38 & 1
+  branch_awvalid = branch_awvalid__w1
+  branch_wdata = t242#[0..=31]
+  branch_wstrb = t249#[0..=3]
+  branch_wuser = _rep_39 & 1
+  branch_wvalid = branch_wvalid__w1
+  branch_bready = _rep_23 & 1
+  branch_araddr = root_araddr
+  branch_arprot = t52#[0..=2]
+  branch_aruser = _rep_13 & 1
+  branch_arvalid = branch_arvalid__w1
+  branch_rready = _rep_19 & 1
+}

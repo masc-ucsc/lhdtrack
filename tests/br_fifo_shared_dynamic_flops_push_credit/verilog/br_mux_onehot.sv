@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: Apache-2.0
+
+//
+// Bedrock-RTL onehot select multiplexer
+//
+// An N-to-1 multiplexer with a onehot select.
+//
+// The out signal will be set to in[i] for which select[i] is 1.
+// The select must have at most one bit set.
+//
+// In the base case where NumSymbolsIn == 1, then this just
+// becomes a pass-through from `in[0]` to `out`, and `select`
+// is ignored.
+
+`include "br_asserts_internal.svh"
+`include "br_unused.svh"
+
+module br_mux_onehot #(
+    // Number of inputs to select among. Must be >= 1.
+    parameter int NumSymbolsIn = 1,
+    // The width of each symbol in bits. Must be >= 1.
+    parameter int SymbolWidth = 1,
+    // If 1, assert that the select is, in fact, onehot.
+    // If 0, the select can be multi-hot, but in this case,
+    // the output will be undefined and driven to X in simulation,
+    // unless NumSymbolsIn == 1.
+    parameter bit EnableAssertSelectOnehot = 1
+) (
+    // Ignored when NumSymbolsIn == 1.
+    input  logic [NumSymbolsIn-1:0]                  select,
+    input  logic [NumSymbolsIn-1:0][SymbolWidth-1:0] in,
+    output logic [ SymbolWidth-1:0]                  out
+);
+
+  //------------------------------------------
+  // Integration checks
+  //------------------------------------------
+  `BR_ASSERT_STATIC(legal_num_symbols_in_a, NumSymbolsIn >= 1)
+  `BR_ASSERT_STATIC(legal_symbol_width_a, SymbolWidth >= 1)
+  if (EnableAssertSelectOnehot) begin : gen_assert_select_onehot
+    // ri lint_check_waive ALWAYS_COMB
+    `BR_ASSERT_COMB_INTG(select_onehot0_a, $onehot0(select))
+  end
+
+  //------------------------------------------
+  // Implementation
+  //------------------------------------------
+
+  if (NumSymbolsIn == 1) begin : gen_base
+    `BR_UNUSED(select)
+    assign out = in;
+
+  end else begin : gen_n
+    logic [SymbolWidth-1:0] out_internal;
+
+    always_comb begin
+      out_internal = '0;
+
+      for (int i = 0; i < NumSymbolsIn; i++) begin
+        out_internal |= ({SymbolWidth{select[i]}} & in[i]);
+      end
+    end
+
+`ifdef SIMULATION
+    if (EnableAssertSelectOnehot) begin : gen_onehot_out
+      assign out = out_internal;
+    end else begin : gen_multihot_out
+      always_comb begin
+        if ($onehot0(select)) begin
+          out = out_internal;
+        end else begin
+          out = 'X;
+        end
+      end
+    end
+`else
+    assign out = out_internal;
+`endif
+  end
+
+endmodule : br_mux_onehot

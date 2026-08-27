@@ -1,0 +1,14 @@
+pub mod br_counter_decr::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u4, decr_valid:u1, decr:u1) -> (value:u4@[], value_next:u4@[]) {
+  reg value:u4
+  mut _mux_1:u4 = if reinit != 0 { initial_value } else { value }
+  const gen_reinit_and_decr_base_value__w1 = _mux_1
+  mut _mux_2:u4 = if decr_valid != 0 { decr } else { 0 }
+  mut _mux_4:u4 = if unsigned((decr_valid != 0) and (decr > gen_reinit_and_decr_base_value__w1)) != 0 { 0 } else { (gen_reinit_and_decr_base_value__w1 - _mux_2)#[0..=3] }
+  const value_next__w1 = _mux_4
+  if rst != 0 {
+    value = initial_value
+  } elif (decr_valid != 0) or (reinit != 0) {
+    value = value_next__w1
+  }
+  value_next = value_next__w1
+}

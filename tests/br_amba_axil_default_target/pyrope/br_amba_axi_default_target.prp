@@ -1,0 +1,36 @@
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd_p1 = import("br_flow_reg_fwd_p1.br_flow_reg_fwd_p1")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axi_default_target::[timecheck=false](clk:u1, rst:u1, target_awvalid:u1, target_awid:u1, target_awlen:u1, target_wvalid:u1, target_wlast:u1, target_bready:u1, target_arvalid:u1, target_arid:u1, target_arlen:u1, target_rready:u1) -> (target_awready:u1@[], target_wready:u1@[], target_bvalid:u1@[], target_bid:u1@[], target_bresp:u2@[], target_arready:u1@[], target_rvalid:u1@[], target_rdata:u32@[], target_rresp:u2@[], target_rid:u1@[], target_rlast:u1@[]) {
+  wire awfifo_pop_valid:u1
+  wire awfifo_pop_awid:u1
+  wire wfifo_pop_valid:u1
+  wire arfifo_pop_valid:u1
+  {
+  }
+  br_misc_unused::[name=br_misc_unused_target_awlen](`in` = target_awlen)
+  const target_bvalid__w1 = unsigned((awfifo_pop_valid != 0) and (wfifo_pop_valid != 0))
+  const target_bid__w1 = awfifo_pop_awid
+  const target_rvalid__w1 = arfifo_pop_valid
+  mut br_flow_reg_fwd_ar = br_flow_reg_fwd::[name=br_flow_reg_fwd_ar](clk = clk, rst = rst, push_valid = target_arvalid, push_data = ((target_arid & 1) << 1) | (target_arlen & 1), pop_ready = target_rready)
+  arfifo_pop_valid = br_flow_reg_fwd_ar.pop_valid
+  br_misc_unused::[name=br_misc_unused_arfifo_pop_arlen](`in` = br_flow_reg_fwd_ar.pop_data & 1)
+  mut br_flow_reg_fwd_aw = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_aw](clk = clk, rst = rst, push_valid = target_awvalid, push_data = target_awid, pop_ready = unsigned((target_bready != 0) and (target_bvalid__w1 != 0)))
+  awfifo_pop_valid = br_flow_reg_fwd_aw.pop_valid
+  awfifo_pop_awid = br_flow_reg_fwd_aw.pop_data
+  mut br_flow_reg_fwd_w = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_w](clk = clk, rst = rst, push_valid = unsigned((target_wvalid != 0) and (target_wlast != 0)), push_data = 0, pop_ready = unsigned((target_bready != 0) and (target_bvalid__w1 != 0)))
+  wfifo_pop_valid = br_flow_reg_fwd_w.pop_valid
+  target_awready = br_flow_reg_fwd_aw.push_ready
+  target_wready = br_flow_reg_fwd_w.push_ready
+  target_bvalid = target_bvalid__w1
+  target_bid = target_bid__w1
+  target_bresp = br_amba.AxiRespDecerr
+  target_arready = br_flow_reg_fwd_ar.push_ready
+  target_rvalid = target_rvalid__w1
+  target_rdata = 0
+  target_rresp = br_amba.AxiRespDecerr
+  target_rid = (br_flow_reg_fwd_ar.pop_data >> 1) & 1
+  target_rlast = 1
+}

@@ -1,0 +1,21 @@
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+
+pub mod br_flow_fork_select_multihot::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_select_multihot:(e1:u1, e0:u1), pop_ready:(e1:u1, e0:u1)) -> (push_ready:u1@[], pop_valid_unstable:(e1:u1, e0:u1)@[]) {
+  mut `pop_valid_unstable__bpo.e1` = 0
+  mut `pop_valid_unstable__bpo.e0` = 0
+  const push_ready__w3 = (1 & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1) & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  `pop_valid_unstable__bpo.e0` = unsigned((push_valid != 0) and (push_select_multihot.e0 != 0))
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e1` = unsigned((push_valid != 0) and (push_select_multihot.e1 != 0))
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  pop_valid_unstable.e1 = `pop_valid_unstable__bpo.e1`
+  pop_valid_unstable.e0 = `pop_valid_unstable__bpo.e0`
+  push_ready = push_ready__w3
+}

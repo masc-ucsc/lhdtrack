@@ -1,0 +1,5 @@
+pub comb br_mux_onehot::[timecheck=false](select:u2, `in`:u12) -> (out:u6) {
+  mut _rep_1:u6 = if (select & 1) != 0 { 63 } else { 0 }
+  mut _rep_2:u6 = if ((select >> 1) & 1) != 0 { 63 } else { 0 }
+  out = (0 | (_rep_1 & `in`#[0..=5])) | (_rep_2 & `in`#[6..=11])
+}

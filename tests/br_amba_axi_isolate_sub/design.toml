@@ -1,0 +1,40 @@
+# br_amba_axi_isolate_sub -- see README.md for provenance.
+[design]
+name  = "br_amba_axi_isolate_sub"
+top   = "br_amba_axi_isolate_sub"
+kind  = "sequential"          # combinational | sequential
+suite = "amba"         # groups the report; NOT a path component
+
+[provenance]
+upstream = "bedrock-rtl"             # e.g. "bedrock-rtl"
+rev      = "0a990f222cd970fdaec42c6e0a4e372cf0e1400f"             # the exact commit this was taken from
+path     = "amba/rtl/br_amba_axi_isolate_sub.sv"             # the upstream path of the source
+license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
+
+[status]
+# none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
+# measures FRONT ENDS, not languages, so it never enters a headline geomean.
+pyrope = "none"
+# none | proven | failed | unsupported -- until `proven`, a QoR win might just
+# be a different circuit.
+lec    = "none"
+
+# One elaborated parameter set per entry. Benchmark id is `br_amba_axi_isolate_sub#<id>`.
+[[config]]
+id     = "aw32_aaic1_aaiw1_amo16_aaic1_aa_d08e1021"
+params = { AddrWidth = 32, ArAxiIdCount = 1, ArAxiIdWidth = 1, ArMaxOutstanding = 16, AwAxiIdCount = 1, AwAxiIdWidth = 1, AwMaxOutstanding = 16, DataWidth = 32, MaxAxiBurstLen = 1, StaticPerIdReadTrackerFifoDepth = 16, UseDynamicFifoForReadTracker = 0 }
+
+[synth]
+flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
+
+[sim]
+flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
+# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# simulator speedup: a benchmark that has outrun its cycle count reports
+# process startup, not the simulator.
+cycles = 1000000
+marker = "LHDTRACK-DONE"
+
+[lec]
+# lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

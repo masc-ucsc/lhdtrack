@@ -1,0 +1,13 @@
+pub mod br_delay_shift_reg::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u4, shift_en:u1, shift_in:u1) -> (value:u4@[], shift_out:u1@[]) {
+  reg stages:u4
+  mut _mux_1:u4 = if reinit != 0 { initial_value } else { stages }
+  const stages_temp__w1 = _mux_1
+  mut _mux_2:u4 = if shift_en != 0 { (stages_temp__w1#[0..=2] << 1) | (shift_in & 1) } else { stages_temp__w1 }
+  if rst != 0 {
+    stages = initial_value
+  } elif (shift_en != 0) or (reinit != 0) {
+    stages = _mux_2
+  }
+  value = stages
+  shift_out = (stages >> 3) & 1
+}

@@ -1,0 +1,42 @@
+const br_multi_xfer_checks_sendable_data_impl = import("br_multi_xfer_checks_sendable_data_impl.br_multi_xfer_checks_sendable_data_impl")
+const br_multi_xfer_checks_sendable_data_intg = import("br_multi_xfer_checks_sendable_data_intg.br_multi_xfer_checks_sendable_data_intg")
+const br_shift_left = import("br_shift_left.br_shift_left")
+const br_shift_right = import("br_shift_right.br_shift_right")
+
+pub mod br_multi_xfer_reg_fwd::[timecheck=false](clk:u1, rst:u1, push_sendable:u2, push_data:u64, pop_receivable:u2) -> (push_receivable:u2@[], pop_sendable:u2@[], pop_data:u64@[]) {
+  reg pop_sendable:u2
+  reg pop_data:u64
+  mut push_data_qual:u64 = 0
+  push_data_qual = 0sb?
+  mut _mux_1:u2 = if pop_sendable < pop_receivable { pop_sendable } else { pop_receivable }
+  const pop_xfer_count__w1 = _mux_1
+  const pop_sendable_after_xfer__w1 = (pop_sendable - pop_xfer_count__w1)#[0..=1]
+  const push_receivable__w1 = (2 - pop_sendable_after_xfer__w1)#[0..=31]#[0..=1]
+  mut _mux_2:u2 = if push_sendable < push_receivable__w1 { push_sendable } else { push_receivable__w1 }
+  const push_xfer_count__w1 = _mux_2
+  const pop_sendable_next__w1 = (pop_sendable_after_xfer__w1 + push_xfer_count__w1)#[0..=1]
+  mut br_shift_right_data = br_shift_right::[name=br_shift_right_data](`in` = pop_data, shift = pop_xfer_count__w1 & 1, fill = 0)
+  mut _mux_3:u64 = if pop_xfer_count__w1 == 2 { 0 } else { br_shift_right_data.out#[0..=63] }
+  mut _mux_4:u32 = if push_sendable > 0 { push_data#[0..=31] } else { 0 }
+  mut push_data_qual__w1 = push_data_qual
+  push_data_qual__w1#[0..=31] = _mux_4
+  mut _mux_5:u32 = if push_sendable > 1 { push_data#[32..=63] } else { 0 }
+  mut push_data_qual__w2 = push_data_qual__w1
+  push_data_qual__w2#[32..=63] = _mux_5
+  mut br_shift_left_data = br_shift_left::[name=br_shift_left_data](`in` = push_data_qual__w2, shift = pop_sendable_after_xfer__w1 & 1, fill = 0)
+  mut _mux_6:u64 = if pop_sendable_after_xfer__w1 == 2 { 0 } else { br_shift_left_data.out#[0..=63] }
+  const pop_update__w1 = unsigned((push_xfer_count__w1 != 0) or (pop_xfer_count__w1 != 0))
+  if rst != 0 {
+    pop_sendable = 0
+  } elif pop_update__w1 != 0 {
+    pop_sendable = pop_sendable_next__w1
+  }
+  if rst != 0 {
+    pop_data = 0
+  } elif pop_update__w1 != 0 {
+    pop_data = _mux_3 | _mux_6
+  }
+  br_multi_xfer_checks_sendable_data_impl::[name=br_multi_xfer_checks_sendable_data_impl_pop](clk = clk, rst = rst, receivable = pop_receivable, sendable = pop_sendable, data = pop_data)
+  br_multi_xfer_checks_sendable_data_intg::[name=br_multi_xfer_checks_sendable_data_intg_push](clk = clk, rst = rst, receivable = push_receivable__w1, sendable = push_sendable, data = push_data)
+  push_receivable = push_receivable__w1
+}

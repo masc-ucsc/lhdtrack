@@ -1,0 +1,12 @@
+pub mod br_delay_shift_reg::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u64, shift_en:u1, shift_in:u64) -> (value:u64@[], shift_out:u64@[]) {
+  reg stages:[1]u64:[ordering="old"]
+  mut _mux_1:u64 = if reinit != 0 { initial_value } else { stages#[0..=63] }
+  mut _mux_2:u64 = if shift_en != 0 { shift_in } else { _mux_1 }
+  if rst != 0 {
+    stages = initial_value
+  } elif (shift_en != 0) or (reinit != 0) {
+    stages = _mux_2
+  }
+  value = stages
+  shift_out = stages[0]
+}

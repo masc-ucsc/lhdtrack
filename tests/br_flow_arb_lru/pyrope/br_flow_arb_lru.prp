@@ -1,0 +1,13 @@
+const br_arb_lru_internal_t = import("br_arb_lru_internal.br_arb_lru_internal")
+const br_flow_arb_core_t = import("br_flow_arb_core.br_flow_arb_core")
+
+pub mod br_flow_arb_lru::[timecheck=false](clk:u1, rst:u1, push_valid:u16, pop_ready:u1) -> (push_ready:u16@[], pop_valid_unstable:u1@[]) {
+  wire request:u16
+  wire enable_priority_update:u1
+  mut br_arb_lru_internal = br_arb_lru_internal_t::[name=br_arb_lru_internal](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request)
+  mut br_flow_arb_core = br_flow_arb_core_t::[name=br_flow_arb_core](clk = clk, rst = rst, can_grant = br_arb_lru_internal.can_grant, grant = br_arb_lru_internal.grant, push_valid = push_valid, pop_ready = pop_ready)
+  request = br_flow_arb_core.request
+  enable_priority_update = br_flow_arb_core.enable_priority_update
+  push_ready = br_flow_arb_core.push_ready
+  pop_valid_unstable = br_flow_arb_core.pop_valid_unstable
+}

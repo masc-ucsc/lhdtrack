@@ -1,0 +1,100 @@
+const br_arb_rr_t = import("br_arb_rr.br_arb_rr")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axil2apb::[timecheck=false](clk:u1, rst:u1, awaddr:u32, awprot:u3, awvalid:u1, wdata:u32, wstrb:u4, wvalid:u1, bready:u1, araddr:u32, arprot:u3, arvalid:u1, rready:u1, prdata:u32, pready:u1, pslverr:u1) -> (awready:u1@[], wready:u1@[], bresp:u2@[], bvalid:u1@[], arready:u1@[], rdata:u32@[], rresp:u2@[], rvalid:u1@[], paddr:u32@[], psel:u1@[], penable:u1@[], pprot:u3@[], pstrb:u4@[], pwrite:u1@[], pwdata:u32@[]) {
+  mut _rep_12:u4 = 0
+  reg rdata:u32
+  reg apb_state:u4
+  reg addr_reg:u32
+  reg data_reg:u32
+  reg strb_reg:u4
+  reg prot_reg:u3
+  reg resp_reg:u1
+  reg write_reg:u1
+  reg last_grant:u2
+  mut apb_state_next:u4 = 0
+  apb_state_next = 0sb?
+  if (apb_state == 6) and (pready != 0) {
+    resp_reg = pslverr
+  }
+  if (apb_state == 6) and (pready != 0) {
+    rdata = prdata
+  }
+  const write_req_ready__w1 = unsigned((awvalid != 0) and (wvalid != 0) and (apb_state == 1))
+  const read_req_ready__w1 = unsigned((arvalid != 0) and (apb_state == 1))
+  mut _mux_6:u2 = if resp_reg != 0 { br_amba.AxiRespSlverr#[0..=1] } else { br_amba.AxiRespOkay#[0..=1] }
+  mut _mux_8:u2 = if resp_reg != 0 { br_amba.AxiRespSlverr#[0..=1] } else { br_amba.AxiRespOkay#[0..=1] }
+  const psel__w1 = (apb_state >> 1) & 1
+  const penable__w1 = (apb_state >> 2) & 1
+  const paddr__w1 = addr_reg
+  const pwdata__w1 = data_reg
+  const pwrite__w1 = write_reg
+  const pprot__w1 = prot_reg
+  const pstrb__w1 = strb_reg
+  mut br_arb_rr = br_arb_rr_t::[name=br_arb_rr](clk = clk, rst = rst, enable_priority_update = 1, request = ((unsigned((write_req_ready__w1 != 0) and ((((last_grant >> 1) & 1) == 0) or (read_req_ready__w1 == 0))) & 1) << 1) | (unsigned((read_req_ready__w1 != 0) and (((last_grant & 1) == 0) or (write_req_ready__w1 == 0))) & 1))
+  const arb_read_grant__w1 = br_arb_rr & 1
+  const arb_write_grant__w1 = (br_arb_rr >> 1) & 1
+  const arb_any_grant__w1 = unsigned((arb_write_grant__w1 != 0) or (arb_read_grant__w1 != 0))
+  mut _mux_10:u32 = if arb_write_grant__w1 != 0 { awaddr } else { araddr }
+  mut _mux_11:u3 = if arb_write_grant__w1 != 0 { awprot } else { arprot }
+  apb_state_next = apb_state
+  match apb_state {
+    == 1 {
+      if arb_any_grant__w1 != 0 {
+        apb_state_next = 2
+      }
+    }
+    == 2 {
+      apb_state_next = 6
+    }
+    == 6 {
+      if pready != 0 {
+        apb_state_next = 8
+      }
+    }
+    == 8 {
+      if ((write_reg != 0) and (bready != 0)) or ((write_reg == 0) and (rready != 0)) {
+        apb_state_next = 1
+      }
+    }
+    else {
+      apb_state_next = 0sb?
+    }
+  }
+  if arb_any_grant__w1 != 0 {
+    addr_reg = _mux_10
+  }
+  if arb_any_grant__w1 != 0 {
+    data_reg = wdata
+  }
+  if arb_any_grant__w1 != 0 {
+    write_reg = arb_write_grant__w1
+  }
+  if arb_any_grant__w1 != 0 {
+    _rep_12 = if (arb_write_grant__w1 & 1) != 0 { 15 } else { 0 }
+    strb_reg = wstrb & _rep_12
+  }
+  if arb_any_grant__w1 != 0 {
+    prot_reg = _mux_11
+  }
+  if rst != 0 {
+    last_grant = 0
+  } elif arb_any_grant__w1 != 0 {
+    last_grant = ((arb_write_grant__w1 & 1) << 1) | (arb_read_grant__w1 & 1)
+  }
+  apb_state = if rst != 0 { 1 } else { apb_state_next }
+  awready = arb_write_grant__w1
+  wready = arb_write_grant__w1
+  bresp = _mux_6
+  bvalid = unsigned((apb_state == 8) and (write_reg != 0))
+  arready = arb_read_grant__w1
+  rresp = _mux_8
+  rvalid = unsigned((apb_state == 8) and (((~write_reg) & 1) != 0))
+  paddr = paddr__w1
+  psel = psel__w1
+  penable = penable__w1
+  pprot = pprot__w1
+  pstrb = pstrb__w1
+  pwrite = pwrite__w1
+  pwdata = pwdata__w1
+}

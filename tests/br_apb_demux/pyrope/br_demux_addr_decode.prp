@@ -1,0 +1,19 @@
+pub comb br_demux_addr_decode::[timecheck=false](clk:u1, rst:u1, addr_valid:u1, upstream_addr:u12, downstream_addr_base:u12, downstream_addr_size:u12, downstream_addr_in:u12) -> (select_onehot:u1, downstream_addr_out:u12) {
+  mut downstream_addr_limit:u12 = 0
+  mut downstream_addr_range_disabled:u1 = 0
+  downstream_addr_limit = 0sb?
+  downstream_addr_range_disabled = 0ub?
+  select_onehot = 0ub?
+  downstream_addr_out = 0sb?
+  mut downstream_addr_limit__w1 = downstream_addr_limit
+  downstream_addr_limit__w1#[0..=11] = ((downstream_addr_base + downstream_addr_size)#[0..=11] - 1)#[0..=11]
+  mut downstream_addr_range_disabled__w1 = downstream_addr_range_disabled
+  downstream_addr_range_disabled__w1#[0] = unsigned(downstream_addr_size == 0) & 1
+  const upstream_addr_masked__w1 = upstream_addr & 0xfff
+  mut select_onehot__w1 = select_onehot
+  select_onehot__w1#[0] = unsigned(((downstream_addr_range_disabled__w1 & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base) and (upstream_addr_masked__w1 <= downstream_addr_limit__w1#[0..=11])) & 1
+  mut downstream_addr_out__w1 = downstream_addr_out
+  downstream_addr_out__w1#[0..=11] = downstream_addr_in & 0xfff
+  select_onehot = select_onehot__w1
+  downstream_addr_out = downstream_addr_out__w1
+}

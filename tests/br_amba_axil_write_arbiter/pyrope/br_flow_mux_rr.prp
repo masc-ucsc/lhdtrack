@@ -1,0 +1,14 @@
+const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
+const br_flow_mux_core_t = import("br_flow_mux_core.br_flow_mux_core")
+
+pub mod br_flow_mux_rr::[timecheck=false](clk:u1, rst:u1, push_valid:u2, push_data:u236, pop_ready:u1) -> (push_ready:u2@[], pop_valid_unstable:u1@[], pop_data_unstable:u118@[]) {
+  wire request:u2
+  wire enable_priority_update:u1
+  mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request)
+  mut br_flow_mux_core = br_flow_mux_core_t::[name=br_flow_mux_core](clk = clk, rst = rst, can_grant = (br_arb_rr_internal.can_grant.e1 << 1) | br_arb_rr_internal.can_grant.e0, grant = br_arb_rr_internal.grant, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready)
+  request = br_flow_mux_core.request
+  enable_priority_update = br_flow_mux_core.enable_priority_update
+  push_ready = br_flow_mux_core.push_ready
+  pop_valid_unstable = br_flow_mux_core.pop_valid_unstable
+  pop_data_unstable = br_flow_mux_core.pop_data_unstable
+}

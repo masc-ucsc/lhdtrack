@@ -1,0 +1,39 @@
+const br_misc_unused_p10 = import("br_misc_unused_p10.br_misc_unused_p10")
+const br_misc_unused_p7 = import("br_misc_unused_p7.br_misc_unused_p7")
+
+pub mod br_lru_state_internal::[timecheck=false](clk:u1, rst:u1, update_priority:u1, grant:(e1:u1, e0:u1)) -> (state:u4@[]) {
+  reg state_reg:[2]u2:[ordering="old", wensize=2]
+  mut state_reg_next:u4 = 0
+  state_reg_next = 0sb?
+  state = 0sb?
+  mut state__w1 = state
+  state__w1#[0] = 0
+  state_reg[0][0] = 0
+  mut state_reg_next__w1 = state_reg_next
+  state_reg_next__w1#[0] = 0
+  mut state__w2 = state__w1
+  state__w2#[1] = (state_reg[0] >> 1) & 1
+  mut state__w3 = state__w2
+  state__w3#[2] = unsigned(((state_reg[0] >> 1) & 1) == 0) & 1
+  mut state_reg_next__w2 = state_reg_next__w1
+  state_reg_next__w2#[2] = 0
+  state_reg[1][0] = 0
+  mut state__w4 = state__w3
+  state__w4#[3] = 0
+  state_reg[1][0] = 1
+  mut state_reg_next__w3 = state_reg_next__w2
+  state_reg_next__w3#[3] = 0
+  mut _mux_2:u1 = if grant.e1 != 0 { 1 } else { (state__w4#[0..=1] >> 1) & 1 }
+  mut _mux_3:u1 = if grant.e0 != 0 { 0 } else { _mux_2 & 1 }
+  mut state_reg_next__w4 = state_reg_next__w3
+  state_reg_next__w4#[1] = _mux_3 & 1
+  if rst != 0 {
+    state_reg[0][2] = 1
+  } elif update_priority != 0 {
+    state_reg[0][((state_reg_next__w4#[0..=1] >> 1) & 1) << 1] = 1
+  }
+  br_misc_unused_p7::[name=br_misc_unused_states](`in` = ((state_reg_next__w4#[2..=3] & 1) << 1) | (state_reg[1] & 1))
+  br_misc_unused_p10::[name=br_misc_unused_states](`in` = (((state_reg_next__w4#[2..=3] >> 1) & 1) << 2) | (((state_reg[1] >> 1) & 1) << 1) | ((state__w4#[2..=3] >> 1) & 1))
+  br_misc_unused_p10::[name=br_misc_unused_states](`in` = ((state_reg_next__w4#[0..=1] & 1) << 2) | ((state_reg[0] & 1) << 1) | (state__w4#[0..=1] & 1))
+  state = state__w4
+}

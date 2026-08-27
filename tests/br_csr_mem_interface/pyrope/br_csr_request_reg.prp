@@ -1,0 +1,14 @@
+pub mod br_csr_request_reg::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_abort:u1, push_req:u41, pop_ready:u1) -> (pop_valid:u1@[], pop_req:u41@[]) {
+  reg buf_valid:u1
+  reg buf_req:u41
+  const pop_valid__w1 = unsigned((push_valid != 0) or (buf_valid != 0))
+  mut _mux_2:u41 = if buf_valid != 0 { buf_req } else { push_req }
+  if rst != 0 {
+    buf_req = 0
+  } elif (push_valid != 0) and (pop_ready == 0) {
+    buf_req = push_req
+  }
+  buf_valid = if rst != 0 { 0 } else { unsigned((pop_valid__w1 != 0) and (pop_ready == 0) and (push_abort == 0)) }
+  pop_valid = pop_valid__w1
+  pop_req = _mux_2
+}

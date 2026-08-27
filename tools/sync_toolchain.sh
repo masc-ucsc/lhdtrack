@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# Stage every tool in the measured path into var/toolchain/, with its version
+# string, and write the toolchain.json the python runner reads.
+#
+# This is the ONLY bridge between bazel and the runner. The runner never shells
+# out to bazel and never reads PATH -- if a binary is not named in
+# toolchain.json it does not exist as far as lhdtrack is concerned. That is what
+# makes the baseline cache key trustworthy: a tool cannot change underneath a
+# cached result without changing the key.
+set -euo pipefail
+
+# BUILD_WORKSPACE_DIRECTORY is set by `bazel run`; fall back for direct calls.
+ROOT="${BUILD_WORKSPACE_DIRECTORY:-$(cd "$(dirname "$0")/.." && pwd)}"
+OUT="$ROOT/var/toolchain"
+RF="${RUNFILES_DIR:-${TEST_SRCDIR:-$0.runfiles}}"
+
+mkdir -p "$OUT/bin" "$OUT/lib"
+
+# find_runfile RELATIVE_PATH -- resolve a data dep to an absolute path.
+find_runfile() {
+  local hit
+  hit=$(find -L "$RF" -type f -name "$1" -print -quit 2>/dev/null || true)
+  [ -n "$hit" ] || { echo "sync-toolchain: cannot find '$1' in runfiles" >&2; return 1; }
+  printf '%s\n' "$hit"
+}
+
+# stage NAME FILENAME -- symlink one tool into var/toolchain/bin under a stable
+# name. A symlink, not a copy: bazel's output is already content-addressed, and
+# copying would let var/ drift from what bazel actually built.
+stage() {
+  local name=$1 file=$2 src
+  src=$(find_runfile "$file") || return 1
+  ln -sfn "$src" "$OUT/bin/$name"
+  printf '  %-10s %s\n' "$name" "$src"
+}
+
+echo "staging binaries into $OUT/bin"
+stage lhd       lhd
+stage yosys     yosys
+stage abc       abc
+stage verilator verilator
+stage sta       sta
+
+# Liberty: one directory per technology, mirroring tech/<name>/.
+echo "staging Liberty into $OUT/lib"
+for tech in sky130 asap7; do
+  mkdir -p "$OUT/lib/$tech"
+  while IFS= read -r lib; do
+    ln -sfn "$lib" "$OUT/lib/$tech/$(basename "$lib")"
+    printf '  %-10s %s\n' "$tech" "$(basename "$lib")"
+  done < <(find -L "$RF" -type f -name '*.lib' 2>/dev/null | grep -i "$tech" || true)
+done
+
+# ---- versions -------------------------------------------------------------
+# Recorded verbatim from each tool rather than from the bazel pin, so the key
+# reflects the binary that will actually run. A pin and a binary disagreeing is
+# exactly the situation this catches.
+ver() {
+  local bin=$1
+  shift
+  [ -x "$OUT/bin/$bin" ] || { echo "missing"; return 0; }
+  "$OUT/bin/$bin" "$@" 2>&1 | head -1 | tr -d '\r' || echo "unknown"
+}
+
+python3 - "$OUT" <<'PY'
+import hashlib, json, os, subprocess, sys, platform, datetime
+
+out = sys.argv[1]
+bindir, libdir = os.path.join(out, "bin"), os.path.join(out, "lib")
+
+VERSION_ARGS = {
+    "lhd":       ["version"],
+    "yosys":     ["-V"],
+    "abc":       ["-h"],
+    "verilator": ["--version"],
+    "sta":       ["-version"],
+}
+
+def first_line(binary, args):
+    path = os.path.join(bindir, binary)
+    if not os.path.exists(path):
+        return None
+    try:
+        p = subprocess.run([path, *args], capture_output=True, text=True, timeout=60)
+        for line in (p.stdout + p.stderr).splitlines():
+            if line.strip():
+                return line.strip()
+    except Exception as e:                      # noqa: BLE001 -- report, never abort
+        return f"unavailable: {e}"
+    return "unknown"
+
+def sha256(path, limit=None):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+tools, versions = {}, {}
+for name, args in VERSION_ARGS.items():
+    path = os.path.join(bindir, name)
+    if os.path.exists(path):
+        tools[name] = os.path.realpath(path)
+        versions[name] = first_line(name, args)
+
+# Liberty is hashed, not versioned: the file content IS the identity, and it is
+# what a synthesis result actually depends on.
+tech = {}
+for name in sorted(os.listdir(libdir)) if os.path.isdir(libdir) else []:
+    d = os.path.join(libdir, name)
+    if not os.path.isdir(d):
+        continue
+    libs = sorted(os.path.join(d, f) for f in os.listdir(d) if f.endswith(".lib"))
+    if not libs:
+        continue
+    tech[name] = {
+        "liberty": [os.path.realpath(p) for p in libs],
+        "sha256": hashlib.sha256("".join(sha256(p) for p in libs).encode()).hexdigest()[:16],
+    }
+
+doc = {
+    "schema_version": 1,
+    "generated": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+    # host_class is part of every cache key. A number from another box is not
+    # evidence, and this is what lets the runner prove it is not reusing one.
+    "host_class": f"{platform.system()}-{platform.machine()}",
+    "bin": tools,
+    "versions": versions,
+    "tech": tech,
+}
+with open(os.path.join(out, "toolchain.json"), "w") as fh:
+    json.dump(doc, fh, indent=2, sort_keys=True)
+    fh.write("\n")
+
+print(f"\nwrote {out}/toolchain.json")
+for k, v in sorted(versions.items()):
+    print(f"  {k:<10} {v}")
+missing = [k for k in VERSION_ARGS if k not in tools]
+if missing:
+    print(f"\nMISSING: {', '.join(missing)} -- flows needing them will be skipped and reported")
+if not tech:
+    print("MISSING: no Liberty staged -- every synthesis flow will be skipped")
+PY

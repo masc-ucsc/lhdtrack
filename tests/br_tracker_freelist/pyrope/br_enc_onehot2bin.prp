@@ -1,0 +1,47 @@
+pub comb br_enc_onehot2bin::[timecheck=false](clk:u1, rst:u1, `in`:u16) -> (out_valid:u1, out:u4) {
+  out = 0sb?
+  out = if ((`in` >> 1) & 1) != 0 { 1 } else { 0 }
+  if ((`in` >> 2) & 1) != 0 {
+    out = out | 2
+  }
+  if ((`in` >> 3) & 1) != 0 {
+    out = out | 3
+  }
+  if ((`in` >> 4) & 1) != 0 {
+    out = out | 4
+  }
+  if ((`in` >> 5) & 1) != 0 {
+    out = out | 5
+  }
+  if ((`in` >> 6) & 1) != 0 {
+    out = out | 6
+  }
+  if ((`in` >> 7) & 1) != 0 {
+    out = out | 7
+  }
+  if ((`in` >> 8) & 1) != 0 {
+    out = out | 8
+  }
+  if ((`in` >> 9) & 1) != 0 {
+    out = out | 9
+  }
+  if ((`in` >> 10) & 1) != 0 {
+    out = out | 10
+  }
+  if ((`in` >> 11) & 1) != 0 {
+    out = out | 11
+  }
+  if ((`in` >> 12) & 1) != 0 {
+    out = out | 12
+  }
+  if ((`in` >> 13) & 1) != 0 {
+    out = out | 13
+  }
+  if ((`in` >> 14) & 1) != 0 {
+    out = out | 14
+  }
+  if ((`in` >> 15) & 1) != 0 {
+    out = out | 15
+  }
+  out_valid = unsigned(`in` != 0)
+}

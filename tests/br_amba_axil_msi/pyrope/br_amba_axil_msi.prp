@@ -1,0 +1,52 @@
+const br_counter_decr = import("br_counter_decr.br_counter_decr")
+const br_flow_mux_rr_stable_t = import("br_flow_mux_rr_stable.br_flow_mux_rr_stable")
+const br_flow_reg_both_p1 = import("br_flow_reg_both_p1.br_flow_reg_both_p1")
+const br_flow_reg_both_p2 = import("br_flow_reg_both_p2.br_flow_reg_both_p2")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axil_msi::[timecheck=false](clk:u1, rst:u1, irq:u4, msi_dest_addr:u32, msi_enable:u4, msi_dest_idx:u4, device_id_per_irq:u64, event_id_per_irq:u64, throttle_en:u1, throttle_cntr_threshold:u4, init_awready:u1, init_wready:u1, init_bresp:u2, init_bvalid:u1) -> (error:u1@[], init_awaddr:u32@[], init_awvalid:u1@[], init_wdata:u32@[], init_wstrb:u4@[], init_wvalid:u1@[], init_bready:u1@[]) {
+  reg error:u1
+  reg irq_d:u4
+  reg pending_irq:u4
+  wire pending_irq_next:u4
+  wire flow_reg_push_ready:u4
+  wire flow_reg_pop_ready:u1
+  wire throttle_cntr_value:u4
+  wire reinit_throttle_cntr:u1
+  wire write_addr_flow_reg_push_ready:u1
+  wire write_data_flow_reg_push_ready:u1
+  mut flow_reg_push_data:u132 = 0
+  flow_reg_push_data = 0sb?
+  irq_d = if rst != 0 { 0 } else { irq }
+  mut flow_reg_push_data__w1 = flow_reg_push_data
+  flow_reg_push_data__w1#[0..=32] = ((msi_dest_idx & 1) << 32) | (device_id_per_irq#[0..=15] << 16) | event_id_per_irq#[0..=15]
+  mut flow_reg_push_data__w2 = flow_reg_push_data__w1
+  flow_reg_push_data__w2#[33..=65] = (((msi_dest_idx >> 1) & 1) << 32) | (device_id_per_irq#[16..=31] << 16) | event_id_per_irq#[16..=31]
+  mut flow_reg_push_data__w3 = flow_reg_push_data__w2
+  flow_reg_push_data__w3#[66..=98] = (((msi_dest_idx >> 2) & 1) << 32) | (device_id_per_irq#[32..=47] << 16) | event_id_per_irq#[32..=47]
+  mut flow_reg_push_data__w4 = flow_reg_push_data__w3
+  flow_reg_push_data__w4#[99..=131] = (((msi_dest_idx >> 3) & 1) << 32) | (device_id_per_irq#[48..=63] << 16) | event_id_per_irq#[48..=63]
+  const flow_reg_push_valid__w1 = pending_irq
+  const clear_to_send__w1 = unsigned((((~throttle_en) & 1) != 0) or (unsigned(throttle_cntr_value == 0) != 0))
+  error = if rst != 0 { 0 } else { unsigned((init_bvalid != 0) and true and (init_bresp != br_amba.AxiRespOkay)) }
+  pending_irq = if rst != 0 { 0 } else { pending_irq_next }
+  pending_irq_next = (msi_enable & (pending_irq | (irq & (~irq_d)#[0..=3]))) & (~(flow_reg_push_ready & flow_reg_push_valid__w1))#[0..=3]
+  mut br_flow_mux_rr_stable = br_flow_mux_rr_stable_t::[name=br_flow_mux_rr_stable](clk = clk, rst = rst, push_valid = flow_reg_push_valid__w1, push_data = flow_reg_push_data__w4, pop_ready = flow_reg_pop_ready)
+  flow_reg_push_ready = br_flow_mux_rr_stable.push_ready
+  mut br_counter_decr_throttle = br_counter_decr::[name=br_counter_decr_throttle](clk = clk, rst = rst, reinit = reinit_throttle_cntr, initial_value = throttle_cntr_threshold, decr_valid = br_flow_mux_rr_stable.pop_valid, decr = 1)
+  throttle_cntr_value = br_counter_decr_throttle.value
+  reinit_throttle_cntr = unsigned((((~br_flow_mux_rr_stable.pop_valid) & 1) != 0) or (flow_reg_pop_ready != 0))
+  const write_addr_flow_reg_push_valid__w1 = unsigned((br_flow_mux_rr_stable.pop_valid != 0) and (clear_to_send__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_ready != 0))
+  const write_data_flow_reg_push_valid__w1 = unsigned((br_flow_mux_rr_stable.pop_valid != 0) and (clear_to_send__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_ready != 0))
+  flow_reg_pop_ready = unsigned((write_addr_flow_reg_push_valid__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_valid__w1 != 0) and (write_data_flow_reg_push_ready != 0))
+  mut br_flow_reg_both_write_addr = br_flow_reg_both_p1::[name=br_flow_reg_both_write_addr](clk = clk, rst = rst, push_valid = write_addr_flow_reg_push_valid__w1, push_data = (((msi_dest_addr << 32) >> ((((br_flow_mux_rr_stable.pop_data >> 32) & 1) * 32) + 32))#[0..=31] + ((br_flow_mux_rr_stable.pop_data >> 16)#[0..=15] << 2))#[0..=31], pop_ready = init_awready)
+  write_addr_flow_reg_push_ready = br_flow_reg_both_write_addr.push_ready
+  mut br_flow_reg_both_write_data = br_flow_reg_both_p2::[name=br_flow_reg_both_write_data](clk = clk, rst = rst, push_valid = write_data_flow_reg_push_valid__w1, push_data = (br_flow_mux_rr_stable.pop_data#[0..=15] << 4) | 15, pop_ready = init_wready)
+  write_data_flow_reg_push_ready = br_flow_reg_both_write_data.push_ready
+  init_awaddr = br_flow_reg_both_write_addr.pop_data
+  init_awvalid = br_flow_reg_both_write_addr.pop_valid
+  init_wdata = (br_flow_reg_both_write_data.pop_data >> 4)#[0..=31]
+  init_wstrb = br_flow_reg_both_write_data.pop_data#[0..=3]
+  init_wvalid = br_flow_reg_both_write_data.pop_valid
+  init_bready = 1
+}

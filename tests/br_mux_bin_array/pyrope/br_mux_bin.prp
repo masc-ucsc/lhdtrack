@@ -1,0 +1,38 @@
+pub comb br_mux_bin::[timecheck=false](select:u4, `in`:u512) -> (out:u32, out_valid:u1) {
+  mut _rep_2:u32 = if (unsigned(select == 0) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_4:u32 = if (unsigned(select == 1) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_6:u32 = if (unsigned(select == 2) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_8:u32 = if (unsigned(select == 3) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_10:u32 = if (unsigned(select == 4) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_12:u32 = if (unsigned(select == 5) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_14:u32 = if (unsigned(select == 6) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_16:u32 = if (unsigned(select == 7) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_18:u32 = if (unsigned(select == 8) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_20:u32 = if (unsigned(select == 9) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_22:u32 = if (unsigned(select == 10) & 1) != 0 { 0xffffffff } else { 0 }
+  const t98 = ((((((((((0 | (_rep_2 & `in`#[0..=31])) | (_rep_4 & `in`#[32..=63])) | (_rep_6 & `in`#[64..=95])) | (_rep_8 & `in`#[96..=127])) | (_rep_10 & `in`#[128..=159])) | (_rep_12 & `in`#[160..=191])) | (_rep_14 & `in`#[192..=223])) | (_rep_16 & `in`#[224..=255])) | (_rep_18 & `in`#[256..=287])) | (_rep_20 & `in`#[288..=319])) | (_rep_22 & `in`#[320..=351])
+  const t99 = t98
+  const out__w12 = t99
+  mut _rep_24:u32 = if (unsigned(select == 11) & 1) != 0 { 0xffffffff } else { 0 }
+  const t107 = out__w12 | (_rep_24 & `in`#[352..=383])
+  const t108 = t107
+  const out__w13 = t108
+  mut _rep_26:u32 = if (unsigned(select == 12) & 1) != 0 { 0xffffffff } else { 0 }
+  const t116 = out__w13 | (_rep_26 & `in`#[384..=415])
+  const t117 = t116
+  const out__w14 = t117
+  mut _rep_28:u32 = if (unsigned(select == 13) & 1) != 0 { 0xffffffff } else { 0 }
+  const t125 = out__w14 | (_rep_28 & `in`#[416..=447])
+  const t126 = t125
+  const out__w15 = t126
+  mut _rep_30:u32 = if (unsigned(select == 14) & 1) != 0 { 0xffffffff } else { 0 }
+  const t134 = out__w15 | (_rep_30 & `in`#[448..=479])
+  const t135 = t134
+  const out__w16 = t135
+  mut _rep_32:u32 = if (unsigned(select == 15) & 1) != 0 { 0xffffffff } else { 0 }
+  const t143 = out__w16 | (_rep_32 & `in`#[480..=511])
+  const t144 = t143
+  const out__w17 = t144
+  out = out__w17
+  out_valid = unsigned(select < 16)
+}

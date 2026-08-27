@@ -1,0 +1,12 @@
+pub comb icmp::[timecheck=false](a:u8, b:u8) -> (eq:u1, ne:u1, slt:u1, sle:u1, sgt:u1, sge:u1, ult:u1, ule:u1, ugt:u1, uge:u1) {
+  eq = unsigned(a == b)
+  ne = unsigned(a != b)
+  slt = unsigned(a#sext[0..=7] < b#sext[0..=7])
+  sle = unsigned(a#sext[0..=7] <= b#sext[0..=7])
+  sgt = unsigned(a#sext[0..=7] > b#sext[0..=7])
+  sge = unsigned(a#sext[0..=7] >= b#sext[0..=7])
+  ult = unsigned(a < b)
+  ule = unsigned(a <= b)
+  ugt = unsigned(a > b)
+  uge = unsigned(a >= b)
+}

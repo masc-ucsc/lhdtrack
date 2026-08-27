@@ -1,0 +1,173 @@
+pub comb br_arb_pairwise_core_internal::[timecheck=false](request:u8, priority_matrix:u64) -> (can_grant:u8, grant:u8) {
+  can_grant = 0sb?
+  can_grant = 0xff
+  {
+    can_grant#[0] = 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[0..=7] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[0..=7] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[0..=7] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[0..=7] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[0..=7] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[0..=7] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[0..=7] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[8..=15] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[8..=15] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[8..=15] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[8..=15] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[8..=15] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[8..=15] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[8..=15] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[16..=23] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[16..=23] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[16..=23] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[16..=23] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[16..=23] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[16..=23] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[16..=23] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[24..=31] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[24..=31] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[24..=31] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[24..=31] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[24..=31] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[24..=31] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[24..=31] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[32..=39] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[32..=39] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[32..=39] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[32..=39] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[32..=39] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[32..=39] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[32..=39] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[40..=47] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[40..=47] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[40..=47] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[40..=47] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[40..=47] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[40..=47] >> 6) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[40..=47] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[48..=55] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[48..=55] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[48..=55] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[48..=55] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[48..=55] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[48..=55] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[48..=55] >> 7) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[56..=63] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[56..=63] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[56..=63] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[56..=63] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[56..=63] >> 4) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[56..=63] >> 5) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[56..=63] >> 6) & 1) != 0)) & 1
+  }
+  grant = request & can_grant
+}

@@ -1,0 +1,48 @@
+const br_enc_priority_encoder = import("br_enc_priority_encoder.br_enc_priority_encoder")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_enc_priority_dynamic::[timecheck=false](clk:u1, rst:u1, `in`:u16, lowest_prio:u16) -> (out:u16@[]) {
+  mut priority_mask:u16 = 0
+  priority_mask = 0sb?
+  out = 0sb?
+  mut priority_mask__w1 = priority_mask
+  priority_mask__w1#[0] = unsigned(lowest_prio != 0) & 1
+  mut priority_mask__w2 = priority_mask__w1
+  priority_mask__w2#[1] = unsigned(lowest_prio#[1..=15] != 0) & 1
+  mut priority_mask__w3 = priority_mask__w2
+  priority_mask__w3#[2] = unsigned(lowest_prio#[2..=15] != 0) & 1
+  mut priority_mask__w4 = priority_mask__w3
+  priority_mask__w4#[3] = unsigned(lowest_prio#[3..=15] != 0) & 1
+  mut priority_mask__w5 = priority_mask__w4
+  priority_mask__w5#[4] = unsigned(lowest_prio#[4..=15] != 0) & 1
+  mut priority_mask__w6 = priority_mask__w5
+  priority_mask__w6#[5] = unsigned(lowest_prio#[5..=15] != 0) & 1
+  mut priority_mask__w7 = priority_mask__w6
+  priority_mask__w7#[6] = unsigned(lowest_prio#[6..=15] != 0) & 1
+  mut priority_mask__w8 = priority_mask__w7
+  priority_mask__w8#[7] = unsigned(lowest_prio#[7..=15] != 0) & 1
+  mut priority_mask__w9 = priority_mask__w8
+  priority_mask__w9#[8] = unsigned(lowest_prio#[8..=15] != 0) & 1
+  mut priority_mask__w10 = priority_mask__w9
+  priority_mask__w10#[9] = unsigned(lowest_prio#[9..=15] != 0) & 1
+  mut priority_mask__w11 = priority_mask__w10
+  priority_mask__w11#[10] = unsigned(lowest_prio#[10..=15] != 0) & 1
+  mut priority_mask__w12 = priority_mask__w11
+  priority_mask__w12#[11] = unsigned(lowest_prio#[11..=15] != 0) & 1
+  mut priority_mask__w13 = priority_mask__w12
+  priority_mask__w13#[12] = unsigned(lowest_prio#[12..=15] != 0) & 1
+  mut priority_mask__w14 = priority_mask__w13
+  priority_mask__w14#[13] = unsigned(lowest_prio#[13..=15] != 0) & 1
+  mut priority_mask__w15 = priority_mask__w14
+  priority_mask__w15#[14] = unsigned(lowest_prio#[14..=15] != 0) & 1
+  mut priority_mask__w16 = priority_mask__w15
+  priority_mask__w16#[15] = unsigned(((lowest_prio >> 15) & 1) != 0) & 1
+  const in_high_prio__w1 = `in` & (~priority_mask__w16)#[0..=15]
+  const t58 = ((`in` & priority_mask__w16) << 15) | in_high_prio__w1#[1..=15]
+  mut br_enc_priority_encoder_inst = br_enc_priority_encoder::[name=br_enc_priority_encoder_inst](clk = clk, rst = rst, `in.e30` = (t58 >> 30) & 1, `in.e29` = (t58 >> 29) & 1, `in.e28` = (t58 >> 28) & 1, `in.e27` = (t58 >> 27) & 1, `in.e26` = (t58 >> 26) & 1, `in.e25` = (t58 >> 25) & 1, `in.e24` = (t58 >> 24) & 1, `in.e23` = (t58 >> 23) & 1, `in.e22` = (t58 >> 22) & 1, `in.e21` = (t58 >> 21) & 1, `in.e20` = (t58 >> 20) & 1, `in.e19` = (t58 >> 19) & 1, `in.e18` = (t58 >> 18) & 1, `in.e17` = (t58 >> 17) & 1, `in.e16` = (t58 >> 16) & 1, `in.e15` = (t58 >> 15) & 1, `in.e14` = (t58 >> 14) & 1, `in.e13` = (t58 >> 13) & 1, `in.e12` = (t58 >> 12) & 1, `in.e11` = (t58 >> 11) & 1, `in.e10` = (t58 >> 10) & 1, `in.e9` = (t58 >> 9) & 1, `in.e8` = (t58 >> 8) & 1, `in.e7` = (t58 >> 7) & 1, `in.e6` = (t58 >> 6) & 1, `in.e5` = (t58 >> 5) & 1, `in.e4` = (t58 >> 4) & 1, `in.e3` = (t58 >> 3) & 1, `in.e2` = (t58 >> 2) & 1, `in.e1` = (t58 >> 1) & 1, `in.e0` = t58 & 1)
+  const out_internal__w1 = br_enc_priority_encoder_inst
+  br_misc_unused::[name=br_misc_unused_in_high_prio_lsb](`in` = in_high_prio__w1 & 1)
+  mut out__w1 = out
+  out__w1#[0..=15] = out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)
+  out = out__w1
+}

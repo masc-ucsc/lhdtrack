@@ -1,0 +1,3 @@
+pub comb barrel_shifter::[timecheck=false](data:u8, shift_amt:u3) -> (shifted:u8) {
+  shifted = (data << shift_amt)#[0..=7]
+}

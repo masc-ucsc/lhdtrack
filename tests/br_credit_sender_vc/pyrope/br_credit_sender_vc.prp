@@ -1,0 +1,116 @@
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+const br_delay_nr = import("br_delay_nr.br_delay_nr")
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_enc_onehot2bin = import("br_enc_onehot2bin.br_enc_onehot2bin")
+const br_flow_fork = import("br_flow_fork.br_flow_fork")
+const br_flow_mux_core = import("br_flow_mux_core.br_flow_mux_core")
+
+pub mod br_credit_sender_vc::[timecheck=false](clk:u1, rst:u1, can_grant:u4, grant:u4, push_valid:u4, push_data:u256, pop_receiver_in_reset:u1, pop_credit:u12, credit_initial:u20, credit_withhold:u20) -> (request:u4@[], enable_priority_update:u1@[], push_ready:u4@[], pop_sender_in_reset:u1@[], pop_valid:u1@[], pop_data:u64@[], pop_vc:u2@[], credit_count:u20@[], credit_available:u20@[]) {
+  wire mux_push_ready:u4
+  mut mux_push_valid:u4 = 0
+  mut credit_decr_ready:u4 = 0
+  mut credit_decr:u12 = 0
+  mut credit_incr_valid:u4 = 0
+  mut credit_incr:u12 = 0
+  mut credit_count__wtmp:u20 = 0sb?
+  wire credit_count:u20
+  mut credit_available__wtmp:u20 = 0sb?
+  wire credit_available:u20
+  mut credit_decr_valid__wtmp:u4 = 0sb?
+  wire credit_decr_valid:u4
+  mux_push_valid = 0sb?
+  credit_decr_ready = 0sb?
+  credit_decr = 0sb?
+  credit_incr_valid = 0sb?
+  credit_incr = 0sb?
+  push_ready = 0sb?
+  const either_rst__w1 = unsigned((rst != 0) or (pop_receiver_in_reset != 0))
+  mut credit_incr_valid__w1 = credit_incr_valid
+  credit_incr_valid__w1#[0] = unsigned(pop_credit#[0..=2] != 0) & 1
+  mut credit_incr__w1 = credit_incr
+  credit_incr__w1#[0..=2] = pop_credit#[0..=2]
+  mut credit_decr__w1 = credit_decr
+  credit_decr__w1#[0..=2] = 1
+  mut credit_incr_valid__w2 = credit_incr_valid__w1
+  credit_incr_valid__w2#[1] = unsigned(pop_credit#[3..=5] != 0) & 1
+  mut credit_incr__w2 = credit_incr__w1
+  credit_incr__w2#[3..=5] = pop_credit#[3..=5]
+  mut credit_decr__w2 = credit_decr__w1
+  credit_decr__w2#[3..=5] = 1
+  mut credit_incr_valid__w3 = credit_incr_valid__w2
+  credit_incr_valid__w3#[2] = unsigned(pop_credit#[6..=8] != 0) & 1
+  mut credit_incr__w3 = credit_incr__w2
+  credit_incr__w3#[6..=8] = pop_credit#[6..=8]
+  mut credit_incr_valid__w4 = credit_incr_valid__w3
+  credit_incr_valid__w4#[3] = unsigned(pop_credit#[9..=11] != 0) & 1
+  mut credit_incr__w4 = credit_incr__w3
+  credit_incr__w4#[9..=11] = pop_credit#[9..=11]
+  mut br_enc_onehot2bin_pop_vc = br_enc_onehot2bin::[name=br_enc_onehot2bin_pop_vc](clk = clk, rst = rst, `in` = grant)
+  mut br_delay_nr_pop_sender_in_reset = br_delay_nr::[name=br_delay_nr_pop_sender_in_reset](clk = clk, `in` = rst)
+  mut credit_decr_ready__w1 = credit_decr_ready
+  credit_decr_ready__w1#[0] = unsigned(credit_available#[0..=4] > 0) & 1
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = credit_incr_valid__w4 & 1, incr = credit_incr__w4#[0..=2], decr_valid = credit_decr_valid & 1, decr = 1, initial_value = credit_initial#[0..=4], withhold = credit_withhold#[0..=4])
+  credit_count__wtmp#[0..=4] = br_credit_counter["value"]#[0..=4]
+  credit_available__wtmp#[0..=4] = br_credit_counter["available"]#[0..=4]
+  mut br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = push_valid & 1, pop_ready = ((credit_decr_ready__w1 & 1) << 1) | (mux_push_ready & 1))
+  mut push_ready__w1 = push_ready
+  push_ready__w1#[0] = br_flow_fork_push["push_ready"] & 1
+  mut mux_push_valid__w1 = mux_push_valid
+  mux_push_valid__w1#[0] = br_flow_fork_push["pop_valid_unstable"] & 1
+  credit_decr_valid__wtmp#[0] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  mut credit_decr_ready__w2 = credit_decr_ready__w1
+  credit_decr_ready__w2#[1] = unsigned(credit_available#[5..=9] > 0) & 1
+  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 1) & 1, incr = credit_incr__w4#[3..=5], decr_valid = (credit_decr_valid >> 1) & 1, decr = 1, initial_value = credit_initial#[5..=9], withhold = credit_withhold#[5..=9])
+  mut credit_count__wtmp__w1 = credit_count__wtmp
+  credit_count__wtmp__w1#[5..=9] = br_credit_counter["value"]#[0..=4]
+  mut credit_available__wtmp__w1 = credit_available__wtmp
+  credit_available__wtmp__w1#[5..=9] = br_credit_counter["available"]#[0..=4]
+  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 1) & 1, pop_ready = (((credit_decr_ready__w2 >> 1) & 1) << 1) | ((mux_push_ready >> 1) & 1))
+  mut push_ready__w2 = push_ready__w1
+  push_ready__w2#[1] = br_flow_fork_push["push_ready"] & 1
+  mut mux_push_valid__w2 = mux_push_valid__w1
+  mux_push_valid__w2#[1] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mut credit_decr_valid__wtmp__w1 = credit_decr_valid__wtmp
+  credit_decr_valid__wtmp__w1#[1] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  mut credit_decr_ready__w3 = credit_decr_ready__w2
+  credit_decr_ready__w3#[2] = unsigned(credit_available#[10..=14] > 0) & 1
+  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 2) & 1, incr = credit_incr__w4#[6..=8], decr_valid = (credit_decr_valid >> 2) & 1, decr = 1, initial_value = credit_initial#[10..=14], withhold = credit_withhold#[10..=14])
+  mut credit_count__wtmp__w2 = credit_count__wtmp__w1
+  credit_count__wtmp__w2#[10..=14] = br_credit_counter["value"]#[0..=4]
+  mut credit_available__wtmp__w2 = credit_available__wtmp__w1
+  credit_available__wtmp__w2#[10..=14] = br_credit_counter["available"]#[0..=4]
+  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 2) & 1, pop_ready = (((credit_decr_ready__w3 >> 2) & 1) << 1) | ((mux_push_ready >> 2) & 1))
+  mut push_ready__w3 = push_ready__w2
+  push_ready__w3#[2] = br_flow_fork_push["push_ready"] & 1
+  mut mux_push_valid__w3 = mux_push_valid__w2
+  mux_push_valid__w3#[2] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mut credit_decr_valid__wtmp__w2 = credit_decr_valid__wtmp__w1
+  credit_decr_valid__wtmp__w2#[2] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  mut credit_decr_ready__w4 = credit_decr_ready__w3
+  credit_decr_ready__w4#[3] = unsigned(credit_available#[15..=19] > 0) & 1
+  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 3) & 1, incr = credit_incr__w4#[9..=11], decr_valid = (credit_decr_valid >> 3) & 1, decr = 1, initial_value = credit_initial#[15..=19], withhold = credit_withhold#[15..=19])
+  mut credit_count__wtmp__w3 = credit_count__wtmp__w2
+  credit_count__wtmp__w3#[15..=19] = br_credit_counter["value"]#[0..=4]
+  mut credit_available__wtmp__w3 = credit_available__wtmp__w2
+  credit_available__wtmp__w3#[15..=19] = br_credit_counter["available"]#[0..=4]
+  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 3) & 1, pop_ready = (((credit_decr_ready__w4 >> 3) & 1) << 1) | ((mux_push_ready >> 3) & 1))
+  mut push_ready__w4 = push_ready__w3
+  push_ready__w4#[3] = br_flow_fork_push["push_ready"] & 1
+  mut mux_push_valid__w4 = mux_push_valid__w3
+  mux_push_valid__w4#[3] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mut credit_decr_valid__wtmp__w3 = credit_decr_valid__wtmp__w2
+  credit_decr_valid__wtmp__w3#[3] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  mut br_flow_mux_core_push = br_flow_mux_core::[name=br_flow_mux_core_push](clk = clk, rst = rst, can_grant = can_grant, grant = grant, push_valid = mux_push_valid__w4, push_data = push_data, pop_ready = 1)
+  mux_push_ready = br_flow_mux_core_push.push_ready
+  mut br_delay_valid_pop = br_delay_valid::[name=br_delay_valid_pop](clk = clk, rst = rst, in_valid = br_flow_mux_core_push.pop_valid_unstable, `in` = (br_flow_mux_core_push.pop_data_unstable#[0..=63] << 2) | br_enc_onehot2bin_pop_vc.out#[0..=1])
+  credit_count = credit_count__wtmp__w3
+  credit_available = credit_available__wtmp__w3
+  credit_decr_valid = credit_decr_valid__wtmp__w3
+  request = br_flow_mux_core_push.request
+  enable_priority_update = br_flow_mux_core_push.enable_priority_update
+  push_ready = push_ready__w4
+  pop_sender_in_reset = br_delay_nr_pop_sender_in_reset.out
+  pop_valid = br_delay_valid_pop.out_valid
+  pop_data = (br_delay_valid_pop.out >> 2)#[0..=63]
+  pop_vc = br_delay_valid_pop.out#[0..=1]
+}

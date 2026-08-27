@@ -1,0 +1,12 @@
+pub mod br_arb_grant_hold::[timecheck=false](clk:u1, rst:u1, grant_hold:u8, enable_grant_hold_update:u1, grant_from_arb:u8) -> (enable_priority_update_to_arb:u1@[], grant:u8@[]) {
+  reg hold:u8
+  mut _mux_2:u8 = if hold != 0 { hold } else { grant_from_arb }
+  const grant__w1 = _mux_2
+  if rst != 0 {
+    hold = 0
+  } elif enable_grant_hold_update != 0 {
+    hold = grant__w1 & grant_hold
+  }
+  enable_priority_update_to_arb = unsigned((not (hold != 0)) and (enable_grant_hold_update != 0))
+  grant = grant__w1
+}

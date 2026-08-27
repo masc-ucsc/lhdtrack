@@ -1,0 +1,10 @@
+const br_arb_pairwise_core_internal_t = import("br_arb_pairwise_core_internal.br_arb_pairwise_core_internal")
+const br_lru_state_internal_t = import("br_lru_state_internal.br_lru_state_internal")
+
+pub mod br_arb_lru_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u2) -> (can_grant:u2@[], grant:u2@[]) {
+  wire grant:u2
+  mut br_lru_state_internal = br_lru_state_internal_t::[name=br_lru_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), `grant.e1` = (grant >> 1) & 1, `grant.e0` = grant & 1)
+  mut br_arb_pairwise_core_internal = br_arb_pairwise_core_internal_t::[name=br_arb_pairwise_core_internal](request = request, priority_matrix = br_lru_state_internal)
+  grant = br_arb_pairwise_core_internal.grant
+  can_grant = br_arb_pairwise_core_internal.can_grant
+}

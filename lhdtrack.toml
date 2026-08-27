@@ -1,0 +1,61 @@
+# lhdtrack defaults. Every value here is overridable per test in design.toml and
+# per invocation on the command line.
+
+[run]
+# Both technologies on every test. One pinned Liberty version each; see tech/.
+techs = ["sky130", "asap7"]
+# Parallel flow invocations. Each flow is single-threaded by construction so the
+# wall-clock it reports is its own -- raising this past the physical core count
+# makes every timing metric in the run a lie.
+jobs = 4
+# The exec leg of a simulation is measured best-of-N, never once.
+sim_reps = 3
+# Per-obligation LEC budget. A solver that gives up is reported as `timeout`,
+# a third state distinct from both `proven` and `refuted` -- but it must be
+# bounded or one hard design stalls the whole nightly.
+lec_timeout_s = 300
+
+[cache]
+# Flows whose result is reused until something in the key changes. LiveHD flows
+# are deliberately absent: the lhd sha moves daily, so they would always miss,
+# and re-measuring them is the entire point of the tracker.
+baseline_flows = ["syn_yosys_abc", "sim_verilator"]
+# Warn on the report when a reused baseline is older than this. It stays valid
+# -- the key says so -- but a number this old as today's comparison point should
+# be visible, not implicit.
+stale_after_days = 30
+
+[gates]
+# All three simulators must fold the same checksum. A miscompile that shows up
+# as a speedup is the failure mode this exists to catch.
+require_checksum_match = true
+# LiveHD OpenTimer vs OpenSTA on the same netlist, same .lib, same .sdc.
+# Past this the test fails rather than reporting a QoR number no one can trust.
+sta_delta_pct_max = 10.0
+# A test whose pyrope/ has not been LEC-proven against verilog/ is REPORTED but
+# never aggregated into a headline comparison.
+require_lec_for_comparison = true
+
+[sdc]
+# Nominal clock period per technology, in THAT LIBRARY'S OWN TIME UNIT --
+# sky130 Liberty is 1ns, ASAP7 is 1ps. `tools/gen_sdc.py` writes one
+# constraints/<tech>.sdc per entry. Chosen loose enough that a small block is
+# not permanently red, tight enough that slack still discriminates.
+#
+# 10 ns on 130nm and 500 ps on 7nm are both roughly "a comfortable but not
+# free target" for blocks this size.
+[sdc.period.sky130]
+value = 10.0
+unit = "ns"
+
+[sdc.period.asap7]
+value = 500.0
+unit = "ps"
+
+[report]
+# The headline geomean aggregates idiomatic Pyrope only. `auto` rows are shown
+# but kept in a separate population -- machine-emitted Pyrope enters the same
+# LGraph the Verilog does, so it measures front ends, not languages.
+headline_pyrope_status = ["idiomatic"]
+baseline_flow = "syn_yosys_abc"
+baseline_sim_flow = "sim_verilator"

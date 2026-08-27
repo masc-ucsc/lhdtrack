@@ -1,0 +1,40 @@
+# br_fifo_shared_dynamic_ctrl_ext_arbiter -- see README.md for provenance.
+[design]
+name  = "br_fifo_shared_dynamic_ctrl_ext_arbiter"
+top   = "br_fifo_shared_dynamic_ctrl_ext_arbiter"
+kind  = "sequential"          # combinational | sequential
+suite = "fifo"         # groups the report; NOT a path component
+
+[provenance]
+upstream = "bedrock-rtl"             # e.g. "bedrock-rtl"
+rev      = "0a990f222cd970fdaec42c6e0a4e372cf0e1400f"             # the exact commit this was taken from
+path     = "fifo/rtl/br_fifo_shared_dynamic_ctrl_ext_arbiter.sv"             # the upstream path of the source
+license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
+
+[status]
+# none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
+# measures FRONT ENDS, not languages, so it never enters a headline geomean.
+pyrope = "none"
+# none | proven | failed | unsupported -- until `proven`, a QoR win might just
+# be a different circuit.
+lec    = "none"
+
+# One elaborated parameter set per entry. Benchmark id is `br_fifo_shared_dynamic_ctrl_ext_arbiter#<id>`.
+[[config]]
+id     = "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_38eeea98"
+params = { DataRamReadLatency = 1, Depth = 32, NumFifos = 2, NumReadPorts = 2, NumWritePorts = 2, PointerRamReadLatency = 1, RegisterDeallocation = 1, RegisterPopOutputs = 1, StagingBufferDepth = 2, Width = 32 }
+
+[synth]
+flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
+
+[sim]
+flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
+# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# simulator speedup: a benchmark that has outrun its cycle count reports
+# process startup, not the simulator.
+cycles = 1000000
+marker = "LHDTRACK-DONE"
+
+[lec]
+# lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

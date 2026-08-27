@@ -1,0 +1,30 @@
+const br_counter = import("br_counter.br_counter")
+const br_credit_receiver_t = import("br_credit_receiver.br_credit_receiver")
+const br_fifo_push_ctrl_core_t = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
+
+pub mod br_fifo_push_ctrl_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u32, credit_initial_push:u6, credit_withhold_push:u6, bypass_ready:u1, pop_beat:u1) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], full:u1@[], full_next:u1@[], slots:u6@[], slots_next:u6@[], credit_count_push:u6@[], credit_available_push:u6@[], bypass_valid_unstable:u1@[], bypass_data_unstable:u32@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], push_beat:u1@[]) {
+  reg full:u1
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, pop_credit = pop_beat, credit_initial = credit_initial_push, credit_withhold = credit_withhold_push)
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk = clk, rst = either_rst__w1, push_valid = br_credit_receiver.pop_valid, push_data = br_credit_receiver.pop_data, bypass_ready = bypass_ready, addr_base = 0, addr_bound = 31, full = full)
+  mut br_counter_slots = br_counter::[name=br_counter_slots](clk = clk, rst = either_rst__w1, reinit = 0, initial_value = 32, incr_valid = pop_beat, incr = 1, decr_valid = br_fifo_push_ctrl_core.push_beat, decr = 1)
+  const full_next__w1 = unsigned(br_counter_slots.value_next == 0)
+  if either_rst__w1 != 0 {
+    full = 0
+  } elif (br_fifo_push_ctrl_core.push_beat != 0) or (pop_beat != 0) {
+    full = full_next__w1
+  }
+  push_receiver_in_reset = br_credit_receiver.push_receiver_in_reset
+  push_credit = br_credit_receiver.push_credit
+  full_next = full_next__w1
+  slots = br_counter_slots.value
+  slots_next = br_counter_slots.value_next
+  credit_count_push = br_credit_receiver.credit_count
+  credit_available_push = br_credit_receiver.credit_available
+  bypass_valid_unstable = br_fifo_push_ctrl_core.bypass_valid_unstable
+  bypass_data_unstable = br_fifo_push_ctrl_core.bypass_data_unstable
+  ram_wr_valid = br_fifo_push_ctrl_core.ram_wr_valid
+  ram_wr_addr = br_fifo_push_ctrl_core.ram_wr_addr
+  ram_wr_data = br_fifo_push_ctrl_core.ram_wr_data
+  push_beat = br_fifo_push_ctrl_core.push_beat
+}

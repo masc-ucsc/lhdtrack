@@ -1,0 +1,87 @@
+const br_fifo_shared_read_xbar_t = import("br_fifo_shared_read_xbar.br_fifo_shared_read_xbar")
+const br_fifo_staging_buffer_t = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
+const br_flow_checks_valid_data_intg = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_flow_join = import("br_flow_join.br_flow_join")
+
+pub mod br_fifo_shared_pop_ctrl_ext_arbiter::[timecheck=false](clk:u1, rst:u1, head_valid:u2, head:u10, ram_empty:u2, ram_items:u12, bypass_valid_unstable:u2, bypass_data_unstable:u64, pop_ready:u2, data_ram_rd_data_valid:u2, data_ram_rd_data:u64, arb_grant:u4, arb_can_grant:u4) -> (head_ready:u2@[], bypass_ready:u2@[], pop_valid:u2@[], pop_data:u64@[], pop_empty:u2@[], dealloc_valid:u2@[], dealloc_entry_id:u10@[], data_ram_rd_addr_valid:u2@[], data_ram_rd_addr:u10@[], arb_request:u4@[], arb_enable_priority_update:u2@[]) {
+  reg dealloc_valid:u2
+  reg dealloc_entry_id:u10
+  wire fifo_ram_rd_addr_ready:u2
+  wire fifo_ram_rd_data_valid:u2
+  wire fifo_ram_rd_data:u64
+  mut fifo_ram_rd_addr_valid:u2 = 0
+  mut fifo_ram_rd_addr:u10 = 0
+  mut head_ready__wtmp:u2 = 0sb?
+  wire head_ready:u2
+  wire gen_fifo_ram_read_0_gen_staging_buffer_stg_buffer_empty:u1
+  wire gen_fifo_ram_read_1_gen_staging_buffer_stg_buffer_empty:u1
+  wire gen_fifo_ram_read_0_gen_staging_buffer_ram_rd_req_ready:u1
+  wire gen_fifo_ram_read_1_gen_staging_buffer_ram_rd_req_ready:u1
+  fifo_ram_rd_addr_valid = 0sb?
+  fifo_ram_rd_addr = 0sb?
+  bypass_ready = 0sb?
+  pop_valid = 0sb?
+  pop_data = 0sb?
+  pop_empty = 0sb?
+  mut pop_empty__w1 = pop_empty
+  pop_empty__w1#[0] = unsigned(((ram_empty & 1) != 0) and (gen_fifo_ram_read_0_gen_staging_buffer_stg_buffer_empty != 0)) & 1
+  mut fifo_ram_rd_addr__w1 = fifo_ram_rd_addr
+  fifo_ram_rd_addr__w1#[0..=4] = head#[0..=4]
+  mut pop_empty__w2 = pop_empty__w1
+  pop_empty__w2#[1] = unsigned((((ram_empty >> 1) & 1) != 0) and (gen_fifo_ram_read_1_gen_staging_buffer_stg_buffer_empty != 0)) & 1
+  mut fifo_ram_rd_addr__w2 = fifo_ram_rd_addr__w1
+  fifo_ram_rd_addr__w2#[5..=9] = head#[5..=9]
+  br_flow_checks_valid_data_intg::[name=br_flow_checks_valid_data_intg_head](clk = clk, rst = rst, valid = head_valid, ready = head_ready, data = head)
+  mut br_fifo_staging_buffer = br_fifo_staging_buffer_t::[name=br_fifo_staging_buffer](clk = clk, rst = rst, total_items = ram_items#[0..=5], bypass_valid_unstable = bypass_valid_unstable & 1, bypass_data_unstable = bypass_data_unstable#[0..=31], ram_rd_addr_ready = gen_fifo_ram_read_0_gen_staging_buffer_ram_rd_req_ready, ram_rd_data_valid = fifo_ram_rd_data_valid & 1, ram_rd_data = fifo_ram_rd_data#[0..=31], pop_ready = pop_ready & 1)
+  mut bypass_ready__w1 = bypass_ready
+  bypass_ready__w1#[0] = br_fifo_staging_buffer["bypass_ready"] & 1
+  mut pop_valid__w1 = pop_valid
+  pop_valid__w1#[0] = br_fifo_staging_buffer["pop_valid"] & 1
+  mut pop_data__w1 = pop_data
+  pop_data__w1#[0..=31] = br_fifo_staging_buffer["pop_data"]#[0..=31]
+  gen_fifo_ram_read_0_gen_staging_buffer_stg_buffer_empty = br_fifo_staging_buffer["pop_empty"]
+  mut br_flow_join_ram_rd_addr = br_flow_join::[name=br_flow_join_ram_rd_addr](clk = clk, rst = rst, push_valid = ((head_valid & 1) << 1) | (br_fifo_staging_buffer["ram_rd_addr_valid"] & 1), pop_ready = fifo_ram_rd_addr_ready & 1)
+  gen_fifo_ram_read_0_gen_staging_buffer_ram_rd_req_ready = br_flow_join_ram_rd_addr["push_ready"] & 1
+  head_ready__wtmp#[0] = (br_flow_join_ram_rd_addr["push_ready"] >> 1) & 1
+  mut fifo_ram_rd_addr_valid__w1 = fifo_ram_rd_addr_valid
+  fifo_ram_rd_addr_valid__w1#[0] = br_flow_join_ram_rd_addr["pop_valid"] & 1
+  br_fifo_staging_buffer = br_fifo_staging_buffer_t::[name=br_fifo_staging_buffer](clk = clk, rst = rst, total_items = ram_items#[6..=11], bypass_valid_unstable = (bypass_valid_unstable >> 1) & 1, bypass_data_unstable = bypass_data_unstable#[32..=63], ram_rd_addr_ready = gen_fifo_ram_read_1_gen_staging_buffer_ram_rd_req_ready, ram_rd_data_valid = (fifo_ram_rd_data_valid >> 1) & 1, ram_rd_data = fifo_ram_rd_data#[32..=63], pop_ready = (pop_ready >> 1) & 1)
+  mut bypass_ready__w2 = bypass_ready__w1
+  bypass_ready__w2#[1] = br_fifo_staging_buffer["bypass_ready"] & 1
+  mut pop_valid__w2 = pop_valid__w1
+  pop_valid__w2#[1] = br_fifo_staging_buffer["pop_valid"] & 1
+  mut pop_data__w2 = pop_data__w1
+  pop_data__w2#[32..=63] = br_fifo_staging_buffer["pop_data"]#[0..=31]
+  gen_fifo_ram_read_1_gen_staging_buffer_stg_buffer_empty = br_fifo_staging_buffer["pop_empty"]
+  br_flow_join_ram_rd_addr = br_flow_join::[name=br_flow_join_ram_rd_addr](clk = clk, rst = rst, push_valid = (((head_valid >> 1) & 1) << 1) | (br_fifo_staging_buffer["ram_rd_addr_valid"] & 1), pop_ready = (fifo_ram_rd_addr_ready >> 1) & 1)
+  gen_fifo_ram_read_1_gen_staging_buffer_ram_rd_req_ready = br_flow_join_ram_rd_addr["push_ready"] & 1
+  mut head_ready__wtmp__w1 = head_ready__wtmp
+  head_ready__wtmp__w1#[1] = (br_flow_join_ram_rd_addr["push_ready"] >> 1) & 1
+  mut fifo_ram_rd_addr_valid__w2 = fifo_ram_rd_addr_valid__w1
+  fifo_ram_rd_addr_valid__w2#[1] = br_flow_join_ram_rd_addr["pop_valid"] & 1
+  mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk = clk, rst = rst, `push_rd_addr_valid.e1` = (fifo_ram_rd_addr_valid__w2 >> 1) & 1, `push_rd_addr_valid.e0` = fifo_ram_rd_addr_valid__w2 & 1, push_rd_addr = fifo_ram_rd_addr__w2, `pop_rd_data_valid.e1` = (data_ram_rd_data_valid >> 1) & 1, `pop_rd_data_valid.e0` = data_ram_rd_data_valid & 1, pop_rd_data = data_ram_rd_data, arb_can_grant = arb_can_grant, arb_grant = arb_grant)
+  fifo_ram_rd_addr_ready = (br_fifo_shared_read_xbar.push_rd_addr_ready.e1 << 1) | br_fifo_shared_read_xbar.push_rd_addr_ready.e0
+  fifo_ram_rd_data_valid = (br_fifo_shared_read_xbar.push_rd_data_valid.e1 << 1) | br_fifo_shared_read_xbar.push_rd_data_valid.e0
+  fifo_ram_rd_data = br_fifo_shared_read_xbar.push_rd_data
+  const gen_reg_dealloc_dealloc_valid_next__w1 = head_valid & head_ready
+  dealloc_valid = if rst != 0 { 0 } else { gen_reg_dealloc_dealloc_valid_next__w1 }
+  if rst != 0 {
+    dealloc_entry_id#[0..=4] = 0
+  } elif (gen_reg_dealloc_dealloc_valid_next__w1 & 1) != 0 {
+    dealloc_entry_id#[0..=4] = head#[0..=4]
+  }
+  if rst != 0 {
+    dealloc_entry_id#[5..=9] = 0
+  } elif ((gen_reg_dealloc_dealloc_valid_next__w1 >> 1) & 1) != 0 {
+    dealloc_entry_id#[5..=9] = head#[5..=9]
+  }
+  head_ready = head_ready__wtmp__w1
+  bypass_ready = bypass_ready__w2
+  pop_valid = pop_valid__w2
+  pop_data = pop_data__w2
+  pop_empty = pop_empty__w2
+  data_ram_rd_addr_valid = (br_fifo_shared_read_xbar.pop_rd_addr_valid.e1 << 1) | br_fifo_shared_read_xbar.pop_rd_addr_valid.e0
+  data_ram_rd_addr = br_fifo_shared_read_xbar.pop_rd_addr
+  arb_request = br_fifo_shared_read_xbar.arb_request
+  arb_enable_priority_update = (br_fifo_shared_read_xbar.arb_enable_priority_update.e1 << 1) | br_fifo_shared_read_xbar.arb_enable_priority_update.e0
+}

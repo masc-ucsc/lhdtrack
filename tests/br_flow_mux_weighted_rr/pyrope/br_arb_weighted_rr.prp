@@ -1,0 +1,8 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_arb_weighted_rr::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u1, request_weight:u1) -> (grant:u1@[]) {
+  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  br_misc_unused::[name=br_misc_unused_enable_priority_update](`in` = enable_priority_update)
+  br_misc_unused::[name=br_misc_unused_request_weight](`in` = request_weight)
+  grant = request
+}

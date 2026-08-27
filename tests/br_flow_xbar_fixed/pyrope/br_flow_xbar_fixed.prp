@@ -1,0 +1,33 @@
+const br_arb_fixed_internal = import("br_arb_fixed_internal.br_arb_fixed_internal")
+const br_flow_xbar_core = import("br_flow_xbar_core.br_flow_xbar_core")
+
+pub mod br_flow_xbar_fixed::[timecheck=false](clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest_id:u8, pop_ready:u4) -> (push_ready:u4@[], pop_valid:u4@[], pop_data:u128@[]) {
+  mut can_grant__wtmp:u16 = 0sb?
+  wire can_grant:u16
+  mut grant__wtmp:u16 = 0sb?
+  wire grant:u16
+  mut br_flow_xbar_core_inst = br_flow_xbar_core::[name=br_flow_xbar_core_inst](clk = clk, rst = rst, `push_valid.e3` = (push_valid >> 3) & 1, `push_valid.e2` = (push_valid >> 2) & 1, `push_valid.e1` = (push_valid >> 1) & 1, `push_valid.e0` = push_valid & 1, push_data = push_data, push_dest_id = push_dest_id, `pop_ready.e3` = (pop_ready >> 3) & 1, `pop_ready.e2` = (pop_ready >> 2) & 1, `pop_ready.e1` = (pop_ready >> 1) & 1, `pop_ready.e0` = pop_ready & 1, can_grant = can_grant, grant = grant)
+  mut br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=br_arb_fixed_internal_inst](request = br_flow_xbar_core_inst.request#[0..=3])
+  can_grant__wtmp#[0..=3] = ((br_arb_fixed_internal_inst["can_grant.e3"] << 3) | (br_arb_fixed_internal_inst["can_grant.e2"] << 2) | (br_arb_fixed_internal_inst["can_grant.e1"] << 1) | br_arb_fixed_internal_inst["can_grant.e0"])#[0..=3]
+  grant__wtmp#[0..=3] = br_arb_fixed_internal_inst["grant"]#[0..=3]
+  br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=br_arb_fixed_internal_inst](request = br_flow_xbar_core_inst.request#[4..=7])
+  mut can_grant__wtmp__w1 = can_grant__wtmp
+  can_grant__wtmp__w1#[4..=7] = ((br_arb_fixed_internal_inst["can_grant.e3"] << 3) | (br_arb_fixed_internal_inst["can_grant.e2"] << 2) | (br_arb_fixed_internal_inst["can_grant.e1"] << 1) | br_arb_fixed_internal_inst["can_grant.e0"])#[0..=3]
+  mut grant__wtmp__w1 = grant__wtmp
+  grant__wtmp__w1#[4..=7] = br_arb_fixed_internal_inst["grant"]#[0..=3]
+  br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=br_arb_fixed_internal_inst](request = br_flow_xbar_core_inst.request#[8..=11])
+  mut can_grant__wtmp__w2 = can_grant__wtmp__w1
+  can_grant__wtmp__w2#[8..=11] = ((br_arb_fixed_internal_inst["can_grant.e3"] << 3) | (br_arb_fixed_internal_inst["can_grant.e2"] << 2) | (br_arb_fixed_internal_inst["can_grant.e1"] << 1) | br_arb_fixed_internal_inst["can_grant.e0"])#[0..=3]
+  mut grant__wtmp__w2 = grant__wtmp__w1
+  grant__wtmp__w2#[8..=11] = br_arb_fixed_internal_inst["grant"]#[0..=3]
+  br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=br_arb_fixed_internal_inst](request = br_flow_xbar_core_inst.request#[12..=15])
+  mut can_grant__wtmp__w3 = can_grant__wtmp__w2
+  can_grant__wtmp__w3#[12..=15] = ((br_arb_fixed_internal_inst["can_grant.e3"] << 3) | (br_arb_fixed_internal_inst["can_grant.e2"] << 2) | (br_arb_fixed_internal_inst["can_grant.e1"] << 1) | br_arb_fixed_internal_inst["can_grant.e0"])#[0..=3]
+  mut grant__wtmp__w3 = grant__wtmp__w2
+  grant__wtmp__w3#[12..=15] = br_arb_fixed_internal_inst["grant"]#[0..=3]
+  can_grant = can_grant__wtmp__w3
+  grant = grant__wtmp__w3
+  push_ready = (br_flow_xbar_core_inst.push_ready.e3 << 3) | (br_flow_xbar_core_inst.push_ready.e2 << 2) | (br_flow_xbar_core_inst.push_ready.e1 << 1) | br_flow_xbar_core_inst.push_ready.e0
+  pop_valid = (br_flow_xbar_core_inst.pop_valid.e3 << 3) | (br_flow_xbar_core_inst.pop_valid.e2 << 2) | (br_flow_xbar_core_inst.pop_valid.e1 << 1) | br_flow_xbar_core_inst.pop_valid.e0
+  pop_data = br_flow_xbar_core_inst.pop_data
+}

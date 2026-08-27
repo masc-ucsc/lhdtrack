@@ -1,0 +1,21 @@
+pub comb br_shift_left::[timecheck=false](`in`:u16, shift:u4, fill:u1) -> (out_valid:u1, out:u16) {
+  mut stages:u80 = 0
+  stages = 0sb?
+  mut stages__w1 = stages
+  stages__w1#[0..=15] = `in`
+  mut _mux_2:u16 = if (shift & 1) != 0 { (stages__w1#[0..=15]#[0..=14] << 1) | (fill & 1) } else { stages__w1#[0..=15] }
+  mut stages__w2 = stages__w1
+  stages__w2#[16..=31] = _mux_2
+  mut _rep_3:u2 = if (fill & 1) != 0 { 3 } else { 0 }
+  mut _mux_4:u16 = if ((shift >> 1) & 1) != 0 { (stages__w2#[16..=31]#[0..=13] << 2) | _rep_3 } else { stages__w2#[16..=31] }
+  mut stages__w3 = stages__w2
+  stages__w3#[32..=47] = _mux_4
+  mut _rep_5:u4 = if (fill & 1) != 0 { 15 } else { 0 }
+  mut _mux_6:u16 = if ((shift >> 2) & 1) != 0 { (stages__w3#[32..=47]#[0..=11] << 4) | _rep_5 } else { stages__w3#[32..=47] }
+  mut stages__w4 = stages__w3
+  stages__w4#[48..=63] = _mux_6
+  mut _rep_7:u8 = if (fill & 1) != 0 { 0xff } else { 0 }
+  mut _mux_8:u16 = if ((shift >> 3) & 1) != 0 { (stages__w4#[48..=63]#[0..=7] << 8) | _rep_7 } else { stages__w4#[48..=63] }
+  out_valid = unsigned(shift <= 15)
+  out = stages__w1#[64..=79]
+}

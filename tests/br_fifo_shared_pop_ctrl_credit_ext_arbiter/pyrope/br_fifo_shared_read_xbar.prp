@@ -1,0 +1,158 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_demux_bin = import("br_demux_bin.br_demux_bin")
+const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
+const br_flow_mux_core = import("br_flow_mux_core.br_flow_mux_core")
+const br_misc_unused_p4 = import("br_misc_unused_p4.br_misc_unused_p4")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+
+pub mod br_fifo_shared_read_xbar::[timecheck=false](clk:u1, rst:u1, push_rd_addr_valid:(e1:u1, e0:u1), push_rd_addr:u10, pop_rd_data_valid:(e1:u1, e0:u1), pop_rd_data:u64, arb_can_grant:u4, arb_grant:u4) -> (push_rd_addr_ready:(e1:u1, e0:u1)@[], push_rd_data_valid:(e1:u1, e0:u1)@[], push_rd_data:u64@[], pop_rd_addr_valid:(e1:u1, e0:u1)@[], pop_rd_addr:u10@[], arb_request:u4@[], arb_enable_priority_update:(e1:u1, e0:u1)@[]) {
+  mut demuxed_rd_addr_valid:u4 = 0
+  mut demuxed_rd_addr:u20 = 0
+  mut demuxed_rd_data_valid:u4 = 0
+  mut demuxed_rd_data:u128 = 0
+  mut pop_rd_addr_fifo_id:u2 = 0
+  mut pop_rd_data_fifo_id:u2 = 0
+  mut pop_rd_data_fifo_id_valid:u2 = 0
+  mut gen_read_port_mux_0_mux_push_valid:u2 = 0
+  mut gen_read_port_mux_0_mux_push_data:u12 = 0
+  mut gen_read_port_mux_1_mux_push_valid:u2 = 0
+  mut gen_read_port_mux_1_mux_push_data:u12 = 0
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid:u2 = 0
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data:u64 = 0
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid:u2 = 0
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data:u64 = 0
+  mut demuxed_rd_addr_ready__wtmp:u4 = 0sb?
+  wire demuxed_rd_addr_ready:u4
+  wire gen_read_port_mux_0_gen_mux_input_0_mux_push_ready:u2
+  wire gen_read_port_mux_1_gen_mux_input_0_mux_push_ready:u2
+  demuxed_rd_addr_valid = 0sb?
+  demuxed_rd_addr = 0sb?
+  demuxed_rd_data_valid = 0sb?
+  demuxed_rd_data = 0sb?
+  pop_rd_addr_fifo_id = 0sb?
+  pop_rd_data_fifo_id = 0sb?
+  pop_rd_data_fifo_id_valid = 0sb?
+  gen_read_port_mux_0_mux_push_valid = 0sb?
+  gen_read_port_mux_0_mux_push_data = 0sb?
+  gen_read_port_mux_1_mux_push_valid = 0sb?
+  gen_read_port_mux_1_mux_push_data = 0sb?
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid = 0sb?
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data = 0sb?
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid = 0sb?
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data = 0sb?
+  push_rd_data = 0sb?
+  pop_rd_addr = 0sb?
+  arb_request = 0sb?
+  mut br_flow_demux_select_unstable_inst = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_inst](clk = clk, rst = rst, select = push_rd_addr#[0..=4] & 1, push_valid = push_rd_addr_valid.e0, push_data = push_rd_addr#[0..=4], pop_ready = demuxed_rd_addr_ready#[0..=1])
+  mut `push_rd_addr_ready__bpo.e0` = br_flow_demux_select_unstable_inst["push_ready"]
+  mut demuxed_rd_addr_valid__w1 = demuxed_rd_addr_valid
+  demuxed_rd_addr_valid__w1#[0..=1] = br_flow_demux_select_unstable_inst["pop_valid_unstable"]#[0..=1]
+  mut demuxed_rd_addr__w1 = demuxed_rd_addr
+  demuxed_rd_addr__w1#[0..=9] = br_flow_demux_select_unstable_inst["pop_data_unstable"]#[0..=9]
+  br_flow_demux_select_unstable_inst = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_inst](clk = clk, rst = rst, select = push_rd_addr#[5..=9] & 1, push_valid = push_rd_addr_valid.e1, push_data = push_rd_addr#[5..=9], pop_ready = demuxed_rd_addr_ready#[2..=3])
+  mut `push_rd_addr_ready__bpo.e1` = br_flow_demux_select_unstable_inst["push_ready"]
+  mut demuxed_rd_addr_valid__w2 = demuxed_rd_addr_valid__w1
+  demuxed_rd_addr_valid__w2#[2..=3] = br_flow_demux_select_unstable_inst["pop_valid_unstable"]#[0..=1]
+  mut demuxed_rd_addr__w2 = demuxed_rd_addr__w1
+  demuxed_rd_addr__w2#[10..=19] = br_flow_demux_select_unstable_inst["pop_data_unstable"]#[0..=9]
+  mut gen_read_port_mux_0_mux_push_valid__w1 = gen_read_port_mux_0_mux_push_valid
+  gen_read_port_mux_0_mux_push_valid__w1#[0] = demuxed_rd_addr_valid__w2#[0..=1] & 1
+  mut gen_read_port_mux_0_mux_push_data__w1 = gen_read_port_mux_0_mux_push_data
+  gen_read_port_mux_0_mux_push_data__w1#[0..=5] = demuxed_rd_addr__w2#[0..=9]#[0..=4] << 1
+  demuxed_rd_addr_ready__wtmp#[0] = gen_read_port_mux_0_gen_mux_input_0_mux_push_ready & 1
+  mut gen_read_port_mux_0_mux_push_valid__w2 = gen_read_port_mux_0_mux_push_valid__w1
+  gen_read_port_mux_0_mux_push_valid__w2#[1] = demuxed_rd_addr_valid__w2#[2..=3] & 1
+  mut gen_read_port_mux_0_mux_push_data__w2 = gen_read_port_mux_0_mux_push_data__w1
+  gen_read_port_mux_0_mux_push_data__w2#[6..=11] = (demuxed_rd_addr__w2#[10..=19]#[0..=4] << 1) | 1
+  mut demuxed_rd_addr_ready__wtmp__w1 = demuxed_rd_addr_ready__wtmp
+  demuxed_rd_addr_ready__wtmp__w1#[2] = (gen_read_port_mux_0_gen_mux_input_0_mux_push_ready >> 1) & 1
+  mut br_flow_mux_core_inst = br_flow_mux_core::[name=br_flow_mux_core_inst](clk = clk, rst = rst, can_grant = arb_can_grant#[0..=1], grant = arb_grant#[0..=1], push_valid = gen_read_port_mux_0_mux_push_valid__w2, push_data = gen_read_port_mux_0_mux_push_data__w2, pop_ready = 1)
+  mut arb_request__w1 = arb_request
+  arb_request__w1#[0..=1] = br_flow_mux_core_inst["request"]#[0..=1]
+  mut `arb_enable_priority_update__bpo.e0` = br_flow_mux_core_inst["enable_priority_update"]
+  gen_read_port_mux_0_gen_mux_input_0_mux_push_ready = br_flow_mux_core_inst["push_ready"]
+  mut `pop_rd_addr_valid__bpo.e0` = br_flow_mux_core_inst["pop_valid_unstable"]
+  mut pop_rd_addr_fifo_id__w1 = pop_rd_addr_fifo_id
+  pop_rd_addr_fifo_id__w1#[0] = br_flow_mux_core_inst["pop_data_unstable"] & 1
+  mut pop_rd_addr__w1 = pop_rd_addr
+  pop_rd_addr__w1#[0..=4] = (br_flow_mux_core_inst["pop_data_unstable"] >> 1)#[0..=4]
+  mut br_delay_valid_fifo_id = br_delay_valid::[name=br_delay_valid_fifo_id](clk = clk, rst = rst, in_valid = `pop_rd_addr_valid__bpo.e0`, `in` = pop_rd_addr_fifo_id__w1 & 1)
+  mut pop_rd_data_fifo_id_valid__w1 = pop_rd_data_fifo_id_valid
+  pop_rd_data_fifo_id_valid__w1#[0] = br_delay_valid_fifo_id["out_valid"] & 1
+  mut pop_rd_data_fifo_id__w1 = pop_rd_data_fifo_id
+  pop_rd_data_fifo_id__w1#[0] = br_delay_valid_fifo_id["out"] & 1
+  mut br_demux_bin_rd_data = br_demux_bin::[name=br_demux_bin_rd_data](select = pop_rd_data_fifo_id__w1 & 1, in_valid = pop_rd_data_valid.e0, `in` = pop_rd_data#[0..=31])
+  mut demuxed_rd_data_valid__w1 = demuxed_rd_data_valid
+  demuxed_rd_data_valid__w1#[0..=1] = br_demux_bin_rd_data["out_valid"]#[0..=1]
+  mut demuxed_rd_data__w1 = demuxed_rd_data
+  demuxed_rd_data__w1#[0..=63] = br_demux_bin_rd_data["out"]#[0..=63]
+  mut gen_read_port_mux_1_mux_push_valid__w1 = gen_read_port_mux_1_mux_push_valid
+  gen_read_port_mux_1_mux_push_valid__w1#[0] = (demuxed_rd_addr_valid__w2#[0..=1] >> 1) & 1
+  mut gen_read_port_mux_1_mux_push_data__w1 = gen_read_port_mux_1_mux_push_data
+  gen_read_port_mux_1_mux_push_data__w1#[0..=5] = demuxed_rd_addr__w2#[0..=9]#[5..=9] << 1
+  mut demuxed_rd_addr_ready__wtmp__w2 = demuxed_rd_addr_ready__wtmp__w1
+  demuxed_rd_addr_ready__wtmp__w2#[1] = gen_read_port_mux_1_gen_mux_input_0_mux_push_ready & 1
+  mut gen_read_port_mux_1_mux_push_valid__w2 = gen_read_port_mux_1_mux_push_valid__w1
+  gen_read_port_mux_1_mux_push_valid__w2#[1] = (demuxed_rd_addr_valid__w2#[2..=3] >> 1) & 1
+  mut gen_read_port_mux_1_mux_push_data__w2 = gen_read_port_mux_1_mux_push_data__w1
+  gen_read_port_mux_1_mux_push_data__w2#[6..=11] = (demuxed_rd_addr__w2#[10..=19]#[5..=9] << 1) | 1
+  mut demuxed_rd_addr_ready__wtmp__w3 = demuxed_rd_addr_ready__wtmp__w2
+  demuxed_rd_addr_ready__wtmp__w3#[3] = (gen_read_port_mux_1_gen_mux_input_0_mux_push_ready >> 1) & 1
+  br_flow_mux_core_inst = br_flow_mux_core::[name=br_flow_mux_core_inst](clk = clk, rst = rst, can_grant = arb_can_grant#[2..=3], grant = arb_grant#[2..=3], push_valid = gen_read_port_mux_1_mux_push_valid__w2, push_data = gen_read_port_mux_1_mux_push_data__w2, pop_ready = 1)
+  mut arb_request__w2 = arb_request__w1
+  arb_request__w2#[2..=3] = br_flow_mux_core_inst["request"]#[0..=1]
+  mut `arb_enable_priority_update__bpo.e1` = br_flow_mux_core_inst["enable_priority_update"]
+  gen_read_port_mux_1_gen_mux_input_0_mux_push_ready = br_flow_mux_core_inst["push_ready"]
+  mut `pop_rd_addr_valid__bpo.e1` = br_flow_mux_core_inst["pop_valid_unstable"]
+  mut pop_rd_addr_fifo_id__w2 = pop_rd_addr_fifo_id__w1
+  pop_rd_addr_fifo_id__w2#[1] = br_flow_mux_core_inst["pop_data_unstable"] & 1
+  mut pop_rd_addr__w2 = pop_rd_addr__w1
+  pop_rd_addr__w2#[5..=9] = (br_flow_mux_core_inst["pop_data_unstable"] >> 1)#[0..=4]
+  br_delay_valid_fifo_id = br_delay_valid::[name=br_delay_valid_fifo_id](clk = clk, rst = rst, in_valid = `pop_rd_addr_valid__bpo.e1`, `in` = (pop_rd_addr_fifo_id__w2 >> 1) & 1)
+  mut pop_rd_data_fifo_id_valid__w2 = pop_rd_data_fifo_id_valid__w1
+  pop_rd_data_fifo_id_valid__w2#[1] = br_delay_valid_fifo_id["out_valid"] & 1
+  mut pop_rd_data_fifo_id__w2 = pop_rd_data_fifo_id__w1
+  pop_rd_data_fifo_id__w2#[1] = br_delay_valid_fifo_id["out"] & 1
+  br_demux_bin_rd_data = br_demux_bin::[name=br_demux_bin_rd_data](select = (pop_rd_data_fifo_id__w2 >> 1) & 1, in_valid = pop_rd_data_valid.e1, `in` = pop_rd_data#[32..=63])
+  mut demuxed_rd_data_valid__w2 = demuxed_rd_data_valid__w1
+  demuxed_rd_data_valid__w2#[2..=3] = br_demux_bin_rd_data["out_valid"]#[0..=1]
+  mut demuxed_rd_data__w2 = demuxed_rd_data__w1
+  demuxed_rd_data__w2#[64..=127] = br_demux_bin_rd_data["out"]#[0..=63]
+  br_misc_unused_p4::[name=br_misc_unused_pop_rd_data_fifo_id_valid](`in` = pop_rd_data_fifo_id_valid__w2)
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w1 = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w1#[0] = demuxed_rd_data_valid__w2#[0..=1] & 1
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w1 = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w1#[0..=31] = demuxed_rd_data__w2#[0..=63]#[0..=31]
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w2 = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w1
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w2#[1] = demuxed_rd_data_valid__w2#[2..=3] & 1
+  mut gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w2 = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w1
+  gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w2#[32..=63] = demuxed_rd_data__w2#[64..=127]#[0..=31]
+  mut `push_rd_data_valid__bpo.e0` = unsigned(gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w2 != 0)
+  mut br_mux_onehot_rd_data = br_mux_onehot_p1::[name=br_mux_onehot_rd_data](select = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data_valid__w2, `in` = gen_mux_rd_data_gen_fifo_rd_data_0_mux_in_rd_data__w2)
+  mut push_rd_data__w1 = push_rd_data
+  push_rd_data__w1#[0..=31] = br_mux_onehot_rd_data#[0..=31]
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w1 = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w1#[0] = (demuxed_rd_data_valid__w2#[0..=1] >> 1) & 1
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w1 = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w1#[0..=31] = demuxed_rd_data__w2#[0..=63]#[32..=63]
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w2 = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w1
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w2#[1] = (demuxed_rd_data_valid__w2#[2..=3] >> 1) & 1
+  mut gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w2 = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w1
+  gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w2#[32..=63] = demuxed_rd_data__w2#[64..=127]#[32..=63]
+  mut `push_rd_data_valid__bpo.e1` = unsigned(gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w2 != 0)
+  br_mux_onehot_rd_data = br_mux_onehot_p1::[name=br_mux_onehot_rd_data](select = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data_valid__w2, `in` = gen_mux_rd_data_gen_fifo_rd_data_1_mux_in_rd_data__w2)
+  mut push_rd_data__w2 = push_rd_data__w1
+  push_rd_data__w2#[32..=63] = br_mux_onehot_rd_data#[0..=31]
+  demuxed_rd_addr_ready = demuxed_rd_addr_ready__wtmp__w3
+  push_rd_addr_ready.e1 = `push_rd_addr_ready__bpo.e1`
+  push_rd_addr_ready.e0 = `push_rd_addr_ready__bpo.e0`
+  push_rd_data_valid.e1 = `push_rd_data_valid__bpo.e1`
+  push_rd_data_valid.e0 = `push_rd_data_valid__bpo.e0`
+  pop_rd_addr_valid.e1 = `pop_rd_addr_valid__bpo.e1`
+  pop_rd_addr_valid.e0 = `pop_rd_addr_valid__bpo.e0`
+  arb_enable_priority_update.e1 = `arb_enable_priority_update__bpo.e1`
+  arb_enable_priority_update.e0 = `arb_enable_priority_update__bpo.e0`
+  push_rd_data = push_rd_data__w2
+  pop_rd_addr = pop_rd_addr__w2
+  arb_request = arb_request__w2
+}

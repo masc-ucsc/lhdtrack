@@ -1,0 +1,791 @@
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+
+pub mod br_flow_fork_select_multihot::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_select_multihot:(e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1), pop_ready:(e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)) -> (push_ready:u1@[], pop_valid_unstable:(e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  mut `pop_valid_unstable__bpo.e15` = 0
+  mut `pop_valid_unstable__bpo.e14` = 0
+  mut `pop_valid_unstable__bpo.e13` = 0
+  mut `pop_valid_unstable__bpo.e12` = 0
+  mut `pop_valid_unstable__bpo.e11` = 0
+  mut `pop_valid_unstable__bpo.e10` = 0
+  mut `pop_valid_unstable__bpo.e9` = 0
+  mut `pop_valid_unstable__bpo.e8` = 0
+  mut `pop_valid_unstable__bpo.e7` = 0
+  mut `pop_valid_unstable__bpo.e6` = 0
+  mut `pop_valid_unstable__bpo.e5` = 0
+  mut `pop_valid_unstable__bpo.e4` = 0
+  mut `pop_valid_unstable__bpo.e3` = 0
+  mut `pop_valid_unstable__bpo.e2` = 0
+  mut `pop_valid_unstable__bpo.e1` = 0
+  mut `pop_valid_unstable__bpo.e0` = 0
+  const t99 = (((((((((((1 & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1) & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1) & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1) & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1) & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1) & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1) & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1) & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1) & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1) & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1) & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1) & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0))
+  const t100 = t99 & 1
+  const push_ready__w13 = t100
+  const t106 = push_ready__w13 & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0))
+  const t107 = t106 & 1
+  const push_ready__w14 = t107
+  const t113 = push_ready__w14 & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0))
+  const t114 = t113 & 1
+  const push_ready__w15 = t114
+  const t120 = push_ready__w15 & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0))
+  const t121 = t120 & 1
+  const push_ready__w16 = t121
+  const t127 = push_ready__w16 & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0))
+  const t128 = t127 & 1
+  const push_ready__w17 = t128
+  `pop_valid_unstable__bpo.e0` = unsigned((push_valid != 0) and (push_select_multihot.e0 != 0))
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e1` = unsigned((push_valid != 0) and (push_select_multihot.e1 != 0))
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e2` = unsigned((push_valid != 0) and (push_select_multihot.e2 != 0))
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e2` = `pop_valid_unstable__bpo.e2` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e3` = unsigned((push_valid != 0) and (push_select_multihot.e3 != 0))
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e3` = `pop_valid_unstable__bpo.e3` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e4` = unsigned((push_valid != 0) and (push_select_multihot.e4 != 0))
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e4` = `pop_valid_unstable__bpo.e4` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e5` = unsigned((push_valid != 0) and (push_select_multihot.e5 != 0))
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e5` = `pop_valid_unstable__bpo.e5` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e6` = unsigned((push_valid != 0) and (push_select_multihot.e6 != 0))
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e6` = `pop_valid_unstable__bpo.e6` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e7` = unsigned((push_valid != 0) and (push_select_multihot.e7 != 0))
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e7` = `pop_valid_unstable__bpo.e7` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e8` = unsigned((push_valid != 0) and (push_select_multihot.e8 != 0))
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e8` = `pop_valid_unstable__bpo.e8` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e9` = unsigned((push_valid != 0) and (push_select_multihot.e9 != 0))
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e9` = `pop_valid_unstable__bpo.e9` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e10` = unsigned((push_valid != 0) and (push_select_multihot.e10 != 0))
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e10` = `pop_valid_unstable__bpo.e10` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e11` = unsigned((push_valid != 0) and (push_select_multihot.e11 != 0))
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e11` = `pop_valid_unstable__bpo.e11` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e12` = unsigned((push_valid != 0) and (push_select_multihot.e12 != 0))
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e12` = `pop_valid_unstable__bpo.e12` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e13` = unsigned((push_valid != 0) and (push_select_multihot.e13 != 0))
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e13` = `pop_valid_unstable__bpo.e13` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e14` = unsigned((push_valid != 0) and (push_select_multihot.e14 != 0))
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e14` = `pop_valid_unstable__bpo.e14` & unsigned((push_select_multihot.e15 == 0) or (pop_ready.e15 != 0)) & 1
+  }
+  `pop_valid_unstable__bpo.e15` = unsigned((push_valid != 0) and (push_select_multihot.e15 != 0))
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e2 == 0) or (pop_ready.e2 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e3 == 0) or (pop_ready.e3 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e4 == 0) or (pop_ready.e4 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e5 == 0) or (pop_ready.e5 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e6 == 0) or (pop_ready.e6 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e7 == 0) or (pop_ready.e7 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e8 == 0) or (pop_ready.e8 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e9 == 0) or (pop_ready.e9 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e10 == 0) or (pop_ready.e10 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e11 == 0) or (pop_ready.e11 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e12 == 0) or (pop_ready.e12 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e13 == 0) or (pop_ready.e13 != 0)) & 1
+  }
+  {
+    `pop_valid_unstable__bpo.e15` = `pop_valid_unstable__bpo.e15` & unsigned((push_select_multihot.e14 == 0) or (pop_ready.e14 != 0)) & 1
+  }
+  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  pop_valid_unstable.e15 = `pop_valid_unstable__bpo.e15`
+  pop_valid_unstable.e14 = `pop_valid_unstable__bpo.e14`
+  pop_valid_unstable.e13 = `pop_valid_unstable__bpo.e13`
+  pop_valid_unstable.e12 = `pop_valid_unstable__bpo.e12`
+  pop_valid_unstable.e11 = `pop_valid_unstable__bpo.e11`
+  pop_valid_unstable.e10 = `pop_valid_unstable__bpo.e10`
+  pop_valid_unstable.e9 = `pop_valid_unstable__bpo.e9`
+  pop_valid_unstable.e8 = `pop_valid_unstable__bpo.e8`
+  pop_valid_unstable.e7 = `pop_valid_unstable__bpo.e7`
+  pop_valid_unstable.e6 = `pop_valid_unstable__bpo.e6`
+  pop_valid_unstable.e5 = `pop_valid_unstable__bpo.e5`
+  pop_valid_unstable.e4 = `pop_valid_unstable__bpo.e4`
+  pop_valid_unstable.e3 = `pop_valid_unstable__bpo.e3`
+  pop_valid_unstable.e2 = `pop_valid_unstable__bpo.e2`
+  pop_valid_unstable.e1 = `pop_valid_unstable__bpo.e1`
+  pop_valid_unstable.e0 = `pop_valid_unstable__bpo.e0`
+  push_ready = push_ready__w17
+}

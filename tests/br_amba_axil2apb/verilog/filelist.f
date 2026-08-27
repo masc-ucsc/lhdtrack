@@ -1,0 +1,10 @@
+# One source per line, in compile order. Read by slang, verilator and yosys.
+# Macro headers travel with the source: slang resolves an include relative
+# to the including file, verilator only searches its -I list, and both front
+# ends must see the same files.
+br_amba_pkg.sv
+br_rr_state_internal.sv
+br_misc_unused.sv
+br_arb_rr_internal.sv
+br_arb_rr.sv
+br_amba_axil2apb.sv

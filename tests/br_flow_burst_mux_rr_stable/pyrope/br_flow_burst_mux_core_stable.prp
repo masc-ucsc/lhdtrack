@@ -1,0 +1,24 @@
+const br_flow_burst_mux_core_t = import("br_flow_burst_mux_core.br_flow_burst_mux_core")
+const br_flow_reg_fwd_t = import("br_flow_reg_fwd.br_flow_reg_fwd")
+
+pub mod br_flow_burst_mux_core_stable::[timecheck=false](clk:u1, rst:u1, grant_from_arb:u8, push_valid:u8, push_last:u8, push_data:u256, pop_ready:u1) -> (request:u8@[], enable_priority_update:u1@[], push_ready:u8@[], pop_valid:u1@[], pop_last:u1@[], pop_data:u32@[]) {
+  wire internal_pop_ready:u1
+  wire internal_pop_last_unstable:u1
+  wire internal_pop_data_unstable:u32
+  wire pop_payload:u33
+  const pop_data__w1 = pop_payload#[0..=31]
+  const pop_last__w1 = (pop_payload >> 32) & 1
+  const internal_pop_payload_unstable__w1 = ((internal_pop_last_unstable & 1) << 32) | internal_pop_data_unstable
+  mut br_flow_burst_mux_core = br_flow_burst_mux_core_t::[name=br_flow_burst_mux_core](clk = clk, rst = rst, grant_from_arb = grant_from_arb, push_valid = push_valid, `push_last.e7` = (push_last >> 7) & 1, `push_last.e6` = (push_last >> 6) & 1, `push_last.e5` = (push_last >> 5) & 1, `push_last.e4` = (push_last >> 4) & 1, `push_last.e3` = (push_last >> 3) & 1, `push_last.e2` = (push_last >> 2) & 1, `push_last.e1` = (push_last >> 1) & 1, `push_last.e0` = push_last & 1, push_data = push_data, pop_ready = internal_pop_ready)
+  internal_pop_last_unstable = br_flow_burst_mux_core.pop_last_unstable
+  internal_pop_data_unstable = br_flow_burst_mux_core.pop_data_unstable
+  mut br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = br_flow_burst_mux_core.pop_valid_unstable, push_data = internal_pop_payload_unstable__w1, pop_ready = pop_ready)
+  internal_pop_ready = br_flow_reg_fwd.push_ready
+  pop_payload = br_flow_reg_fwd.pop_data
+  request = br_flow_burst_mux_core.request
+  enable_priority_update = br_flow_burst_mux_core.enable_priority_update
+  push_ready = br_flow_burst_mux_core.push_ready
+  pop_valid = br_flow_reg_fwd.pop_valid
+  pop_last = pop_last__w1
+  pop_data = pop_data__w1
+}

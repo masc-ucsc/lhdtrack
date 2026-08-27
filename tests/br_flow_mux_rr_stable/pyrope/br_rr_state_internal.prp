@@ -1,0 +1,26 @@
+pub mod br_rr_state_internal::[timecheck=false](clk:u1, rst:u1, update_priority:u1, grant:u8) -> (last_grant:u8@[], priority_mask:(e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  reg last_grant:u8
+  mut last_grant_init:u8 = 0
+  last_grant_init = 0sb?
+  mut `priority_mask__bpo.e0` = unsigned(last_grant != 0)
+  mut `priority_mask__bpo.e1` = unsigned(last_grant#[1..=7] != 0)
+  mut `priority_mask__bpo.e2` = unsigned(last_grant#[2..=7] != 0)
+  mut `priority_mask__bpo.e3` = unsigned(last_grant#[3..=7] != 0)
+  mut `priority_mask__bpo.e4` = unsigned(last_grant#[4..=7] != 0)
+  mut `priority_mask__bpo.e5` = unsigned(last_grant#[5..=7] != 0)
+  mut `priority_mask__bpo.e6` = unsigned(last_grant#[6..=7] != 0)
+  mut `priority_mask__bpo.e7` = unsigned(((last_grant >> 7) & 1) != 0)
+  if rst != 0 {
+    last_grant = 0x80
+  } elif update_priority != 0 {
+    last_grant = grant
+  }
+  priority_mask.e7 = `priority_mask__bpo.e7`
+  priority_mask.e6 = `priority_mask__bpo.e6`
+  priority_mask.e5 = `priority_mask__bpo.e5`
+  priority_mask.e4 = `priority_mask__bpo.e4`
+  priority_mask.e3 = `priority_mask__bpo.e3`
+  priority_mask.e2 = `priority_mask__bpo.e2`
+  priority_mask.e1 = `priority_mask__bpo.e1`
+  priority_mask.e0 = `priority_mask__bpo.e0`
+}

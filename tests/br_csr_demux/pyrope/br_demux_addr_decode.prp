@@ -1,0 +1,43 @@
+pub comb br_demux_addr_decode::[timecheck=false](clk:u1, rst:u1, addr_valid:u1, upstream_addr:u16, downstream_addr_base:u64, downstream_addr_size:u64, downstream_addr_in:u64) -> (select_onehot:u4, downstream_addr_out:u64) {
+  mut downstream_addr_limit:u64 = 0
+  mut downstream_addr_range_disabled:u4 = 0
+  downstream_addr_limit = 0sb?
+  downstream_addr_range_disabled = 0sb?
+  select_onehot = 0sb?
+  downstream_addr_out = 0sb?
+  mut downstream_addr_limit__w1 = downstream_addr_limit
+  downstream_addr_limit__w1#[0..=15] = ((downstream_addr_base#[0..=15] + downstream_addr_size#[0..=15])#[0..=15] - 1)#[0..=15]
+  mut downstream_addr_range_disabled__w1 = downstream_addr_range_disabled
+  downstream_addr_range_disabled__w1#[0] = unsigned(downstream_addr_size#[0..=15] == 0) & 1
+  mut downstream_addr_limit__w2 = downstream_addr_limit__w1
+  downstream_addr_limit__w2#[16..=31] = ((downstream_addr_base#[16..=31] + downstream_addr_size#[16..=31])#[0..=15] - 1)#[0..=15]
+  mut downstream_addr_range_disabled__w2 = downstream_addr_range_disabled__w1
+  downstream_addr_range_disabled__w2#[1] = unsigned(downstream_addr_size#[16..=31] == 0) & 1
+  mut downstream_addr_limit__w3 = downstream_addr_limit__w2
+  downstream_addr_limit__w3#[32..=47] = ((downstream_addr_base#[32..=47] + downstream_addr_size#[32..=47])#[0..=15] - 1)#[0..=15]
+  mut downstream_addr_range_disabled__w3 = downstream_addr_range_disabled__w2
+  downstream_addr_range_disabled__w3#[2] = unsigned(downstream_addr_size#[32..=47] == 0) & 1
+  mut downstream_addr_limit__w4 = downstream_addr_limit__w3
+  downstream_addr_limit__w4#[48..=63] = ((downstream_addr_base#[48..=63] + downstream_addr_size#[48..=63])#[0..=15] - 1)#[0..=15]
+  mut downstream_addr_range_disabled__w4 = downstream_addr_range_disabled__w3
+  downstream_addr_range_disabled__w4#[3] = unsigned(downstream_addr_size#[48..=63] == 0) & 1
+  const upstream_addr_masked__w1 = upstream_addr & 0xffff
+  mut select_onehot__w1 = select_onehot
+  select_onehot__w1#[0] = unsigned(((downstream_addr_range_disabled__w4 & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[0..=15]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[0..=15])) & 1
+  mut downstream_addr_out__w1 = downstream_addr_out
+  downstream_addr_out__w1#[0..=15] = downstream_addr_in#[0..=15] & 0xffff
+  mut select_onehot__w2 = select_onehot__w1
+  select_onehot__w2#[1] = unsigned((((downstream_addr_range_disabled__w4 >> 1) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[16..=31]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[16..=31])) & 1
+  mut downstream_addr_out__w2 = downstream_addr_out__w1
+  downstream_addr_out__w2#[16..=31] = downstream_addr_in#[16..=31] & 0xffff
+  mut select_onehot__w3 = select_onehot__w2
+  select_onehot__w3#[2] = unsigned((((downstream_addr_range_disabled__w4 >> 2) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[32..=47]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[32..=47])) & 1
+  mut downstream_addr_out__w3 = downstream_addr_out__w2
+  downstream_addr_out__w3#[32..=47] = downstream_addr_in#[32..=47] & 0xffff
+  mut select_onehot__w4 = select_onehot__w3
+  select_onehot__w4#[3] = unsigned((((downstream_addr_range_disabled__w4 >> 3) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[48..=63]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[48..=63])) & 1
+  mut downstream_addr_out__w4 = downstream_addr_out__w3
+  downstream_addr_out__w4#[48..=63] = downstream_addr_in#[48..=63] & 0xffff
+  select_onehot = select_onehot__w4
+  downstream_addr_out = downstream_addr_out__w4
+}

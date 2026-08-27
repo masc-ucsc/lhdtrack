@@ -1,0 +1,20 @@
+const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
+
+pub mod br_arb_rr_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u2) -> (can_grant:(e1:u1, e0:u1)@[], grant:u2@[]) {
+  mut gen_n_req_request_priority:u4 = 0
+  wire grant:u2
+  gen_n_req_request_priority = 0sb?
+  mut rr_state_internal = br_rr_state_internal::[name=rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
+  const gen_n_req_priority_mask__w1 = (rr_state_internal.priority_mask.e1 << 1) | rr_state_internal.priority_mask.e0
+  const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1)#[0..=1]
+  mut gen_n_req_request_priority__w1 = gen_n_req_request_priority
+  gen_n_req_request_priority__w1#[0..=1] = ((gen_n_req_request_high__w1 >> 1) & 1) << 1
+  mut _mux_2:u2 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { (request & 1) } else { (gen_n_req_request_high__w1 & 1) }
+  mut gen_n_req_request_priority__w2 = gen_n_req_request_priority__w1
+  gen_n_req_request_priority__w2#[2..=3] = _mux_2
+  mut `can_grant__bpo.e0` = unsigned(not (gen_n_req_request_priority__w2#[0..=1] != 0))
+  mut `can_grant__bpo.e1` = unsigned(not (gen_n_req_request_priority__w2#[2..=3] != 0))
+  grant = request & ((`can_grant__bpo.e1` << 1) | `can_grant__bpo.e0`)
+  can_grant.e1 = `can_grant__bpo.e1`
+  can_grant.e0 = `can_grant__bpo.e0`
+}

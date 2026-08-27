@@ -1,0 +1,2 @@
+pub comptime const AxiRespDecerr:u2 = 3
+pub comptime const AxiBurstLenWidth:u32 = 8

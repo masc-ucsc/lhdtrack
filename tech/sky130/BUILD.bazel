@@ -1,0 +1,12 @@
+package(default_visibility = ["//visibility:public"])
+
+# The ONE sky130 corner lhdtrack measures. A second corner would double every
+# synthesis run for a comparison nobody asked for; if one is ever needed it
+# belongs here as a second filegroup and a second `tech` entry, not as a silent
+# swap of this one.
+filegroup(
+    name = "liberty",
+    srcs = ["@sky130_fd_sc_hd//:tt_025C_1v80"],
+)
+
+exports_files(["VERSION", "sky130.BUILD"])

@@ -1,0 +1,36 @@
+pub mod br_ram_initializer::[timecheck=false](clk:u1, rst:u1, initial_value:u32, start:u1) -> (busy:u1@[], wr_valid:u1@[], wr_addr:u4@[], wr_data:u32@[]) {
+  reg wr_addr:u4
+  reg state:u1
+  mut state_next:u1 = 0
+  mut wr_addr_next:u4 = 0
+  state_next = 0ub?
+  wr_addr_next = 0sb?
+  const wr_valid__w1 = unsigned(state == 1)
+  state_next = state
+  wr_addr_next = (wr_addr + 1)#[0..=3]
+  match state {
+    == 0 {
+      if start != 0 {
+        state_next = 1
+      }
+    }
+    == 1 {
+      if wr_addr == 15 {
+        state_next = 0
+        wr_addr_next = 0
+      }
+    }
+    else {
+      state_next = 0ub?
+    }
+  }
+  state = if rst != 0 { 0 } else { state_next }
+  if rst != 0 {
+    wr_addr = 0
+  } elif wr_valid__w1 != 0 {
+    wr_addr = wr_addr_next
+  }
+  busy = unsigned(state == 1)
+  wr_valid = wr_valid__w1
+  wr_data = initial_value
+}

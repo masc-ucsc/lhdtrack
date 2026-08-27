@@ -1,0 +1,12 @@
+pub comb br_mux_bin::[timecheck=false](select:u3, `in`:u64) -> (out:u8, out_valid:u1) {
+  mut _rep_2:u8 = if (unsigned(select == 0) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_4:u8 = if (unsigned(select == 1) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_6:u8 = if (unsigned(select == 2) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_8:u8 = if (unsigned(select == 3) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_10:u8 = if (unsigned(select == 4) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_12:u8 = if (unsigned(select == 5) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_14:u8 = if (unsigned(select == 6) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_16:u8 = if (unsigned(select == 7) & 1) != 0 { 0xff } else { 0 }
+  out = (((((((0 | (_rep_2 & `in`#[0..=7])) | (_rep_4 & `in`#[8..=15])) | (_rep_6 & `in`#[16..=23])) | (_rep_8 & `in`#[24..=31])) | (_rep_10 & `in`#[32..=39])) | (_rep_12 & `in`#[40..=47])) | (_rep_14 & `in`#[48..=55])) | (_rep_16 & `in`#[56..=63])
+  out_valid = unsigned(select < 8)
+}

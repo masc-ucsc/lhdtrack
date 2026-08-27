@@ -1,0 +1,27 @@
+const br_arb_grant_hold_t = import("br_arb_grant_hold.br_arb_grant_hold")
+const br_flow_mux_core_t = import("br_flow_mux_core.br_flow_mux_core")
+
+pub mod br_flow_burst_mux_core::[timecheck=false](clk:u1, rst:u1, grant_from_arb:u4, push_valid:u4, push_last:(e3:u1, e2:u1, e1:u1, e0:u1), push_data:u128, pop_ready:u1) -> (request:u4@[], enable_priority_update:u1@[], push_ready:u4@[], pop_valid_unstable:u1@[], pop_last_unstable:u1@[], pop_data_unstable:u32@[]) {
+  wire grant:u4
+  wire enable_priority_update_from_mux:u1
+  mut push_payload:u132 = 0
+  push_payload = 0sb?
+  mut push_payload__w1 = push_payload
+  push_payload__w1#[0..=32] = ((push_last.e0 & 1) << 32) | push_data#[0..=31]
+  mut push_payload__w2 = push_payload__w1
+  push_payload__w2#[33..=65] = ((push_last.e1 & 1) << 32) | push_data#[32..=63]
+  mut push_payload__w3 = push_payload__w2
+  push_payload__w3#[66..=98] = ((push_last.e2 & 1) << 32) | push_data#[64..=95]
+  mut push_payload__w4 = push_payload__w3
+  push_payload__w4#[99..=131] = ((push_last.e3 & 1) << 32) | push_data#[96..=127]
+  mut br_arb_grant_hold = br_arb_grant_hold_t::[name=br_arb_grant_hold](clk = clk, rst = rst, grant_hold = (~(push_valid & ((push_last.e3 << 3) | (push_last.e2 << 2) | (push_last.e1 << 1) | push_last.e0)))#[0..=3], enable_grant_hold_update = unsigned((enable_priority_update_from_mux != 0) and ((grant & push_valid) != 0)), grant_from_arb = grant_from_arb)
+  grant = br_arb_grant_hold.grant
+  mut br_flow_mux_core = br_flow_mux_core_t::[name=br_flow_mux_core](clk = clk, rst = rst, can_grant = grant, grant = grant, push_valid = push_valid, push_data = push_payload__w4, pop_ready = pop_ready)
+  enable_priority_update_from_mux = br_flow_mux_core.enable_priority_update
+  request = br_flow_mux_core.request
+  enable_priority_update = br_arb_grant_hold.enable_priority_update_to_arb
+  push_ready = br_flow_mux_core.push_ready
+  pop_valid_unstable = br_flow_mux_core.pop_valid_unstable
+  pop_last_unstable = (br_flow_mux_core.pop_data_unstable >> 32) & 1
+  pop_data_unstable = br_flow_mux_core.pop_data_unstable#[0..=31]
+}

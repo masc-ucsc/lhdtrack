@@ -1,0 +1,2 @@
+pub comptime const AxiRespOkay:u2 = 0
+pub comptime const AxiRespSlverr:u2 = 2

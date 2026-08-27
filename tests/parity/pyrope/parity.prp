@@ -1,0 +1,7 @@
+pub comb parity::[timecheck=false](data:u8) -> (even_parity:u1, odd_parity:u1) {
+  wire even_parity:u1
+  const t2 = data ^ (data >> 4)
+  const t4 = t2 ^ (t2 >> 2)
+  even_parity = (t4 ^ (t4 >> 1)) & 1
+  odd_parity = (~even_parity) & 1
+}

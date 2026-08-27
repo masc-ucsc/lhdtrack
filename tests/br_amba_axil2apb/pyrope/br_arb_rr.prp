@@ -1,0 +1,6 @@
+const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
+
+pub mod br_arb_rr::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u2) -> (grant:u2@[]) {
+  mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request)
+  grant = br_arb_rr_internal.grant
+}

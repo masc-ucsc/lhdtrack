@@ -1,0 +1,20 @@
+[project]
+name = "lhdtrack"
+version = "0.1.0"
+description = "Daily QoR regression for LiveHD: Pyrope vs Verilog, synthesis and simulation"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+lhdtrack = "lhdtrack.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lhdtrack"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

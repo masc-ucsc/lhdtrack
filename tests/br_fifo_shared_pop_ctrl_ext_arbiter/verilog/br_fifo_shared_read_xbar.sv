@@ -1,0 +1,214 @@
+// SPDX-License-Identifier: Apache-2.0
+
+//
+// Bedrock-RTL Shared Multi-FIFO RAM Read Crossbar
+
+`include "br_asserts_internal.svh"
+`include "br_unused.svh"
+module br_fifo_shared_read_xbar #(
+    parameter int NumFifos = 2,
+    parameter int NumReadPorts = 1,
+    parameter int RamReadLatency = 0,
+    parameter int Depth = 2,
+    parameter int Width = 1,
+    parameter bit EnableAssertPushValidStability = 0,
+    parameter bit ArbiterAlwaysGrants = 1,
+    localparam int AddrWidth = $clog2(Depth)
+) (
+    // ri lint_check_waive HIER_NET_NOT_READ INPUT_NOT_READ
+    input logic clk,
+    input logic rst,
+
+    input logic [NumFifos-1:0] push_rd_addr_valid,
+    output logic [NumFifos-1:0] push_rd_addr_ready,
+    input logic [NumFifos-1:0][AddrWidth-1:0] push_rd_addr,
+    output logic [NumFifos-1:0] push_rd_data_valid,
+    output logic [NumFifos-1:0][Width-1:0] push_rd_data,
+
+    output logic [NumReadPorts-1:0] pop_rd_addr_valid,
+    output logic [NumReadPorts-1:0][AddrWidth-1:0] pop_rd_addr,
+    input logic [NumReadPorts-1:0] pop_rd_data_valid,
+    input logic [NumReadPorts-1:0][Width-1:0] pop_rd_data,
+
+    //----------------------------------------------------------
+    // External arbitration interface
+    //----------------------------------------------------------
+    output logic [NumReadPorts-1:0][NumFifos-1:0] arb_request,
+    input logic [NumReadPorts-1:0][NumFifos-1:0] arb_can_grant,
+    input logic [NumReadPorts-1:0][NumFifos-1:0] arb_grant,
+    output logic [NumReadPorts-1:0] arb_enable_priority_update
+);
+
+  `BR_ASSERT_STATIC(legal_num_fifos_a, NumFifos >= 2)
+  // For now, restrict read ports to powers of two so that we don't have to do modulo operations.
+  // TODO(zhemao): Remove this restriction once we have efficient modulo block.
+  `BR_ASSERT_STATIC(legal_num_read_ports_a, NumReadPorts >= 1 && br_math::is_power_of_2(
+                    NumReadPorts))
+  `BR_ASSERT_STATIC(legal_depth_a, Depth >= NumReadPorts)
+
+  // Read addresses are demuxed by their low bits, so address N maps to read port
+  // N % NumReadPorts. When Depth is at least 2 * NumReadPorts, every read port owns
+  // at least two entries and can see backpressure from multiple FIFOs targeting it.
+  // For shallower mixed cases, the remainder entries map only to low-indexed ports;
+  // higher-indexed ports own one entry and their backpressure checks are unreachable.
+  localparam int NumDemuxPopBackpressureCheckFlows =
+      (Depth >= 2 * NumReadPorts) ? NumReadPorts : Depth % NumReadPorts;
+  localparam bit EnableCoverDemuxPopBackpressure = NumDemuxPopBackpressureCheckFlows != 0;
+  localparam bit EnableAssertDemuxPushValidStability =
+      EnableAssertPushValidStability && EnableCoverDemuxPopBackpressure;
+
+  // Read Address Demux per FIFO
+
+  logic [NumFifos-1:0][NumReadPorts-1:0] demuxed_rd_addr_valid;
+  logic [NumFifos-1:0][NumReadPorts-1:0] demuxed_rd_addr_ready;
+  logic [NumFifos-1:0][NumReadPorts-1:0][AddrWidth-1:0] demuxed_rd_addr;
+
+  if (NumReadPorts == 1) begin : gen_no_demux_rd_addr
+    assign demuxed_rd_addr_valid = push_rd_addr_valid;
+    assign push_rd_addr_ready = demuxed_rd_addr_ready;
+    assign demuxed_rd_addr = push_rd_addr;
+  end else begin : gen_demux_rd_addr
+    localparam int PortIdWidth = $clog2(NumReadPorts);
+
+    for (genvar i = 0; i < NumFifos; i++) begin : gen_fifo_demux
+      logic [PortIdWidth-1:0] fifo_port_id;
+
+      assign fifo_port_id = push_rd_addr[i][PortIdWidth-1:0];
+
+      br_flow_demux_select_unstable #(
+          .NumFlows(NumReadPorts),
+          .Width(AddrWidth),
+          .EnableCoverPushBackpressure(EnableCoverDemuxPopBackpressure),
+          .NumPopBackpressureCheckFlows(NumDemuxPopBackpressureCheckFlows),
+          .EnableAssertNoPushBackpressure(0),
+          .EnableAssertPushValidStability(EnableAssertDemuxPushValidStability),
+          .EnableAssertSelectStability(EnableAssertDemuxPushValidStability)
+      ) br_flow_demux_select_unstable_inst (
+          .clk,
+          .rst,
+          .select(fifo_port_id),
+          .push_valid(push_rd_addr_valid[i]),
+          .push_ready(push_rd_addr_ready[i]),
+          .push_data(push_rd_addr[i]),
+          .pop_valid_unstable(demuxed_rd_addr_valid[i]),
+          .pop_ready(demuxed_rd_addr_ready[i]),
+          .pop_data_unstable(demuxed_rd_addr[i])
+      );
+    end
+  end
+
+  // Read Address Mux and Data Demux per Read Port
+
+  logic [NumReadPorts-1:0][NumFifos-1:0] demuxed_rd_data_valid;
+  logic [NumReadPorts-1:0][NumFifos-1:0][Width-1:0] demuxed_rd_data;
+
+  localparam int FifoIdWidth = $clog2(NumFifos);
+  localparam int TotalMuxWidth = FifoIdWidth + AddrWidth;
+
+  logic [NumReadPorts-1:0][FifoIdWidth-1:0] pop_rd_addr_fifo_id;
+  logic [NumReadPorts-1:0][FifoIdWidth-1:0] pop_rd_data_fifo_id;
+  logic [NumReadPorts-1:0] pop_rd_data_fifo_id_valid;
+
+  for (genvar i = 0; i < NumReadPorts; i++) begin : gen_read_port_mux
+    // The number of entries mapped to this read port
+    localparam int ReadPortEntries =
+        ((Depth & NumReadPorts) == 0) ? (Depth / NumReadPorts) :
+        (i < Depth % NumReadPorts) ? (Depth / NumReadPorts + 1) : (Depth / NumReadPorts);
+    // If there is only one entry mapped to a port, it's impossible for more than one
+    // FIFO to request to that port
+    localparam bit EnableCoverMuxPushBackpressure = ReadPortEntries > 1;
+    localparam bit EnableAssertMuxPushValidStability =
+        EnableAssertPushValidStability && EnableCoverMuxPushBackpressure;
+
+    logic [NumFifos-1:0] mux_push_ready;
+    logic [NumFifos-1:0] mux_push_valid;
+    logic [NumFifos-1:0][TotalMuxWidth-1:0] mux_push_data;
+
+    for (genvar j = 0; j < NumFifos; j++) begin : gen_mux_input
+      logic [FifoIdWidth-1:0] mux_push_fifo_id;
+      assign mux_push_fifo_id = j;
+      assign mux_push_valid[j] = demuxed_rd_addr_valid[j][i];
+      assign mux_push_data[j] = {demuxed_rd_addr[j][i], mux_push_fifo_id};
+      assign demuxed_rd_addr_ready[j][i] = mux_push_ready[j];
+    end
+
+    br_flow_mux_core #(
+        .NumFlows(NumFifos),
+        .Width(TotalMuxWidth),
+        .EnableCoverPushBackpressure(EnableCoverMuxPushBackpressure),
+        .EnableAssertPushValidStability(EnableAssertMuxPushValidStability),
+        .EnableAssertPushDataStability(EnableAssertMuxPushValidStability),
+        .EnableCoverPopBackpressure(0),
+        .ArbiterAlwaysGrants(ArbiterAlwaysGrants)
+    ) br_flow_mux_core_inst (
+        .clk,
+        .rst,
+        // Interface to external arbiter
+        .request(arb_request[i]),
+        .can_grant(arb_can_grant[i]),
+        .grant(arb_grant[i]),
+        .enable_priority_update(arb_enable_priority_update[i]),
+        .push_valid(mux_push_valid),
+        .push_ready(mux_push_ready),
+        .push_data(mux_push_data),
+        .pop_valid_unstable(pop_rd_addr_valid[i]),
+        .pop_ready(1'b1),
+        .pop_data_unstable({pop_rd_addr[i], pop_rd_addr_fifo_id[i]})
+    );
+
+    br_delay_valid #(
+        .NumStages(RamReadLatency),
+        .Width(FifoIdWidth)
+    ) br_delay_valid_fifo_id (
+        .clk,
+        .rst,
+        .in_valid(pop_rd_addr_valid[i]),
+        .in(pop_rd_addr_fifo_id[i]),
+        .out_valid(pop_rd_data_fifo_id_valid[i]),
+        .out(pop_rd_data_fifo_id[i]),
+        .out_valid_stages(),
+        .out_stages()
+    );
+
+    br_demux_bin #(
+        .NumSymbolsOut(NumFifos),
+        .SymbolWidth  (Width)
+    ) br_demux_bin_rd_data (
+        .select(pop_rd_data_fifo_id[i]),
+        .in_valid(pop_rd_data_valid[i]),
+        .in(pop_rd_data[i]),
+        .out_valid(demuxed_rd_data_valid[i]),
+        .out(demuxed_rd_data[i])
+    );
+  end
+
+  `BR_UNUSED(pop_rd_data_fifo_id_valid)  // Used for assertion only
+  `BR_ASSERT_IMPL(expected_read_latency_a, pop_rd_data_fifo_id_valid == pop_rd_data_valid)
+
+  // Read Data Mux per Read Port
+
+  if (NumReadPorts == 1) begin : gen_no_mux_rd_data
+    assign push_rd_data_valid = demuxed_rd_data_valid;
+    assign push_rd_data = demuxed_rd_data;
+  end else begin : gen_mux_rd_data
+    for (genvar i = 0; i < NumFifos; i++) begin : gen_fifo_rd_data
+      logic [NumReadPorts-1:0] mux_in_rd_data_valid;
+      logic [NumReadPorts-1:0][Width-1:0] mux_in_rd_data;
+
+      for (genvar j = 0; j < NumReadPorts; j++) begin : gen_mux_input
+        assign mux_in_rd_data_valid[j] = demuxed_rd_data_valid[j][i];
+        assign mux_in_rd_data[j] = demuxed_rd_data[j][i];
+      end
+
+      assign push_rd_data_valid[i] = |mux_in_rd_data_valid;
+      br_mux_onehot #(
+          .NumSymbolsIn(NumReadPorts),
+          .SymbolWidth (Width)
+      ) br_mux_onehot_rd_data (
+          .select(mux_in_rd_data_valid),
+          .in(mux_in_rd_data),
+          .out(push_rd_data[i])
+      );
+    end
+  end
+endmodule

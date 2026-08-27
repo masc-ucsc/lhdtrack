@@ -1,0 +1,11 @@
+pub comb br_arb_fixed_internal::[timecheck=false](request:u4) -> (can_grant:(e3:u1, e2:u1, e1:u1, e0:u1), grant:u4) {
+  mut `can_grant__bpo.e0` = 0
+  mut `can_grant__bpo.e1` = unsigned(not ((request & 1) != 0))
+  mut `can_grant__bpo.e2` = unsigned(not (request#[0..=1] != 0))
+  mut `can_grant__bpo.e3` = unsigned(not (request#[0..=2] != 0))
+  can_grant.e3 = `can_grant__bpo.e3`
+  can_grant.e2 = `can_grant__bpo.e2`
+  can_grant.e1 = `can_grant__bpo.e1`
+  can_grant.e0 = 1
+  grant = request & ((`can_grant__bpo.e3` << 3) | (`can_grant__bpo.e2` << 2) | (`can_grant__bpo.e1` << 1) | 1)
+}

@@ -1,0 +1,3 @@
+pub comb mul::[timecheck=false](a:u8, b:u8) -> (result:u16) {
+  result = a * b
+}

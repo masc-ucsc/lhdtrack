@@ -1,0 +1,104 @@
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_demux_bin_t = import("br_demux_bin.br_demux_bin")
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_mux_bin_t = import("br_mux_bin.br_mux_bin")
+
+pub mod br_flow_deserializer::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u8, push_last:u1, push_metadata:u8, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u64@[], pop_last:u1@[], pop_last_dont_care_count:u3@[], pop_metadata:u8@[]) {
+  reg slice_reg:[7]u8:[ordering="old"]
+  mut gen_dr_gt_1_slice_reg_ld_en:u7 = 0
+  wire gen_dr_gt_1_push_flit_id:u3
+  gen_dr_gt_1_slice_reg_ld_en = 0sb?
+  pop_data = 0sb?
+  mut br_demux_bin = br_demux_bin_t::[name=br_demux_bin](select = gen_dr_gt_1_push_flit_id, in_valid = push_valid, `in` = push_data)
+  mut br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 0)), `in` = (br_demux_bin.out#[0..=7] << 8) | unsigned((slice_reg[0])#[0..=7]))
+  mut pop_data__w1 = pop_data
+  pop_data__w1#[0..=7] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 1)), `in` = (br_demux_bin.out#[8..=15] << 8) | unsigned((slice_reg[1])#[0..=7]))
+  mut pop_data__w2 = pop_data__w1
+  pop_data__w2#[8..=15] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 2)), `in` = (br_demux_bin.out#[16..=23] << 8) | unsigned((slice_reg[2])#[0..=7]))
+  mut pop_data__w3 = pop_data__w2
+  pop_data__w3#[16..=23] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 3)), `in` = (br_demux_bin.out#[24..=31] << 8) | unsigned((slice_reg[3])#[0..=7]))
+  mut pop_data__w4 = pop_data__w3
+  pop_data__w4#[24..=31] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 4)), `in` = (br_demux_bin.out#[32..=39] << 8) | unsigned((slice_reg[4])#[0..=7]))
+  mut pop_data__w5 = pop_data__w4
+  pop_data__w5#[32..=39] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 5)), `in` = (br_demux_bin.out#[40..=47] << 8) | unsigned((slice_reg[5])#[0..=7]))
+  mut pop_data__w6 = pop_data__w5
+  pop_data__w6#[40..=47] = br_mux_bin["out"]#[0..=7]
+  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = unsigned((push_last != 0) and (gen_dr_gt_1_push_flit_id == 6)), `in` = (br_demux_bin.out#[48..=55] << 8) | unsigned((slice_reg[6])#[0..=7]))
+  mut pop_data__w7 = pop_data__w6
+  pop_data__w7#[48..=55] = br_mux_bin["out"]#[0..=7]
+  mut pop_data__w8 = pop_data__w7
+  pop_data__w8#[56..=63] = br_demux_bin.out#[56..=63]
+  const pop_valid__w1 = unsigned((((br_demux_bin.out_valid >> 7) & 1) != 0) or ((push_valid != 0) and (push_last != 0)))
+  const pop_last__w1 = push_last
+  mut _mux_9:u32 = if pop_last__w1 != 0 { (7 - gen_dr_gt_1_push_flit_id)#[0..=31] } else { 0 }
+  const pop_last_dont_care_count__w1 = _mux_9#[0..=2]
+  const pop_metadata__w1 = push_metadata
+  const push_ready__w1 = unsigned((unsigned((pop_ready != 0) and ((pop_last__w1 != 0) or (gen_dr_gt_1_push_flit_id == 7))) != 0) or (unsigned((not ((push_valid != 0) and (push_last != 0))) and (gen_dr_gt_1_push_flit_id < 7)) != 0))
+  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  const gen_dr_gt_1_push__w1 = unsigned((push_ready__w1 != 0) and (push_valid != 0))
+  const gen_dr_gt_1_pop__w1 = unsigned((pop_ready != 0) and (pop_valid__w1 != 0))
+  mut gen_dr_gt_1_slice_reg_ld_en__w1 = gen_dr_gt_1_slice_reg_ld_en
+  gen_dr_gt_1_slice_reg_ld_en__w1#[0] = unsigned(((br_demux_bin.out_valid & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w2 = gen_dr_gt_1_slice_reg_ld_en__w1
+  gen_dr_gt_1_slice_reg_ld_en__w2#[1] = unsigned((((br_demux_bin.out_valid >> 1) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w3 = gen_dr_gt_1_slice_reg_ld_en__w2
+  gen_dr_gt_1_slice_reg_ld_en__w3#[2] = unsigned((((br_demux_bin.out_valid >> 2) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w4 = gen_dr_gt_1_slice_reg_ld_en__w3
+  gen_dr_gt_1_slice_reg_ld_en__w4#[3] = unsigned((((br_demux_bin.out_valid >> 3) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w5 = gen_dr_gt_1_slice_reg_ld_en__w4
+  gen_dr_gt_1_slice_reg_ld_en__w5#[4] = unsigned((((br_demux_bin.out_valid >> 4) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w6 = gen_dr_gt_1_slice_reg_ld_en__w5
+  gen_dr_gt_1_slice_reg_ld_en__w6#[5] = unsigned((((br_demux_bin.out_valid >> 5) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut gen_dr_gt_1_slice_reg_ld_en__w7 = gen_dr_gt_1_slice_reg_ld_en__w6
+  gen_dr_gt_1_slice_reg_ld_en__w7#[6] = unsigned((((br_demux_bin.out_valid >> 6) & 1) != 0) and (gen_dr_gt_1_push__w1 != 0) and (push_last == 0)) & 1
+  mut br_counter_incr_push_flit_id = br_counter_incr::[name=br_counter_incr_push_flit_id](clk = clk, rst = rst, reinit = gen_dr_gt_1_pop__w1, initial_value = 0, incr_valid = unsigned((gen_dr_gt_1_pop__w1 == 0) and (gen_dr_gt_1_push__w1 != 0)), incr = 1)
+  gen_dr_gt_1_push_flit_id = br_counter_incr_push_flit_id.value
+  if rst != 0 {
+    slice_reg[0] = 0
+  } elif (gen_dr_gt_1_slice_reg_ld_en__w7 & 1) != 0 {
+    slice_reg[0] = br_demux_bin.out#[0..=7]
+  }
+  if rst != 0 {
+    slice_reg[1] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 1) & 1) != 0 {
+    slice_reg[1] = br_demux_bin.out#[8..=15]
+  }
+  if rst != 0 {
+    slice_reg[2] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 2) & 1) != 0 {
+    slice_reg[2] = br_demux_bin.out#[16..=23]
+  }
+  if rst != 0 {
+    slice_reg[3] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 3) & 1) != 0 {
+    slice_reg[3] = br_demux_bin.out#[24..=31]
+  }
+  if rst != 0 {
+    slice_reg[4] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 4) & 1) != 0 {
+    slice_reg[4] = br_demux_bin.out#[32..=39]
+  }
+  if rst != 0 {
+    slice_reg[5] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 5) & 1) != 0 {
+    slice_reg[5] = br_demux_bin.out#[40..=47]
+  }
+  if rst != 0 {
+    slice_reg[6] = 0
+  } elif ((gen_dr_gt_1_slice_reg_ld_en__w7 >> 6) & 1) != 0 {
+    slice_reg[6] = br_demux_bin.out#[48..=55]
+  }
+  push_ready = push_ready__w1
+  pop_valid = pop_valid__w1
+  pop_data = pop_data__w8
+  pop_last = pop_last__w1
+  pop_last_dont_care_count = pop_last_dont_care_count__w1
+  pop_metadata = pop_metadata__w1
+}

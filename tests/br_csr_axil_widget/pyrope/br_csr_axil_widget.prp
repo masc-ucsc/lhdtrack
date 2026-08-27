@@ -1,0 +1,136 @@
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
+const br_flow_join = import("br_flow_join.br_flow_join")
+const br_flow_mux_rr = import("br_flow_mux_rr.br_flow_mux_rr")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
+const br_amba = import("br_amba")
+
+pub mod br_csr_axil_widget::[timecheck=false](clk:u1, rst:u1, axil_awvalid:u1, axil_awaddr:u16, axil_awprot:u3, axil_wvalid:u1, axil_wdata:u32, axil_wstrb:u4, axil_bready:u1, axil_arvalid:u1, axil_araddr:u16, axil_arprot:u3, axil_rready:u1, csr_resp_valid:u1, csr_resp_rdata:u32, csr_resp_slverr:u1, csr_resp_decerr:u1, timeout_enable:u1, timeout_cycles:u7) -> (axil_awready:u1@[], axil_wready:u1@[], axil_bvalid:u1@[], axil_bresp:u2@[], axil_arready:u1@[], axil_rvalid:u1@[], axil_rdata:u32@[], axil_rresp:u2@[], csr_req_valid:u1@[], csr_req_write:u1@[], csr_req_addr:u16@[], csr_req_wdata:u32@[], csr_req_wstrb:u4@[], csr_req_secure:u1@[], csr_req_privileged:u1@[], csr_req_abort:u1@[], request_aborted:u1@[]) {
+  reg wd_state:u2
+  reg inflight:u1
+  reg inflight_write:u1
+  reg buf_resp_valid:u1
+  reg buf_resp_rdata:u32
+  reg buf_resp_slverr:u1
+  reg buf_resp_decerr:u1
+  mut `csr_write_req.write` = 0
+  mut `csr_read_req.wdata` = 0
+  mut `csr_read_req.wstrb` = 0
+  mut `csr_read_req.write` = 0
+  wire csr_write_ready:u1
+  wire timer_count:u7
+  mut wd_state_next:u2 = 0
+  wd_state_next = 0sb?
+  mut `csr_write_req.addr` = axil_awaddr
+  mut `csr_write_req.wdata` = axil_wdata
+  mut `csr_write_req.wstrb` = axil_wstrb
+  mut `csr_write_req.secure` = unsigned(((axil_awprot >> 1) & 1) == 0) & 1
+  mut `csr_write_req.privileged` = axil_awprot & 1
+  mut `csr_read_req.addr` = axil_araddr
+  mut `csr_read_req.secure` = unsigned(((axil_arprot >> 1) & 1) == 0) & 1
+  mut `csr_read_req.privileged` = axil_arprot & 1
+  br_misc_unused::[name=br_misc_unused_axil_axprot_instr](`in` = (((axil_awprot >> 2) & 1) << 1) | ((axil_arprot >> 2) & 1))
+  const timeout_en__w1 = unsigned((timeout_enable != 0) and (timeout_cycles != 0))
+  const timer_active__w1 = unsigned((timeout_en__w1 != 0) and ((wd_state == 1) or (wd_state == 2)))
+  const timer_expired__w1 = unsigned(timer_count >= timeout_cycles)
+  const timeout_resp_valid__w1 = unsigned(wd_state == 3)
+  const request_aborted_int__w1 = unsigned((timeout_en__w1 != 0) and (wd_state == 2) and (timer_expired__w1 != 0) and (csr_resp_valid == 0))
+  const merged_resp_valid__w1 = unsigned((csr_resp_valid != 0) or (timeout_resp_valid__w1 != 0))
+  mut _mux_10:u32 = if timeout_resp_valid__w1 != 0 { 0 } else { csr_resp_rdata }
+  mut _mux_11:u1 = if timeout_resp_valid__w1 != 0 { 1 } else { csr_resp_slverr & 1 }
+  mut _mux_12:u1 = if timeout_resp_valid__w1 != 0 { 0 } else { csr_resp_decerr & 1 }
+  if merged_resp_valid__w1 != 0 {
+    buf_resp_rdata = _mux_10
+  }
+  if merged_resp_valid__w1 != 0 {
+    buf_resp_slverr = _mux_11
+  }
+  if merged_resp_valid__w1 != 0 {
+    buf_resp_decerr = _mux_12
+  }
+  const csr_unqual_req_ready__w1 = unsigned(inflight == 0)
+  mut `buf_resp.data` = buf_resp_rdata
+  mut _mux_14:u2 = if buf_resp_slverr != 0 { br_amba.AxiRespSlverr#[0..=1] } else { br_amba.AxiRespOkay#[0..=1] }
+  mut _mux_15:u2 = if buf_resp_decerr != 0 { br_amba.AxiRespDecerr#[0..=1] } else { _mux_14 }
+  mut `buf_resp.resp` = _mux_15
+  mut br_counter_incr_timer = br_counter_incr::[name=br_counter_incr_timer](clk = clk, rst = rst, reinit = unsigned((timeout_en__w1 == 0) or ((timer_active__w1 != 0) and (timer_expired__w1 != 0)) or (request_aborted_int__w1 != 0) or (csr_resp_valid != 0)), initial_value = 0, incr_valid = timer_active__w1, incr = 1)
+  timer_count = br_counter_incr_timer.value
+  mut br_flow_demux_select_unstable_resp = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_resp](clk = clk, rst = rst, select = inflight_write, push_valid = buf_resp_valid, push_data = (`buf_resp.resp` << 32) | `buf_resp.data`, pop_ready = ((axil_bready & 1) << 1) | (axil_rready & 1))
+  mut `axil_r_int.resp` = br_flow_demux_select_unstable_resp.pop_data_unstable#[0..=33]#[32..=33]
+  mut `axil_r_int.data` = br_flow_demux_select_unstable_resp.pop_data_unstable#[0..=33]#[0..=31]
+  mut `axil_b_int.resp` = (br_flow_demux_select_unstable_resp.pop_data_unstable >> 34)#[0..=33]#[32..=33]
+  mut `axil_b_int.data` = (br_flow_demux_select_unstable_resp.pop_data_unstable >> 34)#[0..=33]#[0..=31]
+  br_misc_unused_p3::[name=br_misc_unused_axil_b_int_data](`in` = `axil_b_int.data`)
+  buf_resp_valid = if rst != 0 { 0 } else { unsigned(((buf_resp_valid != 0) and (br_flow_demux_select_unstable_resp.push_ready == 0)) or (merged_resp_valid__w1 != 0)) }
+  mut br_flow_join_csr_write = br_flow_join::[name=br_flow_join_csr_write](clk = clk, rst = rst, push_valid = ((axil_awvalid & 1) << 1) | (axil_wvalid & 1), pop_ready = csr_write_ready)
+  mut br_flow_mux_rr_csr_req = br_flow_mux_rr::[name=br_flow_mux_rr_csr_req](clk = clk, rst = rst, push_valid = ((br_flow_join_csr_write.pop_valid & 1) << 1) | (axil_arvalid & 1), push_data = (((`csr_write_req.addr` << 39) | (`csr_write_req.wdata` << 7) | (`csr_write_req.wstrb` << 3) | 4 | (`csr_write_req.secure` << 1) | `csr_write_req.privileged`)#[0..=54] << 55) | ((`csr_read_req.addr` << 39) | 0 | 0 | 0 | (`csr_read_req.secure` << 1) | `csr_read_req.privileged`)#[0..=54], pop_ready = csr_unqual_req_ready__w1)
+  csr_write_ready = (br_flow_mux_rr_csr_req.push_ready >> 1) & 1
+  mut `csr_req_int.addr` = br_flow_mux_rr_csr_req.pop_data_unstable#[39..=54]
+  mut `csr_req_int.wdata` = br_flow_mux_rr_csr_req.pop_data_unstable#[7..=38]
+  mut `csr_req_int.wstrb` = br_flow_mux_rr_csr_req.pop_data_unstable#[3..=6]
+  mut `csr_req_int.write` = (br_flow_mux_rr_csr_req.pop_data_unstable >> 2) & 1
+  mut `csr_req_int.secure` = (br_flow_mux_rr_csr_req.pop_data_unstable >> 1) & 1
+  mut `csr_req_int.privileged` = br_flow_mux_rr_csr_req.pop_data_unstable & 1
+  const csr_req_valid_int__w1 = unsigned((br_flow_mux_rr_csr_req.pop_valid_unstable != 0) and (csr_unqual_req_ready__w1 != 0))
+  mut br_delay_valid_csr_req = br_delay_valid::[name=br_delay_valid_csr_req](clk = clk, rst = rst, in_valid = csr_req_valid_int__w1, `in` = (`csr_req_int.addr` << 39) | (`csr_req_int.wdata` << 7) | (`csr_req_int.wstrb` << 3) | (`csr_req_int.write` << 2) | (`csr_req_int.secure` << 1) | `csr_req_int.privileged`)
+  mut `csr_req.addr` = br_delay_valid_csr_req.out#[39..=54]
+  mut `csr_req.wdata` = br_delay_valid_csr_req.out#[7..=38]
+  mut `csr_req.wstrb` = br_delay_valid_csr_req.out#[3..=6]
+  mut `csr_req.write` = (br_delay_valid_csr_req.out >> 2) & 1
+  mut `csr_req.secure` = (br_delay_valid_csr_req.out >> 1) & 1
+  mut `csr_req.privileged` = br_delay_valid_csr_req.out & 1
+  wd_state_next = wd_state
+  match wd_state {
+    == 0 {
+      if br_delay_valid_csr_req.out_valid != 0 {
+        wd_state_next = 1
+      }
+    }
+    == 1 {
+      if csr_resp_valid != 0 {
+        wd_state_next = 0
+      } elif (timeout_en__w1 != 0) and (timer_expired__w1 != 0) {
+        wd_state_next = 2
+      }
+    }
+    == 2 {
+      if csr_resp_valid != 0 {
+        wd_state_next = 0
+      } elif (timeout_en__w1 != 0) and (timer_expired__w1 != 0) {
+        wd_state_next = 3
+      }
+    }
+    == 3 {
+      wd_state_next = 0
+    }
+    else {
+      wd_state_next = 0sb?
+    }
+  }
+  wd_state = if rst != 0 { 0 } else { wd_state_next }
+  inflight = if rst != 0 { 0 } else { unsigned(((inflight != 0) or (csr_req_valid_int__w1 != 0)) and (not ((buf_resp_valid != 0) and (br_flow_demux_select_unstable_resp.push_ready != 0)))) }
+  if rst != 0 {
+    inflight_write = 0
+  } elif csr_req_valid_int__w1 != 0 {
+    inflight_write = `csr_req_int.write`
+  }
+  axil_awready = (br_flow_join_csr_write.push_ready >> 1) & 1
+  axil_wready = br_flow_join_csr_write.push_ready & 1
+  axil_bvalid = (br_flow_demux_select_unstable_resp.pop_valid_unstable >> 1) & 1
+  axil_bresp = `axil_b_int.resp`#[0..=1]
+  axil_arready = br_flow_mux_rr_csr_req.push_ready & 1
+  axil_rvalid = br_flow_demux_select_unstable_resp.pop_valid_unstable & 1
+  axil_rdata = `axil_r_int.data`
+  axil_rresp = `axil_r_int.resp`#[0..=1]
+  csr_req_valid = br_delay_valid_csr_req.out_valid
+  csr_req_write = `csr_req.write`
+  csr_req_addr = `csr_req.addr`
+  csr_req_wdata = `csr_req.wdata`
+  csr_req_wstrb = `csr_req.wstrb`
+  csr_req_secure = `csr_req.secure`
+  csr_req_privileged = `csr_req.privileged`
+  csr_req_abort = unsigned((timeout_en__w1 != 0) and (wd_state == 1) and (timer_expired__w1 != 0) and (csr_resp_valid == 0))
+  request_aborted = request_aborted_int__w1
+}

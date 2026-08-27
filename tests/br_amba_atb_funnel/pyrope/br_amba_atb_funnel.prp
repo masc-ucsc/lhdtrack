@@ -1,0 +1,18 @@
+const br_flow_mux_rr_stable_t = import("br_flow_mux_rr_stable.br_flow_mux_rr_stable")
+const br_amba = import("br_amba")
+
+pub mod br_amba_atb_funnel::[timecheck=false](clk:u1, rst:u1, src_atvalid:u2, src_atid:u14, src_atdata:u64, src_atbytes:u4, src_atuser:u2, dst_atready:u1) -> (src_atready:u2@[], dst_atvalid:u1@[], dst_atid:u7@[], dst_atdata:u32@[], dst_atbytes:u2@[], dst_atuser:u1@[]) {
+  mut src_packet:u84 = 0
+  src_packet = 0sb?
+  mut src_packet__w1 = src_packet
+  src_packet__w1#[0..=41] = (src_atid#[0..=6] << 35) | (src_atdata#[0..=31] << 3) | (src_atbytes#[0..=1] << 1) | (src_atuser & 1)
+  mut src_packet__w2 = src_packet__w1
+  src_packet__w2#[42..=83] = (src_atid#[7..=13] << 35) | (src_atdata#[32..=63] << 3) | (src_atbytes#[2..=3] << 1) | ((src_atuser >> 1) & 1)
+  mut br_flow_mux_rr_stable = br_flow_mux_rr_stable_t::[name=br_flow_mux_rr_stable](clk = clk, rst = rst, push_valid = src_atvalid, push_data = src_packet__w2, pop_ready = dst_atready)
+  src_atready = br_flow_mux_rr_stable.push_ready
+  dst_atvalid = br_flow_mux_rr_stable.pop_valid
+  dst_atid = (br_flow_mux_rr_stable.pop_data >> 35)#[0..=6]
+  dst_atdata = (br_flow_mux_rr_stable.pop_data >> 3)#[0..=31]
+  dst_atbytes = (br_flow_mux_rr_stable.pop_data >> 1)#[0..=1]
+  dst_atuser = br_flow_mux_rr_stable.pop_data & 1
+}

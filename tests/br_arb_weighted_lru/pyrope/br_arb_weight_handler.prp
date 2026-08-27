@@ -1,0 +1,89 @@
+const br_counter_t = import("br_counter.br_counter")
+
+pub mod br_arb_weight_handler::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u16, request_weight:u48, grant:u16) -> (request_priority:(e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  mut accumulated_weight__wtmp:u80 = 0sb?
+  wire accumulated_weight:u80
+  mut _mux_1:u16 = if enable_priority_update != 0 { grant } else { 0 }
+  const decr_accumulated_weight__w1 = _mux_1
+  mut `request_priority__bpo.e0` = unsigned(accumulated_weight#[0..=4] != 0)
+  mut `request_priority__bpo.e1` = unsigned(accumulated_weight#[5..=9] != 0)
+  mut `request_priority__bpo.e2` = unsigned(accumulated_weight#[10..=14] != 0)
+  mut `request_priority__bpo.e3` = unsigned(accumulated_weight#[15..=19] != 0)
+  mut `request_priority__bpo.e4` = unsigned(accumulated_weight#[20..=24] != 0)
+  mut `request_priority__bpo.e5` = unsigned(accumulated_weight#[25..=29] != 0)
+  mut `request_priority__bpo.e6` = unsigned(accumulated_weight#[30..=34] != 0)
+  mut `request_priority__bpo.e7` = unsigned(accumulated_weight#[35..=39] != 0)
+  mut `request_priority__bpo.e8` = unsigned(accumulated_weight#[40..=44] != 0)
+  mut `request_priority__bpo.e9` = unsigned(accumulated_weight#[45..=49] != 0)
+  mut `request_priority__bpo.e10` = unsigned(accumulated_weight#[50..=54] != 0)
+  mut `request_priority__bpo.e11` = unsigned(accumulated_weight#[55..=59] != 0)
+  mut `request_priority__bpo.e12` = unsigned(accumulated_weight#[60..=64] != 0)
+  mut `request_priority__bpo.e13` = unsigned(accumulated_weight#[65..=69] != 0)
+  mut `request_priority__bpo.e14` = unsigned(accumulated_weight#[70..=74] != 0)
+  mut `request_priority__bpo.e15` = unsigned(accumulated_weight#[75..=79] != 0)
+  const incr_accumulated_weight__w1 = unsigned((enable_priority_update != 0) and (request != 0) and (unsigned((request & ((`request_priority__bpo.e15` << 15) | (`request_priority__bpo.e14` << 14) | (`request_priority__bpo.e13` << 13) | (`request_priority__bpo.e12` << 12) | (`request_priority__bpo.e11` << 11) | (`request_priority__bpo.e10` << 10) | (`request_priority__bpo.e9` << 9) | (`request_priority__bpo.e8` << 8) | (`request_priority__bpo.e7` << 7) | (`request_priority__bpo.e6` << 6) | (`request_priority__bpo.e5` << 5) | (`request_priority__bpo.e4` << 4) | (`request_priority__bpo.e3` << 3) | (`request_priority__bpo.e2` << 2) | (`request_priority__bpo.e1` << 1) | `request_priority__bpo.e0`)) != 0) == 0))
+  mut br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[0..=2], decr_valid = decr_accumulated_weight__w1 & 1, decr = 1)
+  accumulated_weight__wtmp#[0..=4] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[3..=5], decr_valid = (decr_accumulated_weight__w1 >> 1) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w1 = accumulated_weight__wtmp
+  accumulated_weight__wtmp__w1#[5..=9] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[6..=8], decr_valid = (decr_accumulated_weight__w1 >> 2) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w2 = accumulated_weight__wtmp__w1
+  accumulated_weight__wtmp__w2#[10..=14] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[9..=11], decr_valid = (decr_accumulated_weight__w1 >> 3) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w3 = accumulated_weight__wtmp__w2
+  accumulated_weight__wtmp__w3#[15..=19] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[12..=14], decr_valid = (decr_accumulated_weight__w1 >> 4) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w4 = accumulated_weight__wtmp__w3
+  accumulated_weight__wtmp__w4#[20..=24] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[15..=17], decr_valid = (decr_accumulated_weight__w1 >> 5) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w5 = accumulated_weight__wtmp__w4
+  accumulated_weight__wtmp__w5#[25..=29] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[18..=20], decr_valid = (decr_accumulated_weight__w1 >> 6) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w6 = accumulated_weight__wtmp__w5
+  accumulated_weight__wtmp__w6#[30..=34] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[21..=23], decr_valid = (decr_accumulated_weight__w1 >> 7) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w7 = accumulated_weight__wtmp__w6
+  accumulated_weight__wtmp__w7#[35..=39] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[24..=26], decr_valid = (decr_accumulated_weight__w1 >> 8) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w8 = accumulated_weight__wtmp__w7
+  accumulated_weight__wtmp__w8#[40..=44] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[27..=29], decr_valid = (decr_accumulated_weight__w1 >> 9) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w9 = accumulated_weight__wtmp__w8
+  accumulated_weight__wtmp__w9#[45..=49] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[30..=32], decr_valid = (decr_accumulated_weight__w1 >> 10) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w10 = accumulated_weight__wtmp__w9
+  accumulated_weight__wtmp__w10#[50..=54] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[33..=35], decr_valid = (decr_accumulated_weight__w1 >> 11) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w11 = accumulated_weight__wtmp__w10
+  accumulated_weight__wtmp__w11#[55..=59] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[36..=38], decr_valid = (decr_accumulated_weight__w1 >> 12) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w12 = accumulated_weight__wtmp__w11
+  accumulated_weight__wtmp__w12#[60..=64] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[39..=41], decr_valid = (decr_accumulated_weight__w1 >> 13) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w13 = accumulated_weight__wtmp__w12
+  accumulated_weight__wtmp__w13#[65..=69] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[42..=44], decr_valid = (decr_accumulated_weight__w1 >> 14) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w14 = accumulated_weight__wtmp__w13
+  accumulated_weight__wtmp__w14#[70..=74] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[45..=47], decr_valid = (decr_accumulated_weight__w1 >> 15) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w15 = accumulated_weight__wtmp__w14
+  accumulated_weight__wtmp__w15#[75..=79] = br_counter["value"]#[0..=4]
+  accumulated_weight = accumulated_weight__wtmp__w15
+  request_priority.e15 = `request_priority__bpo.e15`
+  request_priority.e14 = `request_priority__bpo.e14`
+  request_priority.e13 = `request_priority__bpo.e13`
+  request_priority.e12 = `request_priority__bpo.e12`
+  request_priority.e11 = `request_priority__bpo.e11`
+  request_priority.e10 = `request_priority__bpo.e10`
+  request_priority.e9 = `request_priority__bpo.e9`
+  request_priority.e8 = `request_priority__bpo.e8`
+  request_priority.e7 = `request_priority__bpo.e7`
+  request_priority.e6 = `request_priority__bpo.e6`
+  request_priority.e5 = `request_priority__bpo.e5`
+  request_priority.e4 = `request_priority__bpo.e4`
+  request_priority.e3 = `request_priority__bpo.e3`
+  request_priority.e2 = `request_priority__bpo.e2`
+  request_priority.e1 = `request_priority__bpo.e1`
+  request_priority.e0 = `request_priority__bpo.e0`
+}

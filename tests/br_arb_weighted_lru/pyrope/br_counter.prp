@@ -1,0 +1,20 @@
+pub mod br_counter::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u5, incr_valid:u1, incr:u3, decr_valid:u1, decr:u3) -> (value:u5@[], value_next:u5@[]) {
+  reg value:u5
+  mut _mux_1:u3 = if incr_valid != 0 { incr } else { 0 }
+  const incr_qual__w1 = _mux_1
+  mut _mux_2:u3 = if decr_valid != 0 { decr } else { 0 }
+  const decr_qual__w1 = _mux_2
+  mut _mux_3:u5 = if reinit != 0 { initial_value } else { value }
+  const value_temp__w1 = ((_mux_3 + incr_qual__w1)#[0..=4] - decr_qual__w1)#[0..=4]
+  const gen_wrap_or_saturate_is_net_decr__w1 = unsigned(decr_qual__w1 > incr_qual__w1)
+  const gen_wrap_or_saturate_would_out_of_bounds__w1 = unsigned(value_temp__w1 > 16)
+  mut _mux_9:u5 = if unsigned((gen_wrap_or_saturate_would_out_of_bounds__w1 != 0) and (gen_wrap_or_saturate_is_net_decr__w1 == 0)) != 0 { 16 } else { value_temp__w1 }
+  mut _mux_10:u5 = if unsigned((gen_wrap_or_saturate_would_out_of_bounds__w1 != 0) and (gen_wrap_or_saturate_is_net_decr__w1 != 0)) != 0 { 0 } else { _mux_9 }
+  const value_next__w1 = _mux_10
+  if rst != 0 {
+    value = initial_value
+  } elif unsigned((reinit != 0) or (incr_valid != 0) or (decr_valid != 0)) != 0 {
+    value = value_next__w1
+  }
+  value_next = value_next__w1
+}

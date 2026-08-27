@@ -1,0 +1,5 @@
+pub mod br_delay_deskew::[timecheck=false](clk:u1, in_valid_next:u1, `in`:u64) -> (out_valid:u1@[], out:u64@[]) {
+  reg out_valid:u1
+  out_valid = in_valid_next
+  out = `in`
+}

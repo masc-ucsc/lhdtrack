@@ -1,0 +1,42 @@
+# //:sync-toolchain -- build every tool in the measured path and stage it, with
+# its version string, into var/toolchain/.
+#
+# This is the ONLY bridge between bazel and the python runner. The runner does
+# not shell out to bazel and does not read PATH; it reads
+# var/toolchain/toolchain.json, which this target writes.
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+# The five binaries and the two Liberty collections the runner needs. Keeping
+# them in one filegroup per role means `sync_toolchain.sh` never hardcodes a
+# label -- it walks $(locations).
+filegroup(
+    name = "tool_binaries",
+    srcs = [
+        "@livehd//lhd:lhd",
+        "@yosys//:yosys",
+        "@abc//:abc",
+        "@verilator//:verilator",
+        "@opensta//:sta",
+    ],
+)
+
+filegroup(
+    name = "liberty",
+    srcs = [
+        "//tech/asap7:liberty",
+        "//tech/sky130:liberty",
+    ],
+)
+
+sh_binary(
+    name = "sync-toolchain",
+    srcs = ["tools/sync_toolchain.sh"],
+    args = ["$(rootpath //:tool_binaries)"],
+    data = [
+        ":liberty",
+        ":tool_binaries",
+    ],
+    deps = ["@bazel_tools//tools/bash/runfiles"],
+)

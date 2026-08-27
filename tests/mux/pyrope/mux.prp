@@ -1,0 +1,4 @@
+pub comb mux::[timecheck=false](in0:u8, in1:u8, in2:u8, in3:u8, sel:u2) -> (out:u8) {
+  out = 0sb?
+  out = unique if sel == 0 { in0 } elif sel == 1 { in1 } elif sel == 2 { in2 } elif sel == 3 { in3 } else { 0 }
+}

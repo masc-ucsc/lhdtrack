@@ -1,0 +1,5 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_csr_checks_intg::[timecheck=false](clk:u1, rst:u1, req_valid:u1, req_write:u1, req_addr:u1, req_wdata:u32, req_wstrb:u4, req_secure:u1, req_privileged:u1, req_abort:u1, resp_valid:u1) -> () {
+  br_misc_unused::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 43) | ((req_valid & 1) << 42) | ((req_write & 1) << 41) | ((req_addr & 1) << 40) | (req_wdata << 8) | (req_wstrb << 4) | ((req_secure & 1) << 3) | ((req_privileged & 1) << 2) | ((req_abort & 1) << 1) | (resp_valid & 1))
+}

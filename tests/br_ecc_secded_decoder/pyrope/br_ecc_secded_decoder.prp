@@ -1,0 +1,216 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_delay_valid_p2 = import("br_delay_valid_p2.br_delay_valid_p2")
+
+pub mod br_ecc_secded_decoder::[timecheck=false](clk:u1, rst:u1, rcv_valid:u1, rcv_data:u32, rcv_parity:u7) -> (dec_valid:u1@[], dec_codeword:u39@[], dec_error_ce:u1@[], dec_error_due:u1@[], dec_error_syndrome:u7@[], dec_data:u32@[]) {
+  mut parity_check_matrix:u273 = 0
+  mut syndrome:u7 = 0
+  mut internal_h_column_match:u39 = 0
+  mut cw__wtmp:u39 = 0sb?
+  wire cw:u39
+  mut internal_corrected_codeword_compressed__wtmp:u39 = 0sb?
+  wire internal_corrected_codeword_compressed:u39
+  parity_check_matrix = 0sb?
+  syndrome = 0sb?
+  internal_h_column_match = 0sb?
+  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk = clk, rst = rst, in_valid = rcv_valid, `in` = (rcv_parity << 32) | rcv_data)
+  cw__wtmp#[32..=38] = br_delay_valid_inputs.out#[32..=38]
+  mut cw__wtmp__w1 = cw__wtmp
+  cw__wtmp__w1#[0..=31] = br_delay_valid_inputs.out#[0..=31]
+  mut syndrome__w1 = syndrome
+  syndrome__w1#[6] = ((((((((((((((((((((((((((((cw & 1) ^ ((cw >> 1) & 1)) & 1) ^ ((cw >> 2) & 1)) & 1) ^ ((cw >> 3) & 1)) & 1) ^ ((cw >> 4) & 1)) & 1) ^ ((cw >> 5) & 1)) & 1) ^ ((cw >> 6) & 1)) & 1) ^ ((cw >> 7) & 1)) & 1) ^ ((cw >> 8) & 1)) & 1) ^ ((cw >> 9) & 1)) & 1) ^ ((cw >> 10) & 1)) & 1) ^ ((cw >> 11) & 1)) & 1) ^ ((cw >> 12) & 1)) & 1) ^ ((cw >> 13) & 1)) & 1) ^ ((cw >> 32) & 1)) & 1
+  mut syndrome__w2 = syndrome__w1
+  syndrome__w2#[5] = ((((((((((((((((((((((((((((cw & 1) ^ ((cw >> 1) & 1)) & 1) ^ ((cw >> 2) & 1)) & 1) ^ ((cw >> 3) & 1)) & 1) ^ ((cw >> 4) & 1)) & 1) ^ ((cw >> 14) & 1)) & 1) ^ ((cw >> 15) & 1)) & 1) ^ ((cw >> 16) & 1)) & 1) ^ ((cw >> 17) & 1)) & 1) ^ ((cw >> 18) & 1)) & 1) ^ ((cw >> 19) & 1)) & 1) ^ ((cw >> 20) & 1)) & 1) ^ ((cw >> 21) & 1)) & 1) ^ ((cw >> 22) & 1)) & 1) ^ ((cw >> 33) & 1)) & 1
+  mut syndrome__w3 = syndrome__w2
+  syndrome__w3#[4] = ((((((((((((((((((((((((((((cw & 1) ^ ((cw >> 5) & 1)) & 1) ^ ((cw >> 6) & 1)) & 1) ^ ((cw >> 7) & 1)) & 1) ^ ((cw >> 8) & 1)) & 1) ^ ((cw >> 14) & 1)) & 1) ^ ((cw >> 15) & 1)) & 1) ^ ((cw >> 16) & 1)) & 1) ^ ((cw >> 17) & 1)) & 1) ^ ((cw >> 23) & 1)) & 1) ^ ((cw >> 27) & 1)) & 1) ^ ((cw >> 28) & 1)) & 1) ^ ((cw >> 30) & 1)) & 1) ^ ((cw >> 31) & 1)) & 1) ^ ((cw >> 34) & 1)) & 1
+  mut syndrome__w4 = syndrome__w3
+  syndrome__w4#[3] = (((((((((((((((((((((((((((((cw >> 1) & 1) ^ ((cw >> 5) & 1)) & 1) ^ ((cw >> 9) & 1)) & 1) ^ ((cw >> 10) & 1)) & 1) ^ ((cw >> 11) & 1)) & 1) ^ ((cw >> 14) & 1)) & 1) ^ ((cw >> 18) & 1)) & 1) ^ ((cw >> 19) & 1)) & 1) ^ ((cw >> 20) & 1)) & 1) ^ ((cw >> 24) & 1)) & 1) ^ ((cw >> 26) & 1)) & 1) ^ ((cw >> 28) & 1)) & 1) ^ ((cw >> 29) & 1)) & 1) ^ ((cw >> 31) & 1)) & 1) ^ ((cw >> 35) & 1)) & 1
+  mut syndrome__w5 = syndrome__w4
+  syndrome__w5#[2] = (((((((((((((((((((((((((((((cw >> 2) & 1) ^ ((cw >> 6) & 1)) & 1) ^ ((cw >> 9) & 1)) & 1) ^ ((cw >> 12) & 1)) & 1) ^ ((cw >> 13) & 1)) & 1) ^ ((cw >> 15) & 1)) & 1) ^ ((cw >> 18) & 1)) & 1) ^ ((cw >> 21) & 1)) & 1) ^ ((cw >> 22) & 1)) & 1) ^ ((cw >> 25) & 1)) & 1) ^ ((cw >> 26) & 1)) & 1) ^ ((cw >> 27) & 1)) & 1) ^ ((cw >> 29) & 1)) & 1) ^ ((cw >> 30) & 1)) & 1) ^ ((cw >> 36) & 1)) & 1
+  mut syndrome__w6 = syndrome__w5
+  syndrome__w6#[1] = (((((((((((((((((((((((((((cw >> 3) & 1) ^ ((cw >> 7) & 1)) & 1) ^ ((cw >> 10) & 1)) & 1) ^ ((cw >> 13) & 1)) & 1) ^ ((cw >> 16) & 1)) & 1) ^ ((cw >> 19) & 1)) & 1) ^ ((cw >> 22) & 1)) & 1) ^ ((cw >> 23) & 1)) & 1) ^ ((cw >> 24) & 1)) & 1) ^ ((cw >> 25) & 1)) & 1) ^ ((cw >> 26) & 1)) & 1) ^ ((cw >> 27) & 1)) & 1) ^ ((cw >> 28) & 1)) & 1) ^ ((cw >> 37) & 1)) & 1
+  mut syndrome__w7 = syndrome__w6
+  syndrome__w7#[0] = (((((((((((((((((((((((((((cw >> 4) & 1) ^ ((cw >> 8) & 1)) & 1) ^ ((cw >> 11) & 1)) & 1) ^ ((cw >> 12) & 1)) & 1) ^ ((cw >> 17) & 1)) & 1) ^ ((cw >> 20) & 1)) & 1) ^ ((cw >> 21) & 1)) & 1) ^ ((cw >> 23) & 1)) & 1) ^ ((cw >> 24) & 1)) & 1) ^ ((cw >> 25) & 1)) & 1) ^ ((cw >> 29) & 1)) & 1) ^ ((cw >> 30) & 1)) & 1) ^ ((cw >> 31) & 1)) & 1) ^ ((cw >> 38) & 1)) & 1
+  mut parity_check_matrix__w1 = parity_check_matrix
+  parity_check_matrix__w1#[0..=6] = 0x70
+  mut parity_check_matrix__w2 = parity_check_matrix__w1
+  parity_check_matrix__w2#[7..=13] = 0x68
+  mut parity_check_matrix__w3 = parity_check_matrix__w2
+  parity_check_matrix__w3#[14..=20] = 0x64
+  mut parity_check_matrix__w4 = parity_check_matrix__w3
+  parity_check_matrix__w4#[21..=27] = 0x62
+  mut parity_check_matrix__w5 = parity_check_matrix__w4
+  parity_check_matrix__w5#[28..=34] = 0x61
+  mut parity_check_matrix__w6 = parity_check_matrix__w5
+  parity_check_matrix__w6#[35..=41] = 0x58
+  mut parity_check_matrix__w7 = parity_check_matrix__w6
+  parity_check_matrix__w7#[42..=48] = 0x54
+  mut parity_check_matrix__w8 = parity_check_matrix__w7
+  parity_check_matrix__w8#[49..=55] = 0x52
+  mut parity_check_matrix__w9 = parity_check_matrix__w8
+  parity_check_matrix__w9#[56..=62] = 0x51
+  mut parity_check_matrix__w10 = parity_check_matrix__w9
+  parity_check_matrix__w10#[63..=69] = 0x4c
+  mut parity_check_matrix__w11 = parity_check_matrix__w10
+  parity_check_matrix__w11#[70..=76] = 0x4a
+  mut parity_check_matrix__w12 = parity_check_matrix__w11
+  parity_check_matrix__w12#[77..=83] = 0x49
+  mut parity_check_matrix__w13 = parity_check_matrix__w12
+  parity_check_matrix__w13#[84..=90] = 0x45
+  mut parity_check_matrix__w14 = parity_check_matrix__w13
+  parity_check_matrix__w14#[91..=97] = 0x46
+  mut parity_check_matrix__w15 = parity_check_matrix__w14
+  parity_check_matrix__w15#[98..=104] = 56
+  mut parity_check_matrix__w16 = parity_check_matrix__w15
+  parity_check_matrix__w16#[105..=111] = 52
+  mut parity_check_matrix__w17 = parity_check_matrix__w16
+  parity_check_matrix__w17#[112..=118] = 50
+  mut parity_check_matrix__w18 = parity_check_matrix__w17
+  parity_check_matrix__w18#[119..=125] = 49
+  mut parity_check_matrix__w19 = parity_check_matrix__w18
+  parity_check_matrix__w19#[126..=132] = 44
+  mut parity_check_matrix__w20 = parity_check_matrix__w19
+  parity_check_matrix__w20#[133..=139] = 42
+  mut parity_check_matrix__w21 = parity_check_matrix__w20
+  parity_check_matrix__w21#[140..=146] = 41
+  mut parity_check_matrix__w22 = parity_check_matrix__w21
+  parity_check_matrix__w22#[147..=153] = 37
+  mut parity_check_matrix__w23 = parity_check_matrix__w22
+  parity_check_matrix__w23#[154..=160] = 38
+  mut parity_check_matrix__w24 = parity_check_matrix__w23
+  parity_check_matrix__w24#[161..=167] = 19
+  mut parity_check_matrix__w25 = parity_check_matrix__w24
+  parity_check_matrix__w25#[168..=174] = 11
+  mut parity_check_matrix__w26 = parity_check_matrix__w25
+  parity_check_matrix__w26#[175..=181] = 7
+  mut parity_check_matrix__w27 = parity_check_matrix__w26
+  parity_check_matrix__w27#[182..=188] = 14
+  mut parity_check_matrix__w28 = parity_check_matrix__w27
+  parity_check_matrix__w28#[189..=195] = 22
+  mut parity_check_matrix__w29 = parity_check_matrix__w28
+  parity_check_matrix__w29#[196..=202] = 26
+  mut parity_check_matrix__w30 = parity_check_matrix__w29
+  parity_check_matrix__w30#[203..=209] = 13
+  mut parity_check_matrix__w31 = parity_check_matrix__w30
+  parity_check_matrix__w31#[210..=216] = 21
+  mut parity_check_matrix__w32 = parity_check_matrix__w31
+  parity_check_matrix__w32#[217..=223] = 25
+  mut parity_check_matrix__w33 = parity_check_matrix__w32
+  parity_check_matrix__w33#[224..=230] = 0x40
+  mut parity_check_matrix__w34 = parity_check_matrix__w33
+  parity_check_matrix__w34#[231..=237] = 32
+  mut parity_check_matrix__w35 = parity_check_matrix__w34
+  parity_check_matrix__w35#[238..=244] = 16
+  mut parity_check_matrix__w36 = parity_check_matrix__w35
+  parity_check_matrix__w36#[245..=251] = 8
+  mut parity_check_matrix__w37 = parity_check_matrix__w36
+  parity_check_matrix__w37#[252..=258] = 4
+  const t404 = syndrome__w7#[0..=6]
+  const t405 = (cw << 7) | t404
+  mut br_delay_valid_syndrome = br_delay_valid_p1::[name=br_delay_valid_syndrome](clk = clk, rst = rst, in_valid = br_delay_valid_inputs.out_valid, `in` = t405)
+  const internal_error_syndrome__w1 = br_delay_valid_syndrome.out#[0..=6]
+  const t412 = internal_error_syndrome__w1 ^ (internal_error_syndrome__w1 >> 4)
+  const t414 = t412 ^ (t412 >> 2)
+  const internal_error_syndrome_parity__w1 = (t414 ^ (t414 >> 1)) & 1
+  const internal_error_syndrome_is_odd__w1 = internal_error_syndrome_parity__w1
+  mut internal_h_column_match__w1 = internal_h_column_match
+  internal_h_column_match__w1#[0] = unsigned(internal_error_syndrome__w1 == 0x70) & 1
+  mut internal_h_column_match__w2 = internal_h_column_match__w1
+  internal_h_column_match__w2#[1] = unsigned(internal_error_syndrome__w1 == 0x68) & 1
+  mut internal_h_column_match__w3 = internal_h_column_match__w2
+  internal_h_column_match__w3#[2] = unsigned(internal_error_syndrome__w1 == 0x64) & 1
+  mut internal_h_column_match__w4 = internal_h_column_match__w3
+  internal_h_column_match__w4#[3] = unsigned(internal_error_syndrome__w1 == 0x62) & 1
+  mut internal_h_column_match__w5 = internal_h_column_match__w4
+  internal_h_column_match__w5#[4] = unsigned(internal_error_syndrome__w1 == 0x61) & 1
+  mut internal_h_column_match__w6 = internal_h_column_match__w5
+  internal_h_column_match__w6#[5] = unsigned(internal_error_syndrome__w1 == 0x58) & 1
+  mut internal_h_column_match__w7 = internal_h_column_match__w6
+  internal_h_column_match__w7#[6] = unsigned(internal_error_syndrome__w1 == 0x54) & 1
+  mut internal_h_column_match__w8 = internal_h_column_match__w7
+  internal_h_column_match__w8#[7] = unsigned(internal_error_syndrome__w1 == 0x52) & 1
+  mut internal_h_column_match__w9 = internal_h_column_match__w8
+  internal_h_column_match__w9#[8] = unsigned(internal_error_syndrome__w1 == 0x51) & 1
+  mut internal_h_column_match__w10 = internal_h_column_match__w9
+  internal_h_column_match__w10#[9] = unsigned(internal_error_syndrome__w1 == 0x4c) & 1
+  mut internal_h_column_match__w11 = internal_h_column_match__w10
+  internal_h_column_match__w11#[10] = unsigned(internal_error_syndrome__w1 == 0x4a) & 1
+  mut internal_h_column_match__w12 = internal_h_column_match__w11
+  internal_h_column_match__w12#[11] = unsigned(internal_error_syndrome__w1 == 0x49) & 1
+  mut internal_h_column_match__w13 = internal_h_column_match__w12
+  internal_h_column_match__w13#[12] = unsigned(internal_error_syndrome__w1 == 0x45) & 1
+  mut internal_h_column_match__w14 = internal_h_column_match__w13
+  internal_h_column_match__w14#[13] = unsigned(internal_error_syndrome__w1 == 0x46) & 1
+  mut internal_h_column_match__w15 = internal_h_column_match__w14
+  internal_h_column_match__w15#[14] = unsigned(internal_error_syndrome__w1 == 56) & 1
+  mut internal_h_column_match__w16 = internal_h_column_match__w15
+  internal_h_column_match__w16#[15] = unsigned(internal_error_syndrome__w1 == 52) & 1
+  mut internal_h_column_match__w17 = internal_h_column_match__w16
+  internal_h_column_match__w17#[16] = unsigned(internal_error_syndrome__w1 == 50) & 1
+  mut internal_h_column_match__w18 = internal_h_column_match__w17
+  internal_h_column_match__w18#[17] = unsigned(internal_error_syndrome__w1 == 49) & 1
+  mut internal_h_column_match__w19 = internal_h_column_match__w18
+  internal_h_column_match__w19#[18] = unsigned(internal_error_syndrome__w1 == 44) & 1
+  mut internal_h_column_match__w20 = internal_h_column_match__w19
+  internal_h_column_match__w20#[19] = unsigned(internal_error_syndrome__w1 == 42) & 1
+  mut internal_h_column_match__w21 = internal_h_column_match__w20
+  internal_h_column_match__w21#[20] = unsigned(internal_error_syndrome__w1 == 41) & 1
+  mut internal_h_column_match__w22 = internal_h_column_match__w21
+  internal_h_column_match__w22#[21] = unsigned(internal_error_syndrome__w1 == 37) & 1
+  mut internal_h_column_match__w23 = internal_h_column_match__w22
+  internal_h_column_match__w23#[22] = unsigned(internal_error_syndrome__w1 == 38) & 1
+  mut internal_h_column_match__w24 = internal_h_column_match__w23
+  internal_h_column_match__w24#[23] = unsigned(internal_error_syndrome__w1 == 19) & 1
+  mut internal_h_column_match__w25 = internal_h_column_match__w24
+  internal_h_column_match__w25#[24] = unsigned(internal_error_syndrome__w1 == 11) & 1
+  mut internal_h_column_match__w26 = internal_h_column_match__w25
+  internal_h_column_match__w26#[25] = unsigned(internal_error_syndrome__w1 == 7) & 1
+  mut internal_h_column_match__w27 = internal_h_column_match__w26
+  internal_h_column_match__w27#[26] = unsigned(internal_error_syndrome__w1 == 14) & 1
+  mut internal_h_column_match__w28 = internal_h_column_match__w27
+  internal_h_column_match__w28#[27] = unsigned(internal_error_syndrome__w1 == 22) & 1
+  mut internal_h_column_match__w29 = internal_h_column_match__w28
+  internal_h_column_match__w29#[28] = unsigned(internal_error_syndrome__w1 == 26) & 1
+  mut internal_h_column_match__w30 = internal_h_column_match__w29
+  internal_h_column_match__w30#[29] = unsigned(internal_error_syndrome__w1 == 13) & 1
+  mut internal_h_column_match__w31 = internal_h_column_match__w30
+  internal_h_column_match__w31#[30] = unsigned(internal_error_syndrome__w1 == 21) & 1
+  mut internal_h_column_match__w32 = internal_h_column_match__w31
+  internal_h_column_match__w32#[31] = unsigned(internal_error_syndrome__w1 == 25) & 1
+  mut internal_h_column_match__w33 = internal_h_column_match__w32
+  internal_h_column_match__w33#[32] = unsigned(internal_error_syndrome__w1 == 0x40) & 1
+  mut internal_h_column_match__w34 = internal_h_column_match__w33
+  internal_h_column_match__w34#[33] = unsigned(internal_error_syndrome__w1 == 32) & 1
+  mut internal_h_column_match__w35 = internal_h_column_match__w34
+  internal_h_column_match__w35#[34] = unsigned(internal_error_syndrome__w1 == 16) & 1
+  mut internal_h_column_match__w36 = internal_h_column_match__w35
+  internal_h_column_match__w36#[35] = unsigned(internal_error_syndrome__w1 == 8) & 1
+  mut internal_h_column_match__w37 = internal_h_column_match__w36
+  internal_h_column_match__w37#[36] = unsigned(internal_error_syndrome__w1 == 4) & 1
+  mut internal_h_column_match__w38 = internal_h_column_match__w37
+  internal_h_column_match__w38#[37] = unsigned(internal_error_syndrome__w1 == 2) & 1
+  mut internal_h_column_match__w39 = internal_h_column_match__w38
+  internal_h_column_match__w39#[38] = unsigned(internal_error_syndrome__w1 == 1) & 1
+  const t541 = internal_h_column_match__w39 == 0
+  const t542 = (internal_error_syndrome_is_odd__w1 != 0) and t541
+  const t547 = internal_h_column_match__w39 != 0
+  const t548 = (internal_error_syndrome_is_odd__w1 != 0) and t547
+  const t549 = (br_delay_valid_syndrome.out >> 7)#[0..=38] ^ internal_h_column_match__w39
+  const t550 = t549#[0..=38]
+  const internal_corrected_codeword__w1 = t550
+  const t551 = internal_corrected_codeword__w1#[32..=38]
+  internal_corrected_codeword_compressed__wtmp#[32..=38] = t551
+  const t552 = internal_corrected_codeword__w1#[0..=31]
+  mut internal_corrected_codeword_compressed__wtmp__w1 = internal_corrected_codeword_compressed__wtmp
+  internal_corrected_codeword_compressed__wtmp__w1#[0..=31] = t552
+  mut br_delay_valid_outputs = br_delay_valid_p2::[name=br_delay_valid_outputs](clk = clk, rst = rst, in_valid = br_delay_valid_syndrome.out_valid, `in` = (internal_corrected_codeword_compressed << 9) | ((unsigned(t548) & 1) << 8) | ((unsigned((unsigned((unsigned(internal_error_syndrome__w1 == 0) == 0) and (unsigned(internal_error_syndrome_parity__w1 == 0) != 0)) != 0) or (unsigned(t542) != 0)) & 1) << 7) | internal_error_syndrome__w1)
+  const dec_codeword__w1 = (br_delay_valid_outputs.out >> 9)#[0..=38]
+  cw = cw__wtmp__w1
+  internal_corrected_codeword_compressed = internal_corrected_codeword_compressed__wtmp__w1
+  dec_valid = br_delay_valid_outputs.out_valid
+  dec_codeword = dec_codeword__w1
+  dec_error_ce = (br_delay_valid_outputs.out >> 8) & 1
+  dec_error_due = (br_delay_valid_outputs.out >> 7) & 1
+  dec_error_syndrome = br_delay_valid_outputs.out#[0..=6]
+  dec_data = dec_codeword__w1#[0..=31]
+}

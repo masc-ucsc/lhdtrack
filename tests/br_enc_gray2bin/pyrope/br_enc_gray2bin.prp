@@ -1,0 +1,166 @@
+pub comb br_enc_gray2bin::[timecheck=false](gray:u32) -> (bin:u32) {
+  bin = 0sb?
+  mut bin__w1 = bin
+  bin__w1#[31] = (gray >> 31) & 1
+  mut bin__w2 = bin__w1
+  bin__w2#[30] = (gray#[30..=31] ^ (gray#[30..=31] >> 1)) & 1 & 1
+  const t10 = gray#[29..=31] ^ (gray#[29..=31] >> 2)
+  mut bin__w3 = bin__w2
+  bin__w3#[29] = (t10 ^ (t10 >> 1)) & 1 & 1
+  const t17 = gray#[28..=31] ^ (gray#[28..=31] >> 2)
+  mut bin__w4 = bin__w3
+  bin__w4#[28] = (t17 ^ (t17 >> 1)) & 1 & 1
+  const t24 = gray#[27..=31] ^ (gray#[27..=31] >> 4)
+  const t26 = t24 ^ (t24 >> 2)
+  mut bin__w5 = bin__w4
+  bin__w5#[27] = (t26 ^ (t26 >> 1)) & 1 & 1
+  const t33 = gray#[26..=31] ^ (gray#[26..=31] >> 4)
+  const t35 = t33 ^ (t33 >> 2)
+  mut bin__w6 = bin__w5
+  bin__w6#[26] = (t35 ^ (t35 >> 1)) & 1 & 1
+  const t42 = gray#[25..=31] ^ (gray#[25..=31] >> 4)
+  const t44 = t42 ^ (t42 >> 2)
+  mut bin__w7 = bin__w6
+  bin__w7#[25] = (t44 ^ (t44 >> 1)) & 1 & 1
+  const t51 = gray#[24..=31] ^ (gray#[24..=31] >> 4)
+  const t53 = t51 ^ (t51 >> 2)
+  mut bin__w8 = bin__w7
+  bin__w8#[24] = (t53 ^ (t53 >> 1)) & 1 & 1
+  const t60 = gray#[23..=31] ^ (gray#[23..=31] >> 8)
+  const t62 = t60 ^ (t60 >> 4)
+  const t64 = t62 ^ (t62 >> 2)
+  mut bin__w9 = bin__w8
+  bin__w9#[23] = (t64 ^ (t64 >> 1)) & 1 & 1
+  const t71 = gray#[22..=31] ^ (gray#[22..=31] >> 8)
+  const t73 = t71 ^ (t71 >> 4)
+  const t75 = t73 ^ (t73 >> 2)
+  mut bin__w10 = bin__w9
+  bin__w10#[22] = (t75 ^ (t75 >> 1)) & 1 & 1
+  const t82 = gray#[21..=31] ^ (gray#[21..=31] >> 8)
+  const t84 = t82 ^ (t82 >> 4)
+  const t86 = t84 ^ (t84 >> 2)
+  mut bin__w11 = bin__w10
+  bin__w11#[21] = (t86 ^ (t86 >> 1)) & 1 & 1
+  const t93 = gray#[20..=31] ^ (gray#[20..=31] >> 8)
+  const t95 = t93 ^ (t93 >> 4)
+  const t97 = t95 ^ (t95 >> 2)
+  mut bin__w12 = bin__w11
+  bin__w12#[20] = (t97 ^ (t97 >> 1)) & 1 & 1
+  const t104 = gray#[19..=31] ^ (gray#[19..=31] >> 8)
+  const t106 = t104 ^ (t104 >> 4)
+  const t108 = t106 ^ (t106 >> 2)
+  mut bin__w13 = bin__w12
+  bin__w13#[19] = (t108 ^ (t108 >> 1)) & 1 & 1
+  const t115 = gray#[18..=31] ^ (gray#[18..=31] >> 8)
+  const t117 = t115 ^ (t115 >> 4)
+  const t119 = t117 ^ (t117 >> 2)
+  mut bin__w14 = bin__w13
+  bin__w14#[18] = (t119 ^ (t119 >> 1)) & 1 & 1
+  const t126 = gray#[17..=31] ^ (gray#[17..=31] >> 8)
+  const t128 = t126 ^ (t126 >> 4)
+  const t130 = t128 ^ (t128 >> 2)
+  mut bin__w15 = bin__w14
+  bin__w15#[17] = (t130 ^ (t130 >> 1)) & 1 & 1
+  const t137 = gray#[16..=31] ^ (gray#[16..=31] >> 8)
+  const t139 = t137 ^ (t137 >> 4)
+  const t141 = t139 ^ (t139 >> 2)
+  mut bin__w16 = bin__w15
+  bin__w16#[16] = (t141 ^ (t141 >> 1)) & 1 & 1
+  const t148 = gray#[15..=31] ^ (gray#[15..=31] >> 16)
+  const t150 = t148 ^ (t148 >> 8)
+  const t152 = t150 ^ (t150 >> 4)
+  const t154 = t152 ^ (t152 >> 2)
+  mut bin__w17 = bin__w16
+  bin__w17#[15] = (t154 ^ (t154 >> 1)) & 1 & 1
+  const t161 = gray#[14..=31] ^ (gray#[14..=31] >> 16)
+  const t163 = t161 ^ (t161 >> 8)
+  const t165 = t163 ^ (t163 >> 4)
+  const t167 = t165 ^ (t165 >> 2)
+  mut bin__w18 = bin__w17
+  bin__w18#[14] = (t167 ^ (t167 >> 1)) & 1 & 1
+  const t174 = gray#[13..=31] ^ (gray#[13..=31] >> 16)
+  const t176 = t174 ^ (t174 >> 8)
+  const t178 = t176 ^ (t176 >> 4)
+  const t180 = t178 ^ (t178 >> 2)
+  mut bin__w19 = bin__w18
+  bin__w19#[13] = (t180 ^ (t180 >> 1)) & 1 & 1
+  const t187 = gray#[12..=31] ^ (gray#[12..=31] >> 16)
+  const t189 = t187 ^ (t187 >> 8)
+  const t191 = t189 ^ (t189 >> 4)
+  const t193 = t191 ^ (t191 >> 2)
+  mut bin__w20 = bin__w19
+  bin__w20#[12] = (t193 ^ (t193 >> 1)) & 1 & 1
+  const t200 = gray#[11..=31] ^ (gray#[11..=31] >> 16)
+  const t202 = t200 ^ (t200 >> 8)
+  const t204 = t202 ^ (t202 >> 4)
+  const t206 = t204 ^ (t204 >> 2)
+  mut bin__w21 = bin__w20
+  bin__w21#[11] = (t206 ^ (t206 >> 1)) & 1 & 1
+  const t213 = gray#[10..=31] ^ (gray#[10..=31] >> 16)
+  const t215 = t213 ^ (t213 >> 8)
+  const t217 = t215 ^ (t215 >> 4)
+  const t219 = t217 ^ (t217 >> 2)
+  mut bin__w22 = bin__w21
+  bin__w22#[10] = (t219 ^ (t219 >> 1)) & 1 & 1
+  const t226 = gray#[9..=31] ^ (gray#[9..=31] >> 16)
+  const t228 = t226 ^ (t226 >> 8)
+  const t230 = t228 ^ (t228 >> 4)
+  const t232 = t230 ^ (t230 >> 2)
+  mut bin__w23 = bin__w22
+  bin__w23#[9] = (t232 ^ (t232 >> 1)) & 1 & 1
+  const t239 = gray#[8..=31] ^ (gray#[8..=31] >> 16)
+  const t241 = t239 ^ (t239 >> 8)
+  const t243 = t241 ^ (t241 >> 4)
+  const t245 = t243 ^ (t243 >> 2)
+  mut bin__w24 = bin__w23
+  bin__w24#[8] = (t245 ^ (t245 >> 1)) & 1 & 1
+  const t252 = gray#[7..=31] ^ (gray#[7..=31] >> 16)
+  const t254 = t252 ^ (t252 >> 8)
+  const t256 = t254 ^ (t254 >> 4)
+  const t258 = t256 ^ (t256 >> 2)
+  mut bin__w25 = bin__w24
+  bin__w25#[7] = (t258 ^ (t258 >> 1)) & 1 & 1
+  const t265 = gray#[6..=31] ^ (gray#[6..=31] >> 16)
+  const t267 = t265 ^ (t265 >> 8)
+  const t269 = t267 ^ (t267 >> 4)
+  const t271 = t269 ^ (t269 >> 2)
+  mut bin__w26 = bin__w25
+  bin__w26#[6] = (t271 ^ (t271 >> 1)) & 1 & 1
+  const t278 = gray#[5..=31] ^ (gray#[5..=31] >> 16)
+  const t280 = t278 ^ (t278 >> 8)
+  const t282 = t280 ^ (t280 >> 4)
+  const t284 = t282 ^ (t282 >> 2)
+  mut bin__w27 = bin__w26
+  bin__w27#[5] = (t284 ^ (t284 >> 1)) & 1 & 1
+  const t291 = gray#[4..=31] ^ (gray#[4..=31] >> 16)
+  const t293 = t291 ^ (t291 >> 8)
+  const t295 = t293 ^ (t293 >> 4)
+  const t297 = t295 ^ (t295 >> 2)
+  mut bin__w28 = bin__w27
+  bin__w28#[4] = (t297 ^ (t297 >> 1)) & 1 & 1
+  const t304 = gray#[3..=31] ^ (gray#[3..=31] >> 16)
+  const t306 = t304 ^ (t304 >> 8)
+  const t308 = t306 ^ (t306 >> 4)
+  const t310 = t308 ^ (t308 >> 2)
+  mut bin__w29 = bin__w28
+  bin__w29#[3] = (t310 ^ (t310 >> 1)) & 1 & 1
+  const t317 = gray#[2..=31] ^ (gray#[2..=31] >> 16)
+  const t319 = t317 ^ (t317 >> 8)
+  const t321 = t319 ^ (t319 >> 4)
+  const t323 = t321 ^ (t321 >> 2)
+  mut bin__w30 = bin__w29
+  bin__w30#[2] = (t323 ^ (t323 >> 1)) & 1 & 1
+  const t330 = gray#[1..=31] ^ (gray#[1..=31] >> 16)
+  const t332 = t330 ^ (t330 >> 8)
+  const t334 = t332 ^ (t332 >> 4)
+  const t336 = t334 ^ (t334 >> 2)
+  mut bin__w31 = bin__w30
+  bin__w31#[1] = (t336 ^ (t336 >> 1)) & 1 & 1
+  const t343 = gray ^ (gray >> 16)
+  const t345 = t343 ^ (t343 >> 8)
+  const t347 = t345 ^ (t345 >> 4)
+  const t349 = t347 ^ (t347 >> 2)
+  mut bin__w32 = bin__w31
+  bin__w32#[0] = (t349 ^ (t349 >> 1)) & 1 & 1
+  bin = bin__w32
+}

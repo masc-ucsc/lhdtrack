@@ -1,0 +1,19 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+
+pub mod br_ecc_sed_decoder::[timecheck=false](clk:u1, rst:u1, rcv_valid:u1, rcv_codeword:u33) -> (dec_valid:u1@[], dec_codeword:u33@[], dec_error_due:u1@[], dec_error_syndrome:u1@[], dec_data:u32@[]) {
+  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk = clk, rst = rst, in_valid = rcv_valid, `in` = rcv_codeword)
+  const t4 = br_delay_valid_inputs.out ^ (br_delay_valid_inputs.out >> 32)
+  const t6 = t4 ^ (t4 >> 16)
+  const t8 = t6 ^ (t6 >> 8)
+  const t10 = t8 ^ (t8 >> 4)
+  const t12 = t10 ^ (t10 >> 2)
+  const syndrome__w1 = (t12 ^ (t12 >> 1)) & 1
+  mut br_delay_valid_outputs = br_delay_valid_p1::[name=br_delay_valid_outputs](clk = clk, rst = rst, in_valid = br_delay_valid_inputs.out_valid, `in` = (br_delay_valid_inputs.out#[0..=32] << 2) | ((syndrome__w1 & 1) << 1) | (unsigned(syndrome__w1 != 0) & 1))
+  const dec_codeword__w1 = (br_delay_valid_outputs.out >> 2)#[0..=32]
+  dec_valid = br_delay_valid_outputs.out_valid
+  dec_codeword = dec_codeword__w1
+  dec_error_due = br_delay_valid_outputs.out & 1
+  dec_error_syndrome = (br_delay_valid_outputs.out >> 1) & 1
+  dec_data = dec_codeword__w1#[0..=31]
+}

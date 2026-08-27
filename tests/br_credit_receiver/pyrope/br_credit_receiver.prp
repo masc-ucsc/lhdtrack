@@ -1,0 +1,20 @@
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+
+pub mod br_credit_receiver::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u4, push_data:u256, pop_credit:u3, credit_initial:u5, credit_withhold:u5) -> (push_receiver_in_reset:u1@[], push_credit:u3@[], pop_valid:u4@[], pop_data:u256@[], credit_count:u5@[], credit_available:u5@[]) {
+  reg push_receiver_in_reset:u1
+  reg push_credit:u3
+  wire credit_decr:u3
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  const credit_decr_valid__w1 = unsigned(push_credit_stall == 0)
+  mut _rep_5:u4 = if (unsigned(either_rst__w1 == 0) & 1) != 0 { 15 } else { 0 }
+  push_receiver_in_reset = if rst != 0 { 1 } else { 0 }
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = unsigned(pop_credit != 0), incr = pop_credit, decr_valid = credit_decr_valid__w1, decr = credit_decr, initial_value = credit_initial, withhold = credit_withhold)
+  mut _mux_6:u3 = if br_credit_counter.available < 4 { br_credit_counter.available#[0..=2] } else { 4 }
+  credit_decr = _mux_6
+  mut _mux_7:u3 = if (credit_decr_valid__w1 != 0) and (br_credit_counter.decr_ready != 0) and (either_rst__w1 == 0) { credit_decr } else { 0 }
+  push_credit = if rst != 0 { 0 } else { _mux_7 }
+  pop_valid = push_valid & _rep_5
+  pop_data = push_data
+  credit_count = br_credit_counter.value
+  credit_available = br_credit_counter.available
+}

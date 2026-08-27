@@ -1,0 +1,14 @@
+pub comb br_delay_valid::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u55) -> (out_valid:u1, out:u55, out_valid_stages:u1, out_stages:u55) {
+  mut stage_valid:u1 = 0
+  mut stage:u55 = 0
+  stage_valid = 0ub?
+  stage = 0sb?
+  mut stage_valid__w1 = stage_valid
+  stage_valid__w1#[0] = in_valid & 1
+  mut stage__w1 = stage
+  stage__w1#[0..=54] = `in`
+  out_valid = stage_valid__w1 & 1
+  out = stage__w1#[0..=54]
+  out_valid_stages = stage_valid__w1
+  out_stages = stage__w1
+}

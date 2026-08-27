@@ -1,0 +1,41 @@
+# br_delay -- see README.md for provenance.
+[design]
+name  = "br_delay"
+top   = "br_delay"
+kind  = "sequential"
+suite = "rtl"
+
+[provenance]
+upstream = "bedrock-rtl"
+rev      = "0a990f222cd970fdaec42c6e0a4e372cf0e1400f"
+path     = "delay/rtl/br_delay.sv"
+license  = "Apache-2.0"
+
+[status]
+pyrope = "idiomatic"
+lec    = "refuted"
+
+[pyrope]
+param_binding = "monomorphic"
+
+[[config]]
+id     = "w8s4"
+# Bedrock's own PPA sweeps pick a baseline and a scaled point per module; this
+# is the baseline shape for a delay line -- wide enough that the shift chain is
+# not degenerate, deep enough that the flops dominate the cell count.
+params = { Width = 8, NumStages = 4 }
+
+[synth]
+flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
+
+[sim]
+flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
+# A shift register is almost free per cycle, so the count is high to clear the
+# noise floor. Re-tune after any large simulator speedup: a benchmark that has
+# outrun its cycle count reports process startup, not the simulator.
+cycles = 20000000
+marker = "LHDTRACK-DONE"
+
+[lec]
+# lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

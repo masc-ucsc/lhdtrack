@@ -1,0 +1,38 @@
+pub comb br_demux_bin::[timecheck=false](select:u4, in_valid:u1, `in`:u32) -> (out_valid:u16, out:u512) {
+  out_valid = 0sb?
+  mut out_valid__w1 = out_valid
+  out_valid__w1#[0] = unsigned((in_valid != 0) and (select == 0)) & 1
+  mut out_valid__w2 = out_valid__w1
+  out_valid__w2#[1] = unsigned((in_valid != 0) and (select == 1)) & 1
+  mut out_valid__w3 = out_valid__w2
+  out_valid__w3#[2] = unsigned((in_valid != 0) and (select == 2)) & 1
+  mut out_valid__w4 = out_valid__w3
+  out_valid__w4#[3] = unsigned((in_valid != 0) and (select == 3)) & 1
+  mut out_valid__w5 = out_valid__w4
+  out_valid__w5#[4] = unsigned((in_valid != 0) and (select == 4)) & 1
+  mut out_valid__w6 = out_valid__w5
+  out_valid__w6#[5] = unsigned((in_valid != 0) and (select == 5)) & 1
+  mut out_valid__w7 = out_valid__w6
+  out_valid__w7#[6] = unsigned((in_valid != 0) and (select == 6)) & 1
+  mut out_valid__w8 = out_valid__w7
+  out_valid__w8#[7] = unsigned((in_valid != 0) and (select == 7)) & 1
+  mut out_valid__w9 = out_valid__w8
+  out_valid__w9#[8] = unsigned((in_valid != 0) and (select == 8)) & 1
+  mut out_valid__w10 = out_valid__w9
+  out_valid__w10#[9] = unsigned((in_valid != 0) and (select == 9)) & 1
+  mut out_valid__w11 = out_valid__w10
+  out_valid__w11#[10] = unsigned((in_valid != 0) and (select == 10)) & 1
+  mut out_valid__w12 = out_valid__w11
+  out_valid__w12#[11] = unsigned((in_valid != 0) and (select == 11)) & 1
+  mut out_valid__w13 = out_valid__w12
+  out_valid__w13#[12] = unsigned((in_valid != 0) and (select == 12)) & 1
+  mut out_valid__w14 = out_valid__w13
+  out_valid__w14#[13] = unsigned((in_valid != 0) and (select == 13)) & 1
+  mut out_valid__w15 = out_valid__w14
+  out_valid__w15#[14] = unsigned((in_valid != 0) and (select == 14)) & 1
+  mut out_valid__w16 = out_valid__w15
+  out_valid__w16#[15] = unsigned((in_valid != 0) and (select == 15)) & 1
+  const t66 = `in`
+  out_valid = out_valid__w16
+  out = t66 | (t66 << 32) | (t66 << 0x40) | (t66 << 0x60) | (t66 << 0x80) | (t66 << 0xa0) | (t66 << 0xc0) | (t66 << 0xe0) | (t66 << 0x100) | (t66 << 0x120) | (t66 << 0x140) | (t66 << 0x160) | (t66 << 0x180) | (t66 << 0x1a0) | (t66 << 0x1c0) | (t66 << 0x1e0)
+}

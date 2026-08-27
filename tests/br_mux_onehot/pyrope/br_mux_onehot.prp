@@ -1,0 +1,38 @@
+pub comb br_mux_onehot::[timecheck=false](select:u16, `in`:u512) -> (out:u32) {
+  mut _rep_1:u32 = if (select & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_2:u32 = if ((select >> 1) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_3:u32 = if ((select >> 2) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_4:u32 = if ((select >> 3) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_5:u32 = if ((select >> 4) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_6:u32 = if ((select >> 5) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_7:u32 = if ((select >> 6) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_8:u32 = if ((select >> 7) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_9:u32 = if ((select >> 8) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_10:u32 = if ((select >> 9) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_11:u32 = if ((select >> 10) & 1) != 0 { 0xffffffff } else { 0 }
+  const t97 = ((((((((((0 | (_rep_1 & `in`#[0..=31])) | (_rep_2 & `in`#[32..=63])) | (_rep_3 & `in`#[64..=95])) | (_rep_4 & `in`#[96..=127])) | (_rep_5 & `in`#[128..=159])) | (_rep_6 & `in`#[160..=191])) | (_rep_7 & `in`#[192..=223])) | (_rep_8 & `in`#[224..=255])) | (_rep_9 & `in`#[256..=287])) | (_rep_10 & `in`#[288..=319])) | (_rep_11 & `in`#[320..=351])
+  const t98 = t97
+  const gen_n_out_internal__w12 = t98
+  mut _rep_12:u32 = if ((select >> 11) & 1) != 0 { 0xffffffff } else { 0 }
+  const t106 = gen_n_out_internal__w12 | (_rep_12 & `in`#[352..=383])
+  const t107 = t106
+  const gen_n_out_internal__w13 = t107
+  mut _rep_13:u32 = if ((select >> 12) & 1) != 0 { 0xffffffff } else { 0 }
+  const t115 = gen_n_out_internal__w13 | (_rep_13 & `in`#[384..=415])
+  const t116 = t115
+  const gen_n_out_internal__w14 = t116
+  mut _rep_14:u32 = if ((select >> 13) & 1) != 0 { 0xffffffff } else { 0 }
+  const t124 = gen_n_out_internal__w14 | (_rep_14 & `in`#[416..=447])
+  const t125 = t124
+  const gen_n_out_internal__w15 = t125
+  mut _rep_15:u32 = if ((select >> 14) & 1) != 0 { 0xffffffff } else { 0 }
+  const t133 = gen_n_out_internal__w15 | (_rep_15 & `in`#[448..=479])
+  const t134 = t133
+  const gen_n_out_internal__w16 = t134
+  mut _rep_16:u32 = if ((select >> 15) & 1) != 0 { 0xffffffff } else { 0 }
+  const t142 = gen_n_out_internal__w16 | (_rep_16 & `in`#[480..=511])
+  const t143 = t142
+  const gen_n_out_internal__w17 = t143
+  const out__w1 = gen_n_out_internal__w17
+  out = out__w1
+}
