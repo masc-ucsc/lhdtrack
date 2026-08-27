@@ -682,10 +682,14 @@ def _lec_section(keys, index) -> str:
             verdict = block.get("verdict") or (r or {}).get("status", "—")
             counts[flow][verdict] += 1
             verdicts[flow] = verdict
-            secs = (block.get("ms") or 0) / 1000
+            # A MEASURED ZERO IS NOT AN ABSENCE. `if secs` printed the dash for
+            # `ms == 0` as well as for a missing block, so the fastest proof on
+            # the page rendered as "no result" -- and now that the column sorts,
+            # it would rank below every slower one instead of first.
+            ms = block.get("ms")
             cells.append(
                 f'<td class="l g {_VERDICT_CLASS.get(verdict, "muted")}">{_e(verdict)}</td>'
-                f"<td>{_fmt(secs, 2) if secs else '—'}</td>"
+                f"<td>{_fmt(ms / 1000, 2) if ms is not None else '—'}</td>"
             )
         # Speedup of lhd over the yosys baseline, on tests where BOTH answered.
         a = (by_flow.get("lec_lgyosys") or {}).get("lec_result", {})
@@ -1188,11 +1192,18 @@ def _poly(pts, color):
     return f'<polyline points="{d}" fill="none" stroke="{color}" stroke-width="2"/>'
 
 
+# The indicator is ABSOLUTELY POSITIONED, inside the cell's own right padding,
+# so it costs no layout width. An inline glyph plus a margin is ~16px per
+# header, and the synthesis table is 17 columns already at the edge of its
+# 1400px column -- paying 270px of forced horizontal scroll for an arrow is the
+# wrong trade on the one table people read most. `th` is `position:sticky`, so
+# it is already a containing block; no extra `position` rule is needed.
 SORT_CSS = """
 th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none}
-th.sortable::after{content:"↕";margin-left:.35em;font-size:.8em;opacity:.3}
+th.sortable::after{content:"↕";position:absolute;right:.15em;top:50%;
+transform:translateY(-50%);font-size:.75em;opacity:.35;pointer-events:none}
 th.sortable:hover{color:var(--accent)}
-th.sortable:hover::after{opacity:.7}
+th.sortable:hover::after{opacity:.8}
 th.sortable[aria-sort=ascending]::after{content:"↑";opacity:1;color:var(--accent)}
 th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--accent)}
 th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -1230,8 +1241,10 @@ SORT_JS = r"""
     ? new Intl.Collator(undefined, { numeric: true })
     : { compare: function (a, b) { return a < b ? -1 : a > b ? 1 : 0; } };
 
-  function childRows(table, tag) {
-    var out = [], kids = table.children, i;
+  // Direct children only: `querySelector('tbody')` would reach into a nested
+  // table and start reordering somebody else's rows.
+  function section(table, tag) {
+    var kids = table.children, i;
     for (i = 0; i < kids.length; i++) {
       if (kids[i].tagName && kids[i].tagName.toLowerCase() === tag) return kids[i];
     }
@@ -1305,9 +1318,24 @@ SORT_JS = r"""
     return m ? parseFloat(m[1]) : null;
   }
 
+  // Can sorting this column change anything? Only if two rows differ there.
+  // A column that is `skipped` in every row -- ten of the seventeen in the
+  // asap7 table -- has one key and no order, and an arrow over it would offer
+  // a click that does nothing. Blank counts as its own key, so a column with
+  // one measurement and five blanks is still worth sorting.
+  function orderable(grid, col) {
+    var first, j, t;
+    for (j = 0; j < grid.length; j++) {
+      t = textOf(grid[j][col]);
+      if (j === 0) first = t;
+      else if (t !== first) return true;
+    }
+    return false;
+  }
+
   function enhance(table) {
-    var thead = childRows(table, 'thead');
-    var tbody = childRows(table, 'tbody');
+    var thead = section(table, 'thead');
+    var tbody = section(table, 'tbody');
     if (!thead || !tbody) return;
     var headRows = rowsOf(thead);
     var bodyRows = rowsOf(tbody);
@@ -1330,18 +1358,20 @@ SORT_JS = r"""
     // `rowspan="2"` cell itself for a name column. One rule, both shapes.
     var hgrid = gridOf(headRows);
     var last = hgrid[headRows.length - 1] || [];
-    var seen = [], columns = [], c, e, i;
+    var bgrid = gridOf(bodyRows);
+    var seen = [], columns = [], c, e;
     for (c = 0; c < last.length; c++) {
       e = last[c];
       if (!e || seen.indexOf(e.cell) >= 0) continue;
       seen.push(e.cell);
-      if (!(e.cell.textContent || '').trim()) continue;   // an unlabelled spacer
-      columns.push({ th: e.cell, col: c });
+      if (orderable(bgrid, c)) columns.push({ th: e.cell, col: c });
     }
     if (!columns.length) return;
 
-    for (i = 0; i < bodyRows.length; i++) bodyRows[i].setAttribute('data-i', i);
-
+    // `bodyRows` is the order the generator wrote -- grouped by test, or by
+    // signed STA error, or refuted-first. That is a real ordering, so it is
+    // kept as the third click state rather than lost at the first sort.
+    var original = bodyRows.slice();
     var state = null;   // {col: n, dir: 1|-1}
 
     function apply(col, dir) {
@@ -1372,12 +1402,8 @@ SORT_JS = r"""
     }
 
     function restore() {
-      var rows = rowsOf(tbody).slice();
-      rows.sort(function (a, b) {
-        return (+a.getAttribute('data-i')) - (+b.getAttribute('data-i'));
-      });
       var frag = table.ownerDocument.createDocumentFragment(), j;
-      for (j = 0; j < rows.length; j++) frag.appendChild(rows[j]);
+      for (j = 0; j < original.length; j++) frag.appendChild(original[j]);
       tbody.appendChild(frag);
     }
 
@@ -1393,9 +1419,11 @@ SORT_JS = r"""
     }
 
     columns.forEach(function (entry) {
+      var label = (entry.th.textContent || '').trim();
       entry.th.classList.add('sortable');
       entry.th.setAttribute('tabindex', '0');
-      entry.th.setAttribute('title', 'Sort by ' + entry.th.textContent.trim());
+      entry.th.setAttribute('title', label ? 'Sort by ' + label : 'Sort by this column');
+      if (!label) entry.th.setAttribute('aria-label', 'sort by this column');
       function click() {
         // Three states, so a reader can always get back to the order the page
         // was written in -- which is the one grouped by test name.
