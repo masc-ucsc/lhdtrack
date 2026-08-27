@@ -36,48 +36,48 @@
 // any use for the status flags.
 
 module br_fifo_flops #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 16,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then bypasses push-to-pop when the FIFO is empty, resulting in
     // a cut-through latency of 0 cycles, but at the cost of worse timing.
     // If 0, then pushes always go through the RAM before they can become
     // visible at the pop interface. This results in a cut-through latency of
     // 1 cycle, but timing is improved.
-    parameter bit EnableBypass = 1,
+    localparam bit EnableBypass = 0,
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional cycle of cut-through latency.
     // If 0, pop_valid/pop_data comes directly from push_valid (if bypass is enabled)
     // and/or ram_wr_data.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // Number of tiles in the depth (address) dimension. Must be at least 1 and evenly divide Depth.
-    parameter int FlopRamDepthTiles = 1,
+    localparam int FlopRamDepthTiles = 1,
     // Number of tiles along the width (data) dimension. Must be at least 1 and evenly divide Width.
-    parameter int FlopRamWidthTiles = 1,
+    localparam int FlopRamWidthTiles = 1,
     // Number of pipeline register stages inserted along the write address and read address paths
     // in the depth dimension. Must be at least 0.
-    parameter int FlopRamAddressDepthStages = 0,
+    localparam int FlopRamAddressDepthStages = 0,
     // Number of pipeline register stages inserted along the read data path in the depth dimension.
     // Must be at least 0.
-    parameter int FlopRamReadDataDepthStages = 0,
+    localparam int FlopRamReadDataDepthStages = 0,
     // Number of pipeline register stages inserted along the read data path in the width dimension.
     // Must be at least 0.
-    parameter int FlopRamReadDataWidthStages = 0,
+    localparam int FlopRamReadDataWidthStages = 0,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
 
     // Internal computed parameters
     localparam int CountWidth = $clog2(Depth + 1)

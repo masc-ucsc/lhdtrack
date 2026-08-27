@@ -25,20 +25,20 @@
 
 module br_tracker_freelist #(
     // Number of entries in the freelist. Must be greater than NumAllocPerCycle.
-    parameter int NumEntries = 2,
+    localparam int NumEntries = 16,
     // Number of allocations per cycle. Must be at least 1.
-    parameter int NumAllocPerCycle = 1,
+    localparam int NumAllocPerCycle = 1,
     // Number of deallocation ports. Must be at least 1.
-    parameter int NumDeallocPorts = 1,
+    localparam int NumDeallocPorts = 1,
     // If 1, then register the alloc_sendable and alloc_entry_id outputs,
     // improving timing at the cost of an additional cycle of cut-through latency.
     // Note that if this is set to 0, the alloc_entry_id may be unstable
-    parameter bit RegisterAllocOutputs = 1,
+    localparam bit RegisterAllocOutputs = 0,
     // Multihot vector indicating which entries are preallocated out of reset.
     // E.g. PreallocatedEntries[0] = 1'b1 indicates that entry 0 is preallocated.
-    parameter logic [NumEntries-1:0] PreallocatedEntries = '0,
+    localparam logic [NumEntries-1:0] PreallocatedEntries = '0,
     // If 1, bypass deallocated entries to allocated entries.
-    parameter bit EnableBypass = 0,
+    localparam bit EnableBypass = 0,
     // Cut-through latency of the tracker.
     localparam int CutThroughLatency = RegisterAllocOutputs + (EnableBypass ? 0 : 1),
     // The delay between an entry being deallocated and when the deallocation
@@ -48,17 +48,17 @@ module br_tracker_freelist #(
     // after deallocation is indicated on dealloc_count,
     // where CutThroughLatency = RegisterAllocOutputs + (EnableBypass ? 0 : 1).
     // Must be >= 0 and <= CutThroughLatency.
-    parameter int DeallocCountDelay = CutThroughLatency,
+    localparam int DeallocCountDelay = CutThroughLatency,
     // If 1, then assert there are no dealloc_valid bits asserted at the end of the test.
     // It is expected that alloc_valid could be 1 at end of the test because it's
     // a natural idle condition for this design.
-    parameter bit EnableAssertFinalNotDeallocValid = 1,
+    localparam bit EnableAssertFinalNotDeallocValid = 1,
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertUniqueDeallocEntryId = 1,
+    localparam bit EnableAssertUniqueDeallocEntryId = 1,
     // If 1, then assert that the number of allocated entries is the same as the number of
     // preallocated entries at the end of the test.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertFinalAllocatedInitial = 1,
+    localparam bit EnableAssertFinalAllocatedInitial = 1,
 
     localparam int EntryIdWidth = $clog2(NumEntries),
     localparam int DeallocCountWidth = $clog2(NumDeallocPorts + 1),

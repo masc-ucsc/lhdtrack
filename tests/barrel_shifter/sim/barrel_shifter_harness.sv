@@ -27,9 +27,7 @@ module barrel_shifter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_shifted);
   end
 
-  barrel_shifter #(
-    .BW(8)
-  ) dut (
+  barrel_shifter dut (
     .data(lfsr[7:0]),
     .shift_amt(lfsr[10:8]),
     .shifted(o_shifted)

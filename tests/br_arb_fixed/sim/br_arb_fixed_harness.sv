@@ -27,9 +27,7 @@ module br_arb_fixed_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
-  br_arb_fixed #(
-    .NumRequesters(16)
-  ) dut (
+  br_arb_fixed dut (
     .clk(clk),
     .rst(rst),
     .request(lfsr[15:0]),

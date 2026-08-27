@@ -6,7 +6,7 @@
 `include "br_asserts_internal.svh"
 
 module br_enc_bin2gray #(
-    parameter int Width = 2  // Must be at least 2
+    localparam int Width = 32  // Must be at least 2
 ) (
     input  logic [Width-1:0] bin,
     output logic [Width-1:0] gray

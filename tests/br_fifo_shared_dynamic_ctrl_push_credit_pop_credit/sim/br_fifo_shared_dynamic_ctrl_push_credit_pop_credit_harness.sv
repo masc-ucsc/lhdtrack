@@ -69,18 +69,7 @@ module br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ptr_ram_rd_addr);
   end
 
-  br_fifo_shared_dynamic_ctrl_push_credit_pop_credit #(
-    .DataRamReadLatency(1),
-    .Depth(32),
-    .NumFifos(2),
-    .NumReadPorts(2),
-    .NumWritePorts(2),
-    .PointerRamReadLatency(1),
-    .PopMaxCredits(4),
-    .RegisterDeallocation(1),
-    .RegisterPushOutputs(1),
-    .Width(32)
-  ) dut (
+  br_fifo_shared_dynamic_ctrl_push_credit_pop_credit dut (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),

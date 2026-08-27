@@ -11,10 +11,10 @@
 `include "br_registers.svh"
 
 module br_cdc_stable_data_autoupdate #(
-    parameter int Width = 1,
-    parameter logic [Width-1:0] InitValue = '0,
-    parameter bit RegisterResetActive = 1,
-    parameter int NumSyncStages = 3
+    localparam int Width = 32,
+    localparam logic [Width-1:0] InitValue = '0,
+    localparam bit RegisterResetActive = 1,
+    localparam int NumSyncStages = 2
 ) (
     input logic src_clk,
     input logic src_rst,

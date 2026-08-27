@@ -19,31 +19,31 @@
 `include "br_gates.svh"
 
 module br_cdc_fifo_ctrl_pop_1r1w #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional pop cycle of cut-through latency.
     // If 0, pop_valid/pop_data can come directly from the push interface
     // (if bypass is enabled), the RAM read interface, and/or an internal staging
     // buffer (if RAM read latency is >0).
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1 (the default), register pop_rst on pop_clk before sending it out
     // as pop_reset_active_pop. This adds an extra cycle to the backpressure
     // latency of the FIFO.
     // Do not set this to 0 unless either pop_rst is driven directly by a
     // register or if pop_reset_active_pop is registered externally
     // before synchronization to the push clock domain.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // The number of pop cycles between when ram_rd_addr_valid is asserted and
     // ram_rd_data_valid is asserted.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // The number of synchronization stages to use for the gray counts.
-    parameter int NumSyncStages = 3,
+    localparam int NumSyncStages = 3,
     // If 1, assert that valid push data is always known (not X).
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int AddrWidth = $clog2(Depth),
     localparam int CountWidth = $clog2(Depth + 1)
 ) (

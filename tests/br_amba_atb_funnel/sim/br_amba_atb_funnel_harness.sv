@@ -37,12 +37,7 @@ module br_amba_atb_funnel_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_dst_atuser);
   end
 
-  br_amba_atb_funnel #(
-    .DataWidth(32),
-    .NumSources(2),
-    .RegisterAtReady(0),
-    .UserWidth(1)
-  ) dut (
+  br_amba_atb_funnel dut (
     .clk(clk),
     .rst(rst),
     .src_atvalid(lfsr[1:0]),

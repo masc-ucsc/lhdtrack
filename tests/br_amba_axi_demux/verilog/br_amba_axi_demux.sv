@@ -11,41 +11,41 @@
 
 module br_amba_axi_demux #(
     // Number of downstream subordinates.
-    parameter int NumSubordinates = 2,
+    localparam int NumSubordinates = 2,
     // Width of the AXI ID field for the write path.
-    parameter int AwAxiIdWidth = 1,
+    localparam int AwAxiIdWidth = 1,
     // Width of the AXI ID field for the read path.
-    parameter int ArAxiIdWidth = 1,
+    localparam int ArAxiIdWidth = 1,
     // Maximum number of outstanding write transactions per ID.
-    parameter int AwMaxOutstandingPerId = 3,
+    localparam int AwMaxOutstandingPerId = 4,
     // Maximum number of outstanding read transactions per ID.
-    parameter int ArMaxOutstandingPerId = 3,
+    localparam int ArMaxOutstandingPerId = 4,
     // If 1, then only a single ID is supported on both the write and read paths.
-    parameter int SingleIdOnly = 0,
+    localparam int SingleIdOnly = 1,
     // Depth of the write data buffer. This number of WDATA pushes can be buffered
     // before the write address is accepted.
-    parameter int WdataBufferDepth = 2,
+    localparam int WdataBufferDepth = 2,
     // Maximum number of outstanding write transactions that can be accepted before
     // corresponding WDATA pushes are accepted.
-    parameter int MaxAwRunahead = 4,
+    localparam int MaxAwRunahead = 4,
     // If 1, then downstream AW/AR outputs are registered.
-    parameter int RegisterDownstreamAxOutputs = 1,
+    localparam int RegisterDownstreamAxOutputs = 1,
     // If 1, then downstream WDATA outputs are registered.
-    parameter int RegisterDownstreamWOutputs = 1,
+    localparam int RegisterDownstreamWOutputs = 1,
     // Width of the AXI address field.
-    parameter int AddrWidth = 12,
+    localparam int AddrWidth = 32,
     // Width of the AXI data field.
-    parameter int DataWidth = 32,
+    localparam int DataWidth = 32,
     // Width of the AXI AWUSER field.
-    parameter int AWUserWidth = 1,
+    localparam int AWUserWidth = 1,
     // Width of the AXI WUSER field.
-    parameter int WUserWidth = 1,
+    localparam int WUserWidth = 1,
     // Width of the AXI ARUSER field.
-    parameter int ARUserWidth = 1,
+    localparam int ARUserWidth = 1,
     // Width of the AXI BUSER field.
-    parameter int BUserWidth = 1,
+    localparam int BUserWidth = 1,
     // Width of the AXI RUSER field.
-    parameter int RUserWidth = 1,
+    localparam int RUserWidth = 1,
     //
     localparam int StrobeWidth = DataWidth / 8,
     localparam int SubIdWidth = $clog2(NumSubordinates)

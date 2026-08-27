@@ -9,8 +9,8 @@
 `include "br_registers.svh"
 
 module br_amba_axil2apb #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int DataWidth = 32,  // Must be at least 32
+    localparam int AddrWidth = 32,  // Must be at least 12
+    localparam int DataWidth = 32,  // Must be at least 32
     localparam int StrbWidth = DataWidth / 8
 ) (
     input clk,

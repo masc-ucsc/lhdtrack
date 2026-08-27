@@ -68,11 +68,33 @@ Assertions are inert here: every flow compiles with `-DSYNTHESIS` and without
   `cgen_memory` submodule. Reported as a note rather than as a 0 ns critical
   path, which would read like an extraordinarily fast design.
 
-- **`lec = "none"`** — Pyrope and Verilog have not been proven equivalent yet.
-  Reported, but excluded from the headline geomean.
-- One config only. `pyrope/br_delay.prp` pins `WIDTH` and `NUM_STAGES` as
-  comptime constants; a second parameter point needs a second monomorphic
-  module or `[pyrope] param_binding = "set"`.
+- **`lec = "refuted"`, and the REFERENCE is the side that is wrong**
+  (established 2026-08-27). cvc5 reports `out_stages(ref=0 impl=254)` at step 1.
+  Emitting the reference LGraph back out as Verilog
+  (`lhd compile verilog --emit verilog:`) shows why:
+
+  ```verilog
+  always @(posedge clk) begin
+    if (1'h1) __lhdmem_...[3'h0] <= in;      // <-- upstream is `assign stages[0] = in;`
+    ...
+  ```
+
+  Upstream drives lane 0 combinationally (`assign stages[0] = in`) and flops
+  only lanes 1..NumStages. lhd's slang reader collapses the whole packed
+  `stages` array into one memory and gives lane 0 a flop too, so the reference
+  is a FIVE-stage delay line with a registered `out_stages[7:0]`. The machine
+  emission of the same Verilog carries the identical extra flop and therefore
+  proves equivalent to it — which is the tell: both sides of that proof share
+  the front end, and only the hand-written Pyrope, which implements what the
+  SystemVerilog says, disagrees.
+
+  So this refutation is a front-end bug, not a Pyrope bug, and it is very
+  probably the same bug behind the simulator disagreement above. `.prp` is
+  deliberately NOT changed to match: matching it would encode the extra flop
+  into the corpus and make the row green by making the design wrong.
+- One config only, and the top is monomorphic by construction: `Width = 8`,
+  `NumStages = 4` are `localparam` in `verilog/br_delay.sv` and literals in
+  `pyrope/br_delay.prp`. A second parameter point needs a second test.
 - `out_stages` is a packed 2-D port upstream (`[NumStages:0][Width-1:0]`). The
   Pyrope side flattens it to one `(NumStages+1)*Width` integer with explicit
   per-range bit assigns. That flattening is the prime suspect for the checksum

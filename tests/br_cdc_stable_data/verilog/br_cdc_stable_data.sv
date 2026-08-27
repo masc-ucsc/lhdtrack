@@ -13,22 +13,22 @@
 `include "br_unused.svh"
 
 module br_cdc_stable_data #(
-    parameter int Width = 1,  // Must be at least 1
+    localparam int Width = 32,  // Must be at least 1
     // The initial value of the destination-side register.
     // dst_data will hold this value until the first time src_valid=1
-    parameter logic [Width-1:0] InitValue = '0,
+    localparam logic [Width-1:0] InitValue = '0,
     // If 1 (the default), register push_rst on push_clk and pop_rst on pop_clk
     // before sending to the CDC synchronizers. This adds one cycle to the cut-through
     // latency and one cycle to the backpressure latency.
     // Do not set this to 0 unless push_rst and pop_rst are driven directly by
     // registers.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // Number of synchronization stages to use. Must be at least 1.
     // WARNING: Setting this parameter correctly is critical to
     // ensuring a low probability of metastability.
     // The recommended value is 3 for most technology nodes.
     // Do not decrease below that unless you have a good reason.
-    parameter int NumSyncStages = 3
+    localparam int NumSyncStages = 2
 ) (
     input logic src_clk,
     input logic src_rst,

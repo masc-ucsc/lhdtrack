@@ -21,11 +21,11 @@
 
 module br_shift_rotate #(
     // Number of rotatable symbols in the input and output. Must be >=2.
-    parameter  int NumSymbols  = 2,
+    localparam  int NumSymbols  = 16,
     // The width of each symbol. Must be >=1.
-    parameter  int SymbolWidth = 1,
+    localparam  int SymbolWidth = 1,
     // The maximum number of symbols to rotate. Must be >=1.
-    parameter  int MaxRotate   = (NumSymbols - 1),
+    localparam  int MaxRotate   = 15,
     localparam int RotateWidth = $clog2(MaxRotate + 1)
 ) (
     // The vector to rotate.

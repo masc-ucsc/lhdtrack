@@ -12,11 +12,11 @@
 `include "br_registers.svh"
 
 module br_csr_demux_select_onehot #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int DataWidth = 32,  // Must be 32 or 64
-    parameter int NumDownstreams = 1,  // Must be at least 1
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be 32 or 64
+    localparam int NumDownstreams = 4,  // Must be at least 1
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter int NumRetimeStages[NumDownstreams] = '{default: 0},
+    localparam int NumRetimeStages[NumDownstreams] = '{default: 0},
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input logic clk,

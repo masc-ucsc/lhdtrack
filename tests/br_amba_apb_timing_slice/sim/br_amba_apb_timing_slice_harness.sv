@@ -45,9 +45,7 @@ module br_amba_apb_timing_slice_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pwdata_out);
   end
 
-  br_amba_apb_timing_slice #(
-    .AddrWidth(32)
-  ) dut (
+  br_amba_apb_timing_slice dut (
     .clk(clk),
     .rst(rst),
     .paddr_in(lfsr[31:0]),

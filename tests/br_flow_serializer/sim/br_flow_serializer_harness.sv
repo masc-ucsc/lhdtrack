@@ -35,12 +35,7 @@ module br_flow_serializer_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_metadata);
   end
 
-  br_flow_serializer #(
-    .MetadataWidth(8),
-    .PopWidth(8),
-    .PushWidth(64),
-    .SerializeMostSignificantFirst(0)
-  ) dut (
+  br_flow_serializer dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

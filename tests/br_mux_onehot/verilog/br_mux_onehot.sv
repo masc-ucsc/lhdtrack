@@ -17,14 +17,14 @@
 
 module br_mux_onehot #(
     // Number of inputs to select among. Must be >= 1.
-    parameter int NumSymbolsIn = 1,
+    localparam int NumSymbolsIn = 16,
     // The width of each symbol in bits. Must be >= 1.
-    parameter int SymbolWidth = 1,
+    localparam int SymbolWidth = 32,
     // If 1, assert that the select is, in fact, onehot.
     // If 0, the select can be multi-hot, but in this case,
     // the output will be undefined and driven to X in simulation,
     // unless NumSymbolsIn == 1.
-    parameter bit EnableAssertSelectOnehot = 1
+    localparam bit EnableAssertSelectOnehot = 1
 ) (
     // Ignored when NumSymbolsIn == 1.
     input  logic [NumSymbolsIn-1:0]                  select,

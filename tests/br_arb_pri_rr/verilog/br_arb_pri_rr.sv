@@ -25,9 +25,9 @@
 
 module br_arb_pri_rr #(
     // Must be at least 2
-    parameter int NumRequesters = 2,
+    localparam int NumRequesters = 16,
     // Must be at least 2
-    parameter int NumPriorities = 2
+    localparam int NumPriorities = 2
 ) (
     input logic clk,
     input logic rst,  // Synchronous active-high

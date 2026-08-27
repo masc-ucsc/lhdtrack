@@ -29,11 +29,7 @@ module br_mux_bin_array_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_valid);
   end
 
-  br_mux_bin_array #(
-    .NumSymbolsIn(16),
-    .NumSymbolsOut(2),
-    .SymbolWidth(32)
-  ) dut (
+  br_mux_bin_array dut (
     .select(lfsr[7:0]),
     .in({456'd0, lfsr[63:8]}),
     .out(o_out),

@@ -27,9 +27,7 @@ module br_arb_lru_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
-  br_arb_lru #(
-    .NumRequesters(16)
-  ) dut (
+  br_arb_lru dut (
     .clk(clk),
     .rst(rst),
     .enable_priority_update(lfsr[0]),

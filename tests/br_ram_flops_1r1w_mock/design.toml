@@ -21,7 +21,17 @@ lec    = "proven"
 
 # One elaborated parameter set per entry. Benchmark id is `br_ram_flops_1r1w_mock#<id>`.
 [[config]]
-id     = "default"
+id     = "d16_w32"
+# NO PARAMETERS. verilog/br_ram_flops_1r1w_mock.sv declares its parameter port
+# list `localparam`, so the top elaborates to ONE circuit with no flags
+# anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
+# on the harness instance -- and the .prp, which cannot take a parameter at
+# all, matches it by construction. Intermediate modules stay parameterized;
+# the top overrides them.
+#
+# THE CHOSEN POINT IS Depth=16, Width=32. To move it, edit the localparam in
+# the .sv and re-seed, so the harness and the emitted Pyrope follow -- not
+# this line.
 params = {}
 
 [synth]

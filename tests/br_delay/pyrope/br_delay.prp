@@ -18,9 +18,16 @@
 
 // `in` is Pyrope's membership operator, so the port name -- which must match
 // the Verilog for LEC to line the two sides up -- is backtick-escaped.
-pub mod br_delay(`in`:u8) -> (out:u8@[0], out_stages:u40@[0]) {
+//
+// clk and rst are DECLARED even though Pyrope would supply both implicitly: the
+// interface has to match verilog/br_delay.sv port for port, or lec pairs a
+// 3-port module against a 5-port one. `rst` is then wired to the registers'
+// reset pin rather than muxed into their data, which is what upstream's
+// `BR_REGI(stages[i], stages[i-1], InitValue)` -- a flop with a synchronous
+// reset to InitValue -- actually says.
+pub mod br_delay(clk:u1, rst:u1, `in`:u8) -> (out:u8@[0], out_stages:u40@[0]) {
   // The 4 pipeline registers, all reset to InitValue (0 upstream).
-  reg stages:[4]u8 = 0
+  reg stages:[4]u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
 
   out = stages[3]
 

@@ -31,13 +31,7 @@ module br_tracker_freelist_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_dealloc_count);
   end
 
-  br_tracker_freelist #(
-    .EnableBypass(0),
-    .NumAllocPerCycle(1),
-    .NumDeallocPorts(1),
-    .NumEntries(16),
-    .RegisterAllocOutputs(0)
-  ) dut (
+  br_tracker_freelist dut (
     .clk(clk),
     .rst(rst),
     .alloc_receivable(lfsr[0]),

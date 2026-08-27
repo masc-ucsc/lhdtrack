@@ -16,40 +16,40 @@
 
 module br_flow_xbar_lru #(
     // The number of input flows. Must be >=1.
-    parameter int NumPushFlows = 1,
+    localparam int NumPushFlows = 4,
     // The number of output flows. Must be >=1.
-    parameter int NumPopFlows = 1,
+    localparam int NumPopFlows = 4,
     // The width of the data bus.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // If 1, registers are inserted between the demux and mux to break up the
     // timing path, increasing the cut-through latency by 1. Note that this
     // results in NumPushFlows x NumPopFlows x Width bits of registers being
     // inserted.
-    parameter bit RegisterDemuxOutputs = 0,
+    localparam bit RegisterDemuxOutputs = 0,
     // If 1, registers are inserted at the output of the muxes, ensuring that
     // pop_valid/pop_data come directly from registers.
     // If 0, pop_valid/pop_data come directly from the muxes and may be unstable.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 0,
     // If 1, cover that the push_ready signal can be backpressured.
     // If 0, disable push backpressure coverage. By default, this also
     // asserts that push backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_dest_id is stable.
     // Otherwise, cover that push_dest_id can be unstable.
-    parameter bit EnableAssertPushDestinationStability = EnableAssertPushDataStability,
+    localparam bit EnableAssertPushDestinationStability = EnableAssertPushDataStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, assert that push_valid is 1 and all intermediate
     // register stages are empty at end of simulation.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
 
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int DestIdWidth = br_math::clamped_clog2(NumPopFlows)
 ) (
     input logic clk,

@@ -12,10 +12,10 @@
 `include "br_asserts_internal.svh"
 
 module br_delay #(
-    parameter int Width = 1,  // Must be at least 1
-    parameter int NumStages = 0,  // Must be at least 0
+    localparam int Width = 8,  // Must be at least 1
+    localparam int NumStages = 4,  // Must be at least 0
     // Initial value of the delay registers.
-    parameter logic [Width-1:0] InitValue = '0
+    localparam logic [Width-1:0] InitValue = '0
 ) (
     // Positive edge-triggered. If NumStages is 0, then only used for assertions.
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ

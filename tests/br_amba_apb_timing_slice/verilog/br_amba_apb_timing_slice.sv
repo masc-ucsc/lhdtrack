@@ -9,7 +9,7 @@
 `include "br_registers.svh"
 
 module br_amba_apb_timing_slice #(
-    parameter int AddrWidth = 12  // Must be at least 12
+    localparam int AddrWidth = 32  // Must be at least 12
 ) (
     input clk,
     input rst,  // Synchronous, active-high reset

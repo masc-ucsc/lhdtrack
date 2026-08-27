@@ -103,19 +103,7 @@ module br_amba_axi_isolate_sub_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_rready);
   end
 
-  br_amba_axi_isolate_sub #(
-    .AddrWidth(32),
-    .ArAxiIdCount(1),
-    .ArAxiIdWidth(1),
-    .ArMaxOutstanding(16),
-    .AwAxiIdCount(1),
-    .AwAxiIdWidth(1),
-    .AwMaxOutstanding(16),
-    .DataWidth(32),
-    .MaxAxiBurstLen(1),
-    .StaticPerIdReadTrackerFifoDepth(16),
-    .UseDynamicFifoForReadTracker(0)
-  ) dut (
+  br_amba_axi_isolate_sub dut (
     .clk(clk),
     .rst(rst),
     .isolate_req(lfsr[0]),

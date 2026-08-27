@@ -18,6 +18,7 @@ from pathlib import Path
 
 import gen_sdc
 import gen_testbench as gtb
+import prp_fixups
 from ports import extract
 
 DESIGN_TOML = """# {name} -- see README.md for provenance.
@@ -200,21 +201,36 @@ def _emit_pyrope_seed(test, tc, params: dict) -> bool:
     enter the same LGraph, so the row measures the two front ends rather than
     the two languages until somebody rewrites it by hand.
     """
+    ok = True
     try:
         subprocess.run(  # noqa: S603
             [
                 str(tc.bin("lhd")), "compile", "verilog", "--top", test.top,
                 "--emit-dir", f"pyrope:{test.pyrope_dir}",
                 "--workdir", str(test.root / ".seed"),
-                # THE CONFIG'S PARAMETERS, not the module's defaults. Without
-                # these the seed elaborates br_counter_incr at MaxValue=1 --
-                # every port u1 -- while the Verilog side uses MaxValue=255.
-                # Two different circuits, and LEC would rightly refute them.
+                # NORMALLY EMPTY, and deliberately still passed. The top pins
+                # its parameter point in the source now (`localparam`; see
+                # tools/monomorphize.py), so there is nothing to override and
+                # the seed elaborates the same circuit the Verilog flows do.
+                # Before that, omitting these elaborated br_counter_incr at
+                # MaxValue=1 -- every port u1 -- while the Verilog side used
+                # MaxValue=255, and LEC rightly refuted two different circuits.
                 "--", "-F", str(test.filelist), "-DSYNTHESIS",
                 *[f"-G{k}={v}" for k, v in sorted(params.items())],
             ],
             check=True, capture_output=True, timeout=900,
         )
     except (subprocess.SubprocessError, OSError):
-        return False
-    return test.pyrope_top.exists()
+        ok = False
+    # The emitter does not backtick every Pyrope keyword it can produce as a net
+    # name, so its own reader rejects part of what it just wrote. Repair the
+    # emission here rather than by hand, so a re-seed cannot silently reintroduce
+    # a tree that `lhd compile` cannot read. See tools/prp_fixups.py.
+    #
+    # ALSO ON A FAILED EXIT. The emitter writes the units it could and then fails
+    # on one it could not, and the next `import seed` adopts that partial tree
+    # through the "seed was already present" branch -- unrepaired, it would be
+    # adopted broken.
+    if test.pyrope_dir.is_dir():
+        prp_fixups.fix_dir(test.pyrope_dir)
+    return ok and test.pyrope_top.exists()

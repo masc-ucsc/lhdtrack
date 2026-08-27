@@ -31,11 +31,7 @@ module br_multi_xfer_distributor_rr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_multi_xfer_distributor_rr #(
-    .NumFlows(16),
-    .NumSymbols(4),
-    .SymbolWidth(64)
-  ) dut (
+  br_multi_xfer_distributor_rr dut (
     .clk(clk),
     .rst(rst),
     .push_sendable(lfsr[2:0]),

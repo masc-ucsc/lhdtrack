@@ -18,11 +18,11 @@
 
 module br_shift_right #(
     // The number of symbols to shift. Must be >=2.
-    parameter int NumSymbols = 2,
+    localparam int NumSymbols = 16,
     // The width of each symbol. Must be >=1.
-    parameter int SymbolWidth = 1,
+    localparam int SymbolWidth = 1,
     // The maximum number of symbols to shift. Must be >=1 and < NumSymbols.
-    parameter int MaxShift = 1,
+    localparam int MaxShift = 15,
     // The width of the shift amount.
     localparam int ShiftWidth = $clog2(MaxShift + 1)
 ) (

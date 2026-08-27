@@ -31,9 +31,7 @@ module br_flow_reg_rev_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_flow_reg_rev #(
-    .Width(32)
-  ) dut (
+  br_flow_reg_rev dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

@@ -24,7 +24,7 @@
 `include "br_registers.svh"
 
 module br_arb_grant_hold #(
-    parameter int NumRequesters = 2
+    localparam int NumRequesters = 16
 ) (
     input logic clk,
     input logic rst,

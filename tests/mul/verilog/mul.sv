@@ -1,7 +1,7 @@
 // Simple multiplication benchmark
 module mul
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] a,

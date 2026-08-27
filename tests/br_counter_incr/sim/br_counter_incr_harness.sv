@@ -29,12 +29,7 @@ module br_counter_incr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_value_next);
   end
 
-  br_counter_incr #(
-    .EnableSaturate(0),
-    .EnableWrap(1),
-    .MaxIncrement(1),
-    .MaxValue(255)
-  ) dut (
+  br_counter_incr dut (
     .clk(clk),
     .rst(rst),
     .reinit(lfsr[0]),

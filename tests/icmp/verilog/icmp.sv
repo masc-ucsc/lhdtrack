@@ -2,7 +2,7 @@
 // Tests all comparison operations: ==, !=, <, <=, >, >=
 module icmp
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] a,

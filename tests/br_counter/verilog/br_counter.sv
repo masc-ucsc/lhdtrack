@@ -35,55 +35,55 @@
 module br_counter #(
     // Width of the MaxValue parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxValueWidth = 32,
+    localparam int MaxValueWidth = 32,
     // Width of the MaxChange parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxChangeWidth = 32,
+    localparam int MaxChangeWidth = 32,
     // Must be at least 1. Inclusive.
-    parameter logic [MaxValueWidth-1:0] MaxValue = 1,
+    localparam logic [MaxValueWidth-1:0] MaxValue = 255,
     // Must be at least 1 and at most MaxValue. Inclusive.
-    parameter logic [MaxChangeWidth-1:0] MaxChange = 1,
+    localparam logic [MaxChangeWidth-1:0] MaxChange = 1,
     // The actual maximum increment value. Must be >=1 and <=MaxValue.
-    parameter logic [MaxChangeWidth-1:0] MaxIncrement = MaxChange,
+    localparam logic [MaxChangeWidth-1:0] MaxIncrement = MaxChange,
     // The actual maximum decrement value. Must be >=1 and <=MaxValue.
-    parameter logic [MaxChangeWidth-1:0] MaxDecrement = MaxChange,
+    localparam logic [MaxChangeWidth-1:0] MaxDecrement = MaxChange,
     // If 1, allow the counter value to wrap around 0/MaxValue, adding additional correction
     // logic to do so if MaxValue is not 1 less than a power of two.
     // If 0, don't allow wrapping and omit overflow/underflow correction logic.
     // Assert there is no overflow/underflow.
     // Must be 0 if EnableSaturate is 1.
-    parameter bit EnableWrap = 1,
+    localparam bit EnableWrap = 1,
     // If 1, then when reinit is asserted together with incr_valid and/or decr_valid,
     // the increment/decrement are applied to the initial value rather than the current value, i.e.,
     // value_next == initial_value + applicable incr - applicable decr.
     // If 0, then when reinit is asserted together with incr_valid and/or decr_valid,
     // the increment/decrement values are ignored, i.e., value_next == initial_value.
-    parameter bit EnableReinitAndChange = 1,
+    localparam bit EnableReinitAndChange = 1,
     // If 1, the counter value saturates at 0 and MaxValue.
     // If 0, the counter value wraps around at 0 and MaxValue.
     // Must be 0 if EnableWrap is 1.
-    parameter bit EnableSaturate = 0,
+    localparam bit EnableSaturate = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, cover the case where incr_valid or decr_valid is 1, but
     // incr or decr is 0, respectively.
     // Otherwise, assert that incr and decr are always non-zero when incr_valid or decr_valid is 1.
-    parameter bit EnableCoverZeroChange = 1,
+    localparam bit EnableCoverZeroChange = 1,
     // If 1, enable reinit-related coverage.
     // If 0, assert that reinit is never asserted.
-    parameter bit EnableCoverReinit = 1,
+    localparam bit EnableCoverReinit = 1,
     // If 1, cover the cases where reinit is asserted together with incr_valid and/or decr_valid.
     // Otherwise, assert that reinit is only asserted when incr_valid and decr_valid are both 0.
-    parameter bit EnableCoverReinitAndChange = EnableCoverReinit,
+    localparam bit EnableCoverReinitAndChange = EnableCoverReinit,
     // If 1, cover the case where reinit is asserted when incr_valid and decr_valid are both 0.
     // Otherwise, assert that reinit is never asserted when incr_valid and decr_valid are both 0.
-    parameter bit EnableCoverReinitNoChange = EnableCoverReinit,
+    localparam bit EnableCoverReinitNoChange = EnableCoverReinit,
     // If 1, cover that we get simultaneous increment and decrement.
     // Otherwise, assert that this never happens.
-    parameter bit EnableCoverIncrementAndDecrement = 1,
+    localparam bit EnableCoverIncrementAndDecrement = 1,
     // If 1, then assert that the counter returns to the initial value at the end of the test.
     // The initial_value used for this assertion is latched on reset or reinit.
-    parameter bit EnableAssertFinalInitialValue = 1,
+    localparam bit EnableAssertFinalInitialValue = 1,
     localparam int MaxValueP1Width = MaxValueWidth + 1,
     localparam int MaxChangeP1Width = MaxChangeWidth + 1,
     localparam int ValueWidth = $clog2(MaxValueP1Width'(MaxValue) + 1),

@@ -37,90 +37,90 @@
 
 module br_amba_axi_isolate_sub #(
     // Width of the AXI address field.
-    parameter int AddrWidth = 12,
+    localparam int AddrWidth = 32,
     // Width of the AXI data field.
-    parameter int DataWidth = 32,
+    localparam int DataWidth = 32,
     // Width of the AXI ID field for the write path.
-    parameter int AwAxiIdWidth = 1,
+    localparam int AwAxiIdWidth = 1,
     // Width of the AXI ID field for the read path.
-    parameter int ArAxiIdWidth = 1,
+    localparam int ArAxiIdWidth = 1,
     // Width of the AXI AWUSER field.
-    parameter int AWUserWidth = 1,
+    localparam int AWUserWidth = 1,
     // Width of the AXI WUSER field.
-    parameter int WUserWidth = 1,
+    localparam int WUserWidth = 1,
     // Width of the AXI ARUSER field.
-    parameter int ARUserWidth = 1,
+    localparam int ARUserWidth = 1,
     // Width of the AXI BUSER field.
-    parameter int BUserWidth = 1,
+    localparam int BUserWidth = 1,
     // Width of the AXI RUSER field.
-    parameter int RUserWidth = 1,
+    localparam int RUserWidth = 1,
     // Maximum number of outstanding write requests that can be tracked
     // without backpressuring the upstream request ports. Must be at least 2.
-    parameter int AwMaxOutstanding = 128,
+    localparam int AwMaxOutstanding = 16,
     // Maximum number of outstanding read requests that can be tracked
     // without backpressuring the upstream request ports. Must be at least 2.
-    parameter int ArMaxOutstanding = 128,
+    localparam int ArMaxOutstanding = 16,
     // Number of unique AXI write IDs that can be tracked. Must be less than
     // or equal to 2^AwAxiIdWidth. Valid IDs are 0 to AwAxiIdCount-1.
-    parameter int AwAxiIdCount = 2 ** AwAxiIdWidth,
+    localparam int AwAxiIdCount = 1,
     // Number of unique AXI read IDs that can be tracked. Must be less than
     // or equal to 2^ArAxiIdWidth. Valid IDs are 0 to ArAxiIdCount-1.
-    parameter int ArAxiIdCount = 2 ** ArAxiIdWidth,
+    localparam int ArAxiIdCount = 1,
     // Maximum allowed skew (measured in max-length transactions)
     // that can be tracked between AW and W channels without causing
     // backpressure on the upstream ports.
-    parameter int MaxTransactionSkew = 2,
+    localparam int MaxTransactionSkew = 2,
     // Maximum number of response beats per transaction. Can be set
     // to 1 for AXI-Lite, otherwise must be set to
     // br_amba::AxiBurstLenWidth.
-    parameter int MaxAxiBurstLen = 2 ** br_amba::AxiBurstLenWidth,
+    localparam int MaxAxiBurstLen = 1,
     // Response to generate for isolated transactions.
-    parameter br_amba::axi_resp_t IsolateResp = br_amba::AxiRespSlverr,
+    localparam br_amba::axi_resp_t IsolateResp = br_amba::AxiRespSlverr,
     // BUSER data to generate for isolated transactions.
-    parameter bit [BUserWidth-1:0] IsolateBUser = '0,
+    localparam bit [BUserWidth-1:0] IsolateBUser = '0,
     // RUSER data to generate for isolated transactions.
-    parameter bit [RUserWidth-1:0] IsolateRUser = '0,
+    localparam bit [RUserWidth-1:0] IsolateRUser = '0,
     // RDATA data to generate for isolated transactions.
-    parameter bit [DataWidth-1:0] IsolateRData = '0,
+    localparam bit [DataWidth-1:0] IsolateRData = '0,
     // Set to 1 to use a dynamic storage shared FIFO for the read tracking
     // list.
-    parameter bit UseDynamicFifoForReadTracker = 1,
+    localparam bit UseDynamicFifoForReadTracker = 0,
     // When UseDynamicFifoForReadTracker=0, this parameter controls the depth
     // of the Per-ID tracking FIFO. This defaults to ArMaxOutstanding, but may
     // need to be set to a smaller value as the storage will be replicated for
     // each ID.
-    parameter int StaticPerIdReadTrackerFifoDepth = ArMaxOutstanding,
+    localparam int StaticPerIdReadTrackerFifoDepth = 16,
     // Number of pipeline stages to use for the pointer RAM read data in the
     // response tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoPointerRamReadDataDepthStages = 0,
+    localparam int DynamicFifoPointerRamReadDataDepthStages = 0,
     // Number of pipeline stages to use for the data RAM read data in the
     // response tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoDataRamReadDataDepthStages = 0,
+    localparam int DynamicFifoDataRamReadDataDepthStages = 0,
     // Number of pipeline stages to use for the pointer RAM address in the
     // response tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoPointerRamAddressDepthStages = 1,
+    localparam int DynamicFifoPointerRamAddressDepthStages = 1,
     // Number of pipeline stages to use for the data RAM address in the
     // response tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoDataRamAddressDepthStages = 1,
+    localparam int DynamicFifoDataRamAddressDepthStages = 1,
     // Number of linked lists per FIFO in the response tracker FIFO. Has no
     // effect if ArAxiIdCount == 1 or UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoNumLinkedListsPerFifo = 2,
+    localparam int DynamicFifoNumLinkedListsPerFifo = 2,
     // Number of pipeline stages to use for the staging buffer in the response
     // tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoStagingBufferDepth = 2,
+    localparam int DynamicFifoStagingBufferDepth = 2,
     // Number of pipeline stages to use for the pop outputs in the response
     // tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoRegisterPopOutputs = 1,
+    localparam int DynamicFifoRegisterPopOutputs = 1,
     // Number of pipeline stages to use for the deallocation in the response
     // tracker FIFO. Has no effect if ArAxiIdCount == 1 or
     // UseDynamicFifoForReadTracker == 0.
-    parameter int DynamicFifoRegisterDeallocation = 1,
+    localparam int DynamicFifoRegisterDeallocation = 1,
     //
     localparam int AxiBurstLenWidth = br_math::clamped_clog2(MaxAxiBurstLen),
     localparam int StrobeWidth = DataWidth / 8

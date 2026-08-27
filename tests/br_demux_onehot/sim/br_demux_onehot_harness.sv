@@ -29,10 +29,7 @@ module br_demux_onehot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_demux_onehot #(
-    .NumSymbolsOut(16),
-    .SymbolWidth(32)
-  ) dut (
+  br_demux_onehot dut (
     .select(lfsr[15:0]),
     .in_valid(lfsr[16]),
     .in(lfsr[48:17]),

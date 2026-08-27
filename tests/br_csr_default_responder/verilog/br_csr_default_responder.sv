@@ -10,8 +10,8 @@
 `include "br_unused.svh"
 
 module br_csr_default_responder #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int DataWidth = 32,  // Must be either 32 or 64
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be either 32 or 64
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input logic clk,

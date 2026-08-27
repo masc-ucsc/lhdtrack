@@ -16,23 +16,23 @@
 `include "br_asserts.svh"
 
 module br_flow_mux_lru #(
-    parameter int NumFlows = 1,  // Must be at least 1
-    parameter int Width = 1,  // Must be at least 1
+    localparam int NumFlows = 4,  // Must be at least 1
+    localparam int Width = 32,  // Must be at least 1
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure
 ) (
     input  logic                           clk,
     input  logic                           rst,

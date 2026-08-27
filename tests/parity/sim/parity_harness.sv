@@ -29,9 +29,7 @@ module parity_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_odd_parity);
   end
 
-  parity #(
-    .BW(8)
-  ) dut (
+  parity dut (
     .data(lfsr[7:0]),
     .even_parity(o_even_parity),
     .odd_parity(o_odd_parity)

@@ -99,14 +99,7 @@ module br_amba_axil_split_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_branch_rready);
   end
 
-  br_amba_axil_split #(
-    .AddrWidth(32),
-    .DataWidth(32),
-    .MaxOutstandingReads(4),
-    .MaxOutstandingWrites(4),
-    .NormalizeBranchAddress(0),
-    .NumBranchAddrRanges(1)
-  ) dut (
+  br_amba_axil_split dut (
     .clk(clk),
     .rst(rst),
     .branch_start_addr(lfsr[31:0]),

@@ -29,13 +29,7 @@ module br_ram_data_rd_pipe_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_data);
   end
 
-  br_ram_data_rd_pipe #(
-    .DepthStages(0),
-    .DepthTiles(4),
-    .Width(32),
-    .WidthStages(0),
-    .WidthTiles(2)
-  ) dut (
+  br_ram_data_rd_pipe dut (
     .clk(clk),
     .rst(rst),
     .tile_valid(lfsr[7:0]),

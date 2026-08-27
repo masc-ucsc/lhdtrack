@@ -28,38 +28,38 @@
 
 module br_amba_axi_isolate_mgr #(
     // Width of the AXI address field.
-    parameter int AddrWidth = 12,
+    localparam int AddrWidth = 32,
     // Width of the AXI data field.
-    parameter int DataWidth = 32,
+    localparam int DataWidth = 32,
     // Width of the AXI ID field.
-    parameter int IdWidth = 1,
+    localparam int IdWidth = 4,
     // Width of the AXI AWUSER field.
-    parameter int AWUserWidth = 1,
+    localparam int AWUserWidth = 1,
     // Width of the AXI WUSER field.
-    parameter int WUserWidth = 1,
+    localparam int WUserWidth = 1,
     // Width of the AXI ARUSER field.
-    parameter int ARUserWidth = 1,
+    localparam int ARUserWidth = 1,
     // Width of the AXI BUSER field.
-    parameter int BUserWidth = 1,
+    localparam int BUserWidth = 1,
     // Width of the AXI RUSER field.
-    parameter int RUserWidth = 1,
+    localparam int RUserWidth = 1,
     // Maximum number of outstanding requests that can be tracked
     // without backpressuring the upstream request ports. Must be at least 2.
-    parameter int MaxOutstanding = 128,
+    localparam int MaxOutstanding = 16,
     // Maximum allowed skew (measured in max-length transactions)
     // that can be tracked between AW and W channels without causing
     // backpressure on the upstream ports.
-    parameter int MaxTransactionSkew = 2,
+    localparam int MaxTransactionSkew = 2,
     // Maximum number of response beats per transaction. Can be set
     // to 1 for AXI-Lite, otherwise must be set to
     // br_amba::AxiBurstLenWidth.
-    parameter int MaxAxiBurstLen = 2 ** br_amba::AxiBurstLenWidth,
+    localparam int MaxAxiBurstLen = 1,
     // WUSER data to generate for isolated transactions.
-    parameter bit [WUserWidth-1:0] IsolateWUser = '0,
+    localparam bit [WUserWidth-1:0] IsolateWUser = '0,
     // WDATA data to generate for isolated transactions.
-    parameter bit [DataWidth-1:0] IsolateWData = '0,
+    localparam bit [DataWidth-1:0] IsolateWData = '0,
     // WSTRB data to generate for isolated transactions.
-    parameter bit [(DataWidth/8)-1:0] IsolateWStrb = '0,
+    localparam bit [(DataWidth/8)-1:0] IsolateWStrb = '0,
     localparam int AxiBurstLenWidth = br_math::clamped_clog2(MaxAxiBurstLen),
     localparam int StrobeWidth = DataWidth / 8
 ) (

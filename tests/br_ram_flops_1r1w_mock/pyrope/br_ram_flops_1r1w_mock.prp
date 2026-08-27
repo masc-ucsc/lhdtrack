@@ -1,16 +1,17 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_delay_valid_p2 = import("br_delay_valid_p2.br_delay_valid_p2")
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_ram_flops_1r1w_mock::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:u1, wr_addr:u1, wr_data:u1, wr_word_en:u1, rd_clk:u1, rd_rst:u1, rd_addr_valid:u1, rd_addr:u1) -> (rd_data_valid:u1@[], rd_data:u1@[]) {
-  reg mem:[2]u1:[ordering="old", clock_pin=ref wr_clk]
-  mut br_delay_valid_wr = br_delay_valid::[name=br_delay_valid_wr](clk = wr_clk, rst = wr_rst, in_valid = wr_valid, `in` = ((wr_addr & 1) << 1) | (wr_data & 1))
+pub mod br_ram_flops_1r1w_mock::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:u1, wr_addr:u4, wr_data:u32, wr_word_en:u1, rd_clk:u1, rd_rst:u1, rd_addr_valid:u1, rd_addr:u4) -> (rd_data_valid:u1@[], rd_data:u32@[]) {
+  reg mem:[16]u32:[ordering="old", clock_pin=ref wr_clk]
+  mut br_delay_valid_wr = br_delay_valid::[name=br_delay_valid_wr](clk = wr_clk, rst = wr_rst, in_valid = wr_valid, `in` = (wr_addr << 32) | wr_data)
   mut br_delay_valid_rd_addr = br_delay_valid_p1::[name=br_delay_valid_rd_addr](clk = rd_clk, rst = rd_rst, in_valid = rd_addr_valid, `in` = rd_addr)
   if br_delay_valid_wr.out_valid != 0 {
-    mem[(br_delay_valid_wr.out >> 1) & 1] = br_delay_valid_wr.out & 1
+    mem[(br_delay_valid_wr.out >> 32)#[0..=3]] = br_delay_valid_wr.out#[0..=31]
   }
   br_misc_unused::[name=br_misc_unused_wr_word_en](`in` = wr_word_en)
-  mut br_delay_valid_rd_data = br_delay_valid_p1::[name=br_delay_valid_rd_data](clk = rd_clk, rst = rd_rst, in_valid = br_delay_valid_rd_addr.out_valid, `in` = mem[br_delay_valid_rd_addr.out])
+  mut br_delay_valid_rd_data = br_delay_valid_p2::[name=br_delay_valid_rd_data](clk = rd_clk, rst = rd_rst, in_valid = br_delay_valid_rd_addr.out_valid, `in` = mem[br_delay_valid_rd_addr.out])
   rd_data_valid = br_delay_valid_rd_data.out_valid
   rd_data = br_delay_valid_rd_data.out
 }

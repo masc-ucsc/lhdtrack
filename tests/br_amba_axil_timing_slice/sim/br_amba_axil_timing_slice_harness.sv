@@ -73,10 +73,7 @@ module br_amba_axil_timing_slice_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_init_rready);
   end
 
-  br_amba_axil_timing_slice #(
-    .AddrWidth(32),
-    .DataWidth(32)
-  ) dut (
+  br_amba_axil_timing_slice dut (
     .clk(clk),
     .rst(rst),
     .target_awaddr(lfsr[31:0]),

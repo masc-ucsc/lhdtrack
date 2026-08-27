@@ -61,49 +61,49 @@
 // ri lint_check_waive MOD_NAME
 module br_fifo_shared_dynamic_ctrl_push_credit_pop_credit #(
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater than two times the number of write ports and at least the number of read ports.
-    parameter int Depth = 3,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // Number of write ports. Must be >=1.
-    parameter int NumWritePorts = 1,
+    localparam int NumWritePorts = 2,
     // Number of read ports. Must be >=1 and a power of 2.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 2,
     // The maximum number of pop-side credits that can be available to a single FIFO.
-    parameter int PopMaxCredits = 1,
+    localparam int PopMaxCredits = 4,
     // The number of sub-linked lists used by each logical FIFO.
     // This affects the pop bandwidth of each logical FIFO.
     // The max bandwidth will be `NumLinkedListsPerFifo / (PointerRamReadLatency + 1)`.
-    parameter int NumLinkedListsPerFifo = 1,
+    localparam int NumLinkedListsPerFifo = 1,
     // If 1, place a register on the deallocation path from the pop-side
     // staging buffer to the freelist. This improves timing at the cost of
     // adding a cycle of backpressure latency.
-    parameter bit RegisterDeallocation = 0,
+    localparam bit RegisterDeallocation = 1,
     // The number of cycles between data ram read address and read data. Must be >=0.
-    parameter int DataRamReadLatency = 0,
+    localparam int DataRamReadLatency = 1,
     // The number of cycles between pointer ram read address and read data. Must be >=0.
-    parameter int PointerRamReadLatency = 0,
+    localparam int PointerRamReadLatency = 1,
     // If 1, add a retiming stage to the push_credit signal so that it is
     // driven directly from a flop. This comes at the expense of one additional
     // cycle of credit loop latency.
-    parameter bit RegisterPushOutputs = 0,
+    localparam bit RegisterPushOutputs = 1,
     // If 1, cover that push_credit_stall can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushCreditStall = 1,
+    localparam bit EnableCoverPushCreditStall = 1,
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that push_sender_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushSenderInReset = 1,
+    localparam bit EnableCoverPushSenderInReset = 1,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int PushCreditWidth = $clog2(NumWritePorts + 1),
     localparam int PopCreditWidth = $clog2(PopMaxCredits + 1),
     localparam int CountWidth = $clog2(Depth + 1),

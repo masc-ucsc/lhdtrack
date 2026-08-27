@@ -11,10 +11,10 @@
 // target will respond with a DECERR response.
 
 module br_amba_axil_default_target #(
-    parameter int DataWidth = 64,
-    parameter int DecodeError = 1,
-    parameter int SlvErr = 0,
-    parameter logic [DataWidth-1:0] DefaultReadData = '0
+    localparam int DataWidth = 32,
+    localparam int DecodeError = 1,
+    localparam int SlvErr = 0,
+    localparam logic [DataWidth-1:0] DefaultReadData = '0
 ) (
     input clk,
     input rst,  // Synchronous, active-high reset

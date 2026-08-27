@@ -33,10 +33,7 @@ module br_flow_burst_mux_lru_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable);
   end
 
-  br_flow_burst_mux_lru #(
-    .NumFlows(4),
-    .Width(32)
-  ) dut (
+  br_flow_burst_mux_lru dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[3:0]),

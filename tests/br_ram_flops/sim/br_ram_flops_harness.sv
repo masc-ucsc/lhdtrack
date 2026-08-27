@@ -29,18 +29,7 @@ module br_ram_flops_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_rd_data);
   end
 
-  br_ram_flops #(
-    .AddressDepthStages(1),
-    .Depth(64),
-    .DepthTiles(4),
-    .EnablePartialWrite(1),
-    .ReadDataDepthStages(1),
-    .ReadDataWidthStages(1),
-    .TileEnableBypass(1),
-    .Width(64),
-    .WidthTiles(2),
-    .WordWidth(8)
-  ) dut (
+  br_ram_flops dut (
     .wr_clk(clk),
     .rd_clk(clk),
     .wr_rst(rst),

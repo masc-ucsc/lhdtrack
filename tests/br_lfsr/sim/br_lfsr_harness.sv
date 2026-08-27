@@ -29,10 +29,7 @@ module br_lfsr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_state);
   end
 
-  br_lfsr #(
-    .AdvanceSteps(1),
-    .Width(32)
-  ) dut (
+  br_lfsr dut (
     .clk(clk),
     .rst(rst),
     .reinit(lfsr[0]),

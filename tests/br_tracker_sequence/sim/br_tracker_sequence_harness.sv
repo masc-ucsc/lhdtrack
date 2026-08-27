@@ -33,11 +33,7 @@ module br_tracker_sequence_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_allocated_entry_count);
   end
 
-  br_tracker_sequence #(
-    .EntryIdWidth(4),
-    .MaxAllocSize(1),
-    .NumEntries(16)
-  ) dut (
+  br_tracker_sequence dut (
     .clk(clk),
     .rst(rst),
     .alloc_receivable(lfsr[0]),

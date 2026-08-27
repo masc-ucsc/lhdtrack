@@ -11,13 +11,13 @@
 `include "br_asserts_internal.svh"
 
 module br_amba_axil_write_arbiter #(
-    parameter int NumInitiators = 2,  // Must be at least 2
-    parameter int AddrWidth = 40,  // Must be at least 12
-    parameter int DataWidth = 64,  // Must be at least 32 and byte aligned
-    parameter int AWUserWidth = 1,  // Must be at least 1
-    parameter int WUserWidth = 1,  // Must be at least 1
-    parameter int BUserWidth = 1,  // Must be at least 1
-    parameter int MaxOutstandingWrites = 1,  // Must be at least 1
+    localparam int NumInitiators = 2,  // Must be at least 2
+    localparam int AddrWidth = 40,  // Must be at least 12
+    localparam int DataWidth = 64,  // Must be at least 32 and byte aligned
+    localparam int AWUserWidth = 1,  // Must be at least 1
+    localparam int WUserWidth = 1,  // Must be at least 1
+    localparam int BUserWidth = 1,  // Must be at least 1
+    localparam int MaxOutstandingWrites = 1,  // Must be at least 1
     localparam int StrobeWidth = DataWidth / 8,
     localparam int OwnerWidth = $clog2(NumInitiators)
 ) (

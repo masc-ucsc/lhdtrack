@@ -27,9 +27,7 @@ module br_enc_bin2gray_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_gray);
   end
 
-  br_enc_bin2gray #(
-    .Width(32)
-  ) dut (
+  br_enc_bin2gray dut (
     .bin(lfsr[31:0]),
     .gray(o_gray)
   );

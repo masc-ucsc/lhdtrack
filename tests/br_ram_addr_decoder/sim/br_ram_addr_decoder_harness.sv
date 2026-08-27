@@ -33,13 +33,7 @@ module br_ram_addr_decoder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_data);
   end
 
-  br_ram_addr_decoder #(
-    .DataWidth(32),
-    .Depth(32),
-    .EnableDatapath(0),
-    .Stages(0),
-    .Tiles(4)
-  ) dut (
+  br_ram_addr_decoder dut (
     .clk(clk),
     .rst(rst),
     .in_valid(lfsr[0]),

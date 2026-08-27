@@ -15,11 +15,11 @@
 
 module br_demux_onehot #(
     // Number of outputs to distribute among. Must be >= 1.
-    parameter int NumSymbolsOut = 1,
+    localparam int NumSymbolsOut = 16,
     // The width of each symbol in bits. Must be >= 1.
-    parameter int SymbolWidth = 1,
+    localparam int SymbolWidth = 32,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1
+    localparam bit EnableAssertFinalNotValid = 1
 ) (
     // Onehot-encoded select. Must be in range of NumSymbolsOut.
     input  logic [NumSymbolsOut-1:0]                  select,

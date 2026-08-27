@@ -65,13 +65,13 @@
 `include "br_tieoff.svh"
 
 module br_csr_axil_widget #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int DataWidth = 32,  // Must be 32 or 64
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be 32 or 64
     // If 1, register the AXI-Lite response outputs at the cost of an extra cycle of latency.
-    parameter bit RegisterResponseOutputs = 0,
+    localparam bit RegisterResponseOutputs = 0,
     // If 1, register the CSR request outputs at the cost of an extra cycle of latency.
-    parameter bit RegisterCsrRequestOutputs = 0,
-    parameter int MaxTimeoutCycles = 1000,  // Must be at least 1
+    localparam bit RegisterCsrRequestOutputs = 0,
+    localparam int MaxTimeoutCycles = 100,  // Must be at least 1
 
     localparam int StrobeWidth = DataWidth / 8,
     localparam int TimerWidth  = br_math::clamped_clog2(MaxTimeoutCycles + 1)

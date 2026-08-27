@@ -29,12 +29,7 @@ module br_ram_flops_tile_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_rd_data);
   end
 
-  br_ram_flops_tile #(
-    .Depth(16),
-    .NumReadPorts(1),
-    .NumWritePorts(1),
-    .Width(32)
-  ) dut (
+  br_ram_flops_tile dut (
     .wr_clk(clk),
     .rd_clk(clk),
     .wr_rst(rst),

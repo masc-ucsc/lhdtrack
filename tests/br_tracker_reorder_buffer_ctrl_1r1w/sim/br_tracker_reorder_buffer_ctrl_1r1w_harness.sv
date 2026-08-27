@@ -45,13 +45,7 @@ module br_tracker_reorder_buffer_ctrl_1r1w_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr_valid);
   end
 
-  br_tracker_reorder_buffer_ctrl_1r1w #(
-    .DataWidth(32),
-    .EntryIdWidth(4),
-    .NumEntries(16),
-    .RamReadLatency(0),
-    .RegisterPopOutputs(0)
-  ) dut (
+  br_tracker_reorder_buffer_ctrl_1r1w dut (
     .clk(clk),
     .rst(rst),
     .alloc_ready(lfsr[0]),

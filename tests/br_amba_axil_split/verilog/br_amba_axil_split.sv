@@ -18,23 +18,23 @@
 `include "br_registers.svh"
 
 module br_amba_axil_split #(
-    parameter int AddrWidth = 40,  // Must be at least 12
-    parameter int DataWidth = 64,  // Must be at least 32
-    parameter int AWUserWidth = 1,
-    parameter int WUserWidth = 1,
-    parameter int ARUserWidth = 1,
-    parameter int RUserWidth = 1,
-    parameter int MaxOutstandingReads = 1,  // Must be at least 1
-    parameter int MaxOutstandingWrites = 1,  // Must be at least 1
+    localparam int AddrWidth = 32,  // Must be at least 12
+    localparam int DataWidth = 32,  // Must be at least 32
+    localparam int AWUserWidth = 1,
+    localparam int WUserWidth = 1,
+    localparam int ARUserWidth = 1,
+    localparam int RUserWidth = 1,
+    localparam int MaxOutstandingReads = 4,  // Must be at least 1
+    localparam int MaxOutstandingWrites = 4,  // Must be at least 1
     // The number of contiguous address ranges to check
     // to see if a request should be routed to the branch.
     // Must be at least 1.
-    parameter int NumBranchAddrRanges = 1,
+    localparam int NumBranchAddrRanges = 1,
     // If 1, branch_awaddr and branch_araddr are normalized by subtracting
     // the first branch_start_addr from root_awaddr and root_araddr,
     // respectively. This is useful if the AXI-Lite peripheral connected
     // to the branch expects its own address space to start at zero.
-    parameter int NormalizeBranchAddress = 0,
+    localparam int NormalizeBranchAddress = 0,
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input clk,

@@ -79,12 +79,7 @@ module br_amba_axi2axil_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_axil_rready);
   end
 
-  br_amba_axi2axil #(
-    .AddrWidth(32),
-    .DataWidth(32),
-    .IdWidth(4),
-    .MaxOutstandingReqs(4)
-  ) dut (
+  br_amba_axi2axil dut (
     .clk(clk),
     .rst(rst),
     .axi_awaddr(lfsr[31:0]),

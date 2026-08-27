@@ -18,10 +18,10 @@
 `include "br_asserts_internal.svh"
 
 module br_delay_valid_next_nr #(
-    parameter int Width = 1,  // Must be at least 1
-    parameter int NumStages = 0,  // Must be at least 0
+    localparam int Width = 64,  // Must be at least 1
+    localparam int NumStages = 1,  // Must be at least 0
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1
+    localparam bit EnableAssertFinalNotValid = 1
 ) (
     // Positive edge-triggered. If NumStages is 0, then only used for assertions.
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ

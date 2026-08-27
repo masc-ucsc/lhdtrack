@@ -2,21 +2,21 @@ const br_apb_demux_select_onehot_t = import("br_apb_demux_select_onehot.br_apb_d
 const br_demux_addr_decode_t = import("br_demux_addr_decode.br_demux_addr_decode")
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_apb_demux::[timecheck=false](clk:u1, rst:u1, upstream_paddr:u12, upstream_psel:u1, upstream_penable:u1, upstream_pprot:u3, upstream_pstrb:u4, upstream_pwrite:u1, upstream_pwdata:u32, downstream_addr_base:u12, downstream_addr_size:u12, downstream_prdata:u32, downstream_pready:u1, downstream_pslverr:u1) -> (upstream_prdata:u32@[], upstream_pready:u1@[], upstream_pslverr:u1@[], downstream_paddr:u12@[], downstream_psel:u1@[], downstream_penable:u1@[], downstream_pprot:u3@[], downstream_pstrb:u4@[], downstream_pwrite:u1@[], downstream_pwdata:u32@[]) {
-  wire downstream_paddr_unmasked:u12
+pub mod br_apb_demux::[timecheck=false](clk:u1, rst:u1, upstream_paddr:u12, upstream_psel:u1, upstream_penable:u1, upstream_pprot:u3, upstream_pstrb:u4, upstream_pwrite:u1, upstream_pwdata:u32, downstream_addr_base:u48, downstream_addr_size:u48, downstream_prdata:u128, downstream_pready:u4, downstream_pslverr:u4) -> (upstream_prdata:u32@[], upstream_pready:u1@[], upstream_pslverr:u1@[], downstream_paddr:u48@[], downstream_psel:u4@[], downstream_penable:u4@[], downstream_pprot:u12@[], downstream_pstrb:u16@[], downstream_pwrite:u4@[], downstream_pwdata:u128@[]) {
+  wire downstream_paddr_unmasked:u48
   wire upstream_pready:u1
   br_misc_unused::[name=br_misc_unused_upstream_request_pending](`in` = unsigned((upstream_psel != 0) and ((upstream_penable == 0) or (upstream_pready == 0))))
   mut br_demux_addr_decode = br_demux_addr_decode_t::[name=br_demux_addr_decode](clk = clk, rst = rst, addr_valid = upstream_psel, upstream_addr = upstream_paddr, downstream_addr_base = downstream_addr_base, downstream_addr_size = downstream_addr_size, downstream_addr_in = downstream_paddr_unmasked)
-  mut br_apb_demux_select_onehot = br_apb_demux_select_onehot_t::[name=br_apb_demux_select_onehot](clk = clk, rst = rst, select_onehot = br_demux_addr_decode.select_onehot, upstream_paddr = upstream_paddr, upstream_psel = upstream_psel, upstream_penable = upstream_penable, upstream_pprot = upstream_pprot, upstream_pstrb = upstream_pstrb, upstream_pwrite = upstream_pwrite, upstream_pwdata = upstream_pwdata, downstream_prdata = downstream_prdata, downstream_pready = downstream_pready, downstream_pslverr = downstream_pslverr)
+  mut br_apb_demux_select_onehot = br_apb_demux_select_onehot_t::[name=br_apb_demux_select_onehot](clk = clk, rst = rst, select_onehot = br_demux_addr_decode.select_onehot, upstream_paddr = upstream_paddr, upstream_psel = upstream_psel, upstream_penable = upstream_penable, upstream_pprot = upstream_pprot, upstream_pstrb = upstream_pstrb, upstream_pwrite = upstream_pwrite, upstream_pwdata = upstream_pwdata, downstream_prdata = downstream_prdata, `downstream_pready.e3` = (downstream_pready >> 3) & 1, `downstream_pready.e2` = (downstream_pready >> 2) & 1, `downstream_pready.e1` = (downstream_pready >> 1) & 1, `downstream_pready.e0` = downstream_pready & 1, `downstream_pslverr.e3` = (downstream_pslverr >> 3) & 1, `downstream_pslverr.e2` = (downstream_pslverr >> 2) & 1, `downstream_pslverr.e1` = (downstream_pslverr >> 1) & 1, `downstream_pslverr.e0` = downstream_pslverr & 1)
   upstream_pready = br_apb_demux_select_onehot.upstream_pready
   downstream_paddr_unmasked = br_apb_demux_select_onehot.downstream_paddr
   upstream_prdata = br_apb_demux_select_onehot.upstream_prdata
   upstream_pslverr = br_apb_demux_select_onehot.upstream_pslverr
   downstream_paddr = br_demux_addr_decode.downstream_addr_out
-  downstream_psel = br_apb_demux_select_onehot.downstream_psel
-  downstream_penable = br_apb_demux_select_onehot.downstream_penable
+  downstream_psel = (br_apb_demux_select_onehot.downstream_psel.e3 << 3) | (br_apb_demux_select_onehot.downstream_psel.e2 << 2) | (br_apb_demux_select_onehot.downstream_psel.e1 << 1) | br_apb_demux_select_onehot.downstream_psel.e0
+  downstream_penable = (br_apb_demux_select_onehot.downstream_penable.e3 << 3) | (br_apb_demux_select_onehot.downstream_penable.e2 << 2) | (br_apb_demux_select_onehot.downstream_penable.e1 << 1) | br_apb_demux_select_onehot.downstream_penable.e0
   downstream_pprot = br_apb_demux_select_onehot.downstream_pprot
   downstream_pstrb = br_apb_demux_select_onehot.downstream_pstrb
-  downstream_pwrite = br_apb_demux_select_onehot.downstream_pwrite
+  downstream_pwrite = (br_apb_demux_select_onehot.downstream_pwrite.e3 << 3) | (br_apb_demux_select_onehot.downstream_pwrite.e2 << 2) | (br_apb_demux_select_onehot.downstream_pwrite.e1 << 1) | br_apb_demux_select_onehot.downstream_pwrite.e0
   downstream_pwdata = br_apb_demux_select_onehot.downstream_pwdata
 }

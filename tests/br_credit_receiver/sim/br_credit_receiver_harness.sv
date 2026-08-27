@@ -37,14 +37,7 @@ module br_credit_receiver_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_credit_available);
   end
 
-  br_credit_receiver #(
-    .MaxCredit(16),
-    .NumFlows(4),
-    .PopCreditMaxChange(4),
-    .PushCreditMaxChange(4),
-    .RegisterPushOutputs(1),
-    .Width(64)
-  ) dut (
+  br_credit_receiver dut (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),

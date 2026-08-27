@@ -22,7 +22,20 @@ lec    = "none"
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_fifo_flops_push_credit#<id>`.
 [[config]]
 id     = "d32_frads1_frdt1_frrdds0_frrdws_57e0788f"
-params = { Depth = 32, FlopRamAddressDepthStages = 1, FlopRamDepthTiles = 1, FlopRamReadDataDepthStages = 0, FlopRamReadDataWidthStages = 0, FlopRamWidthTiles = 1, NumSyncStages = 3, RegisterPopOutputs = 1, RegisterPushOutputs = 1, Width = 64 }
+# NO PARAMETERS. verilog/br_cdc_fifo_flops_push_credit.sv declares its
+# parameter port list `localparam`, so the top elaborates to ONE circuit with
+# no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no
+# `#(...)` on the harness instance -- and the .prp, which cannot take a
+# parameter at all, matches it by construction. Intermediate modules stay
+# parameterized; the top overrides them.
+#
+# THE CHOSEN POINT IS Depth=32, FlopRamAddressDepthStages=1,
+# FlopRamDepthTiles=1, FlopRamReadDataDepthStages=0,
+# FlopRamReadDataWidthStages=0, FlopRamWidthTiles=1, NumSyncStages=3,
+# RegisterPopOutputs=1, RegisterPushOutputs=1, Width=64. To move it, edit the
+# localparam in the .sv and re-seed, so the harness and the emitted Pyrope
+# follow -- not this line.
+params = {}
 
 [synth]
 flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]

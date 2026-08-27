@@ -14,32 +14,32 @@
 `include "br_asserts_internal.svh"
 
 module br_csr_demux #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int DataWidth = 32,  // Must be 32 or 64
-    parameter int NumDownstreams = 1,  // Must be at least 1
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be 32 or 64
+    localparam int NumDownstreams = 4,  // Must be at least 1
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter int NumRetimeStages[NumDownstreams] = '{default: 0},
+    localparam int NumRetimeStages[NumDownstreams] = '{default: 0},
     // If 1, the last downstream SCB request port (NumDownstreams-1)
     // will take any request that doesn't match the address base and bound
     // of any of the other downstream ports.
     // If 0, a request with an address that doesn't match any downstream address range
     // will result in a response with decerr=1.
-    parameter bit HasDefaultDownstream = 0,
+    localparam bit HasDefaultDownstream = 0,
     localparam int NumAddressRanges = HasDefaultDownstream ? NumDownstreams - 1 : NumDownstreams,
     // If 1 for an enabled decoded range, assert that its size is a power of two
     // and its base is naturally aligned to that size.
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
+    localparam bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
     // If 1 for a decoded range, normalize its forwarded address by subtracting
     // its range base before applying its outgoing mask.
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
+    localparam bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
     // Mask applied to the upstream address only for route decoding. Forwarded
     // addresses start from the unmasked upstream address.
-    parameter logic [AddrWidth-1:0] UpstreamAddrMask = '1,
+    localparam logic [AddrWidth-1:0] UpstreamAddrMask = '1,
     // Mask applied to each forwarded downstream request address, after
     // normalization where applicable.
-    parameter logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1,
+    localparam logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1,
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input logic clk,

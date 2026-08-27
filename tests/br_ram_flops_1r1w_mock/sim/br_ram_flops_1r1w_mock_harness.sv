@@ -14,7 +14,7 @@ module br_ram_flops_1r1w_mock_harness (
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
   logic [0:0] o_rd_data_valid;
-  logic [0:0] o_rd_data;
+  logic [31:0] o_rd_data;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
   always_comb begin
@@ -35,11 +35,11 @@ module br_ram_flops_1r1w_mock_harness (
     .wr_rst(rst),
     .rd_rst(rst),
     .wr_valid(lfsr[0]),
-    .wr_addr(lfsr[1]),
-    .wr_data(lfsr[2]),
-    .wr_word_en(lfsr[3]),
-    .rd_addr_valid(lfsr[4]),
-    .rd_addr(lfsr[5]),
+    .wr_addr(lfsr[4:1]),
+    .wr_data(lfsr[36:5]),
+    .wr_word_en(lfsr[37]),
+    .rd_addr_valid(lfsr[38]),
+    .rd_addr(lfsr[42:39]),
     .rd_data_valid(o_rd_data_valid),
     .rd_data(o_rd_data)
   );

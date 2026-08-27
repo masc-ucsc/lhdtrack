@@ -6,7 +6,7 @@
 `include "br_asserts_internal.svh"
 
 module br_enc_countones #(
-    parameter int Width = 1,  // Must be at least 1
+    localparam int Width = 32,  // Must be at least 1
     localparam int CountWidth = $clog2(Width + 1)
 ) (
     input logic [Width-1:0] in,

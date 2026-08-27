@@ -17,35 +17,35 @@
 module br_credit_sender_vc #(
     // Number of virtual channels sharing this credit sender.
     // Must be at least 2.
-    parameter int NumVcs = 2,
+    localparam int NumVcs = 4,
     // Width of the datapath in bits. Must be at least 1.
-    parameter int Width = 1,
+    localparam int Width = 64,
     // Maximum number of credits that can be stored per VC (inclusive).
     // Must be at least 1.
-    parameter int MaxCredit = 1,
+    localparam int MaxCredit = 16,
     // Maximum number of credits that can be returned in a single cycle.
     // Must be at least 1 but at most MaxCredit.
-    parameter int PopCreditMaxChange = 1,
+    localparam int PopCreditMaxChange = 4,
     // If 1, add 1 cycle of retiming to pop outputs.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, then at the end of simulation, assert that the credit counter value equals
     // the maximum number of credits that it stored at any point during the test.
-    parameter bit EnableAssertFinalMaxValue = 1,
+    localparam bit EnableAssertFinalMaxValue = 1,
 
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int VcWidth = $clog2(NumVcs),
     localparam int CounterWidth = $clog2(MaxCredit + 1),
     localparam int PopCreditWidth = $clog2(PopCreditMaxChange + 1)

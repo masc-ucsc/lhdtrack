@@ -22,7 +22,7 @@ pub mod br_flow_mux_weighted_lru_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, cfg_weight=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2], pop_ready=lfsr#[3])
+  const r = dut(clk=0, rst=rst, cfg_weight=lfsr#[0..=11], push_valid=lfsr#[12..=15], push_data=lfsr#[16..=63], pop_ready=lfsr#[16])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready

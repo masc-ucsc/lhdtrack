@@ -51,35 +51,35 @@
 
 module br_credit_receiver #(
     // Number of data flows associated with this receiver. Must be at least 1.
-    parameter int NumFlows = 1,
+    localparam int NumFlows = 4,
     // Width of the datapath in bits. Must be at least 1.
-    parameter int Width = 1,
+    localparam int Width = 64,
     // Maximum number of credits that can be stored (inclusive). Must be at least NumFlows.
-    parameter int MaxCredit = 1,
+    localparam int MaxCredit = 16,
     // If 1, add 1 cycle of retiming to push outputs.
-    parameter bit RegisterPushOutputs = 0,
+    localparam bit RegisterPushOutputs = 1,
     // Maximum number of push credit that can be returned in a single cycle.
     // Must be at least 1 but cannot be greater than MaxCredit.
-    parameter int PushCreditMaxChange = 1,
+    localparam int PushCreditMaxChange = 4,
     // Maximum pop credits that can be returned in a single cycle.
     // Must be at least 1 but cannot be greater than MaxCredit.
-    parameter int PopCreditMaxChange = 1,
+    localparam int PopCreditMaxChange = 4,
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that push_sender_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushSenderInReset = 1,
+    localparam bit EnableCoverPushSenderInReset = 1,
     // If 1, cover that push_credit_stall can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushCreditStall = 1,
+    localparam bit EnableCoverPushCreditStall = 1,
     // The maximum credit count value that will be checked by covers.
-    parameter int CoverMaxCredit = MaxCredit,
+    localparam int CoverMaxCredit = MaxCredit,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, then at the end of simulation, assert that the credit counter value equals
     // the minimum number of credits that it stored at any point during the test.
-    parameter bit EnableAssertFinalMinValue = 1,
+    localparam bit EnableAssertFinalMinValue = 1,
     localparam int CounterWidth = $clog2(MaxCredit + 1),
     localparam int PushCreditWidth = $clog2(PushCreditMaxChange + 1),
     localparam int PopCreditChangeWidth = $clog2(PopCreditMaxChange + 1)

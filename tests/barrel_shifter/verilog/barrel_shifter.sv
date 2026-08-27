@@ -1,7 +1,7 @@
 // Barrel shifter benchmark (left shift)
 module barrel_shifter
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] data,

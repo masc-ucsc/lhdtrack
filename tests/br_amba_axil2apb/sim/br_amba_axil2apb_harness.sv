@@ -55,10 +55,7 @@ module br_amba_axil2apb_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pwdata);
   end
 
-  br_amba_axil2apb #(
-    .AddrWidth(32),
-    .DataWidth(32)
-  ) dut (
+  br_amba_axil2apb dut (
     .clk(clk),
     .rst(rst),
     .awaddr(lfsr[31:0]),

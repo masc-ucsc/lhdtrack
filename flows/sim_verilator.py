@@ -51,10 +51,12 @@ def run(ctx: FlowContext) -> dict:
     #    its -I list while slang looks relative to the including file, and the
     #    two front ends must see the same files for the comparison to mean
     #    anything.
-    # NO -G HERE. The harness instantiates the DUT with this config's parameters
-    # already baked in (gen_testbench writes `add #(.BW(8)) dut`), and the
-    # harness top itself declares none -- verilator rejects a -G naming a
-    # parameter the top does not have.
+    # NO -G HERE, AND NONE NEEDED ANYWHERE. Every top pins its parameter point
+    # in the source (`localparam` in the port list; see tools/monomorphize.py),
+    # so `chparams()` is empty and the harness instantiates the DUT bare. The
+    # list is kept because verilator would reject a -G naming a parameter a top
+    # does not have, which is exactly what a re-imported, still-parameterized
+    # top would produce -- `lhdtrack check` fails that case first.
     params = [] if harness.exists() else [
         f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())
     ]

@@ -16,13 +16,13 @@ module br_apb_demux_harness (
   logic [31:0] o_upstream_prdata;
   logic [0:0] o_upstream_pready;
   logic [0:0] o_upstream_pslverr;
-  logic [11:0] o_downstream_paddr;
-  logic [0:0] o_downstream_psel;
-  logic [0:0] o_downstream_penable;
-  logic [2:0] o_downstream_pprot;
-  logic [3:0] o_downstream_pstrb;
-  logic [0:0] o_downstream_pwrite;
-  logic [31:0] o_downstream_pwdata;
+  logic [47:0] o_downstream_paddr;
+  logic [3:0] o_downstream_psel;
+  logic [3:0] o_downstream_penable;
+  logic [11:0] o_downstream_pprot;
+  logic [15:0] o_downstream_pstrb;
+  logic [3:0] o_downstream_pwrite;
+  logic [127:0] o_downstream_pwdata;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
   always_comb begin
@@ -55,11 +55,11 @@ module br_apb_demux_harness (
     .upstream_pstrb(lfsr[20:17]),
     .upstream_pwrite(lfsr[21]),
     .upstream_pwdata(lfsr[53:22]),
-    .downstream_addr_base({2'd0, lfsr[63:54]}),
-    .downstream_addr_size(lfsr[13:2]),
-    .downstream_prdata(lfsr[45:14]),
-    .downstream_pready(lfsr[46]),
-    .downstream_pslverr(lfsr[47]),
+    .downstream_addr_base({38'd0, lfsr[63:54]}),
+    .downstream_addr_size({22'd0, lfsr[63:38]}),
+    .downstream_prdata({86'd0, lfsr[63:22]}),
+    .downstream_pready(lfsr[25:22]),
+    .downstream_pslverr(lfsr[29:26]),
     .upstream_prdata(o_upstream_prdata),
     .upstream_pready(o_upstream_pready),
     .upstream_pslverr(o_upstream_pslverr),

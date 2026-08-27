@@ -31,10 +31,7 @@ module br_credit_counter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_available);
   end
 
-  br_credit_counter #(
-    .MaxChange(1),
-    .MaxValue(8)
-  ) dut (
+  br_credit_counter dut (
     .clk(clk),
     .rst(rst),
     .incr_valid(lfsr[0]),

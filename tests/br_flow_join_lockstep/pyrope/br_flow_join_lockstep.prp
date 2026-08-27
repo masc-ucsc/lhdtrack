@@ -1,9 +1,12 @@
 const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
 const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_flow_join_lockstep::[timecheck=false](clk:u1, rst:u1, push_valid:u1, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[]) {
+pub mod br_flow_join_lockstep::[timecheck=false](clk:u1, rst:u1, push_valid:u16, pop_ready:u1) -> (push_ready:u16@[], pop_valid:u1@[]) {
   const pop_valid__w1 = push_valid & 1
-  const push_ready__w1 = (pop_ready & 1)
+  mut _rep_1:u16 = if (pop_ready & 1) != 0 { 0xffff } else { 0 }
+  const push_ready__w1 = _rep_1
+  br_misc_unused::[name=br_misc_unused_push_valid_msbs](`in` = push_valid#[1..=15])
   /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
   /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
   push_ready = push_ready__w1

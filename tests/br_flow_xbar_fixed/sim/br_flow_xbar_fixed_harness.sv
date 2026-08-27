@@ -31,13 +31,7 @@ module br_flow_xbar_fixed_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_flow_xbar_fixed #(
-    .NumPopFlows(4),
-    .NumPushFlows(4),
-    .RegisterDemuxOutputs(0),
-    .RegisterPopOutputs(0),
-    .Width(32)
-  ) dut (
+  br_flow_xbar_fixed dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[3:0]),

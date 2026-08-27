@@ -35,11 +35,7 @@ module br_ecc_sed_decoder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_dec_data);
   end
 
-  br_ecc_sed_decoder #(
-    .DataWidth(32),
-    .RegisterInputs(0),
-    .RegisterOutputs(0)
-  ) dut (
+  br_ecc_sed_decoder dut (
     .clk(clk),
     .rst(rst),
     .rcv_valid(lfsr[0]),

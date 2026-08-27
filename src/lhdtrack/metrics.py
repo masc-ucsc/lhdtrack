@@ -41,6 +41,11 @@ class Measured:
     peak_rss_kb: int
     log: Path
     cwd: Path
+    # The watchdog killed it. A NON-ZERO rc alone cannot say this: SIGKILL and a
+    # tool that exited angrily look identical from the exit code, and calling a
+    # tool that ran out of time an "error" reports a design as broken when the
+    # honest answer is that nobody waited long enough.
+    timed_out: bool = False
 
     @property
     def ok(self) -> bool:
@@ -110,7 +115,13 @@ def measure(
         # A tool that never returns must not hang the nightly. `os.wait4` has no
         # timeout of its own, so the kill is a watchdog; the process still ends
         # up reaped by the wait4 below, rusage intact.
-        watchdog = threading.Timer(timeout, proc.kill) if timeout else None
+        fired = threading.Event()
+
+        def _kill() -> None:
+            fired.set()
+            proc.kill()
+
+        watchdog = threading.Timer(timeout, _kill) if timeout else None
         if watchdog:
             watchdog.daemon = True
             watchdog.start()
@@ -142,6 +153,7 @@ def measure(
         peak_rss_kb=peak,
         log=log,
         cwd=cwd,
+        timed_out=fired.is_set(),
     )
 
 

@@ -33,11 +33,7 @@ module br_ecc_secded_encoder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_enc_codeword);
   end
 
-  br_ecc_secded_encoder #(
-    .DataWidth(32),
-    .RegisterInputs(0),
-    .RegisterOutputs(0)
-  ) dut (
+  br_ecc_secded_encoder dut (
     .clk(clk),
     .rst(rst),
     .data_valid(lfsr[0]),

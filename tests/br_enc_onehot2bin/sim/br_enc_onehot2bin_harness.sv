@@ -29,9 +29,7 @@ module br_enc_onehot2bin_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_enc_onehot2bin #(
-    .NumValues(32)
-  ) dut (
+  br_enc_onehot2bin dut (
     .clk(clk),
     .rst(rst),
     .in(lfsr[31:0]),

@@ -53,14 +53,7 @@ module br_fifo_flops_push_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_items_next);
   end
 
-  br_fifo_flops_push_credit #(
-    .Depth(32),
-    .EnableBypass(1),
-    .FlopRamAddressDepthStages(1),
-    .RegisterPopOutputs(1),
-    .RegisterPushOutputs(1),
-    .Width(32)
-  ) dut (
+  br_fifo_flops_push_credit dut (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),

@@ -73,6 +73,11 @@ def run(ctx: FlowContext) -> dict:
     )
 
     result_json = ctx.work / "lec_netlist.json"
+    # The same wall-clock watchdog lib/lec.py explains: `formal.timeout` is the
+    # solver's own budget and is not, on every backend, a promise that the
+    # process returns. This obligation is over a MAPPED netlist -- thousands of
+    # cells against the RTL -- so it is the likeliest of the three to run long.
+    wall = ctx.lec_timeout_s * 2 + 60
     m = ctx.run(
         "lec",
         [lhd, "lec", "--impl", "lg:netlist", "--ref", "lg:ref", "--lib", "lg:models",
@@ -80,6 +85,7 @@ def run(ctx: FlowContext) -> dict:
          "--set", f"formal.timeout={ctx.lec_timeout_s}",
          "--result-json", str(result_json)],
         check=False,
+        timeout=wall,
     )
     result = None
     if result_json.exists():
@@ -87,7 +93,7 @@ def run(ctx: FlowContext) -> dict:
             result = json.loads(result_json.read_text())
         except (OSError, json.JSONDecodeError):
             result = None
-    verdict = classify(result, m.rc)
+    verdict = "timeout" if m.timed_out else classify(result, m.rc)
 
     block = {
         "verdict": verdict,
@@ -98,6 +104,7 @@ def run(ctx: FlowContext) -> dict:
         "declared": "none",
         "ms": m.ms,
         "timeout_s": ctx.lec_timeout_s,
+        "wall_limit_s": wall,
     }
     if verdict == "refuted":
         # A refutation here means SYNTHESIS BROKE THE DESIGN -- far more serious

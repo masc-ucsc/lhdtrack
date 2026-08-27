@@ -35,9 +35,7 @@ module comparator_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_gte);
   end
 
-  comparator #(
-    .BW(8)
-  ) dut (
+  comparator dut (
     .a(lfsr[7:0]),
     .b(lfsr[15:8]),
     .eq(o_eq),

@@ -49,12 +49,7 @@ module br_csr_demux_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_abort);
   end
 
-  br_csr_demux #(
-    .AddrWidth(16),
-    .DataWidth(32),
-    .HasDefaultDownstream(0),
-    .NumDownstreams(4)
-  ) dut (
+  br_csr_demux dut (
     .clk(clk),
     .rst(rst),
     .upstream_req_valid(lfsr[0]),

@@ -53,15 +53,7 @@ module br_fifo_shared_pstatic_ctrl_push_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr);
   end
 
-  br_fifo_shared_pstatic_ctrl_push_credit #(
-    .Depth(32),
-    .NumFifos(2),
-    .RamReadLatency(1),
-    .RegisterPopOutputs(1),
-    .RegisterPushOutputs(1),
-    .StagingBufferDepth(2),
-    .Width(32)
-  ) dut (
+  br_fifo_shared_pstatic_ctrl_push_credit dut (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),

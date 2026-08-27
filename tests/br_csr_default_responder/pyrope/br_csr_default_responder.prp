@@ -1,11 +1,11 @@
 const br_csr_checks_intg = import("br_csr_checks_intg.br_csr_checks_intg")
 const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
 
-pub mod br_csr_default_responder::[timecheck=false](clk:u1, rst:u1, req_valid:u1, req_write:u1, req_addr:u1, req_wdata:u32, req_wstrb:u4, req_privileged:u1, req_secure:u1, req_abort:u1) -> (resp_valid:u1@[], resp_rdata:u32@[], resp_slverr:u1@[], resp_decerr:u1@[]) {
+pub mod br_csr_default_responder::[timecheck=false](clk:u1, rst:u1, req_valid:u1, req_write:u1, req_addr:u16, req_wdata:u32, req_wstrb:u4, req_privileged:u1, req_secure:u1, req_abort:u1) -> (resp_valid:u1@[], resp_rdata:u32@[], resp_slverr:u1@[], resp_decerr:u1@[]) {
   reg resp_valid:u1
   br_csr_checks_intg::[name=br_csr_checks_intg_inst](clk = clk, rst = rst, req_valid = req_valid, req_write = req_write, req_addr = req_addr, req_wdata = req_wdata, req_wstrb = req_wstrb, req_secure = req_secure, req_privileged = req_privileged, req_abort = req_abort, resp_valid = resp_valid)
   resp_valid = if rst != 0 { 0 } else { req_valid }
-  br_misc_unused_p1::[name=br_misc_unused_unused_request](`in` = ((req_write & 1) << 40) | ((req_addr & 1) << 39) | (req_wdata << 7) | (req_wstrb << 3) | ((req_privileged & 1) << 2) | ((req_secure & 1) << 1) | (req_abort & 1))
+  br_misc_unused_p1::[name=br_misc_unused_unused_request](`in` = ((req_write & 1) << 55) | (req_addr << 39) | (req_wdata << 7) | (req_wstrb << 3) | ((req_privileged & 1) << 2) | ((req_secure & 1) << 1) | (req_abort & 1))
   resp_rdata = 0
   resp_slverr = 0
   resp_decerr = resp_valid

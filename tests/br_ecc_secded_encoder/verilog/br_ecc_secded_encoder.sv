@@ -66,13 +66,13 @@
 `include "br_unused.svh"
 
 module br_ecc_secded_encoder #(
-    parameter int DataWidth = 4,  // Must be at least 4 and at most 1024
+    localparam int DataWidth = 32,  // Must be at least 4 and at most 1024
     // If 1, then insert a pipeline register at the input.
-    parameter bit RegisterInputs = 0,
+    localparam bit RegisterInputs = 0,
     // If 1, then insert a pipeline register at the output.
-    parameter bit RegisterOutputs = 0,
+    localparam bit RegisterOutputs = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int ParityWidth = br_ecc_secded::get_parity_width(DataWidth),
     localparam int OutputWidth = DataWidth + ParityWidth,
     localparam int MessageWidth = br_ecc_secded::get_message_width(DataWidth, ParityWidth),

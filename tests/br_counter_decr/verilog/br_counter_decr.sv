@@ -37,38 +37,38 @@ module br_counter_decr #(
     // Width of the MaxValue parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
     // Must be at least 1.
-    parameter int MaxValueWidth = 32,
+    localparam int MaxValueWidth = 32,
     // Width of the MaxDecrement parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
     // Must be at least 1.
-    parameter int MaxDecrementWidth = 32,
+    localparam int MaxDecrementWidth = 32,
     // Must be at least 1. Inclusive. Also the initial value.
-    parameter logic [MaxValueWidth-1:0] MaxValue = 1,
+    localparam logic [MaxValueWidth-1:0] MaxValue = 255,
     // Must be at least 1 and at most MaxValue. Inclusive.
-    parameter logic [MaxDecrementWidth-1:0] MaxDecrement = 1,
+    localparam logic [MaxDecrementWidth-1:0] MaxDecrement = 1,
     // If 1, then when reinit is asserted together with decr_valid,
     // the decrement is applied to the initial value rather than the current value, i.e.,
     // value_next == initial_value - applicable decr.
     // If 0, then when reinit is asserted together with decr_valid,
     // the decrement values are ignored, i.e., value_next == initial_value.
-    parameter bit EnableReinitAndDecr = 1,
+    localparam bit EnableReinitAndDecr = 1,
     // If 1, the counter value saturates at 0.
     // If 0, the counter value wraps around at 0.
-    parameter bit EnableSaturate = 0,
+    localparam bit EnableSaturate = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, cover the cases where reinit is asserted
     // If 0, assert that reinit is never asserted
-    parameter bit EnableCoverReinit = 1,
+    localparam bit EnableCoverReinit = 1,
     // If 1, then cover the cases where reinit is asserted together with incr_valid.
     // Otherwise, assert that reinit is never asserted together with incr_valid.
-    parameter bit EnableCoverReinitAndDecr = EnableCoverReinit,
+    localparam bit EnableCoverReinitAndDecr = EnableCoverReinit,
     // If 1, then cover the cases where reinit is asserted when incr_valid is 0.
     // If 0, assert that reinit always asserts along with incr_valid.
-    parameter bit EnableCoverReinitNoDecr = EnableCoverReinit,
+    localparam bit EnableCoverReinitNoDecr = EnableCoverReinit,
     // If 1, cover the case where decr_valid is 1 but decr is 0.
     // If 0, assert that decr is always non-zero when decr_valid is 1.
-    parameter bit EnableCoverZeroDecrement = 1,
+    localparam bit EnableCoverZeroDecrement = 1,
     localparam int MaxValueP1Width = MaxValueWidth + 1,
     localparam int MaxDecrementP1Width = MaxDecrementWidth + 1,
     localparam int ValueWidth = $clog2(MaxValueP1Width'(MaxValue) + 1),

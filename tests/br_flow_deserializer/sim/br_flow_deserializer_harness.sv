@@ -37,12 +37,7 @@ module br_flow_deserializer_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_metadata);
   end
 
-  br_flow_deserializer #(
-    .DeserializeMostSignificantFirst(0),
-    .MetadataWidth(8),
-    .PopWidth(64),
-    .PushWidth(8)
-  ) dut (
+  br_flow_deserializer dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

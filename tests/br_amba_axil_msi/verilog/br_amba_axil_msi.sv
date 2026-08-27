@@ -35,13 +35,13 @@
 `include "br_asserts_internal.svh"
 
 module br_amba_axil_msi #(
-    parameter int AddrWidth = 40,  // must be at least 12
-    parameter int DataWidth = 64,  // must be 32 or 64
-    parameter int NumInterrupts = 2,  // must be at least 2
-    parameter int NumMsiDestAddr = 1,  // must be at least 1
-    parameter int DeviceIdWidth = 16,  // must be less than or equal to AddrWidth
-    parameter int EventIdWidth = 16,  // must be less than or equal to DataWidth
-    parameter int ThrottleCntrWidth = 16,  // must be at least 1
+    localparam int AddrWidth = 32,  // must be at least 12
+    localparam int DataWidth = 32,  // must be 32 or 64
+    localparam int NumInterrupts = 4,  // must be at least 2
+    localparam int NumMsiDestAddr = 1,  // must be at least 1
+    localparam int DeviceIdWidth = 16,  // must be less than or equal to AddrWidth
+    localparam int EventIdWidth = 16,  // must be less than or equal to DataWidth
+    localparam int ThrottleCntrWidth = 4,  // must be at least 1
     localparam int MsiDstIdxWidth = (NumMsiDestAddr > 1) ? $clog2(NumMsiDestAddr) : 1,
     localparam int StrobeWidth = (DataWidth + 7) / 8
 ) (

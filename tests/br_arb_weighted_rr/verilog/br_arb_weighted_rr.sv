@@ -47,16 +47,16 @@
 
 module br_arb_weighted_rr #(
     // Must be at least 1
-    parameter int NumRequesters = 1,
+    localparam int NumRequesters = 16,
     // Must be at least 1
-    parameter int MaxWeight = 1,
+    localparam int MaxWeight = 4,
     // Maximum accumulated weight per requester. Must be at least MaxWeight.
-    parameter int MaxAccumulatedWeight = MaxWeight,
+    localparam int MaxAccumulatedWeight = 16,
     // If 1, use pairwise grant selection instead of unrolled grant selection. Pairwise grant
     // selection can provide better PPA for small requester counts, but its O(N^2) priority
     // matrix scales worse than the unrolled implementation as the requester count grows.
     // The two implementations are functionally equivalent.
-    parameter bit UsePairwiseArb = 0,
+    localparam bit UsePairwiseArb = 0,
     localparam int WeightWidth = $clog2(MaxWeight + 1)
 ) (
     // ri lint_check_waive INPUT_NOT_READ

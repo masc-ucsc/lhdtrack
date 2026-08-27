@@ -34,51 +34,51 @@
 module br_credit_counter #(
     // Width of the MaxValue parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxValueWidth = 32,
+    localparam int MaxValueWidth = 32,
     // Width of the MaxChange parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxChangeWidth = 32,
+    localparam int MaxChangeWidth = 32,
     // Maximum credit counter value (inclusive). Must be at least 1.
-    parameter logic [MaxValueWidth-1:0] MaxValue = 1,
+    localparam logic [MaxValueWidth-1:0] MaxValue = 8,
     // Maximum increment/decrement amount (inclusive). Must be at least 1.
-    parameter logic [MaxChangeWidth-1:0] MaxChange = 1,
+    localparam logic [MaxChangeWidth-1:0] MaxChange = 1,
     // Maximum increment amount (inclusive). Must be at least 1 and at most MaxChange.
-    parameter logic [MaxChangeWidth-1:0] MaxIncrement = MaxChange,
+    localparam logic [MaxChangeWidth-1:0] MaxIncrement = MaxChange,
     // Maximum decrement amount (inclusive). Must be at least 1 and at most MaxChange.
-    parameter logic [MaxChangeWidth-1:0] MaxDecrement = MaxChange,
+    localparam logic [MaxChangeWidth-1:0] MaxDecrement = MaxChange,
     // If 1, cover that you can have incr_valid high with incr = 0.
     // Otherwise, assert that doesn't happen.
-    parameter bit EnableCoverZeroIncrement = 1,
+    localparam bit EnableCoverZeroIncrement = 1,
     // If 1, cover that you can have decr_valid high with decr = 0.
     // Otherwise, assert that doesn't happen.
     // Cannot have zero decrement if MaxDecrement is 1
-    parameter bit EnableCoverZeroDecrement = MaxDecrement > 1,
+    localparam bit EnableCoverZeroDecrement = MaxDecrement > 1,
     // If 1, cover the case where decr_valid is high and decr_ready is low.
     // Otherwise, disable decrement backpressure coverage. By default, this also
     // asserts that decrement backpressure is impossible.
-    parameter bit EnableCoverDecrementBackpressure = 1,
+    localparam bit EnableCoverDecrementBackpressure = 1,
     // If 1, cover that withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverWithhold = 1,
+    localparam bit EnableCoverWithhold = 1,
     // If 1, assert that decr_valid is always high.
     // Otherwise, cover that it can be low.
     // Generally, this should not be enabled unless decr_valid is tied high.
-    parameter bit EnableAssertAlwaysDecr = 0,
+    localparam bit EnableAssertAlwaysDecr = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // The maximum credit count value that will be checked by covers.
-    parameter logic [MaxValueWidth-1:0] CoverMaxValue = MaxValue,
+    localparam logic [MaxValueWidth-1:0] CoverMaxValue = MaxValue,
     // If 1, then at the end of simulation, assert that the credit counter value equals
     // the maximum number of credits that it stored at any point during the test.
     // Mutually exclusive with EnableAssertFinalMinValue.
-    parameter bit EnableAssertFinalMaxValue = 0,
+    localparam bit EnableAssertFinalMaxValue = 0,
     // If 1, then at the end of simulation, assert that the credit counter value equals
     // the minimum number of credits that it stored at any point during the test.
     // Mutually exclusive with EnableAssertFinalMaxValue.
-    parameter bit EnableAssertFinalMinValue = 0,
+    localparam bit EnableAssertFinalMinValue = 0,
     // If 1, assert that decrement backpressure is impossible.
     // Can only be enabled if EnableCoverDecrementBackpressure is disabled.
-    parameter bit EnableAssertNoDecrementBackpressure = !EnableCoverDecrementBackpressure,
+    localparam bit EnableAssertNoDecrementBackpressure = !EnableCoverDecrementBackpressure,
     localparam int MaxValueP1Width = MaxValueWidth + 1,
     localparam int MaxChangeP1Width = MaxChangeWidth + 1,
     localparam int ValueWidth = $clog2(MaxValueP1Width'(MaxValue) + 1),

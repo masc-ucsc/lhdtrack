@@ -29,9 +29,7 @@ module br_arb_grant_hold_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
-  br_arb_grant_hold #(
-    .NumRequesters(16)
-  ) dut (
+  br_arb_grant_hold dut (
     .clk(clk),
     .rst(rst),
     .grant_hold(lfsr[15:0]),

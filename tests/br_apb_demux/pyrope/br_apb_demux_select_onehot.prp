@@ -1,65 +1,132 @@
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_onehot:u1, upstream_paddr:u12, upstream_psel:u1, upstream_penable:u1, upstream_pprot:u3, upstream_pstrb:u4, upstream_pwrite:u1, upstream_pwdata:u32, downstream_prdata:u32, downstream_pready:u1, downstream_pslverr:u1) -> (upstream_prdata:u32@[], upstream_pready:u1@[], upstream_pslverr:u1@[], downstream_paddr:u12@[], downstream_psel:u1@[], downstream_penable:u1@[], downstream_pprot:u3@[], downstream_pstrb:u4@[], downstream_pwrite:u1@[], downstream_pwdata:u32@[]) {
-  mut downstream_prdata_int:u32 = 0
-  mut downstream_pready_int:u1 = 0
-  mut downstream_pslverr_int:u1 = 0
-  mut downstream_resp:u34 = 0
+pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_onehot:u4, upstream_paddr:u12, upstream_psel:u1, upstream_penable:u1, upstream_pprot:u3, upstream_pstrb:u4, upstream_pwrite:u1, upstream_pwdata:u32, downstream_prdata:u128, downstream_pready:(e3:u1, e2:u1, e1:u1, e0:u1), downstream_pslverr:(e3:u1, e2:u1, e1:u1, e0:u1)) -> (upstream_prdata:u32@[], upstream_pready:u1@[], upstream_pslverr:u1@[], downstream_paddr:u48@[], downstream_psel:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_penable:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_pprot:u12@[], downstream_pstrb:u16@[], downstream_pwrite:(e3:u1, e2:u1, e1:u1, e0:u1)@[], downstream_pwdata:u128@[]) {
+  mut downstream_prdata_int:u128 = 0
+  mut downstream_pready_int:u4 = 0
+  mut downstream_pslverr_int:u4 = 0
+  mut downstream_resp:u136 = 0
   mut `gen_decode_error_decode_error_resp.rdata` = 0
   mut `gen_decode_error_decode_error_resp.ready` = 0
   mut `gen_decode_error_decode_error_resp.slverr` = 0
   downstream_prdata_int = 0sb?
-  downstream_pready_int = 0ub?
-  downstream_pslverr_int = 0ub?
+  downstream_pready_int = 0sb?
+  downstream_pslverr_int = 0sb?
   downstream_resp = 0sb?
   downstream_paddr = 0sb?
-  downstream_psel = 0ub?
-  downstream_penable = 0ub?
   downstream_pprot = 0sb?
   downstream_pstrb = 0sb?
-  downstream_pwrite = 0ub?
   downstream_pwdata = 0sb?
-  const downstream_req_valid_int__w1 = select_onehot & (upstream_psel & 1) & 1
+  mut _rep_1:u4 = if (upstream_psel & 1) != 0 { 15 } else { 0 }
+  const downstream_req_valid_int__w1 = select_onehot & _rep_1
   br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
   br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
   mut downstream_paddr__w1 = downstream_paddr
   downstream_paddr__w1#[0..=11] = upstream_paddr
-  mut downstream_psel__w1 = downstream_psel
-  downstream_psel__w1#[0] = downstream_req_valid_int__w1 & 1
-  mut downstream_penable__w1 = downstream_penable
-  downstream_penable__w1#[0] = unsigned(((downstream_req_valid_int__w1 & 1) != 0) and (upstream_penable != 0)) & 1
+  mut `downstream_psel__bpo.e0` = downstream_req_valid_int__w1 & 1
+  mut `downstream_penable__bpo.e0` = unsigned(((downstream_req_valid_int__w1 & 1) != 0) and (upstream_penable != 0))
   mut downstream_pprot__w1 = downstream_pprot
   downstream_pprot__w1#[0..=2] = upstream_pprot
   mut downstream_pstrb__w1 = downstream_pstrb
   downstream_pstrb__w1#[0..=3] = upstream_pstrb
-  mut downstream_pwrite__w1 = downstream_pwrite
-  downstream_pwrite__w1#[0] = upstream_pwrite & 1
+  mut `downstream_pwrite__bpo.e0` = upstream_pwrite
   mut downstream_pwdata__w1 = downstream_pwdata
   downstream_pwdata__w1#[0..=31] = upstream_pwdata
   mut downstream_prdata_int__w1 = downstream_prdata_int
-  downstream_prdata_int__w1#[0..=31] = downstream_prdata
+  downstream_prdata_int__w1#[0..=31] = downstream_prdata#[0..=31]
   mut downstream_pready_int__w1 = downstream_pready_int
-  downstream_pready_int__w1#[0] = downstream_pready & 1
+  downstream_pready_int__w1#[0] = downstream_pready.e0 & 1
   mut downstream_pslverr_int__w1 = downstream_pslverr_int
-  downstream_pslverr_int__w1#[0] = downstream_pslverr & 1
+  downstream_pslverr_int__w1#[0] = downstream_pslverr.e0 & 1
+  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  mut downstream_paddr__w2 = downstream_paddr__w1
+  downstream_paddr__w2#[12..=23] = upstream_paddr
+  mut `downstream_psel__bpo.e1` = (downstream_req_valid_int__w1 >> 1) & 1
+  mut `downstream_penable__bpo.e1` = unsigned((((downstream_req_valid_int__w1 >> 1) & 1) != 0) and (upstream_penable != 0))
+  mut downstream_pprot__w2 = downstream_pprot__w1
+  downstream_pprot__w2#[3..=5] = upstream_pprot
+  mut downstream_pstrb__w2 = downstream_pstrb__w1
+  downstream_pstrb__w2#[4..=7] = upstream_pstrb
+  mut `downstream_pwrite__bpo.e1` = upstream_pwrite
+  mut downstream_pwdata__w2 = downstream_pwdata__w1
+  downstream_pwdata__w2#[32..=63] = upstream_pwdata
+  mut downstream_prdata_int__w2 = downstream_prdata_int__w1
+  downstream_prdata_int__w2#[32..=63] = downstream_prdata#[32..=63]
+  mut downstream_pready_int__w2 = downstream_pready_int__w1
+  downstream_pready_int__w2#[1] = downstream_pready.e1 & 1
+  mut downstream_pslverr_int__w2 = downstream_pslverr_int__w1
+  downstream_pslverr_int__w2#[1] = downstream_pslverr.e1 & 1
+  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  mut downstream_paddr__w3 = downstream_paddr__w2
+  downstream_paddr__w3#[24..=35] = upstream_paddr
+  mut `downstream_psel__bpo.e2` = (downstream_req_valid_int__w1 >> 2) & 1
+  mut `downstream_penable__bpo.e2` = unsigned((((downstream_req_valid_int__w1 >> 2) & 1) != 0) and (upstream_penable != 0))
+  mut downstream_pprot__w3 = downstream_pprot__w2
+  downstream_pprot__w3#[6..=8] = upstream_pprot
+  mut downstream_pstrb__w3 = downstream_pstrb__w2
+  downstream_pstrb__w3#[8..=11] = upstream_pstrb
+  mut `downstream_pwrite__bpo.e2` = upstream_pwrite
+  mut downstream_pwdata__w3 = downstream_pwdata__w2
+  downstream_pwdata__w3#[64..=95] = upstream_pwdata
+  mut downstream_prdata_int__w3 = downstream_prdata_int__w2
+  downstream_prdata_int__w3#[64..=95] = downstream_prdata#[64..=95]
+  mut downstream_pready_int__w3 = downstream_pready_int__w2
+  downstream_pready_int__w3#[2] = downstream_pready.e2 & 1
+  mut downstream_pslverr_int__w3 = downstream_pslverr_int__w2
+  downstream_pslverr_int__w3#[2] = downstream_pslverr.e2 & 1
+  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  mut downstream_paddr__w4 = downstream_paddr__w3
+  downstream_paddr__w4#[36..=47] = upstream_paddr
+  mut `downstream_psel__bpo.e3` = (downstream_req_valid_int__w1 >> 3) & 1
+  mut `downstream_penable__bpo.e3` = unsigned((((downstream_req_valid_int__w1 >> 3) & 1) != 0) and (upstream_penable != 0))
+  mut downstream_pprot__w4 = downstream_pprot__w3
+  downstream_pprot__w4#[9..=11] = upstream_pprot
+  mut downstream_pstrb__w4 = downstream_pstrb__w3
+  downstream_pstrb__w4#[12..=15] = upstream_pstrb
+  mut `downstream_pwrite__bpo.e3` = upstream_pwrite
+  mut downstream_pwdata__w4 = downstream_pwdata__w3
+  downstream_pwdata__w4#[96..=127] = upstream_pwdata
+  mut downstream_prdata_int__w4 = downstream_prdata_int__w3
+  downstream_prdata_int__w4#[96..=127] = downstream_prdata#[96..=127]
+  mut downstream_pready_int__w4 = downstream_pready_int__w3
+  downstream_pready_int__w4#[3] = downstream_pready.e3 & 1
+  mut downstream_pslverr_int__w4 = downstream_pslverr_int__w3
+  downstream_pslverr_int__w4#[3] = downstream_pslverr.e3 & 1
   mut downstream_resp__w1 = downstream_resp
-  downstream_resp__w1#[0..=33] = (downstream_pslverr_int__w1 & 1) | ((downstream_pready_int__w1 & 1) << 1) | (downstream_prdata_int__w1#[0..=31] << 2)
-  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((unsigned((upstream_psel != 0) and (not (select_onehot != 0))) & 1) << 1) | (downstream_req_valid_int__w1 & 1), `in` = (3 << 34) | downstream_resp__w1#[0..=33])
+  downstream_resp__w1#[102..=135] = ((downstream_pslverr_int__w4 >> 3) & 1) | (((downstream_pready_int__w4 >> 3) & 1) << 1) | (downstream_prdata_int__w4#[96..=127] << 2)
+  mut downstream_resp__w2 = downstream_resp__w1
+  downstream_resp__w2#[0..=33] = (downstream_pslverr_int__w4 & 1) | ((downstream_pready_int__w4 & 1) << 1) | (downstream_prdata_int__w4#[0..=31] << 2)
+  mut downstream_resp__w3 = downstream_resp__w2
+  downstream_resp__w3#[34..=67] = ((downstream_pslverr_int__w4 >> 1) & 1) | (((downstream_pready_int__w4 >> 1) & 1) << 1) | (downstream_prdata_int__w4#[32..=63] << 2)
+  mut downstream_resp__w4 = downstream_resp__w3
+  downstream_resp__w4#[68..=101] = ((downstream_pslverr_int__w4 >> 2) & 1) | (((downstream_pready_int__w4 >> 2) & 1) << 1) | (downstream_prdata_int__w4#[64..=95] << 2)
+  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((unsigned((upstream_psel != 0) and (not (select_onehot != 0))) & 1) << 4) | downstream_req_valid_int__w1, `in` = (3 << 136) | downstream_resp__w4#[0..=135])
   mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
   mut `upstream_resp.ready` = (br_mux_onehot_resp >> 1) & 1
   mut `upstream_resp.slverr` = br_mux_onehot_resp & 1
   const upstream_pready__w1 = unsigned((upstream_psel != 0) and (upstream_penable != 0) and (`upstream_resp.ready` != 0))
   br_misc_unused::[name=br_misc_unused_upstream_access_waiting](`in` = unsigned((upstream_psel != 0) and (upstream_penable != 0) and (upstream_pready__w1 == 0)))
   br_misc_unused::[name=br_misc_unused_upstream_request_pending](`in` = unsigned((upstream_psel != 0) and ((upstream_penable == 0) or (upstream_pready__w1 == 0))))
+  downstream_psel.e3 = `downstream_psel__bpo.e3`
+  downstream_psel.e2 = `downstream_psel__bpo.e2`
+  downstream_psel.e1 = `downstream_psel__bpo.e1`
+  downstream_psel.e0 = `downstream_psel__bpo.e0`
+  downstream_penable.e3 = `downstream_penable__bpo.e3`
+  downstream_penable.e2 = `downstream_penable__bpo.e2`
+  downstream_penable.e1 = `downstream_penable__bpo.e1`
+  downstream_penable.e0 = `downstream_penable__bpo.e0`
+  downstream_pwrite.e3 = `downstream_pwrite__bpo.e3`
+  downstream_pwrite.e2 = `downstream_pwrite__bpo.e2`
+  downstream_pwrite.e1 = `downstream_pwrite__bpo.e1`
+  downstream_pwrite.e0 = `downstream_pwrite__bpo.e0`
   upstream_prdata = `upstream_resp.rdata`
   upstream_pready = upstream_pready__w1
   upstream_pslverr = unsigned((upstream_psel != 0) and (upstream_penable != 0) and (`upstream_resp.slverr` != 0))
-  downstream_paddr = downstream_paddr__w1
-  downstream_psel = downstream_psel__w1
-  downstream_penable = downstream_penable__w1
-  downstream_pprot = downstream_pprot__w1
-  downstream_pstrb = downstream_pstrb__w1
-  downstream_pwrite = downstream_pwrite__w1
-  downstream_pwdata = downstream_pwdata__w1
+  downstream_paddr = downstream_paddr__w4
+  downstream_pprot = downstream_pprot__w4
+  downstream_pstrb = downstream_pstrb__w4
+  downstream_pwdata = downstream_pwdata__w4
 }

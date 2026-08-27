@@ -28,15 +28,15 @@
 `include "br_unused.svh"
 
 module br_amba_axi_shrinker #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int WideDataWidth = 16,  // Must be at least 16
-    parameter int NarrowDataWidth = 8,  // Must be at least 8
-    parameter int IdWidth = 1,  // Must be at least 1
-    parameter int AWUserWidth = 1,  // Must be at least 1
-    parameter int ARUserWidth = 1,  // Must be at least 1
-    parameter int WUserWidth = 1,  // Must be at least 1
-    parameter int BUserWidth = 1,  // Must be at least 1
-    parameter int RUserWidth = 1,  // Must be at least 1
+    localparam int AddrWidth = 32,  // Must be at least 12
+    localparam int WideDataWidth = 64,  // Must be at least 16
+    localparam int NarrowDataWidth = 32,  // Must be at least 8
+    localparam int IdWidth = 4,  // Must be at least 1
+    localparam int AWUserWidth = 1,  // Must be at least 1
+    localparam int ARUserWidth = 1,  // Must be at least 1
+    localparam int WUserWidth = 1,  // Must be at least 1
+    localparam int BUserWidth = 1,  // Must be at least 1
+    localparam int RUserWidth = 1,  // Must be at least 1
     // Must be at least 1 and <= (2 ** IdWidth).
     // Must be a power of two.
     // This parameter controls how many read requests can be inflight before
@@ -44,18 +44,18 @@ module br_amba_axi_shrinker #(
     // to track each inflight read request. The lower $clog2(MaxOutstandingReqs)
     // bits of the ID is used to determine the table index, so any collision in these
     // bits will result in the second request being blocked from issuing on the narrow interface.
-    parameter int MaxOutstandingReqs = 1,
+    localparam int MaxOutstandingReqs = 4,
     // Depth of the FIFO used to keep information from the AW channel while
     // the write data is being serialized to the narrow interface.
     // This should be sized to be equal to the average lag between the arrival
     // of the write address and first beat of the write data.
-    parameter int WriteFifoDepth = 1,
+    localparam int WriteFifoDepth = 2,
     // If 1, the narrow AW, W, and AR outputs are registered directly, improving
     // timing at the cost of an additional cycle of latency.
-    parameter bit RegisterNarrowOutputs = 1,
+    localparam bit RegisterNarrowOutputs = 1,
     // If 1, the wide B and R outputs are registered directly, improving
     // timing at the cost of an additional cycle of latency.
-    parameter bit RegisterWideOutputs = 1,
+    localparam bit RegisterWideOutputs = 1,
     localparam int WideStrobeWidth = WideDataWidth / 8,
     localparam int NarrowStrobeWidth = NarrowDataWidth / 8
 ) (

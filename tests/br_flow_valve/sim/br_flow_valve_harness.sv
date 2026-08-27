@@ -29,9 +29,7 @@ module br_flow_valve_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid_unstable);
   end
 
-  br_flow_valve #(
-    .NumFlows(16)
-  ) dut (
+  br_flow_valve dut (
     .clk(clk),
     .rst(rst),
     .en(lfsr[15:0]),

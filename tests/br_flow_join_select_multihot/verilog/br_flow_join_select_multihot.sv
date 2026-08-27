@@ -14,23 +14,23 @@
 `include "br_asserts_internal.svh"
 
 module br_flow_join_select_multihot #(
-    parameter int NumFlows = 1,  // Must be at least 1
+    localparam int NumFlows = 16,  // Must be at least 1
     // If 1, select_multihot could be zero, and extra logic will be inserted
     // to ensure there is no pop handshake in that case.
     // If 0, select_multihot must have at least one bit set, and this additional
     // logic will be omitted.
-    parameter bit AllowEmptySelect = 1,
+    localparam bit AllowEmptySelect = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure
 ) (
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
     input logic clk,  // Used only for assertions

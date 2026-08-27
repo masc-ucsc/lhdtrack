@@ -101,20 +101,7 @@ module br_amba_axi_demux_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_rready);
   end
 
-  br_amba_axi_demux #(
-    .AddrWidth(32),
-    .ArAxiIdWidth(1),
-    .ArMaxOutstandingPerId(4),
-    .AwAxiIdWidth(1),
-    .AwMaxOutstandingPerId(4),
-    .DataWidth(32),
-    .MaxAwRunahead(4),
-    .NumSubordinates(2),
-    .RegisterDownstreamAxOutputs(1),
-    .RegisterDownstreamWOutputs(1),
-    .SingleIdOnly(1),
-    .WdataBufferDepth(2)
-  ) dut (
+  br_amba_axi_demux dut (
     .clk(clk),
     .rst(rst),
     .upstream_aw_sub_select(lfsr[0]),

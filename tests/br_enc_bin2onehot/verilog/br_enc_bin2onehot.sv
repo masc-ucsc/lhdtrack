@@ -34,12 +34,12 @@
 `include "br_asserts_internal.svh"
 
 module br_enc_bin2onehot #(
-    parameter int NumValues = 2,  // Must be at least 1
-    parameter int EnableInputRangeCheck = 1,
+    localparam int NumValues = 32,  // Must be at least 1
+    localparam int EnableInputRangeCheck = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // Width of the binary-encoded value. Must be at least $clog2(NumValues).
-    parameter int BinWidth = br_math::clamped_clog2(NumValues)
+    localparam int BinWidth = br_math::clamped_clog2(NumValues)
 ) (
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
     input logic clk,  // Used only for assertions

@@ -24,24 +24,24 @@
 module br_multi_xfer_reg_fwd #(
     // The number of symbols that can be transferred in a single cycle.
     // Must be at least 2.
-    parameter int NumSymbols = 2,
+    localparam int NumSymbols = 2,
     // The width of a single symbol.
     // Must be at least 1.
-    parameter int SymbolWidth = 1,
+    localparam int SymbolWidth = 32,
     // If 1, cover that push_sendable can be greater than push_receivable.
     // If 0, disable push backpressure coverage. By default, this also
     // asserts that push_sendable is no greater than push_receivable.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_data is stable when push_sendable > push_receivable.
     // If 0, cover that push_data is unstable when push_sendable > push_receivable.
-    parameter bit EnableAssertPushDataStability = 1,
+    localparam bit EnableAssertPushDataStability = 1,
     // If 1, assert that the buffer is empty and push_sendable is 0
     // at end of simulation.
-    parameter int EnableAssertFinalNotSendable = 1,
+    localparam int EnableAssertFinalNotSendable = 1,
 
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int CountWidth = $clog2(NumSymbols + 1)
 ) (
     input logic clk,

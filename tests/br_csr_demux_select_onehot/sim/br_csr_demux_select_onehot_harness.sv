@@ -49,11 +49,7 @@ module br_csr_demux_select_onehot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_abort);
   end
 
-  br_csr_demux_select_onehot #(
-    .AddrWidth(16),
-    .DataWidth(32),
-    .NumDownstreams(4)
-  ) dut (
+  br_csr_demux_select_onehot dut (
     .clk(clk),
     .rst(rst),
     .select_onehot(lfsr[3:0]),

@@ -27,10 +27,7 @@ module br_mux_onehot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_mux_onehot #(
-    .NumSymbolsIn(16),
-    .SymbolWidth(32)
-  ) dut (
+  br_mux_onehot dut (
     .select(lfsr[15:0]),
     .in({464'd0, lfsr[63:16]}),
     .out(o_out)

@@ -16,14 +16,14 @@
 
 module br_enc_priority_encoder #(
     // Must be greater than or equal to NumResults.
-    parameter int NumRequesters = 2,
+    localparam int NumRequesters = 16,
     // Number of onehot results to produce. Must be at least 1.
-    parameter int NumResults = 1,
+    localparam int NumResults = 1,
     // If 1, in[NumRequesters-1] is the highest priority bit.
     // If 0, in[0] is the highest priority bit.
-    parameter bit MsbHighestPriority = 0,
+    localparam bit MsbHighestPriority = 0,
     // The maximum number of bits in in that will be set on a given cycle.
-    parameter int MaxInHot = NumRequesters
+    localparam int MaxInHot = NumRequesters
 ) (
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
     input logic clk,  // Used only for assertions

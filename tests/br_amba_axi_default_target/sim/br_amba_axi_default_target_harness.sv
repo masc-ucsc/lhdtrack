@@ -47,11 +47,7 @@ module br_amba_axi_default_target_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_target_rlast);
   end
 
-  br_amba_axi_default_target #(
-    .AxiIdWidth(4),
-    .DataWidth(32),
-    .SingleBeat(1)
-  ) dut (
+  br_amba_axi_default_target dut (
     .clk(clk),
     .rst(rst),
     .target_awvalid(lfsr[0]),

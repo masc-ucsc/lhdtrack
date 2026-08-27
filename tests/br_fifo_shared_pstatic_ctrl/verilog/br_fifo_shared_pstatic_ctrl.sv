@@ -44,47 +44,47 @@
 // ri lint_check_waive MOD_NAME
 module br_fifo_shared_pstatic_ctrl #(
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater or equal to the number of logical FIFOs.
-    parameter int Depth = 3,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // Number of write ports. For now, this must be 1.
-    parameter int NumWritePorts = 1,
+    localparam int NumWritePorts = 1,
     // Number of read ports. For now, this must be 1.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 1,
     // The depth of the pop-side staging buffer.
     // This affects the pop bandwidth of each logical FIFO.
     // The max bandwidth will be `StagingBufferDepth / (RamReadLatency + 1)`.
-    parameter int StagingBufferDepth = 1,
+    localparam int StagingBufferDepth = 2,
     // If 1, make sure pop_valid/pop_data are registered at the output
     // of the staging buffer. This adds a cycle of cut-through latency.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // The number of cycles between ram read address and read data. Must be >=0.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // If 1, allow bypass from the push side to the pop controller.
     // This reduces the cut-through latency to `RegisterPopOutputs` at the
     // expense of potentially worse timing.
-    parameter bit EnableBypass = 0,
+    localparam bit EnableBypass = 0,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int CountWidth = $clog2(Depth + 1),
     localparam int FifoIdWidth = br_math::clamped_clog2(NumFifos),
     localparam int AddrWidth = br_math::clamped_clog2(Depth)

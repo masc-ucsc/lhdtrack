@@ -35,12 +35,7 @@ module br_tracker_reorder_buffer_flops_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_resp_pending);
   end
 
-  br_tracker_reorder_buffer_flops #(
-    .DataWidth(32),
-    .EntryIdWidth(4),
-    .NumEntries(16),
-    .RegisterPopOutputs(0)
-  ) dut (
+  br_tracker_reorder_buffer_flops dut (
     .clk(clk),
     .rst(rst),
     .alloc_ready(lfsr[0]),

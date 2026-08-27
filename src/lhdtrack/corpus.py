@@ -43,7 +43,15 @@ class Config:
 
     Configs live in the manifest rather than as sibling directories: bedrock's
     214 modules times two PPA parameter sets each would be 428 near-identical
-    trees, and the .prp is generic anyway. The benchmark ID is `test#config`.
+    trees. The benchmark ID is `test#config`.
+
+    `params` IS EMPTY FOR EVERY TEST IN THIS CORPUS, and `lhdtrack check` fails
+    a test where it is not. A top module pins its point in the source as
+    `localparam` (tools/monomorphize.py) so that yosys, slang, verilator, the
+    generated harness and the .prp -- which cannot take a parameter at all --
+    all elaborate one circuit with no flags. The field survives because the
+    override plumbing is what makes a second parameter point possible later; the
+    `id` still names the point the source pins.
     """
 
     id: str

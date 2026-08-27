@@ -1,12 +1,778 @@
 const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
 const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
 
-pub mod br_flow_join_select_multihot::[timecheck=false](clk:u1, rst:u1, select_multihot:u1, push_valid:u1, pop_ready:u1) -> (push_ready:u1@[], pop_valid_unstable:u1@[]) {
-  push_ready = 0ub?
+pub mod br_flow_join_select_multihot::[timecheck=false](clk:u1, rst:u1, select_multihot:u16, push_valid:u16, pop_ready:u1) -> (push_ready:u16@[], pop_valid_unstable:u1@[]) {
+  push_ready = 0sb?
+  const push_valid_or_unselected__w1 = push_valid | (~select_multihot)#[0..=15]
   mut push_ready__w1 = push_ready
   push_ready__w1#[0] = unsigned((pop_ready != 0) and ((select_multihot & 1) != 0)) & 1
   push_ready = push_ready__w1
-  const pop_valid_unstable__w1 = unsigned((push_valid != 0) and (((push_valid | ((~select_multihot) & 1)) & 1) == 1))
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[0] = push_ready & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w2 = push_ready
+  push_ready__w2#[1] = unsigned((pop_ready != 0) and (((select_multihot >> 1) & 1) != 0)) & 1
+  push_ready = push_ready__w2
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[1] = (push_ready >> 1) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w3 = push_ready
+  push_ready__w3#[2] = unsigned((pop_ready != 0) and (((select_multihot >> 2) & 1) != 0)) & 1
+  push_ready = push_ready__w3
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[2] = (push_ready >> 2) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w4 = push_ready
+  push_ready__w4#[3] = unsigned((pop_ready != 0) and (((select_multihot >> 3) & 1) != 0)) & 1
+  push_ready = push_ready__w4
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[3] = (push_ready >> 3) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w5 = push_ready
+  push_ready__w5#[4] = unsigned((pop_ready != 0) and (((select_multihot >> 4) & 1) != 0)) & 1
+  push_ready = push_ready__w5
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[4] = (push_ready >> 4) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w6 = push_ready
+  push_ready__w6#[5] = unsigned((pop_ready != 0) and (((select_multihot >> 5) & 1) != 0)) & 1
+  push_ready = push_ready__w6
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[5] = (push_ready >> 5) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w7 = push_ready
+  push_ready__w7#[6] = unsigned((pop_ready != 0) and (((select_multihot >> 6) & 1) != 0)) & 1
+  push_ready = push_ready__w7
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[6] = (push_ready >> 6) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w8 = push_ready
+  push_ready__w8#[7] = unsigned((pop_ready != 0) and (((select_multihot >> 7) & 1) != 0)) & 1
+  push_ready = push_ready__w8
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[7] = (push_ready >> 7) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w9 = push_ready
+  push_ready__w9#[8] = unsigned((pop_ready != 0) and (((select_multihot >> 8) & 1) != 0)) & 1
+  push_ready = push_ready__w9
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[8] = (push_ready >> 8) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w10 = push_ready
+  push_ready__w10#[9] = unsigned((pop_ready != 0) and (((select_multihot >> 9) & 1) != 0)) & 1
+  push_ready = push_ready__w10
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[9] = (push_ready >> 9) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w11 = push_ready
+  push_ready__w11#[10] = unsigned((pop_ready != 0) and (((select_multihot >> 10) & 1) != 0)) & 1
+  push_ready = push_ready__w11
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[10] = (push_ready >> 10) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w12 = push_ready
+  push_ready__w12#[11] = unsigned((pop_ready != 0) and (((select_multihot >> 11) & 1) != 0)) & 1
+  push_ready = push_ready__w12
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[11] = (push_ready >> 11) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w13 = push_ready
+  push_ready__w13#[12] = unsigned((pop_ready != 0) and (((select_multihot >> 12) & 1) != 0)) & 1
+  push_ready = push_ready__w13
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[12] = (push_ready >> 12) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w14 = push_ready
+  push_ready__w14#[13] = unsigned((pop_ready != 0) and (((select_multihot >> 13) & 1) != 0)) & 1
+  push_ready = push_ready__w14
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  {
+    push_ready#[13] = (push_ready >> 13) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w15 = push_ready
+  push_ready__w15#[14] = unsigned((pop_ready != 0) and (((select_multihot >> 14) & 1) != 0)) & 1
+  push_ready = push_ready__w15
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[14] = (push_ready >> 14) & 1 & (push_valid_or_unselected__w1 >> 15) & 1 & 1
+  }
+  mut push_ready__w16 = push_ready
+  push_ready__w16#[15] = unsigned((pop_ready != 0) and (((select_multihot >> 15) & 1) != 0)) & 1
+  push_ready = push_ready__w16
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & push_valid_or_unselected__w1 & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 1) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 2) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 3) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 4) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 5) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 6) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 7) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 8) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 9) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 10) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 11) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 12) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 13) & 1 & 1
+  }
+  {
+    push_ready#[15] = (push_ready >> 15) & 1 & (push_valid_or_unselected__w1 >> 14) & 1 & 1
+  }
+  const pop_valid_unstable__w1 = unsigned((push_valid != 0) and (push_valid_or_unselected__w1 == 0xffff))
   /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
   /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
   pop_valid_unstable = pop_valid_unstable__w1

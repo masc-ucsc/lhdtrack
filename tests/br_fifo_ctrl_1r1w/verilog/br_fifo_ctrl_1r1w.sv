@@ -50,23 +50,23 @@
 `include "br_asserts_internal.svh"
 
 module br_fifo_ctrl_1r1w #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 32,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then bypasses push-to-pop when the FIFO is empty, resulting in
     // a cut-through latency of 0 cycles, but at the cost of worse timing.
     // If 0, then pushes always go through the RAM before they can become
     // visible at the pop interface. This results in a cut-through latency of
     // 1 cycle, but timing is improved.
-    parameter bit EnableBypass = 1,
+    localparam bit EnableBypass = 1,
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional cycle of cut-through latency.
     // If 0, pop_valid/pop_data can come directly from the push interface
     // (if bypass is enabled), the RAM read interface, and/or an internal staging
     // buffer (if RAM read latency is >0).
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // The number of cycles between when ram_rd_addr_valid is asserted and
     // ram_rd_data_valid is asserted.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // The actual depth of the RAM. This may be smaller than the FIFO depth
     // if EnableBypass is 1 and RamReadLatency is >0 or RegisterPopOutputs is 1.
     // The minimum RAM depth would be (Depth - RamReadLatency - 1) or 1
@@ -75,23 +75,23 @@ module br_fifo_ctrl_1r1w #(
     // the minimum RAM depth is Depth.
     // The RAM depth may be made larger than the minimum if convenient (e.g. the
     // backing RAM is an SRAM of slightly larger depth than the FIFO depth).
-    parameter int RamDepth = Depth,
+    localparam int RamDepth = Depth,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int AddrWidth = br_math::clamped_clog2(RamDepth),
     localparam int CountWidth = $clog2(Depth + 1)
 ) (

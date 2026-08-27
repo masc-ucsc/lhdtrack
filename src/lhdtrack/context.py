@@ -60,11 +60,20 @@ class FlowContext:
     def tool(self, name: str) -> Path:
         return self.tc.bin(name)
 
-    def run(self, label: str, argv: list, check: bool = True) -> Measured:
-        """Measure one command, recording its time and peak RSS under `label`."""
+    def run(self, label: str, argv: list, check: bool = True,
+            timeout: float | None = None) -> Measured:
+        """Measure one command, recording its time and peak RSS under `label`.
+
+        `timeout` is a WALL-CLOCK watchdog, and it is not the same thing as a
+        tool's own budget. `lhd lec --set formal.timeout=300` does not bound the
+        lgyosys backend at all -- it shells out to yosys and waits -- so a flow
+        that trusts the tool's flag has no bound, and one hard design stalls the
+        nightly `make run` forever. Pass this wherever the tool's own limit is
+        not evidence that it will return.
+        """
         argv = [str(a) for a in argv]
         self.cmds.append(f"{label}: {' '.join(shlex.quote(a) for a in argv)}")
-        m = self.stage.add(measure(label, argv, self.work, self.logs))
+        m = self.stage.add(measure(label, argv, self.work, self.logs, timeout=timeout))
         if check and not m.ok:
             raise FlowError(f"{label} exited {m.rc}\n{m.tail()}")
         return m

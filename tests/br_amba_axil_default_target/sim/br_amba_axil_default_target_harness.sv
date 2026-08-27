@@ -41,9 +41,7 @@ module br_amba_axil_default_target_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_target_rvalid);
   end
 
-  br_amba_axil_default_target #(
-    .DataWidth(32)
-  ) dut (
+  br_amba_axil_default_target dut (
     .clk(clk),
     .rst(rst),
     .target_awvalid(lfsr[0]),

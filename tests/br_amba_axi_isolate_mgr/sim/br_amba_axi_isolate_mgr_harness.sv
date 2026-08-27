@@ -103,13 +103,7 @@ module br_amba_axi_isolate_mgr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_rready);
   end
 
-  br_amba_axi_isolate_mgr #(
-    .AddrWidth(32),
-    .DataWidth(32),
-    .IdWidth(4),
-    .MaxAxiBurstLen(1),
-    .MaxOutstanding(16)
-  ) dut (
+  br_amba_axi_isolate_mgr dut (
     .clk(clk),
     .rst(rst),
     .isolate_req(lfsr[0]),

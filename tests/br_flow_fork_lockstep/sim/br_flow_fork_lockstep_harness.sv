@@ -14,7 +14,7 @@ module br_flow_fork_lockstep_harness (
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
   logic [0:0] o_push_ready;
-  logic [0:0] o_pop_valid;
+  logic [15:0] o_pop_valid;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
   always_comb begin
@@ -33,7 +33,7 @@ module br_flow_fork_lockstep_harness (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),
-    .pop_ready(lfsr[1]),
+    .pop_ready(lfsr[16:1]),
     .push_ready(o_push_ready),
     .pop_valid(o_pop_valid)
   );

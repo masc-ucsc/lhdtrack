@@ -44,8 +44,8 @@ module br_cdc_bit_pulse #(
     // ensuring a low probability of metastability.
     // The recommended value is 3 for most technology nodes.
     // Do not decrease below that unless you have a good reason.
-    parameter int NumStages = 3,
-    parameter bit RegisterOutput = 0
+    localparam int NumStages = 2,
+    localparam bit RegisterOutput = 0
 ) (
     input logic src_clk,
     input logic src_rst,

@@ -27,22 +27,22 @@
 
 module br_lfsr #(
     // Width of the LFSR state. Must be at least 2.
-    parameter int Width = 2,
+    localparam int Width = 32,
     // Number of LFSR state update steps per advance. If AdvanceSteps is relatively
     // prime to the period of the LFSR, then advancing multiple steps does not change
     // the period of the resulting LFSR. Higher values of AdvanceSteps result in more
     // "state mixing" per advance.
-    parameter int AdvanceSteps = 1,
+    localparam int AdvanceSteps = 1,
     // Enable check that MSB of taps is set. This is necessary, but not sufficient,
     // for a maximal period LFSR. Disabling this checks allows the LFSR to be used
     // more flexibly (e.g. supporting adjustable period LFSRs by changing the taps).
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertTapsMsbIsSet = 1,
+    localparam bit EnableAssertTapsMsbIsSet = 1,
     // Enable check that initial state is non-zero. If the LFSR is initialized to zero,
     // it will never advance and the output will be zero forever. Generally, this is not
     // the behavior intended, but may be useful to support "disabling" the LFSR.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertInitialStateNonZero = 1
+    localparam bit EnableAssertInitialStateNonZero = 1
 ) (
     // Posedge-triggered clock.
     input logic clk,

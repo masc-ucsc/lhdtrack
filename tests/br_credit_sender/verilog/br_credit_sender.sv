@@ -66,43 +66,43 @@
 module br_credit_sender #(
     // Number of data flows sharing this credit sender.
     // Must be at least 1 and at most MaxCredit.
-    parameter int NumFlows = 1,
+    localparam int NumFlows = 4,
     // Width of the datapath in bits. Must be at least 1.
-    parameter int Width = 1,
+    localparam int Width = 64,
     // Maximum number of credits that can be stored (inclusive). Must be at least 1.
-    parameter int MaxCredit = 1,
+    localparam int MaxCredit = 16,
     // Maximum number of credits that can be returned in a single cycle.
     // Must be at least 1 but at most MaxCredit.
-    parameter int PopCreditMaxChange = 1,
+    localparam int PopCreditMaxChange = 4,
     // If 1, add 1 cycle of retiming to pop outputs.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that pop_receiver_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPopReceiverInReset = 1,
+    localparam bit EnableCoverPopReceiverInReset = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, then at the end of simulation, assert that the credit counter value equals
     // the maximum number of credits that it stored at any point during the test.
-    parameter bit EnableAssertFinalMaxValue = 1,
+    localparam bit EnableAssertFinalMaxValue = 1,
     // The maximum credit count value that will be checked by covers.
-    parameter int CoverMaxCredit = MaxCredit,
+    localparam int CoverMaxCredit = MaxCredit,
 
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int CounterWidth = $clog2(MaxCredit + 1),
     localparam int PopCreditWidth = $clog2(PopCreditMaxChange + 1)
 ) (

@@ -11,15 +11,15 @@
 `include "br_unused.svh"
 
 module br_amba_axi2axil #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int DataWidth = 32,  // Must be at least 32
-    parameter int IdWidth = 4,  // Must be at least 1
-    parameter int AWUserWidth = 8,  // Must be at least 1
-    parameter int ARUserWidth = 8,  // Must be at least 1
-    parameter int WUserWidth = 8,  // Must be at least 1
-    parameter int BUserWidth = 8,  // Must be at least 1
-    parameter int RUserWidth = 8,  // Must be at least 1
-    parameter int MaxOutstandingReqs = 16,  // Must be at least 4
+    localparam int AddrWidth = 32,  // Must be at least 12
+    localparam int DataWidth = 32,  // Must be at least 32
+    localparam int IdWidth = 4,  // Must be at least 1
+    localparam int AWUserWidth = 8,  // Must be at least 1
+    localparam int ARUserWidth = 8,  // Must be at least 1
+    localparam int WUserWidth = 8,  // Must be at least 1
+    localparam int BUserWidth = 8,  // Must be at least 1
+    localparam int RUserWidth = 8,  // Must be at least 1
+    localparam int MaxOutstandingReqs = 4,  // Must be at least 4
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input clk,

@@ -29,13 +29,13 @@
 
 module br_tracker_linked_list_ctrl #(
     // Depth of the RAM. Must be at least 2.
-    parameter int Depth = 2,
+    localparam int Depth = 128,
     // Number of write ports. Must be at least 1 and at most Depth.
-    parameter int NumWritePorts = 1,
+    localparam int NumWritePorts = 4,
     // Number of linked lists. Must be at least 1 and less than Depth.
-    parameter int NumLinkedLists = 1,
+    localparam int NumLinkedLists = 4,
     // Number of cycles to read from the pointer RAM. Must be at least 0.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 2,
 
     localparam int AddressWidth = $clog2(Depth),
     localparam int CountWidth   = $clog2(Depth + 1)

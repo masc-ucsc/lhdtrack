@@ -19,32 +19,32 @@
 `include "br_asserts.svh"
 
 module br_flow_mux_weighted_rr #(
-    parameter int NumFlows = 1,  // Must be at least 1
-    parameter int Width = 1,  // Must be at least 1
+    localparam int NumFlows = 1,  // Must be at least 1
+    localparam int Width = 1,  // Must be at least 1
     // Must be at least 1
-    parameter int MaxWeight = 1,
+    localparam int MaxWeight = 1,
     // Maximum accumulated weight per requester. Must be at least MaxWeight.
-    parameter int MaxAccumulatedWeight = MaxWeight,
+    localparam int MaxAccumulatedWeight = MaxWeight,
     // If 1, use pairwise grant selection instead of unrolled grant selection. Pairwise grant
     // selection can provide better PPA for small requester counts, but its O(N^2) priority
     // matrix scales worse than the unrolled implementation as the requester count grows.
     // The two implementations are functionally equivalent.
-    parameter bit UsePairwiseArb = 0,
+    localparam bit UsePairwiseArb = 0,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int WeightWidth = $clog2(MaxWeight + 1)
 ) (
     input  logic                                 clk,

@@ -27,10 +27,7 @@ module br_enc_priority_encoder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_enc_priority_encoder #(
-    .NumRequesters(16),
-    .NumResults(1)
-  ) dut (
+  br_enc_priority_encoder dut (
     .clk(clk),
     .rst(rst),
     .in(lfsr[15:0]),

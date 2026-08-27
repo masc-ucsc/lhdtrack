@@ -10,8 +10,8 @@
 `include "br_asserts_internal.svh"
 
 module br_ram_initializer #(
-    parameter int Depth = 2,  // Number of entries in the RAM. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the RAM. Must be at least 1.
+    localparam int Depth = 16,  // Number of entries in the RAM. Must be at least 2.
+    localparam int Width = 32,  // Width of each entry in the RAM. Must be at least 1.
     localparam int AddressWidth = $clog2(Depth)
 ) (
     // Posedge-triggered clock.

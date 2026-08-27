@@ -27,11 +27,7 @@ module br_arb_weighted_lru_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
-  br_arb_weighted_lru #(
-    .MaxAccumulatedWeight(16),
-    .MaxWeight(4),
-    .NumRequesters(16)
-  ) dut (
+  br_arb_weighted_lru dut (
     .clk(clk),
     .rst(rst),
     .enable_priority_update(lfsr[0]),

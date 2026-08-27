@@ -9,28 +9,28 @@
 `include "br_unused.svh"
 
 module br_csr_cdc #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int DataWidth = 32,  // Must be either 32 or 64
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be either 32 or 64
     // If 1 (the default), register upstream_rst on push_clk and downstream_rst on downstream_clk
     // before sending to the CDC synchronizers. This adds one cycle to the cut-through
     // latency and one cycle to the backpressure latency.
     // Do not set this to 0 unless upstream_rst and downstream_rst are driven directly by
     // registers.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // If 1, register the downstream request outputs on downstream_clk.
     // If 0, downstream request outputs will be an asynchronous path from upstream_clk.
-    parameter bit RegisterDownstreamReqOutputs = 0,
+    localparam bit RegisterDownstreamReqOutputs = 0,
     // If 1, register the upstream response outputs on upstream_clk.
     // If 0, upstream response outputs will be an asynchronous path from downstream_clk.
-    parameter bit RegisterUpstreamRespOutputs = 0,
+    localparam bit RegisterUpstreamRespOutputs = 0,
     // If 1, add an additional register on the downstream abort signal
-    parameter bit RegisterDownstreamAbort = 0,
+    localparam bit RegisterDownstreamAbort = 0,
     // Number of synchronization stages. Must be at least 1.
     // WARNING: Setting this parameter correctly is critical to
     // ensuring a low probability of metastability.
     // The recommended value is 3 for most technology nodes.
     // Do not decrease below that unless you have a good reason.
-    parameter int NumSyncStages = 3,
+    localparam int NumSyncStages = 2,
 
     localparam int StrobeWidth = DataWidth / 8
 ) (

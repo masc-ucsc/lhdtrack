@@ -27,9 +27,7 @@ module br_enc_countones_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_count);
   end
 
-  br_enc_countones #(
-    .Width(32)
-  ) dut (
+  br_enc_countones dut (
     .in(lfsr[31:0]),
     .count(o_count)
   );

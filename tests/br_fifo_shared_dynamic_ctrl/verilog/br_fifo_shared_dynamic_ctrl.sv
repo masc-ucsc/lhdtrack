@@ -58,53 +58,53 @@
 // ri lint_check_waive MOD_NAME
 module br_fifo_shared_dynamic_ctrl #(
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater than two times the number of write ports and at least the number of read ports.
-    parameter int Depth = 3,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // Number of write ports. Must be >=1.
-    parameter int NumWritePorts = 1,
+    localparam int NumWritePorts = 2,
     // Number of read ports. Must be >=1 and a power of 2.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 2,
     // The depth of the pop-side staging buffer.
     // This affects the pop bandwidth of each logical FIFO.
     // The max bandwidth will be `StagingBufferDepth / (DataRamReadLatency + 1)`.
-    parameter int StagingBufferDepth = 1,
+    localparam int StagingBufferDepth = 2,
     // The number of sub-linked lists used by each logical FIFO.
     // This affects the pop bandwidth of each logical FIFO.
     // The max bandwidth will be `NumLinkedListsPerFifo / (PointerRamReadLatency + 1)`.
-    parameter int NumLinkedListsPerFifo = 1,
+    localparam int NumLinkedListsPerFifo = 1,
     // If 1, make sure pop_valid/pop_data are registered at the output
     // of the staging buffer. This adds a cycle of cut-through latency.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1, place a register on the deallocation path from the pop-side
     // staging buffer to the freelist. This improves timing at the cost of
     // adding a cycle of backpressure latency.
-    parameter bit RegisterDeallocation = 0,
+    localparam bit RegisterDeallocation = 1,
     // The number of cycles between data ram read address and read data. Must be >=0.
-    parameter int DataRamReadLatency = 0,
+    localparam int DataRamReadLatency = 1,
     // The number of cycles between pointer ram read address and read data. Must be >=0.
-    parameter int PointerRamReadLatency = 0,
+    localparam int PointerRamReadLatency = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int CountWidth = $clog2(Depth + 1),
     localparam int FifoIdWidth = br_math::clamped_clog2(NumFifos),
     localparam int AddrWidth = br_math::clamped_clog2(Depth)

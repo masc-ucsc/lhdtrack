@@ -14,7 +14,7 @@
 
 module br_arb_lru #(
     // Must be at least 1
-    parameter int NumRequesters = 1
+    localparam int NumRequesters = 16
 ) (
     input logic clk,
     input logic rst,  // Synchronous active-high

@@ -18,36 +18,36 @@
 `include "br_asserts_internal.svh"
 
 module br_cdc_fifo_ctrl_push_1r1w #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the FIFO. Must be at least 1.
     // The number of push cycles after ram_wr_valid is asserted at which
     // it is safe to read the newly written data.
-    parameter int RamWriteLatency = 1,
+    localparam int RamWriteLatency = 2,
     // The number of synchronization stages to use for the gray counts.
-    parameter int NumSyncStages = 3,
+    localparam int NumSyncStages = 3,
     // If 1 (the default), register push_rst on push_clk before sending it out
     // as push_reset_active_push. This adds an extra cycle to the cut-through
     // latency of the FIFO.
     // Do not set this to 0 unless either push_rst is driven directly by a
     // register or if push_reset_active_push is registered externally
     // before synchronization to the pop clock domain.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int AddrWidth = $clog2(Depth),
     localparam int CountWidth = $clog2(Depth + 1)
 ) (

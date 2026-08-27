@@ -40,31 +40,31 @@
 `include "br_asserts_internal.svh"
 
 module br_fifo_ctrl_1r1w_push_credit #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 32,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then bypasses push-to-pop when the FIFO is empty, resulting in
     // a cut-through latency of 0 cycles, but at the cost of worse timing.
     // If 0, then pushes always go through the RAM before they can become
     // visible at the pop interface. This results in a cut-through latency of
     // 1 cycle, but timing is improved.
-    parameter bit EnableBypass = 1,
+    localparam bit EnableBypass = 1,
     // Maximum credit for the internal credit counter. Must be at least Depth.
     // Recommended to not override the default because it is the smallest viable size.
     // Overriding may be convenient if having a consistent credit counter register width
     // (say, 16-bit) throughout a design is deemed useful.
-    parameter int MaxCredit = Depth,
+    localparam int MaxCredit = Depth,
     // If 1, add a retiming stage to the push_credit signal so that it is
     // driven directly from a flop. This comes at the expense of one additional
     // cycle of credit loop latency.
-    parameter bit RegisterPushOutputs = 0,
+    localparam bit RegisterPushOutputs = 1,
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional cycle of cut-through latency.
     // If 0, pop_valid/pop_data comes directly from push_valid (if bypass is enabled)
     // and/or ram_wr_data.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // The number of cycles between when ram_rd_addr_valid is asserted and
     // ram_rd_data_valid is asserted.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // The actual depth of the RAM. This may be smaller than the FIFO depth
     // if EnableBypass is 1 and RamReadLatency is >0 or RegisterPopOutputs is 1.
     // The minimum RAM depth would be (Depth - RamReadLatency - 1) or 1
@@ -73,21 +73,21 @@ module br_fifo_ctrl_1r1w_push_credit #(
     // the minimum RAM depth is Depth.
     // The RAM depth may be made larger than the minimum if convenient (e.g. the
     // backing RAM is an SRAM of slightly larger depth than the FIFO depth).
-    parameter int RamDepth = Depth,
+    localparam int RamDepth = Depth,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that push_sender_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushSenderInReset = 1,
+    localparam bit EnableCoverPushSenderInReset = 1,
     // If 1, cover that push_credit_stall can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushCreditStall = 1,
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableCoverPushCreditStall = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int AddrWidth = br_math::clamped_clog2(RamDepth),
     localparam int CountWidth = $clog2(Depth + 1),
     localparam int CreditWidth = $clog2(MaxCredit + 1)

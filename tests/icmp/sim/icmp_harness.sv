@@ -45,9 +45,7 @@ module icmp_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_uge);
   end
 
-  icmp #(
-    .BW(8)
-  ) dut (
+  icmp dut (
     .a(lfsr[7:0]),
     .b(lfsr[15:8]),
     .eq(o_eq),

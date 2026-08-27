@@ -10,16 +10,16 @@
 `include "br_asserts_internal.svh"
 
 module br_demux_addr_decode #(
-    parameter int AddrWidth = 1,  // Must be at least 1
-    parameter int NumDownstreams = 1,  // Must be at least 1
-    parameter bit HasDefaultDownstream = 0,
+    localparam int AddrWidth = 16,  // Must be at least 1
+    localparam int NumDownstreams = 4,  // Must be at least 1
+    localparam bit HasDefaultDownstream = 0,
     localparam int NumAddressRanges = HasDefaultDownstream ? NumDownstreams - 1 : NumDownstreams,
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
+    localparam bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
-    parameter logic [AddrWidth-1:0] UpstreamAddrMask = '1,
-    parameter logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1
+    localparam bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
+    localparam logic [AddrWidth-1:0] UpstreamAddrMask = '1,
+    localparam logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1
 ) (
     // Used only by integration assertions.
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ

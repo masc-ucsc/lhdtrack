@@ -31,10 +31,7 @@ module br_flow_demux_select_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_flow_demux_select #(
-    .NumFlows(4),
-    .Width(32)
-  ) dut (
+  br_flow_demux_select dut (
     .clk(clk),
     .rst(rst),
     .select(lfsr[1:0]),

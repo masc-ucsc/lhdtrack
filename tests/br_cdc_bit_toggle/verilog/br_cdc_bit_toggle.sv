@@ -12,9 +12,9 @@ module br_cdc_bit_toggle #(
     // ensuring a low probability of metastability.
     // The recommended value is 3 for most technology nodes.
     // Do not decrease below that unless you have a good reason.
-    parameter int NumStages = 3,
+    localparam int NumStages = 2,
     // If 1, add a flop on the source clock before the synchronizer
-    parameter bit AddSourceFlop = 1
+    localparam bit AddSourceFlop = 0
 ) (
     // Used for simulation delay modeling only
     // ri lint_check_waive INPUT_NOT_READ NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ

@@ -14,9 +14,9 @@
 `include "br_asserts_internal.svh"
 
 module br_delay_deskew #(
-    parameter int Width = 1,  // Must be at least 1
+    localparam int Width = 64,  // Must be at least 1
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1
+    localparam bit EnableAssertFinalNotValid = 1
 ) (
     // Positive edge-triggered clock.
     input  logic             clk,

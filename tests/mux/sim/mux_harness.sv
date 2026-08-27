@@ -27,9 +27,7 @@ module mux_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  mux #(
-    .BW(8)
-  ) dut (
+  mux dut (
     .in0(lfsr[7:0]),
     .in1(lfsr[15:8]),
     .in2(lfsr[23:16]),

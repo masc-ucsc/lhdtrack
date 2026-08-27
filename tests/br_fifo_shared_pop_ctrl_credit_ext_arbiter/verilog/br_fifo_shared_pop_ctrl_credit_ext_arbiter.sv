@@ -36,26 +36,26 @@
 // ri lint_check_waive MOD_NAME
 module br_fifo_shared_pop_ctrl_credit_ext_arbiter #(
     // Number of read ports. Must be >=1 and a power of 2.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 2,
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater than two times the number of write ports.
-    parameter int Depth = 2,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // The maximum number of credits that can be available to a single FIFO.
     // This affects the pop bandwidth of each logical FIFO.
     // The bandwidth will be `PopMaxCredits / (RamReadLatency + 1)`.
-    parameter int PopMaxCredits = 1,
+    localparam int PopMaxCredits = 4,
     // If 1, place a register on the deallocation path from the pop-side
     // staging buffer to the freelist. This improves timing at the cost of
     // adding a cycle of backpressure latency.
-    parameter bit RegisterDeallocation = 0,
+    localparam bit RegisterDeallocation = 1,
     // The number of cycles between data ram read address and read data. Must be >=0.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // Set to 1 if the arbiter is guaranteed to grant in a cycle when any request is asserted.
-    parameter bit ArbiterAlwaysGrants = 1,
+    localparam bit ArbiterAlwaysGrants = 1,
 
     localparam int AddrWidth   = $clog2(Depth),
     localparam int CreditWidth = $clog2(PopMaxCredits + 1),

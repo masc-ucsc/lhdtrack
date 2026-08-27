@@ -94,9 +94,29 @@ def cmd_check(args, root: Path, cfg: dict) -> int:
                 )
                 problems += 1
 
+    # THE TOP IS NOT PARAMETERIZED. Every consumer spells an override
+    # differently -- `-chparam` for yosys, `-G` for slang and verilator, `#(...)`
+    # on the harness instance -- and the Pyrope side cannot spell one at all. The
+    # moment any of them drifts, LEC compares two different circuits and reports a
+    # refutation that says nothing about either language. `tools/monomorphize.py`
+    # pins the point into the source as `localparam`; this is the lint that keeps
+    # it pinned. It is a PROBLEM, not a note: a re-import silently reintroduces
+    # the parameter port list.
+    sys.path.insert(0, str(root / "tools"))
+    try:
+        from svparam import TopModule  # noqa: PLC0415
+    except ImportError as e:
+        # NOT a silent skip. `tools/svparam.py` ships with the repo, so failing to
+        # import it means the checkout is broken -- and a lint that quietly stops
+        # linting is worse than one that fails.
+        print(f"{C['bad']}✗{C['0']} cannot import tools/svparam.py ({e}) -- "
+              "the top-parameter lint did not run")
+        return 1
+
     for t in tests:
         issues: list[str] = []
         soft: list[str] = []
+        issues.extend(_top_parameter_issues(t, TopModule))
         if not t.verilog_sources():
             issues.append("no Verilog sources")
         if not t.filelist.exists():
@@ -162,6 +182,34 @@ def cmd_check(args, root: Path, cfg: dict) -> int:
         f"{notes} note(s) — a tool could not elaborate a design, and the run reports it as a skip"
     )
     return 1 if problems else 0
+
+
+def _top_parameter_issues(t, TopModule) -> list[str]:
+    """`<top>.sv` must declare no overridable parameter, and no config may set one."""
+    out = []
+    src = t.verilog_dir / f"{t.top}.sv"
+    if src.exists():
+        try:
+            named = [i.name for i in TopModule(src.read_text(), t.top).items()
+                     if i.kw == "parameter"]
+        except (OSError, ValueError):
+            # A package, or a top declared in a differently-named file. The
+            # "no Verilog sources" / seed checks cover those; this one has
+            # nothing to say about them.
+            named = []
+        if named:
+            out.append(
+                f"{t.top} declares overridable parameter(s) {', '.join(named)} -- a top "
+                "must pin its point as `localparam` so every front end and the .prp "
+                "elaborate the same circuit (see tools/monomorphize.py)"
+            )
+    for c in t.configs:
+        if c.params:
+            out.append(
+                f"config {c.id!r} sets {', '.join(sorted(c.params))}, but the top takes no "
+                "parameters -- the value belongs in the .sv localparam"
+            )
+    return out
 
 
 # -------------------------------------------------------------------- run ---

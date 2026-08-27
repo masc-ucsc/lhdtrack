@@ -20,8 +20,8 @@
 `include "br_unused.svh"
 
 module br_enc_priority_dynamic #(
-    parameter int NumRequesters = 2,
-    parameter int NumResults = 1
+    localparam int NumRequesters = 16,
+    localparam int NumResults = 1
 ) (
     input logic clk,
     input logic rst,

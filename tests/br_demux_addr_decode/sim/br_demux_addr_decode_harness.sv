@@ -13,8 +13,8 @@ module br_demux_addr_decode_harness (
 
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
-  logic [0:0] o_select_onehot;
-  logic [0:0] o_downstream_addr_out;
+  logic [3:0] o_select_onehot;
+  logic [63:0] o_downstream_addr_out;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
   always_comb begin
@@ -33,10 +33,10 @@ module br_demux_addr_decode_harness (
     .clk(clk),
     .rst(rst),
     .addr_valid(lfsr[0]),
-    .upstream_addr(lfsr[1]),
-    .downstream_addr_base(lfsr[2]),
-    .downstream_addr_size(lfsr[3]),
-    .downstream_addr_in(lfsr[4]),
+    .upstream_addr(lfsr[16:1]),
+    .downstream_addr_base({17'd0, lfsr[63:17]}),
+    .downstream_addr_size({17'd0, lfsr[63:17]}),
+    .downstream_addr_in({17'd0, lfsr[63:17]}),
     .select_onehot(o_select_onehot),
     .downstream_addr_out(o_downstream_addr_out)
   );

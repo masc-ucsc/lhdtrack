@@ -1,7 +1,7 @@
 // Simple ALU benchmark with multiple operations
 module alu
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] a,

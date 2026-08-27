@@ -36,42 +36,42 @@
 module br_counter_incr #(
     // Width of the MaxValue parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxValueWidth = 32,
+    localparam int MaxValueWidth = 32,
     // Width of the MaxIncrement parameter.
     // You might need to override this if you need a counter that's larger than 32 bits.
-    parameter int MaxIncrementWidth = 32,
+    localparam int MaxIncrementWidth = 32,
     // Must be at least 1. Inclusive.
-    parameter logic [MaxValueWidth-1:0] MaxValue = 1,
+    localparam logic [MaxValueWidth-1:0] MaxValue = 255,
     // Must be at least 1 and at most MaxValue. Inclusive.
-    parameter logic [MaxIncrementWidth-1:0] MaxIncrement = 1,
+    localparam logic [MaxIncrementWidth-1:0] MaxIncrement = 1,
     // If 1, then when reinit is asserted together with incr_valid,
     // the increment is applied to the initial value rather than the current value, i.e.,
     // value_next == initial_value + applicable incr.
     // If 0, then when reinit is asserted together with incr_valid,
     // the increment values are ignored, i.e., value_next == initial_value.
-    parameter bit EnableReinitAndIncr = 1,
+    localparam bit EnableReinitAndIncr = 1,
     // If 1, the counter value saturates at MaxValue.
     // If 0, the counter value wraps around at MaxValue.
-    parameter bit EnableSaturate = 0,
+    localparam bit EnableSaturate = 0,
     // If 1, the counter wraps around at MaxValue.
     // If 0, the counter is assumed to never overflow and special handling is
     // not needed.
     // Cannot be set if EnableSaturate is 1.
-    parameter bit EnableWrap = !EnableSaturate,
+    localparam bit EnableWrap = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, then cover the cases where incr_valid is 1, but incr is 0.
     // Otherwise, assert that incr is always non-zero when incr_valid is 1.
-    parameter bit EnableCoverZeroIncrement = 1,
+    localparam bit EnableCoverZeroIncrement = 1,
     // If 1, enable reinit-related coverage.
     // If 0, assert that reinit is never asserted.
-    parameter bit EnableCoverReinit = 1,
+    localparam bit EnableCoverReinit = 1,
     // If 1, then cover the cases where reinit is asserted together with incr_valid.
     // Otherwise, assert that reinit is never asserted together with incr_valid.
-    parameter bit EnableCoverReinitAndIncr = EnableCoverReinit,
+    localparam bit EnableCoverReinitAndIncr = EnableCoverReinit,
     // If 1, then cover the cases where reinit is asserted when incr_valid is 0.
     // If 0, assert that reinit always asserts along with incr_valid.
-    parameter bit EnableCoverReinitNoIncr = EnableCoverReinit,
+    localparam bit EnableCoverReinitNoIncr = EnableCoverReinit,
     localparam int MaxValueP1Width = MaxValueWidth + 1,
     localparam int MaxIncrementP1Width = MaxIncrementWidth + 1,
     localparam int ValueWidth = $clog2(MaxValueP1Width'(MaxValue) + 1),

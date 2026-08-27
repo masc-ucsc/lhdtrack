@@ -1188,18 +1188,260 @@ def _poly(pts, color):
     return f'<polyline points="{d}" fill="none" stroke="{color}" stroke-width="2"/>'
 
 
+SORT_CSS = """
+th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none}
+th.sortable::after{content:"↕";margin-left:.35em;font-size:.8em;opacity:.3}
+th.sortable:hover{color:var(--accent)}
+th.sortable:hover::after{opacity:.7}
+th.sortable[aria-sort=ascending]::after{content:"↑";opacity:1;color:var(--accent)}
+th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--accent)}
+th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+"""
+
+
+# CLICK A COLUMN HEADER TO SORT BY IT. Injected into every page by _page(),
+# so it reaches the report, the timeseries page and the index alike.
+SORT_JS = r"""
+(function () {
+  // Click a column header to sort by it. Every table on this page is a GRID
+  // WITH MERGED CELLS, not a rectangle of <td>s: the synthesis tables carry a
+  // two-row header (a `rowspan="2"` name column, then `colspan="5"` flow
+  // groups over five leaf headers each), and a body row whose flow was skipped
+  // collapses those five columns into one `<td colspan="5">skipped</td>`.
+  // Indexing `row.cells[i]` would therefore read the wrong column for exactly
+  // the rows a reader most wants to see -- an ASAP7 table where two of three
+  // flows skipped is the common case, not the corner one. So the grid is
+  // resolved the way the HTML spec defines it, once per table.
+  //
+  // `getAttribute('colspan')` rather than the `.colSpan` property: identical in
+  // a browser, and it keeps this logic runnable in a headless DOM.
+
+  var MISSING = /^(|-|–|—|n\/a)$/i;
+  // A number, once the presentation is stripped: thousands separators, the
+  // leading + of a signed error, and the trailing unit glyph of a ratio (2.00x)
+  // or a percentage. Anything else is text.
+  var NUMBER = /^\+?(-?\d+(?:\.\d+)?)\s*[×%]?$/;
+
+  // `numeric: true` so w8 sorts before w32 and blk_a2 before blk_a10 -- a
+  // report full of width- and depth-suffixed names is unreadable in codepoint
+  // order. No `sensitivity` override: folding case would make distinct names
+  // compare equal and leave their order to the tiebreaker.
+  var collator = typeof Intl !== 'undefined' && Intl.Collator
+    ? new Intl.Collator(undefined, { numeric: true })
+    : { compare: function (a, b) { return a < b ? -1 : a > b ? 1 : 0; } };
+
+  function childRows(table, tag) {
+    var out = [], kids = table.children, i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === tag) return kids[i];
+    }
+    return null;
+  }
+
+  function rowsOf(section) {
+    var out = [], kids = section ? section.children : [], i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === 'tr') out.push(kids[i]);
+    }
+    return out;
+  }
+
+  function span(cell, attr) {
+    var v = parseInt(cell.getAttribute(attr), 10);
+    return v > 0 ? v : 1;
+  }
+
+  // The HTML table model: place each cell at the first free slot of its row and
+  // mark every slot its rowspan/colspan covers. grid[r][c] is {cell, w}, where
+  // w is that cell's colspan -- w > 1 means column c is covered by a merge and
+  // has no value of its own.
+  function gridOf(rows) {
+    var occ = [], r, i, c, cs, rs, dr, dc, cells;
+    for (r = 0; r < rows.length; r++) {
+      if (!occ[r]) occ[r] = [];
+      cells = rows[r].children;
+      c = 0;
+      for (i = 0; i < cells.length; i++) {
+        if (!cells[i].tagName) continue;
+        while (occ[r][c]) c++;
+        cs = span(cells[i], 'colspan');
+        rs = span(cells[i], 'rowspan');
+        for (dr = 0; dr < rs; dr++) {
+          if (!occ[r + dr]) occ[r + dr] = [];
+          for (dc = 0; dc < cs; dc++) occ[r + dr][c + dc] = { cell: cells[i], w: cs };
+        }
+        c += cs;
+      }
+    }
+    return occ;
+  }
+
+  // A BADGE IS NOT DATA. `<td>246.49<span class="tag">norm</span></td>` has a
+  // textContent of "246.49 norm", which parses as no number at all -- so the
+  // area column would be typed as text and 246.49 would sort before 60.06.
+  // That is the very column the report is read for, and the tags appear on
+  // exactly the rows worth comparing. Skip them and read the value.
+  function ownText(node) {
+    if (node.nodeType === 3) return node.nodeValue || '';
+    if (node.nodeType !== 1) return '';
+    if (node.classList && node.classList.contains('tag')) return '';
+    var out = '', kids = node.childNodes, i;
+    for (i = 0; i < kids.length; i++) out += ownText(kids[i]);
+    return out;
+  }
+
+  function textOf(entry) {
+    // A merged cell is not this column's value. `skipped` spanning five columns
+    // says nothing about area, so it sorts with the other blanks rather than
+    // landing under "s" among the numbers.
+    if (!entry || entry.w > 1) return null;
+    var t = ownText(entry.cell).replace(/\s+/g, ' ').trim();
+    return MISSING.test(t) ? null : t;
+  }
+
+  function numberOf(t) {
+    if (t === null) return null;
+    var m = NUMBER.exec(t.replace(/,/g, ''));
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  function enhance(table) {
+    var thead = childRows(table, 'thead');
+    var tbody = childRows(table, 'tbody');
+    if (!thead || !tbody) return;
+    var headRows = rowsOf(thead);
+    var bodyRows = rowsOf(tbody);
+    if (!headRows.length || bodyRows.length < 2) return;
+
+    // A BODY `rowspan` MAKES THE TABLE UNSORTABLE, so leave it alone rather
+    // than corrupt it. A merged cell belongs to the <tr> it is written in and
+    // covers whatever rows follow it; move that row and the merge lands on
+    // different data. No table this page emits has one -- this is the guard
+    // that keeps that true if one ever appears.
+    for (var b = 0; b < bodyRows.length; b++) {
+      var bc = bodyRows[b].children;
+      for (var k = 0; k < bc.length; k++) {
+        if (bc[k].tagName && span(bc[k], 'rowspan') > 1) return;
+      }
+    }
+
+    // The leaf header of a column is whatever occupies the LAST header row
+    // there -- which is the group's own header for a `colspan` group, and the
+    // `rowspan="2"` cell itself for a name column. One rule, both shapes.
+    var hgrid = gridOf(headRows);
+    var last = hgrid[headRows.length - 1] || [];
+    var seen = [], columns = [], c, e, i;
+    for (c = 0; c < last.length; c++) {
+      e = last[c];
+      if (!e || seen.indexOf(e.cell) >= 0) continue;
+      seen.push(e.cell);
+      if (!(e.cell.textContent || '').trim()) continue;   // an unlabelled spacer
+      columns.push({ th: e.cell, col: c });
+    }
+    if (!columns.length) return;
+
+    for (i = 0; i < bodyRows.length; i++) bodyRows[i].setAttribute('data-i', i);
+
+    var state = null;   // {col: n, dir: 1|-1}
+
+    function apply(col, dir) {
+      var rows = rowsOf(tbody);
+      var grid = gridOf(rows);
+      var keyed = [], numeric = true, any = false, j, t, n;
+      for (j = 0; j < rows.length; j++) {
+        t = textOf(grid[j][col]);
+        n = numberOf(t);
+        if (t !== null) { any = true; if (n === null) numeric = false; }
+        keyed.push({ row: rows[j], t: t, n: n, i: j });
+      }
+      if (!any) numeric = false;
+      keyed.sort(function (a, b) {
+        // MISSING ALWAYS LAST, in both directions: a blank is the absence of a
+        // value, not a very small one, and burying the rows you can read under
+        // the rows you cannot is the opposite of what a sort is for.
+        if (a.t === null || b.t === null) {
+          if (a.t === null && b.t === null) return a.i - b.i;
+          return a.t === null ? 1 : -1;
+        }
+        var d = numeric ? a.n - b.n : collator.compare(a.t, b.t);
+        return d ? dir * d : a.i - b.i;   // ties keep their previous order
+      });
+      var frag = table.ownerDocument.createDocumentFragment();
+      for (j = 0; j < keyed.length; j++) frag.appendChild(keyed[j].row);
+      tbody.appendChild(frag);
+    }
+
+    function restore() {
+      var rows = rowsOf(tbody).slice();
+      rows.sort(function (a, b) {
+        return (+a.getAttribute('data-i')) - (+b.getAttribute('data-i'));
+      });
+      var frag = table.ownerDocument.createDocumentFragment(), j;
+      for (j = 0; j < rows.length; j++) frag.appendChild(rows[j]);
+      tbody.appendChild(frag);
+    }
+
+    function paint() {
+      for (var k = 0; k < columns.length; k++) {
+        var th = columns[k].th;
+        if (state && state.col === columns[k].col) {
+          th.setAttribute('aria-sort', state.dir > 0 ? 'ascending' : 'descending');
+        } else {
+          th.removeAttribute('aria-sort');
+        }
+      }
+    }
+
+    columns.forEach(function (entry) {
+      entry.th.classList.add('sortable');
+      entry.th.setAttribute('tabindex', '0');
+      entry.th.setAttribute('title', 'Sort by ' + entry.th.textContent.trim());
+      function click() {
+        // Three states, so a reader can always get back to the order the page
+        // was written in -- which is the one grouped by test name.
+        if (!state || state.col !== entry.col) state = { col: entry.col, dir: 1 };
+        else if (state.dir > 0) state = { col: entry.col, dir: -1 };
+        else state = null;
+        if (state) apply(state.col, state.dir); else restore();
+        paint();
+      }
+      entry.th.addEventListener('click', click);
+      entry.th.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+          ev.preventDefault();
+          click();
+        }
+      });
+    });
+  }
+
+  function init() {
+    var tables = document.querySelectorAll('table'), i;
+    for (i = 0; i < tables.length; i++) enhance(tables[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+"""
+
+
 def _page(title: str, body: str) -> str:
     stamp = _dt.datetime.now().strftime("%Y-%m-%d %H:%M")
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{_e(title)}</title><style>{CSS}{CHART_CSS}</style></head>
+<title>{_e(title)}</title><style>{CSS}{CHART_CSS}{SORT_CSS}</style></head>
 <body><div class="wrap">{body}
 <p class="sub muted" style="margin-top:3rem">Generated {stamp} from <code>data/</code>.
 This page is a pure rendering of the ledger — nothing is recorded only in
 <code>target/</code>, which is regenerated on every run.</p>
 </div>
 <script>{CHART_JS}</script>
+<script>{SORT_JS}</script>
 </body></html>
 """
 

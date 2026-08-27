@@ -14,7 +14,7 @@ license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
 [status]
 # none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
 # measures FRONT ENDS, not languages, so it never enters a headline geomean.
-pyrope = "none"
+pyrope = "auto"
 # none | proven | failed | unsupported -- until `proven`, a QoR win might just
 # be a different circuit.
 lec    = "proven"
@@ -22,6 +22,22 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_mux_weighted_rr#<id>`.
 [[config]]
 id     = "default"
+# NO PARAMETERS. verilog/br_flow_mux_weighted_rr.sv declares its parameter
+# port list `localparam`, so the top elaborates to ONE circuit with no flags
+# anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
+# on the harness instance -- and the .prp, which cannot take a parameter at
+# all, matches it by construction. Intermediate modules stay parameterized;
+# the top overrides them.
+#
+# THE CHOSEN POINT IS the module's own defaults -- NumFlows = 1, which is
+# degenerate. Its sibling br_flow_mux_weighted_lru is pinned at NumFlows = 4,
+# and this one cannot follow: at NumFlows > 1 the design instantiates
+# br_arb_pri_rr, whose `BR_UNUSED(request_unrolled_flat[...])` expands to an
+# instance NAME carrying a bit select, which lhd's slang reader classifies as an
+# InstanceArray and refuses ("kind InstanceArray is not supported"). The Pyrope
+# side could then not be emitted at all, so a wider point would trade a proven
+# LEC row for a skipped one. Raise it -- in the .sv localparam, then re-seed --
+# once lhd reads that construct.
 params = {}
 
 [synth]

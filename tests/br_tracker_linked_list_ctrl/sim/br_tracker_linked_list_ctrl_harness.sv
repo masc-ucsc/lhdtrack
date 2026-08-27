@@ -43,12 +43,7 @@ module br_tracker_linked_list_ctrl_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ptr_ram_rd_addr);
   end
 
-  br_tracker_linked_list_ctrl #(
-    .Depth(128),
-    .NumLinkedLists(4),
-    .NumWritePorts(4),
-    .RamReadLatency(2)
-  ) dut (
+  br_tracker_linked_list_ctrl dut (
     .clk(clk),
     .rst(rst),
     .next_tail_valid(lfsr[3:0]),

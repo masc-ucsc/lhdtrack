@@ -31,12 +31,7 @@ module br_flow_buffer_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_flow_buffer #(
-    .Depth(1),
-    .RegisterPopOutputs(1),
-    .RegisterPushOutputs(0),
-    .Width(32)
-  ) dut (
+  br_flow_buffer dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

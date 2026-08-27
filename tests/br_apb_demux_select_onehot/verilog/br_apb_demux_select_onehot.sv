@@ -13,11 +13,11 @@
 `include "br_unused.svh"
 
 module br_apb_demux_select_onehot #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int NumDownstreams = 1,  // Must be at least 1
-    parameter bit EnableDecodeError = 1,
+    localparam int AddrWidth = 12,  // Must be at least 12
+    localparam int NumDownstreams = 4,  // Must be at least 1
+    localparam bit EnableDecodeError = 1,
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter int NumRetimeStages[NumDownstreams] = '{default: 0}
+    localparam int NumRetimeStages[NumDownstreams] = '{default: 0}
 ) (
     input logic clk,
     input logic rst,

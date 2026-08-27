@@ -1,8 +1,8 @@
 const br_arb_weighted_lru = import("br_arb_weighted_lru.br_arb_weighted_lru")
 const br_flow_mux_core_t = import("br_flow_mux_core.br_flow_mux_core")
 
-pub mod br_flow_mux_weighted_lru::[timecheck=false](clk:u1, rst:u1, cfg_weight:u1, push_valid:u1, push_data:u1, pop_ready:u1) -> (push_ready:u1@[], pop_valid_unstable:u1@[], pop_data_unstable:u1@[]) {
-  wire request:u1
+pub mod br_flow_mux_weighted_lru::[timecheck=false](clk:u1, rst:u1, cfg_weight:u12, push_valid:u4, push_data:u128, pop_ready:u1) -> (push_ready:u4@[], pop_valid_unstable:u1@[], pop_data_unstable:u32@[]) {
+  wire request:u4
   wire enable_priority_update:u1
   mut br_arb_weighted_lru_inst = br_arb_weighted_lru::[name=br_arb_weighted_lru_inst](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request, request_weight = cfg_weight)
   const grant__w1 = br_arb_weighted_lru_inst

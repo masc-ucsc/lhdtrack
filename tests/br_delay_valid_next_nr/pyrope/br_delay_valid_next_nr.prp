@@ -1,14 +1,14 @@
 pub mod br_delay_valid_next_nr::[timecheck=false](clk:u1, in_valid_next:u1, `in`:u64) -> (out_valid_next:u1@[], out:u64@[], out_valid_next_stages:u2@[], out_stages:u128@[]) {
   reg stage_valid_next:u2
-  reg stage:[2]u64:[ordering="old"]
+  reg `stage`:[2]u64:[ordering="old"]
   stage_valid_next#[0] = in_valid_next & 1
-  stage[0] = `in`
+  `stage`[0] = `in`
   stage_valid_next#[1] = stage_valid_next & 1
   if ((stage_valid_next >> 1) & 1) != 0 {
-    stage[1] = stage[0]
+    `stage`[1] = `stage`[0]
   }
   out_valid_next = (stage_valid_next >> 1) & 1
-  out = stage[1]
+  out = `stage`[1]
   out_valid_next_stages = stage_valid_next
-  out_stages = stage
+  out_stages = `stage`
 }

@@ -41,9 +41,9 @@
 `include "br_asserts_internal.svh"
 
 module br_enc_onehot2bin #(
-    parameter int NumValues = 2,  // Must be at least 1
+    localparam int NumValues = 32,  // Must be at least 1
     // Width of the binary-encoded value. Must be at least $clog2(NumValues).
-    parameter int BinWidth = br_math::clamped_clog2(NumValues)
+    localparam int BinWidth = br_math::clamped_clog2(NumValues)
 ) (
     // ri lint_check_waive INPUT_NOT_READ HIER_NET_NOT_READ HIER_BRANCH_NOT_READ
     input  logic                 clk,        // Used only for assertions

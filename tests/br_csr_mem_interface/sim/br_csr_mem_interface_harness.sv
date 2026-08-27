@@ -43,15 +43,7 @@ module br_csr_mem_interface_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_mem_access_wr_strb);
   end
 
-  br_csr_mem_interface #(
-    .CsrAddrWidth(16),
-    .CsrDataWidth(32),
-    .EnablePartialWrites(0),
-    .MemDepth(16),
-    .MemWidth(32),
-    .RegisterMemOutputs(0),
-    .RegisterResponseOutputs(0)
-  ) dut (
+  br_csr_mem_interface dut (
     .clk(clk),
     .rst(rst),
     .req_valid(lfsr[0]),

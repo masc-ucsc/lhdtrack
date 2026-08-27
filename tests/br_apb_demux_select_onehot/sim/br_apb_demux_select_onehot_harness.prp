@@ -22,7 +22,7 @@ pub mod br_apb_demux_select_onehot_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, select_onehot=lfsr#[0], upstream_paddr=lfsr#[1..=12], upstream_psel=lfsr#[13], upstream_penable=lfsr#[14], upstream_pprot=lfsr#[15..=17], upstream_pstrb=lfsr#[18..=21], upstream_pwrite=lfsr#[22], upstream_pwdata=lfsr#[23..=54], downstream_prdata=lfsr#[55..=63], downstream_pready=lfsr#[23], downstream_pslverr=lfsr#[24])
+  const r = dut(clk=0, rst=rst, select_onehot=lfsr#[0..=3], upstream_paddr=lfsr#[4..=15], upstream_psel=lfsr#[16], upstream_penable=lfsr#[17], upstream_pprot=lfsr#[18..=20], upstream_pstrb=lfsr#[21..=24], upstream_pwrite=lfsr#[25], upstream_pwdata=lfsr#[26..=57], downstream_prdata=lfsr#[58..=63], downstream_pready=lfsr#[58..=61], downstream_pslverr=lfsr#[62..=63])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_prdata

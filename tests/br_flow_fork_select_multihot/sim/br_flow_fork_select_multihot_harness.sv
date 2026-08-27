@@ -29,9 +29,7 @@ module br_flow_fork_select_multihot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid_unstable);
   end
 
-  br_flow_fork_select_multihot #(
-    .NumFlows(16)
-  ) dut (
+  br_flow_fork_select_multihot dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

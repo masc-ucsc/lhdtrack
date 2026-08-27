@@ -33,11 +33,7 @@ module br_delay_valid_nr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages);
   end
 
-  br_delay_valid_nr #(
-    .FirstStageUngated(0),
-    .NumStages(1),
-    .Width(8)
-  ) dut (
+  br_delay_valid_nr dut (
     .clk(clk),
     .in_valid(lfsr[0]),
     .in(lfsr[8:1]),

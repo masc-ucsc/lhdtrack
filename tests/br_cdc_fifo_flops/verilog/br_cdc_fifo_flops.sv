@@ -33,54 +33,54 @@
 // (CutThroughLatency + BackpressureLatency) / max(PushT, PopT).
 
 module br_cdc_fifo_flops #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional pop cycle of cut-through latency.
     // If 0, pop_valid/pop_data comes directly from push_valid (if bypass is enabled)
     // and/or ram_wr_data.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1 (the default), register push_rst on push_clk and pop_rst on pop_clk
     // before sending to the CDC synchronizers. This adds one cycle to the cut-through
     // latency and one cycle to the backpressure latency.
     // Do not set this to 0 unless push_rst and pop_rst are driven directly by
     // registers.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // Number of synchronization stages to use for the gray counts. Must be >=2.
-    parameter int NumSyncStages = 3,
+    localparam int NumSyncStages = 3,
     // Number of tiles in the depth (address) dimension. Must be at least 1 and evenly divide Depth.
-    parameter int FlopRamDepthTiles = 1,
+    localparam int FlopRamDepthTiles = 1,
     // Number of tiles along the width (data) dimension. Must be at least 1 and evenly divide Width.
-    parameter int FlopRamWidthTiles = 1,
+    localparam int FlopRamWidthTiles = 1,
     // Number of pipeline register stages inserted along the write address and read address paths
     // in the depth dimension. Must be at least 0.
-    parameter int FlopRamAddressDepthStages = 0,
+    localparam int FlopRamAddressDepthStages = 1,
     // Number of pipeline register stages inserted along the read data path in the depth dimension.
     // Must be at least 0.
-    parameter int FlopRamReadDataDepthStages = 0,
+    localparam int FlopRamReadDataDepthStages = 0,
     // Number of pipeline register stages inserted along the read data path in the width dimension.
     // Must be at least 0.
-    parameter int FlopRamReadDataWidthStages = 0,
+    localparam int FlopRamReadDataWidthStages = 0,
     // If 1 then the read data is qualified with the rd_data_valid signal, 0 when not valid. Should
     // generally always be 1, unless gating logic is managed externally (including netlist-level
     // concerns!).
-    parameter bit EnableStructuredGatesDataQualification = 1,
+    localparam bit EnableStructuredGatesDataQualification = 1,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, assert that push_valid is stable when backpressured.
-    parameter bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
+    localparam bit EnableAssertPushValidStability = EnableCoverPushBackpressure,
     // If 1, assert that push_data is stable when backpressured.
-    parameter bit EnableAssertPushDataStability = EnableAssertPushValidStability,
+    localparam bit EnableAssertPushDataStability = EnableAssertPushValidStability,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
 
     // Internal computed parameters
     localparam int AddrWidth  = $clog2(Depth),

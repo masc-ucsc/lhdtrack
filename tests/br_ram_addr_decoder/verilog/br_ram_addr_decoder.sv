@@ -24,19 +24,19 @@
 
 module br_ram_addr_decoder #(
     // Depth of the RAM. Must be at least 1.
-    parameter int Depth = 1,
+    localparam int Depth = 32,
     // Sideband signals to pipeline in lockstep with the address decoding.
     // Safe to tie-off if not used. Must be at least 1.
-    parameter int DataWidth = 1,
+    localparam int DataWidth = 32,
     // Number of output address tiles. Must be at least 1 and evenly divide Depth.
-    parameter int Tiles = 1,
+    localparam int Tiles = 4,
     // Pipeline depth. Must be at least 0.
     // Values greater than 1 are of dubious utility but don't hurt anything.
-    parameter int Stages = 0,
+    localparam int Stages = 0,
     // If 1, then the datapath is implemented. Otherwise, asserts that in_valid is always 0.
-    parameter bit EnableDatapath = 0,
+    localparam bit EnableDatapath = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int TileDepth = br_math::ceil_div(Depth, Tiles),
     localparam int InputAddressWidth = br_math::clamped_clog2(Depth),
     localparam int OutputAddressWidth = br_math::clamped_clog2(TileDepth)

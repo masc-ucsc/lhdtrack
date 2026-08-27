@@ -15,7 +15,7 @@
 
 // ri lint_check_waive EMPTY_MOD NO_OUTPUT
 module br_misc_unused #(
-    parameter int Width = 1  // Must be at least 1
+    localparam int Width = 1  // Must be at least 1
 ) (
     input logic [Width-1:0] in
 );

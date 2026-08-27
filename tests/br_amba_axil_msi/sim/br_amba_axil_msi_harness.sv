@@ -39,15 +39,7 @@ module br_amba_axil_msi_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_init_bready);
   end
 
-  br_amba_axil_msi #(
-    .AddrWidth(32),
-    .DataWidth(32),
-    .DeviceIdWidth(16),
-    .EventIdWidth(16),
-    .NumInterrupts(4),
-    .NumMsiDestAddr(1),
-    .ThrottleCntrWidth(4)
-  ) dut (
+  br_amba_axil_msi dut (
     .clk(clk),
     .rst(rst),
     .irq(lfsr[3:0]),

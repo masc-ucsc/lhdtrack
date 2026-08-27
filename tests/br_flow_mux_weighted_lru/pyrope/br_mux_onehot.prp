@@ -1,6 +1,7 @@
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
-pub mod br_mux_onehot::[timecheck=false](select:u1, `in`:u1) -> (out:u1@[]) {
-  br_misc_unused::[name=br_misc_unused_select](`in` = select)
-  out = `in`
+pub comb br_mux_onehot::[timecheck=false](select:u4, `in`:u128) -> (out:u32) {
+  mut _rep_1:u32 = if (select & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_2:u32 = if ((select >> 1) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_3:u32 = if ((select >> 2) & 1) != 0 { 0xffffffff } else { 0 }
+  mut _rep_4:u32 = if ((select >> 3) & 1) != 0 { 0xffffffff } else { 0 }
+  out = (((0 | (_rep_1 & `in`#[0..=31])) | (_rep_2 & `in`#[32..=63])) | (_rep_3 & `in`#[64..=95])) | (_rep_4 & `in`#[96..=127])
 }

@@ -14,11 +14,11 @@
 `include "br_asserts_internal.svh"
 
 module br_delay_shift_reg #(
-    parameter int Width = 1,  // Must be at least 1
-    parameter int NumStages = 1,  // Must be at least 1
+    localparam int Width = 64,  // Must be at least 1
+    localparam int NumStages = 1,  // Must be at least 1
     // If 1, cover the cases where reinit is asserted.
     // If 0, assert that reinit is never asserted.
-    parameter bit EnableCoverReinit = 1
+    localparam bit EnableCoverReinit = 1
 ) (
     input  logic                            clk,
     input  logic                            rst,

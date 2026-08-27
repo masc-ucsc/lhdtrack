@@ -19,25 +19,25 @@
 
 module br_csr_mem_interface #(
     // Must be >= 1
-    parameter int CsrAddrWidth = 1,
+    localparam int CsrAddrWidth = 16,
     // Must be either 32 or 64
-    parameter int CsrDataWidth = 32,
+    localparam int CsrDataWidth = 32,
     // Depth of the backing memory. Must be at least 1 and <= (2 ** CsrAddrWidth) / (MemWidth / 8).
-    parameter int MemDepth = 1,
+    localparam int MemDepth = 16,
     // Width of the backing memory. Must be <= CsrDataWidth, >= 8, and a power of 2.
-    parameter int MemWidth = 8,
+    localparam int MemWidth = 32,
     // If 1, register the downstream memory request interfaces
     // at the cost of an extra cycle of latency.
-    parameter bit RegisterMemOutputs = 0,
+    localparam bit RegisterMemOutputs = 0,
     // If 1, register the response outputs at the cost of an extra cycle of latency.
-    parameter bit RegisterResponseOutputs = 0,
+    localparam bit RegisterResponseOutputs = 0,
     // If 1, allow partial writes to the memory.
     // If 0, partial writes will result in slverr responses.
     // TODO(zhemao): Allow the interface to perform RMW if partial write is requested
     // but memory interface doesn't support it.
-    parameter bit EnablePartialWrites = 0,
+    localparam bit EnablePartialWrites = 0,
     // If 1, check that the request address is in the range [0, MemDepth)
-    parameter bit EnableAddressRangeCheck = 1,
+    localparam bit EnableAddressRangeCheck = 1,
 
     localparam int CsrStrobeWidth = CsrDataWidth / 8,
     localparam int MemStrobeWidth = MemWidth / 8,

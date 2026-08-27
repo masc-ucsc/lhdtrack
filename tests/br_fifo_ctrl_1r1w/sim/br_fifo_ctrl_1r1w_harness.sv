@@ -57,13 +57,7 @@ module br_fifo_ctrl_1r1w_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr);
   end
 
-  br_fifo_ctrl_1r1w #(
-    .Depth(32),
-    .EnableBypass(1),
-    .RamReadLatency(1),
-    .RegisterPopOutputs(1),
-    .Width(32)
-  ) dut (
+  br_fifo_ctrl_1r1w dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),

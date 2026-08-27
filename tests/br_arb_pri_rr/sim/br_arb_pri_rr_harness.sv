@@ -27,10 +27,7 @@ module br_arb_pri_rr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
-  br_arb_pri_rr #(
-    .NumPriorities(2),
-    .NumRequesters(16)
-  ) dut (
+  br_arb_pri_rr dut (
     .clk(clk),
     .rst(rst),
     .enable_priority_update(lfsr[0]),

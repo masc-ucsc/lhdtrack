@@ -27,9 +27,7 @@ module add_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_result);
   end
 
-  add #(
-    .BW(8)
-  ) dut (
+  add dut (
     .a(lfsr[7:0]),
     .b(lfsr[15:8]),
     .result(o_result)

@@ -49,15 +49,7 @@ module br_fifo_shared_pop_ctrl_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_data_ram_rd_addr);
   end
 
-  br_fifo_shared_pop_ctrl_credit #(
-    .Depth(32),
-    .NumFifos(2),
-    .NumReadPorts(2),
-    .PopMaxCredits(4),
-    .RamReadLatency(1),
-    .RegisterDeallocation(1),
-    .Width(32)
-  ) dut (
+  br_fifo_shared_pop_ctrl_credit dut (
     .clk(clk),
     .rst(rst),
     .pop_sender_in_reset(rst),

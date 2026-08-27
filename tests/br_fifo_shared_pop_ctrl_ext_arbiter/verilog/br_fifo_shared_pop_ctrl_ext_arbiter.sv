@@ -27,37 +27,37 @@
 
 module br_fifo_shared_pop_ctrl_ext_arbiter #(
     // Number of read ports. Must be >=1 and a power of 2.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 2,
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater than two times the number of write ports.
-    parameter int Depth = 2,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // The depth of the pop-side staging buffer.
     // This affects the pop bandwidth of each logical FIFO.
     // The bandwidth will be `StagingBufferDepth / (RamReadLatency + 1)`.
-    parameter int StagingBufferDepth = 1,
+    localparam int StagingBufferDepth = 2,
     // If 1, make sure pop_valid/pop_data are registered at the output
     // of the staging buffer. This adds a cycle of cut-through latency.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // If 1, place a register on the deallocation path from the pop-side
     // staging buffer to the freelist. This improves timing at the cost of
     // adding a cycle of backpressure latency.
-    parameter bit RegisterDeallocation = 0,
+    localparam bit RegisterDeallocation = 1,
     // If 1, allow bypass from the push side to the pop controller.
-    parameter bit EnableBypass = 0,
+    localparam bit EnableBypass = 0,
     // If 1, cover issuing a RAM read when an earlier read returns.
-    parameter bit EnableCoverSameCycleReadIssueAndReturn = 1,
+    localparam bit EnableCoverSameCycleReadIssueAndReturn = 1,
     // If 1, cover accepting bypass data when RAM read data returns.
-    parameter bit EnableCoverBypassAndReadDataSameCycle = 1,
+    localparam bit EnableCoverBypassAndReadDataSameCycle = 1,
     // The number of cycles between data ram read address and read data. Must be >=0.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // Set to 1 if the arbiter is guaranteed to grant in a cycle when any request is asserted.
-    parameter bit ArbiterAlwaysGrants = 1,
+    localparam bit ArbiterAlwaysGrants = 1,
     // If 1, assert that valid push data is always known (not X).
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
 
     localparam int AddrWidth  = $clog2(Depth),
     localparam int CountWidth = $clog2(Depth + 1)

@@ -1,7 +1,7 @@
 // 4-to-1 multiplexer benchmark
 module mux
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] in0,

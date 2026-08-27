@@ -10,7 +10,7 @@
 
 module br_arb_fixed #(
     // Must be at least 1
-    parameter int NumRequesters = 1
+    localparam int NumRequesters = 16
 ) (
     // ri lint_check_waive HIER_NET_NOT_READ HIER_BRANCH_NOT_READ INPUT_NOT_READ
     input logic clk,  // Only used for assertions

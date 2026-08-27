@@ -37,10 +37,7 @@ module br_tracker_reorder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_allocated_entry_count);
   end
 
-  br_tracker_reorder #(
-    .EntryIdWidth(4),
-    .NumEntries(16)
-  ) dut (
+  br_tracker_reorder dut (
     .clk(clk),
     .rst(rst),
     .alloc_ready(lfsr[0]),

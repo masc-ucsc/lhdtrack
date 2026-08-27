@@ -97,16 +97,7 @@ module br_amba_axi_timing_slice_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_init_rready);
   end
 
-  br_amba_axi_timing_slice #(
-    .ARSliceType(0),
-    .AWSliceType(0),
-    .AddrWidth(32),
-    .BSliceType(0),
-    .DataWidth(32),
-    .IdWidth(4),
-    .RSliceType(0),
-    .WSliceType(0)
-  ) dut (
+  br_amba_axi_timing_slice dut (
     .clk(clk),
     .rst(rst),
     .target_awaddr(lfsr[31:0]),

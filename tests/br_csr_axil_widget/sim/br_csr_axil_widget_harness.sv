@@ -59,13 +59,7 @@ module br_csr_axil_widget_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_request_aborted);
   end
 
-  br_csr_axil_widget #(
-    .AddrWidth(16),
-    .DataWidth(32),
-    .MaxTimeoutCycles(100),
-    .RegisterCsrRequestOutputs(0),
-    .RegisterResponseOutputs(0)
-  ) dut (
+  br_csr_axil_widget dut (
     .clk(clk),
     .rst(rst),
     .axil_awvalid(lfsr[0]),

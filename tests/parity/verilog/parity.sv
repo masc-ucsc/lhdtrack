@@ -1,7 +1,7 @@
 // Parity generator benchmark
 module parity
 #(
-    parameter BW = 8
+    localparam BW = 8
 )
 (
     input logic [BW-1:0] data,

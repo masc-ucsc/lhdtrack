@@ -29,10 +29,7 @@ module br_delay_shift_reg_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_shift_out);
   end
 
-  br_delay_shift_reg #(
-    .NumStages(1),
-    .Width(64)
-  ) dut (
+  br_delay_shift_reg dut (
     .clk(clk),
     .rst(rst),
     .reinit(lfsr[0]),

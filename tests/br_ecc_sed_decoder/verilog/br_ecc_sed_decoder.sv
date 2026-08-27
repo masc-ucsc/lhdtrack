@@ -26,13 +26,13 @@
 `include "br_asserts_internal.svh"
 
 module br_ecc_sed_decoder #(
-    parameter int DataWidth = 1,  // Must be at least 1
+    localparam int DataWidth = 32,  // Must be at least 1
     // If 1, then insert a pipeline register at the input.
-    parameter bit RegisterInputs = 0,
+    localparam bit RegisterInputs = 0,
     // If 1, then insert a pipeline register at the output.
-    parameter bit RegisterOutputs = 0,
+    localparam bit RegisterOutputs = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // Message width is the same as the data width (no internal padding)
     localparam int ParityWidth = 1,
     localparam int CodewordWidth = DataWidth + ParityWidth,

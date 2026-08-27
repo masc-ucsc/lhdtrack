@@ -29,9 +29,7 @@ module br_delay_skew_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_delay_skew #(
-    .Width(64)
-  ) dut (
+  br_delay_skew dut (
     .clk(clk),
     .in_valid(lfsr[0]),
     .in({1'd0, lfsr[63:1]}),

@@ -27,11 +27,7 @@ module br_shift_rotate_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_shift_rotate #(
-    .MaxRotate(15),
-    .NumSymbols(16),
-    .SymbolWidth(1)
-  ) dut (
+  br_shift_rotate dut (
     .in(lfsr[15:0]),
     .right(lfsr[16]),
     .rotate(lfsr[20:17]),

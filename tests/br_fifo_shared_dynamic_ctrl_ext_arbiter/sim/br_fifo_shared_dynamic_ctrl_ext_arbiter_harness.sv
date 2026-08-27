@@ -59,18 +59,7 @@ module br_fifo_shared_dynamic_ctrl_ext_arbiter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ptr_ram_rd_addr);
   end
 
-  br_fifo_shared_dynamic_ctrl_ext_arbiter #(
-    .DataRamReadLatency(1),
-    .Depth(32),
-    .NumFifos(2),
-    .NumReadPorts(2),
-    .NumWritePorts(2),
-    .PointerRamReadLatency(1),
-    .RegisterDeallocation(1),
-    .RegisterPopOutputs(1),
-    .StagingBufferDepth(2),
-    .Width(32)
-  ) dut (
+  br_fifo_shared_dynamic_ctrl_ext_arbiter dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[1:0]),

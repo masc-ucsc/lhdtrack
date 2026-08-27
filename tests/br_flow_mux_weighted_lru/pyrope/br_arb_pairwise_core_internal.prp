@@ -1,0 +1,41 @@
+pub comb br_arb_pairwise_core_internal::[timecheck=false](request:u4, priority_matrix:u16) -> (can_grant:u4, grant:u4) {
+  can_grant = 0sb?
+  can_grant = 15
+  {
+    can_grant#[0] = 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[0..=3] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[0..=3] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[0] = can_grant & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[0..=3] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[4..=7] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[4..=7] >> 2) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[4..=7] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[8..=11] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[8..=11] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[8..=11] >> 3) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[12..=15] & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[12..=15] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[12..=15] >> 2) & 1) != 0)) & 1
+  }
+  grant = request & can_grant
+}

@@ -26,21 +26,21 @@
 
 module br_ram_data_rd_pipe #(
     // Width of each entry in the RAM. Must be at least 1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // Number of tiles along the depth dimension.
     // Must be at least 1 and evenly divide Depth.
-    parameter int DepthTiles = 1,
+    localparam int DepthTiles = 4,
     // Number of tiles along the width dimension.
     // Must be at least 1 and evenly divide Width.
-    parameter int WidthTiles = 1,
+    localparam int WidthTiles = 2,
     // Number of pipeline stages to join data along the depth dimension.
     // Must be at least 0.
-    parameter int DepthStages = 0,
+    localparam int DepthStages = 0,
     // Number of pipeline stages to join data along the width dimension.
     // Must be at least 0.
-    parameter int WidthStages = 0,
+    localparam int WidthStages = 0,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int TileWidth = br_math::ceil_div(Width, WidthTiles),
     localparam int Latency = DepthStages + WidthStages
 ) (

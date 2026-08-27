@@ -19,12 +19,12 @@
 `include "br_unused.svh"
 
 module br_amba_axi_default_target #(
-    parameter int DataWidth = 64,
-    parameter bit DecodeError = 1,
-    parameter bit SlvErr = 0,
-    parameter int AxiIdWidth = 1,
-    parameter bit SingleBeat = 0,
-    parameter logic [DataWidth-1:0] DefaultReadData = '0,
+    localparam int DataWidth = 32,
+    localparam bit DecodeError = 1,
+    localparam bit SlvErr = 0,
+    localparam int AxiIdWidth = 4,
+    localparam bit SingleBeat = 1,
+    localparam logic [DataWidth-1:0] DefaultReadData = '0,
     localparam int AxiLenWidth = SingleBeat ? 1 : br_amba::AxiBurstLenWidth
 ) (
     input clk,

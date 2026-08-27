@@ -13,7 +13,7 @@ module br_flow_join_select_multihot_harness (
 
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
-  logic [0:0] o_push_ready;
+  logic [15:0] o_push_ready;
   logic [0:0] o_pop_valid_unstable;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
@@ -32,9 +32,9 @@ module br_flow_join_select_multihot_harness (
   br_flow_join_select_multihot dut (
     .clk(clk),
     .rst(rst),
-    .select_multihot(lfsr[0]),
-    .push_valid(lfsr[1]),
-    .pop_ready(lfsr[2]),
+    .select_multihot(lfsr[15:0]),
+    .push_valid(lfsr[31:16]),
+    .pop_ready(lfsr[32]),
     .push_ready(o_push_ready),
     .pop_valid_unstable(o_pop_valid_unstable)
   );

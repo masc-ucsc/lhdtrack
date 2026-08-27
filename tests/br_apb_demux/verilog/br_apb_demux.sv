@@ -11,24 +11,24 @@
 `include "br_unused.svh"
 
 module br_apb_demux #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int NumDownstreams = 1,  // Must be at least 1
+    localparam int AddrWidth = 12,  // Must be at least 12
+    localparam int NumDownstreams = 4,  // Must be at least 1
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter int NumRetimeStages[NumDownstreams] = '{default: 0},
+    localparam int NumRetimeStages[NumDownstreams] = '{default: 0},
     // When set, the final downstream receives every address that misses the
     // explicit ranges. Otherwise, misses complete with PSLVERR.
-    parameter bit HasDefaultDownstream = 0,
+    localparam bit HasDefaultDownstream = 0,
     localparam int NumAddressRanges = HasDefaultDownstream ? NumDownstreams - 1 : NumDownstreams,
     // Require enabled ranges to be power-of-two sized and naturally aligned.
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
+    localparam bit RequirePowerOfTwoAlignedRanges[NumAddressRanges] = '{default: 1},
     // Rebase each explicit downstream address before applying its output mask.
     // ri lint_check_waive ARRAY_LENGTH_ONE
-    parameter bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
+    localparam bit NormalizeDownstreamAddress[NumAddressRanges] = '{default: 0},
     // Mask used only for address decode; forwarded addresses remain unmasked.
-    parameter logic [AddrWidth-1:0] UpstreamAddrMask = '1,
+    localparam logic [AddrWidth-1:0] UpstreamAddrMask = '1,
     // Mask applied to each forwarded address after optional normalization.
-    parameter logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1
+    localparam logic [NumDownstreams-1:0][AddrWidth-1:0] DownstreamAddrMask = '1
 ) (
     input logic clk,
     input logic rst,

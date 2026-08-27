@@ -53,15 +53,7 @@ module br_fifo_shared_pop_ctrl_credit_ext_arbiter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_arb_enable_priority_update);
   end
 
-  br_fifo_shared_pop_ctrl_credit_ext_arbiter #(
-    .Depth(32),
-    .NumFifos(2),
-    .NumReadPorts(2),
-    .PopMaxCredits(4),
-    .RamReadLatency(1),
-    .RegisterDeallocation(1),
-    .Width(32)
-  ) dut (
+  br_fifo_shared_pop_ctrl_credit_ext_arbiter dut (
     .clk(clk),
     .rst(rst),
     .pop_sender_in_reset(rst),

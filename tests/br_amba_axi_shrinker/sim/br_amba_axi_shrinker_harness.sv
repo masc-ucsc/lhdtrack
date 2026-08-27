@@ -97,16 +97,7 @@ module br_amba_axi_shrinker_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_narrow_rready);
   end
 
-  br_amba_axi_shrinker #(
-    .AddrWidth(32),
-    .IdWidth(4),
-    .MaxOutstandingReqs(4),
-    .NarrowDataWidth(32),
-    .RegisterNarrowOutputs(1),
-    .RegisterWideOutputs(1),
-    .WideDataWidth(64),
-    .WriteFifoDepth(2)
-  ) dut (
+  br_amba_axi_shrinker dut (
     .clk(clk),
     .rst(rst),
     .wide_awaddr(lfsr[31:0]),

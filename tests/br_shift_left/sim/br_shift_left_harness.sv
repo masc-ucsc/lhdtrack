@@ -29,11 +29,7 @@ module br_shift_left_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_shift_left #(
-    .MaxShift(15),
-    .NumSymbols(16),
-    .SymbolWidth(1)
-  ) dut (
+  br_shift_left dut (
     .in(lfsr[15:0]),
     .shift(lfsr[19:16]),
     .fill(lfsr[20]),

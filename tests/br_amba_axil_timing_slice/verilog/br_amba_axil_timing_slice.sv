@@ -10,13 +10,13 @@
 //       forward, reverse, or full timing slices.
 
 module br_amba_axil_timing_slice #(
-    parameter  int AddrWidth   = 40,
-    parameter  int DataWidth   = 64,
-    parameter  int AWUserWidth = 1,
-    parameter  int WUserWidth  = 1,
-    parameter  int ARUserWidth = 1,
-    parameter  int RUserWidth  = 1,
-    parameter  int BUserWidth  = 1,
+    localparam  int AddrWidth   = 32,
+    localparam  int DataWidth   = 32,
+    localparam  int AWUserWidth = 1,
+    localparam  int WUserWidth  = 1,
+    localparam  int ARUserWidth = 1,
+    localparam  int RUserWidth  = 1,
+    localparam  int BUserWidth  = 1,
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input clk,

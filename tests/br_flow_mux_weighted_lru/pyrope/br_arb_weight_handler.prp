@@ -1,0 +1,29 @@
+const br_counter_t = import("br_counter.br_counter")
+
+pub mod br_arb_weight_handler::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u4, request_weight:u12, grant:u4) -> (request_priority:(e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  mut accumulated_weight__wtmp:u20 = 0sb?
+  wire accumulated_weight:u20
+  mut _mux_1:u4 = if enable_priority_update != 0 { grant } else { 0 }
+  const decr_accumulated_weight__w1 = _mux_1
+  mut `request_priority__bpo.e0` = unsigned(accumulated_weight#[0..=4] != 0)
+  mut `request_priority__bpo.e1` = unsigned(accumulated_weight#[5..=9] != 0)
+  mut `request_priority__bpo.e2` = unsigned(accumulated_weight#[10..=14] != 0)
+  mut `request_priority__bpo.e3` = unsigned(accumulated_weight#[15..=19] != 0)
+  const incr_accumulated_weight__w1 = unsigned((enable_priority_update != 0) and (request != 0) and (unsigned((request & ((`request_priority__bpo.e3` << 3) | (`request_priority__bpo.e2` << 2) | (`request_priority__bpo.e1` << 1) | `request_priority__bpo.e0`)) != 0) == 0))
+  mut br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[0..=2], decr_valid = decr_accumulated_weight__w1 & 1, decr = 1)
+  accumulated_weight__wtmp#[0..=4] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[3..=5], decr_valid = (decr_accumulated_weight__w1 >> 1) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w1 = accumulated_weight__wtmp
+  accumulated_weight__wtmp__w1#[5..=9] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[6..=8], decr_valid = (decr_accumulated_weight__w1 >> 2) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w2 = accumulated_weight__wtmp__w1
+  accumulated_weight__wtmp__w2#[10..=14] = br_counter["value"]#[0..=4]
+  br_counter = br_counter_t::[name=br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[9..=11], decr_valid = (decr_accumulated_weight__w1 >> 3) & 1, decr = 1)
+  mut accumulated_weight__wtmp__w3 = accumulated_weight__wtmp__w2
+  accumulated_weight__wtmp__w3#[15..=19] = br_counter["value"]#[0..=4]
+  accumulated_weight = accumulated_weight__wtmp__w3
+  request_priority.e3 = `request_priority__bpo.e3`
+  request_priority.e2 = `request_priority__bpo.e2`
+  request_priority.e1 = `request_priority__bpo.e1`
+  request_priority.e0 = `request_priority__bpo.e0`
+}

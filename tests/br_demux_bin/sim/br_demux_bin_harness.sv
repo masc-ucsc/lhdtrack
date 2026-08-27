@@ -29,10 +29,7 @@ module br_demux_bin_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_demux_bin #(
-    .NumSymbolsOut(16),
-    .SymbolWidth(32)
-  ) dut (
+  br_demux_bin dut (
     .select(lfsr[3:0]),
     .in_valid(lfsr[4]),
     .in(lfsr[36:5]),

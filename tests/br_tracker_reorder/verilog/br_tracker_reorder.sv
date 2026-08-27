@@ -15,11 +15,11 @@
 
 module br_tracker_reorder #(
     // Number of entries in the reorder buffer. Must be at least 1.
-    parameter int NumEntries = 2,
+    localparam int NumEntries = 16,
     // Width of the entry ID. Must be at least $clog2(NumEntries).
-    parameter int EntryIdWidth = $clog2(NumEntries),
+    localparam int EntryIdWidth = 4,
     // If 1, then assert dealloc_valid is low at the end of the test.
-    parameter bit EnableAssertFinalNotDeallocValid = 1,
+    localparam bit EnableAssertFinalNotDeallocValid = 1,
     localparam int EntryCountWidth = $clog2(NumEntries + 1)
 ) (
     input logic clk,

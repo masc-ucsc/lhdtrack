@@ -121,6 +121,15 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     )
 
     result_json = ctx.work / f"lec_{solver}.json"
+    # TWO BUDGETS, because one of them is not enforced. `formal.timeout` is the
+    # SOLVER's, and the lgyosys backend does not honour it: it emits both sides
+    # as Verilog, shells out to yosys, and waits -- measured still running at
+    # 400s against a 300s setting on the shared-FIFO blocks, where cvc5 proves
+    # in under a second. Without a wall-clock watchdog the nightly has no bound
+    # at all, which is the one thing lhdtrack.toml's `lec_timeout_s` comment
+    # says must not happen. The headroom covers the emission and the process
+    # start; a solver inside its own budget never reaches it.
+    wall = timeout_s * 2 + 60
     m = ctx.run(
         "lec",
         [
@@ -131,6 +140,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
             "--result-json", str(result_json),
         ],
         check=False,
+        timeout=wall,
     )
     result = None
     if result_json.exists():
@@ -138,7 +148,11 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
             result = json.loads(result_json.read_text())
         except (OSError, json.JSONDecodeError):
             result = None
-    verdict = classify(result, m.rc)
+    # A KILLED SOLVER IS A TIMEOUT, NOT AN ERROR. It wrote no result object, and
+    # `classify` reads that -- correctly -- as "no proof"; but "error" says the
+    # run was broken, when what happened is that the backend was still working
+    # when the watchdog fired.
+    verdict = "timeout" if m.timed_out else classify(result, m.rc)
 
     block = {
         "verdict": verdict,
@@ -152,6 +166,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         "declared": ctx.test.lec_status,
         "ms": m.ms,
         "timeout_s": timeout_s,
+        "wall_limit_s": wall,
     }
     if verdict == "refuted":
         # Carry the first divergence: "this is wrong" is not actionable,

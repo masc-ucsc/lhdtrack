@@ -33,10 +33,7 @@ module br_ram_initializer_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_wr_data);
   end
 
-  br_ram_initializer #(
-    .Depth(16),
-    .Width(32)
-  ) dut (
+  br_ram_initializer dut (
     .clk(clk),
     .rst(rst),
     .initial_value(lfsr[31:0]),

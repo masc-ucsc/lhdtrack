@@ -80,28 +80,28 @@
 
 module br_flow_deserializer #(
     // Width of the push side flit. Must be at least 1.
-    parameter int PushWidth = 1,
+    localparam int PushWidth = 8,
     // Width of the pop side packet. Must be greater than PushWidth
     // and evenly divisible by PushWidth.
-    parameter int PopWidth = 2,
+    localparam int PopWidth = 64,
     // Width of the sideband metadata (not serialized). Must be at least 1.
-    parameter int MetadataWidth = 1,
+    localparam int MetadataWidth = 8,
     // If 1, cover that the push side experiences backpressure.
     // If 0, disable backpressure coverage. By default, this also
     // asserts that backpressure is impossible.
-    parameter bit EnableCoverPushBackpressure = 1,
+    localparam bit EnableCoverPushBackpressure = 1,
     // If 1, the most significant bits of the packet are received first (big endian).
     // If 0, the least significant bits are received first (little endian).
     // The order of bits within each flit is always the same that they
     // appear on the push interface.
-    parameter bit DeserializeMostSignificantFirst = 0,
+    localparam bit DeserializeMostSignificantFirst = 0,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     // If 1, assert that push-side backpressure is impossible.
     // Can only be enabled if EnableCoverPushBackpressure is disabled.
-    parameter bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
+    localparam bit EnableAssertNoPushBackpressure = !EnableCoverPushBackpressure,
     localparam int DeserializationRatio = PopWidth / PushWidth,
     // Vector widths cannot be 0, so we need to special-case when DeserializationRatio == 1
     // even though the pop_last_dont_care_count port will be unused downstream in that case.

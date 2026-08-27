@@ -13,9 +13,9 @@ module br_flow_mux_weighted_lru_harness (
 
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
-  logic [0:0] o_push_ready;
+  logic [3:0] o_push_ready;
   logic [0:0] o_pop_valid_unstable;
-  logic [0:0] o_pop_data_unstable;
+  logic [31:0] o_pop_data_unstable;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
   always_comb begin
@@ -34,10 +34,10 @@ module br_flow_mux_weighted_lru_harness (
   br_flow_mux_weighted_lru dut (
     .clk(clk),
     .rst(rst),
-    .cfg_weight(lfsr[0]),
-    .push_valid(lfsr[1]),
-    .push_data(lfsr[2]),
-    .pop_ready(lfsr[3]),
+    .cfg_weight(lfsr[11:0]),
+    .push_valid(lfsr[15:12]),
+    .push_data({80'd0, lfsr[63:16]}),
+    .pop_ready(lfsr[16]),
     .push_ready(o_push_ready),
     .pop_valid_unstable(o_pop_valid_unstable),
     .pop_data_unstable(o_pop_data_unstable)

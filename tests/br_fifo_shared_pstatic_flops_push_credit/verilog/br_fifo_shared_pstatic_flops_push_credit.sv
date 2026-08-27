@@ -49,56 +49,56 @@
 // ri lint_check_waive MOD_NAME
 module br_fifo_shared_pstatic_flops_push_credit #(
     // Number of logical FIFOs. Must be >=2.
-    parameter int NumFifos = 2,
+    localparam int NumFifos = 2,
     // Total depth of the FIFO.
     // Must be greater or equal to the number of logical FIFOs.
-    parameter int Depth = 3,
+    localparam int Depth = 32,
     // Width of the data. Must be >=1.
-    parameter int Width = 1,
+    localparam int Width = 32,
     // Number of write ports. For now, this must be 1.
-    parameter int NumWritePorts = 1,
+    localparam int NumWritePorts = 1,
     // Number of read ports. For now, this must be 1.
-    parameter int NumReadPorts = 1,
+    localparam int NumReadPorts = 1,
     // The depth of the pop-side staging buffer.
     // This affects the pop bandwidth of each logical FIFO.
     // The max bandwidth will be `StagingBufferDepth / (RamReadLatency + 1)`.
-    parameter int StagingBufferDepth = 1,
+    localparam int StagingBufferDepth = 2,
     // If 1, make sure pop_valid/pop_data are registered at the output
     // of the staging buffer. This adds a cycle of cut-through latency.
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // Number of tiles in the depth dimension for the data flop RAM.
-    parameter int RamDepthTiles = 1,
+    localparam int RamDepthTiles = 1,
     // Number of tiles in the width dimension for the data flop RAM.
-    parameter int RamWidthTiles = 1,
+    localparam int RamWidthTiles = 1,
     // Number of stages on the address path for the data flop RAM.
-    parameter int RamAddressDepthStages = 0,
+    localparam int RamAddressDepthStages = 1,
     // Number of stages in the depth dimension on the data flop RAM.
-    parameter int RamReadDataDepthStages = 0,
+    localparam int RamReadDataDepthStages = 0,
     // Number of stages in the width dimension on the data flop RAM.
-    parameter int RamReadDataWidthStages = 0,
+    localparam int RamReadDataWidthStages = 0,
     // If 1, allow bypass from the push side to the pop controller.
     // This reduces the cut-through latency to `RegisterPopOutputs` at the
     // expense of potentially worse timing.
-    parameter bit EnableBypass = 0,
+    localparam bit EnableBypass = 0,
     // If 1, add a retiming stage to the push_credit signal so that it is
     // driven directly from a flop. This comes at the expense of one additional
     // cycle of credit loop latency.
-    parameter bit RegisterPushOutputs = 0,
+    localparam bit RegisterPushOutputs = 1,
     // If 1, cover that push_credit_stall can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushCreditStall = 1,
+    localparam bit EnableCoverPushCreditStall = 1,
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that push_sender_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushSenderInReset = 1,
+    localparam bit EnableCoverPushSenderInReset = 1,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
     // ri lint_check_waive PARAM_NOT_USED
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int PushCreditWidth = $clog2(NumWritePorts + 1),
     localparam int CountWidth = $clog2(Depth + 1),
     localparam int FifoIdWidth = br_math::clamped_clog2(NumFifos),

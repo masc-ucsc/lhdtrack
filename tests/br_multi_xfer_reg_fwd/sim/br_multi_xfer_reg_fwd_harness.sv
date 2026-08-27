@@ -31,10 +31,7 @@ module br_multi_xfer_reg_fwd_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
-  br_multi_xfer_reg_fwd #(
-    .NumSymbols(2),
-    .SymbolWidth(32)
-  ) dut (
+  br_multi_xfer_reg_fwd dut (
     .clk(clk),
     .rst(rst),
     .push_sendable(lfsr[1:0]),

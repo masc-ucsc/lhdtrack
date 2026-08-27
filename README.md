@@ -422,6 +422,23 @@ silently retried.
 
 `auto` and `idiomatic` Pyrope are aggregated separately everywhere.
 
+**Every table sorts by column.** Click a header — `area` under `lhd·pyrope`, `error` in the
+STA table, `s` next to a LEC verdict — and the rows reorder by it; click again for
+descending, a third time to get the generated order back. The header carries the state
+(`↕` idle, `↑`/`↓` active) and headers are focusable, so Tab and Enter work too.
+
+Three details are load-bearing, because the tables are not rectangles of cells:
+
+- A **skipped flow collapses five columns into one `<td colspan="5">`**, so the sorter
+  resolves the table's real column grid instead of indexing `row.cells[i]` — which would
+  read the wrong column for exactly the rows a reader is checking.
+- A **badge is not a value.** `246.49` with a `norm` or `cached` chip beside it is still
+  246.49; without skipping the chips the whole area column would be typed as text and
+  `246.49` would sort above `60.06`.
+- **A blank sorts last in both directions**, and the geomean `<tfoot>` never moves. An
+  absent measurement is not a very small one, and parking un-run flows at the top of an
+  ascending "time s" column would read as though they had been the fastest.
+
 ---
 
 ## The corpus
@@ -449,6 +466,30 @@ much stronger, and this corpus is full of designs yosys cannot read
 (`br_math_pkg` defeats its parser outright). 26 tests elaborate under neither;
 those have their synthesis and simulation flows disabled in the manifest with
 the reason recorded, and still contribute an equivalence result.
+
+**No top module takes a parameter.** Upstream tops are parameterized; the
+importer's job is to choose one point and then stop having a choice. Five
+consumers spell an override differently —
+
+| consumer | how it would say `NumRequesters = 16` |
+| --- | --- |
+| yosys | `hierarchy -chparam NumRequesters 16` |
+| slang / `lhd` | `-GNumRequesters=16` |
+| verilator | `-GNumRequesters=16` |
+| generated harness | `br_arb_fixed #(.NumRequesters(16)) dut` |
+| Pyrope `.prp` | *cannot say it at all* |
+
+— so any one of them drifting makes LEC compare two different circuits and
+report a refutation that says nothing about either language. `tools/monomorphize.py`
+rewrites the top's parameter port list to `localparam` at the point `design.toml`
+had chosen, empties `[[config]].params`, and drops the `#(...)` from the harness.
+The result elaborates identically with no flags anywhere, and the `.prp`'s fixed
+widths match by construction rather than by agreement. Intermediate modules keep
+their parameters — the top overrides them, which is what makes them reusable.
+
+`lhdtrack check` fails a top that regains an overridable parameter, because a
+re-import silently reintroduces one. The `[[config]].id` still names the point
+(`br_arb_fixed#nr16`); the `.sv` is where it is now stated.
 
 ## Adding a test
 

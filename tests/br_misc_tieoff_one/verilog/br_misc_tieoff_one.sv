@@ -16,7 +16,7 @@
 `include "br_asserts.svh"
 
 module br_misc_tieoff_one #(
-    parameter int Width = 1  // Must be at least 1
+    localparam int Width = 1  // Must be at least 1
 ) (
     output logic [Width-1:0] out
 );

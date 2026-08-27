@@ -42,51 +42,51 @@
 `include "br_gates.svh"
 
 module br_cdc_fifo_ctrl_1r1w_push_credit #(
-    parameter int Depth = 2,  // Number of entries in the FIFO. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the FIFO. Must be at least 1.
+    localparam int Depth = 32,  // Number of entries in the FIFO. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the FIFO. Must be at least 1.
     // If 1, then ensure pop_valid/pop_data always come directly from a register
     // at the cost of an additional pop cycle of cut-through latency.
     // If 0, pop_valid/pop_data can come directly from the push interface
     // (if bypass is enabled), the RAM read interface, and/or an internal staging
     // buffer (if RAM read latency is >0).
-    parameter bit RegisterPopOutputs = 0,
+    localparam bit RegisterPopOutputs = 1,
     // The number of push cycles after ram_wr_valid is asserted at which
     // it is safe to read the newly written data.
-    parameter int RamWriteLatency = 1,
+    localparam int RamWriteLatency = 2,
     // The number of pop cycles between when ram_rd_addr_valid is asserted and
     // ram_rd_data_valid is asserted.
-    parameter int RamReadLatency = 0,
+    localparam int RamReadLatency = 1,
     // The number of synchronization stages to use for the gray counts.
-    parameter int NumSyncStages = 3,
+    localparam int NumSyncStages = 3,
     // Maximum credit for the internal credit counter. Must be at least Depth.
     // Recommended to not override the default because it is the smallest viable size.
     // Overriding may be convenient if having a consistent credit counter register width
     // (say, 16-bit) throughout a design is deemed useful.
-    parameter int MaxCredit = Depth,
+    localparam int MaxCredit = Depth,
     // If 1, add a retiming stage to the push_credit signal so that it is
     // driven directly from a flop. This comes at the expense of one additional
     // push cycle of credit loop latency.
-    parameter bit RegisterPushOutputs = 0,
+    localparam bit RegisterPushOutputs = 1,
     // If 1 (the default), register push_rst on push_clk and pop_rst on pop_clk
     // before sending to the CDC synchronizers. This adds one cycle to the cut-through
     // latency and one cycle to the backpressure latency.
     // Do not set this to 0 unless push_rst and pop_rst are driven directly by
     // registers. If set to 0, push_sender_in_reset must be tied to 0.
-    parameter bit RegisterResetActive = 1,
+    localparam bit RegisterResetActive = 1,
     // If 1, cover that credit_withhold can be non-zero.
     // Otherwise, assert that it is always zero.
-    parameter bit EnableCoverCreditWithhold = 1,
+    localparam bit EnableCoverCreditWithhold = 1,
     // If 1, cover that push_sender_in_reset can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushSenderInReset = 1,
+    localparam bit EnableCoverPushSenderInReset = 1,
     // If 1, cover that push_credit_stall can be asserted
     // Otherwise, assert that it is never asserted.
-    parameter bit EnableCoverPushCreditStall = 1,
+    localparam bit EnableCoverPushCreditStall = 1,
     // If 1, assert that push_data is always known (not X) when push_valid is asserted.
-    parameter bit EnableAssertPushDataKnown = 1,
+    localparam bit EnableAssertPushDataKnown = 1,
     // If 1, then assert there are no valid bits asserted and that the FIFO is
     // empty at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int AddrWidth = $clog2(Depth),
     localparam int CountWidth = $clog2(Depth + 1),
     localparam int CreditWidth = $clog2(MaxCredit + 1)

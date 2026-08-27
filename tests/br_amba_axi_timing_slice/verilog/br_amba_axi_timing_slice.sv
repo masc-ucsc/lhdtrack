@@ -11,19 +11,19 @@
 `include "br_asserts_internal.svh"
 
 module br_amba_axi_timing_slice #(
-    parameter int AddrWidth = 12,  // Must be at least 12
-    parameter int DataWidth = 32,  // Must be 32, 64, or 128
-    parameter int IdWidth = 1,  // Must be at least 1
-    parameter int AWUserWidth = 1,  // Must be at least 1
-    parameter int WUserWidth = 1,  // Must be at least 1
-    parameter int ARUserWidth = 1,  // Must be at least 1
-    parameter int BUserWidth = 1,  // Must be at least 1
-    parameter int RUserWidth = 1,  // Must be at least 1
-    parameter int AWSliceType = 2,  // 0: forward, 1: reverse, 2: full
-    parameter int WSliceType = 2,  // 0: forward, 1: reverse, 2: full
-    parameter int ARSliceType = 2,  // 0: forward, 1: reverse, 2: full
-    parameter int RSliceType = 2,  // 0: forward, 1: reverse, 2: full
-    parameter int BSliceType = 2,  // 0: forward, 1: reverse, 2: full
+    localparam int AddrWidth = 32,  // Must be at least 12
+    localparam int DataWidth = 32,  // Must be 32, 64, or 128
+    localparam int IdWidth = 4,  // Must be at least 1
+    localparam int AWUserWidth = 1,  // Must be at least 1
+    localparam int WUserWidth = 1,  // Must be at least 1
+    localparam int ARUserWidth = 1,  // Must be at least 1
+    localparam int BUserWidth = 1,  // Must be at least 1
+    localparam int RUserWidth = 1,  // Must be at least 1
+    localparam int AWSliceType = 0,  // 0: forward, 1: reverse, 2: full
+    localparam int WSliceType = 0,  // 0: forward, 1: reverse, 2: full
+    localparam int ARSliceType = 0,  // 0: forward, 1: reverse, 2: full
+    localparam int RSliceType = 0,  // 0: forward, 1: reverse, 2: full
+    localparam int BSliceType = 0,  // 0: forward, 1: reverse, 2: full
     localparam int StrobeWidth = DataWidth / 8
 ) (
     input clk,

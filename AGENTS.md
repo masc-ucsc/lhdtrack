@@ -45,6 +45,12 @@ constants. Test names are flat, unique, and match their manifest. A flow exposes
   delete bad ledger measurements.
 - Harness checks must wire each DUT port once and exclude clocks/resets from random input;
   simulator agreement cannot detect a shared harness bug.
+- A top module declares NO overridable parameter. `tools/monomorphize.py` pins the chosen
+  point into `verilog/<top>.sv` as `localparam`, `[[config]].params` stays empty, and
+  `make check` fails a top that regains a parameter port list. Intermediate modules stay
+  parameterized. This is what lets yosys, slang, verilator, the generated harness and the
+  `.prp` -- which cannot take a parameter at all -- elaborate the same circuit with no flags,
+  so an LEC refutation means the two languages disagree rather than the two flag sets.
 
 Imports preserve the upstream license verbatim, record the exact revision, and copy
 included headers so every front end reads identical bytes.

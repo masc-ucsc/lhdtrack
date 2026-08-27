@@ -27,9 +27,7 @@ module br_misc_tieoff_zero_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
-  br_misc_tieoff_zero #(
-    .Width(1)
-  ) dut (
+  br_misc_tieoff_zero dut (
     .out(o_out)
   );
 

@@ -10,7 +10,7 @@
 `include "br_gates.svh"
 
 module br_cdc_rst_sync #(
-    parameter int NumStages = 3  // must be at least 1
+    localparam int NumStages = 2  // must be at least 1
 ) (
     input  logic clk,
     input  logic arst,  // active-high async reset

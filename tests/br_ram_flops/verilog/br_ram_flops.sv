@@ -13,34 +13,34 @@
 `include "br_unused.svh"
 
 module br_ram_flops #(
-    parameter int NumReadPorts = 1,  // Number of read ports. Must be at least 1.
-    parameter int NumWritePorts = 1,  // Number of write ports. Must be at least 1.
-    parameter int Depth = 2,  // Number of entries in the RAM. Must be at least 2.
-    parameter int Width = 1,  // Width of each entry in the RAM. Must be at least 1.
+    localparam int NumReadPorts = 1,  // Number of read ports. Must be at least 1.
+    localparam int NumWritePorts = 1,  // Number of write ports. Must be at least 1.
+    localparam int Depth = 64,  // Number of entries in the RAM. Must be at least 2.
+    localparam int Width = 64,  // Width of each entry in the RAM. Must be at least 1.
     // Number of tiles along the depth (address) dimension. Must be at least 1 and evenly divide Depth.
     // Must be 1 if UseStructuredGates is 1.
-    parameter int DepthTiles = 1,
+    localparam int DepthTiles = 4,
     // Number of tiles along the width (data) dimension. Must be at least 1 and evenly divide Width.
     // Must be 1 if UseStructuredGates is 1.
-    parameter int WidthTiles = 1,
+    localparam int WidthTiles = 2,
     // If 1, allow partial writes to the memory using the wr_word_en signal.
     // If 0, only full writes are allowed and wr_word_en is ignored.
-    parameter bit EnablePartialWrite = 0,
+    localparam bit EnablePartialWrite = 1,
     // The width of a word in the memory. This is the smallest unit of data that
     // can be written when partial write is enabled.
     // Must be at least 1 and at most (Width / WidthTiles).
     // Must be evenly divisible by WidthTiles.
     // Width must be evenly divisible by WordWidth.
-    parameter int WordWidth = Width / WidthTiles,
+    localparam int WordWidth = 8,
     // Number of pipeline register stages inserted along the write address and read address paths
     // in the depth dimension. Must be at least 0.
-    parameter int AddressDepthStages = 0,
+    localparam int AddressDepthStages = 1,
     // Number of pipeline register stages inserted along the read data path in the depth dimension.
     // Must be at least 0. Must be 0 if UseStructuredGates is 1.
-    parameter int ReadDataDepthStages = 0,
+    localparam int ReadDataDepthStages = 1,
     // Number of pipeline register stages inserted along the read data path in the width dimension.
     // Must be at least 0. Must be 0 if UseStructuredGates is 1.
-    parameter int ReadDataWidthStages = 0,
+    localparam int ReadDataWidthStages = 1,
     // If 1, then each memory tile has a read-after-write hazard latency of 0 cycles, i.e.,
     // if the tile read and write address are valid and equal on the same cycle then the tile
     // read data equals the tile write data.
@@ -48,19 +48,19 @@ module br_ram_flops #(
     // a read cannot observe previously written data unless the read address is issued at least
     // one cycle after the write.
     // Bypassing is only permissible if the read and write clocks are the same.
-    parameter bit TileEnableBypass = 0,
+    localparam bit TileEnableBypass = 1,
     // If 1, then the memory elements are cleared to 0 upon reset. Otherwise, they are undefined until
     // written for the first time.
-    parameter bit EnableMemReset = 0,
+    localparam bit EnableMemReset = 0,
     // If 1, use structured mux2 gates for the read mux instead of relying on synthesis.
     // This is required if write and read clocks are different.
-    parameter bit UseStructuredGates = 0,
+    localparam bit UseStructuredGates = 0,
     // If 1 and UseStructuredGates is 1, then the read data is qualified with the
     // rd_data_valid signal, 0 when not valid. Should generally always be 1 for CDC
     // use cases.
-    parameter bit EnableStructuredGatesDataQualification = 1,
+    localparam bit EnableStructuredGatesDataQualification = 1,
     // If 1, then assert there are no valid bits asserted at the end of the test.
-    parameter bit EnableAssertFinalNotValid = 1,
+    localparam bit EnableAssertFinalNotValid = 1,
     localparam int AddressWidth = br_math::clamped_clog2(Depth),
     localparam int NumWords = Width / WordWidth,
     // Write latency in units of wr_clk cycles
