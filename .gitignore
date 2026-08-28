@@ -3,7 +3,7 @@
 
 # Generated: every page and series is re-derived from data/ on each run, so
 # nothing here is worth committing or worth resolving a conflict over.
-/target/
+#/target/
 /obj_dir/
 
 # Bazel

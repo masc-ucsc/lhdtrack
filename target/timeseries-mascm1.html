@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>lhdtrack — history</title><style>
+:root{--bg:#fff;--fg:#16181d;--muted:#6b7280;--line:#e5e7eb;--head:#f7f8fa;
+--good:#0a7c3f;--bad:#b91c1c;--warn:#a16207;--accent:#1d4ed8;--chip:#eef2ff;--series-a:#b45309;--series-b:#1d4ed8}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e6e8ec;--muted:#9aa1ab;
+--line:#262b33;--head:#161a20;--good:#4ade80;--bad:#f87171;--warn:#fbbf24;
+--accent:#93b4ff;--chip:#1b2233;--series-a:#fbbf24;--series-b:#93b4ff}}
+*{box-sizing:border-box}
+body{margin:0;padding:2rem 1.5rem 4rem;background:var(--bg);color:var(--fg);
+font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1400px;margin:0 auto}
+h1{font-size:1.5rem;margin:0 0 .25rem}
+h2{font-size:1.05rem;margin:2.5rem 0 .5rem;padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.sub{color:var(--muted);margin:0 0 1.5rem}
+.meta{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.5rem}
+.chip{background:var(--chip);border-radius:999px;padding:.15rem .6rem;font-size:12px;
+white-space:nowrap}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--head);font-weight:600;position:sticky;top:0}
+th.g{border-left:2px solid var(--line)}
+td.g{border-left:2px solid var(--line)}
+td.l,th.l{text-align:left}
+tbody tr:hover{background:var(--head)}
+tfoot td{font-weight:600;background:var(--head)}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.muted{color:var(--muted)}
+.tag{font-size:11px;padding:.05rem .35rem;border-radius:4px;background:var(--chip);
+color:var(--muted)}
+.note{color:var(--muted);font-size:12px;max-width:34rem;white-space:normal;text-align:left}
+svg{display:block;max-width:100%}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0 0;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:.3rem}
+
+.chart{margin:0 0 1.75rem}
+.switch{display:flex;gap:.3rem;flex-wrap:wrap;margin:0 0 .5rem}
+.switch button{font:inherit;font-size:12px;padding:.2rem .7rem;border-radius:999px;
+cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.switch button:hover{border-color:var(--muted)}
+.switch button.on{background:var(--chip);color:var(--fg);border-color:var(--muted)}
+.plot{position:relative;overflow-x:auto}
+.chart svg{display:block}
+.chart .bar{transition:opacity .12s}
+.chart .bar:hover{opacity:1!important;stroke:var(--fg);stroke-width:1}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
+background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
+border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
+.caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
+
+th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none}
+th.sortable::after{content:"↕";position:absolute;right:.15em;top:50%;
+transform:translateY(-50%);font-size:.75em;opacity:.35;pointer-events:none}
+th.sortable:hover{color:var(--accent)}
+th.sortable:hover::after{opacity:.8}
+th.sortable[aria-sort=ascending]::after{content:"↑";opacity:1;color:var(--accent)}
+th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--accent)}
+th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+</style></head>
+<body><div class="wrap"><h1>lhdtrack history</h1><p class='sub'><b>mascm1</b> · geomean area, <b>baseline &divide; measured</b> against <code>syn_yosys_abc</code>, so higher is better. One point per run. Only this machine's runs are plotted, and the series BREAKS at any tool-version change — a step caused by different hardware or a different yosys is worse than no chart.</p><div class="scroll"><svg viewBox="0 0 1100 380" role="img" aria-label="geomean area over time"><line x1="55" x2="1080" y1="334.0" y2="334.0" stroke="var(--line)"/><text x="47" y="338.0" text-anchor="end" font-size="11" fill="var(--muted)">0.56×</text><line x1="55" x2="1080" y1="255.5" y2="255.5" stroke="var(--line)"/><text x="47" y="259.5" text-anchor="end" font-size="11" fill="var(--muted)">0.68×</text><line x1="55" x2="1080" y1="177.0" y2="177.0" stroke="var(--line)"/><text x="47" y="181.0" text-anchor="end" font-size="11" fill="var(--muted)">0.81×</text><line x1="55" x2="1080" y1="98.5" y2="98.5" stroke="var(--line)"/><text x="47" y="102.5" text-anchor="end" font-size="11" fill="var(--muted)">0.93×</text><line x1="55" x2="1080" y1="20.0" y2="20.0" stroke="var(--line)"/><text x="47" y="24.0" text-anchor="end" font-size="11" fill="var(--muted)">1.05×</text><line x1="55" x2="1080" y1="52.1" y2="52.1" stroke="var(--muted)" stroke-dasharray="4 3"/><circle cx="55.0" cy="185.7" r="3" fill="#1d4ed8"/><circle cx="1080.0" cy="315.1" r="3" fill="#1d4ed8"/><polyline points="55.0,185.7 1080.0,315.1" fill="none" stroke="#1d4ed8" stroke-width="2"/><circle cx="55.0" cy="185.7" r="3" fill="#b45309"/><circle cx="1080.0" cy="185.7" r="3" fill="#b45309"/><polyline points="55.0,185.7 1080.0,185.7" fill="none" stroke="#b45309" stroke-width="2"/><text x="55.0" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-27</text><text x="1080.0" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-27</text></svg></div><div class="legend"><span><i style="background:#1d4ed8"></i>syn_lhd_verilog</span><span><i style="background:#b45309"></i>syn_lhd_pyrope</span></div>
+<p class="sub muted" style="margin-top:3rem">Generated 2026-08-27 18:00 from <code>data/</code>.
+This page is a pure rendering of the ledger — nothing is recorded only in
+<code>target/</code>, which is regenerated on every run.</p>
+</div>
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var COL = { a: 'var(--series-a)', b: 'var(--series-b)' };
+  // Only ratios that mean something get a gridline: 0.5x, 1x, 2x are readable
+  // landmarks, 1.37x is noise.
+  var GRID = [0.1, 0.2, 0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10];
+
+  function el(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function draw(root, data, metricKey) {
+    var plot = root.querySelector('.plot');
+    plot.innerHTML = '';
+    var tip = document.createElement('div');
+    tip.className = 'tip';
+    plot.appendChild(tip);
+
+    var metric = data.metrics.filter(function (m) { return m.key === metricKey; })[0];
+    var flows = data.flows;
+
+    // Keep only tests that have a value for THIS metric, then sort by the
+    // Pyrope ratio ascending -- worst on the left, best on the right.
+    var groups = data.groups.filter(function (g) { return g.values[metricKey]; });
+    groups = groups.slice().sort(function (x, y) {
+      function k(g) {
+        var v = g.values[metricKey];
+        if (v[data.sortFlow] != null) return v[data.sortFlow];
+        var all = Object.keys(v).map(function (f) { return v[f]; });
+        return Math.max.apply(null, all);
+      }
+      return k(x) - k(y);
+    });
+    if (!groups.length) { plot.textContent = 'No comparable results for this metric.'; return; }
+
+    var vals = [1];
+    groups.forEach(function (g) {
+      var v = g.values[metricKey];
+      Object.keys(v).forEach(function (f) { vals.push(v[f]); });
+    });
+    var lo = Math.min.apply(null, vals) / 1.35, hi = Math.max.apply(null, vals) * 1.35;
+    // LOG scale about 1.00x. On a linear axis "twice as good" sits a whole unit
+    // above the line while "twice as bad" sits half a unit below it, which makes
+    // every regression look smaller than the equivalent win.
+    var llo = Math.log(lo), lhi = Math.log(hi);
+
+    var padL = 54, padR = 16, padT = 20, padB = 56;
+    var minGroup = 74;
+    var outer = plot.clientWidth || 900;
+    var W = Math.max(outer, padL + padR + groups.length * minGroup);
+    var H = 320, plotH = H - padT - padB, plotW = W - padL - padR;
+    var gw = plotW / groups.length;
+    var bw = Math.min(gw / (flows.length + 0.8), 44);
+
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H,
+                          role: 'img', 'aria-label': metric.label + ' versus baseline per test' });
+    function y(v) { return padT + (lhi - Math.log(v)) / Math.max(lhi - llo, 1e-9) * plotH; }
+
+    GRID.forEach(function (gv) {
+      if (gv < lo || gv > hi) return;
+      var base = Math.abs(gv - 1) < 1e-9;
+      svg.appendChild(el('line', {
+        x1: padL, x2: W - padR, y1: y(gv).toFixed(1), y2: y(gv).toFixed(1),
+        stroke: base ? 'var(--fg)' : 'var(--line)',
+        'stroke-dasharray': base ? '' : '3 3'
+      }));
+      svg.appendChild(el('text', {
+        x: padL - 8, y: (y(gv) + 4).toFixed(1), 'text-anchor': 'end',
+        'font-size': 11, fill: 'var(--muted)'
+      }, gv + '×'));
+    });
+
+    groups.forEach(function (g, gi) {
+      var gx = padL + gi * gw, span = bw * flows.length, x0 = gx + (gw - span) / 2;
+      flows.forEach(function (f, fi) {
+        var val = g.values[metricKey][f.key];
+        if (val == null) return;
+        var bx = x0 + fi * bw;
+        var top = Math.min(y(val), y(1)), bot = Math.max(y(val), y(1));
+        var rect = el('rect', {
+          x: (bx + 1).toFixed(1), y: top.toFixed(1),
+          width: (bw - 2).toFixed(1), height: Math.max(bot - top, 1.5).toFixed(1),
+          fill: COL[f.series] || 'var(--accent)', rx: 2,
+          opacity: g.solid ? 0.9 : 0.4, class: 'bar'
+        });
+        rect.addEventListener('mousemove', function (e) {
+          var r = plot.getBoundingClientRect();
+          tip.style.left = (e.clientX - r.left + plot.scrollLeft) + 'px';
+          tip.style.top = (e.clientY - r.top) + 'px';
+          tip.style.opacity = 1;
+          tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
+            val.toFixed(2) + '× ' + (val >= 1 ? 'better' : 'worse') +
+            (g.solid ? '' : '  (not LEC-proven)');
+        });
+        rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
+        svg.appendChild(rect);
+        svg.appendChild(el('text', {
+          x: (bx + bw / 2).toFixed(1),
+          y: (val >= 1 ? top - 5 : bot + 12).toFixed(1),
+          'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
+        }, val.toFixed(2)));
+      });
+      svg.appendChild(el('text', {
+        x: (gx + gw / 2).toFixed(1), y: (H - padB + 19).toFixed(1),
+        'text-anchor': 'middle', 'font-size': 11, fill: 'var(--fg)'
+      }, g.test));
+      if (g.config && g.config !== 'default') {
+        svg.appendChild(el('text', {
+          x: (gx + gw / 2).toFixed(1), y: (H - padB + 32).toFixed(1),
+          'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
+        }, g.config));
+      }
+    });
+    plot.appendChild(svg);
+
+    var cap = document.createElement('p');
+    cap.className = 'caption';
+    cap.innerHTML = '<b>' + metric.label + '</b>' + (metric.unit ? ' (' + metric.unit + ')' : '') +
+      ' relative to <code>' + data.baseline + '</code> — higher is better, ' +
+      'sorted worst → best by the Pyrope result.';
+    plot.appendChild(cap);
+  }
+
+  function legend(root, data) {
+    var box = root.querySelector('.legend');
+    box.innerHTML = data.flows.map(function (f) {
+      return '<span><i style="background:' + (COL[f.series] || 'var(--accent)') + '"></i>' +
+        f.label + '</span>';
+    }).join('') + '<span>faded = not LEC-proven or not hand-written Pyrope</span>';
+  }
+
+  document.querySelectorAll('.chart').forEach(function (root) {
+    var data = JSON.parse(root.querySelector('.chart-data').textContent);
+    var current = data.metrics[0].key;
+    legend(root, data);
+    draw(root, data, current);
+    root.querySelectorAll('.switch button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.querySelectorAll('.switch button').forEach(function (o) { o.classList.remove('on'); });
+        b.classList.add('on');
+        current = b.dataset.metric;
+        draw(root, data, current);
+      });
+    });
+    var t;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { draw(root, data, current); }, 150);
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  // Click a column header to sort by it. Every table on this page is a GRID
+  // WITH MERGED CELLS, not a rectangle of <td>s: the synthesis tables carry a
+  // two-row header (a `rowspan="2"` name column, then `colspan="5"` flow
+  // groups over five leaf headers each), and a body row whose flow was skipped
+  // collapses those five columns into one `<td colspan="5">skipped</td>`.
+  // Indexing `row.cells[i]` would therefore read the wrong column for exactly
+  // the rows a reader most wants to see -- an ASAP7 table where two of three
+  // flows skipped is the common case, not the corner one. So the grid is
+  // resolved the way the HTML spec defines it, once per table.
+  //
+  // `getAttribute('colspan')` rather than the `.colSpan` property: identical in
+  // a browser, and it keeps this logic runnable in a headless DOM.
+
+  var MISSING = /^(|-|–|—|n\/a)$/i;
+  // A number, once the presentation is stripped: thousands separators, the
+  // leading + of a signed error, and the trailing unit glyph of a ratio (2.00x)
+  // or a percentage. Anything else is text.
+  var NUMBER = /^\+?(-?\d+(?:\.\d+)?)\s*[×%]?$/;
+
+  // `numeric: true` so w8 sorts before w32 and blk_a2 before blk_a10 -- a
+  // report full of width- and depth-suffixed names is unreadable in codepoint
+  // order. No `sensitivity` override: folding case would make distinct names
+  // compare equal and leave their order to the tiebreaker.
+  var collator = typeof Intl !== 'undefined' && Intl.Collator
+    ? new Intl.Collator(undefined, { numeric: true })
+    : { compare: function (a, b) { return a < b ? -1 : a > b ? 1 : 0; } };
+
+  // Direct children only: `querySelector('tbody')` would reach into a nested
+  // table and start reordering somebody else's rows.
+  function section(table, tag) {
+    var kids = table.children, i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === tag) return kids[i];
+    }
+    return null;
+  }
+
+  function rowsOf(section) {
+    var out = [], kids = section ? section.children : [], i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === 'tr') out.push(kids[i]);
+    }
+    return out;
+  }
+
+  function span(cell, attr) {
+    var v = parseInt(cell.getAttribute(attr), 10);
+    return v > 0 ? v : 1;
+  }
+
+  // The HTML table model: place each cell at the first free slot of its row and
+  // mark every slot its rowspan/colspan covers. grid[r][c] is {cell, w}, where
+  // w is that cell's colspan -- w > 1 means column c is covered by a merge and
+  // has no value of its own.
+  function gridOf(rows) {
+    var occ = [], r, i, c, cs, rs, dr, dc, cells;
+    for (r = 0; r < rows.length; r++) {
+      if (!occ[r]) occ[r] = [];
+      cells = rows[r].children;
+      c = 0;
+      for (i = 0; i < cells.length; i++) {
+        if (!cells[i].tagName) continue;
+        while (occ[r][c]) c++;
+        cs = span(cells[i], 'colspan');
+        rs = span(cells[i], 'rowspan');
+        for (dr = 0; dr < rs; dr++) {
+          if (!occ[r + dr]) occ[r + dr] = [];
+          for (dc = 0; dc < cs; dc++) occ[r + dr][c + dc] = { cell: cells[i], w: cs };
+        }
+        c += cs;
+      }
+    }
+    return occ;
+  }
+
+  // A BADGE IS NOT DATA. `<td>246.49<span class="tag">norm</span></td>` has a
+  // textContent of "246.49 norm", which parses as no number at all -- so the
+  // area column would be typed as text and 246.49 would sort before 60.06.
+  // That is the very column the report is read for, and the tags appear on
+  // exactly the rows worth comparing. Skip them and read the value.
+  function ownText(node) {
+    if (node.nodeType === 3) return node.nodeValue || '';
+    if (node.nodeType !== 1) return '';
+    if (node.classList && node.classList.contains('tag')) return '';
+    var out = '', kids = node.childNodes, i;
+    for (i = 0; i < kids.length; i++) out += ownText(kids[i]);
+    return out;
+  }
+
+  function textOf(entry) {
+    // A merged cell is not this column's value. `skipped` spanning five columns
+    // says nothing about area, so it sorts with the other blanks rather than
+    // landing under "s" among the numbers.
+    if (!entry || entry.w > 1) return null;
+    var t = ownText(entry.cell).replace(/\s+/g, ' ').trim();
+    return MISSING.test(t) ? null : t;
+  }
+
+  function numberOf(t) {
+    if (t === null) return null;
+    var m = NUMBER.exec(t.replace(/,/g, ''));
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  // Can sorting this column change anything? Only if two rows differ there.
+  // A column that is `skipped` in every row -- ten of the seventeen in the
+  // asap7 table -- has one key and no order, and an arrow over it would offer
+  // a click that does nothing. Blank counts as its own key, so a column with
+  // one measurement and five blanks is still worth sorting.
+  function orderable(grid, col) {
+    var first, j, t;
+    for (j = 0; j < grid.length; j++) {
+      t = textOf(grid[j][col]);
+      if (j === 0) first = t;
+      else if (t !== first) return true;
+    }
+    return false;
+  }
+
+  function enhance(table) {
+    var thead = section(table, 'thead');
+    var tbody = section(table, 'tbody');
+    if (!thead || !tbody) return;
+    var headRows = rowsOf(thead);
+    var bodyRows = rowsOf(tbody);
+    if (!headRows.length || bodyRows.length < 2) return;
+
+    // A BODY `rowspan` MAKES THE TABLE UNSORTABLE, so leave it alone rather
+    // than corrupt it. A merged cell belongs to the <tr> it is written in and
+    // covers whatever rows follow it; move that row and the merge lands on
+    // different data. No table this page emits has one -- this is the guard
+    // that keeps that true if one ever appears.
+    for (var b = 0; b < bodyRows.length; b++) {
+      var bc = bodyRows[b].children;
+      for (var k = 0; k < bc.length; k++) {
+        if (bc[k].tagName && span(bc[k], 'rowspan') > 1) return;
+      }
+    }
+
+    // The leaf header of a column is whatever occupies the LAST header row
+    // there -- which is the group's own header for a `colspan` group, and the
+    // `rowspan="2"` cell itself for a name column. One rule, both shapes.
+    var hgrid = gridOf(headRows);
+    var last = hgrid[headRows.length - 1] || [];
+    var bgrid = gridOf(bodyRows);
+    var seen = [], columns = [], c, e;
+    for (c = 0; c < last.length; c++) {
+      e = last[c];
+      if (!e || seen.indexOf(e.cell) >= 0) continue;
+      seen.push(e.cell);
+      if (orderable(bgrid, c)) columns.push({ th: e.cell, col: c });
+    }
+    if (!columns.length) return;
+
+    // `bodyRows` is the order the generator wrote -- grouped by test, or by
+    // signed STA error, or refuted-first. That is a real ordering, so it is
+    // kept as the third click state rather than lost at the first sort.
+    var original = bodyRows.slice();
+    var state = null;   // {col: n, dir: 1|-1}
+
+    function apply(col, dir) {
+      var rows = rowsOf(tbody);
+      var grid = gridOf(rows);
+      var keyed = [], numeric = true, any = false, j, t, n;
+      for (j = 0; j < rows.length; j++) {
+        t = textOf(grid[j][col]);
+        n = numberOf(t);
+        if (t !== null) { any = true; if (n === null) numeric = false; }
+        keyed.push({ row: rows[j], t: t, n: n, i: j });
+      }
+      if (!any) numeric = false;
+      keyed.sort(function (a, b) {
+        // MISSING ALWAYS LAST, in both directions: a blank is the absence of a
+        // value, not a very small one, and burying the rows you can read under
+        // the rows you cannot is the opposite of what a sort is for.
+        if (a.t === null || b.t === null) {
+          if (a.t === null && b.t === null) return a.i - b.i;
+          return a.t === null ? 1 : -1;
+        }
+        var d = numeric ? a.n - b.n : collator.compare(a.t, b.t);
+        return d ? dir * d : a.i - b.i;   // ties keep their previous order
+      });
+      var frag = table.ownerDocument.createDocumentFragment();
+      for (j = 0; j < keyed.length; j++) frag.appendChild(keyed[j].row);
+      tbody.appendChild(frag);
+    }
+
+    function restore() {
+      var frag = table.ownerDocument.createDocumentFragment(), j;
+      for (j = 0; j < original.length; j++) frag.appendChild(original[j]);
+      tbody.appendChild(frag);
+    }
+
+    function paint() {
+      for (var k = 0; k < columns.length; k++) {
+        var th = columns[k].th;
+        if (state && state.col === columns[k].col) {
+          th.setAttribute('aria-sort', state.dir > 0 ? 'ascending' : 'descending');
+        } else {
+          th.removeAttribute('aria-sort');
+        }
+      }
+    }
+
+    columns.forEach(function (entry) {
+      var label = (entry.th.textContent || '').trim();
+      entry.th.classList.add('sortable');
+      entry.th.setAttribute('tabindex', '0');
+      entry.th.setAttribute('title', label ? 'Sort by ' + label : 'Sort by this column');
+      if (!label) entry.th.setAttribute('aria-label', 'sort by this column');
+      function click() {
+        // Three states, so a reader can always get back to the order the page
+        // was written in -- which is the one grouped by test name.
+        if (!state || state.col !== entry.col) state = { col: entry.col, dir: 1 };
+        else if (state.dir > 0) state = { col: entry.col, dir: -1 };
+        else state = null;
+        if (state) apply(state.col, state.dir); else restore();
+        paint();
+      }
+      entry.th.addEventListener('click', click);
+      entry.th.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+          ev.preventDefault();
+          click();
+        }
+      });
+    });
+  }
+
+  function init() {
+    var tables = document.querySelectorAll('table'), i;
+    for (i = 0; i < tables.length; i++) enhance(tables[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body></html>

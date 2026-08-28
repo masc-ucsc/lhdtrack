@@ -1,0 +1,61 @@
+[
+  {
+    "run": "20260827T152514",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 1.0093820769977353
+    }
+  },
+  {
+    "run": "20260827T154722",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7440564379179292,
+      "syn_lhd_pyrope": 1.0046800868922083
+    }
+  },
+  {
+    "run": "20260827T165221",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7391097014396621,
+      "syn_lhd_pyrope": 1.0046800868922083
+    }
+  },
+  {
+    "run": "20260827T201104",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6654083659476475,
+      "syn_lhd_pyrope": 0.6654083659476475
+    }
+  },
+  {
+    "run": "20260827T201144",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6069839030157961,
+      "syn_lhd_pyrope": 0.6654083659476475
+    }
+  },
+  {
+    "run": "20260827T202257",
+    "date": "2026-08-27",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6069839030157961,
+      "syn_lhd_pyrope": 0.6654083659476475
+    }
+  }
+]

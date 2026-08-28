@@ -1,0 +1,22 @@
+[
+  {
+    "run": "20260827T135004",
+    "date": "2026-08-27",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled Aug  5 2026 05:43:12),sta=3.1.0,verilator=Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701,yosys=Yosys 0.68+post (git sha1 c12172fbae8af5e20f6fb52e3d4e92d56ed587b6, Release, AppleClang clang++ 21.0.0.21000101)",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7918786462517142,
+      "syn_lhd_pyrope": 0.7918786462517142
+    }
+  },
+  {
+    "run": "20260827T154609",
+    "date": "2026-08-27",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled Aug  5 2026 05:43:12),sta=3.1.0,verilator=Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701,yosys=Yosys 0.68+post (git sha1 c12172fbae8af5e20f6fb52e3d4e92d56ed587b6, Release, AppleClang clang++ 21.0.0.21000101)",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.5903710192610855,
+      "syn_lhd_pyrope": 0.7918786462517142
+    }
+  }
+]

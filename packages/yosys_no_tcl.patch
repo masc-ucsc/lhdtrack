@@ -1,0 +1,30 @@
+diff --git a/BUILD.bazel b/BUILD.bazel
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -28,11 +28,9 @@ COMMON_CXXOPTS = [
+ 
+ COMMON_DEFINES = [
+     "_YOSYS_",
+-    "YOSYS_ENABLE_READLINE",
+     "YOSYS_ENABLE_PLUGINS",
+     "YOSYS_ENABLE_GLOB",
+     "YOSYS_ENABLE_ZLIB",
+-    "YOSYS_ENABLE_TCL",
+     "YOSYS_ENABLE_ABC",
+     "YOSYS_ENABLE_COVER",
+@@ -218,8 +216,6 @@ cc_library(
+         "@abc",
+         "@libffi",
+-        "@readline",
+-        "@tcl_lang//:tcl",
+         "@zlib",
+     ],
+@@ -1141,8 +1137,6 @@ cc_binary(
+         "@abc",
+         "@cxxopts",
+         "@libffi",
+-        "@readline",
+-        "@tcl_lang//:tcl",
+         "@zlib",
+     ],
+ )
