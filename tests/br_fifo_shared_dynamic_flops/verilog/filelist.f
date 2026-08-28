@@ -50,6 +50,7 @@ br_shift_right.sv
 br_multi_xfer_reg_fwd.sv
 br_tracker_freelist.sv
 br_fifo_shared_dynamic_push_ctrl.sv
+br_fifo_shared_dynamic_ctrl.sv
 br_ram_addr_decoder.sv
 br_ram_data_rd_pipe.sv
 br_ram_flops_tile.sv

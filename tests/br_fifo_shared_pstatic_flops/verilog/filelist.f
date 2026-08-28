@@ -35,6 +35,7 @@ br_fifo_shared_pstatic_ptr_mgr.sv
 br_fifo_push_ctrl_core.sv
 br_fifo_shared_pstatic_push_ctrl.sv
 br_fifo_shared_pstatic_size_calc.sv
+br_fifo_shared_pstatic_ctrl.sv
 br_ram_addr_decoder.sv
 br_ram_data_rd_pipe.sv
 br_enc_bin2onehot.sv

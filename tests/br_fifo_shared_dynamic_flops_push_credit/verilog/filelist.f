@@ -54,6 +54,7 @@ br_credit_counter.sv
 br_credit_receiver.sv
 br_delay_nr.sv
 br_fifo_shared_dynamic_push_ctrl_credit.sv
+br_fifo_shared_dynamic_ctrl_push_credit.sv
 br_ram_addr_decoder.sv
 br_ram_data_rd_pipe.sv
 br_ram_flops_tile.sv

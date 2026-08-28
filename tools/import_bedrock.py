@@ -50,6 +50,23 @@ _LIB = re.compile(
 )
 _LIST = re.compile(r"(?P<key>srcs|deps)\s*=\s*\[(?P<items>.*?)\]", re.S)
 _ITEM = re.compile(r"\"([^\"]+)\"")
+# `shared_fifo_verilog_library(name = "x", src = "x.sv", deps = [...])` -- the
+# codegen macros spell their single source `src = "..."`, not `srcs = [...]`.
+# `_LIB` matches them anyway (their names END in `verilog_library`), so their
+# deps were walked while the module's own .sv was never staged: every
+# br_fifo_shared_*_flops filelist elaborated to "unknown module
+# br_fifo_shared_*_ctrl".
+_SRC = re.compile(r"(?<![\w])src\s*=\s*\"([^\"]+)\"")
+
+# A module instantiation, for `unstaged_modules` below: `br_gate_and2 u (` or
+# `br_mux_bin_structured_gates #(`. The identifier has to be followed by an
+# instance name or a parameter override, which keeps prose in a comment from
+# looking like a dependency.
+_INST = re.compile(r"\b(br_\w+)\s*(?:#\s*\(|[A-Za-z_]\w*\s*(?:\[[^\]]*\]\s*)?\()")
+_DEFINES = re.compile(r"^\s*module\s+(\w+)", re.M)
+# `define NAME(args) body`, body continued with trailing backslashes.
+_MACRO_DEF = re.compile(r"^\s*`define\s+(\w+)[^\n\\]*((?:\\\n.*?)*)$", re.M)
+_MACRO_USE = re.compile(r"`(\w+)")
 
 # bedrock's PPA table row: | `top` | `A=1, B=2` | cells | ... |
 PPA_ROW = re.compile(r"^\|\s*`(?P<top>br_\w+)`\s*\|\s*`(?P<params>[^`]*)`\s*\|", re.M)
@@ -80,7 +97,7 @@ def build_graph(upstream: Path) -> dict[str, dict]:
                 fields[lm.group("key")] = _ITEM.findall(lm.group("items"))
             graph[f"{pkg}:{m.group('name')}"] = {
                 "dir": build.parent,
-                "srcs": fields["srcs"],
+                "srcs": fields["srcs"] + _SRC.findall(body),
                 "deps": [_abs_label(d, pkg) for d in fields["deps"]],
             }
     return graph
@@ -117,6 +134,88 @@ def closure(graph: dict[str, dict], label: str) -> list[Path]:
 
 def label_for(graph: dict[str, dict], name: str) -> str | None:
     return next((lbl for lbl in graph if lbl.rsplit(":", 1)[1] == name), None)
+
+
+def module_index(upstream: Path) -> dict[str, Path]:
+    """Every module bedrock declares, and the file that declares it.
+
+    Prefer the file whose STEM IS THE MODULE NAME. `br_mux_bin_structured_gates`
+    is declared twice upstream -- once for real, once in
+    `br_mux_bin_structured_gates_mock.sv`, which wraps `br_mux_bin` and says in
+    its own header "For synthesis, make sure you include
+    br_mux_bin_structured_gates.sv in the filelist instead of this file!!". This
+    corpus is a synthesis corpus, so the stem match picks the right one.
+    """
+    index: dict[str, Path] = {}
+    for sv in sorted(upstream.glob("**/*.sv")):
+        if "bazel-" in str(sv):
+            continue
+        for name in _DEFINES.findall(sv.read_text(errors="replace")):
+            prior = index.get(name)
+            if prior is not None and prior.stem == name:
+                continue
+            index[name] = sv
+    return index
+
+
+def unstaged_modules(srcs: list[Path], macros: list[Path], index: dict[str, Path]) -> list[str]:
+    """Modules the staged sources instantiate but no staged source declares.
+
+    bedrock leaves the gate library out of every `verilog_library` ON PURPOSE --
+    "Omitting //gate/rtl:br_gate_mock so that downstream targets ... can decide
+    whether to use these behavioral models or swap them out for some other
+    vendor models" -- and adds it back only in the test suites, which are not
+    part of the dependency graph `closure()` walks. Twenty tests were imported
+    that way and every one of them elaborated to `unknown module
+    br_gate_cdc_sync`.
+
+    THIS CORPUS IS THE DOWNSTREAM INTEGRATOR and the mock gates are the only
+    gate models it has, so the omitted file has to be added -- but only where it
+    is really reached. `br_ram_flops_tile` names `br_mux_bin_structured_gates`
+    inside a generate branch that most parameter sets do not take, so this
+    reports rather than stages: a name here is a prompt to add the file to
+    `filelist.f` and re-run slang, not proof that the design needs it.
+    """
+    bodies = [f.read_text(errors="replace") for f in srcs]
+    text = _expanded(bodies, macros, srcs)
+    defined = set(_DEFINES.findall(text))
+    return [
+        f"{name} ({index[name].relative_to(index[name].parents[2])})"
+        for name in dict.fromkeys(_INST.findall(text))
+        if name not in defined and name in index
+    ]
+
+
+def _expanded(sources, macros: list[Path], srcs: list[Path]) -> str:
+    """Source text plus the body of every macro the sources actually invoke.
+
+    A gate instance is usually written by a macro: `BR_GATE_CDC_MAXDEL(a, b)` in
+    the source expands to `br_gate_cdc_maxdel ... (` inside `br_gates.svh`, so
+    scanning the sources alone finds no dependency at all. Scanning the whole
+    header instead finds too many -- `br_gates.svh` also defines
+    `BR_GATE_CDC_RST_SYNC_STAGES`, whose body names `br_cdc_rst_sync` even in a
+    design that never invokes it. Only the bodies of INVOKED macros are added.
+    """
+    text = "\n".join(sources)
+    defs: dict[str, str] = {}
+    seen: set[Path] = set()
+    for f in srcs:
+        for h in resolve_includes(f, [f.parent, *macros]):
+            if h in seen:
+                continue
+            seen.add(h)
+            for name, body in _MACRO_DEF.findall(h.read_text(errors="replace")):
+                defs.setdefault(name, body)
+    pending = list(dict.fromkeys(_MACRO_USE.findall(text)))
+    used: set[str] = set()
+    while pending:
+        name = pending.pop()
+        if name in used or name not in defs:
+            continue
+        used.add(name)
+        text += "\n" + defs[name]
+        pending.extend(_MACRO_USE.findall(defs[name]))
+    return text
 
 
 def ppa_configs(upstream: Path, top: str) -> list[tuple[str, dict]]:
@@ -193,6 +292,7 @@ def main() -> int:
     rev = git_rev(args.upstream)
     macros = [args.upstream / "macros", args.upstream]
     graph = build_graph(args.upstream)
+    index = module_index(args.upstream)
     rc = 0
     for name in args.names:
         src = available.get(name)
@@ -237,6 +337,8 @@ def main() -> int:
             f"✓ {name}: imported ({len(srcs)} source(s) + {len(headers)} header(s), "
             f"{len(configs) or 1} config(s))"
         )
+        for missing in unstaged_modules(srcs, macros, index):
+            print(f"  ! instantiates {missing} -- add it to filelist.f if slang wants it")
     print("\nnext: `lhdtrack import seed <name>` to generate the harness, drivers and SDC")
     return rc
 

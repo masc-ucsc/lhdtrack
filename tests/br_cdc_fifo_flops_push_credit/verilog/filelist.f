@@ -2,6 +2,7 @@
 # Macro headers travel with the source: slang resolves an include relative
 # to the including file, verilator only searches its -I list, and both front
 # ends must see the same files.
+br_gate_mock.sv
 br_cdc_pkg.sv
 br_cdc_bit_toggle.sv
 br_cdc_fifo_gray_count_sync.sv
@@ -38,6 +39,7 @@ br_demux_bin.sv
 br_ram_addr_decoder.sv
 br_ram_data_rd_pipe.sv
 br_enc_bin2onehot.sv
+br_mux_bin_structured_gates.sv
 br_ram_flops_tile.sv
 br_ram_flops.sv
 br_cdc_fifo_flops_push_credit.sv
