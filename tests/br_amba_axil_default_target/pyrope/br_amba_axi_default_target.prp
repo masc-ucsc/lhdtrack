@@ -16,7 +16,7 @@ pub mod br_amba_axi_default_target::[timecheck=false](clk:u1, rst:u1, target_awv
   const target_rvalid__w1 = arfifo_pop_valid
   mut br_flow_reg_fwd_ar = br_flow_reg_fwd::[name=br_flow_reg_fwd_ar](clk = clk, rst = rst, push_valid = target_arvalid, push_data = ((target_arid & 1) << 1) | (target_arlen & 1), pop_ready = target_rready)
   arfifo_pop_valid = br_flow_reg_fwd_ar.pop_valid
-  br_misc_unused::[name=br_misc_unused_arfifo_pop_arlen](`in` = br_flow_reg_fwd_ar.pop_data & 1)
+  br_misc_unused::[name=gen_single_beat_br_misc_unused_arfifo_pop_arlen](`in` = br_flow_reg_fwd_ar.pop_data & 1)
   mut br_flow_reg_fwd_aw = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_aw](clk = clk, rst = rst, push_valid = target_awvalid, push_data = target_awid, pop_ready = unsigned((target_bready != 0) and (target_bvalid__w1 != 0)))
   awfifo_pop_valid = br_flow_reg_fwd_aw.pop_valid
   awfifo_pop_awid = br_flow_reg_fwd_aw.pop_data

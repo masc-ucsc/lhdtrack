@@ -8,8 +8,8 @@ pub mod br_flow_reg_none::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_
   const pop_valid__w1 = unsigned((push_valid != 0) or (buf_valid != 0))
   mut _mux_4:u32 = if buf_valid != 0 { buf_data } else { push_data }
   const pop_data__w1 = _mux_4
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w1)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
   const buf_pushed__w1 = unsigned((unsigned((push_valid != 0) and (push_ready__w1 != 0)) != 0) and ((pop_ready == 0) or (buf_valid != 0)))
   buf_valid = if rst != 0 { 0 } else { unsigned((buf_pushed__w1 != 0) or ((buf_valid != 0) and (unsigned((pop_ready != 0) and (buf_valid != 0)) == 0))) }
   if buf_pushed__w1 != 0 {

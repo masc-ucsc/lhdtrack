@@ -1,0 +1,7 @@
+const br_flow_join_select_multihot_t = import("br_flow_join_select_multihot.br_flow_join_select_multihot")
+
+pub mod br_flow_join::[timecheck=false](clk:u1, rst:u1, push_valid:u2, pop_ready:u1) -> (push_ready:u2@[], pop_valid:u1@[]) {
+  mut br_flow_join_select_multihot = br_flow_join_select_multihot_t::[name=br_flow_join_select_multihot](clk = clk, rst = rst, `select_multihot.e1` = 1, `select_multihot.e0` = 1, push_valid = push_valid, pop_ready = pop_ready)
+  push_ready = (br_flow_join_select_multihot.push_ready.e1 << 1) | br_flow_join_select_multihot.push_ready.e0
+  pop_valid = br_flow_join_select_multihot.pop_valid_unstable
+}

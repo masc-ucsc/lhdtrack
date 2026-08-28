@@ -8,7 +8,7 @@ pub mod br_flow_arb_core::[timecheck=false](clk:u1, rst:u1, can_grant:u2, grant:
   const pop_valid_unstable__w1 = unsigned(push_valid != 0)
   br_misc_unused_p1::[name=br_misc_unused_grant](`in` = grant)
   br_flow_checks_valid_data_impl_p1::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid_unstable__w1, ready = pop_ready, data = 0)
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = 0)
   request = push_valid
   enable_priority_update = pop_ready
   push_ready = push_ready__w1

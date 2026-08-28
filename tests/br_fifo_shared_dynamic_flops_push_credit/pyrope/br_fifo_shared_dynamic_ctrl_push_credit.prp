@@ -1,0 +1,34 @@
+const br_fifo_shared_dynamic_ptr_mgr = import("br_fifo_shared_dynamic_ptr_mgr.br_fifo_shared_dynamic_ptr_mgr")
+const br_fifo_shared_dynamic_push_ctrl_credit = import("br_fifo_shared_dynamic_push_ctrl_credit.br_fifo_shared_dynamic_push_ctrl_credit")
+const br_fifo_shared_pop_ctrl = import("br_fifo_shared_pop_ctrl.br_fifo_shared_pop_ctrl")
+
+pub mod br_fifo_shared_dynamic_ctrl_push_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u2, push_data:u64, push_fifo_id:u2, credit_initial_push:u6, credit_withhold_push:u6, pop_ready:u2, data_ram_rd_data_valid:u2, data_ram_rd_data:u64, ptr_ram_rd_data_valid:u2, ptr_ram_rd_data:u10) -> (push_receiver_in_reset:u1@[], push_credit:u2@[], push_full:u1@[], credit_available_push:u6@[], credit_count_push:u6@[], pop_valid:u2@[], pop_data:u64@[], pop_empty:u2@[], data_ram_wr_valid:u2@[], data_ram_wr_addr:u10@[], data_ram_wr_data:u64@[], data_ram_rd_addr_valid:u2@[], data_ram_rd_addr:u10@[], ptr_ram_wr_valid:u2@[], ptr_ram_wr_addr:u10@[], ptr_ram_wr_data:u10@[], ptr_ram_rd_addr_valid:u2@[], ptr_ram_rd_addr:u10@[]) {
+  wire dealloc_valid:u2
+  wire dealloc_entry_id:u10
+  wire head_ready:u2
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  mut br_fifo_shared_dynamic_push_ctrl_credit_inst = br_fifo_shared_dynamic_push_ctrl_credit::[name=br_fifo_shared_dynamic_push_ctrl_credit_inst](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, `push_fifo_id.e1` = (push_fifo_id >> 1) & 1, `push_fifo_id.e0` = push_fifo_id & 1, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, dealloc_valid = dealloc_valid, dealloc_entry_id = dealloc_entry_id)
+  mut br_fifo_shared_dynamic_ptr_mgr_inst = br_fifo_shared_dynamic_ptr_mgr::[name=br_fifo_shared_dynamic_ptr_mgr_inst](clk = clk, rst = either_rst__w1, next_tail_valid = br_fifo_shared_dynamic_push_ctrl_credit_inst.next_tail_valid, next_tail = br_fifo_shared_dynamic_push_ctrl_credit_inst.next_tail, `ptr_ram_rd_data_valid.e1` = (ptr_ram_rd_data_valid >> 1) & 1, `ptr_ram_rd_data_valid.e0` = ptr_ram_rd_data_valid & 1, ptr_ram_rd_data = ptr_ram_rd_data, `head_ready.e1` = (head_ready >> 1) & 1, `head_ready.e0` = head_ready & 1)
+  mut br_fifo_shared_pop_ctrl_inst = br_fifo_shared_pop_ctrl::[name=br_fifo_shared_pop_ctrl_inst](clk = clk, rst = either_rst__w1, head_valid = (br_fifo_shared_dynamic_ptr_mgr_inst.head_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.head_valid.e0, head = br_fifo_shared_dynamic_ptr_mgr_inst.head, ram_empty = (br_fifo_shared_dynamic_ptr_mgr_inst.empty.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.empty.e0, ram_items = br_fifo_shared_dynamic_ptr_mgr_inst.items, bypass_valid_unstable = 0, bypass_data_unstable = 0, pop_ready = pop_ready, data_ram_rd_data_valid = data_ram_rd_data_valid, data_ram_rd_data = data_ram_rd_data)
+  head_ready = br_fifo_shared_pop_ctrl_inst.head_ready
+  dealloc_valid = br_fifo_shared_pop_ctrl_inst.dealloc_valid
+  dealloc_entry_id = br_fifo_shared_pop_ctrl_inst.dealloc_entry_id
+  push_receiver_in_reset = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_receiver_in_reset
+  push_credit = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_credit
+  push_full = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_full
+  credit_available_push = br_fifo_shared_dynamic_push_ctrl_credit_inst.credit_available_push
+  credit_count_push = br_fifo_shared_dynamic_push_ctrl_credit_inst.credit_count_push
+  pop_valid = br_fifo_shared_pop_ctrl_inst.pop_valid
+  pop_data = br_fifo_shared_pop_ctrl_inst.pop_data
+  pop_empty = br_fifo_shared_pop_ctrl_inst.pop_empty
+  data_ram_wr_valid = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_valid
+  data_ram_wr_addr = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_addr
+  data_ram_wr_data = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_data
+  data_ram_rd_addr_valid = br_fifo_shared_pop_ctrl_inst.data_ram_rd_addr_valid
+  data_ram_rd_addr = br_fifo_shared_pop_ctrl_inst.data_ram_rd_addr
+  ptr_ram_wr_valid = (br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_valid.e0
+  ptr_ram_wr_addr = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_addr
+  ptr_ram_wr_data = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_data
+  ptr_ram_rd_addr_valid = (br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr_valid.e0
+  ptr_ram_rd_addr = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr
+}

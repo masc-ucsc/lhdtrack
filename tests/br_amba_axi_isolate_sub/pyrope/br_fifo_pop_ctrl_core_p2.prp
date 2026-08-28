@@ -1,0 +1,15 @@
+const br_counter_incr_p3 = import("br_counter_incr_p3.br_counter_incr_p3")
+const br_fifo_staging_buffer = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_fifo_pop_ctrl_core_p2::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, bypass_valid_unstable:u1, bypass_data_unstable:u1, ram_rd_data_valid:u1, ram_rd_data:u1, empty:u1, items:u5) -> (pop_valid:u1@[], pop_data:u1@[], bypass_ready:u1@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u4@[], pop_beat:u1@[]) {
+  mut gen_staging_buffer_br_fifo_staging_buffer = br_fifo_staging_buffer::[name=gen_staging_buffer_br_fifo_staging_buffer](clk = clk, rst = rst, total_items = items, bypass_valid_unstable = bypass_valid_unstable, bypass_data_unstable = bypass_data_unstable, ram_rd_addr_ready = 1, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, pop_ready = pop_ready)
+  br_misc_unused::[name=gen_staging_buffer_br_misc_unused_empty](`in` = empty)
+  mut gen_ram_rd_addr_counter_br_counter_incr_rd_addr = br_counter_incr_p3::[name=gen_ram_rd_addr_counter_br_counter_incr_rd_addr](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = gen_staging_buffer_br_fifo_staging_buffer.ram_rd_addr_valid, incr = 1)
+  pop_valid = gen_staging_buffer_br_fifo_staging_buffer.pop_valid
+  pop_data = gen_staging_buffer_br_fifo_staging_buffer.pop_data
+  bypass_ready = gen_staging_buffer_br_fifo_staging_buffer.bypass_ready
+  ram_rd_addr_valid = gen_staging_buffer_br_fifo_staging_buffer.ram_rd_addr_valid
+  ram_rd_addr = gen_ram_rd_addr_counter_br_counter_incr_rd_addr.value
+  pop_beat = unsigned((pop_ready != 0) and (gen_staging_buffer_br_fifo_staging_buffer.pop_valid != 0))
+}

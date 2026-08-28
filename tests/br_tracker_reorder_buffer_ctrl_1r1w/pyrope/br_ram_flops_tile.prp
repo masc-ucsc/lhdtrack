@@ -1,0 +1,14 @@
+const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
+
+pub mod br_ram_flops_tile::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:u1, wr_addr:u1, wr_data:u32, wr_word_en:u1, rd_clk:u1, rd_rst:u1, rd_addr_valid:u1, rd_addr:u1) -> (rd_data_valid:u1@[], rd_data:u32@[]) {
+  reg mem:[2]u32:[ordering="old", clock_pin=ref wr_clk]
+  rd_data = 0sb?
+  if (wr_valid & 1) != 0 {
+    mem[wr_addr & 1] = wr_data
+  }
+  br_misc_unused_p2::[name=gen_multi_entry_gen_unused_wr_word_en_br_misc_unused_wr_word_en](`in` = wr_word_en)
+  mut rd_data__w1 = rd_data
+  rd_data__w1#[0..=31] = mem[rd_addr & 1]#[0..=31]
+  rd_data_valid = rd_addr_valid
+  rd_data = rd_data__w1
+}

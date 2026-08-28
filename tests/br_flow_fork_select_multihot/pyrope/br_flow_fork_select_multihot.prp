@@ -786,7 +786,7 @@ pub mod br_flow_fork_select_multihot::[timecheck=false](clk:u1, rst:u1, push_val
   {
     pop_valid_unstable#[15] = (pop_valid_unstable >> 15) & 1 & unsigned((((push_select_multihot >> 14) & 1) == 0) or (((pop_ready >> 14) & 1) != 0)) & 1
   }
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid_unstable, ready = pop_ready, data = 0)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w17, data = push_select_multihot)
   push_ready = push_ready__w17
 }

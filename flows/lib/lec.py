@@ -48,6 +48,15 @@ def classify(result: dict | None, rc: int) -> str:
     absence of one. Collapsing a timeout into "fail" would report a design as
     wrong when the honest answer is that the solver ran out of time -- and
     collapsing it into "pass" would be far worse.
+
+    THE VERDICT IS NOT THE EXIT STATUS. `lhd lec` deliberately exits 0 on an
+    INCONCLUSIVE comparison -- one engine giving up must not fail a pair -- so
+    `status == "pass"` covers both a real proof and "the solver could not
+    decide". Reading only `status` recorded lgyosys's INCONCLUSIVE on
+    br_tracker_linked_list_ctrl as `proven`, i.e. exactly the "far worse"
+    collapse above, and let an unverified design into a headline comparison.
+    The envelope now carries the proof itself in `lec.verdict`; prefer it, and
+    fall back to `status` only for an lhd old enough not to emit it.
     """
     if result is None:
         # NO RESULT JSON IS NOT A PROOF. `rc == 0` only says the process exited
@@ -56,6 +65,12 @@ def classify(result: dict | None, rc: int) -> str:
         # an equivalence proof, and run.py then writes that "verdict" back into
         # the manifest and lets the test into the headline geomean.
         return "error"
+    verdict = (result.get("lec") or {}).get("verdict")
+    if verdict in ("proven", "refuted"):
+        return verdict
+    if verdict == "unknown":
+        # The solver ran and decided nothing: the same third state a timeout is.
+        return "timeout"
     if result.get("status") == "pass":
         return "proven"
     err = result.get("error") or {}
@@ -154,8 +169,20 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     # when the watchdog fired.
     verdict = "timeout" if m.timed_out else classify(result, m.rc)
 
+    # A BOUNDED pass is not an unconditional proof. `lhd lec` answers PASS(n) --
+    # "equivalent for n cycles from reset, exhaustive over inputs, deeper cycles
+    # not checked" -- and that is a real, complete answer to a SCOPED question,
+    # so `verdict` stays `proven`. But it is NOT the same claim as an inductive
+    # PROVEN, and the difference is not academic: measured 2026-08-28 on
+    # br_fifo_shared_pop_ctrl, cvc5 answered PASS(6) on a pair that lgyosys
+    # REFUTED with a counterexample deeper than cycle 6. Recording only the word
+    # `proven` hid a genuine refutation. Carry the depth so the report -- and
+    # anyone reading a headline geomean -- can see which proofs are bounded.
+    lec_block = (result or {}).get("lec") or {}
     block = {
         "verdict": verdict,
+        "bounded": bool(lec_block.get("bounded")),
+        "bound": lec_block.get("bound"),
         "solver": solver,
         # Named so the split gate can group by it. `lec_netlist` proves a
         # DIFFERENT thing (rtl-vs-netlist), and comparing verdicts across the

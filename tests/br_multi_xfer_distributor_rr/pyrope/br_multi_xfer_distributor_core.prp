@@ -1,0 +1,213 @@
+const br_flow_checks_valid_data_impl = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_misc_tieoff_one = import("br_misc_tieoff_one.br_misc_tieoff_one")
+const br_multi_xfer_checks_sendable_data_intg = import("br_multi_xfer_checks_sendable_data_intg.br_multi_xfer_checks_sendable_data_intg")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
+
+pub mod br_multi_xfer_distributor_core::[timecheck=false](clk:u1, rst:u1, push_sendable:u3, push_data:u256, pop_ready:u16, grant:u16, grant_ordered:u64, grant_count:u3) -> (push_receivable:u3@[], pop_valid:u16@[], pop_data:u1024@[], request:u16@[], grant_allowed:u3@[], enable_priority_update:u1@[]) {
+  mut grant_ordered_transposed:u64 = 0
+  grant_ordered_transposed = 0sb?
+  pop_data = 0sb?
+  mut grant_ordered_transposed__w1 = grant_ordered_transposed
+  grant_ordered_transposed__w1#[0] = grant_ordered#[0..=15] & 1
+  mut grant_ordered_transposed__w2 = grant_ordered_transposed__w1
+  grant_ordered_transposed__w2#[1] = grant_ordered#[16..=31] & 1
+  mut grant_ordered_transposed__w3 = grant_ordered_transposed__w2
+  grant_ordered_transposed__w3#[2] = grant_ordered#[32..=47] & 1
+  mut grant_ordered_transposed__w4 = grant_ordered_transposed__w3
+  grant_ordered_transposed__w4#[3] = grant_ordered#[48..=63] & 1
+  mut grant_ordered_transposed__w5 = grant_ordered_transposed__w4
+  grant_ordered_transposed__w5#[4] = (grant_ordered#[0..=15] >> 1) & 1
+  mut grant_ordered_transposed__w6 = grant_ordered_transposed__w5
+  grant_ordered_transposed__w6#[5] = (grant_ordered#[16..=31] >> 1) & 1
+  mut grant_ordered_transposed__w7 = grant_ordered_transposed__w6
+  grant_ordered_transposed__w7#[6] = (grant_ordered#[32..=47] >> 1) & 1
+  mut grant_ordered_transposed__w8 = grant_ordered_transposed__w7
+  grant_ordered_transposed__w8#[7] = (grant_ordered#[48..=63] >> 1) & 1
+  mut grant_ordered_transposed__w9 = grant_ordered_transposed__w8
+  grant_ordered_transposed__w9#[8] = (grant_ordered#[0..=15] >> 2) & 1
+  mut grant_ordered_transposed__w10 = grant_ordered_transposed__w9
+  grant_ordered_transposed__w10#[9] = (grant_ordered#[16..=31] >> 2) & 1
+  mut grant_ordered_transposed__w11 = grant_ordered_transposed__w10
+  grant_ordered_transposed__w11#[10] = (grant_ordered#[32..=47] >> 2) & 1
+  mut grant_ordered_transposed__w12 = grant_ordered_transposed__w11
+  grant_ordered_transposed__w12#[11] = (grant_ordered#[48..=63] >> 2) & 1
+  mut grant_ordered_transposed__w13 = grant_ordered_transposed__w12
+  grant_ordered_transposed__w13#[12] = (grant_ordered#[0..=15] >> 3) & 1
+  mut grant_ordered_transposed__w14 = grant_ordered_transposed__w13
+  grant_ordered_transposed__w14#[13] = (grant_ordered#[16..=31] >> 3) & 1
+  mut grant_ordered_transposed__w15 = grant_ordered_transposed__w14
+  grant_ordered_transposed__w15#[14] = (grant_ordered#[32..=47] >> 3) & 1
+  mut grant_ordered_transposed__w16 = grant_ordered_transposed__w15
+  grant_ordered_transposed__w16#[15] = (grant_ordered#[48..=63] >> 3) & 1
+  mut grant_ordered_transposed__w17 = grant_ordered_transposed__w16
+  grant_ordered_transposed__w17#[16] = (grant_ordered#[0..=15] >> 4) & 1
+  mut grant_ordered_transposed__w18 = grant_ordered_transposed__w17
+  grant_ordered_transposed__w18#[17] = (grant_ordered#[16..=31] >> 4) & 1
+  mut grant_ordered_transposed__w19 = grant_ordered_transposed__w18
+  grant_ordered_transposed__w19#[18] = (grant_ordered#[32..=47] >> 4) & 1
+  mut grant_ordered_transposed__w20 = grant_ordered_transposed__w19
+  grant_ordered_transposed__w20#[19] = (grant_ordered#[48..=63] >> 4) & 1
+  mut grant_ordered_transposed__w21 = grant_ordered_transposed__w20
+  grant_ordered_transposed__w21#[20] = (grant_ordered#[0..=15] >> 5) & 1
+  mut grant_ordered_transposed__w22 = grant_ordered_transposed__w21
+  grant_ordered_transposed__w22#[21] = (grant_ordered#[16..=31] >> 5) & 1
+  mut grant_ordered_transposed__w23 = grant_ordered_transposed__w22
+  grant_ordered_transposed__w23#[22] = (grant_ordered#[32..=47] >> 5) & 1
+  mut grant_ordered_transposed__w24 = grant_ordered_transposed__w23
+  grant_ordered_transposed__w24#[23] = (grant_ordered#[48..=63] >> 5) & 1
+  mut grant_ordered_transposed__w25 = grant_ordered_transposed__w24
+  grant_ordered_transposed__w25#[24] = (grant_ordered#[0..=15] >> 6) & 1
+  mut grant_ordered_transposed__w26 = grant_ordered_transposed__w25
+  grant_ordered_transposed__w26#[25] = (grant_ordered#[16..=31] >> 6) & 1
+  mut grant_ordered_transposed__w27 = grant_ordered_transposed__w26
+  grant_ordered_transposed__w27#[26] = (grant_ordered#[32..=47] >> 6) & 1
+  mut grant_ordered_transposed__w28 = grant_ordered_transposed__w27
+  grant_ordered_transposed__w28#[27] = (grant_ordered#[48..=63] >> 6) & 1
+  mut grant_ordered_transposed__w29 = grant_ordered_transposed__w28
+  grant_ordered_transposed__w29#[28] = (grant_ordered#[0..=15] >> 7) & 1
+  mut grant_ordered_transposed__w30 = grant_ordered_transposed__w29
+  grant_ordered_transposed__w30#[29] = (grant_ordered#[16..=31] >> 7) & 1
+  mut grant_ordered_transposed__w31 = grant_ordered_transposed__w30
+  grant_ordered_transposed__w31#[30] = (grant_ordered#[32..=47] >> 7) & 1
+  mut grant_ordered_transposed__w32 = grant_ordered_transposed__w31
+  grant_ordered_transposed__w32#[31] = (grant_ordered#[48..=63] >> 7) & 1
+  mut grant_ordered_transposed__w33 = grant_ordered_transposed__w32
+  grant_ordered_transposed__w33#[32] = (grant_ordered#[0..=15] >> 8) & 1
+  mut grant_ordered_transposed__w34 = grant_ordered_transposed__w33
+  grant_ordered_transposed__w34#[33] = (grant_ordered#[16..=31] >> 8) & 1
+  mut grant_ordered_transposed__w35 = grant_ordered_transposed__w34
+  grant_ordered_transposed__w35#[34] = (grant_ordered#[32..=47] >> 8) & 1
+  mut grant_ordered_transposed__w36 = grant_ordered_transposed__w35
+  grant_ordered_transposed__w36#[35] = (grant_ordered#[48..=63] >> 8) & 1
+  mut grant_ordered_transposed__w37 = grant_ordered_transposed__w36
+  grant_ordered_transposed__w37#[36] = (grant_ordered#[0..=15] >> 9) & 1
+  mut grant_ordered_transposed__w38 = grant_ordered_transposed__w37
+  grant_ordered_transposed__w38#[37] = (grant_ordered#[16..=31] >> 9) & 1
+  mut grant_ordered_transposed__w39 = grant_ordered_transposed__w38
+  grant_ordered_transposed__w39#[38] = (grant_ordered#[32..=47] >> 9) & 1
+  mut grant_ordered_transposed__w40 = grant_ordered_transposed__w39
+  grant_ordered_transposed__w40#[39] = (grant_ordered#[48..=63] >> 9) & 1
+  mut grant_ordered_transposed__w41 = grant_ordered_transposed__w40
+  grant_ordered_transposed__w41#[40] = (grant_ordered#[0..=15] >> 10) & 1
+  mut grant_ordered_transposed__w42 = grant_ordered_transposed__w41
+  grant_ordered_transposed__w42#[41] = (grant_ordered#[16..=31] >> 10) & 1
+  mut grant_ordered_transposed__w43 = grant_ordered_transposed__w42
+  grant_ordered_transposed__w43#[42] = (grant_ordered#[32..=47] >> 10) & 1
+  mut grant_ordered_transposed__w44 = grant_ordered_transposed__w43
+  grant_ordered_transposed__w44#[43] = (grant_ordered#[48..=63] >> 10) & 1
+  mut grant_ordered_transposed__w45 = grant_ordered_transposed__w44
+  grant_ordered_transposed__w45#[44] = (grant_ordered#[0..=15] >> 11) & 1
+  mut grant_ordered_transposed__w46 = grant_ordered_transposed__w45
+  grant_ordered_transposed__w46#[45] = (grant_ordered#[16..=31] >> 11) & 1
+  mut grant_ordered_transposed__w47 = grant_ordered_transposed__w46
+  grant_ordered_transposed__w47#[46] = (grant_ordered#[32..=47] >> 11) & 1
+  mut grant_ordered_transposed__w48 = grant_ordered_transposed__w47
+  grant_ordered_transposed__w48#[47] = (grant_ordered#[48..=63] >> 11) & 1
+  mut grant_ordered_transposed__w49 = grant_ordered_transposed__w48
+  grant_ordered_transposed__w49#[48] = (grant_ordered#[0..=15] >> 12) & 1
+  mut grant_ordered_transposed__w50 = grant_ordered_transposed__w49
+  grant_ordered_transposed__w50#[49] = (grant_ordered#[16..=31] >> 12) & 1
+  mut grant_ordered_transposed__w51 = grant_ordered_transposed__w50
+  grant_ordered_transposed__w51#[50] = (grant_ordered#[32..=47] >> 12) & 1
+  mut grant_ordered_transposed__w52 = grant_ordered_transposed__w51
+  grant_ordered_transposed__w52#[51] = (grant_ordered#[48..=63] >> 12) & 1
+  mut grant_ordered_transposed__w53 = grant_ordered_transposed__w52
+  grant_ordered_transposed__w53#[52] = (grant_ordered#[0..=15] >> 13) & 1
+  mut grant_ordered_transposed__w54 = grant_ordered_transposed__w53
+  grant_ordered_transposed__w54#[53] = (grant_ordered#[16..=31] >> 13) & 1
+  mut grant_ordered_transposed__w55 = grant_ordered_transposed__w54
+  grant_ordered_transposed__w55#[54] = (grant_ordered#[32..=47] >> 13) & 1
+  mut grant_ordered_transposed__w56 = grant_ordered_transposed__w55
+  grant_ordered_transposed__w56#[55] = (grant_ordered#[48..=63] >> 13) & 1
+  mut grant_ordered_transposed__w57 = grant_ordered_transposed__w56
+  grant_ordered_transposed__w57#[56] = (grant_ordered#[0..=15] >> 14) & 1
+  mut grant_ordered_transposed__w58 = grant_ordered_transposed__w57
+  grant_ordered_transposed__w58#[57] = (grant_ordered#[16..=31] >> 14) & 1
+  mut grant_ordered_transposed__w59 = grant_ordered_transposed__w58
+  grant_ordered_transposed__w59#[58] = (grant_ordered#[32..=47] >> 14) & 1
+  mut grant_ordered_transposed__w60 = grant_ordered_transposed__w59
+  grant_ordered_transposed__w60#[59] = (grant_ordered#[48..=63] >> 14) & 1
+  mut grant_ordered_transposed__w61 = grant_ordered_transposed__w60
+  grant_ordered_transposed__w61#[60] = (grant_ordered#[0..=15] >> 15) & 1
+  mut grant_ordered_transposed__w62 = grant_ordered_transposed__w61
+  grant_ordered_transposed__w62#[61] = (grant_ordered#[16..=31] >> 15) & 1
+  mut grant_ordered_transposed__w63 = grant_ordered_transposed__w62
+  grant_ordered_transposed__w63#[62] = (grant_ordered#[32..=47] >> 15) & 1
+  mut grant_ordered_transposed__w64 = grant_ordered_transposed__w63
+  grant_ordered_transposed__w64#[63] = (grant_ordered#[48..=63] >> 15) & 1
+  const pop_valid__w1 = grant
+  const push_receivable__w1 = grant_count
+  mut br_misc_tieoff_one_enable_priority_update = br_misc_tieoff_one::[name=br_misc_tieoff_one_enable_priority_update]()
+  const t189 = grant_ordered_transposed__w64#[0..=3]
+  mut gen_pop_data_0_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_0_br_mux_onehot_pop_data](select = t189, `in` = push_data)
+  mut pop_data__w1 = pop_data
+  pop_data__w1#[0..=63] = gen_pop_data_0_br_mux_onehot_pop_data#[0..=63]
+  const t191 = grant_ordered_transposed__w64#[4..=7]
+  mut gen_pop_data_1_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_1_br_mux_onehot_pop_data](select = t191, `in` = push_data)
+  mut pop_data__w2 = pop_data__w1
+  pop_data__w2#[64..=127] = gen_pop_data_1_br_mux_onehot_pop_data#[0..=63]
+  const t193 = grant_ordered_transposed__w64#[8..=11]
+  mut gen_pop_data_2_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_2_br_mux_onehot_pop_data](select = t193, `in` = push_data)
+  mut pop_data__w3 = pop_data__w2
+  pop_data__w3#[128..=191] = gen_pop_data_2_br_mux_onehot_pop_data#[0..=63]
+  const t195 = grant_ordered_transposed__w64#[12..=15]
+  mut gen_pop_data_3_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_3_br_mux_onehot_pop_data](select = t195, `in` = push_data)
+  mut pop_data__w4 = pop_data__w3
+  pop_data__w4#[192..=255] = gen_pop_data_3_br_mux_onehot_pop_data#[0..=63]
+  const t197 = grant_ordered_transposed__w64#[16..=19]
+  mut gen_pop_data_4_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_4_br_mux_onehot_pop_data](select = t197, `in` = push_data)
+  mut pop_data__w5 = pop_data__w4
+  pop_data__w5#[256..=319] = gen_pop_data_4_br_mux_onehot_pop_data#[0..=63]
+  const t199 = grant_ordered_transposed__w64#[20..=23]
+  mut gen_pop_data_5_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_5_br_mux_onehot_pop_data](select = t199, `in` = push_data)
+  mut pop_data__w6 = pop_data__w5
+  pop_data__w6#[320..=383] = gen_pop_data_5_br_mux_onehot_pop_data#[0..=63]
+  const t201 = grant_ordered_transposed__w64#[24..=27]
+  mut gen_pop_data_6_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_6_br_mux_onehot_pop_data](select = t201, `in` = push_data)
+  mut pop_data__w7 = pop_data__w6
+  pop_data__w7#[384..=447] = gen_pop_data_6_br_mux_onehot_pop_data#[0..=63]
+  const t203 = grant_ordered_transposed__w64#[28..=31]
+  mut gen_pop_data_7_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_7_br_mux_onehot_pop_data](select = t203, `in` = push_data)
+  mut pop_data__w8 = pop_data__w7
+  pop_data__w8#[448..=511] = gen_pop_data_7_br_mux_onehot_pop_data#[0..=63]
+  const t205 = grant_ordered_transposed__w64#[32..=35]
+  mut gen_pop_data_8_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_8_br_mux_onehot_pop_data](select = t205, `in` = push_data)
+  mut pop_data__w9 = pop_data__w8
+  pop_data__w9#[512..=575] = gen_pop_data_8_br_mux_onehot_pop_data#[0..=63]
+  const t207 = grant_ordered_transposed__w64#[36..=39]
+  mut gen_pop_data_9_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_9_br_mux_onehot_pop_data](select = t207, `in` = push_data)
+  mut pop_data__w10 = pop_data__w9
+  pop_data__w10#[576..=639] = gen_pop_data_9_br_mux_onehot_pop_data#[0..=63]
+  const t209 = grant_ordered_transposed__w64#[40..=43]
+  mut gen_pop_data_10_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_10_br_mux_onehot_pop_data](select = t209, `in` = push_data)
+  mut pop_data__w11 = pop_data__w10
+  pop_data__w11#[640..=703] = gen_pop_data_10_br_mux_onehot_pop_data#[0..=63]
+  const t211 = grant_ordered_transposed__w64#[44..=47]
+  mut gen_pop_data_11_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_11_br_mux_onehot_pop_data](select = t211, `in` = push_data)
+  mut pop_data__w12 = pop_data__w11
+  pop_data__w12#[704..=767] = gen_pop_data_11_br_mux_onehot_pop_data#[0..=63]
+  const t213 = grant_ordered_transposed__w64#[48..=51]
+  mut gen_pop_data_12_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_12_br_mux_onehot_pop_data](select = t213, `in` = push_data)
+  mut pop_data__w13 = pop_data__w12
+  pop_data__w13#[768..=831] = gen_pop_data_12_br_mux_onehot_pop_data#[0..=63]
+  const t215 = grant_ordered_transposed__w64#[52..=55]
+  mut gen_pop_data_13_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_13_br_mux_onehot_pop_data](select = t215, `in` = push_data)
+  mut pop_data__w14 = pop_data__w13
+  pop_data__w14#[832..=895] = gen_pop_data_13_br_mux_onehot_pop_data#[0..=63]
+  const t217 = grant_ordered_transposed__w64#[56..=59]
+  mut gen_pop_data_14_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_14_br_mux_onehot_pop_data](select = t217, `in` = push_data)
+  mut pop_data__w15 = pop_data__w14
+  pop_data__w15#[896..=959] = gen_pop_data_14_br_mux_onehot_pop_data#[0..=63]
+  const t219 = grant_ordered_transposed__w64#[60..=63]
+  mut gen_pop_data_15_br_mux_onehot_pop_data = br_mux_onehot::[name=gen_pop_data_15_br_mux_onehot_pop_data](select = t219, `in` = push_data)
+  mut pop_data__w16 = pop_data__w15
+  pop_data__w16#[960..=1023] = gen_pop_data_15_br_mux_onehot_pop_data#[0..=63]
+  br_flow_checks_valid_data_impl::[name=br_flow_checks_valid_data_impl_pop](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w16)
+  br_multi_xfer_checks_sendable_data_intg::[name=br_multi_xfer_checks_sendable_data_intg_push](clk = clk, rst = rst, receivable = push_receivable__w1, sendable = push_sendable, data = push_data)
+  push_receivable = push_receivable__w1
+  pop_valid = pop_valid__w1
+  pop_data = pop_data__w16
+  request = pop_ready
+  grant_allowed = push_sendable
+  enable_priority_update = br_misc_tieoff_one_enable_priority_update
+}

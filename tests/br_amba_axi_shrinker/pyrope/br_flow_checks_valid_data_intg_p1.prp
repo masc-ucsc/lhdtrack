@@ -1,0 +1,5 @@
+const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
+
+pub mod br_flow_checks_valid_data_intg_p1::[timecheck=false](clk:u1, rst:u1, valid:u1, ready:u1, data:u7) -> () {
+  br_misc_unused_p2::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 9) | ((valid & 1) << 8) | ((ready & 1) << 7) | data)
+}

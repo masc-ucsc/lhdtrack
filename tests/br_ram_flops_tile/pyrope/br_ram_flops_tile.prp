@@ -6,7 +6,7 @@ pub mod br_ram_flops_tile::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:u1, 
   if (wr_valid & 1) != 0 {
     mem[wr_addr] = wr_data
   }
-  br_misc_unused::[name=br_misc_unused_wr_word_en](`in` = wr_word_en)
+  br_misc_unused::[name=gen_multi_entry_gen_unused_wr_word_en_br_misc_unused_wr_word_en](`in` = wr_word_en)
   mut rd_data__w1 = rd_data
   rd_data__w1#[0..=31] = mem[rd_addr]#[0..=31]
   rd_data_valid = rd_addr_valid

@@ -1,18 +1,18 @@
-const br_mux_bin_t = import("br_mux_bin.br_mux_bin")
+const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
 pub mod br_mux_bin_array::[timecheck=false](select:u8, `in`:u512) -> (out:u64@[], out_valid:u2@[]) {
   out = 0sb?
   out_valid = 0sb?
-  mut br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = select#[0..=3], `in` = `in`)
+  mut gen_mux_0_br_mux_bin = br_mux_bin::[name=gen_mux_0_br_mux_bin](select = select#[0..=3], `in` = `in`)
   mut out__w1 = out
-  out__w1#[0..=31] = br_mux_bin["out"]#[0..=31]
+  out__w1#[0..=31] = gen_mux_0_br_mux_bin.out#[0..=31]
   mut out_valid__w1 = out_valid
-  out_valid__w1#[0] = br_mux_bin["out_valid"] & 1
-  br_mux_bin = br_mux_bin_t::[name=br_mux_bin](select = select#[4..=7], `in` = `in`)
+  out_valid__w1#[0] = gen_mux_0_br_mux_bin.out_valid & 1
+  mut gen_mux_1_br_mux_bin = br_mux_bin::[name=gen_mux_1_br_mux_bin](select = select#[4..=7], `in` = `in`)
   mut out__w2 = out__w1
-  out__w2#[32..=63] = br_mux_bin["out"]#[0..=31]
+  out__w2#[32..=63] = gen_mux_1_br_mux_bin.out#[0..=31]
   mut out_valid__w2 = out_valid__w1
-  out_valid__w2#[1] = br_mux_bin["out_valid"] & 1
+  out_valid__w2#[1] = gen_mux_1_br_mux_bin.out_valid & 1
   out = out__w2
   out_valid = out_valid__w2
 }

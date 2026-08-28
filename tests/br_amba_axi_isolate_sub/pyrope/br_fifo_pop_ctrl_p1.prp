@@ -1,0 +1,24 @@
+const br_counter_p2 = import("br_counter_p2.br_counter_p2")
+const br_fifo_pop_ctrl_core_p1 = import("br_fifo_pop_ctrl_core_p1.br_fifo_pop_ctrl_core_p1")
+
+pub mod br_fifo_pop_ctrl_p1::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, bypass_valid_unstable:u1, bypass_data_unstable:u1, ram_rd_data_valid:u1, ram_rd_data:u1, push_beat:u1) -> (pop_valid:u1@[], pop_data:u1@[], empty:u1@[], empty_next:u1@[], items:u2@[], items_next:u2@[], bypass_ready:u1@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u1@[], pop_beat:u1@[]) {
+  reg empty:u1
+  wire items:u2
+  mut br_fifo_pop_ctrl_core = br_fifo_pop_ctrl_core_p1::[name=br_fifo_pop_ctrl_core](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = bypass_valid_unstable, bypass_data_unstable = bypass_data_unstable, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, empty = empty, items = items)
+  mut br_counter_items = br_counter_p2::[name=br_counter_items](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = push_beat, incr = 1, decr_valid = br_fifo_pop_ctrl_core.pop_beat, decr = 1)
+  items = br_counter_items.value
+  const empty_next__w1 = unsigned(br_counter_items.value_next == 0)
+  if rst != 0 {
+    empty = 1
+  } elif (push_beat != 0) or (br_fifo_pop_ctrl_core.pop_beat != 0) {
+    empty = empty_next__w1
+  }
+  pop_valid = br_fifo_pop_ctrl_core.pop_valid
+  pop_data = br_fifo_pop_ctrl_core.pop_data
+  empty_next = empty_next__w1
+  items_next = br_counter_items.value_next
+  bypass_ready = br_fifo_pop_ctrl_core.bypass_ready
+  ram_rd_addr_valid = br_fifo_pop_ctrl_core.ram_rd_addr_valid
+  ram_rd_addr = br_fifo_pop_ctrl_core.ram_rd_addr
+  pop_beat = br_fifo_pop_ctrl_core.pop_beat
+}

@@ -10,6 +10,8 @@
 /bazel-*
 MODULE.bazel.lock
 
+manifest.json
+
 # Python
 __pycache__/
 *.py[cod]

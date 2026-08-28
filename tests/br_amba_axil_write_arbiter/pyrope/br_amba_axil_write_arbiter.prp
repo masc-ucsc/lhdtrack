@@ -26,20 +26,20 @@ pub mod br_amba_axil_write_arbiter::[timecheck=false](clk:u1, rst:u1, upstream_a
   request_push_data__w1#[0..=117] = (0 | ((upstream_wuser & 1) << 1) | (upstream_wstrb#[0..=7] << 2) | (upstream_wdata#[0..=63] << 10) | ((upstream_awuser & 1) << 0x4a) | (upstream_awprot#[0..=2] << 0x4b) | (upstream_awaddr#[0..=39] << 0x4e))#[0..=117]
   mut request_push_data__w2 = request_push_data__w1
   request_push_data__w2#[118..=235] = (1 | (((upstream_wuser >> 1) & 1) << 1) | (upstream_wstrb#[8..=15] << 2) | (upstream_wdata#[64..=127] << 10) | (((upstream_awuser >> 1) & 1) << 0x4a) | (upstream_awprot#[3..=5] << 0x4b) | (upstream_awaddr#[40..=79] << 0x4e))#[0..=117]
-  mut br_flow_join_aw_w = br_flow_join::[name=br_flow_join_aw_w](clk = clk, rst = rst, push_valid = ((upstream_awvalid & 1) << 1) | (upstream_wvalid & 1), pop_ready = request_push_ready & 1)
+  mut gen_request_0_br_flow_join_aw_w = br_flow_join::[name=gen_request_0_br_flow_join_aw_w](clk = clk, rst = rst, push_valid = ((upstream_awvalid & 1) << 1) | (upstream_wvalid & 1), pop_ready = request_push_ready & 1)
   mut upstream_wready__w1 = upstream_wready
-  upstream_wready__w1#[0] = br_flow_join_aw_w["push_ready"] & 1
+  upstream_wready__w1#[0] = gen_request_0_br_flow_join_aw_w.push_ready & 1
   mut upstream_awready__w1 = upstream_awready
-  upstream_awready__w1#[0] = (br_flow_join_aw_w["push_ready"] >> 1) & 1
+  upstream_awready__w1#[0] = (gen_request_0_br_flow_join_aw_w.push_ready >> 1) & 1
   mut request_push_valid__w1 = request_push_valid
-  request_push_valid__w1#[0] = br_flow_join_aw_w["pop_valid"] & 1
-  br_flow_join_aw_w = br_flow_join::[name=br_flow_join_aw_w](clk = clk, rst = rst, push_valid = (((upstream_awvalid >> 1) & 1) << 1) | ((upstream_wvalid >> 1) & 1), pop_ready = (request_push_ready >> 1) & 1)
+  request_push_valid__w1#[0] = gen_request_0_br_flow_join_aw_w.pop_valid & 1
+  mut gen_request_1_br_flow_join_aw_w = br_flow_join::[name=gen_request_1_br_flow_join_aw_w](clk = clk, rst = rst, push_valid = (((upstream_awvalid >> 1) & 1) << 1) | ((upstream_wvalid >> 1) & 1), pop_ready = (request_push_ready >> 1) & 1)
   mut upstream_wready__w2 = upstream_wready__w1
-  upstream_wready__w2#[1] = br_flow_join_aw_w["push_ready"] & 1
+  upstream_wready__w2#[1] = gen_request_1_br_flow_join_aw_w.push_ready & 1
   mut upstream_awready__w2 = upstream_awready__w1
-  upstream_awready__w2#[1] = (br_flow_join_aw_w["push_ready"] >> 1) & 1
+  upstream_awready__w2#[1] = (gen_request_1_br_flow_join_aw_w.push_ready >> 1) & 1
   mut request_push_valid__w2 = request_push_valid__w1
-  request_push_valid__w2#[1] = br_flow_join_aw_w["pop_valid"] & 1
+  request_push_valid__w2#[1] = gen_request_1_br_flow_join_aw_w.pop_valid & 1
   mut br_flow_mux_rr = br_flow_mux_rr_t::[name=br_flow_mux_rr](clk = clk, rst = rst, push_valid = request_push_valid__w2, push_data = request_push_data__w2, pop_ready = request_pop_ready)
   request_push_ready = br_flow_mux_rr.push_ready
   mut `request_pop_data.awaddr` = br_flow_mux_rr.pop_data_unstable#[78..=117]
@@ -56,10 +56,10 @@ pub mod br_amba_axil_write_arbiter::[timecheck=false](clk:u1, rst:u1, upstream_a
   mut br_flow_reg_fwd_w = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_w](clk = clk, rst = rst, push_valid = (br_flow_fork.pop_valid_unstable >> 1) & 1, push_data = (`request_pop_data.wdata`#[0..=63] << 9) | (`request_pop_data.wstrb`#[0..=7] << 1) | (`request_pop_data.wuser` & 1), pop_ready = downstream_wready)
   mut request_fork_ready__wtmp__w1 = request_fork_ready__wtmp
   request_fork_ready__wtmp__w1#[1] = br_flow_reg_fwd_w.push_ready & 1
-  mut br_flow_reg_fwd_owner = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_owner](clk = clk, rst = rst, push_valid = (br_flow_fork.pop_valid_unstable >> 2) & 1, push_data = `request_pop_data.owner`, pop_ready = owner_ready)
+  mut gen_owner_reg_br_flow_reg_fwd_owner = br_flow_reg_fwd_p2::[name=gen_owner_reg_br_flow_reg_fwd_owner](clk = clk, rst = rst, push_valid = (br_flow_fork.pop_valid_unstable >> 2) & 1, push_data = `request_pop_data.owner`, pop_ready = owner_ready)
   mut request_fork_ready__wtmp__w2 = request_fork_ready__wtmp__w1
-  request_fork_ready__wtmp__w2#[2] = br_flow_reg_fwd_owner.push_ready & 1
-  mut br_flow_demux_select_unstable_b = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_b](clk = clk, rst = rst, select = br_flow_reg_fwd_owner.pop_data, push_valid = response_push_valid, push_data = (downstream_bresp << 1) | (downstream_buser & 1), pop_ready = upstream_bready)
+  request_fork_ready__wtmp__w2#[2] = gen_owner_reg_br_flow_reg_fwd_owner.push_ready & 1
+  mut br_flow_demux_select_unstable_b = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_b](clk = clk, rst = rst, select = gen_owner_reg_br_flow_reg_fwd_owner.pop_data, push_valid = response_push_valid, push_data = (downstream_bresp << 1) | (downstream_buser & 1), pop_ready = upstream_bready)
   mut upstream_bresp__w1 = upstream_bresp
   upstream_bresp__w1#[0..=1] = br_flow_demux_select_unstable_b.pop_data_unstable#[0..=2]#[1..=2]
   mut upstream_buser__w1 = upstream_buser
@@ -68,7 +68,7 @@ pub mod br_amba_axil_write_arbiter::[timecheck=false](clk:u1, rst:u1, upstream_a
   upstream_bresp__w2#[2..=3] = br_flow_demux_select_unstable_b.pop_data_unstable#[3..=5]#[1..=2]
   mut upstream_buser__w2 = upstream_buser__w1
   upstream_buser__w2#[1] = br_flow_demux_select_unstable_b.pop_data_unstable#[3..=5] & 1
-  mut br_flow_join_owner_b = br_flow_join::[name=br_flow_join_owner_b](clk = clk, rst = rst, push_valid = ((downstream_bvalid & 1) << 1) | (br_flow_reg_fwd_owner.pop_valid & 1), pop_ready = br_flow_demux_select_unstable_b.push_ready)
+  mut br_flow_join_owner_b = br_flow_join::[name=br_flow_join_owner_b](clk = clk, rst = rst, push_valid = ((downstream_bvalid & 1) << 1) | (gen_owner_reg_br_flow_reg_fwd_owner.pop_valid & 1), pop_ready = br_flow_demux_select_unstable_b.push_ready)
   owner_ready = br_flow_join_owner_b.push_ready & 1
   response_push_valid = br_flow_join_owner_b.pop_valid
   request_fork_ready = request_fork_ready__wtmp__w2

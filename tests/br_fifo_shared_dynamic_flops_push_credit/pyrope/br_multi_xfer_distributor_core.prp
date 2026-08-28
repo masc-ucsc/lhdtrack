@@ -1,0 +1,35 @@
+const br_flow_checks_valid_data_impl = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_misc_tieoff_one = import("br_misc_tieoff_one.br_misc_tieoff_one")
+const br_multi_xfer_checks_sendable_data_intg_p1 = import("br_multi_xfer_checks_sendable_data_intg_p1.br_multi_xfer_checks_sendable_data_intg_p1")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+
+pub mod br_multi_xfer_distributor_core::[timecheck=false](clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_ready:u2, grant:u2, grant_ordered:u4, grant_count:u2) -> (push_receivable:u2@[], pop_valid:u2@[], pop_data:u10@[], request:u2@[], grant_allowed:u2@[], enable_priority_update:u1@[]) {
+  mut grant_ordered_transposed:u4 = 0
+  grant_ordered_transposed = 0sb?
+  pop_data = 0sb?
+  mut grant_ordered_transposed__w1 = grant_ordered_transposed
+  grant_ordered_transposed__w1#[0] = grant_ordered#[0..=1] & 1
+  mut grant_ordered_transposed__w2 = grant_ordered_transposed__w1
+  grant_ordered_transposed__w2#[1] = grant_ordered#[2..=3] & 1
+  mut grant_ordered_transposed__w3 = grant_ordered_transposed__w2
+  grant_ordered_transposed__w3#[2] = (grant_ordered#[0..=1] >> 1) & 1
+  mut grant_ordered_transposed__w4 = grant_ordered_transposed__w3
+  grant_ordered_transposed__w4#[3] = (grant_ordered#[2..=3] >> 1) & 1
+  const pop_valid__w1 = grant
+  const push_receivable__w1 = grant_count
+  mut br_misc_tieoff_one_enable_priority_update = br_misc_tieoff_one::[name=br_misc_tieoff_one_enable_priority_update]()
+  mut gen_pop_data_0_br_mux_onehot_pop_data = br_mux_onehot_p1::[name=gen_pop_data_0_br_mux_onehot_pop_data](select = grant_ordered_transposed__w4#[0..=1], `in` = push_data)
+  mut pop_data__w1 = pop_data
+  pop_data__w1#[0..=4] = gen_pop_data_0_br_mux_onehot_pop_data#[0..=4]
+  mut gen_pop_data_1_br_mux_onehot_pop_data = br_mux_onehot_p1::[name=gen_pop_data_1_br_mux_onehot_pop_data](select = grant_ordered_transposed__w4#[2..=3], `in` = push_data)
+  mut pop_data__w2 = pop_data__w1
+  pop_data__w2#[5..=9] = gen_pop_data_1_br_mux_onehot_pop_data#[0..=4]
+  br_flow_checks_valid_data_impl::[name=br_flow_checks_valid_data_impl_pop](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w2)
+  br_multi_xfer_checks_sendable_data_intg_p1::[name=br_multi_xfer_checks_sendable_data_intg_push](clk = clk, rst = rst, receivable = push_receivable__w1, sendable = push_sendable, data = push_data)
+  push_receivable = push_receivable__w1
+  pop_valid = pop_valid__w1
+  pop_data = pop_data__w2
+  request = pop_ready
+  grant_allowed = push_sendable
+  enable_priority_update = br_misc_tieoff_one_enable_priority_update
+}

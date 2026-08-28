@@ -1,0 +1,39 @@
+const br_counter = import("br_counter.br_counter")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_amba_iso_wdata_align::[timecheck=false](clk:u1, rst:u1, upstream_awvalid:u1, upstream_awlen:u1, upstream_wvalid:u1, upstream_wlast:u1, downstream_awready:u1, downstream_wready:u1, align_and_hold_req:u1) -> (upstream_awready:u1@[], upstream_wready:u1@[], downstream_awvalid:u1@[], downstream_wvalid:u1@[], downstream_wlast:u1@[], align_and_hold_done:u1@[]) {
+  wire excess_w_data_beats:u2
+  wire excess_aw_data_beats:u2
+  br_misc_unused::[name=gen_aw_len_single_beat_br_misc_unused_upstream_awlen](`in` = upstream_awlen)
+  const align_and_hold_done__w1 = unsigned((align_and_hold_req != 0) and (unsigned((excess_aw_data_beats == 0) and (excess_w_data_beats == 0)) != 0))
+  const holdoff_w__w1 = unsigned((unsigned(excess_w_data_beats >= 1) != 0) or ((align_and_hold_req != 0) and (unsigned(excess_w_data_beats > excess_aw_data_beats) != 0)) or (align_and_hold_done__w1 != 0))
+  const holdoff_aw__w1 = unsigned((unsigned(excess_aw_data_beats >= 1) != 0) or false or ((align_and_hold_req != 0) and (unsigned(excess_aw_data_beats > excess_w_data_beats) != 0)) or (align_and_hold_done__w1 != 0))
+  const downstream_awvalid__w1 = unsigned((upstream_awvalid != 0) and (holdoff_aw__w1 == 0))
+  const downstream_wvalid__w1 = unsigned(((upstream_wvalid != 0) or false) and (holdoff_w__w1 == 0))
+  mut _mux_15:u1 = if unsigned((downstream_awvalid__w1 != 0) and (downstream_awready != 0)) != 0 { 1 } else { 0 }
+  const aw_incr__w1 = _mux_15
+  mut _mux_16:u1 = if unsigned((downstream_wvalid__w1 != 0) and (downstream_wready != 0)) != 0 { 1 } else { 0 }
+  const w_incr__w1 = _mux_16
+  mut _mux_17:u1 = if aw_incr__w1 > w_incr__w1 { (aw_incr__w1 - w_incr__w1) & 1 } else { (w_incr__w1 - aw_incr__w1) & 1 }
+  const delta_mag__w1 = _mux_17
+  const delta_incr_aw_valid__w1 = unsigned(aw_incr__w1 > w_incr__w1)
+  const delta_incr_w_valid__w1 = unsigned(w_incr__w1 > aw_incr__w1)
+  mut _mux_20:u1 = if delta_mag__w1 < excess_w_data_beats { delta_mag__w1 & 1 } else { excess_w_data_beats & 1 }
+  const excess_aw_incr__w1 = (delta_mag__w1 - _mux_20) & 1
+  mut _mux_21:u1 = if delta_mag__w1 < excess_w_data_beats { delta_mag__w1 & 1 } else { excess_w_data_beats & 1 }
+  const excess_w_decr__w1 = _mux_21
+  mut _mux_24:u1 = if delta_mag__w1 < excess_aw_data_beats { delta_mag__w1 & 1 } else { excess_aw_data_beats & 1 }
+  const excess_w_incr__w1 = (delta_mag__w1 - _mux_24) & 1
+  mut _mux_25:u1 = if delta_mag__w1 < excess_aw_data_beats { delta_mag__w1 & 1 } else { excess_aw_data_beats & 1 }
+  const excess_aw_decr__w1 = _mux_25
+  mut br_counter_excess_aw = br_counter::[name=br_counter_excess_aw](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned((delta_incr_aw_valid__w1 != 0) and (excess_aw_incr__w1 != 0)), incr = excess_aw_incr__w1, decr_valid = unsigned((delta_incr_w_valid__w1 != 0) and (excess_aw_decr__w1 != 0)), decr = excess_aw_decr__w1)
+  excess_aw_data_beats = br_counter_excess_aw.value
+  mut br_counter_excess_w = br_counter::[name=br_counter_excess_w](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned((delta_incr_w_valid__w1 != 0) and (excess_w_incr__w1 != 0)), incr = excess_w_incr__w1, decr_valid = unsigned((delta_incr_aw_valid__w1 != 0) and (excess_w_decr__w1 != 0)), decr = excess_w_decr__w1)
+  excess_w_data_beats = br_counter_excess_w.value
+  upstream_awready = unsigned((downstream_awready != 0) and (holdoff_aw__w1 == 0) and true)
+  upstream_wready = unsigned((downstream_wready != 0) and (holdoff_w__w1 == 0) and true)
+  downstream_awvalid = downstream_awvalid__w1
+  downstream_wvalid = downstream_wvalid__w1
+  downstream_wlast = upstream_wlast
+  align_and_hold_done = align_and_hold_done__w1
+}

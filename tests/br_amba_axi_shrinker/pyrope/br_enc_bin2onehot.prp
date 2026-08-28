@@ -1,0 +1,12 @@
+pub comb br_enc_bin2onehot::[timecheck=false](clk:u1, rst:u1, `in`:u2, in_valid:u1) -> (out:u4) {
+  out = 0sb?
+  mut out__w1 = out
+  out__w1#[0] = unsigned((in_valid != 0) and (`in` == 0)) & 1
+  mut out__w2 = out__w1
+  out__w2#[1] = unsigned((in_valid != 0) and (`in` == 1)) & 1
+  mut out__w3 = out__w2
+  out__w3#[2] = unsigned((in_valid != 0) and (`in` == 2)) & 1
+  mut out__w4 = out__w3
+  out__w4#[3] = unsigned((in_valid != 0) and (`in` == 3)) & 1
+  out = out__w4
+}

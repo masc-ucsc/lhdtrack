@@ -1,0 +1,17 @@
+pub mod br_credit_counter_p1::[timecheck=false](clk:u1, rst:u1, incr_valid:u1, incr:u1, decr_valid:u1, decr:u1, initial_value:u2, withhold:u2) -> (decr_ready:u1@[], value:u2@[], available:u2@[]) {
+  reg value:u2
+  mut _mux_1:u1 = if incr_valid != 0 { incr & 1 } else { 0 }
+  mut _mux_2:u1 = if decr_valid != 0 { decr & 1 } else { 0 }
+  const value_plus_incr__w1 = (value + _mux_1)#[0..=1]
+  mut _mux_3:u2 = if value_plus_incr__w1 > withhold { (value_plus_incr__w1 - withhold)#[0..=1] } else { 0 }
+  const decr_ready__w1 = unsigned((value != 0) or (incr_valid != 0))
+  mut _mux_5:u2 = if decr_ready__w1 != 0 { _mux_2 } else { 0 }
+  const value_next__w1 = (value_plus_incr__w1 - _mux_5)#[0..=1]
+  if rst != 0 {
+    value = initial_value
+  } elif unsigned((incr_valid != 0) or ((decr_valid != 0) and (decr_ready__w1 != 0))) != 0 {
+    value = value_next__w1
+  }
+  decr_ready = decr_ready__w1
+  available = _mux_3
+}

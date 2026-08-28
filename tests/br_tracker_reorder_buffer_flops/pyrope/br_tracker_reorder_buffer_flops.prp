@@ -1,0 +1,16 @@
+const br_ram_flops_p1 = import("br_ram_flops_p1.br_ram_flops_p1")
+const br_tracker_reorder_buffer_ctrl_1r1w = import("br_tracker_reorder_buffer_ctrl_1r1w.br_tracker_reorder_buffer_ctrl_1r1w")
+
+pub mod br_tracker_reorder_buffer_flops::[timecheck=false](clk:u1, rst:u1, alloc_ready:u1, unordered_resp_push_valid:u1, unordered_resp_push_entry_id:u4, unordered_resp_push_data:u32, reordered_resp_pop_ready:u1) -> (alloc_valid:u1@[], alloc_entry_id:u4@[], reordered_resp_pop_valid:u1@[], reordered_resp_pop_data:u32@[], resp_pending:u1@[]) {
+  wire ram_rd_data:u32
+  wire ram_rd_data_valid:u1
+  mut br_tracker_reorder_buffer_ctrl_1r1w_inst = br_tracker_reorder_buffer_ctrl_1r1w::[name=br_tracker_reorder_buffer_ctrl_1r1w_inst](clk = clk, rst = rst, alloc_ready = alloc_ready, unordered_resp_push_valid = unordered_resp_push_valid, unordered_resp_push_entry_id = unordered_resp_push_entry_id, unordered_resp_push_data = unordered_resp_push_data, reordered_resp_pop_ready = reordered_resp_pop_ready, ram_rd_data = ram_rd_data, ram_rd_data_valid = ram_rd_data_valid)
+  mut br_ram_flops_reorder_buffer = br_ram_flops_p1::[name=br_ram_flops_reorder_buffer](wr_clk = clk, wr_rst = rst, wr_valid = br_tracker_reorder_buffer_ctrl_1r1w_inst.ram_wr_valid, wr_addr = br_tracker_reorder_buffer_ctrl_1r1w_inst.ram_wr_addr, wr_data = br_tracker_reorder_buffer_ctrl_1r1w_inst.ram_wr_data, wr_word_en = 1, rd_clk = clk, rd_rst = rst, rd_addr_valid = br_tracker_reorder_buffer_ctrl_1r1w_inst.ram_rd_addr_valid, rd_addr = br_tracker_reorder_buffer_ctrl_1r1w_inst.ram_rd_addr)
+  ram_rd_data_valid = br_ram_flops_reorder_buffer.rd_data_valid
+  ram_rd_data = br_ram_flops_reorder_buffer.rd_data
+  alloc_valid = br_tracker_reorder_buffer_ctrl_1r1w_inst.alloc_valid
+  alloc_entry_id = br_tracker_reorder_buffer_ctrl_1r1w_inst.alloc_entry_id
+  reordered_resp_pop_valid = br_tracker_reorder_buffer_ctrl_1r1w_inst.reordered_resp_pop_valid
+  reordered_resp_pop_data = br_tracker_reorder_buffer_ctrl_1r1w_inst.reordered_resp_pop_data
+  resp_pending = br_tracker_reorder_buffer_ctrl_1r1w_inst.resp_pending
+}

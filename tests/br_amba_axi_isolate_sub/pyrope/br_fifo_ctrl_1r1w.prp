@@ -1,0 +1,27 @@
+const br_fifo_pop_ctrl_t = import("br_fifo_pop_ctrl.br_fifo_pop_ctrl")
+const br_fifo_push_ctrl_t = import("br_fifo_push_ctrl.br_fifo_push_ctrl")
+
+pub mod br_fifo_ctrl_1r1w::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u2, pop_ready:u1, ram_rd_data_valid:u1, ram_rd_data:u2) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u2@[], full:u1@[], full_next:u1@[], slots:u2@[], slots_next:u2@[], empty:u1@[], empty_next:u1@[], items:u2@[], items_next:u2@[], ram_wr_valid:u1@[], ram_wr_addr:u1@[], ram_wr_data:u2@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u1@[]) {
+  wire bypass_ready:u1
+  wire pop_beat:u1
+  mut br_fifo_push_ctrl = br_fifo_push_ctrl_t::[name=br_fifo_push_ctrl](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, bypass_ready = bypass_ready, pop_beat = pop_beat)
+  mut br_fifo_pop_ctrl = br_fifo_pop_ctrl_t::[name=br_fifo_pop_ctrl](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = br_fifo_push_ctrl.bypass_valid_unstable, bypass_data_unstable = br_fifo_push_ctrl.bypass_data_unstable, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, push_beat = br_fifo_push_ctrl.push_beat)
+  bypass_ready = br_fifo_pop_ctrl.bypass_ready
+  pop_beat = br_fifo_pop_ctrl.pop_beat
+  push_ready = br_fifo_push_ctrl.push_ready
+  pop_valid = br_fifo_pop_ctrl.pop_valid
+  pop_data = br_fifo_pop_ctrl.pop_data
+  full = br_fifo_push_ctrl.full
+  full_next = br_fifo_push_ctrl.full_next
+  slots = br_fifo_push_ctrl.slots
+  slots_next = br_fifo_push_ctrl.slots_next
+  empty = br_fifo_pop_ctrl.empty
+  empty_next = br_fifo_pop_ctrl.empty_next
+  items = br_fifo_pop_ctrl.items
+  items_next = br_fifo_pop_ctrl.items_next
+  ram_wr_valid = br_fifo_push_ctrl.ram_wr_valid
+  ram_wr_addr = br_fifo_push_ctrl.ram_wr_addr
+  ram_wr_data = br_fifo_push_ctrl.ram_wr_data
+  ram_rd_addr_valid = br_fifo_pop_ctrl.ram_rd_addr_valid
+  ram_rd_addr = br_fifo_pop_ctrl.ram_rd_addr
+}

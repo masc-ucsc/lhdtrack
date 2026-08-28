@@ -1,0 +1,76 @@
+const br_counter_p1 = import("br_counter_p1.br_counter_p1")
+const br_fifo_flops_p3 = import("br_fifo_flops_p3.br_fifo_flops_p3")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_amba_iso_resp_tracker_p1::[timecheck=false](clk:u1, rst:u1, upstream_axvalid:u1, upstream_axid:u1, upstream_axlen:u1, upstream_wvalid:u1, upstream_wlast:u1, upstream_xready:u1, downstream_axready:u1, downstream_wready:u1, downstream_xvalid:u1, downstream_xid:u1, downstream_xresp:u2, downstream_xdata:u33, downstream_xlast:u1, isolate_req:u1) -> (upstream_axready:u1@[], upstream_wready:u1@[], upstream_xvalid:u1@[], upstream_xid:u1@[], upstream_xresp:u2@[], upstream_xlast:u1@[], upstream_xdata:u33@[], downstream_axvalid:u1@[], downstream_axid:u1@[], downstream_axlen:u1@[], downstream_wvalid:u1@[], downstream_wlast:u1@[], downstream_xready:u1@[], resp_fifo_empty:u1@[]) {
+  wire tracker_fifo_pop_valid:u1
+  wire tracker_fifo_pop_ready:u1
+  wire cur_resp_do_pop:u1
+  wire iso_any_gnt:u1
+  wire tracker_fifo_push_ready:u1
+  wire staging_fifo_push_ready:u1
+  mut downstream_iso_xvalid:u1 = 0
+  mut downstream_iso_xresp:u2 = 0
+  mut downstream_iso_xdata:u33 = 0
+  wire upstream_xvalid:u1
+  mut downstream_iso_xid__wtmp:u1 = 0sb?
+  wire downstream_iso_xid:u1
+  wire gen_total_req_count_total_req_count:u5
+  downstream_iso_xvalid = 0ub?
+  downstream_iso_xresp = 0sb?
+  downstream_iso_xdata = 0sb?
+  downstream_xready = 0ub?
+  const can_accept_new_req__w1 = unsigned(gen_total_req_count_total_req_count < 16)
+  br_misc_unused::[name=gen_no_wlast_tracking_br_misc_unused_upstream_wvalid](`in` = upstream_wvalid)
+  br_misc_unused::[name=gen_no_wlast_tracking_br_misc_unused_upstream_wlast](`in` = upstream_wlast)
+  br_misc_unused::[name=gen_no_wlast_tracking_br_misc_unused_downstream_wready](`in` = downstream_wready)
+  br_misc_unused::[name=gen_single_fifo_br_misc_unused_tracker_fifo_push_axid](`in` = 0)
+  br_misc_unused::[name=br_misc_unused_downstream_xlast](`in` = downstream_xlast)
+  const staging_fifo_push_valid__w1 = unsigned((upstream_axvalid != 0) and (downstream_axready != 0) and (can_accept_new_req__w1 != 0))
+  {
+  }
+  br_misc_unused::[name=gen_single_id_only_no_arbiter_br_misc_unused_zero_count_unused_arbiter](`in` = 1)
+  br_misc_unused::[name=gen_single_id_only_resp_info_br_misc_unused_zero_count_unused_resp_info](`in` = 1)
+  mut gen_total_req_count_br_counter_total_req = br_counter_p1::[name=gen_total_req_count_br_counter_total_req](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned((staging_fifo_push_valid__w1 != 0) and (staging_fifo_push_ready != 0)), incr = 1, decr_valid = unsigned((tracker_fifo_pop_valid & tracker_fifo_pop_ready & 1) != 0), decr = 1)
+  gen_total_req_count_total_req_count = gen_total_req_count_br_counter_total_req.value
+  staging_fifo_push_ready = tracker_fifo_push_ready
+  mut gen_single_fifo_br_fifo_flops_req_tracker = br_fifo_flops_p3::[name=gen_single_fifo_br_fifo_flops_req_tracker](clk = clk, rst = rst, push_valid = staging_fifo_push_valid__w1, push_data = 0, pop_ready = tracker_fifo_pop_ready)
+  tracker_fifo_push_ready = gen_single_fifo_br_fifo_flops_req_tracker.push_ready
+  tracker_fifo_pop_valid = gen_single_fifo_br_fifo_flops_req_tracker.pop_valid
+  const cur_resp_valid__w1 = tracker_fifo_pop_valid
+  tracker_fifo_pop_ready = cur_resp_do_pop
+  br_misc_unused::[name=gen_single_id_only_resp_info_br_misc_unused_downstream_iso_xid](`in` = downstream_iso_xid)
+  const final_count__w1 = unsigned(0 == gen_single_fifo_br_fifo_flops_req_tracker.pop_data)
+  const x_beat__w1 = unsigned((upstream_xvalid != 0) and (upstream_xready != 0))
+  br_misc_unused::[name=gen_single_beat_only_no_counter_br_misc_unused_reinit_count](`in` = unsigned((x_beat__w1 != 0) and (final_count__w1 != 0)))
+  br_misc_unused::[name=gen_single_beat_only_no_counter_br_misc_unused_incr_count](`in` = x_beat__w1)
+  cur_resp_do_pop = unsigned((x_beat__w1 != 0) and (final_count__w1 != 0))
+  if isolate_req != 0 {
+    downstream_iso_xresp = 2
+    downstream_iso_xdata = 0
+    downstream_iso_xid__wtmp = 0
+    downstream_iso_xvalid = iso_any_gnt
+    downstream_xready = 1
+  } else {
+    downstream_iso_xresp = downstream_xresp
+    downstream_iso_xdata = downstream_xdata
+    downstream_iso_xid__wtmp = downstream_xid
+    downstream_iso_xvalid = downstream_xvalid
+    downstream_xready = unsigned((cur_resp_valid__w1 != 0) and (upstream_xready != 0))
+  }
+  iso_any_gnt = unsigned(tracker_fifo_pop_valid != 0)
+  upstream_xvalid = unsigned((downstream_iso_xvalid != 0) and (cur_resp_valid__w1 != 0))
+  downstream_iso_xid = downstream_iso_xid__wtmp
+  upstream_axready = unsigned((downstream_axready != 0) and (staging_fifo_push_ready != 0) and (can_accept_new_req__w1 != 0))
+  upstream_wready = 0
+  upstream_xid = 0
+  upstream_xresp = downstream_iso_xresp
+  upstream_xlast = final_count__w1
+  upstream_xdata = downstream_iso_xdata
+  downstream_axvalid = unsigned((upstream_axvalid != 0) and (staging_fifo_push_ready != 0) and (can_accept_new_req__w1 != 0))
+  downstream_axid = upstream_axid
+  downstream_axlen = upstream_axlen
+  downstream_wvalid = 0
+  downstream_wlast = 0
+  resp_fifo_empty = unsigned((gen_single_fifo_br_fifo_flops_req_tracker.empty == 1) and true)
+}

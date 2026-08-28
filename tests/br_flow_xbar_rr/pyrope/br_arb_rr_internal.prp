@@ -8,8 +8,8 @@ pub mod br_arb_rr_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_up
   gen_n_req_request_priority__w1#[5] = 0
   mut gen_n_req_request_priority__w2 = gen_n_req_request_priority__w1
   gen_n_req_request_priority__w2#[10] = 0
-  mut rr_state_internal = br_rr_state_internal::[name=rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
-  const gen_n_req_priority_mask__w1 = (rr_state_internal.priority_mask.e3 << 3) | (rr_state_internal.priority_mask.e2 << 2) | (rr_state_internal.priority_mask.e1 << 1) | rr_state_internal.priority_mask.e0
+  mut gen_n_req_rr_state_internal = br_rr_state_internal::[name=gen_n_req_rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
+  const gen_n_req_priority_mask__w1 = (gen_n_req_rr_state_internal.priority_mask.e3 << 3) | (gen_n_req_rr_state_internal.priority_mask.e2 << 2) | (gen_n_req_rr_state_internal.priority_mask.e1 << 1) | gen_n_req_rr_state_internal.priority_mask.e0
   const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1)#[0..=3]
   mut gen_n_req_request_priority__w3 = gen_n_req_request_priority__w2
   gen_n_req_request_priority__w3#[0..=3] = gen_n_req_request_high__w1#[1..=3] << 1

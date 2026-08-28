@@ -1,6 +1,6 @@
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
 pub mod br_mux_onehot::[timecheck=false](select:u1, `in`:u1) -> (out:u1@[]) {
-  br_misc_unused::[name=br_misc_unused_select](`in` = select)
+  br_misc_unused::[name=gen_base_br_misc_unused_select](`in` = select)
   out = `in`
 }

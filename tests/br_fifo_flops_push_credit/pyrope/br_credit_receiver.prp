@@ -1,0 +1,15 @@
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+
+pub mod br_credit_receiver::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u32, pop_credit:u1, credit_initial:u6, credit_withhold:u6) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], pop_valid:u1@[], pop_data:u32@[], credit_count:u6@[], credit_available:u6@[]) {
+  reg push_receiver_in_reset:u1
+  reg push_credit:u1
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  const credit_decr_valid__w1 = unsigned(push_credit_stall == 0)
+  push_receiver_in_reset = if rst != 0 { 1 } else { 0 }
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = unsigned(pop_credit != 0), incr = pop_credit, decr_valid = credit_decr_valid__w1, decr = 1, initial_value = credit_initial, withhold = credit_withhold)
+  push_credit = if rst != 0 { 0 } else { unsigned((credit_decr_valid__w1 != 0) and (br_credit_counter.decr_ready != 0) and (either_rst__w1 == 0)) }
+  pop_valid = push_valid & (unsigned(either_rst__w1 == 0) & 1) & 1
+  pop_data = push_data
+  credit_count = br_credit_counter.value
+  credit_available = br_credit_counter.available
+}

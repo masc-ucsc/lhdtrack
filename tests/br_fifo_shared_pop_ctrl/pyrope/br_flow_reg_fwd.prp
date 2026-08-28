@@ -9,7 +9,7 @@ pub mod br_flow_reg_fwd::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_d
   if unsigned((push_ready__w1 != 0) and (push_valid != 0)) != 0 {
     pop_data = push_data
   }
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid, ready = pop_ready, data = pop_data)
   br_flow_checks_valid_data_intg_p1::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
   push_ready = push_ready__w1
 }

@@ -1,0 +1,205 @@
+const br_amba_axi_demux_req_tracker = import("br_amba_axi_demux_req_tracker.br_amba_axi_demux_req_tracker")
+const br_amba_axi_demux_req_tracker_p1 = import("br_amba_axi_demux_req_tracker_p1.br_amba_axi_demux_req_tracker_p1")
+const br_fifo_flops = import("br_fifo_flops.br_fifo_flops")
+const br_fifo_flops_p1 = import("br_fifo_flops_p1.br_fifo_flops_p1")
+const br_flow_checks_valid_data_impl_p7 = import("br_flow_checks_valid_data_impl_p7.br_flow_checks_valid_data_impl_p7")
+const br_flow_demux_select_unstable_p1 = import("br_flow_demux_select_unstable_p1.br_flow_demux_select_unstable_p1")
+const br_flow_reg_fwd_p3 = import("br_flow_reg_fwd_p3.br_flow_reg_fwd_p3")
+
+pub mod br_amba_axi_demux::[timecheck=false](clk:u1, rst:u1, upstream_aw_sub_select:u1, upstream_awaddr:u32, upstream_awid:u1, upstream_awlen:u8, upstream_awsize:u3, upstream_awburst:u2, upstream_awcache:u4, upstream_awprot:u3, upstream_awuser:u1, upstream_awvalid:u1, upstream_wdata:u32, upstream_wstrb:u4, upstream_wuser:u1, upstream_wlast:u1, upstream_wvalid:u1, upstream_bready:u1, upstream_ar_sub_select:u1, upstream_araddr:u32, upstream_arid:u1, upstream_arlen:u8, upstream_arsize:u3, upstream_arburst:u2, upstream_arcache:u4, upstream_arprot:u3, upstream_aruser:u1, upstream_arvalid:u1, upstream_rready:u1, downstream_awready:u2, downstream_wready:u2, downstream_bid:u2, downstream_buser:u2, downstream_bresp:u4, downstream_bvalid:u2, downstream_arready:u2, downstream_rid:u2, downstream_rdata:u64, downstream_ruser:u2, downstream_rresp:u4, downstream_rlast:u2, downstream_rvalid:u2) -> (upstream_awready:u1@[], upstream_wready:u1@[], upstream_bid:u1@[], upstream_buser:u1@[], upstream_bresp:u2@[], upstream_bvalid:u1@[], upstream_arready:u1@[], upstream_rid:u1@[], upstream_rdata:u32@[], upstream_ruser:u1@[], upstream_rresp:u2@[], upstream_rlast:u1@[], upstream_rvalid:u1@[], downstream_awaddr:u64@[], downstream_awid:u2@[], downstream_awlen:u16@[], downstream_awsize:u6@[], downstream_awburst:u4@[], downstream_awcache:u8@[], downstream_awprot:u6@[], downstream_awuser:u2@[], downstream_awvalid:u2@[], downstream_wdata:u64@[], downstream_wstrb:u8@[], downstream_wuser:u2@[], downstream_wlast:u2@[], downstream_wvalid:u2@[], downstream_bready:u2@[], downstream_araddr:u64@[], downstream_arid:u2@[], downstream_arlen:u16@[], downstream_arsize:u6@[], downstream_arburst:u4@[], downstream_arcache:u8@[], downstream_arprot:u6@[], downstream_aruser:u2@[], downstream_arvalid:u2@[], downstream_rready:u2@[]) {
+  wire upstream_bresp_bundle:(user:u1, resp:u2) = nil
+  wire wdata_flow_ready:u1
+  wire wdata_flow_ready_buf:u1
+  wire upstream_wready_buf:u1
+  wire downstream_wready_int:u1
+  mut downstream_rdata_bundle:u70 = 0
+  mut downstream_bresp_bundle:u6 = 0
+  mut downstream_wvalid__wtmp:u2 = 0sb?
+  wire downstream_wvalid:u2
+  mut downstream_wready_pre__wtmp:u2 = 0sb?
+  wire downstream_wready_pre:u2
+  downstream_rdata_bundle = 0sb?
+  downstream_bresp_bundle = 0sb?
+  downstream_awaddr = 0sb?
+  downstream_awlen = 0sb?
+  downstream_awsize = 0sb?
+  downstream_awburst = 0sb?
+  downstream_awcache = 0sb?
+  downstream_awprot = 0sb?
+  downstream_awuser = 0sb?
+  downstream_wdata = 0sb?
+  downstream_wstrb = 0sb?
+  downstream_wuser = 0sb?
+  downstream_wlast = 0sb?
+  downstream_araddr = 0sb?
+  downstream_arlen = 0sb?
+  downstream_arsize = 0sb?
+  downstream_arburst = 0sb?
+  downstream_arcache = 0sb?
+  downstream_arprot = 0sb?
+  downstream_aruser = 0sb?
+  mut `upstream_ar_req.addr` = upstream_araddr
+  mut `upstream_ar_req.len` = upstream_arlen
+  mut `upstream_ar_req.size` = upstream_arsize
+  mut `upstream_ar_req.burst` = upstream_arburst
+  mut `upstream_ar_req.cache` = upstream_arcache
+  mut `upstream_ar_req.prot` = upstream_arprot
+  mut `upstream_ar_req.user` = upstream_aruser & 1
+  mut downstream_rdata_bundle__w1 = downstream_rdata_bundle
+  downstream_rdata_bundle__w1#[0..=34] = downstream_rresp#[0..=1] | (downstream_rdata#[0..=31] << 2) | ((downstream_ruser & 1) << 34)
+  mut downstream_rdata_bundle__w2 = downstream_rdata_bundle__w1
+  downstream_rdata_bundle__w2#[35..=69] = downstream_rresp#[2..=3] | (downstream_rdata#[32..=63] << 2) | (((downstream_ruser >> 1) & 1) << 34)
+  mut br_amba_axi_demux_req_tracker_ar = br_amba_axi_demux_req_tracker::[name=br_amba_axi_demux_req_tracker_ar](clk = clk, rst = rst, upstream_axvalid = upstream_arvalid, upstream_axid = upstream_arid, upstream_ax_sub_select = upstream_ar_sub_select, upstream_ax_payload = (`upstream_ar_req.addr` << 21) | (`upstream_ar_req.len` << 13) | (`upstream_ar_req.size` << 10) | (`upstream_ar_req.burst` << 8) | (`upstream_ar_req.cache` << 4) | (`upstream_ar_req.prot` << 1) | `upstream_ar_req.user`, `downstream_axready.e1` = (downstream_arready >> 1) & 1, `downstream_axready.e0` = downstream_arready & 1, upstream_xready = upstream_rready, `downstream_xvalid.e1` = (downstream_rvalid >> 1) & 1, `downstream_xvalid.e0` = downstream_rvalid & 1, `downstream_xid.e1` = (downstream_rid >> 1) & 1, `downstream_xid.e0` = downstream_rid & 1, `downstream_xlast.e1` = (downstream_rlast >> 1) & 1, `downstream_xlast.e0` = downstream_rlast & 1, downstream_x_payload = downstream_rdata_bundle__w2, wdata_flow_ready = 1)
+  mut `upstream_rdata_bundle.user` = (br_amba_axi_demux_req_tracker_ar.upstream_x_payload >> 34) & 1
+  mut `upstream_rdata_bundle.data` = br_amba_axi_demux_req_tracker_ar.upstream_x_payload#[2..=33]
+  mut `upstream_rdata_bundle.resp` = br_amba_axi_demux_req_tracker_ar.upstream_x_payload#[0..=1]
+  mut downstream_araddr__w1 = downstream_araddr
+  downstream_araddr__w1#[0..=31] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[21..=52]
+  mut downstream_arlen__w1 = downstream_arlen
+  downstream_arlen__w1#[0..=7] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[13..=20]
+  mut downstream_arsize__w1 = downstream_arsize
+  downstream_arsize__w1#[0..=2] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[10..=12]
+  mut downstream_arburst__w1 = downstream_arburst
+  downstream_arburst__w1#[0..=1] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[8..=9]
+  mut downstream_arcache__w1 = downstream_arcache
+  downstream_arcache__w1#[0..=3] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[4..=7]
+  mut downstream_arprot__w1 = downstream_arprot
+  downstream_arprot__w1#[0..=2] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52]#[1..=3]
+  mut downstream_aruser__w1 = downstream_aruser
+  downstream_aruser__w1#[0] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[0..=52] & 1
+  mut downstream_araddr__w2 = downstream_araddr__w1
+  downstream_araddr__w2#[32..=63] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[21..=52]
+  mut downstream_arlen__w2 = downstream_arlen__w1
+  downstream_arlen__w2#[8..=15] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[13..=20]
+  mut downstream_arsize__w2 = downstream_arsize__w1
+  downstream_arsize__w2#[3..=5] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[10..=12]
+  mut downstream_arburst__w2 = downstream_arburst__w1
+  downstream_arburst__w2#[2..=3] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[8..=9]
+  mut downstream_arcache__w2 = downstream_arcache__w1
+  downstream_arcache__w2#[4..=7] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[4..=7]
+  mut downstream_arprot__w2 = downstream_arprot__w1
+  downstream_arprot__w2#[3..=5] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105]#[1..=3]
+  mut downstream_aruser__w2 = downstream_aruser__w1
+  downstream_aruser__w2#[1] = br_amba_axi_demux_req_tracker_ar.downstream_ax_payload#[53..=105] & 1
+  mut `upstream_aw_req.addr` = upstream_awaddr
+  mut `upstream_aw_req.len` = upstream_awlen
+  mut `upstream_aw_req.size` = upstream_awsize
+  mut `upstream_aw_req.burst` = upstream_awburst
+  mut `upstream_aw_req.cache` = upstream_awcache
+  mut `upstream_aw_req.prot` = upstream_awprot
+  mut `upstream_aw_req.user` = upstream_awuser & 1
+  mut downstream_bresp_bundle__w1 = downstream_bresp_bundle
+  downstream_bresp_bundle__w1#[0..=2] = downstream_bresp#[0..=1] | ((downstream_buser & 1) << 2)
+  mut downstream_bresp_bundle__w2 = downstream_bresp_bundle__w1
+  downstream_bresp_bundle__w2#[3..=5] = downstream_bresp#[2..=3] | (((downstream_buser >> 1) & 1) << 2)
+  const upstream_bresp__w1 = upstream_bresp_bundle.resp
+  const upstream_buser__w1 = upstream_bresp_bundle.user
+  mut br_amba_axi_demux_req_tracker_aw = br_amba_axi_demux_req_tracker_p1::[name=br_amba_axi_demux_req_tracker_aw](clk = clk, rst = rst, upstream_axvalid = upstream_awvalid, upstream_axid = upstream_awid, upstream_ax_sub_select = upstream_aw_sub_select, upstream_ax_payload = (`upstream_aw_req.addr` << 21) | (`upstream_aw_req.len` << 13) | (`upstream_aw_req.size` << 10) | (`upstream_aw_req.burst` << 8) | (`upstream_aw_req.cache` << 4) | (`upstream_aw_req.prot` << 1) | `upstream_aw_req.user`, `downstream_axready.e1` = (downstream_awready >> 1) & 1, `downstream_axready.e0` = downstream_awready & 1, upstream_xready = upstream_bready, `downstream_xvalid.e1` = (downstream_bvalid >> 1) & 1, `downstream_xvalid.e0` = downstream_bvalid & 1, `downstream_xid.e1` = (downstream_bid >> 1) & 1, `downstream_xid.e0` = downstream_bid & 1, `downstream_xlast.e1` = 1, `downstream_xlast.e0` = 1, downstream_x_payload = downstream_bresp_bundle__w2, wdata_flow_ready = wdata_flow_ready)
+  upstream_bresp_bundle.user = (br_amba_axi_demux_req_tracker_aw.upstream_x_payload >> 2) & 1
+  upstream_bresp_bundle.resp = br_amba_axi_demux_req_tracker_aw.upstream_x_payload#[0..=1]
+  mut downstream_awaddr__w1 = downstream_awaddr
+  downstream_awaddr__w1#[0..=31] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[21..=52]
+  mut downstream_awlen__w1 = downstream_awlen
+  downstream_awlen__w1#[0..=7] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[13..=20]
+  mut downstream_awsize__w1 = downstream_awsize
+  downstream_awsize__w1#[0..=2] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[10..=12]
+  mut downstream_awburst__w1 = downstream_awburst
+  downstream_awburst__w1#[0..=1] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[8..=9]
+  mut downstream_awcache__w1 = downstream_awcache
+  downstream_awcache__w1#[0..=3] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[4..=7]
+  mut downstream_awprot__w1 = downstream_awprot
+  downstream_awprot__w1#[0..=2] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52]#[1..=3]
+  mut downstream_awuser__w1 = downstream_awuser
+  downstream_awuser__w1#[0] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[0..=52] & 1
+  mut downstream_awaddr__w2 = downstream_awaddr__w1
+  downstream_awaddr__w2#[32..=63] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[21..=52]
+  mut downstream_awlen__w2 = downstream_awlen__w1
+  downstream_awlen__w2#[8..=15] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[13..=20]
+  mut downstream_awsize__w2 = downstream_awsize__w1
+  downstream_awsize__w2#[3..=5] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[10..=12]
+  mut downstream_awburst__w2 = downstream_awburst__w1
+  downstream_awburst__w2#[2..=3] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[8..=9]
+  mut downstream_awcache__w2 = downstream_awcache__w1
+  downstream_awcache__w2#[4..=7] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[4..=7]
+  mut downstream_awprot__w2 = downstream_awprot__w1
+  downstream_awprot__w2#[3..=5] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105]#[1..=3]
+  mut downstream_awuser__w2 = downstream_awuser__w1
+  downstream_awuser__w2#[1] = br_amba_axi_demux_req_tracker_aw.downstream_ax_payload#[53..=105] & 1
+  mut br_fifo_flops_wdata_buffer = br_fifo_flops::[name=br_fifo_flops_wdata_buffer](clk = clk, rst = rst, push_valid = upstream_wvalid, push_data = ((upstream_wuser & 1) << 37) | (upstream_wdata << 5) | (upstream_wstrb << 1) | (upstream_wlast & 1), pop_ready = upstream_wready_buf)
+  mut `upstream_wdata_req_buf.last` = br_fifo_flops_wdata_buffer.pop_data & 1
+  mut `upstream_wdata_req_buf.strb` = (br_fifo_flops_wdata_buffer.pop_data >> 1)#[0..=3]
+  mut `upstream_wdata_req_buf.data` = (br_fifo_flops_wdata_buffer.pop_data >> 5)#[0..=31]
+  mut `upstream_wdata_req_buf.user` = (br_fifo_flops_wdata_buffer.pop_data >> 37) & 1
+  mut br_fifo_flops_wdata_flow_buffer = br_fifo_flops_p1::[name=br_fifo_flops_wdata_flow_buffer](clk = clk, rst = rst, push_valid = br_amba_axi_demux_req_tracker_aw.wdata_flow_valid, push_data = br_amba_axi_demux_req_tracker_aw.wdata_flow_sub_select, pop_ready = wdata_flow_ready_buf)
+  wdata_flow_ready = br_fifo_flops_wdata_flow_buffer.push_ready
+  upstream_wready_buf = unsigned((downstream_wready_int != 0) and (br_fifo_flops_wdata_flow_buffer.pop_valid != 0))
+  wdata_flow_ready_buf = unsigned((downstream_wready_int != 0) and (br_fifo_flops_wdata_buffer.pop_valid != 0) and (`upstream_wdata_req_buf.last` != 0))
+  mut _mux_4:u1 = if br_fifo_flops_wdata_flow_buffer.pop_valid != 0 { br_fifo_flops_wdata_flow_buffer.pop_data & 1 } else { 0 }
+  mut br_flow_demux_select_unstable_downstream_wdata = br_flow_demux_select_unstable_p1::[name=br_flow_demux_select_unstable_downstream_wdata](clk = clk, rst = rst, select = _mux_4, push_valid = unsigned((br_fifo_flops_wdata_buffer.pop_valid != 0) and (br_fifo_flops_wdata_flow_buffer.pop_valid != 0)), push_data = (`upstream_wdata_req_buf.user` << 37) | (`upstream_wdata_req_buf.data` << 5) | (`upstream_wdata_req_buf.strb` << 1) | `upstream_wdata_req_buf.last`, pop_ready = downstream_wready_pre)
+  downstream_wready_int = br_flow_demux_select_unstable_downstream_wdata.push_ready
+  mut gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata = br_flow_reg_fwd_p3::[name=gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata](clk = clk, rst = rst, push_valid = br_flow_demux_select_unstable_downstream_wdata.pop_valid_unstable & 1, push_data = (((br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[0..=37] >> 37) & 1) << 37) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[0..=37]#[5..=36] << 5) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[0..=37]#[1..=4] << 1) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[0..=37] & 1), pop_ready = downstream_wready & 1)
+  downstream_wready_pre__wtmp#[0] = gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.push_ready & 1
+  downstream_wvalid__wtmp#[0] = gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_valid & 1
+  mut downstream_wlast__w1 = downstream_wlast
+  downstream_wlast__w1#[0] = gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data & 1
+  mut downstream_wstrb__w1 = downstream_wstrb
+  downstream_wstrb__w1#[0..=3] = (gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 1)#[0..=3]
+  mut downstream_wdata__w1 = downstream_wdata
+  downstream_wdata__w1#[0..=31] = (gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 5)#[0..=31]
+  mut downstream_wuser__w1 = downstream_wuser
+  downstream_wuser__w1#[0] = (gen_downstream_wdata_unpack_0_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 37) & 1
+  mut gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata = br_flow_reg_fwd_p3::[name=gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable_downstream_wdata.pop_valid_unstable >> 1) & 1, push_data = (((br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[38..=75] >> 37) & 1) << 37) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[38..=75]#[5..=36] << 5) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[38..=75]#[1..=4] << 1) | (br_flow_demux_select_unstable_downstream_wdata.pop_data_unstable#[38..=75] & 1), pop_ready = (downstream_wready >> 1) & 1)
+  mut downstream_wready_pre__wtmp__w1 = downstream_wready_pre__wtmp
+  downstream_wready_pre__wtmp__w1#[1] = gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.push_ready & 1
+  mut downstream_wvalid__wtmp__w1 = downstream_wvalid__wtmp
+  downstream_wvalid__wtmp__w1#[1] = gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_valid & 1
+  mut downstream_wlast__w2 = downstream_wlast__w1
+  downstream_wlast__w2#[1] = gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data & 1
+  mut downstream_wstrb__w2 = downstream_wstrb__w1
+  downstream_wstrb__w2#[4..=7] = (gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 1)#[0..=3]
+  mut downstream_wdata__w2 = downstream_wdata__w1
+  downstream_wdata__w2#[32..=63] = (gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 5)#[0..=31]
+  mut downstream_wuser__w2 = downstream_wuser__w1
+  downstream_wuser__w2#[1] = (gen_downstream_wdata_unpack_1_gen_register_downstream_wdata_outputs_br_flow_reg_fwd_downstream_wdata.pop_data >> 37) & 1
+  br_flow_checks_valid_data_impl_p7::[name=gen_downstream_wdata_checks_0_br_flow_checks_valid_data_impl_downstream_wdata](clk = clk, rst = rst, valid = downstream_wvalid & 1, ready = downstream_wready & 1, data = ((downstream_wuser__w2 & 1) << 37) | (downstream_wdata__w2#[0..=31] << 5) | (downstream_wstrb__w2#[0..=3] << 1) | (downstream_wlast__w2 & 1))
+  br_flow_checks_valid_data_impl_p7::[name=gen_downstream_wdata_checks_1_br_flow_checks_valid_data_impl_downstream_wdata](clk = clk, rst = rst, valid = (downstream_wvalid >> 1) & 1, ready = (downstream_wready >> 1) & 1, data = (((downstream_wuser__w2 >> 1) & 1) << 37) | (downstream_wdata__w2#[32..=63] << 5) | (downstream_wstrb__w2#[4..=7] << 1) | ((downstream_wlast__w2 >> 1) & 1))
+  downstream_wvalid = downstream_wvalid__wtmp__w1
+  downstream_wready_pre = downstream_wready_pre__wtmp__w1
+  upstream_awready = br_amba_axi_demux_req_tracker_aw.upstream_axready
+  upstream_wready = br_fifo_flops_wdata_buffer.push_ready
+  upstream_bid = br_amba_axi_demux_req_tracker_aw.upstream_xid
+  upstream_buser = upstream_buser__w1
+  upstream_bresp = upstream_bresp__w1
+  upstream_bvalid = br_amba_axi_demux_req_tracker_aw.upstream_xvalid
+  upstream_arready = br_amba_axi_demux_req_tracker_ar.upstream_axready
+  upstream_rid = br_amba_axi_demux_req_tracker_ar.upstream_xid
+  upstream_rdata = `upstream_rdata_bundle.data`
+  upstream_ruser = `upstream_rdata_bundle.user`
+  upstream_rresp = `upstream_rdata_bundle.resp`
+  upstream_rlast = br_amba_axi_demux_req_tracker_ar.upstream_xlast
+  upstream_rvalid = br_amba_axi_demux_req_tracker_ar.upstream_xvalid
+  downstream_awaddr = downstream_awaddr__w2
+  downstream_awid = (br_amba_axi_demux_req_tracker_aw.downstream_axid.e1 << 1) | br_amba_axi_demux_req_tracker_aw.downstream_axid.e0
+  downstream_awlen = downstream_awlen__w2
+  downstream_awsize = downstream_awsize__w2
+  downstream_awburst = downstream_awburst__w2
+  downstream_awcache = downstream_awcache__w2
+  downstream_awprot = downstream_awprot__w2
+  downstream_awuser = downstream_awuser__w2
+  downstream_awvalid = (br_amba_axi_demux_req_tracker_aw.downstream_axvalid.e1 << 1) | br_amba_axi_demux_req_tracker_aw.downstream_axvalid.e0
+  downstream_wdata = downstream_wdata__w2
+  downstream_wstrb = downstream_wstrb__w2
+  downstream_wuser = downstream_wuser__w2
+  downstream_wlast = downstream_wlast__w2
+  downstream_bready = (br_amba_axi_demux_req_tracker_aw.downstream_xready.e1 << 1) | br_amba_axi_demux_req_tracker_aw.downstream_xready.e0
+  downstream_araddr = downstream_araddr__w2
+  downstream_arid = (br_amba_axi_demux_req_tracker_ar.downstream_axid.e1 << 1) | br_amba_axi_demux_req_tracker_ar.downstream_axid.e0
+  downstream_arlen = downstream_arlen__w2
+  downstream_arsize = downstream_arsize__w2
+  downstream_arburst = downstream_arburst__w2
+  downstream_arcache = downstream_arcache__w2
+  downstream_arprot = downstream_arprot__w2
+  downstream_aruser = downstream_aruser__w2
+  downstream_arvalid = (br_amba_axi_demux_req_tracker_ar.downstream_axvalid.e1 << 1) | br_amba_axi_demux_req_tracker_ar.downstream_axvalid.e0
+  downstream_rready = (br_amba_axi_demux_req_tracker_ar.downstream_xready.e1 << 1) | br_amba_axi_demux_req_tracker_ar.downstream_xready.e0
+}

@@ -1,0 +1,191 @@
+const br_delay_valid_p4 = import("br_delay_valid_p4.br_delay_valid_p4")
+const br_demux_bin = import("br_demux_bin.br_demux_bin")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+const br_tracker_linked_list_ctrl = import("br_tracker_linked_list_ctrl.br_tracker_linked_list_ctrl")
+
+pub mod br_fifo_shared_dynamic_ptr_mgr::[timecheck=false](clk:u1, rst:u1, next_tail_valid:u4, next_tail:u20, ptr_ram_rd_data_valid:(e1:u1, e0:u1), ptr_ram_rd_data:u10, head_ready:(e1:u1, e0:u1)) -> (ptr_ram_wr_valid:(e1:u1, e0:u1)@[], ptr_ram_wr_addr:u10@[], ptr_ram_wr_data:u10@[], ptr_ram_rd_addr_valid:(e1:u1, e0:u1)@[], ptr_ram_rd_addr:u10@[], head_valid:(e1:u1, e0:u1)@[], head:u10@[], empty:(e1:u1, e0:u1)@[], items:u12@[]) {
+  mut fifo_ptr_ram_wr_valid:u4 = 0
+  mut fifo_ptr_ram_wr_addr:u20 = 0
+  mut fifo_ptr_ram_wr_data:u20 = 0
+  mut fifo_ptr_ram_rd_addr_valid:u4 = 0
+  mut fifo_ptr_ram_rd_addr:u20 = 0
+  mut fifo_ptr_ram_rd_data:u20 = 0
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_valid:u2 = 0
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_addr:u10 = 0
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_data:u10 = 0
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_valid:u2 = 0
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_addr:u10 = 0
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_data:u10 = 0
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid:u2 = 0
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr:u10 = 0
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid:u2 = 0
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr:u10 = 0
+  mut fifo_ptr_ram_rd_data_valid__wtmp:u4 = 0sb?
+  wire fifo_ptr_ram_rd_data_valid:u4
+  wire gen_ll_ctrl_0_ctrl_ptr_ram_rd_data_valid:u1
+  wire gen_ll_ctrl_0_ctrl_ptr_ram_rd_data:u5
+  wire gen_ll_ctrl_1_ctrl_ptr_ram_rd_data_valid:u1
+  wire gen_ll_ctrl_1_ctrl_ptr_ram_rd_data:u5
+  wire gen_read_mux_0_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid:u2
+  wire gen_read_mux_1_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid:u2
+  fifo_ptr_ram_wr_valid = 0sb?
+  fifo_ptr_ram_wr_addr = 0sb?
+  fifo_ptr_ram_wr_data = 0sb?
+  fifo_ptr_ram_rd_addr_valid = 0sb?
+  fifo_ptr_ram_rd_addr = 0sb?
+  fifo_ptr_ram_rd_data = 0sb?
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_valid = 0sb?
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_addr = 0sb?
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_data = 0sb?
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_valid = 0sb?
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_addr = 0sb?
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_data = 0sb?
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid = 0sb?
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr = 0sb?
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid = 0sb?
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr = 0sb?
+  ptr_ram_wr_addr = 0sb?
+  ptr_ram_wr_data = 0sb?
+  ptr_ram_rd_addr = 0sb?
+  head = 0sb?
+  items = 0sb?
+  const t10 = ptr_ram_rd_data#[0..=4]
+  const gen_read_mux_0_rport_fifo_ptr_ram_rd_data__w1 = t10 | (t10 << 5)
+  const t14 = ptr_ram_rd_data#[5..=9]
+  const gen_read_mux_1_rport_fifo_ptr_ram_rd_data__w1 = t14 | (t14 << 5)
+  mut fifo_ptr_ram_rd_data__w1 = fifo_ptr_ram_rd_data
+  fifo_ptr_ram_rd_data__w1#[0..=4] = gen_read_mux_0_rport_fifo_ptr_ram_rd_data__w1#[0..=4]
+  mut fifo_ptr_ram_rd_data__w2 = fifo_ptr_ram_rd_data__w1
+  fifo_ptr_ram_rd_data__w2#[10..=14] = gen_read_mux_0_rport_fifo_ptr_ram_rd_data__w1#[5..=9]
+  mut fifo_ptr_ram_rd_data__w3 = fifo_ptr_ram_rd_data__w2
+  fifo_ptr_ram_rd_data__w3#[5..=9] = gen_read_mux_1_rport_fifo_ptr_ram_rd_data__w1#[0..=4]
+  mut fifo_ptr_ram_rd_data__w4 = fifo_ptr_ram_rd_data__w3
+  fifo_ptr_ram_rd_data__w4#[15..=19] = gen_read_mux_1_rport_fifo_ptr_ram_rd_data__w1#[5..=9]
+  mut gen_ll_ctrl_0_br_tracker_linked_list_ctrl = br_tracker_linked_list_ctrl::[name=gen_ll_ctrl_0_br_tracker_linked_list_ctrl](clk = clk, rst = rst, `next_tail_valid.e1` = (next_tail_valid#[0..=1] >> 1) & 1, `next_tail_valid.e0` = next_tail_valid#[0..=1] & 1, next_tail = next_tail#[0..=9], head_ready = head_ready.e0, ptr_ram_rd_data_valid = gen_ll_ctrl_0_ctrl_ptr_ram_rd_data_valid, ptr_ram_rd_data = gen_ll_ctrl_0_ctrl_ptr_ram_rd_data)
+  mut head__w1 = head
+  head__w1#[0..=4] = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.head#[0..=4]
+  mut items__w1 = items
+  items__w1#[0..=5] = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.items#[0..=5]
+  mut fifo_ptr_ram_wr_valid__w1 = fifo_ptr_ram_wr_valid
+  fifo_ptr_ram_wr_valid__w1#[0..=1] = ((gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_wr_valid.e1 << 1) | gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_wr_valid.e0)#[0..=1]
+  mut fifo_ptr_ram_wr_addr__w1 = fifo_ptr_ram_wr_addr
+  fifo_ptr_ram_wr_addr__w1#[0..=9] = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_wr_addr#[0..=9]
+  mut fifo_ptr_ram_wr_data__w1 = fifo_ptr_ram_wr_data
+  fifo_ptr_ram_wr_data__w1#[0..=9] = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_wr_data#[0..=9]
+  mut gen_ll_ctrl_0_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr = br_demux_bin::[name=gen_ll_ctrl_0_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr](select = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_rd_addr & 1, in_valid = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_rd_addr_valid, `in` = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.ptr_ram_rd_addr)
+  mut fifo_ptr_ram_rd_addr_valid__w1 = fifo_ptr_ram_rd_addr_valid
+  fifo_ptr_ram_rd_addr_valid__w1#[0..=1] = gen_ll_ctrl_0_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr.out_valid#[0..=1]
+  mut fifo_ptr_ram_rd_addr__w1 = fifo_ptr_ram_rd_addr
+  fifo_ptr_ram_rd_addr__w1#[0..=9] = gen_ll_ctrl_0_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr.out#[0..=9]
+  gen_ll_ctrl_0_ctrl_ptr_ram_rd_data_valid = unsigned(fifo_ptr_ram_rd_data_valid#[0..=1] != 0)
+  mut gen_ll_ctrl_0_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data = br_mux_onehot_p1::[name=gen_ll_ctrl_0_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data](select = fifo_ptr_ram_rd_data_valid#[0..=1], `in` = fifo_ptr_ram_rd_data__w4#[0..=9])
+  gen_ll_ctrl_0_ctrl_ptr_ram_rd_data = gen_ll_ctrl_0_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data
+  mut gen_ll_ctrl_1_br_tracker_linked_list_ctrl = br_tracker_linked_list_ctrl::[name=gen_ll_ctrl_1_br_tracker_linked_list_ctrl](clk = clk, rst = rst, `next_tail_valid.e1` = (next_tail_valid#[2..=3] >> 1) & 1, `next_tail_valid.e0` = next_tail_valid#[2..=3] & 1, next_tail = next_tail#[10..=19], head_ready = head_ready.e1, ptr_ram_rd_data_valid = gen_ll_ctrl_1_ctrl_ptr_ram_rd_data_valid, ptr_ram_rd_data = gen_ll_ctrl_1_ctrl_ptr_ram_rd_data)
+  mut head__w2 = head__w1
+  head__w2#[5..=9] = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.head#[0..=4]
+  mut items__w2 = items__w1
+  items__w2#[6..=11] = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.items#[0..=5]
+  mut fifo_ptr_ram_wr_valid__w2 = fifo_ptr_ram_wr_valid__w1
+  fifo_ptr_ram_wr_valid__w2#[2..=3] = ((gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_wr_valid.e1 << 1) | gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_wr_valid.e0)#[0..=1]
+  mut fifo_ptr_ram_wr_addr__w2 = fifo_ptr_ram_wr_addr__w1
+  fifo_ptr_ram_wr_addr__w2#[10..=19] = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_wr_addr#[0..=9]
+  mut fifo_ptr_ram_wr_data__w2 = fifo_ptr_ram_wr_data__w1
+  fifo_ptr_ram_wr_data__w2#[10..=19] = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_wr_data#[0..=9]
+  mut gen_ll_ctrl_1_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr = br_demux_bin::[name=gen_ll_ctrl_1_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr](select = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_rd_addr & 1, in_valid = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_rd_addr_valid, `in` = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.ptr_ram_rd_addr)
+  mut fifo_ptr_ram_rd_addr_valid__w2 = fifo_ptr_ram_rd_addr_valid__w1
+  fifo_ptr_ram_rd_addr_valid__w2#[2..=3] = gen_ll_ctrl_1_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr.out_valid#[0..=1]
+  mut fifo_ptr_ram_rd_addr__w2 = fifo_ptr_ram_rd_addr__w1
+  fifo_ptr_ram_rd_addr__w2#[10..=19] = gen_ll_ctrl_1_gen_multi_read_br_demux_bin_fifo_ptr_ram_rd_addr.out#[0..=9]
+  gen_ll_ctrl_1_ctrl_ptr_ram_rd_data_valid = unsigned(fifo_ptr_ram_rd_data_valid#[2..=3] != 0)
+  mut gen_ll_ctrl_1_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data = br_mux_onehot_p1::[name=gen_ll_ctrl_1_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data](select = fifo_ptr_ram_rd_data_valid#[2..=3], `in` = fifo_ptr_ram_rd_data__w4#[10..=19])
+  gen_ll_ctrl_1_ctrl_ptr_ram_rd_data = gen_ll_ctrl_1_gen_multi_read_br_mux_onehot_fifo_ptr_ram_rd_data
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w1 = gen_write_mux_0_wport_fifo_ptr_ram_wr_valid
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w1#[0] = fifo_ptr_ram_wr_valid__w2#[0..=1] & 1
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w1 = gen_write_mux_0_wport_fifo_ptr_ram_wr_addr
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w1#[0..=4] = fifo_ptr_ram_wr_addr__w2#[0..=9]#[0..=4]
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w1 = gen_write_mux_0_wport_fifo_ptr_ram_wr_data
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w1#[0..=4] = fifo_ptr_ram_wr_data__w2#[0..=9]#[0..=4]
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w2 = gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w1
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w2#[1] = fifo_ptr_ram_wr_valid__w2#[2..=3] & 1
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w2 = gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w1
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w2#[5..=9] = fifo_ptr_ram_wr_addr__w2#[10..=19]#[0..=4]
+  mut gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w2 = gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w1
+  gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w2#[5..=9] = fifo_ptr_ram_wr_data__w2#[10..=19]#[0..=4]
+  mut `ptr_ram_wr_valid__bpo.e0` = unsigned(gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w2 != 0)
+  mut gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_addr = br_mux_onehot_p1::[name=gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_addr](select = gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w2, `in` = gen_write_mux_0_wport_fifo_ptr_ram_wr_addr__w2)
+  mut ptr_ram_wr_addr__w1 = ptr_ram_wr_addr
+  ptr_ram_wr_addr__w1#[0..=4] = gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_addr#[0..=4]
+  mut gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_data = br_mux_onehot_p1::[name=gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_data](select = gen_write_mux_0_wport_fifo_ptr_ram_wr_valid__w2, `in` = gen_write_mux_0_wport_fifo_ptr_ram_wr_data__w2)
+  mut ptr_ram_wr_data__w1 = ptr_ram_wr_data
+  ptr_ram_wr_data__w1#[0..=4] = gen_write_mux_0_br_mux_onehot_fifo_ptr_ram_wr_data#[0..=4]
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w1 = gen_write_mux_1_wport_fifo_ptr_ram_wr_valid
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w1#[0] = (fifo_ptr_ram_wr_valid__w2#[0..=1] >> 1) & 1
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w1 = gen_write_mux_1_wport_fifo_ptr_ram_wr_addr
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w1#[0..=4] = fifo_ptr_ram_wr_addr__w2#[0..=9]#[5..=9]
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w1 = gen_write_mux_1_wport_fifo_ptr_ram_wr_data
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w1#[0..=4] = fifo_ptr_ram_wr_data__w2#[0..=9]#[5..=9]
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w2 = gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w1
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w2#[1] = (fifo_ptr_ram_wr_valid__w2#[2..=3] >> 1) & 1
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w2 = gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w1
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w2#[5..=9] = fifo_ptr_ram_wr_addr__w2#[10..=19]#[5..=9]
+  mut gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w2 = gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w1
+  gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w2#[5..=9] = fifo_ptr_ram_wr_data__w2#[10..=19]#[5..=9]
+  mut `ptr_ram_wr_valid__bpo.e1` = unsigned(gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w2 != 0)
+  mut gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_addr = br_mux_onehot_p1::[name=gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_addr](select = gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w2, `in` = gen_write_mux_1_wport_fifo_ptr_ram_wr_addr__w2)
+  mut ptr_ram_wr_addr__w2 = ptr_ram_wr_addr__w1
+  ptr_ram_wr_addr__w2#[5..=9] = gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_addr#[0..=4]
+  mut gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_data = br_mux_onehot_p1::[name=gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_data](select = gen_write_mux_1_wport_fifo_ptr_ram_wr_valid__w2, `in` = gen_write_mux_1_wport_fifo_ptr_ram_wr_data__w2)
+  mut ptr_ram_wr_data__w2 = ptr_ram_wr_data__w1
+  ptr_ram_wr_data__w2#[5..=9] = gen_write_mux_1_br_mux_onehot_fifo_ptr_ram_wr_data#[0..=4]
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w1 = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w1#[0] = fifo_ptr_ram_rd_addr_valid__w2#[0..=1] & 1
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w1 = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w1#[0..=4] = fifo_ptr_ram_rd_addr__w2#[0..=9]#[0..=4]
+  fifo_ptr_ram_rd_data_valid__wtmp#[0] = gen_read_mux_0_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid & 1
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w2 = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w1
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w2#[1] = fifo_ptr_ram_rd_addr_valid__w2#[2..=3] & 1
+  mut gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w2 = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w1
+  gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w2#[5..=9] = fifo_ptr_ram_rd_addr__w2#[10..=19]#[0..=4]
+  mut fifo_ptr_ram_rd_data_valid__wtmp__w1 = fifo_ptr_ram_rd_data_valid__wtmp
+  fifo_ptr_ram_rd_data_valid__wtmp__w1#[2] = (gen_read_mux_0_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid >> 1) & 1
+  mut `ptr_ram_rd_addr_valid__bpo.e0` = unsigned(gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w2 != 0)
+  mut gen_read_mux_0_br_mux_onehot_fifo_ptr_ram_rd_addr = br_mux_onehot_p1::[name=gen_read_mux_0_br_mux_onehot_fifo_ptr_ram_rd_addr](select = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w2, `in` = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr__w2)
+  mut ptr_ram_rd_addr__w1 = ptr_ram_rd_addr
+  ptr_ram_rd_addr__w1#[0..=4] = gen_read_mux_0_br_mux_onehot_fifo_ptr_ram_rd_addr#[0..=4]
+  mut gen_read_mux_0_br_delay_valid_fifo_ptr_ram_rd_data_valid = br_delay_valid_p4::[name=gen_read_mux_0_br_delay_valid_fifo_ptr_ram_rd_data_valid](clk = clk, rst = rst, in_valid = `ptr_ram_rd_addr_valid__bpo.e0`, `in` = gen_read_mux_0_rport_fifo_ptr_ram_rd_addr_valid__w2)
+  mut _rep_6:u2 = if (ptr_ram_rd_data_valid.e0 & 1) != 0 { 3 } else { 0 }
+  gen_read_mux_0_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid = _rep_6 & gen_read_mux_0_br_delay_valid_fifo_ptr_ram_rd_data_valid.out
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w1 = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w1#[0] = (fifo_ptr_ram_rd_addr_valid__w2#[0..=1] >> 1) & 1
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w1 = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w1#[0..=4] = fifo_ptr_ram_rd_addr__w2#[0..=9]#[5..=9]
+  mut fifo_ptr_ram_rd_data_valid__wtmp__w2 = fifo_ptr_ram_rd_data_valid__wtmp__w1
+  fifo_ptr_ram_rd_data_valid__wtmp__w2#[1] = gen_read_mux_1_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid & 1
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w2 = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w1
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w2#[1] = (fifo_ptr_ram_rd_addr_valid__w2#[2..=3] >> 1) & 1
+  mut gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w2 = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w1
+  gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w2#[5..=9] = fifo_ptr_ram_rd_addr__w2#[10..=19]#[5..=9]
+  mut fifo_ptr_ram_rd_data_valid__wtmp__w3 = fifo_ptr_ram_rd_data_valid__wtmp__w2
+  fifo_ptr_ram_rd_data_valid__wtmp__w3#[3] = (gen_read_mux_1_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid >> 1) & 1
+  mut `ptr_ram_rd_addr_valid__bpo.e1` = unsigned(gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w2 != 0)
+  mut gen_read_mux_1_br_mux_onehot_fifo_ptr_ram_rd_addr = br_mux_onehot_p1::[name=gen_read_mux_1_br_mux_onehot_fifo_ptr_ram_rd_addr](select = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w2, `in` = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr__w2)
+  mut ptr_ram_rd_addr__w2 = ptr_ram_rd_addr__w1
+  ptr_ram_rd_addr__w2#[5..=9] = gen_read_mux_1_br_mux_onehot_fifo_ptr_ram_rd_addr#[0..=4]
+  mut gen_read_mux_1_br_delay_valid_fifo_ptr_ram_rd_data_valid = br_delay_valid_p4::[name=gen_read_mux_1_br_delay_valid_fifo_ptr_ram_rd_data_valid](clk = clk, rst = rst, in_valid = `ptr_ram_rd_addr_valid__bpo.e1`, `in` = gen_read_mux_1_rport_fifo_ptr_ram_rd_addr_valid__w2)
+  mut _rep_8:u2 = if (ptr_ram_rd_data_valid.e1 & 1) != 0 { 3 } else { 0 }
+  gen_read_mux_1_gen_fifo_mux_0_rport_fifo_ptr_ram_rd_data_valid = _rep_8 & gen_read_mux_1_br_delay_valid_fifo_ptr_ram_rd_data_valid.out
+  fifo_ptr_ram_rd_data_valid = fifo_ptr_ram_rd_data_valid__wtmp__w3
+  ptr_ram_wr_valid.e1 = `ptr_ram_wr_valid__bpo.e1`
+  ptr_ram_wr_valid.e0 = `ptr_ram_wr_valid__bpo.e0`
+  ptr_ram_rd_addr_valid.e1 = `ptr_ram_rd_addr_valid__bpo.e1`
+  ptr_ram_rd_addr_valid.e0 = `ptr_ram_rd_addr_valid__bpo.e0`
+  head_valid.e1 = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.head_valid
+  head_valid.e0 = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.head_valid
+  empty.e1 = gen_ll_ctrl_1_br_tracker_linked_list_ctrl.empty
+  empty.e0 = gen_ll_ctrl_0_br_tracker_linked_list_ctrl.empty
+  ptr_ram_wr_addr = ptr_ram_wr_addr__w2
+  ptr_ram_wr_data = ptr_ram_wr_data__w2
+  ptr_ram_rd_addr = ptr_ram_rd_addr__w2
+  head = head__w2
+  items = items__w2
+}

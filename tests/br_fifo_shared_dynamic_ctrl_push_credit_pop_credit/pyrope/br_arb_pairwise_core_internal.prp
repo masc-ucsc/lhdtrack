@@ -1,0 +1,11 @@
+pub comb br_arb_pairwise_core_internal::[timecheck=false](request:u2, priority_matrix:u4) -> (can_grant:u2, grant:u2) {
+  can_grant = 0sb?
+  can_grant = 3
+  {
+    can_grant#[0] = 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[0..=1] >> 1) & 1) != 0)) & 1
+  }
+  {
+    can_grant#[1] = (can_grant >> 1) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[2..=3] & 1) != 0)) & 1
+  }
+  grant = request & can_grant
+}

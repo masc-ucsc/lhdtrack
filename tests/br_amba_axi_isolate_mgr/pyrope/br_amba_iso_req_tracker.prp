@@ -1,0 +1,19 @@
+const br_counter_p2 = import("br_counter_p2.br_counter_p2")
+
+pub mod br_amba_iso_req_tracker::[timecheck=false](clk:u1, rst:u1, upstream_axvalid:u1, upstream_xready:u1, downstream_axready:u1, downstream_xvalid:u1, downstream_xlast:u1, isolate_req:u1) -> (upstream_axready:u1@[], upstream_xvalid:u1@[], upstream_xlast:u1@[], downstream_axvalid:u1@[], downstream_xready:u1@[], isolate_done:u1@[]) {
+  reg isolate_done:u1
+  wire expected_resp_count:u5
+  const count_max__w1 = unsigned(expected_resp_count == 16)
+  mut _mux_3:u1 = if isolate_done != 0 { unsigned(not ((expected_resp_count == 0) and (isolate_req == 0))) & 1 } else { isolate_req & 1 }
+  const isolated__w1 = unsigned((isolate_req != 0) or (isolate_done != 0))
+  const downstream_axvalid__w1 = unsigned((upstream_axvalid != 0) and (isolated__w1 == 0) and (count_max__w1 == 0))
+  const downstream_xready__w1 = unsigned((upstream_xready != 0) or (isolated__w1 != 0))
+  isolate_done = if rst != 0 { 0 } else { _mux_3 }
+  mut br_counter_exp_resp_count = br_counter_p2::[name=br_counter_exp_resp_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned((downstream_axvalid__w1 != 0) and (downstream_axready != 0)), incr = 1, decr_valid = unsigned((downstream_xvalid != 0) and (downstream_xready__w1 != 0) and (downstream_xlast != 0)), decr = 1)
+  expected_resp_count = br_counter_exp_resp_count.value
+  upstream_axready = unsigned((downstream_axready != 0) and (isolated__w1 == 0) and (count_max__w1 == 0))
+  upstream_xvalid = unsigned((downstream_xvalid != 0) and (isolated__w1 == 0))
+  upstream_xlast = downstream_xlast
+  downstream_axvalid = downstream_axvalid__w1
+  downstream_xready = downstream_xready__w1
+}

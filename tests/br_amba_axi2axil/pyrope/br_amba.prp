@@ -1,0 +1,8 @@
+pub comptime const AxiRespOkay:u2 = 0
+pub comptime const AxiBurstIncr:u2 = 1
+pub comptime const AxiBurstWrap:u2 = 2
+pub comptime const AxiBurstReserved:u2 = 3
+pub comptime const AxiProtWidth:u32 = 3
+pub comptime const AxiBurstLenWidth:u32 = 8
+pub comptime const AxiBurstSizeWidth:u32 = 3
+pub comptime const AxiBurstTypeWidth:u32 = 2

@@ -1,0 +1,98 @@
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_fifo_flops = import("br_fifo_flops.br_fifo_flops")
+const br_flow_fork = import("br_flow_fork.br_flow_fork")
+const br_flow_join = import("br_flow_join.br_flow_join")
+const br_flow_reg_both = import("br_flow_reg_both.br_flow_reg_both")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axi2axil_core::[timecheck=false](clk:u1, rst:u1, axi_req_addr:u32, axi_req_id:u4, axi_req_len:u8, axi_req_size:u3, axi_req_burst:u2, axi_req_prot:u3, axi_req_user:u8, axi_req_valid:u1, axi_req_data:u32, axi_req_data_strb:u4, axi_req_data_user:u8, axi_req_data_last:u1, axi_req_data_valid:u1, axi_resp_ready:u1, axil_req_ready:u1, axil_req_data_ready:u1, axil_resp_resp:u2, axil_resp_user:u8, axil_resp_data:u32, axil_resp_valid:u1) -> (axi_req_ready:u1@[], axi_req_data_ready:u1@[], axi_resp_id:u4@[], axi_resp_user:u8@[], axi_resp_resp:u2@[], axi_resp_data:u32@[], axi_resp_data_last:u1@[], axi_resp_valid:u1@[], axil_req_addr:u32@[], axil_req_prot:u3@[], axil_req_user:u8@[], axil_req_valid:u1@[], axil_req_data:u32@[], axil_req_data_strb:u4@[], axil_req_data_user:u8@[], axil_req_data_valid:u1@[], axil_resp_ready:u1@[]) {
+  mut _mux_10:u32 = 0
+  reg resp:u2
+  wire resp_fifo_pop_valid:u1
+  wire resp_next:u2
+  wire axi_resp_handshake:u1
+  wire axil_resp_handshake:u1
+  wire resp_fifo_push_data:u5
+  wire resp_fifo_push_ready:u1
+  wire resp_fifo_pop_ready:u1
+  wire is_last_req_beat:u1
+  wire flow_reg_pop_ready:u1
+  wire axi_resp_ready_unqual:u1
+  wire axi_resp_valid:u1
+  wire axil_req_valid:u1
+  wire axil_resp_ready:u1
+  mut next_address:u32 = 0
+  mut base_address:u32 = 0
+  mut wrap_mask:u32 = 0
+  mut align_mask:u32 = 0
+  br_misc_unused::[name=br_misc_unused_axi_req_data_last](`in` = axi_req_data_last)
+  mut _mux_2:u2 = if resp != br_amba.AxiRespOkay { resp } else { axil_resp_resp }
+  br_misc_unused::[name=br_misc_unused_supported_burst_type](`in` = unsigned(axi_req_burst != br_amba.AxiBurstReserved))
+  br_misc_unused::[name=br_misc_unused_resp_fifo_pop_valid](`in` = resp_fifo_pop_valid)
+  if rst != 0 {
+    resp = br_amba.AxiRespOkay
+  } elif (axi_resp_handshake != 0) or (axil_resp_handshake != 0) {
+    resp = resp_next
+  }
+  mut br_flow_reg_both_req = br_flow_reg_both::[name=br_flow_reg_both_req](clk = clk, rst = rst, push_valid = axi_req_valid, push_data = (axi_req_addr << 28) | (axi_req_id << 24) | (axi_req_len << 16) | (axi_req_size << 13) | (axi_req_burst << 11) | (axi_req_prot << 8) | axi_req_user, pop_ready = flow_reg_pop_ready)
+  const axi_req_len_reg__w1 = (br_flow_reg_both_req.pop_data >> 16)#[0..=7]
+  axi_resp_handshake = unsigned((axi_resp_valid != 0) and (axi_resp_ready != 0))
+  axil_resp_handshake = unsigned((axil_resp_valid != 0) and (axil_resp_ready != 0))
+  mut br_flow_fork_flow_reg_pop = br_flow_fork::[name=br_flow_fork_flow_reg_pop](clk = clk, rst = rst, push_valid = br_flow_reg_both_req.pop_valid, pop_ready = ((axil_req_ready & 1) << 1) | (resp_fifo_push_ready & 1))
+  axil_req_valid = (br_flow_fork_flow_reg_pop.pop_valid_unstable >> 1) & 1
+  flow_reg_pop_ready = unsigned((br_flow_fork_flow_reg_pop.push_ready != 0) and (is_last_req_beat != 0))
+  mut br_counter_incr_req = br_counter_incr::[name=br_counter_incr_req](clk = clk, rst = rst, reinit = unsigned((br_flow_reg_both_req.pop_valid != 0) and (flow_reg_pop_ready != 0)), initial_value = 0, incr_valid = unsigned((axil_req_valid != 0) and (axil_req_ready != 0)), incr = 1)
+  is_last_req_beat = unsigned(br_counter_incr_req.value == axi_req_len_reg__w1)
+  const start_addr__w1 = (br_flow_reg_both_req.pop_data >> 28)#[0..=31]
+  const size__w1 = (br_flow_reg_both_req.pop_data >> 13)#[0..=2]
+  const burst_type__w1 = (br_flow_reg_both_req.pop_data >> 11)#[0..=1]
+  const index__w1 = br_counter_incr_req.value
+  next_address = 0sb?
+  base_address = 0sb?
+  wrap_mask = 0sb?
+  align_mask = 0sb?
+  const incr_address__w1 = (start_addr__w1 + (index__w1 << size__w1)#[0..=31])#[0..=31]
+  match burst_type__w1 {
+    == br_amba.AxiBurstIncr {
+      align_mask = (0xffffffff << size__w1)#[0..=31]
+      _mux_10 = if index__w1 == 0 { start_addr__w1 } else { incr_address__w1 & align_mask }
+      next_address = _mux_10
+    }
+    == br_amba.AxiBurstWrap {
+      wrap_mask = (((axi_req_len_reg__w1 + 1) << size__w1)#[0..=31] - 1)#[0..=31]
+      base_address = start_addr__w1 & (~wrap_mask)#[0..=31]
+      next_address = base_address | (incr_address__w1 & wrap_mask)
+    }
+    else {
+      next_address = start_addr__w1
+    }
+  }
+  mut br_fifo_flops_resp_tracker = br_fifo_flops::[name=br_fifo_flops_resp_tracker](clk = clk, rst = rst, push_valid = br_flow_fork_flow_reg_pop.pop_valid_unstable & 1, push_data = resp_fifo_push_data, pop_ready = resp_fifo_pop_ready)
+  resp_fifo_push_ready = br_fifo_flops_resp_tracker.push_ready
+  resp_fifo_pop_valid = br_fifo_flops_resp_tracker.pop_valid
+  resp_fifo_push_data = ((br_flow_reg_both_req.pop_data >> 24)#[0..=3] << 1) | (is_last_req_beat & 1)
+  const axi_resp_data_last__w1 = br_fifo_flops_resp_tracker.pop_data & 1
+  mut _mux_11:u2 = if (resp == br_amba.AxiRespOkay) and (axil_resp_resp != br_amba.AxiRespOkay) { axil_resp_resp } else { resp }
+  mut _mux_12:u2 = if axi_resp_handshake != 0 { br_amba.AxiRespOkay#[0..=1] } else { _mux_11 }
+  resp_next = _mux_12
+  mut br_flow_join_axi_resp = br_flow_join::[name=br_flow_join_axi_resp](clk = clk, rst = rst, push_valid = ((axil_resp_valid & 1) << 1) | (resp_fifo_pop_valid & 1), pop_ready = axi_resp_ready_unqual)
+  resp_fifo_pop_ready = br_flow_join_axi_resp.push_ready & 1
+  axil_resp_ready = (br_flow_join_axi_resp.push_ready >> 1) & 1
+  axi_resp_valid = unsigned((axi_resp_data_last__w1 != 0) and (br_flow_join_axi_resp.pop_valid != 0))
+  axi_resp_ready_unqual = unsigned((axi_resp_data_last__w1 == 0) or (axi_resp_ready != 0))
+  axi_req_ready = br_flow_reg_both_req.push_ready
+  axi_req_data_ready = axil_req_data_ready
+  axi_resp_id = (br_fifo_flops_resp_tracker.pop_data >> 1)#[0..=3]
+  axi_resp_user = axil_resp_user
+  axi_resp_resp = _mux_2
+  axi_resp_data = axil_resp_data
+  axi_resp_data_last = axi_resp_data_last__w1
+  axil_req_addr = next_address
+  axil_req_prot = (br_flow_reg_both_req.pop_data >> 8)#[0..=2]
+  axil_req_user = br_flow_reg_both_req.pop_data#[0..=7]
+  axil_req_data = axi_req_data
+  axil_req_data_strb = axi_req_data_strb
+  axil_req_data_user = axi_req_data_user
+  axil_req_data_valid = axi_req_data_valid
+}

@@ -1,0 +1,6 @@
+pub comptime const AxiCacheWidth:u32 = 4
+pub comptime const AxiProtWidth:u32 = 3
+pub comptime const AxiRespWidth:u32 = 2
+pub comptime const AxiBurstLenWidth:u32 = 8
+pub comptime const AxiBurstSizeWidth:u32 = 3
+pub comptime const AxiBurstTypeWidth:u32 = 2

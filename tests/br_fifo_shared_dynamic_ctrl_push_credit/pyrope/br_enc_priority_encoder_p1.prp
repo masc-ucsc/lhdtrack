@@ -1,0 +1,23 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_enc_priority_encoder_p1::[timecheck=false](clk:u1, rst:u1, `in`:(e2:u1, e1:u1, e0:u1)) -> (out:u6@[]) {
+  mut out_internal:u6 = 0
+  out_internal = 0sb?
+  const in_internal__w1 = (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
+  const gen_out_internal_0_in_masked__w1 = in_internal__w1
+  mut out_internal__w1 = out_internal
+  out_internal__w1#[0] = gen_out_internal_0_in_masked__w1 & 1
+  mut out_internal__w2 = out_internal__w1
+  out_internal__w2#[1] = unsigned((((gen_out_internal_0_in_masked__w1 >> 1) & 1) != 0) and ((gen_out_internal_0_in_masked__w1 & 1) == 0)) & 1
+  mut out_internal__w3 = out_internal__w2
+  out_internal__w3#[2] = unsigned((((gen_out_internal_0_in_masked__w1 >> 2) & 1) != 0) and (gen_out_internal_0_in_masked__w1#[0..=1] == 0)) & 1
+  mut out_internal__w4 = out_internal__w3
+  out_internal__w4#[3] = 0
+  const gen_out_internal_1_in_masked__w2 = in_internal__w1 & (~out_internal__w4#[0..=2])#[0..=2]
+  br_misc_unused::[name=gen_out_internal_1_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in` = gen_out_internal_1_in_masked__w2 & 1)
+  mut out_internal__w5 = out_internal__w4
+  out_internal__w5#[4] = (gen_out_internal_1_in_masked__w2 >> 1) & 1
+  mut out_internal__w6 = out_internal__w5
+  out_internal__w6#[5] = unsigned((((gen_out_internal_1_in_masked__w2 >> 2) & 1) != 0) and (((gen_out_internal_1_in_masked__w2 >> 1) & 1) == 0)) & 1
+  out = out_internal__w6
+}

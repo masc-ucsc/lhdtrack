@@ -21,13 +21,20 @@
 //
 // clk and rst are DECLARED even though Pyrope would supply both implicitly: the
 // interface has to match verilog/br_delay.sv port for port, or lec pairs a
-// 3-port module against a 5-port one. `rst` is then wired to the registers'
-// reset pin rather than muxed into their data, which is what upstream's
-// `BR_REGI(stages[i], stages[i-1], InitValue)` -- a flop with a synchronous
-// reset to InitValue -- actually says.
+// 3-port module against a 5-port one.
+//
+// `rst` is muxed into the register DATA rather than wired to a reset pin, and
+// that is deliberate. `reg stages:[4]u8 = 0` on an ARRAY is a reset value, but
+// an array is a memory and a memory has no parallel reset port -- Pyrope
+// realizes it as a one-entry-per-cycle restore SWEEP, so a full reset takes
+// FOUR cycles. Upstream's `BR_REGI(stages[i], stages[i-1], InitValue)` is a
+// flop with a one-edge synchronous reset, so a single-cycle `rst` pulse makes
+// the two designs genuinely differ (lgcheck's bounded miter leaves `rst` free
+// and finds it). The explicit `if rst != 0 { stages[j] = 0 }` arm below is the
+// one-edge parallel reset the SystemVerilog actually describes.
 pub mod br_delay(clk:u1, rst:u1, `in`:u8) -> (out:u8@[0], out_stages:u40@[0]) {
   // The 4 pipeline registers, all reset to InitValue (0 upstream).
-  reg stages:[4]u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
+  reg stages:[4]u8:[clock_pin=ref clk] = nil  // reset is the `rst` arm below, not a pin
 
   out = stages[3]
 
@@ -42,13 +49,26 @@ pub mod br_delay(clk:u1, rst:u1, `in`:u8) -> (out:u8@[0], out_stages:u40@[0]) {
   out_stages = packed
 
   // The shift itself, written last because a register's write is a cycle-
-  // boundary effect: every read above sees this cycle's q, exactly as the
-  // Verilog's non-blocking assignments do.
+  // boundary effect: every read ABOVE this point sees this cycle's q, exactly
+  // as the Verilog's non-blocking assignments do.
+  //
+  // Written HIGH STAGE FIRST. A Pyrope reg array defaults to
+  // `ordering="program"` -- reads and writes resolve in program order, like
+  // software -- so an ASCENDING loop would read the `stages[i-1]` this same
+  // loop just wrote, and `in` would fall through all four stages in ONE cycle
+  // (LEC: out_stages 0xfefefefe00 against the Verilog's 0xfe00). Descending,
+  // every read of `stages[j-1]` still precedes that entry's own write, which
+  // is exactly the non-blocking semantics upstream's `BR_REGI` has.
+  // `:[ordering="old"]` on the declaration says the same thing directly and
+  // works too; the loop order is kept here because it needs no attribute.
   for i in 0..<4 {
-    if i == 0 {
+    const j = 3 - i
+    if rst != 0 {
+      stages[j] = 0
+    } elif j == 0 {
       stages[0] = `in`
     } else {
-      stages[i] = stages[i - 1]
+      stages[j] = stages[j - 1]
     }
   }
 }

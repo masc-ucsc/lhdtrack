@@ -8,24 +8,24 @@ pub mod br_flow_xbar_rr::[timecheck=false](clk:u1, rst:u1, push_valid:u4, push_d
   wire grant:u16
   mut br_flow_xbar_core_inst = br_flow_xbar_core::[name=br_flow_xbar_core_inst](clk = clk, rst = rst, `push_valid.e3` = (push_valid >> 3) & 1, `push_valid.e2` = (push_valid >> 2) & 1, `push_valid.e1` = (push_valid >> 1) & 1, `push_valid.e0` = push_valid & 1, push_data = push_data, push_dest_id = push_dest_id, `pop_ready.e3` = (pop_ready >> 3) & 1, `pop_ready.e2` = (pop_ready >> 2) & 1, `pop_ready.e1` = (pop_ready >> 1) & 1, `pop_ready.e0` = pop_ready & 1, can_grant = can_grant, grant = grant)
   const enable_priority_update__w1 = (br_flow_xbar_core_inst.enable_priority_update.e3 << 3) | (br_flow_xbar_core_inst.enable_priority_update.e2 << 2) | (br_flow_xbar_core_inst.enable_priority_update.e1 << 1) | br_flow_xbar_core_inst.enable_priority_update.e0
-  mut br_arb_rr_internal_inst = br_arb_rr_internal::[name=br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = enable_priority_update__w1 & 1, request = br_flow_xbar_core_inst.request#[0..=3])
-  can_grant__wtmp#[0..=3] = ((br_arb_rr_internal_inst["can_grant.e3"] << 3) | (br_arb_rr_internal_inst["can_grant.e2"] << 2) | (br_arb_rr_internal_inst["can_grant.e1"] << 1) | br_arb_rr_internal_inst["can_grant.e0"])#[0..=3]
-  grant__wtmp#[0..=3] = br_arb_rr_internal_inst["grant"]#[0..=3]
-  br_arb_rr_internal_inst = br_arb_rr_internal::[name=br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 1) & 1, request = br_flow_xbar_core_inst.request#[4..=7])
+  mut gen_arbiters_0_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_0_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = enable_priority_update__w1 & 1, request = br_flow_xbar_core_inst.request#[0..=3])
+  can_grant__wtmp#[0..=3] = ((gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
+  grant__wtmp#[0..=3] = gen_arbiters_0_br_arb_rr_internal_inst.grant#[0..=3]
+  mut gen_arbiters_1_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_1_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 1) & 1, request = br_flow_xbar_core_inst.request#[4..=7])
   mut can_grant__wtmp__w1 = can_grant__wtmp
-  can_grant__wtmp__w1#[4..=7] = ((br_arb_rr_internal_inst["can_grant.e3"] << 3) | (br_arb_rr_internal_inst["can_grant.e2"] << 2) | (br_arb_rr_internal_inst["can_grant.e1"] << 1) | br_arb_rr_internal_inst["can_grant.e0"])#[0..=3]
+  can_grant__wtmp__w1#[4..=7] = ((gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
   mut grant__wtmp__w1 = grant__wtmp
-  grant__wtmp__w1#[4..=7] = br_arb_rr_internal_inst["grant"]#[0..=3]
-  br_arb_rr_internal_inst = br_arb_rr_internal::[name=br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 2) & 1, request = br_flow_xbar_core_inst.request#[8..=11])
+  grant__wtmp__w1#[4..=7] = gen_arbiters_1_br_arb_rr_internal_inst.grant#[0..=3]
+  mut gen_arbiters_2_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_2_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 2) & 1, request = br_flow_xbar_core_inst.request#[8..=11])
   mut can_grant__wtmp__w2 = can_grant__wtmp__w1
-  can_grant__wtmp__w2#[8..=11] = ((br_arb_rr_internal_inst["can_grant.e3"] << 3) | (br_arb_rr_internal_inst["can_grant.e2"] << 2) | (br_arb_rr_internal_inst["can_grant.e1"] << 1) | br_arb_rr_internal_inst["can_grant.e0"])#[0..=3]
+  can_grant__wtmp__w2#[8..=11] = ((gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
   mut grant__wtmp__w2 = grant__wtmp__w1
-  grant__wtmp__w2#[8..=11] = br_arb_rr_internal_inst["grant"]#[0..=3]
-  br_arb_rr_internal_inst = br_arb_rr_internal::[name=br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 3) & 1, request = br_flow_xbar_core_inst.request#[12..=15])
+  grant__wtmp__w2#[8..=11] = gen_arbiters_2_br_arb_rr_internal_inst.grant#[0..=3]
+  mut gen_arbiters_3_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_3_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 3) & 1, request = br_flow_xbar_core_inst.request#[12..=15])
   mut can_grant__wtmp__w3 = can_grant__wtmp__w2
-  can_grant__wtmp__w3#[12..=15] = ((br_arb_rr_internal_inst["can_grant.e3"] << 3) | (br_arb_rr_internal_inst["can_grant.e2"] << 2) | (br_arb_rr_internal_inst["can_grant.e1"] << 1) | br_arb_rr_internal_inst["can_grant.e0"])#[0..=3]
+  can_grant__wtmp__w3#[12..=15] = ((gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
   mut grant__wtmp__w3 = grant__wtmp__w2
-  grant__wtmp__w3#[12..=15] = br_arb_rr_internal_inst["grant"]#[0..=3]
+  grant__wtmp__w3#[12..=15] = gen_arbiters_3_br_arb_rr_internal_inst.grant#[0..=3]
   can_grant = can_grant__wtmp__w3
   grant = grant__wtmp__w3
   push_ready = (br_flow_xbar_core_inst.push_ready.e3 << 3) | (br_flow_xbar_core_inst.push_ready.e2 << 2) | (br_flow_xbar_core_inst.push_ready.e1 << 1) | br_flow_xbar_core_inst.push_ready.e0

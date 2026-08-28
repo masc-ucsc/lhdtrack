@@ -19,8 +19,8 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   downstream_pwdata = 0sb?
   mut _rep_1:u4 = if (upstream_psel & 1) != 0 { 15 } else { 0 }
   const downstream_req_valid_int__w1 = select_onehot & _rep_1
-  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
-  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  br_misc_unused::[name=gen_downstream_0_gen_no_retime_br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=gen_downstream_0_gen_no_retime_br_misc_unused_rst](`in` = rst)
   mut downstream_paddr__w1 = downstream_paddr
   downstream_paddr__w1#[0..=11] = upstream_paddr
   mut `downstream_psel__bpo.e0` = downstream_req_valid_int__w1 & 1
@@ -38,8 +38,8 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   downstream_pready_int__w1#[0] = downstream_pready.e0 & 1
   mut downstream_pslverr_int__w1 = downstream_pslverr_int
   downstream_pslverr_int__w1#[0] = downstream_pslverr.e0 & 1
-  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
-  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  br_misc_unused::[name=gen_downstream_1_gen_no_retime_br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=gen_downstream_1_gen_no_retime_br_misc_unused_rst](`in` = rst)
   mut downstream_paddr__w2 = downstream_paddr__w1
   downstream_paddr__w2#[12..=23] = upstream_paddr
   mut `downstream_psel__bpo.e1` = (downstream_req_valid_int__w1 >> 1) & 1
@@ -57,8 +57,8 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   downstream_pready_int__w2#[1] = downstream_pready.e1 & 1
   mut downstream_pslverr_int__w2 = downstream_pslverr_int__w1
   downstream_pslverr_int__w2#[1] = downstream_pslverr.e1 & 1
-  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
-  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  br_misc_unused::[name=gen_downstream_2_gen_no_retime_br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=gen_downstream_2_gen_no_retime_br_misc_unused_rst](`in` = rst)
   mut downstream_paddr__w3 = downstream_paddr__w2
   downstream_paddr__w3#[24..=35] = upstream_paddr
   mut `downstream_psel__bpo.e2` = (downstream_req_valid_int__w1 >> 2) & 1
@@ -76,8 +76,8 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   downstream_pready_int__w3#[2] = downstream_pready.e2 & 1
   mut downstream_pslverr_int__w3 = downstream_pslverr_int__w2
   downstream_pslverr_int__w3#[2] = downstream_pslverr.e2 & 1
-  br_misc_unused::[name=br_misc_unused_clk](`in` = clk)
-  br_misc_unused::[name=br_misc_unused_rst](`in` = rst)
+  br_misc_unused::[name=gen_downstream_3_gen_no_retime_br_misc_unused_clk](`in` = clk)
+  br_misc_unused::[name=gen_downstream_3_gen_no_retime_br_misc_unused_rst](`in` = rst)
   mut downstream_paddr__w4 = downstream_paddr__w3
   downstream_paddr__w4#[36..=47] = upstream_paddr
   mut `downstream_psel__bpo.e3` = (downstream_req_valid_int__w1 >> 3) & 1
@@ -103,10 +103,10 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   downstream_resp__w3#[34..=67] = ((downstream_pslverr_int__w4 >> 1) & 1) | (((downstream_pready_int__w4 >> 1) & 1) << 1) | (downstream_prdata_int__w4#[32..=63] << 2)
   mut downstream_resp__w4 = downstream_resp__w3
   downstream_resp__w4#[68..=101] = ((downstream_pslverr_int__w4 >> 2) & 1) | (((downstream_pready_int__w4 >> 2) & 1) << 1) | (downstream_prdata_int__w4#[64..=95] << 2)
-  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((unsigned((upstream_psel != 0) and (not (select_onehot != 0))) & 1) << 4) | downstream_req_valid_int__w1, `in` = (3 << 136) | downstream_resp__w4#[0..=135])
-  mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
-  mut `upstream_resp.ready` = (br_mux_onehot_resp >> 1) & 1
-  mut `upstream_resp.slverr` = br_mux_onehot_resp & 1
+  mut gen_decode_error_br_mux_onehot_resp = br_mux_onehot::[name=gen_decode_error_br_mux_onehot_resp](select = ((unsigned((upstream_psel != 0) and (not (select_onehot != 0))) & 1) << 4) | downstream_req_valid_int__w1, `in` = (3 << 136) | downstream_resp__w4#[0..=135])
+  mut `upstream_resp.rdata` = gen_decode_error_br_mux_onehot_resp#[2..=33]
+  mut `upstream_resp.ready` = (gen_decode_error_br_mux_onehot_resp >> 1) & 1
+  mut `upstream_resp.slverr` = gen_decode_error_br_mux_onehot_resp & 1
   const upstream_pready__w1 = unsigned((upstream_psel != 0) and (upstream_penable != 0) and (`upstream_resp.ready` != 0))
   br_misc_unused::[name=br_misc_unused_upstream_access_waiting](`in` = unsigned((upstream_psel != 0) and (upstream_penable != 0) and (upstream_pready__w1 == 0)))
   br_misc_unused::[name=br_misc_unused_upstream_request_pending](`in` = unsigned((upstream_psel != 0) and ((upstream_penable == 0) or (upstream_pready__w1 == 0))))

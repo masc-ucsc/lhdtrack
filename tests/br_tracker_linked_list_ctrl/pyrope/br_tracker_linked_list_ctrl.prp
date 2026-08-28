@@ -42,27 +42,27 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   ptr_ram_wr_valid = 0sb?
   ptr_ram_wr_addr = 0sb?
   ptr_ram_wr_data = 0sb?
-  mut br_enc_countones_ll_tail_select_rotate = br_enc_countones::[name=br_enc_countones_ll_tail_select_rotate](`in` = next_tail_valid)
-  mut br_shift_rotate_ll_tail_select = br_shift_rotate::[name=br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = br_enc_countones_ll_tail_select_rotate)
+  mut gen_ll_head_tail_select_shift_reg_br_enc_countones_ll_tail_select_rotate = br_enc_countones::[name=gen_ll_head_tail_select_shift_reg_br_enc_countones_ll_tail_select_rotate](`in` = next_tail_valid)
+  mut gen_ll_head_tail_select_shift_reg_br_shift_rotate_ll_tail_select = br_shift_rotate::[name=gen_ll_head_tail_select_shift_reg_br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = gen_ll_head_tail_select_shift_reg_br_enc_countones_ll_tail_select_rotate)
   if rst != 0 {
     ll_tail_select = 1
   } elif unsigned(next_tail_valid != 0) != 0 {
-    ll_tail_select = br_shift_rotate_ll_tail_select
+    ll_tail_select = gen_ll_head_tail_select_shift_reg_br_shift_rotate_ll_tail_select
   }
   mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w1 = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated
   gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w1#[0..=3] = ll_tail_select
-  mut br_enc_countones_ll_next_tail_valid = br_enc_countones_p1::[name=br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid & 1)
-  br_shift_rotate_ll_tail_select = br_shift_rotate_p1::[name=br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = br_enc_countones_ll_next_tail_valid)
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_enc_countones_ll_next_tail_valid = br_enc_countones_p1::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid & 1)
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_shift_rotate_ll_tail_select = br_shift_rotate_p1::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_enc_countones_ll_next_tail_valid)
   mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w2 = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w1
-  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w2#[4..=7] = br_shift_rotate_ll_tail_select#[0..=3]
-  br_enc_countones_ll_next_tail_valid = br_enc_countones_p2::[name=br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid#[0..=1])
-  br_shift_rotate_ll_tail_select = br_shift_rotate_p2::[name=br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = br_enc_countones_ll_next_tail_valid)
+  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w2#[4..=7] = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_1_br_shift_rotate_ll_tail_select#[0..=3]
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_enc_countones_ll_next_tail_valid = br_enc_countones_p2::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid#[0..=1])
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_shift_rotate_ll_tail_select = br_shift_rotate_p2::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_enc_countones_ll_next_tail_valid)
   mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w3 = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w2
-  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w3#[8..=11] = br_shift_rotate_ll_tail_select#[0..=3]
-  br_enc_countones_ll_next_tail_valid = br_enc_countones_p3::[name=br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid#[0..=2])
-  br_shift_rotate_ll_tail_select = br_shift_rotate_p3::[name=br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = br_enc_countones_ll_next_tail_valid)
+  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w3#[8..=11] = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_2_br_shift_rotate_ll_tail_select#[0..=3]
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_enc_countones_ll_next_tail_valid = br_enc_countones_p3::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_enc_countones_ll_next_tail_valid](`in` = next_tail_valid#[0..=2])
+  mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_shift_rotate_ll_tail_select = br_shift_rotate_p3::[name=gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_shift_rotate_ll_tail_select](`in` = ll_tail_select, right = 0, rotate = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_enc_countones_ll_next_tail_valid)
   mut gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w4 = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w3
-  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w4#[12..=15] = br_shift_rotate_ll_tail_select#[0..=3]
+  gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w4#[12..=15] = gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_gen_ll_tail_select_rotated_3_br_shift_rotate_ll_tail_select#[0..=3]
   mut _rep_2:u4 = if (next_tail_valid & 1) != 0 { 15 } else { 0 }
   mut ll_next_tail_valid__w1 = ll_next_tail_valid
   ll_next_tail_valid__w1#[0..=3] = _rep_2 & gen_multi_wport_ll_next_tail_valid_gen_multi_ll_next_tail_valid_ll_tail_select_rotated__w4#[0..=3]
@@ -161,15 +161,14 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   ll_next_tail_valid_transpose__w15#[14] = (ll_next_tail_valid__w4#[8..=11] >> 3) & 1
   mut ll_next_tail_valid_transpose__w16 = ll_next_tail_valid_transpose__w15
   ll_next_tail_valid_transpose__w16#[15] = (ll_next_tail_valid__w4#[12..=15] >> 3) & 1
-  br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[12..=15])
-  const gen_linked_list_3_counter_incr__w1 = br_enc_countones_ll_next_tail_valid
+  mut gen_linked_list_3_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_3_br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[12..=15])
   const gen_linked_list_3_ll_tail_update__w1 = unsigned(ll_next_tail_valid_transpose__w16#[12..=15] != 0)
   mut ll_head_last__w4 = ll_head_last__w3
   ll_head_last__w4#[3] = unsigned(ll_count#[24..=31] == 1) & 1
   mut ll_head_bypass__w1 = ll_head_bypass
   ll_head_bypass__w1#[3] = unsigned((((ll_empty >> 3) & 1) != 0) or ((((ll_head_last__w4 >> 3) & 1) != 0) and (((ll_head_valid >> 3) & 1) != 0) and (((ll_head_select_read >> 3) & 1) != 0) and (head_ready != 0))) & 1
-  mut br_mux_onehot_ll_next_tail = br_mux_onehot::[name=br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[12..=15], `in` = next_tail)
-  const gen_linked_list_3_ll_tail_next__w1 = br_mux_onehot_ll_next_tail
+  mut gen_linked_list_3_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_3_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[12..=15], `in` = next_tail)
+  const gen_linked_list_3_ll_tail_next__w1 = gen_linked_list_3_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail
   mut ll_ptr_ram_wr_valid__w13 = ll_ptr_ram_wr_valid__w12
   ll_ptr_ram_wr_valid__w13#[3] = unsigned((((ll_next_tail_valid__w4#[0..=3] >> 3) & 1) != 0) and (((ll_empty >> 3) & 1) == 0)) & 1
   mut ll_ptr_ram_wr_addr__w13 = ll_ptr_ram_wr_addr__w12
@@ -193,83 +192,83 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   }
   const head_valid__w1 = unsigned(((ll_head_select_read & (~ll_empty)#[0..=3]) & ll_head_valid) != 0)
   const ptr_ram_rd_addr_valid__w1 = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (unsigned((ll_head_select_read & (~ll_head_last__w4)#[0..=3]) != 0) != 0))
-  mut br_mux_onehot_ptr_ram_rd_addr = br_mux_onehot::[name=br_mux_onehot_ptr_ram_rd_addr](select = ll_head_select_read, `in` = ll_head)
-  const head__w1 = br_mux_onehot_ptr_ram_rd_addr
+  mut gen_multi_ll_head_read_br_mux_onehot_ptr_ram_rd_addr = br_mux_onehot::[name=gen_multi_ll_head_read_br_mux_onehot_ptr_ram_rd_addr](select = ll_head_select_read, `in` = ll_head)
+  const head__w1 = gen_multi_ll_head_read_br_mux_onehot_ptr_ram_rd_addr
   mut ptr_ram_wr_valid__w1 = ptr_ram_wr_valid
   ptr_ram_wr_valid__w1#[0] = unsigned(ll_ptr_ram_wr_valid__w16#[0..=3] != 0) & 1
-  mut br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[0..=3], `in` = ll_ptr_ram_wr_addr__w16#[0..=27])
+  mut gen_ptr_ram_write_0_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=gen_ptr_ram_write_0_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[0..=3], `in` = ll_ptr_ram_wr_addr__w16#[0..=27])
   mut ptr_ram_wr_addr__w1 = ptr_ram_wr_addr
-  ptr_ram_wr_addr__w1#[0..=6] = br_mux_onehot_ptr_ram_wr_addr#[0..=6]
+  ptr_ram_wr_addr__w1#[0..=6] = gen_ptr_ram_write_0_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr#[0..=6]
   mut ptr_ram_wr_data__w1 = ptr_ram_wr_data
   ptr_ram_wr_data__w1#[0..=6] = next_tail#[0..=6]
   mut ptr_ram_wr_valid__w2 = ptr_ram_wr_valid__w1
   ptr_ram_wr_valid__w2#[1] = unsigned(ll_ptr_ram_wr_valid__w16#[4..=7] != 0) & 1
-  br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[4..=7], `in` = ll_ptr_ram_wr_addr__w16#[28..=55])
+  mut gen_ptr_ram_write_1_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=gen_ptr_ram_write_1_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[4..=7], `in` = ll_ptr_ram_wr_addr__w16#[28..=55])
   mut ptr_ram_wr_addr__w2 = ptr_ram_wr_addr__w1
-  ptr_ram_wr_addr__w2#[7..=13] = br_mux_onehot_ptr_ram_wr_addr#[0..=6]
+  ptr_ram_wr_addr__w2#[7..=13] = gen_ptr_ram_write_1_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr#[0..=6]
   mut ptr_ram_wr_data__w2 = ptr_ram_wr_data__w1
   ptr_ram_wr_data__w2#[7..=13] = next_tail#[7..=13]
   mut ptr_ram_wr_valid__w3 = ptr_ram_wr_valid__w2
   ptr_ram_wr_valid__w3#[2] = unsigned(ll_ptr_ram_wr_valid__w16#[8..=11] != 0) & 1
-  br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[8..=11], `in` = ll_ptr_ram_wr_addr__w16#[56..=83])
+  mut gen_ptr_ram_write_2_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=gen_ptr_ram_write_2_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[8..=11], `in` = ll_ptr_ram_wr_addr__w16#[56..=83])
   mut ptr_ram_wr_addr__w3 = ptr_ram_wr_addr__w2
-  ptr_ram_wr_addr__w3#[14..=20] = br_mux_onehot_ptr_ram_wr_addr#[0..=6]
+  ptr_ram_wr_addr__w3#[14..=20] = gen_ptr_ram_write_2_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr#[0..=6]
   mut ptr_ram_wr_data__w3 = ptr_ram_wr_data__w2
   ptr_ram_wr_data__w3#[14..=20] = next_tail#[14..=20]
   mut ptr_ram_wr_valid__w4 = ptr_ram_wr_valid__w3
   ptr_ram_wr_valid__w4#[3] = unsigned(ll_ptr_ram_wr_valid__w16#[12..=15] != 0) & 1
-  br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[12..=15], `in` = ll_ptr_ram_wr_addr__w16#[84..=111])
+  mut gen_ptr_ram_write_3_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr = br_mux_onehot::[name=gen_ptr_ram_write_3_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr](select = ll_ptr_ram_wr_valid__w16#[12..=15], `in` = ll_ptr_ram_wr_addr__w16#[84..=111])
   mut ptr_ram_wr_addr__w4 = ptr_ram_wr_addr__w3
-  ptr_ram_wr_addr__w4#[21..=27] = br_mux_onehot_ptr_ram_wr_addr#[0..=6]
+  ptr_ram_wr_addr__w4#[21..=27] = gen_ptr_ram_write_3_gen_multi_ll_ptr_ram_write_br_mux_onehot_ptr_ram_wr_addr#[0..=6]
   mut ptr_ram_wr_data__w4 = ptr_ram_wr_data__w3
   ptr_ram_wr_data__w4#[21..=27] = next_tail#[21..=27]
   const items__w5 = ((((0 + ll_count#[0..=7])#[0..=7] + ll_count#[8..=15])#[0..=7] + ll_count#[16..=23])#[0..=7] + ll_count#[24..=31])#[0..=7]
   br_flow_checks_valid_data_impl::[name=br_flow_checks_valid_data_impl_head](clk = clk, rst = rst, valid = head_valid__w1, ready = head_ready, data = head__w1)
-  mut br_delay_valid_ll_head_select = br_delay_valid::[name=br_delay_valid_ll_head_select](clk = clk, rst = rst, in_valid = ptr_ram_rd_addr_valid__w1, `in` = ll_head_select_read)
-  br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[0..=3])
-  mut br_counter_ll_count = br_counter::[name=br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[0..=3] != 0), incr = br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and ((ll_head_select_read & 1) != 0)), decr = 1)
-  ll_count__wtmp#[0..=7] = br_counter_ll_count["value"]#[0..=7]
+  mut gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select = br_delay_valid::[name=gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select](clk = clk, rst = rst, in_valid = ptr_ram_rd_addr_valid__w1, `in` = ll_head_select_read)
+  mut gen_linked_list_0_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_0_br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[0..=3])
+  mut gen_linked_list_0_br_counter_ll_count = br_counter::[name=gen_linked_list_0_br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[0..=3] != 0), incr = gen_linked_list_0_br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and ((ll_head_select_read & 1) != 0)), decr = 1)
+  ll_count__wtmp#[0..=7] = gen_linked_list_0_br_counter_ll_count.value#[0..=7]
   mut ll_count_next__w1 = ll_count_next
-  ll_count_next__w1#[0..=7] = br_counter_ll_count["value_next"]#[0..=7]
+  ll_count_next__w1#[0..=7] = gen_linked_list_0_br_counter_ll_count.value_next#[0..=7]
   const gen_linked_list_0_ll_tail_update__w1 = unsigned(ll_next_tail_valid_transpose__w16#[0..=3] != 0)
   mut ll_head_bypass__w2 = ll_head_bypass__w1
   ll_head_bypass__w2#[0] = unsigned(((ll_empty & 1) != 0) or (((ll_head_last__w4 & 1) != 0) and ((ll_head_valid & 1) != 0) and ((ll_head_select_read & 1) != 0) and (head_ready != 0))) & 1
-  br_mux_onehot_ll_next_tail = br_mux_onehot::[name=br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[0..=3], `in` = next_tail)
-  const gen_linked_list_0_ll_tail_next__w1 = br_mux_onehot_ll_next_tail
+  mut gen_linked_list_0_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_0_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[0..=3], `in` = next_tail)
+  const gen_linked_list_0_ll_tail_next__w1 = gen_linked_list_0_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail
   if rst != 0 {
     ll_tail[0] = 0
   } elif gen_linked_list_0_ll_tail_update__w1 != 0 {
     ll_tail[0] = gen_linked_list_0_ll_tail_next__w1
   }
-  br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[4..=7])
-  br_counter_ll_count = br_counter::[name=br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[4..=7] != 0), incr = br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 1) & 1) != 0)), decr = 1)
+  mut gen_linked_list_1_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_1_br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[4..=7])
+  mut gen_linked_list_1_br_counter_ll_count = br_counter::[name=gen_linked_list_1_br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[4..=7] != 0), incr = gen_linked_list_1_br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 1) & 1) != 0)), decr = 1)
   mut ll_count__wtmp__w1 = ll_count__wtmp
-  ll_count__wtmp__w1#[8..=15] = br_counter_ll_count["value"]#[0..=7]
+  ll_count__wtmp__w1#[8..=15] = gen_linked_list_1_br_counter_ll_count.value#[0..=7]
   mut ll_count_next__w2 = ll_count_next__w1
-  ll_count_next__w2#[8..=15] = br_counter_ll_count["value_next"]#[0..=7]
+  ll_count_next__w2#[8..=15] = gen_linked_list_1_br_counter_ll_count.value_next#[0..=7]
   const gen_linked_list_1_ll_tail_update__w1 = unsigned(ll_next_tail_valid_transpose__w16#[4..=7] != 0)
   mut ll_head_bypass__w3 = ll_head_bypass__w2
   ll_head_bypass__w3#[1] = unsigned((((ll_empty >> 1) & 1) != 0) or ((((ll_head_last__w4 >> 1) & 1) != 0) and (((ll_head_valid >> 1) & 1) != 0) and (((ll_head_select_read >> 1) & 1) != 0) and (head_ready != 0))) & 1
-  br_mux_onehot_ll_next_tail = br_mux_onehot::[name=br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[4..=7], `in` = next_tail)
-  const gen_linked_list_1_ll_tail_next__w1 = br_mux_onehot_ll_next_tail
+  mut gen_linked_list_1_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_1_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[4..=7], `in` = next_tail)
+  const gen_linked_list_1_ll_tail_next__w1 = gen_linked_list_1_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail
   if rst != 0 {
     ll_tail[1] = 0
   } elif gen_linked_list_1_ll_tail_update__w1 != 0 {
     ll_tail[1] = gen_linked_list_1_ll_tail_next__w1
   }
-  br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[8..=11])
-  br_counter_ll_count = br_counter::[name=br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[8..=11] != 0), incr = br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 2) & 1) != 0)), decr = 1)
+  mut gen_linked_list_2_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_2_br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w16#[8..=11])
+  mut gen_linked_list_2_br_counter_ll_count = br_counter::[name=gen_linked_list_2_br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[8..=11] != 0), incr = gen_linked_list_2_br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 2) & 1) != 0)), decr = 1)
   mut ll_count__wtmp__w2 = ll_count__wtmp__w1
-  ll_count__wtmp__w2#[16..=23] = br_counter_ll_count["value"]#[0..=7]
+  ll_count__wtmp__w2#[16..=23] = gen_linked_list_2_br_counter_ll_count.value#[0..=7]
   mut ll_count_next__w3 = ll_count_next__w2
-  ll_count_next__w3#[16..=23] = br_counter_ll_count["value_next"]#[0..=7]
+  ll_count_next__w3#[16..=23] = gen_linked_list_2_br_counter_ll_count.value_next#[0..=7]
   const gen_linked_list_2_ll_tail_update__w1 = unsigned(ll_next_tail_valid_transpose__w16#[8..=11] != 0)
   mut ll_head_bypass__w4 = ll_head_bypass__w3
   ll_head_bypass__w4#[2] = unsigned((((ll_empty >> 2) & 1) != 0) or ((((ll_head_last__w4 >> 2) & 1) != 0) and (((ll_head_valid >> 2) & 1) != 0) and (((ll_head_select_read >> 2) & 1) != 0) and (head_ready != 0))) & 1
-  br_mux_onehot_ll_next_tail = br_mux_onehot::[name=br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[8..=11], `in` = next_tail)
-  const gen_linked_list_2_ll_tail_next__w1 = br_mux_onehot_ll_next_tail
+  mut gen_linked_list_2_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_2_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail](select = ll_next_tail_valid_transpose__w16#[8..=11], `in` = next_tail)
+  const gen_linked_list_2_ll_tail_next__w1 = gen_linked_list_2_gen_tail_update_no_chaining_gen_multi_wport_next_tail_br_mux_onehot_ll_next_tail
   mut _mux_54:u7 = if ((ll_head_bypass__w4 >> 2) & 1) != 0 { gen_linked_list_2_ll_tail_next__w1#[0..=6] } else { ptr_ram_rd_data }
-  const gen_linked_list_2_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_2_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 2) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((br_delay_valid_ll_head_select.out >> 2) & 1) != 0)) != 0))
+  const gen_linked_list_2_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_2_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 2) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select.out >> 2) & 1) != 0)) != 0))
   if rst != 0 {
     ll_tail[2] = 0
   } elif gen_linked_list_2_ll_tail_update__w1 != 0 {
@@ -285,15 +284,15 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   } else {
     ll_head_valid#[2] = unsigned(((((ll_head_valid >> 2) & 1) != 0) and (unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 2) & 1) != 0)) == 0)) or (gen_linked_list_2_ll_head_update__w1 != 0)) & 1
   }
-  br_counter_ll_count = br_counter::[name=br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[12..=15] != 0), incr = gen_linked_list_3_counter_incr__w1, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 3) & 1) != 0)), decr = 1)
+  mut gen_linked_list_3_br_counter_ll_count = br_counter::[name=gen_linked_list_3_br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w16#[12..=15] != 0), incr = gen_linked_list_3_br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 3) & 1) != 0)), decr = 1)
   mut ll_count__wtmp__w3 = ll_count__wtmp__w2
-  ll_count__wtmp__w3#[24..=31] = br_counter_ll_count["value"]#[0..=7]
+  ll_count__wtmp__w3#[24..=31] = gen_linked_list_3_br_counter_ll_count.value#[0..=7]
   mut ll_count_next__w4 = ll_count_next__w3
-  ll_count_next__w4#[24..=31] = br_counter_ll_count["value_next"]#[0..=7]
+  ll_count_next__w4#[24..=31] = gen_linked_list_3_br_counter_ll_count.value_next#[0..=7]
   mut ll_empty_next__w1 = ll_empty_next
   ll_empty_next__w1#[3] = unsigned(ll_count_next__w4#[24..=31] == 0) & 1
   mut _mux_62:u7 = if ((ll_head_bypass__w4 >> 3) & 1) != 0 { gen_linked_list_3_ll_tail_next__w1#[0..=6] } else { ptr_ram_rd_data }
-  const gen_linked_list_3_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_3_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 3) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((br_delay_valid_ll_head_select.out >> 3) & 1) != 0)) != 0))
+  const gen_linked_list_3_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_3_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 3) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select.out >> 3) & 1) != 0)) != 0))
   if rst != 0 {
     ll_head[3] = 0
   } elif gen_linked_list_3_ll_head_update__w1 != 0 {
@@ -304,12 +303,12 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   } else {
     ll_head_valid#[3] = unsigned(((((ll_head_valid >> 3) & 1) != 0) and (unsigned((head_valid__w1 != 0) and (head_ready != 0) and (((ll_head_select_read >> 3) & 1) != 0)) == 0)) or (gen_linked_list_3_ll_head_update__w1 != 0)) & 1
   }
-  mut br_delay_shift_reg_head = br_delay_shift_reg::[name=br_delay_shift_reg_head](clk = clk, rst = rst, reinit = 0, initial_value = 1, shift_en = unsigned((head_valid__w1 != 0) and (head_ready != 0)), shift_in = (ll_head_select_read >> 3) & 1)
-  ll_head_select_read = br_delay_shift_reg_head.value
+  mut gen_ll_head_tail_select_shift_reg_br_delay_shift_reg_head = br_delay_shift_reg::[name=gen_ll_head_tail_select_shift_reg_br_delay_shift_reg_head](clk = clk, rst = rst, reinit = 0, initial_value = 1, shift_en = unsigned((head_valid__w1 != 0) and (head_ready != 0)), shift_in = (ll_head_select_read >> 3) & 1)
+  ll_head_select_read = gen_ll_head_tail_select_shift_reg_br_delay_shift_reg_head.value
   mut ll_empty_next__w2 = ll_empty_next__w1
   ll_empty_next__w2#[0] = unsigned(ll_count_next__w4#[0..=7] == 0) & 1
   mut _mux_69:u7 = if (ll_head_bypass__w4 & 1) != 0 { gen_linked_list_0_ll_tail_next__w1#[0..=6] } else { ptr_ram_rd_data }
-  const gen_linked_list_0_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_0_ll_tail_update__w1 != 0) and ((ll_head_bypass__w4 & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and ((br_delay_valid_ll_head_select.out & 1) != 0)) != 0))
+  const gen_linked_list_0_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_0_ll_tail_update__w1 != 0) and ((ll_head_bypass__w4 & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and ((gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select.out & 1) != 0)) != 0))
   if rst != 0 {
     ll_head[0] = 0
   } elif gen_linked_list_0_ll_head_update__w1 != 0 {
@@ -323,7 +322,7 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   mut ll_empty_next__w3 = ll_empty_next__w2
   ll_empty_next__w3#[1] = unsigned(ll_count_next__w4#[8..=15] == 0) & 1
   mut _mux_74:u7 = if ((ll_head_bypass__w4 >> 1) & 1) != 0 { gen_linked_list_1_ll_tail_next__w1#[0..=6] } else { ptr_ram_rd_data }
-  const gen_linked_list_1_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_1_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 1) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((br_delay_valid_ll_head_select.out >> 1) & 1) != 0)) != 0))
+  const gen_linked_list_1_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_1_ll_tail_update__w1 != 0) and (((ll_head_bypass__w4 >> 1) & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and (((gen_ll_head_tail_select_shift_reg_br_delay_valid_ll_head_select.out >> 1) & 1) != 0)) != 0))
   if rst != 0 {
     ll_head[1] = 0
   } elif gen_linked_list_1_ll_head_update__w1 != 0 {

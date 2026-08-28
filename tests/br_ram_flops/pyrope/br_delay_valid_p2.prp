@@ -1,0 +1,24 @@
+pub mod br_delay_valid_p2::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u32) -> (out_valid:u1@[], out:u32@[], out_valid_stages:u2@[], out_stages:u64@[]) {
+  reg stage_valid___q:u2
+  mut stage_valid:u2 = 0
+  reg stage___q:u64
+  mut `stage`:u64 = 0
+  stage_valid = stage_valid___q
+  `stage` = stage___q
+  mut stage_valid__w1 = stage_valid
+  stage_valid__w1#[0] = in_valid & 1
+  mut stage__w1 = `stage`
+  stage__w1#[0..=31] = `in`
+  if rst != 0 {
+    stage_valid___q#[1] = 0
+  } else {
+    stage_valid___q#[1] = stage_valid__w1 & 1
+  }
+  if (stage_valid__w1 & 1) != 0 {
+    stage___q#[32..=63] = stage__w1#[0..=31]
+  }
+  out_valid = (stage_valid__w1 >> 1) & 1
+  out = stage__w1#[32..=63]
+  out_valid_stages = stage_valid__w1
+  out_stages = stage__w1
+}

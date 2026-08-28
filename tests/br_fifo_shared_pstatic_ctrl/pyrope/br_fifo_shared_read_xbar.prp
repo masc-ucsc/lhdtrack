@@ -34,34 +34,34 @@ pub mod br_fifo_shared_read_xbar::[timecheck=false](clk:u1, rst:u1, push_rd_addr
   gen_read_port_mux_0_mux_push_valid__w2#[1] = (demuxed_rd_addr_valid__w1 >> 1) & 1
   mut gen_read_port_mux_0_mux_push_data__w2 = gen_read_port_mux_0_mux_push_data__w1
   gen_read_port_mux_0_mux_push_data__w2#[6..=11] = (demuxed_rd_addr__w1#[5..=9] << 1) | 1
-  mut br_flow_mux_core_inst = br_flow_mux_core::[name=br_flow_mux_core_inst](clk = clk, rst = rst, can_grant = arb_can_grant, grant = arb_grant, push_valid = gen_read_port_mux_0_mux_push_valid__w2, push_data = gen_read_port_mux_0_mux_push_data__w2, pop_ready = 1)
+  mut gen_read_port_mux_0_br_flow_mux_core_inst = br_flow_mux_core::[name=gen_read_port_mux_0_br_flow_mux_core_inst](clk = clk, rst = rst, can_grant = arb_can_grant, grant = arb_grant, push_valid = gen_read_port_mux_0_mux_push_valid__w2, push_data = gen_read_port_mux_0_mux_push_data__w2, pop_ready = 1)
   mut arb_request__w1 = arb_request
-  arb_request__w1#[0..=1] = br_flow_mux_core_inst.request#[0..=1]
+  arb_request__w1#[0..=1] = gen_read_port_mux_0_br_flow_mux_core_inst.request#[0..=1]
   mut arb_enable_priority_update__w1 = arb_enable_priority_update
-  arb_enable_priority_update__w1#[0] = br_flow_mux_core_inst.enable_priority_update & 1
+  arb_enable_priority_update__w1#[0] = gen_read_port_mux_0_br_flow_mux_core_inst.enable_priority_update & 1
   mut pop_rd_addr_valid__w1 = pop_rd_addr_valid
-  pop_rd_addr_valid__w1#[0] = br_flow_mux_core_inst.pop_valid_unstable & 1
+  pop_rd_addr_valid__w1#[0] = gen_read_port_mux_0_br_flow_mux_core_inst.pop_valid_unstable & 1
   mut pop_rd_addr_fifo_id__w1 = pop_rd_addr_fifo_id
-  pop_rd_addr_fifo_id__w1#[0] = br_flow_mux_core_inst.pop_data_unstable & 1
+  pop_rd_addr_fifo_id__w1#[0] = gen_read_port_mux_0_br_flow_mux_core_inst.pop_data_unstable & 1
   mut pop_rd_addr__w1 = pop_rd_addr
-  pop_rd_addr__w1#[0..=4] = (br_flow_mux_core_inst.pop_data_unstable >> 1)#[0..=4]
-  mut br_delay_valid_fifo_id = br_delay_valid::[name=br_delay_valid_fifo_id](clk = clk, rst = rst, in_valid = pop_rd_addr_valid__w1 & 1, `in` = pop_rd_addr_fifo_id__w1 & 1)
+  pop_rd_addr__w1#[0..=4] = (gen_read_port_mux_0_br_flow_mux_core_inst.pop_data_unstable >> 1)#[0..=4]
+  mut gen_read_port_mux_0_br_delay_valid_fifo_id = br_delay_valid::[name=gen_read_port_mux_0_br_delay_valid_fifo_id](clk = clk, rst = rst, in_valid = pop_rd_addr_valid__w1 & 1, `in` = pop_rd_addr_fifo_id__w1 & 1)
   mut pop_rd_data_fifo_id_valid__w1 = pop_rd_data_fifo_id_valid
-  pop_rd_data_fifo_id_valid__w1#[0] = br_delay_valid_fifo_id.out_valid & 1
+  pop_rd_data_fifo_id_valid__w1#[0] = gen_read_port_mux_0_br_delay_valid_fifo_id.out_valid & 1
   mut pop_rd_data_fifo_id__w1 = pop_rd_data_fifo_id
-  pop_rd_data_fifo_id__w1#[0] = br_delay_valid_fifo_id.out & 1
-  mut br_demux_bin_rd_data = br_demux_bin::[name=br_demux_bin_rd_data](select = pop_rd_data_fifo_id__w1 & 1, in_valid = pop_rd_data_valid & 1, `in` = pop_rd_data)
+  pop_rd_data_fifo_id__w1#[0] = gen_read_port_mux_0_br_delay_valid_fifo_id.out & 1
+  mut gen_read_port_mux_0_br_demux_bin_rd_data = br_demux_bin::[name=gen_read_port_mux_0_br_demux_bin_rd_data](select = pop_rd_data_fifo_id__w1 & 1, in_valid = pop_rd_data_valid & 1, `in` = pop_rd_data)
   mut demuxed_rd_data_valid__w1 = demuxed_rd_data_valid
-  demuxed_rd_data_valid__w1#[0..=1] = br_demux_bin_rd_data.out_valid#[0..=1]
+  demuxed_rd_data_valid__w1#[0..=1] = gen_read_port_mux_0_br_demux_bin_rd_data.out_valid#[0..=1]
   mut demuxed_rd_data__w1 = demuxed_rd_data
-  demuxed_rd_data__w1#[0..=63] = br_demux_bin_rd_data.out#[0..=63]
+  demuxed_rd_data__w1#[0..=63] = gen_read_port_mux_0_br_demux_bin_rd_data.out#[0..=63]
   br_misc_unused::[name=br_misc_unused_pop_rd_data_fifo_id_valid](`in` = pop_rd_data_fifo_id_valid__w1)
   mut `push_rd_data_valid__bpo.e1` = (demuxed_rd_data_valid__w1 >> 1) & 1
   mut `push_rd_data_valid__bpo.e0` = demuxed_rd_data_valid__w1 & 1
   mut demuxed_rd_addr_ready__w1 = demuxed_rd_addr_ready
-  demuxed_rd_addr_ready__w1#[0] = br_flow_mux_core_inst.push_ready & 1
+  demuxed_rd_addr_ready__w1#[0] = gen_read_port_mux_0_br_flow_mux_core_inst.push_ready & 1
   mut demuxed_rd_addr_ready__w2 = demuxed_rd_addr_ready__w1
-  demuxed_rd_addr_ready__w2#[1] = (br_flow_mux_core_inst.push_ready >> 1) & 1
+  demuxed_rd_addr_ready__w2#[1] = (gen_read_port_mux_0_br_flow_mux_core_inst.push_ready >> 1) & 1
   push_rd_data_valid.e1 = `push_rd_data_valid__bpo.e1`
   push_rd_data_valid.e0 = `push_rd_data_valid__bpo.e0`
   push_rd_addr_ready = demuxed_rd_addr_ready__w2

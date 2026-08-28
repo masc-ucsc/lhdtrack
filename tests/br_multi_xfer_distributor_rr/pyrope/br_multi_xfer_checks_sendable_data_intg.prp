@@ -1,0 +1,5 @@
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
+
+pub mod br_multi_xfer_checks_sendable_data_intg::[timecheck=false](clk:u1, rst:u1, receivable:u3, sendable:u3, data:u256) -> () {
+  br_misc_unused_p1::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 262) | (receivable << 259) | (sendable << 256) | data)
+}

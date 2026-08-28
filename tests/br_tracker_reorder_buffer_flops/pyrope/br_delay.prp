@@ -1,0 +1,8 @@
+pub comb br_delay::[timecheck=false](clk:u1, rst:u1, `in`:u1) -> (out:u1, out_stages:u1) {
+  mut stages:u1 = 0
+  stages = 0ub?
+  mut stages__w1 = stages
+  stages__w1#[0] = `in` & 1
+  out = stages__w1 & 1
+  out_stages = stages__w1
+}

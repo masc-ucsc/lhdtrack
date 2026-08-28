@@ -1,17 +1,17 @@
 const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
 const br_flow_mux_core_t = import("br_flow_mux_core.br_flow_mux_core")
-const br_flow_reg_fwd_t = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 
 pub mod br_flow_mux_core_stable::[timecheck=false](clk:u1, rst:u1, can_grant:u2, grant:u2, push_valid:u2, push_data:u84, pop_ready:u1) -> (request:u2@[], enable_priority_update:u1@[], push_ready:u2@[], pop_valid:u1@[], pop_data:u42@[]) {
   wire internal_pop_ready:u1
   wire pop_valid:u1
   wire pop_data:u42
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid, ready = pop_ready, data = pop_data)
   mut br_flow_mux_core = br_flow_mux_core_t::[name=br_flow_mux_core](clk = clk, rst = rst, can_grant = can_grant, grant = grant, push_valid = push_valid, push_data = push_data, pop_ready = internal_pop_ready)
-  mut br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = br_flow_mux_core.pop_valid_unstable, push_data = br_flow_mux_core.pop_data_unstable, pop_ready = pop_ready)
-  internal_pop_ready = br_flow_reg_fwd.push_ready
-  pop_valid = br_flow_reg_fwd.pop_valid
-  pop_data = br_flow_reg_fwd.pop_data
+  mut gen_flow_reg_fwd_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_flow_reg_fwd_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = br_flow_mux_core.pop_valid_unstable, push_data = br_flow_mux_core.pop_data_unstable, pop_ready = pop_ready)
+  internal_pop_ready = gen_flow_reg_fwd_br_flow_reg_fwd.push_ready
+  pop_valid = gen_flow_reg_fwd_br_flow_reg_fwd.pop_valid
+  pop_data = gen_flow_reg_fwd_br_flow_reg_fwd.pop_data
   request = br_flow_mux_core.request
   enable_priority_update = br_flow_mux_core.enable_priority_update
   push_ready = br_flow_mux_core.push_ready

@@ -1,8 +1,8 @@
-const br_flow_reg_fwd_t = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 
 pub mod br_flow_buffer::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
-  mut br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready)
-  push_ready = br_flow_reg_fwd.push_ready
-  pop_valid = br_flow_reg_fwd.pop_valid
-  pop_data = br_flow_reg_fwd.pop_data
+  mut gen_flow_reg_fwd_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_flow_reg_fwd_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready)
+  push_ready = gen_flow_reg_fwd_br_flow_reg_fwd.push_ready
+  pop_valid = gen_flow_reg_fwd_br_flow_reg_fwd.pop_valid
+  pop_data = gen_flow_reg_fwd_br_flow_reg_fwd.pop_data
 }

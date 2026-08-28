@@ -1,0 +1,17 @@
+const br_flow_arb_core_t = import("br_flow_arb_core.br_flow_arb_core")
+const br_flow_checks_valid_data_impl_p5 = import("br_flow_checks_valid_data_impl_p5.br_flow_checks_valid_data_impl_p5")
+const br_flow_checks_valid_data_intg_p4 = import("br_flow_checks_valid_data_intg_p4.br_flow_checks_valid_data_intg_p4")
+const br_mux_onehot_p2 = import("br_mux_onehot_p2.br_mux_onehot_p2")
+
+pub mod br_flow_mux_core::[timecheck=false](clk:u1, rst:u1, can_grant:u2, grant:u2, push_valid:u2, push_data:u12, pop_ready:u1) -> (request:u2@[], enable_priority_update:u1@[], push_ready:u2@[], pop_valid_unstable:u1@[], pop_data_unstable:u6@[]) {
+  mut br_flow_arb_core = br_flow_arb_core_t::[name=br_flow_arb_core](clk = clk, rst = rst, can_grant = can_grant, grant = grant, push_valid = push_valid, pop_ready = pop_ready)
+  mut br_mux_onehot = br_mux_onehot_p2::[name=br_mux_onehot](select = grant, `in` = push_data)
+  const pop_data_unstable__w1 = br_mux_onehot
+  br_flow_checks_valid_data_impl_p5::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = br_flow_arb_core.pop_valid_unstable, ready = pop_ready, data = pop_data_unstable__w1)
+  br_flow_checks_valid_data_intg_p4::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = br_flow_arb_core.push_ready, data = push_data)
+  request = br_flow_arb_core.request
+  enable_priority_update = br_flow_arb_core.enable_priority_update
+  push_ready = br_flow_arb_core.push_ready
+  pop_valid_unstable = br_flow_arb_core.pop_valid_unstable
+  pop_data_unstable = pop_data_unstable__w1
+}

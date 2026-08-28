@@ -162,15 +162,39 @@ design**. Every area and delay number in the synthesis tables is a claim about a
 netlist; this is what says the netlist is still the circuit. A refutation here
 is far more serious than two source descriptions differing.
 
+It has already earned its keep. On 2026-08-28 it refuted 11 of 149 designs, and
+those refutations were **real**: a generate-block instance name collision made
+two distinct registers flatten to one hierarchical name, `pass.abc`'s register
+read-back disambiguated them on the implementation side only, and the mapped
+netlist computed `{credit_initial[5:3], credit_initial[5:3]}` where the RTL gives
+`credit_initial` — 56 of 64 input values wrong. Confirmed independently with
+iverilog against the PDK's own cell models, then fixed upstream in lhd's slang
+reader.
+
+Two things that triage taught, both worth keeping:
+
+- **`pass.abc.register=false` proving what `register=true` refutes does NOT mean
+  the netlist is fine.** Both settings emit different netlists, so one proving
+  says nothing about the other. That inference cost an hour and pointed at the
+  wrong component.
+- **Get an oracle that shares nothing with the tool under test.** `lhd lec --set
+  formal.solver=lgyosys --lib lg:models` is not one (the Liberty models never
+  reach the yosys leg, so a netlist refutes against itself), and yosys cannot
+  read the PDK's UDP-based models at all. iverilog can, and that is what settled
+  it.
+
+Note that asap7 skips this obligation: lhd takes one Liberty file and asap7
+ships five cell families.
+
 The mapped cells need behavioural models — `lhd pass liberty gensim` generates
 them from the same Liberty the netlist was mapped against. Without them every
 standard cell is an opaque black box and the proof degrades to UNKNOWN, which
 would look like a solver limitation rather than a missing input.
 
 The two obligations are reported in **separate sections** and never averaged
-together: `br_delay`'s Pyrope is refuted against its Verilog while its netlist
-is proven against that same Verilog, which correctly says "synthesis is sound,
-the Pyrope rewrite is not".
+together: a test whose Pyrope is refuted against its Verilog can still have its
+netlist proven against that same Verilog, which correctly says "synthesis is
+sound, the source rewrite is not".
 
 A definitive verdict is **written back** into `design.toml` when `status.lec` was
 `"none"` — unknown, so filling it in is strictly an improvement, and without it

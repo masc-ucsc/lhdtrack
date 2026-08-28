@@ -4,16 +4,16 @@ const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.
 pub mod br_fifo_push_ctrl_core::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, bypass_ready:u1, addr_base:u5, addr_bound:u5, full:u1) -> (push_ready:u1@[], bypass_valid_unstable:u1@[], bypass_data_unstable:u32@[], ram_wr_valid:u1@[], ram_wr_addr_next:u5@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], push_beat:u1@[]) {
   wire ram_wr_addr:u5
   const push_ready__w1 = unsigned(full == 0)
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
   const push_beat__w1 = unsigned((push_ready__w1 != 0) and (push_valid != 0))
   const ram_wr_valid__w1 = unsigned((push_beat__w1 != 0) and (bypass_ready == 0))
-  mut br_counter_incr_wr_addr = br_counter_incr::[name=br_counter_incr_wr_addr](clk = clk, rst = rst, reinit = unsigned((ram_wr_valid__w1 != 0) and (ram_wr_addr == addr_bound)), initial_value = addr_base, incr_valid = ram_wr_valid__w1, incr = 1)
-  ram_wr_addr = br_counter_incr_wr_addr.value
+  mut gen_wr_addr_counter_br_counter_incr_wr_addr = br_counter_incr::[name=gen_wr_addr_counter_br_counter_incr_wr_addr](clk = clk, rst = rst, reinit = unsigned((ram_wr_valid__w1 != 0) and (ram_wr_addr == addr_bound)), initial_value = addr_base, incr_valid = ram_wr_valid__w1, incr = 1)
+  ram_wr_addr = gen_wr_addr_counter_br_counter_incr_wr_addr.value
   push_ready = push_ready__w1
   bypass_valid_unstable = push_valid
   bypass_data_unstable = push_data
   ram_wr_valid = ram_wr_valid__w1
-  ram_wr_addr_next = br_counter_incr_wr_addr.value_next
+  ram_wr_addr_next = gen_wr_addr_counter_br_counter_incr_wr_addr.value_next
   ram_wr_data = push_data
   push_beat = push_beat__w1
 }

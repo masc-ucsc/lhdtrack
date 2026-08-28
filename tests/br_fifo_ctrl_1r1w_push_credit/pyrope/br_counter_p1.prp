@@ -7,7 +7,7 @@ pub mod br_counter_p1::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_valu
   mut _mux_3:u2 = if reinit != 0 { initial_value } else { value }
   const value_temp__w1 = ((_mux_3 + _mux_1)#[0..=1] - _mux_2)#[0..=1]
   const value_next__w1 = value_temp__w1 & 1
-  br_misc_unused_p1::[name=br_misc_unused_value_temp_msbs](`in` = (value_temp__w1 >> 1) & 1)
+  br_misc_unused_p1::[name=gen_no_wrap_or_saturate_gen_unused_br_misc_unused_value_temp_msbs](`in` = (value_temp__w1 >> 1) & 1)
   if rst != 0 {
     value = initial_value
   } elif unsigned((reinit != 0) or (incr_valid != 0) or (decr_valid != 0)) != 0 {

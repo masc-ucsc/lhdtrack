@@ -1,0 +1,48 @@
+const br_credit_receiver = import("br_credit_receiver.br_credit_receiver")
+const br_fifo_shared_pstatic_push_ctrl = import("br_fifo_shared_pstatic_push_ctrl.br_fifo_shared_pstatic_push_ctrl")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
+
+pub mod br_fifo_shared_pstatic_push_ctrl_credit::[timecheck=false](clk:u1, rst:u1, config_size:u12, config_base:u10, config_bound:u10, push_sender_in_reset:u1, push_credit_stall:(e1:u1, e0:u1), push_valid:u1, push_data:u32, push_fifo_id:u1, push_full:u2, bypass_ready:(e1:u1, e0:u1), credit_initial_push:u12, credit_withhold_push:u12, dealloc_valid:(e1:u1, e0:u1)) -> (push_receiver_in_reset:u1@[], push_credit:(e1:u1, e0:u1)@[], bypass_valid_unstable:(e1:u1, e0:u1)@[], bypass_data_unstable:u64@[], credit_available_push:u12@[], credit_count_push:u12@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], advance_tail:u2@[], tail_next:u10@[], tail:u10@[]) {
+  mut push_receiver_in_reset_internal:u2 = 0
+  mut receiver_push_valid:u2 = 0
+  push_receiver_in_reset_internal = 0sb?
+  receiver_push_valid = 0sb?
+  credit_available_push = 0sb?
+  credit_count_push = 0sb?
+  br_misc_unused_p1::[name=br_misc_unused_config_size](`in` = config_size)
+  mut receiver_push_valid__w1 = receiver_push_valid
+  receiver_push_valid__w1#[0] = unsigned((push_valid != 0) and (push_fifo_id == 0)) & 1
+  mut receiver_push_valid__w2 = receiver_push_valid__w1
+  receiver_push_valid__w2#[1] = unsigned((push_valid != 0) and (push_fifo_id == 1)) & 1
+  mut gen_credit_receiver_1_br_credit_receiver_inst = br_credit_receiver::[name=gen_credit_receiver_1_br_credit_receiver_inst](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall.e1, push_valid = (receiver_push_valid__w2 >> 1) & 1, push_data = push_data, pop_credit = dealloc_valid.e1, credit_initial = credit_initial_push#[6..=11], credit_withhold = credit_withhold_push#[6..=11])
+  mut push_receiver_in_reset_internal__w1 = push_receiver_in_reset_internal
+  push_receiver_in_reset_internal__w1#[1] = gen_credit_receiver_1_br_credit_receiver_inst.push_receiver_in_reset & 1
+  mut credit_count_push__w1 = credit_count_push
+  credit_count_push__w1#[6..=11] = gen_credit_receiver_1_br_credit_receiver_inst.credit_count#[0..=5]
+  mut credit_available_push__w1 = credit_available_push
+  credit_available_push__w1#[6..=11] = gen_credit_receiver_1_br_credit_receiver_inst.credit_available#[0..=5]
+  mut br_fifo_shared_pstatic_push_ctrl_inst = br_fifo_shared_pstatic_push_ctrl::[name=br_fifo_shared_pstatic_push_ctrl_inst](clk = clk, rst = unsigned((push_sender_in_reset != 0) or (rst != 0)), config_base = config_base, config_bound = config_bound, push_valid = push_valid, push_data = push_data, push_fifo_id = push_fifo_id, `push_full.e1` = (push_full >> 1) & 1, `push_full.e0` = push_full & 1, bypass_ready.e1 = bypass_ready.e1, bypass_ready.e0 = bypass_ready.e0)
+  mut gen_credit_receiver_0_br_credit_receiver_inst = br_credit_receiver::[name=gen_credit_receiver_0_br_credit_receiver_inst](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall.e0, push_valid = receiver_push_valid__w2 & 1, push_data = push_data, pop_credit = dealloc_valid.e0, credit_initial = credit_initial_push#[0..=5], credit_withhold = credit_withhold_push#[0..=5])
+  mut push_receiver_in_reset_internal__w2 = push_receiver_in_reset_internal__w1
+  push_receiver_in_reset_internal__w2#[0] = gen_credit_receiver_0_br_credit_receiver_inst.push_receiver_in_reset & 1
+  mut credit_count_push__w2 = credit_count_push__w1
+  credit_count_push__w2#[0..=5] = gen_credit_receiver_0_br_credit_receiver_inst.credit_count#[0..=5]
+  mut credit_available_push__w2 = credit_available_push__w1
+  credit_available_push__w2#[0..=5] = gen_credit_receiver_0_br_credit_receiver_inst.credit_available#[0..=5]
+  br_misc_unused::[name=br_misc_unused_push_receiver_in_reset_internal_msbs](`in` = (push_receiver_in_reset_internal__w2 >> 1) & 1)
+  push_credit.e1 = gen_credit_receiver_1_br_credit_receiver_inst.push_credit
+  push_credit.e0 = gen_credit_receiver_0_br_credit_receiver_inst.push_credit
+  bypass_valid_unstable.e1 = br_fifo_shared_pstatic_push_ctrl_inst.bypass_valid_unstable.e1
+  bypass_valid_unstable.e0 = br_fifo_shared_pstatic_push_ctrl_inst.bypass_valid_unstable.e0
+  push_receiver_in_reset = push_receiver_in_reset_internal__w2 & 1
+  bypass_data_unstable = br_fifo_shared_pstatic_push_ctrl_inst.bypass_data_unstable
+  credit_available_push = credit_available_push__w2
+  credit_count_push = credit_count_push__w2
+  ram_wr_valid = br_fifo_shared_pstatic_push_ctrl_inst.ram_wr_valid
+  ram_wr_addr = br_fifo_shared_pstatic_push_ctrl_inst.ram_wr_addr
+  ram_wr_data = br_fifo_shared_pstatic_push_ctrl_inst.ram_wr_data
+  advance_tail = (br_fifo_shared_pstatic_push_ctrl_inst.advance_tail.e1 << 1) | br_fifo_shared_pstatic_push_ctrl_inst.advance_tail.e0
+  tail_next = br_fifo_shared_pstatic_push_ctrl_inst.tail_next
+  tail = br_fifo_shared_pstatic_push_ctrl_inst.tail
+}

@@ -1,0 +1,18 @@
+pub mod br_lfsr::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_state:u32, taps:u32, advance:u1) -> (out:u1@[], out_state:u32@[]) {
+  reg state:u32
+  const out__w1 = state & 1
+  const out_state__w1 = state
+  const advanced_state__w1 = state
+  const t8 = (advanced_state__w1 & taps) ^ ((advanced_state__w1 & taps) >> 16)
+  const t10 = t8 ^ (t8 >> 8)
+  const t12 = t10 ^ (t10 >> 4)
+  const t14 = t12 ^ (t12 >> 2)
+  mut _mux_1:u32 = if reinit != 0 { initial_state } else { (advanced_state__w1#[0..=30] << 1) | ((t14 ^ (t14 >> 1)) & 1 & 1) }
+  if rst != 0 {
+    state = initial_state
+  } elif (advance != 0) or (reinit != 0) {
+    state = _mux_1
+  }
+  out = out__w1
+  out_state = out_state__w1
+}

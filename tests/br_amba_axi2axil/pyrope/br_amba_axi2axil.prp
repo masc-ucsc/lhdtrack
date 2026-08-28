@@ -1,0 +1,34 @@
+const br_amba_axi2axil_core = import("br_amba_axi2axil_core.br_amba_axi2axil_core")
+const br_amba_axi2axil_core_p1 = import("br_amba_axi2axil_core_p1.br_amba_axi2axil_core_p1")
+
+pub mod br_amba_axi2axil::[timecheck=false](clk:u1, rst:u1, axi_awaddr:u32, axi_awid:u4, axi_awlen:u8, axi_awsize:u3, axi_awburst:u2, axi_awprot:u3, axi_awuser:u8, axi_awvalid:u1, axi_wdata:u32, axi_wstrb:u4, axi_wuser:u8, axi_wlast:u1, axi_wvalid:u1, axi_bready:u1, axi_araddr:u32, axi_arid:u4, axi_arlen:u8, axi_arsize:u3, axi_arburst:u2, axi_arprot:u3, axi_aruser:u8, axi_arvalid:u1, axi_rready:u1, axil_awready:u1, axil_wready:u1, axil_bresp:u2, axil_buser:u8, axil_bvalid:u1, axil_arready:u1, axil_rdata:u32, axil_rresp:u2, axil_ruser:u8, axil_rvalid:u1) -> (axi_awready:u1@[], axi_wready:u1@[], axi_bid:u4@[], axi_buser:u8@[], axi_bresp:u2@[], axi_bvalid:u1@[], axi_arready:u1@[], axi_rid:u4@[], axi_rdata:u32@[], axi_ruser:u8@[], axi_rresp:u2@[], axi_rlast:u1@[], axi_rvalid:u1@[], axil_awaddr:u32@[], axil_awprot:u3@[], axil_awuser:u8@[], axil_awvalid:u1@[], axil_wdata:u32@[], axil_wstrb:u4@[], axil_wuser:u8@[], axil_wvalid:u1@[], axil_bready:u1@[], axil_araddr:u32@[], axil_arprot:u3@[], axil_aruser:u8@[], axil_arvalid:u1@[], axil_rready:u1@[]) {
+  mut br_amba_axi2axil_core_write = br_amba_axi2axil_core::[name=br_amba_axi2axil_core_write](clk = clk, rst = rst, axi_req_addr = axi_awaddr, axi_req_id = axi_awid, axi_req_len = axi_awlen, axi_req_size = axi_awsize, axi_req_burst = axi_awburst, axi_req_prot = axi_awprot, axi_req_user = axi_awuser, axi_req_valid = axi_awvalid, axi_req_data = axi_wdata, axi_req_data_strb = axi_wstrb, axi_req_data_user = axi_wuser, axi_req_data_last = axi_wlast, axi_req_data_valid = axi_wvalid, axi_resp_ready = axi_bready, axil_req_ready = axil_awready, axil_req_data_ready = axil_wready, axil_resp_resp = axil_bresp, axil_resp_user = axil_buser, axil_resp_data = 0, axil_resp_valid = axil_bvalid)
+  mut br_amba_axi2axil_core_read = br_amba_axi2axil_core_p1::[name=br_amba_axi2axil_core_read](clk = clk, rst = rst, axi_req_addr = axi_araddr, axi_req_id = axi_arid, axi_req_len = axi_arlen, axi_req_size = axi_arsize, axi_req_burst = axi_arburst, axi_req_prot = axi_arprot, axi_req_user = axi_aruser, axi_req_valid = axi_arvalid, axi_req_data = 0, axi_req_data_strb = 0, axi_req_data_user = 0, axi_req_data_last = 0, axi_req_data_valid = 0, axi_resp_ready = axi_rready, axil_req_ready = axil_arready, axil_req_data_ready = 0, axil_resp_resp = axil_rresp, axil_resp_user = axil_ruser, axil_resp_data = axil_rdata, axil_resp_valid = axil_rvalid)
+  axi_awready = br_amba_axi2axil_core_write.axi_req_ready
+  axi_wready = br_amba_axi2axil_core_write.axi_req_data_ready
+  axi_bid = br_amba_axi2axil_core_write.axi_resp_id
+  axi_buser = br_amba_axi2axil_core_write.axi_resp_user
+  axi_bresp = br_amba_axi2axil_core_write.axi_resp_resp
+  axi_bvalid = br_amba_axi2axil_core_write.axi_resp_valid
+  axi_arready = br_amba_axi2axil_core_read.axi_req_ready
+  axi_rid = br_amba_axi2axil_core_read.axi_resp_id
+  axi_rdata = br_amba_axi2axil_core_read.axi_resp_data
+  axi_ruser = br_amba_axi2axil_core_read.axi_resp_user
+  axi_rresp = br_amba_axi2axil_core_read.axi_resp_resp
+  axi_rlast = br_amba_axi2axil_core_read.axi_resp_data_last
+  axi_rvalid = br_amba_axi2axil_core_read.axi_resp_valid
+  axil_awaddr = br_amba_axi2axil_core_write.axil_req_addr
+  axil_awprot = br_amba_axi2axil_core_write.axil_req_prot
+  axil_awuser = br_amba_axi2axil_core_write.axil_req_user
+  axil_awvalid = br_amba_axi2axil_core_write.axil_req_valid
+  axil_wdata = br_amba_axi2axil_core_write.axil_req_data
+  axil_wstrb = br_amba_axi2axil_core_write.axil_req_data_strb
+  axil_wuser = br_amba_axi2axil_core_write.axil_req_data_user
+  axil_wvalid = br_amba_axi2axil_core_write.axil_req_data_valid
+  axil_bready = br_amba_axi2axil_core_write.axil_resp_ready
+  axil_araddr = br_amba_axi2axil_core_read.axil_req_addr
+  axil_arprot = br_amba_axi2axil_core_read.axil_req_prot
+  axil_aruser = br_amba_axi2axil_core_read.axil_req_user
+  axil_arvalid = br_amba_axi2axil_core_read.axil_req_valid
+  axil_rready = br_amba_axi2axil_core_read.axil_resp_ready
+}

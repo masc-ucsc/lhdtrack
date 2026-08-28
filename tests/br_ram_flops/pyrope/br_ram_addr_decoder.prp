@@ -1,0 +1,45 @@
+const br_delay_valid = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_demux_bin = import("br_demux_bin.br_demux_bin")
+const br_demux_bin_p1 = import("br_demux_bin_p1.br_demux_bin_p1")
+
+pub mod br_ram_addr_decoder::[timecheck=false](clk:u1, rst:u1, in_valid:u1, in_addr:u6, in_data_valid:u1, in_data:u72) -> (out_valid:(e3:u1, e2:u1, e1:u1, e0:u1)@[], out_addr:u16@[], out_data_valid:(e3:u1, e2:u1, e1:u1, e0:u1)@[], out_data:u288@[]) {
+  out_addr = 0sb?
+  out_data = 0sb?
+  mut gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr = br_demux_bin::[name=gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr](select = in_addr#[4..=5], in_valid = in_valid, `in` = in_addr#[0..=3])
+  mut gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data = br_demux_bin_p1::[name=gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data](select = in_addr#[4..=5], in_valid = in_data_valid, `in` = in_data)
+  mut gen_tiles_gt1_gen_out_0_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_0_br_delay_valid_addr](clk = clk, rst = rst, in_valid = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[0..=3])
+  mut out_addr__w1 = out_addr
+  out_addr__w1#[0..=3] = gen_tiles_gt1_gen_out_0_br_delay_valid_addr.out#[0..=3]
+  mut gen_tiles_gt1_gen_out_0_gen_datapath_br_delay_valid_data = br_delay_valid_p1::[name=gen_tiles_gt1_gen_out_0_gen_datapath_br_delay_valid_data](clk = clk, rst = rst, in_valid = gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out_valid & 1, `in` = gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out#[0..=71])
+  mut out_data__w1 = out_data
+  out_data__w1#[0..=71] = gen_tiles_gt1_gen_out_0_gen_datapath_br_delay_valid_data.out#[0..=71]
+  mut gen_tiles_gt1_gen_out_1_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_1_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 1) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[4..=7])
+  mut out_addr__w2 = out_addr__w1
+  out_addr__w2#[4..=7] = gen_tiles_gt1_gen_out_1_br_delay_valid_addr.out#[0..=3]
+  mut gen_tiles_gt1_gen_out_1_gen_datapath_br_delay_valid_data = br_delay_valid_p1::[name=gen_tiles_gt1_gen_out_1_gen_datapath_br_delay_valid_data](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out_valid >> 1) & 1, `in` = gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out#[72..=143])
+  mut out_data__w2 = out_data__w1
+  out_data__w2#[72..=143] = gen_tiles_gt1_gen_out_1_gen_datapath_br_delay_valid_data.out#[0..=71]
+  mut gen_tiles_gt1_gen_out_2_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_2_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 2) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[8..=11])
+  mut out_addr__w3 = out_addr__w2
+  out_addr__w3#[8..=11] = gen_tiles_gt1_gen_out_2_br_delay_valid_addr.out#[0..=3]
+  mut gen_tiles_gt1_gen_out_2_gen_datapath_br_delay_valid_data = br_delay_valid_p1::[name=gen_tiles_gt1_gen_out_2_gen_datapath_br_delay_valid_data](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out_valid >> 2) & 1, `in` = gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out#[144..=215])
+  mut out_data__w3 = out_data__w2
+  out_data__w3#[144..=215] = gen_tiles_gt1_gen_out_2_gen_datapath_br_delay_valid_data.out#[0..=71]
+  mut gen_tiles_gt1_gen_out_3_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_3_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 3) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[12..=15])
+  mut out_addr__w4 = out_addr__w3
+  out_addr__w4#[12..=15] = gen_tiles_gt1_gen_out_3_br_delay_valid_addr.out#[0..=3]
+  mut gen_tiles_gt1_gen_out_3_gen_datapath_br_delay_valid_data = br_delay_valid_p1::[name=gen_tiles_gt1_gen_out_3_gen_datapath_br_delay_valid_data](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out_valid >> 3) & 1, `in` = gen_tiles_gt1_gen_demux_impl_gen_datapath_br_demux_bin_data.out#[216..=287])
+  mut out_data__w4 = out_data__w3
+  out_data__w4#[216..=287] = gen_tiles_gt1_gen_out_3_gen_datapath_br_delay_valid_data.out#[0..=71]
+  out_valid.e3 = gen_tiles_gt1_gen_out_3_br_delay_valid_addr.out_valid
+  out_valid.e2 = gen_tiles_gt1_gen_out_2_br_delay_valid_addr.out_valid
+  out_valid.e1 = gen_tiles_gt1_gen_out_1_br_delay_valid_addr.out_valid
+  out_valid.e0 = gen_tiles_gt1_gen_out_0_br_delay_valid_addr.out_valid
+  out_data_valid.e3 = gen_tiles_gt1_gen_out_3_gen_datapath_br_delay_valid_data.out_valid
+  out_data_valid.e2 = gen_tiles_gt1_gen_out_2_gen_datapath_br_delay_valid_data.out_valid
+  out_data_valid.e1 = gen_tiles_gt1_gen_out_1_gen_datapath_br_delay_valid_data.out_valid
+  out_data_valid.e0 = gen_tiles_gt1_gen_out_0_gen_datapath_br_delay_valid_data.out_valid
+  out_addr = out_addr__w4
+  out_data = out_data__w4
+}

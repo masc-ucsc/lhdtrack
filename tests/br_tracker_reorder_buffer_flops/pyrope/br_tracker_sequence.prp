@@ -1,0 +1,23 @@
+const br_counter_incr_p2 = import("br_counter_incr_p2.br_counter_incr_p2")
+const br_counter_p1 = import("br_counter_p1.br_counter_p1")
+
+pub mod br_tracker_sequence::[timecheck=false](clk:u1, rst:u1, alloc_receivable:u1, dealloc_valid:u1, dealloc_size:u1) -> (alloc_sendable:u1@[], alloc_entry_id:u4@[], free_entry_count:u5@[], allocated_entry_count:u5@[]) {
+  wire alloc_counter_value:u4
+  wire free_entry_count:u5
+  alloc_entry_id = 0sb?
+  mut alloc_entry_id__w1 = alloc_entry_id
+  alloc_entry_id__w1#[0..=3] = alloc_counter_value
+  const allocated_entry_count__w1 = (16 - free_entry_count)#[0..=4]
+  mut _mux_1:u32 = if free_entry_count > 1 { 1 } else { free_entry_count & 1 }
+  const alloc_sendable__w1 = _mux_1 & 1
+  const alloc_beat__w1 = unsigned((alloc_receivable > 0) and (alloc_sendable__w1 > 0))
+  mut _mux_3:u1 = if alloc_receivable > alloc_sendable__w1 { alloc_sendable__w1 & 1 } else { alloc_receivable & 1 }
+  const alloc_size__w1 = _mux_3
+  mut br_counter_incr_allocate_counter = br_counter_incr_p2::[name=br_counter_incr_allocate_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = alloc_beat__w1, incr = alloc_size__w1)
+  alloc_counter_value = br_counter_incr_allocate_counter.value
+  mut br_counter_free_entry_counter = br_counter_p1::[name=br_counter_free_entry_counter](clk = clk, rst = rst, reinit = 0, initial_value = 16, incr_valid = dealloc_valid, incr = dealloc_size, decr_valid = alloc_beat__w1, decr = alloc_size__w1)
+  free_entry_count = br_counter_free_entry_counter.value
+  alloc_sendable = alloc_sendable__w1
+  alloc_entry_id = alloc_entry_id__w1
+  allocated_entry_count = allocated_entry_count__w1
+}

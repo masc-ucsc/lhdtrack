@@ -1,0 +1,19 @@
+pub comb br_enc_countones::[timecheck=false](`in`:u16) -> (count:u5) {
+  const count__w12 = (((((((((((0 + (`in` & 1))#[0..=4] + ((`in` >> 1) & 1))#[0..=4] + ((`in` >> 2) & 1))#[0..=4] + ((`in` >> 3) & 1))#[0..=4] + ((`in` >> 4) & 1))#[0..=4] + ((`in` >> 5) & 1))#[0..=4] + ((`in` >> 6) & 1))#[0..=4] + ((`in` >> 7) & 1))#[0..=4] + ((`in` >> 8) & 1))#[0..=4] + ((`in` >> 9) & 1))#[0..=4] + ((`in` >> 10) & 1))#[0..=4]
+  const t46 = count__w12 + ((`in` >> 11) & 1)
+  const t47 = t46#[0..=4]
+  const count__w13 = t47
+  const t50 = count__w13 + ((`in` >> 12) & 1)
+  const t51 = t50#[0..=4]
+  const count__w14 = t51
+  const t54 = count__w14 + ((`in` >> 13) & 1)
+  const t55 = t54#[0..=4]
+  const count__w15 = t55
+  const t58 = count__w15 + ((`in` >> 14) & 1)
+  const t59 = t58#[0..=4]
+  const count__w16 = t59
+  const t62 = count__w16 + ((`in` >> 15) & 1)
+  const t63 = t62#[0..=4]
+  const count__w17 = t63
+  count = count__w17
+}

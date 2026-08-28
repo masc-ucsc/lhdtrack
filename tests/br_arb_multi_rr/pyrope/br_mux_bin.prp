@@ -1,0 +1,6 @@
+pub comb br_mux_bin::[timecheck=false](select:u1, `in`:u32) -> (out:u16, out_valid:u1) {
+  mut _rep_2:u16 = if (unsigned(select == 0) & 1) != 0 { 0xffff } else { 0 }
+  mut _rep_4:u16 = if (unsigned(select == 1) & 1) != 0 { 0xffff } else { 0 }
+  out = (0 | (_rep_2 & `in`#[0..=15])) | (_rep_4 & `in`#[16..=31])
+  out_valid = unsigned(select < 2)
+}

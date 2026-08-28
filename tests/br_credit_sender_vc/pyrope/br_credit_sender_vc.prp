@@ -1,4 +1,4 @@
-const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+const br_credit_counter = import("br_credit_counter.br_credit_counter")
 const br_delay_nr = import("br_delay_nr.br_delay_nr")
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_enc_onehot2bin = import("br_enc_onehot2bin.br_enc_onehot2bin")
@@ -49,57 +49,57 @@ pub mod br_credit_sender_vc::[timecheck=false](clk:u1, rst:u1, can_grant:u4, gra
   mut br_delay_nr_pop_sender_in_reset = br_delay_nr::[name=br_delay_nr_pop_sender_in_reset](clk = clk, `in` = rst)
   mut credit_decr_ready__w1 = credit_decr_ready
   credit_decr_ready__w1#[0] = unsigned(credit_available#[0..=4] > 0) & 1
-  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = credit_incr_valid__w4 & 1, incr = credit_incr__w4#[0..=2], decr_valid = credit_decr_valid & 1, decr = 1, initial_value = credit_initial#[0..=4], withhold = credit_withhold#[0..=4])
-  credit_count__wtmp#[0..=4] = br_credit_counter["value"]#[0..=4]
-  credit_available__wtmp#[0..=4] = br_credit_counter["available"]#[0..=4]
-  mut br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = push_valid & 1, pop_ready = ((credit_decr_ready__w1 & 1) << 1) | (mux_push_ready & 1))
+  mut gen_credit_counters_0_br_credit_counter = br_credit_counter::[name=gen_credit_counters_0_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = credit_incr_valid__w4 & 1, incr = credit_incr__w4#[0..=2], decr_valid = credit_decr_valid & 1, decr = 1, initial_value = credit_initial#[0..=4], withhold = credit_withhold#[0..=4])
+  credit_count__wtmp#[0..=4] = gen_credit_counters_0_br_credit_counter.value#[0..=4]
+  credit_available__wtmp#[0..=4] = gen_credit_counters_0_br_credit_counter.available#[0..=4]
+  mut gen_credit_counters_0_br_flow_fork_push = br_flow_fork::[name=gen_credit_counters_0_br_flow_fork_push](clk = clk, rst = rst, push_valid = push_valid & 1, pop_ready = ((credit_decr_ready__w1 & 1) << 1) | (mux_push_ready & 1))
   mut push_ready__w1 = push_ready
-  push_ready__w1#[0] = br_flow_fork_push["push_ready"] & 1
+  push_ready__w1#[0] = gen_credit_counters_0_br_flow_fork_push.push_ready & 1
   mut mux_push_valid__w1 = mux_push_valid
-  mux_push_valid__w1#[0] = br_flow_fork_push["pop_valid_unstable"] & 1
-  credit_decr_valid__wtmp#[0] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  mux_push_valid__w1#[0] = gen_credit_counters_0_br_flow_fork_push.pop_valid_unstable & 1
+  credit_decr_valid__wtmp#[0] = (gen_credit_counters_0_br_flow_fork_push.pop_valid_unstable >> 1) & 1
   mut credit_decr_ready__w2 = credit_decr_ready__w1
   credit_decr_ready__w2#[1] = unsigned(credit_available#[5..=9] > 0) & 1
-  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 1) & 1, incr = credit_incr__w4#[3..=5], decr_valid = (credit_decr_valid >> 1) & 1, decr = 1, initial_value = credit_initial#[5..=9], withhold = credit_withhold#[5..=9])
+  mut gen_credit_counters_1_br_credit_counter = br_credit_counter::[name=gen_credit_counters_1_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 1) & 1, incr = credit_incr__w4#[3..=5], decr_valid = (credit_decr_valid >> 1) & 1, decr = 1, initial_value = credit_initial#[5..=9], withhold = credit_withhold#[5..=9])
   mut credit_count__wtmp__w1 = credit_count__wtmp
-  credit_count__wtmp__w1#[5..=9] = br_credit_counter["value"]#[0..=4]
+  credit_count__wtmp__w1#[5..=9] = gen_credit_counters_1_br_credit_counter.value#[0..=4]
   mut credit_available__wtmp__w1 = credit_available__wtmp
-  credit_available__wtmp__w1#[5..=9] = br_credit_counter["available"]#[0..=4]
-  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 1) & 1, pop_ready = (((credit_decr_ready__w2 >> 1) & 1) << 1) | ((mux_push_ready >> 1) & 1))
+  credit_available__wtmp__w1#[5..=9] = gen_credit_counters_1_br_credit_counter.available#[0..=4]
+  mut gen_credit_counters_1_br_flow_fork_push = br_flow_fork::[name=gen_credit_counters_1_br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 1) & 1, pop_ready = (((credit_decr_ready__w2 >> 1) & 1) << 1) | ((mux_push_ready >> 1) & 1))
   mut push_ready__w2 = push_ready__w1
-  push_ready__w2#[1] = br_flow_fork_push["push_ready"] & 1
+  push_ready__w2#[1] = gen_credit_counters_1_br_flow_fork_push.push_ready & 1
   mut mux_push_valid__w2 = mux_push_valid__w1
-  mux_push_valid__w2#[1] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mux_push_valid__w2#[1] = gen_credit_counters_1_br_flow_fork_push.pop_valid_unstable & 1
   mut credit_decr_valid__wtmp__w1 = credit_decr_valid__wtmp
-  credit_decr_valid__wtmp__w1#[1] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  credit_decr_valid__wtmp__w1#[1] = (gen_credit_counters_1_br_flow_fork_push.pop_valid_unstable >> 1) & 1
   mut credit_decr_ready__w3 = credit_decr_ready__w2
   credit_decr_ready__w3#[2] = unsigned(credit_available#[10..=14] > 0) & 1
-  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 2) & 1, incr = credit_incr__w4#[6..=8], decr_valid = (credit_decr_valid >> 2) & 1, decr = 1, initial_value = credit_initial#[10..=14], withhold = credit_withhold#[10..=14])
+  mut gen_credit_counters_2_br_credit_counter = br_credit_counter::[name=gen_credit_counters_2_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 2) & 1, incr = credit_incr__w4#[6..=8], decr_valid = (credit_decr_valid >> 2) & 1, decr = 1, initial_value = credit_initial#[10..=14], withhold = credit_withhold#[10..=14])
   mut credit_count__wtmp__w2 = credit_count__wtmp__w1
-  credit_count__wtmp__w2#[10..=14] = br_credit_counter["value"]#[0..=4]
+  credit_count__wtmp__w2#[10..=14] = gen_credit_counters_2_br_credit_counter.value#[0..=4]
   mut credit_available__wtmp__w2 = credit_available__wtmp__w1
-  credit_available__wtmp__w2#[10..=14] = br_credit_counter["available"]#[0..=4]
-  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 2) & 1, pop_ready = (((credit_decr_ready__w3 >> 2) & 1) << 1) | ((mux_push_ready >> 2) & 1))
+  credit_available__wtmp__w2#[10..=14] = gen_credit_counters_2_br_credit_counter.available#[0..=4]
+  mut gen_credit_counters_2_br_flow_fork_push = br_flow_fork::[name=gen_credit_counters_2_br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 2) & 1, pop_ready = (((credit_decr_ready__w3 >> 2) & 1) << 1) | ((mux_push_ready >> 2) & 1))
   mut push_ready__w3 = push_ready__w2
-  push_ready__w3#[2] = br_flow_fork_push["push_ready"] & 1
+  push_ready__w3#[2] = gen_credit_counters_2_br_flow_fork_push.push_ready & 1
   mut mux_push_valid__w3 = mux_push_valid__w2
-  mux_push_valid__w3#[2] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mux_push_valid__w3#[2] = gen_credit_counters_2_br_flow_fork_push.pop_valid_unstable & 1
   mut credit_decr_valid__wtmp__w2 = credit_decr_valid__wtmp__w1
-  credit_decr_valid__wtmp__w2#[2] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  credit_decr_valid__wtmp__w2#[2] = (gen_credit_counters_2_br_flow_fork_push.pop_valid_unstable >> 1) & 1
   mut credit_decr_ready__w4 = credit_decr_ready__w3
   credit_decr_ready__w4#[3] = unsigned(credit_available#[15..=19] > 0) & 1
-  br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 3) & 1, incr = credit_incr__w4#[9..=11], decr_valid = (credit_decr_valid >> 3) & 1, decr = 1, initial_value = credit_initial#[15..=19], withhold = credit_withhold#[15..=19])
+  mut gen_credit_counters_3_br_credit_counter = br_credit_counter::[name=gen_credit_counters_3_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = (credit_incr_valid__w4 >> 3) & 1, incr = credit_incr__w4#[9..=11], decr_valid = (credit_decr_valid >> 3) & 1, decr = 1, initial_value = credit_initial#[15..=19], withhold = credit_withhold#[15..=19])
   mut credit_count__wtmp__w3 = credit_count__wtmp__w2
-  credit_count__wtmp__w3#[15..=19] = br_credit_counter["value"]#[0..=4]
+  credit_count__wtmp__w3#[15..=19] = gen_credit_counters_3_br_credit_counter.value#[0..=4]
   mut credit_available__wtmp__w3 = credit_available__wtmp__w2
-  credit_available__wtmp__w3#[15..=19] = br_credit_counter["available"]#[0..=4]
-  br_flow_fork_push = br_flow_fork::[name=br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 3) & 1, pop_ready = (((credit_decr_ready__w4 >> 3) & 1) << 1) | ((mux_push_ready >> 3) & 1))
+  credit_available__wtmp__w3#[15..=19] = gen_credit_counters_3_br_credit_counter.available#[0..=4]
+  mut gen_credit_counters_3_br_flow_fork_push = br_flow_fork::[name=gen_credit_counters_3_br_flow_fork_push](clk = clk, rst = rst, push_valid = (push_valid >> 3) & 1, pop_ready = (((credit_decr_ready__w4 >> 3) & 1) << 1) | ((mux_push_ready >> 3) & 1))
   mut push_ready__w4 = push_ready__w3
-  push_ready__w4#[3] = br_flow_fork_push["push_ready"] & 1
+  push_ready__w4#[3] = gen_credit_counters_3_br_flow_fork_push.push_ready & 1
   mut mux_push_valid__w4 = mux_push_valid__w3
-  mux_push_valid__w4#[3] = br_flow_fork_push["pop_valid_unstable"] & 1
+  mux_push_valid__w4#[3] = gen_credit_counters_3_br_flow_fork_push.pop_valid_unstable & 1
   mut credit_decr_valid__wtmp__w3 = credit_decr_valid__wtmp__w2
-  credit_decr_valid__wtmp__w3#[3] = (br_flow_fork_push["pop_valid_unstable"] >> 1) & 1
+  credit_decr_valid__wtmp__w3#[3] = (gen_credit_counters_3_br_flow_fork_push.pop_valid_unstable >> 1) & 1
   mut br_flow_mux_core_push = br_flow_mux_core::[name=br_flow_mux_core_push](clk = clk, rst = rst, can_grant = can_grant, grant = grant, push_valid = mux_push_valid__w4, push_data = push_data, pop_ready = 1)
   mux_push_ready = br_flow_mux_core_push.push_ready
   mut br_delay_valid_pop = br_delay_valid::[name=br_delay_valid_pop](clk = clk, rst = rst, in_valid = br_flow_mux_core_push.pop_valid_unstable, `in` = (br_flow_mux_core_push.pop_data_unstable#[0..=63] << 2) | br_enc_onehot2bin_pop_vc.out#[0..=1])

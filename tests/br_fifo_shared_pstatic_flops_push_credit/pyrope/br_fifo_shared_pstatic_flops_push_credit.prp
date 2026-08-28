@@ -1,0 +1,27 @@
+const br_fifo_shared_pstatic_ctrl_push_credit = import("br_fifo_shared_pstatic_ctrl_push_credit.br_fifo_shared_pstatic_ctrl_push_credit")
+const br_ram_flops = import("br_ram_flops.br_ram_flops")
+
+pub mod br_fifo_shared_pstatic_flops_push_credit::[timecheck=false](clk:u1, rst:u1, config_base:u10, config_bound:u10, push_sender_in_reset:u1, push_credit_stall:u2, push_valid:u1, push_data:u32, push_fifo_id:u1, credit_initial_push:u12, credit_withhold_push:u12, pop_ready:u2) -> (config_error:u1@[], push_receiver_in_reset:u1@[], push_credit:u2@[], push_full:u2@[], credit_available_push:u12@[], credit_count_push:u12@[], pop_valid:u2@[], pop_data:u64@[], pop_empty:u2@[]) {
+  wire ram_wr_valid:u1
+  wire ram_wr_addr:u5
+  wire ram_wr_data:u32
+  wire ram_rd_addr_valid:u1
+  wire ram_rd_addr:u5
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk = clk, wr_rst = either_rst__w1, wr_valid = ram_wr_valid, wr_addr = ram_wr_addr, wr_data = ram_wr_data, wr_word_en = 1, rd_clk = clk, rd_rst = either_rst__w1, rd_addr_valid = ram_rd_addr_valid, rd_addr = ram_rd_addr)
+  mut br_fifo_shared_pstatic_ctrl_push_credit_inst = br_fifo_shared_pstatic_ctrl_push_credit::[name=br_fifo_shared_pstatic_ctrl_push_credit_inst](clk = clk, rst = rst, config_base = config_base, config_bound = config_bound, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, push_fifo_id = push_fifo_id, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, pop_ready = pop_ready, ram_rd_data_valid = br_ram_flops_data.rd_data_valid, ram_rd_data = br_ram_flops_data.rd_data)
+  ram_wr_valid = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_wr_valid
+  ram_wr_addr = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_wr_addr
+  ram_wr_data = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_wr_data
+  ram_rd_addr_valid = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_rd_addr_valid
+  ram_rd_addr = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_rd_addr
+  config_error = br_fifo_shared_pstatic_ctrl_push_credit_inst.config_error
+  push_receiver_in_reset = br_fifo_shared_pstatic_ctrl_push_credit_inst.push_receiver_in_reset
+  push_credit = br_fifo_shared_pstatic_ctrl_push_credit_inst.push_credit
+  push_full = br_fifo_shared_pstatic_ctrl_push_credit_inst.push_full
+  credit_available_push = br_fifo_shared_pstatic_ctrl_push_credit_inst.credit_available_push
+  credit_count_push = br_fifo_shared_pstatic_ctrl_push_credit_inst.credit_count_push
+  pop_valid = br_fifo_shared_pstatic_ctrl_push_credit_inst.pop_valid
+  pop_data = br_fifo_shared_pstatic_ctrl_push_credit_inst.pop_data
+  pop_empty = br_fifo_shared_pstatic_ctrl_push_credit_inst.pop_empty
+}

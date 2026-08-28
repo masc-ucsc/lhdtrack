@@ -1,5 +1,5 @@
 const br_flow_demux_select_unstable_t = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
-const br_flow_reg_fwd_t = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 
 pub mod br_flow_demux_select::[timecheck=false](clk:u1, rst:u1, select:u2, push_valid:u1, push_data:u32, pop_ready:u4) -> (push_ready:u1@[], pop_valid:u4@[], pop_data:u128@[]) {
   mut pop_valid__wtmp:u4 = 0sb?
@@ -9,31 +9,31 @@ pub mod br_flow_demux_select::[timecheck=false](clk:u1, rst:u1, select:u2, push_
   mut internal_ready__wtmp:u4 = 0sb?
   wire internal_ready:u4
   mut br_flow_demux_select_unstable = br_flow_demux_select_unstable_t::[name=br_flow_demux_select_unstable](clk = clk, rst = rst, select = select, push_valid = push_valid, push_data = push_data, pop_ready = internal_ready)
-  mut br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = br_flow_demux_select_unstable.pop_valid_unstable & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[0..=31], pop_ready = pop_ready & 1)
-  internal_ready__wtmp#[0] = br_flow_reg_fwd["push_ready"] & 1
-  pop_valid__wtmp#[0] = br_flow_reg_fwd["pop_valid"] & 1
-  pop_data__wtmp#[0..=31] = br_flow_reg_fwd["pop_data"]#[0..=31]
-  br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 1) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[32..=63], pop_ready = (pop_ready >> 1) & 1)
+  mut gen_pop_reg_0_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_0_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = br_flow_demux_select_unstable.pop_valid_unstable & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[0..=31], pop_ready = pop_ready & 1)
+  internal_ready__wtmp#[0] = gen_pop_reg_0_br_flow_reg_fwd.push_ready & 1
+  pop_valid__wtmp#[0] = gen_pop_reg_0_br_flow_reg_fwd.pop_valid & 1
+  pop_data__wtmp#[0..=31] = gen_pop_reg_0_br_flow_reg_fwd.pop_data#[0..=31]
+  mut gen_pop_reg_1_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_1_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 1) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[32..=63], pop_ready = (pop_ready >> 1) & 1)
   mut internal_ready__wtmp__w1 = internal_ready__wtmp
-  internal_ready__wtmp__w1#[1] = br_flow_reg_fwd["push_ready"] & 1
+  internal_ready__wtmp__w1#[1] = gen_pop_reg_1_br_flow_reg_fwd.push_ready & 1
   mut pop_valid__wtmp__w1 = pop_valid__wtmp
-  pop_valid__wtmp__w1#[1] = br_flow_reg_fwd["pop_valid"] & 1
+  pop_valid__wtmp__w1#[1] = gen_pop_reg_1_br_flow_reg_fwd.pop_valid & 1
   mut pop_data__wtmp__w1 = pop_data__wtmp
-  pop_data__wtmp__w1#[32..=63] = br_flow_reg_fwd["pop_data"]#[0..=31]
-  br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 2) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[64..=95], pop_ready = (pop_ready >> 2) & 1)
+  pop_data__wtmp__w1#[32..=63] = gen_pop_reg_1_br_flow_reg_fwd.pop_data#[0..=31]
+  mut gen_pop_reg_2_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_2_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 2) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[64..=95], pop_ready = (pop_ready >> 2) & 1)
   mut internal_ready__wtmp__w2 = internal_ready__wtmp__w1
-  internal_ready__wtmp__w2#[2] = br_flow_reg_fwd["push_ready"] & 1
+  internal_ready__wtmp__w2#[2] = gen_pop_reg_2_br_flow_reg_fwd.push_ready & 1
   mut pop_valid__wtmp__w2 = pop_valid__wtmp__w1
-  pop_valid__wtmp__w2#[2] = br_flow_reg_fwd["pop_valid"] & 1
+  pop_valid__wtmp__w2#[2] = gen_pop_reg_2_br_flow_reg_fwd.pop_valid & 1
   mut pop_data__wtmp__w2 = pop_data__wtmp__w1
-  pop_data__wtmp__w2#[64..=95] = br_flow_reg_fwd["pop_data"]#[0..=31]
-  br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 3) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[96..=127], pop_ready = (pop_ready >> 3) & 1)
+  pop_data__wtmp__w2#[64..=95] = gen_pop_reg_2_br_flow_reg_fwd.pop_data#[0..=31]
+  mut gen_pop_reg_3_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_3_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable.pop_valid_unstable >> 3) & 1, push_data = br_flow_demux_select_unstable.pop_data_unstable#[96..=127], pop_ready = (pop_ready >> 3) & 1)
   mut internal_ready__wtmp__w3 = internal_ready__wtmp__w2
-  internal_ready__wtmp__w3#[3] = br_flow_reg_fwd["push_ready"] & 1
+  internal_ready__wtmp__w3#[3] = gen_pop_reg_3_br_flow_reg_fwd.push_ready & 1
   mut pop_valid__wtmp__w3 = pop_valid__wtmp__w2
-  pop_valid__wtmp__w3#[3] = br_flow_reg_fwd["pop_valid"] & 1
+  pop_valid__wtmp__w3#[3] = gen_pop_reg_3_br_flow_reg_fwd.pop_valid & 1
   mut pop_data__wtmp__w3 = pop_data__wtmp__w2
-  pop_data__wtmp__w3#[96..=127] = br_flow_reg_fwd["pop_data"]#[0..=31]
+  pop_data__wtmp__w3#[96..=127] = gen_pop_reg_3_br_flow_reg_fwd.pop_data#[0..=31]
   pop_valid = pop_valid__wtmp__w3
   pop_data = pop_data__wtmp__w3
   internal_ready = internal_ready__wtmp__w3

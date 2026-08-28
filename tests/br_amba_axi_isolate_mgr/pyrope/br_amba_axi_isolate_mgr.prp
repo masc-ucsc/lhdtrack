@@ -1,0 +1,81 @@
+const br_amba_iso_req_tracker = import("br_amba_iso_req_tracker.br_amba_iso_req_tracker")
+const br_amba_iso_us_fsm = import("br_amba_iso_us_fsm.br_amba_iso_us_fsm")
+const br_amba_iso_wdata_align = import("br_amba_iso_wdata_align.br_amba_iso_wdata_align")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd_p1 = import("br_flow_reg_fwd_p1.br_flow_reg_fwd_p1")
+
+pub mod br_amba_axi_isolate_mgr::[timecheck=false](clk:u1, rst:u1, isolate_req:u1, upstream_awaddr:u32, upstream_awid:u4, upstream_awlen:u1, upstream_awsize:u3, upstream_awburst:u2, upstream_awcache:u4, upstream_awprot:u3, upstream_awuser:u1, upstream_awvalid:u1, upstream_wdata:u32, upstream_wstrb:u4, upstream_wuser:u1, upstream_wlast:u1, upstream_wvalid:u1, upstream_bready:u1, upstream_araddr:u32, upstream_arid:u4, upstream_arlen:u1, upstream_arsize:u3, upstream_arburst:u2, upstream_arprot:u3, upstream_arcache:u4, upstream_aruser:u1, upstream_arvalid:u1, upstream_rready:u1, downstream_awready:u1, downstream_wready:u1, downstream_bid:u4, downstream_buser:u1, downstream_bresp:u2, downstream_bvalid:u1, downstream_arready:u1, downstream_rid:u4, downstream_rdata:u32, downstream_ruser:u1, downstream_rresp:u2, downstream_rlast:u1, downstream_rvalid:u1) -> (isolate_done:u1@[], upstream_awready:u1@[], upstream_wready:u1@[], upstream_bid:u4@[], upstream_buser:u1@[], upstream_bresp:u2@[], upstream_bvalid:u1@[], upstream_arready:u1@[], upstream_rid:u4@[], upstream_rdata:u32@[], upstream_ruser:u1@[], upstream_rresp:u2@[], upstream_rlast:u1@[], upstream_rvalid:u1@[], downstream_awaddr:u32@[], downstream_awid:u4@[], downstream_awlen:u1@[], downstream_awsize:u3@[], downstream_awburst:u2@[], downstream_awcache:u4@[], downstream_awprot:u3@[], downstream_awuser:u1@[], downstream_awvalid:u1@[], downstream_wdata:u32@[], downstream_wstrb:u4@[], downstream_wuser:u1@[], downstream_wlast:u1@[], downstream_wvalid:u1@[], downstream_bready:u1@[], downstream_araddr:u32@[], downstream_arid:u4@[], downstream_arlen:u1@[], downstream_arsize:u3@[], downstream_arburst:u2@[], downstream_arcache:u4@[], downstream_arprot:u3@[], downstream_aruser:u1@[], downstream_arvalid:u1@[], downstream_rready:u1@[]) {
+  reg isolate_done:u1
+  wire downstream_awready_int:u1
+  wire downstream_wready_int:u1
+  wire downstream_arready_int:u1
+  wire upstream_awready_iso:u1
+  wire align_and_hold_done_w:u1
+  wire req_tracker_isolate_done_w:u1
+  wire upstream_arready_iso:u1
+  wire align_and_hold_done_r:u1
+  wire req_tracker_isolate_done_r:u1
+  const downstream_awlen_int__w1 = upstream_awlen
+  mut br_amba_iso_us_fsm_w = br_amba_iso_us_fsm::[name=br_amba_iso_us_fsm_w](clk = clk, rst = rst, isolate_req = isolate_req, align_and_hold_done = align_and_hold_done_w, req_tracker_isolate_done = req_tracker_isolate_done_w)
+  mut br_amba_iso_wdata_align_w = br_amba_iso_wdata_align::[name=br_amba_iso_wdata_align_w](clk = clk, rst = rst, upstream_awvalid = upstream_awvalid, upstream_awlen = upstream_awlen, upstream_wvalid = upstream_wvalid, upstream_wlast = upstream_wlast, downstream_awready = upstream_awready_iso, downstream_wready = downstream_wready_int, align_and_hold_req = br_amba_iso_us_fsm_w.align_and_hold_req)
+  align_and_hold_done_w = br_amba_iso_wdata_align_w.align_and_hold_done
+  mut br_amba_iso_req_tracker_w = br_amba_iso_req_tracker::[name=br_amba_iso_req_tracker_w](clk = clk, rst = rst, upstream_axvalid = br_amba_iso_wdata_align_w.downstream_awvalid, upstream_xready = upstream_bready, downstream_axready = downstream_awready_int, downstream_xvalid = downstream_bvalid, downstream_xlast = 1, isolate_req = br_amba_iso_us_fsm_w.req_tracker_isolate_req)
+  upstream_awready_iso = br_amba_iso_req_tracker_w.upstream_axready
+  req_tracker_isolate_done_w = br_amba_iso_req_tracker_w.isolate_done
+  const use_fake_w_data__w1 = br_amba_iso_us_fsm_w.align_and_hold_req
+  mut _mux_1:u1 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wuser & 1 }
+  mut _mux_2:u32 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wdata }
+  mut _mux_3:u4 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wstrb }
+  mut br_amba_iso_us_fsm_r = br_amba_iso_us_fsm::[name=br_amba_iso_us_fsm_r](clk = clk, rst = rst, isolate_req = isolate_req, align_and_hold_done = align_and_hold_done_r, req_tracker_isolate_done = req_tracker_isolate_done_r)
+  const upstream_blocked_r__w1 = unsigned((br_amba_iso_us_fsm_r.align_and_hold_req != 0) or (align_and_hold_done_r != 0))
+  align_and_hold_done_r = br_amba_iso_us_fsm_r.align_and_hold_req
+  mut br_amba_iso_req_tracker_r = br_amba_iso_req_tracker::[name=br_amba_iso_req_tracker_r](clk = clk, rst = rst, upstream_axvalid = unsigned((upstream_arvalid != 0) and (upstream_blocked_r__w1 == 0)), upstream_xready = upstream_rready, downstream_axready = downstream_arready_int, downstream_xvalid = downstream_rvalid, downstream_xlast = downstream_rlast, isolate_req = br_amba_iso_us_fsm_r.req_tracker_isolate_req)
+  upstream_arready_iso = br_amba_iso_req_tracker_r.upstream_axready
+  req_tracker_isolate_done_r = br_amba_iso_req_tracker_r.isolate_done
+  mut _mux_9:u1 = if isolate_done != 0 { unsigned((br_amba_iso_us_fsm_w.isolate_done != 0) or (br_amba_iso_us_fsm_r.isolate_done != 0)) & 1 } else { unsigned((br_amba_iso_us_fsm_w.isolate_done != 0) and (br_amba_iso_us_fsm_r.isolate_done != 0)) & 1 }
+  isolate_done = if rst != 0 { 0 } else { _mux_9 }
+  mut br_flow_reg_fwd_ds_aw = br_flow_reg_fwd::[name=br_flow_reg_fwd_ds_aw](clk = clk, rst = rst, push_valid = br_amba_iso_req_tracker_w.downstream_axvalid, push_data = (upstream_awaddr << 18) | (upstream_awid << 14) | (upstream_awsize << 11) | (upstream_awburst << 9) | (upstream_awcache << 5) | ((downstream_awlen_int__w1 & 1) << 4) | (upstream_awprot << 1) | (upstream_awuser & 1), pop_ready = downstream_awready)
+  downstream_awready_int = br_flow_reg_fwd_ds_aw.push_ready
+  mut br_flow_reg_fwd_ds_w = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_ds_w](clk = clk, rst = rst, push_valid = br_amba_iso_wdata_align_w.downstream_wvalid, push_data = (_mux_2 << 6) | (_mux_3 << 2) | ((_mux_1 & 1) << 1) | (br_amba_iso_wdata_align_w.downstream_wlast & 1), pop_ready = downstream_wready)
+  downstream_wready_int = br_flow_reg_fwd_ds_w.push_ready
+  mut br_flow_reg_fwd_ds_ar = br_flow_reg_fwd::[name=br_flow_reg_fwd_ds_ar](clk = clk, rst = rst, push_valid = br_amba_iso_req_tracker_r.downstream_axvalid, push_data = (upstream_araddr << 18) | (upstream_arid << 14) | (upstream_arsize << 11) | (upstream_arburst << 9) | (upstream_arcache << 5) | ((upstream_arlen & 1) << 4) | (upstream_arprot << 1) | (upstream_aruser & 1), pop_ready = downstream_arready)
+  downstream_arready_int = br_flow_reg_fwd_ds_ar.push_ready
+  upstream_awready = br_amba_iso_wdata_align_w.upstream_awready
+  upstream_wready = br_amba_iso_wdata_align_w.upstream_wready
+  upstream_bid = downstream_bid
+  upstream_buser = downstream_buser
+  upstream_bresp = downstream_bresp
+  upstream_bvalid = br_amba_iso_req_tracker_w.upstream_xvalid
+  upstream_arready = unsigned((upstream_arready_iso != 0) and (upstream_blocked_r__w1 == 0))
+  upstream_rid = downstream_rid
+  upstream_rdata = downstream_rdata
+  upstream_ruser = downstream_ruser
+  upstream_rresp = downstream_rresp
+  upstream_rlast = br_amba_iso_req_tracker_r.upstream_xlast
+  upstream_rvalid = br_amba_iso_req_tracker_r.upstream_xvalid
+  downstream_awaddr = (br_flow_reg_fwd_ds_aw.pop_data >> 18)#[0..=31]
+  downstream_awid = (br_flow_reg_fwd_ds_aw.pop_data >> 14)#[0..=3]
+  downstream_awlen = (br_flow_reg_fwd_ds_aw.pop_data >> 4) & 1
+  downstream_awsize = (br_flow_reg_fwd_ds_aw.pop_data >> 11)#[0..=2]
+  downstream_awburst = (br_flow_reg_fwd_ds_aw.pop_data >> 9)#[0..=1]
+  downstream_awcache = (br_flow_reg_fwd_ds_aw.pop_data >> 5)#[0..=3]
+  downstream_awprot = (br_flow_reg_fwd_ds_aw.pop_data >> 1)#[0..=2]
+  downstream_awuser = br_flow_reg_fwd_ds_aw.pop_data & 1
+  downstream_awvalid = br_flow_reg_fwd_ds_aw.pop_valid
+  downstream_wdata = (br_flow_reg_fwd_ds_w.pop_data >> 6)#[0..=31]
+  downstream_wstrb = (br_flow_reg_fwd_ds_w.pop_data >> 2)#[0..=3]
+  downstream_wuser = (br_flow_reg_fwd_ds_w.pop_data >> 1) & 1
+  downstream_wlast = br_flow_reg_fwd_ds_w.pop_data & 1
+  downstream_wvalid = br_flow_reg_fwd_ds_w.pop_valid
+  downstream_bready = br_amba_iso_req_tracker_w.downstream_xready
+  downstream_araddr = (br_flow_reg_fwd_ds_ar.pop_data >> 18)#[0..=31]
+  downstream_arid = (br_flow_reg_fwd_ds_ar.pop_data >> 14)#[0..=3]
+  downstream_arlen = (br_flow_reg_fwd_ds_ar.pop_data >> 4) & 1
+  downstream_arsize = (br_flow_reg_fwd_ds_ar.pop_data >> 11)#[0..=2]
+  downstream_arburst = (br_flow_reg_fwd_ds_ar.pop_data >> 9)#[0..=1]
+  downstream_arcache = (br_flow_reg_fwd_ds_ar.pop_data >> 5)#[0..=3]
+  downstream_arprot = (br_flow_reg_fwd_ds_ar.pop_data >> 1)#[0..=2]
+  downstream_aruser = br_flow_reg_fwd_ds_ar.pop_data & 1
+  downstream_arvalid = br_flow_reg_fwd_ds_ar.pop_valid
+  downstream_rready = br_amba_iso_req_tracker_r.downstream_xready
+}

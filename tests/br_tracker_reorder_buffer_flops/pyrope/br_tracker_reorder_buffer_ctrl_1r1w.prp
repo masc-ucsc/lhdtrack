@@ -1,0 +1,29 @@
+const br_credit_sender = import("br_credit_sender.br_credit_sender")
+const br_delay = import("br_delay.br_delay")
+const br_fifo_flops_push_credit = import("br_fifo_flops_push_credit.br_fifo_flops_push_credit")
+const br_tracker_reorder = import("br_tracker_reorder.br_tracker_reorder")
+
+pub mod br_tracker_reorder_buffer_ctrl_1r1w::[timecheck=false](clk:u1, rst:u1, alloc_ready:u1, unordered_resp_push_valid:u1, unordered_resp_push_entry_id:u4, unordered_resp_push_data:u32, reordered_resp_pop_ready:u1, ram_rd_data:u32, ram_rd_data_valid:u1) -> (alloc_valid:u1@[], alloc_entry_id:u4@[], reordered_resp_pop_valid:u1@[], reordered_resp_pop_data:u32@[], resp_pending:u1@[], ram_wr_addr:u4@[], ram_wr_valid:u1@[], ram_wr_data:u32@[], ram_rd_addr:u4@[], ram_rd_addr_valid:u1@[]) {
+  wire reordered_resp_pop_valid_int:u1
+  wire reordered_resp_pop_entry_id_int:u4
+  wire credit_receiver_in_reset:u1
+  wire ram_rd_data_credit:u1
+  mut br_credit_sender_ram_rd_addr = br_credit_sender::[name=br_credit_sender_ram_rd_addr](clk = clk, rst = rst, push_valid = reordered_resp_pop_valid_int, push_data = reordered_resp_pop_entry_id_int, pop_receiver_in_reset = credit_receiver_in_reset, pop_credit = ram_rd_data_credit, credit_initial = 0, credit_withhold = 0)
+  mut br_fifo_flops_data_skid = br_fifo_flops_push_credit::[name=br_fifo_flops_data_skid](clk = clk, rst = rst, push_sender_in_reset = br_credit_sender_ram_rd_addr.pop_sender_in_reset, push_credit_stall = 0, push_valid = ram_rd_data_valid, push_data = ram_rd_data, pop_ready = reordered_resp_pop_ready, credit_initial_push = 2, credit_withhold_push = 0)
+  credit_receiver_in_reset = br_fifo_flops_data_skid.push_receiver_in_reset
+  ram_rd_data_credit = br_fifo_flops_data_skid.push_credit
+  mut br_tracker_reorder_inst = br_tracker_reorder::[name=br_tracker_reorder_inst](clk = clk, rst = rst, alloc_ready = alloc_ready, dealloc_valid = unordered_resp_push_valid, dealloc_entry_id = unordered_resp_push_entry_id, dealloc_complete_ready = br_credit_sender_ram_rd_addr.push_ready)
+  reordered_resp_pop_valid_int = br_tracker_reorder_inst.dealloc_complete_valid
+  reordered_resp_pop_entry_id_int = br_tracker_reorder_inst.dealloc_complete_entry_id
+  mut br_delay_ram_rd_valid_pipe = br_delay::[name=br_delay_ram_rd_valid_pipe](clk = clk, rst = rst, `in` = br_credit_sender_ram_rd_addr.pop_valid)
+  alloc_valid = br_tracker_reorder_inst.alloc_valid
+  alloc_entry_id = br_tracker_reorder_inst.alloc_entry_id
+  reordered_resp_pop_valid = br_fifo_flops_data_skid.pop_valid
+  reordered_resp_pop_data = br_fifo_flops_data_skid.pop_data
+  resp_pending = unsigned((br_tracker_reorder_inst.allocated_entry_count > 0) or (br_delay_ram_rd_valid_pipe.out_stages != 0) or (br_fifo_flops_data_skid.pop_valid != 0))
+  ram_wr_addr = unordered_resp_push_entry_id
+  ram_wr_valid = unordered_resp_push_valid
+  ram_wr_data = unordered_resp_push_data
+  ram_rd_addr = br_credit_sender_ram_rd_addr.pop_data#[0..=3]
+  ram_rd_addr_valid = br_credit_sender_ram_rd_addr.pop_valid
+}

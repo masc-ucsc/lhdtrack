@@ -1,0 +1,135 @@
+const br_arb_grant_hold = import("br_arb_grant_hold.br_arb_grant_hold")
+const br_arb_lru = import("br_arb_lru.br_arb_lru")
+const br_counter = import("br_counter.br_counter")
+const br_flow_checks_valid_data_impl_p3 = import("br_flow_checks_valid_data_impl_p3.br_flow_checks_valid_data_impl_p3")
+const br_flow_checks_valid_data_impl_p5 = import("br_flow_checks_valid_data_impl_p5.br_flow_checks_valid_data_impl_p5")
+const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
+const br_flow_fork = import("br_flow_fork.br_flow_fork")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
+const br_flow_reg_rev = import("br_flow_reg_rev.br_flow_reg_rev")
+const br_flow_reg_rev_p2 = import("br_flow_reg_rev_p2.br_flow_reg_rev_p2")
+const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axi_demux_req_tracker_p1::[timecheck=false](clk:u1, rst:u1, upstream_axvalid:u1, upstream_axid:u1, upstream_ax_sub_select:u1, upstream_ax_payload:u53, downstream_axready:(e1:u1, e0:u1), upstream_xready:u1, downstream_xvalid:(e1:u1, e0:u1), downstream_xid:(e1:u1, e0:u1), downstream_xlast:(e1:u1, e0:u1), downstream_x_payload:u6, wdata_flow_ready:u1) -> (upstream_axready:u1@[], downstream_axvalid:(e1:u1, e0:u1)@[], downstream_axid:(e1:u1, e0:u1)@[], downstream_ax_payload:u106@[], upstream_xvalid:u1@[], upstream_xid:u1@[], upstream_xlast:u1@[], upstream_x_payload:u3@[], downstream_xready:(e1:u1, e0:u1)@[], wdata_flow_valid:u1@[], wdata_flow_sub_select:u1@[]) {
+  wire upstream_x_resp_payload_pre:(payload:u3, id:u1, last:u1) = nil
+  reg active_port_per_id:u1
+  wire upstream_axready_int:u1
+  wire upstream_axready_reg:u1
+  wire resp_tracker_push_ready:u1
+  wire resp_tracker_decr_per_id:u1
+  wire resp_tracker_push_valid_per_id:u1
+  wire downstream_xready_reg:u2
+  wire upstream_xready_pre:u1
+  wire ds_port_gnt:u2
+  wire ds_port_gnt_from_arb:u2
+  mut resp_tracker_push_ready_per_id:u1 = 0
+  mut downstream_xvalid_reg:u2 = 0
+  mut downstream_x_resp_payload_reg:u10 = 0
+  mut ds_port_gnt_hold:u2 = 0
+  mut outstanding_per_id__wtmp:u3 = 0sb?
+  wire outstanding_per_id:u3
+  mut downstream_axready_pre__wtmp:u2 = 0sb?
+  wire downstream_axready_pre:u2
+  resp_tracker_push_ready_per_id = 0ub?
+  downstream_xvalid_reg = 0sb?
+  downstream_x_resp_payload_reg = 0sb?
+  ds_port_gnt_hold = 0sb?
+  downstream_ax_payload = 0sb?
+  const gen_track_port_outstanding_per_id_0_zero_outstanding__w1 = unsigned(outstanding_per_id == 0)
+  mut br_flow_reg_rev_upstream_req = br_flow_reg_rev::[name=br_flow_reg_rev_upstream_req](clk = clk, rst = rst, push_valid = upstream_axvalid, push_data = ((upstream_axid & 1) << 54) | ((upstream_ax_sub_select & 1) << 53) | upstream_ax_payload, pop_ready = upstream_axready_reg)
+  const upstream_ax_sub_select_reg__w1 = (br_flow_reg_rev_upstream_req.pop_data >> 53) & 1
+  mut br_flow_fork_upstream_req = br_flow_fork::[name=br_flow_fork_upstream_req](clk = clk, rst = rst, push_valid = br_flow_reg_rev_upstream_req.pop_valid, pop_ready = ((wdata_flow_ready & 1) << 2) | ((resp_tracker_push_ready & 1) << 1) | (upstream_axready_int & 1))
+  upstream_axready_reg = br_flow_fork_upstream_req.push_ready
+  const upstream_axvalid_int__w1 = br_flow_fork_upstream_req.pop_valid_unstable & 1
+  mut `upstream_ax_req_payload_int.id` = ((br_flow_reg_rev_upstream_req.pop_data >> 54) & 1) & 1
+  mut `upstream_ax_req_payload_int.payload` = br_flow_reg_rev_upstream_req.pop_data#[0..=52]
+  mut resp_tracker_push_ready_per_id__w1 = resp_tracker_push_ready_per_id
+  resp_tracker_push_ready_per_id__w1#[0] = unsigned((br_flow_reg_rev_upstream_req.pop_valid != 0) and (outstanding_per_id < 4) and ((upstream_ax_sub_select_reg__w1 == (active_port_per_id & 1)) or (gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0))) & 1
+  if rst != 0 {
+    active_port_per_id#[0] = 0
+  } elif unsigned(((resp_tracker_push_ready_per_id__w1 & 1) != 0) and (gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0)) != 0 {
+    active_port_per_id#[0] = upstream_ax_sub_select_reg__w1 & 1
+  }
+  mut gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id = br_counter::[name=gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(((resp_tracker_push_ready_per_id__w1 & 1) != 0) and ((resp_tracker_push_valid_per_id & 1) != 0)), incr = 1, decr_valid = resp_tracker_decr_per_id & 1, decr = 1)
+  outstanding_per_id__wtmp#[0..=2] = gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id.value#[0..=2]
+  resp_tracker_push_ready = resp_tracker_push_ready_per_id__w1
+  resp_tracker_push_valid_per_id = (br_flow_fork_upstream_req.pop_valid_unstable >> 1) & 1
+  mut _mux_5:u1 = if upstream_axvalid_int__w1 != 0 { upstream_ax_sub_select_reg__w1 & 1 } else { 0 }
+  mut br_flow_demux_select_unstable_downstream_req = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_downstream_req](clk = clk, rst = rst, select = _mux_5, push_valid = upstream_axvalid_int__w1, push_data = (`upstream_ax_req_payload_int.payload` << 1) | `upstream_ax_req_payload_int.id`, pop_ready = downstream_axready_pre)
+  upstream_axready_int = br_flow_demux_select_unstable_downstream_req.push_ready
+  mut gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk = clk, rst = rst, push_valid = br_flow_demux_select_unstable_downstream_req.pop_valid_unstable & 1, push_data = ((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53]#[1..=53], pop_ready = downstream_axready.e0)
+  downstream_axready_pre__wtmp#[0] = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
+  mut downstream_ax_payload__w1 = downstream_ax_payload
+  downstream_ax_payload__w1#[0..=52] = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52]
+  mut `downstream_axid__bpo.e0` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data >> 53) & 1
+  mut gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable_downstream_req.pop_valid_unstable >> 1) & 1, push_data = ((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107]#[1..=53], pop_ready = downstream_axready.e1)
+  mut downstream_axready_pre__wtmp__w1 = downstream_axready_pre__wtmp
+  downstream_axready_pre__wtmp__w1#[1] = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
+  mut downstream_ax_payload__w2 = downstream_ax_payload__w1
+  downstream_ax_payload__w2#[53..=105] = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52]
+  mut `downstream_axid__bpo.e1` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data >> 53) & 1
+  mut gen_buffer_resp_0_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_0_br_flow_reg_rev_downstream_resp](clk = clk, rst = rst, push_valid = downstream_xvalid.e0, push_data = ((downstream_xid.e0 & 1) << 4) | (downstream_x_payload#[0..=2] << 1) | (downstream_xlast.e0 & 1), pop_ready = downstream_xready_reg & 1)
+  mut downstream_xvalid_reg__w1 = downstream_xvalid_reg
+  downstream_xvalid_reg__w1#[0] = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_valid & 1
+  mut downstream_x_resp_payload_reg__w1 = downstream_x_resp_payload_reg
+  downstream_x_resp_payload_reg__w1#[0] = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data & 1
+  mut downstream_x_resp_payload_reg__w2 = downstream_x_resp_payload_reg__w1
+  downstream_x_resp_payload_reg__w2#[2..=4] = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2]
+  mut downstream_x_resp_payload_reg__w3 = downstream_x_resp_payload_reg__w2
+  downstream_x_resp_payload_reg__w3#[1] = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
+  mut gen_buffer_resp_1_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_1_br_flow_reg_rev_downstream_resp](clk = clk, rst = rst, push_valid = downstream_xvalid.e1, push_data = ((downstream_xid.e1 & 1) << 4) | (downstream_x_payload#[3..=5] << 1) | (downstream_xlast.e1 & 1), pop_ready = (downstream_xready_reg >> 1) & 1)
+  mut downstream_xvalid_reg__w2 = downstream_xvalid_reg__w1
+  downstream_xvalid_reg__w2#[1] = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_valid & 1
+  mut downstream_x_resp_payload_reg__w4 = downstream_x_resp_payload_reg__w3
+  downstream_x_resp_payload_reg__w4#[5] = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data & 1
+  mut downstream_x_resp_payload_reg__w5 = downstream_x_resp_payload_reg__w4
+  downstream_x_resp_payload_reg__w5#[7..=9] = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2]
+  mut downstream_x_resp_payload_reg__w6 = downstream_x_resp_payload_reg__w5
+  downstream_x_resp_payload_reg__w6#[6] = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
+  mut _rep_6:u2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
+  const ds_port_req__w1 = downstream_xvalid_reg__w2 & _rep_6
+  mut _mux_8:u1 = if upstream_xready_pre != 0 { (~unsigned(((ds_port_req__w1 & 1) != 0) and ((downstream_x_resp_payload_reg__w6#[0..=4] & 1) != 0))) & 1 } else { ds_port_gnt & 1 }
+  mut ds_port_gnt_hold__w1 = ds_port_gnt_hold
+  ds_port_gnt_hold__w1#[0] = _mux_8 & 1
+  mut _mux_10:u1 = if upstream_xready_pre != 0 { (~unsigned((((ds_port_req__w1 >> 1) & 1) != 0) and ((downstream_x_resp_payload_reg__w6#[5..=9] & 1) != 0))) & 1 } else { (ds_port_gnt >> 1) & 1 }
+  mut ds_port_gnt_hold__w2 = ds_port_gnt_hold__w1
+  ds_port_gnt_hold__w2#[1] = _mux_10 & 1
+  mut br_arb_grant_hold_ds_port = br_arb_grant_hold::[name=br_arb_grant_hold_ds_port](clk = clk, rst = rst, grant_hold = ds_port_gnt_hold__w2, enable_grant_hold_update = 1, grant_from_arb = ds_port_gnt_from_arb)
+  ds_port_gnt = br_arb_grant_hold_ds_port.grant
+  mut br_arb_lru_ds_port = br_arb_lru::[name=br_arb_lru_ds_port](clk = clk, rst = rst, enable_priority_update = br_arb_grant_hold_ds_port.enable_priority_update_to_arb, request = ds_port_req__w1)
+  ds_port_gnt_from_arb = br_arb_lru_ds_port
+  mut _rep_11:u2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
+  downstream_xready_reg = ds_port_gnt & _rep_11
+  const upstream_xvalid_pre__w1 = unsigned((ds_port_req__w1 & ds_port_gnt) != 0)
+  resp_tracker_decr_per_id = unsigned((upstream_x_resp_payload_pre.last != 0) and (upstream_xvalid_pre__w1 != 0) and (upstream_xready_pre != 0))
+  mut br_mux_onehot_downstream_resp = br_mux_onehot_p1::[name=br_mux_onehot_downstream_resp](select = ds_port_gnt, `in` = downstream_x_resp_payload_reg__w6)
+  upstream_x_resp_payload_pre.payload = br_mux_onehot_downstream_resp#[2..=4]
+  upstream_x_resp_payload_pre.id = (br_mux_onehot_downstream_resp >> 1) & 1
+  upstream_x_resp_payload_pre.last = br_mux_onehot_downstream_resp & 1
+  mut br_flow_reg_fwd_upstream_resp = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_upstream_resp](clk = clk, rst = rst, push_valid = upstream_xvalid_pre__w1, push_data = ((upstream_x_resp_payload_pre.id & 1) << 4) | (upstream_x_resp_payload_pre.payload#[0..=2] << 1) | (upstream_x_resp_payload_pre.last & 1), pop_ready = upstream_xready)
+  upstream_xready_pre = br_flow_reg_fwd_upstream_resp.push_ready
+  const upstream_xlast__w1 = br_flow_reg_fwd_upstream_resp.pop_data & 1
+  const upstream_x_payload__w1 = (br_flow_reg_fwd_upstream_resp.pop_data >> 1)#[0..=2]
+  const upstream_xid__w1 = (br_flow_reg_fwd_upstream_resp.pop_data >> 4) & 1
+  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_0_br_flow_checks_valid_data_impl_downstream_resp](clk = clk, rst = rst, valid = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid, ready = downstream_axready.e0, data = ((`downstream_axid__bpo.e0` & 1) << 53) | downstream_ax_payload__w2#[0..=52])
+  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_1_br_flow_checks_valid_data_impl_downstream_resp](clk = clk, rst = rst, valid = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid, ready = downstream_axready.e1, data = ((`downstream_axid__bpo.e1` & 1) << 53) | downstream_ax_payload__w2#[53..=105])
+  br_flow_checks_valid_data_impl_p5::[name=br_flow_checks_valid_data_impl_upstream_req](clk = clk, rst = rst, valid = br_flow_reg_fwd_upstream_resp.pop_valid, ready = upstream_xready, data = ((upstream_xid__w1 & 1) << 4) | (upstream_x_payload__w1 << 1) | (upstream_xlast__w1 & 1))
+  outstanding_per_id = outstanding_per_id__wtmp
+  downstream_axready_pre = downstream_axready_pre__wtmp__w1
+  downstream_axvalid.e1 = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
+  downstream_axvalid.e0 = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
+  downstream_axid.e1 = `downstream_axid__bpo.e1`
+  downstream_axid.e0 = `downstream_axid__bpo.e0`
+  downstream_xready.e1 = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.push_ready
+  downstream_xready.e0 = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.push_ready
+  upstream_axready = br_flow_reg_rev_upstream_req.push_ready
+  downstream_ax_payload = downstream_ax_payload__w2
+  upstream_xvalid = br_flow_reg_fwd_upstream_resp.pop_valid
+  upstream_xid = upstream_xid__w1
+  upstream_xlast = upstream_xlast__w1
+  upstream_x_payload = upstream_x_payload__w1
+  wdata_flow_valid = (br_flow_fork_upstream_req.pop_valid_unstable >> 2) & 1
+  wdata_flow_sub_select = upstream_ax_sub_select_reg__w1
+}

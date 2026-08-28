@@ -1,6 +1,6 @@
 const br_counter = import("br_counter.br_counter")
 const br_counter_p1 = import("br_counter_p1.br_counter_p1")
-const br_flow_reg_fwd_t = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 const br_misc_tieoff_zero = import("br_misc_tieoff_zero.br_misc_tieoff_zero")
 const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
 const br_misc_unused_p5 = import("br_misc_unused_p5.br_misc_unused_p5")
@@ -14,24 +14,24 @@ pub mod br_fifo_staging_buffer::[timecheck=false](clk:u1, rst:u1, total_items:u6
   wire pop_valid:u1
   wire gen_single_entry_buffer_ram_rd_inflight_count:u1
   const pop_beat__w1 = unsigned((pop_valid != 0) and (pop_ready != 0))
-  mut br_misc_tieoff_zero_bypass_ready = br_misc_tieoff_zero::[name=br_misc_tieoff_zero_bypass_ready]()
-  const bypass_ready__w1 = br_misc_tieoff_zero_bypass_ready
+  mut gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready = br_misc_tieoff_zero::[name=gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready]()
+  const bypass_ready__w1 = gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready
   const push_valid__w1 = ram_rd_data_valid
   const push_data__w1 = ram_rd_data
   const gen_single_entry_buffer_has_inflight_read__w1 = unsigned(gen_single_entry_buffer_ram_rd_inflight_count != 0)
   const gen_single_entry_buffer_buffer_fwd_block__w1 = unsigned((buffer_bypass != 0) and (gen_single_entry_buffer_has_inflight_read__w1 != 0))
   const gen_single_entry_buffer_buffer_fwd_valid__w1 = unsigned((buffer_valid != 0) and (gen_single_entry_buffer_buffer_fwd_block__w1 == 0))
   mut _mux_7:u32 = if gen_single_entry_buffer_buffer_fwd_valid__w1 != 0 { buffer_data } else { push_data__w1 }
-  br_misc_unused_p1::[name=br_misc_unused_internal_pop_valid_nonbypass](`in` = unsigned((gen_single_entry_buffer_buffer_fwd_valid__w1 != 0) or (ram_rd_data_valid != 0)))
+  br_misc_unused_p1::[name=gen_pop_reg_br_misc_unused_internal_pop_valid_nonbypass](`in` = unsigned((gen_single_entry_buffer_buffer_fwd_valid__w1 != 0) or (ram_rd_data_valid != 0)))
   const bypass_beat__w1 = unsigned((bypass_valid_unstable != 0) and (bypass_ready__w1 != 0))
   const ram_rd_addr_valid__w1 = unsigned((unsigned((staged_items < 2) or ((pop_ready != 0) and (pop_valid != 0))) != 0) and (unsigned(total_items > 0) != 0) and (bypass_ready__w1 == 0))
   const ram_rd_addr_beat__w1 = unsigned((ram_rd_addr_valid__w1 != 0) and (ram_rd_addr_ready != 0))
   const staged_items_incr__w1 = ram_rd_addr_beat__w1
-  br_misc_unused_p5::[name=br_misc_unused_bypass_inputs](`in` = ((bypass_beat__w1 & 1) << 33) | ((bypass_valid_unstable & 1) << 32) | bypass_data_unstable)
-  mut br_counter_read_inflight = br_counter::[name=br_counter_read_inflight](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = ram_rd_addr_beat__w1, incr = 1, decr_valid = ram_rd_data_valid, decr = 1)
-  gen_single_entry_buffer_ram_rd_inflight_count = br_counter_read_inflight.value
-  mut br_flow_reg_fwd = br_flow_reg_fwd_t::[name=br_flow_reg_fwd](clk = clk, rst = rst, push_valid = unsigned((gen_single_entry_buffer_buffer_fwd_valid__w1 != 0) or (ram_rd_data_valid != 0) or ((bypass_beat__w1 != 0) and (gen_single_entry_buffer_has_inflight_read__w1 == 0))), push_data = _mux_7, pop_ready = pop_ready)
-  pop_valid = br_flow_reg_fwd.pop_valid
+  br_misc_unused_p5::[name=gen_no_bypass_push_br_misc_unused_bypass_inputs](`in` = ((bypass_beat__w1 & 1) << 33) | ((bypass_valid_unstable & 1) << 32) | bypass_data_unstable)
+  mut gen_single_entry_buffer_br_counter_read_inflight = br_counter::[name=gen_single_entry_buffer_br_counter_read_inflight](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = ram_rd_addr_beat__w1, incr = 1, decr_valid = ram_rd_data_valid, decr = 1)
+  gen_single_entry_buffer_ram_rd_inflight_count = gen_single_entry_buffer_br_counter_read_inflight.value
+  mut gen_pop_reg_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_br_flow_reg_fwd](clk = clk, rst = rst, push_valid = unsigned((gen_single_entry_buffer_buffer_fwd_valid__w1 != 0) or (ram_rd_data_valid != 0) or ((bypass_beat__w1 != 0) and (gen_single_entry_buffer_has_inflight_read__w1 == 0))), push_data = _mux_7, pop_ready = pop_ready)
+  pop_valid = gen_pop_reg_br_flow_reg_fwd.pop_valid
   mut br_counter_staged_items = br_counter_p1::[name=br_counter_staged_items](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = staged_items_incr__w1, incr = 1, decr_valid = pop_beat__w1, decr = 1)
   staged_items = br_counter_staged_items.value
   if rst != 0 {
@@ -39,11 +39,11 @@ pub mod br_fifo_staging_buffer::[timecheck=false](clk:u1, rst:u1, total_items:u6
   } elif (staged_items_incr__w1 != 0) or (pop_beat__w1 != 0) {
     pop_empty = unsigned(br_counter_staged_items.value_next == 0)
   }
-  const gen_single_entry_buffer_buffer_fwd_ready__w1 = unsigned((br_flow_reg_fwd.push_ready != 0) and (gen_single_entry_buffer_buffer_fwd_block__w1 == 0))
-  mut _mux_17:u1 = if buffer_valid != 0 { unsigned((push_valid__w1 != 0) or (gen_single_entry_buffer_buffer_fwd_ready__w1 == 0)) & 1 } else { unsigned(((push_valid__w1 != 0) and (br_flow_reg_fwd.push_ready == 0)) or ((bypass_beat__w1 != 0) and (gen_single_entry_buffer_has_inflight_read__w1 != 0))) & 1 }
+  const gen_single_entry_buffer_buffer_fwd_ready__w1 = unsigned((gen_pop_reg_br_flow_reg_fwd.push_ready != 0) and (gen_single_entry_buffer_buffer_fwd_block__w1 == 0))
+  mut _mux_17:u1 = if buffer_valid != 0 { unsigned((push_valid__w1 != 0) or (gen_single_entry_buffer_buffer_fwd_ready__w1 == 0)) & 1 } else { unsigned(((push_valid__w1 != 0) and (gen_pop_reg_br_flow_reg_fwd.push_ready == 0)) or ((bypass_beat__w1 != 0) and (gen_single_entry_buffer_has_inflight_read__w1 != 0))) & 1 }
   const gen_single_entry_buffer_buffer_valid_next__w1 = _mux_17
   const gen_single_entry_buffer_buffer_data_le__w1 = unsigned((gen_single_entry_buffer_buffer_valid_next__w1 != 0) and ((buffer_valid == 0) or (gen_single_entry_buffer_buffer_fwd_ready__w1 != 0)))
-  mut _mux_19:u32 = if (br_flow_reg_fwd.push_ready != 0) and (buffer_valid == 0) { bypass_data_unstable } else { push_data__w1 }
+  mut _mux_19:u32 = if (gen_pop_reg_br_flow_reg_fwd.push_ready != 0) and (buffer_valid == 0) { bypass_data_unstable } else { push_data__w1 }
   buffer_valid = if rst != 0 { 0 } else { gen_single_entry_buffer_buffer_valid_next__w1 }
   if rst != 0 {
     buffer_data = 0
@@ -57,5 +57,5 @@ pub mod br_fifo_staging_buffer::[timecheck=false](clk:u1, rst:u1, total_items:u6
   }
   bypass_ready = bypass_ready__w1
   ram_rd_addr_valid = ram_rd_addr_valid__w1
-  pop_data = br_flow_reg_fwd.pop_data
+  pop_data = gen_pop_reg_br_flow_reg_fwd.pop_data
 }

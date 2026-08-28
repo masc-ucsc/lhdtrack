@@ -6,9 +6,9 @@ pub mod br_flow_join_lockstep::[timecheck=false](clk:u1, rst:u1, push_valid:u16,
   const pop_valid__w1 = push_valid & 1
   mut _rep_1:u16 = if (pop_ready & 1) != 0 { 0xffff } else { 0 }
   const push_ready__w1 = _rep_1
-  br_misc_unused::[name=br_misc_unused_push_valid_msbs](`in` = push_valid#[1..=15])
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_misc_unused::[name=gen_ignore_push_valid_msbs_br_misc_unused_push_valid_msbs](`in` = push_valid#[1..=15])
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = 0)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = 0)
   push_ready = push_ready__w1
   pop_valid = pop_valid__w1
 }

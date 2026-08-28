@@ -1,7 +1,10 @@
 pub mod br_delay_nr::[timecheck=false](clk:u1, `in`:u64) -> (out:u64@[], out_stages:u128@[]) {
-  reg stages:[2]u64:[ordering="old"]
-  stages[0] = `in`
-  stages[1] = stages[0]
-  out = stages[1]
-  out_stages = stages
+  reg stages___q:u128
+  mut stages:u128 = 0
+  stages = stages___q
+  mut stages__w1 = stages
+  stages__w1#[0..=63] = `in`
+  stages___q#[64..=127] = stages__w1#[0..=63]
+  out = stages__w1#[64..=127]
+  out_stages = stages__w1
 }

@@ -1,0 +1,3 @@
+pub comb br_misc_tieoff_one::[timecheck=false]() -> (out:u1) {
+  out = 1
+}

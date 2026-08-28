@@ -1,0 +1,41 @@
+const br_credit_receiver_t = import("br_credit_receiver.br_credit_receiver")
+const br_fifo_shared_dynamic_push_ctrl_t = import("br_fifo_shared_dynamic_push_ctrl.br_fifo_shared_dynamic_push_ctrl")
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
+
+pub mod br_fifo_shared_dynamic_push_ctrl_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u2, push_data:u64, push_fifo_id:(e1:u1, e0:u1), credit_initial_push:u6, credit_withhold_push:u6, dealloc_valid:u2, dealloc_entry_id:u10) -> (push_receiver_in_reset:u1@[], push_credit:u2@[], push_full:u1@[], credit_available_push:u6@[], credit_count_push:u6@[], data_ram_wr_valid:u2@[], data_ram_wr_addr:u10@[], data_ram_wr_data:u64@[], next_tail_valid:u4@[], next_tail:u20@[]) {
+  wire pop_credit:u2
+  wire internal_push_data_comb:u66
+  mut push_data_comb:u66 = 0
+  mut internal_push_data:u64 = 0
+  mut internal_push_fifo_id:u2 = 0
+  push_data_comb = 0sb?
+  internal_push_data = 0sb?
+  internal_push_fifo_id = 0sb?
+  mut push_data_comb__w1 = push_data_comb
+  push_data_comb__w1#[0..=32] = ((push_fifo_id.e0 & 1) << 32) | push_data#[0..=31]
+  mut push_data_comb__w2 = push_data_comb__w1
+  push_data_comb__w2#[33..=65] = ((push_fifo_id.e1 & 1) << 32) | push_data#[32..=63]
+  mut internal_push_data__w1 = internal_push_data
+  internal_push_data__w1#[0..=31] = internal_push_data_comb#[0..=32]#[0..=31]
+  mut internal_push_fifo_id__w1 = internal_push_fifo_id
+  internal_push_fifo_id__w1#[0] = (internal_push_data_comb#[0..=32] >> 32) & 1
+  mut internal_push_data__w2 = internal_push_data__w1
+  internal_push_data__w2#[32..=63] = internal_push_data_comb#[33..=65]#[0..=31]
+  mut internal_push_fifo_id__w2 = internal_push_fifo_id__w1
+  internal_push_fifo_id__w2#[1] = (internal_push_data_comb#[33..=65] >> 32) & 1
+  mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data_comb__w2, pop_credit = pop_credit, credit_initial = credit_initial_push, credit_withhold = credit_withhold_push)
+  internal_push_data_comb = br_credit_receiver.pop_data
+  mut br_fifo_shared_dynamic_push_ctrl = br_fifo_shared_dynamic_push_ctrl_t::[name=br_fifo_shared_dynamic_push_ctrl](clk = clk, rst = unsigned((push_sender_in_reset != 0) or (rst != 0)), push_valid = br_credit_receiver.pop_valid, push_data = internal_push_data__w2, push_fifo_id.e1 = (internal_push_fifo_id__w2 >> 1) & 1, push_fifo_id.e0 = internal_push_fifo_id__w2 & 1, dealloc_valid = dealloc_valid, dealloc_entry_id = dealloc_entry_id)
+  pop_credit = br_fifo_shared_dynamic_push_ctrl.dealloc_count
+  br_misc_unused_p1::[name=br_misc_unused_internal_push_ready](`in` = br_fifo_shared_dynamic_push_ctrl.push_ready)
+  push_receiver_in_reset = br_credit_receiver.push_receiver_in_reset
+  push_credit = br_credit_receiver.push_credit
+  push_full = br_fifo_shared_dynamic_push_ctrl.push_full
+  credit_available_push = br_credit_receiver.credit_available
+  credit_count_push = br_credit_receiver.credit_count
+  data_ram_wr_valid = (br_fifo_shared_dynamic_push_ctrl.data_ram_wr_valid.e1 << 1) | br_fifo_shared_dynamic_push_ctrl.data_ram_wr_valid.e0
+  data_ram_wr_addr = br_fifo_shared_dynamic_push_ctrl.data_ram_wr_addr
+  data_ram_wr_data = br_fifo_shared_dynamic_push_ctrl.data_ram_wr_data
+  next_tail_valid = br_fifo_shared_dynamic_push_ctrl.next_tail_valid
+  next_tail = br_fifo_shared_dynamic_push_ctrl.next_tail
+}

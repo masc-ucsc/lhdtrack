@@ -1,14 +1,14 @@
-const br_arb_pairwise_core_internal_t = import("br_arb_pairwise_core_internal.br_arb_pairwise_core_internal")
-const br_arb_weight_handler_t = import("br_arb_weight_handler.br_arb_weight_handler")
-const br_lru_state_internal_t = import("br_lru_state_internal.br_lru_state_internal")
+const br_arb_pairwise_core_internal = import("br_arb_pairwise_core_internal.br_arb_pairwise_core_internal")
+const br_arb_weight_handler = import("br_arb_weight_handler.br_arb_weight_handler")
+const br_lru_state_internal = import("br_lru_state_internal.br_lru_state_internal")
 
 pub mod br_arb_weighted_lru::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u16, request_weight:u48) -> (grant:u16@[]) {
   mut gen_n_req_priority_matrix:u256 = 0
   wire grant:u16
   wire gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority:u16
   gen_n_req_priority_matrix = 0sb?
-  mut br_lru_state_internal = br_lru_state_internal_t::[name=br_lru_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), `grant.e15` = (grant >> 15) & 1, `grant.e14` = (grant >> 14) & 1, `grant.e13` = (grant >> 13) & 1, `grant.e12` = (grant >> 12) & 1, `grant.e11` = (grant >> 11) & 1, `grant.e10` = (grant >> 10) & 1, `grant.e9` = (grant >> 9) & 1, `grant.e8` = (grant >> 8) & 1, `grant.e7` = (grant >> 7) & 1, `grant.e6` = (grant >> 6) & 1, `grant.e5` = (grant >> 5) & 1, `grant.e4` = (grant >> 4) & 1, `grant.e3` = (grant >> 3) & 1, `grant.e2` = (grant >> 2) & 1, `grant.e1` = (grant >> 1) & 1, `grant.e0` = grant & 1)
-  const gen_n_req_state__w1 = br_lru_state_internal
+  mut gen_n_req_br_lru_state_internal = br_lru_state_internal::[name=gen_n_req_br_lru_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), `grant.e15` = (grant >> 15) & 1, `grant.e14` = (grant >> 14) & 1, `grant.e13` = (grant >> 13) & 1, `grant.e12` = (grant >> 12) & 1, `grant.e11` = (grant >> 11) & 1, `grant.e10` = (grant >> 10) & 1, `grant.e9` = (grant >> 9) & 1, `grant.e8` = (grant >> 8) & 1, `grant.e7` = (grant >> 7) & 1, `grant.e6` = (grant >> 6) & 1, `grant.e5` = (grant >> 5) & 1, `grant.e4` = (grant >> 4) & 1, `grant.e3` = (grant >> 3) & 1, `grant.e2` = (grant >> 2) & 1, `grant.e1` = (grant >> 1) & 1, `grant.e0` = grant & 1)
+  const gen_n_req_state__w1 = gen_n_req_br_lru_state_internal
   mut _mux_2:u1 = if (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) == (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) { gen_n_req_state__w1#[0..=15] & 1 } else { gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1 }
   mut gen_n_req_priority_matrix__w1 = gen_n_req_priority_matrix
   gen_n_req_priority_matrix__w1#[0] = _mux_2 & 1
@@ -777,8 +777,8 @@ pub mod br_arb_weighted_lru::[timecheck=false](clk:u1, rst:u1, enable_priority_u
   mut _mux_257:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 15) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 15) & 1) { (gen_n_req_state__w1#[240..=255] >> 15) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 15) & 1 }
   mut gen_n_req_priority_matrix__w256 = gen_n_req_priority_matrix__w255
   gen_n_req_priority_matrix__w256#[255] = _mux_257 & 1
-  mut br_arb_pairwise_core_internal = br_arb_pairwise_core_internal_t::[name=br_arb_pairwise_core_internal](request = request, priority_matrix = gen_n_req_priority_matrix__w256)
-  grant = br_arb_pairwise_core_internal.grant
-  mut br_arb_weight_handler = br_arb_weight_handler_t::[name=br_arb_weight_handler](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request, request_weight = request_weight, grant = grant)
-  gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority = (br_arb_weight_handler.request_priority.e15 << 15) | (br_arb_weight_handler.request_priority.e14 << 14) | (br_arb_weight_handler.request_priority.e13 << 13) | (br_arb_weight_handler.request_priority.e12 << 12) | (br_arb_weight_handler.request_priority.e11 << 11) | (br_arb_weight_handler.request_priority.e10 << 10) | (br_arb_weight_handler.request_priority.e9 << 9) | (br_arb_weight_handler.request_priority.e8 << 8) | (br_arb_weight_handler.request_priority.e7 << 7) | (br_arb_weight_handler.request_priority.e6 << 6) | (br_arb_weight_handler.request_priority.e5 << 5) | (br_arb_weight_handler.request_priority.e4 << 4) | (br_arb_weight_handler.request_priority.e3 << 3) | (br_arb_weight_handler.request_priority.e2 << 2) | (br_arb_weight_handler.request_priority.e1 << 1) | br_arb_weight_handler.request_priority.e0
+  mut gen_n_req_br_arb_pairwise_core_internal = br_arb_pairwise_core_internal::[name=gen_n_req_br_arb_pairwise_core_internal](request = request, priority_matrix = gen_n_req_priority_matrix__w256)
+  grant = gen_n_req_br_arb_pairwise_core_internal.grant
+  mut gen_n_req_br_arb_weight_handler = br_arb_weight_handler::[name=gen_n_req_br_arb_weight_handler](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request, request_weight = request_weight, grant = grant)
+  gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority = (gen_n_req_br_arb_weight_handler.request_priority.e15 << 15) | (gen_n_req_br_arb_weight_handler.request_priority.e14 << 14) | (gen_n_req_br_arb_weight_handler.request_priority.e13 << 13) | (gen_n_req_br_arb_weight_handler.request_priority.e12 << 12) | (gen_n_req_br_arb_weight_handler.request_priority.e11 << 11) | (gen_n_req_br_arb_weight_handler.request_priority.e10 << 10) | (gen_n_req_br_arb_weight_handler.request_priority.e9 << 9) | (gen_n_req_br_arb_weight_handler.request_priority.e8 << 8) | (gen_n_req_br_arb_weight_handler.request_priority.e7 << 7) | (gen_n_req_br_arb_weight_handler.request_priority.e6 << 6) | (gen_n_req_br_arb_weight_handler.request_priority.e5 << 5) | (gen_n_req_br_arb_weight_handler.request_priority.e4 << 4) | (gen_n_req_br_arb_weight_handler.request_priority.e3 << 3) | (gen_n_req_br_arb_weight_handler.request_priority.e2 << 2) | (gen_n_req_br_arb_weight_handler.request_priority.e1 << 1) | gen_n_req_br_arb_weight_handler.request_priority.e0
 }

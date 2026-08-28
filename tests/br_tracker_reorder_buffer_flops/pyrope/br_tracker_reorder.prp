@@ -1,0 +1,90 @@
+const br_counter_incr_p3 = import("br_counter_incr_p3.br_counter_incr_p3")
+const br_tracker_sequence = import("br_tracker_sequence.br_tracker_sequence")
+
+pub mod br_tracker_reorder::[timecheck=false](clk:u1, rst:u1, alloc_ready:u1, dealloc_valid:u1, dealloc_entry_id:u4, dealloc_complete_ready:u1) -> (alloc_valid:u1@[], alloc_entry_id:u4@[], dealloc_complete_valid:u1@[], dealloc_complete_entry_id:u4@[], free_entry_count:u5@[], allocated_entry_count:u5@[]) {
+  reg dealloc_pending:u16
+  wire dealloc_complete_counter_value:u4
+  mut dealloc_pending_next:u16 = 0
+  dealloc_pending_next = 0sb?
+  const dealloc_complete_entry_id__w1 = dealloc_complete_counter_value
+  const dealloc_complete_valid__w1 = ((dealloc_pending << 1) >> (dealloc_complete_counter_value + 1)) & 1
+  const dealloc_complete_beat__w1 = unsigned((dealloc_complete_valid__w1 != 0) and (dealloc_complete_ready != 0))
+  mut br_tracker_sequence_allocate_counter = br_tracker_sequence::[name=br_tracker_sequence_allocate_counter](clk = clk, rst = rst, alloc_receivable = alloc_ready, dealloc_valid = dealloc_complete_beat__w1, dealloc_size = 1)
+  mut br_counter_incr_deallocate_counter = br_counter_incr_p3::[name=br_counter_incr_deallocate_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = dealloc_complete_beat__w1, incr = 1)
+  dealloc_complete_counter_value = br_counter_incr_deallocate_counter.value
+  mut _mux_19:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 0)) != 0 { 0 } else { dealloc_pending & 1 }
+  mut _mux_20:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 0)) != 0 { 1 } else { _mux_19 & 1 }
+  mut dealloc_pending_next__w1 = dealloc_pending_next
+  dealloc_pending_next__w1#[0] = _mux_20 & 1
+  mut _mux_22:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 1)) != 0 { 0 } else { (dealloc_pending >> 1) & 1 }
+  mut _mux_23:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 1)) != 0 { 1 } else { _mux_22 & 1 }
+  mut dealloc_pending_next__w2 = dealloc_pending_next__w1
+  dealloc_pending_next__w2#[1] = _mux_23 & 1
+  mut _mux_25:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 2)) != 0 { 0 } else { (dealloc_pending >> 2) & 1 }
+  mut _mux_26:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 2)) != 0 { 1 } else { _mux_25 & 1 }
+  mut dealloc_pending_next__w3 = dealloc_pending_next__w2
+  dealloc_pending_next__w3#[2] = _mux_26 & 1
+  mut _mux_28:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 3)) != 0 { 0 } else { (dealloc_pending >> 3) & 1 }
+  mut _mux_29:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 3)) != 0 { 1 } else { _mux_28 & 1 }
+  mut dealloc_pending_next__w4 = dealloc_pending_next__w3
+  dealloc_pending_next__w4#[3] = _mux_29 & 1
+  mut _mux_31:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 4)) != 0 { 0 } else { (dealloc_pending >> 4) & 1 }
+  mut _mux_32:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 4)) != 0 { 1 } else { _mux_31 & 1 }
+  mut dealloc_pending_next__w5 = dealloc_pending_next__w4
+  dealloc_pending_next__w5#[4] = _mux_32 & 1
+  mut _mux_34:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 5)) != 0 { 0 } else { (dealloc_pending >> 5) & 1 }
+  mut _mux_35:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 5)) != 0 { 1 } else { _mux_34 & 1 }
+  mut dealloc_pending_next__w6 = dealloc_pending_next__w5
+  dealloc_pending_next__w6#[5] = _mux_35 & 1
+  mut _mux_37:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 6)) != 0 { 0 } else { (dealloc_pending >> 6) & 1 }
+  mut _mux_38:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 6)) != 0 { 1 } else { _mux_37 & 1 }
+  mut dealloc_pending_next__w7 = dealloc_pending_next__w6
+  dealloc_pending_next__w7#[6] = _mux_38 & 1
+  mut _mux_40:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 7)) != 0 { 0 } else { (dealloc_pending >> 7) & 1 }
+  mut _mux_41:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 7)) != 0 { 1 } else { _mux_40 & 1 }
+  mut dealloc_pending_next__w8 = dealloc_pending_next__w7
+  dealloc_pending_next__w8#[7] = _mux_41 & 1
+  mut _mux_43:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 8)) != 0 { 0 } else { (dealloc_pending >> 8) & 1 }
+  mut _mux_44:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 8)) != 0 { 1 } else { _mux_43 & 1 }
+  mut dealloc_pending_next__w9 = dealloc_pending_next__w8
+  dealloc_pending_next__w9#[8] = _mux_44 & 1
+  mut _mux_46:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 9)) != 0 { 0 } else { (dealloc_pending >> 9) & 1 }
+  mut _mux_47:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 9)) != 0 { 1 } else { _mux_46 & 1 }
+  mut dealloc_pending_next__w10 = dealloc_pending_next__w9
+  dealloc_pending_next__w10#[9] = _mux_47 & 1
+  mut _mux_49:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 10)) != 0 { 0 } else { (dealloc_pending >> 10) & 1 }
+  mut _mux_50:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 10)) != 0 { 1 } else { _mux_49 & 1 }
+  mut dealloc_pending_next__w11 = dealloc_pending_next__w10
+  dealloc_pending_next__w11#[10] = _mux_50 & 1
+  mut _mux_52:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 11)) != 0 { 0 } else { (dealloc_pending >> 11) & 1 }
+  mut _mux_53:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 11)) != 0 { 1 } else { _mux_52 & 1 }
+  mut dealloc_pending_next__w12 = dealloc_pending_next__w11
+  dealloc_pending_next__w12#[11] = _mux_53 & 1
+  mut _mux_55:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 12)) != 0 { 0 } else { (dealloc_pending >> 12) & 1 }
+  mut _mux_56:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 12)) != 0 { 1 } else { _mux_55 & 1 }
+  mut dealloc_pending_next__w13 = dealloc_pending_next__w12
+  dealloc_pending_next__w13#[12] = _mux_56 & 1
+  mut _mux_58:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 13)) != 0 { 0 } else { (dealloc_pending >> 13) & 1 }
+  mut _mux_59:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 13)) != 0 { 1 } else { _mux_58 & 1 }
+  mut dealloc_pending_next__w14 = dealloc_pending_next__w13
+  dealloc_pending_next__w14#[13] = _mux_59 & 1
+  mut _mux_61:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 14)) != 0 { 0 } else { (dealloc_pending >> 14) & 1 }
+  mut _mux_62:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 14)) != 0 { 1 } else { _mux_61 & 1 }
+  mut dealloc_pending_next__w15 = dealloc_pending_next__w14
+  dealloc_pending_next__w15#[14] = _mux_62 & 1
+  mut _mux_64:u1 = if unsigned((dealloc_complete_beat__w1 != 0) and (dealloc_complete_entry_id__w1 == 15)) != 0 { 0 } else { (dealloc_pending >> 15) & 1 }
+  mut _mux_65:u1 = if unsigned((dealloc_valid != 0) and (dealloc_entry_id == 15)) != 0 { 1 } else { _mux_64 & 1 }
+  mut dealloc_pending_next__w16 = dealloc_pending_next__w15
+  dealloc_pending_next__w16#[15] = _mux_65 & 1
+  if rst != 0 {
+    dealloc_pending = 0
+  } elif (dealloc_valid != 0) or (dealloc_complete_beat__w1 != 0) {
+    dealloc_pending = dealloc_pending_next__w16
+  }
+  alloc_valid = br_tracker_sequence_allocate_counter.alloc_sendable
+  alloc_entry_id = br_tracker_sequence_allocate_counter.alloc_entry_id
+  dealloc_complete_valid = dealloc_complete_valid__w1
+  dealloc_complete_entry_id = dealloc_complete_entry_id__w1
+  free_entry_count = br_tracker_sequence_allocate_counter.free_entry_count
+  allocated_entry_count = br_tracker_sequence_allocate_counter.allocated_entry_count
+}

@@ -1,0 +1,10 @@
+pub comb br_demux_bin::[timecheck=false](select:u1, in_valid:u1, `in`:u5) -> (out_valid:u2, out:u10) {
+  out_valid = 0sb?
+  mut out_valid__w1 = out_valid
+  out_valid__w1#[0] = unsigned((in_valid != 0) and (select == 0)) & 1
+  mut out_valid__w2 = out_valid__w1
+  out_valid__w2#[1] = unsigned((in_valid != 0) and (select == 1)) & 1
+  const t10 = `in`
+  out_valid = out_valid__w2
+  out = t10 | (t10 << 5)
+}

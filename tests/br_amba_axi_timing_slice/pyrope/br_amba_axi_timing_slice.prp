@@ -4,45 +4,45 @@ const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
 const br_flow_reg_fwd_p3 = import("br_flow_reg_fwd_p3.br_flow_reg_fwd_p3")
 
 pub mod br_amba_axi_timing_slice::[timecheck=false](clk:u1, rst:u1, target_awaddr:u32, target_awid:u4, target_awlen:u8, target_awsize:u3, target_awburst:u2, target_awprot:u3, target_awuser:u1, target_awvalid:u1, target_wdata:u32, target_wstrb:u4, target_wuser:u1, target_wlast:u1, target_wvalid:u1, target_bready:u1, target_araddr:u32, target_arid:u4, target_arlen:u8, target_arsize:u3, target_arburst:u2, target_arprot:u3, target_aruser:u1, target_arvalid:u1, target_rready:u1, init_awready:u1, init_wready:u1, init_bid:u4, init_buser:u1, init_bresp:u2, init_bvalid:u1, init_arready:u1, init_rid:u4, init_rdata:u32, init_ruser:u1, init_rresp:u2, init_rlast:u1, init_rvalid:u1) -> (target_awready:u1@[], target_wready:u1@[], target_bid:u4@[], target_buser:u1@[], target_bresp:u2@[], target_bvalid:u1@[], target_arready:u1@[], target_rid:u4@[], target_rdata:u32@[], target_ruser:u1@[], target_rresp:u2@[], target_rlast:u1@[], target_rvalid:u1@[], init_awaddr:u32@[], init_awid:u4@[], init_awlen:u8@[], init_awsize:u3@[], init_awburst:u2@[], init_awprot:u3@[], init_awuser:u1@[], init_awvalid:u1@[], init_wdata:u32@[], init_wstrb:u4@[], init_wuser:u1@[], init_wlast:u1@[], init_wvalid:u1@[], init_bready:u1@[], init_araddr:u32@[], init_arid:u4@[], init_arlen:u8@[], init_arsize:u3@[], init_arburst:u2@[], init_arprot:u3@[], init_aruser:u1@[], init_arvalid:u1@[], init_rready:u1@[]) {
-  mut br_flow_reg_fwd_aw_slice = br_flow_reg_fwd::[name=br_flow_reg_fwd_aw_slice](clk = clk, rst = rst, push_valid = target_awvalid, push_data = (target_awaddr << 21) | (target_awid << 17) | (target_awlen << 9) | (target_awsize << 6) | (target_awburst << 4) | (target_awprot << 1) | (target_awuser & 1), pop_ready = init_awready)
-  mut br_flow_reg_fwd_w_slice = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_w_slice](clk = clk, rst = rst, push_valid = target_wvalid, push_data = (target_wdata << 6) | (target_wstrb << 2) | ((target_wuser & 1) << 1) | (target_wlast & 1), pop_ready = init_wready)
-  mut br_flow_reg_fwd_b_slice = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_b_slice](clk = clk, rst = rst, push_valid = init_bvalid, push_data = (init_bid << 3) | ((init_buser & 1) << 2) | init_bresp, pop_ready = target_bready)
-  mut br_flow_reg_fwd_ar_slice = br_flow_reg_fwd::[name=br_flow_reg_fwd_ar_slice](clk = clk, rst = rst, push_valid = target_arvalid, push_data = (target_araddr << 21) | (target_arid << 17) | (target_arlen << 9) | (target_arsize << 6) | (target_arburst << 4) | (target_arprot << 1) | (target_aruser & 1), pop_ready = init_arready)
-  mut br_flow_reg_fwd_r_slice = br_flow_reg_fwd_p3::[name=br_flow_reg_fwd_r_slice](clk = clk, rst = rst, push_valid = init_rvalid, push_data = (init_rid << 36) | (init_rdata << 4) | (init_rresp << 2) | ((init_ruser & 1) << 1) | (init_rlast & 1), pop_ready = target_rready)
-  target_awready = br_flow_reg_fwd_aw_slice.push_ready
-  target_wready = br_flow_reg_fwd_w_slice.push_ready
-  target_bid = (br_flow_reg_fwd_b_slice.pop_data >> 3)#[0..=3]
-  target_buser = (br_flow_reg_fwd_b_slice.pop_data >> 2) & 1
-  target_bresp = br_flow_reg_fwd_b_slice.pop_data#[0..=1]
-  target_bvalid = br_flow_reg_fwd_b_slice.pop_valid
-  target_arready = br_flow_reg_fwd_ar_slice.push_ready
-  target_rid = (br_flow_reg_fwd_r_slice.pop_data >> 36)#[0..=3]
-  target_rdata = (br_flow_reg_fwd_r_slice.pop_data >> 4)#[0..=31]
-  target_ruser = (br_flow_reg_fwd_r_slice.pop_data >> 1) & 1
-  target_rresp = (br_flow_reg_fwd_r_slice.pop_data >> 2)#[0..=1]
-  target_rlast = br_flow_reg_fwd_r_slice.pop_data & 1
-  target_rvalid = br_flow_reg_fwd_r_slice.pop_valid
-  init_awaddr = (br_flow_reg_fwd_aw_slice.pop_data >> 21)#[0..=31]
-  init_awid = (br_flow_reg_fwd_aw_slice.pop_data >> 17)#[0..=3]
-  init_awlen = (br_flow_reg_fwd_aw_slice.pop_data >> 9)#[0..=7]
-  init_awsize = (br_flow_reg_fwd_aw_slice.pop_data >> 6)#[0..=2]
-  init_awburst = (br_flow_reg_fwd_aw_slice.pop_data >> 4)#[0..=1]
-  init_awprot = (br_flow_reg_fwd_aw_slice.pop_data >> 1)#[0..=2]
-  init_awuser = br_flow_reg_fwd_aw_slice.pop_data & 1
-  init_awvalid = br_flow_reg_fwd_aw_slice.pop_valid
-  init_wdata = (br_flow_reg_fwd_w_slice.pop_data >> 6)#[0..=31]
-  init_wstrb = (br_flow_reg_fwd_w_slice.pop_data >> 2)#[0..=3]
-  init_wuser = (br_flow_reg_fwd_w_slice.pop_data >> 1) & 1
-  init_wlast = br_flow_reg_fwd_w_slice.pop_data & 1
-  init_wvalid = br_flow_reg_fwd_w_slice.pop_valid
-  init_bready = br_flow_reg_fwd_b_slice.push_ready
-  init_araddr = (br_flow_reg_fwd_ar_slice.pop_data >> 21)#[0..=31]
-  init_arid = (br_flow_reg_fwd_ar_slice.pop_data >> 17)#[0..=3]
-  init_arlen = (br_flow_reg_fwd_ar_slice.pop_data >> 9)#[0..=7]
-  init_arsize = (br_flow_reg_fwd_ar_slice.pop_data >> 6)#[0..=2]
-  init_arburst = (br_flow_reg_fwd_ar_slice.pop_data >> 4)#[0..=1]
-  init_arprot = (br_flow_reg_fwd_ar_slice.pop_data >> 1)#[0..=2]
-  init_aruser = br_flow_reg_fwd_ar_slice.pop_data & 1
-  init_arvalid = br_flow_reg_fwd_ar_slice.pop_valid
-  init_rready = br_flow_reg_fwd_r_slice.push_ready
+  mut gen_aw_slice_forward_br_flow_reg_fwd_aw_slice = br_flow_reg_fwd::[name=gen_aw_slice_forward_br_flow_reg_fwd_aw_slice](clk = clk, rst = rst, push_valid = target_awvalid, push_data = (target_awaddr << 21) | (target_awid << 17) | (target_awlen << 9) | (target_awsize << 6) | (target_awburst << 4) | (target_awprot << 1) | (target_awuser & 1), pop_ready = init_awready)
+  mut gen_w_slice_forward_br_flow_reg_fwd_w_slice = br_flow_reg_fwd_p1::[name=gen_w_slice_forward_br_flow_reg_fwd_w_slice](clk = clk, rst = rst, push_valid = target_wvalid, push_data = (target_wdata << 6) | (target_wstrb << 2) | ((target_wuser & 1) << 1) | (target_wlast & 1), pop_ready = init_wready)
+  mut gen_b_slice_forward_br_flow_reg_fwd_b_slice = br_flow_reg_fwd_p2::[name=gen_b_slice_forward_br_flow_reg_fwd_b_slice](clk = clk, rst = rst, push_valid = init_bvalid, push_data = (init_bid << 3) | ((init_buser & 1) << 2) | init_bresp, pop_ready = target_bready)
+  mut gen_ar_slice_forward_br_flow_reg_fwd_ar_slice = br_flow_reg_fwd::[name=gen_ar_slice_forward_br_flow_reg_fwd_ar_slice](clk = clk, rst = rst, push_valid = target_arvalid, push_data = (target_araddr << 21) | (target_arid << 17) | (target_arlen << 9) | (target_arsize << 6) | (target_arburst << 4) | (target_arprot << 1) | (target_aruser & 1), pop_ready = init_arready)
+  mut gen_r_slice_forward_br_flow_reg_fwd_r_slice = br_flow_reg_fwd_p3::[name=gen_r_slice_forward_br_flow_reg_fwd_r_slice](clk = clk, rst = rst, push_valid = init_rvalid, push_data = (init_rid << 36) | (init_rdata << 4) | (init_rresp << 2) | ((init_ruser & 1) << 1) | (init_rlast & 1), pop_ready = target_rready)
+  target_awready = gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.push_ready
+  target_wready = gen_w_slice_forward_br_flow_reg_fwd_w_slice.push_ready
+  target_bid = (gen_b_slice_forward_br_flow_reg_fwd_b_slice.pop_data >> 3)#[0..=3]
+  target_buser = (gen_b_slice_forward_br_flow_reg_fwd_b_slice.pop_data >> 2) & 1
+  target_bresp = gen_b_slice_forward_br_flow_reg_fwd_b_slice.pop_data#[0..=1]
+  target_bvalid = gen_b_slice_forward_br_flow_reg_fwd_b_slice.pop_valid
+  target_arready = gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.push_ready
+  target_rid = (gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_data >> 36)#[0..=3]
+  target_rdata = (gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_data >> 4)#[0..=31]
+  target_ruser = (gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_data >> 1) & 1
+  target_rresp = (gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_data >> 2)#[0..=1]
+  target_rlast = gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_data & 1
+  target_rvalid = gen_r_slice_forward_br_flow_reg_fwd_r_slice.pop_valid
+  init_awaddr = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 21)#[0..=31]
+  init_awid = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 17)#[0..=3]
+  init_awlen = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 9)#[0..=7]
+  init_awsize = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 6)#[0..=2]
+  init_awburst = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 4)#[0..=1]
+  init_awprot = (gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data >> 1)#[0..=2]
+  init_awuser = gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_data & 1
+  init_awvalid = gen_aw_slice_forward_br_flow_reg_fwd_aw_slice.pop_valid
+  init_wdata = (gen_w_slice_forward_br_flow_reg_fwd_w_slice.pop_data >> 6)#[0..=31]
+  init_wstrb = (gen_w_slice_forward_br_flow_reg_fwd_w_slice.pop_data >> 2)#[0..=3]
+  init_wuser = (gen_w_slice_forward_br_flow_reg_fwd_w_slice.pop_data >> 1) & 1
+  init_wlast = gen_w_slice_forward_br_flow_reg_fwd_w_slice.pop_data & 1
+  init_wvalid = gen_w_slice_forward_br_flow_reg_fwd_w_slice.pop_valid
+  init_bready = gen_b_slice_forward_br_flow_reg_fwd_b_slice.push_ready
+  init_araddr = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 21)#[0..=31]
+  init_arid = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 17)#[0..=3]
+  init_arlen = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 9)#[0..=7]
+  init_arsize = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 6)#[0..=2]
+  init_arburst = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 4)#[0..=1]
+  init_arprot = (gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data >> 1)#[0..=2]
+  init_aruser = gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_data & 1
+  init_arvalid = gen_ar_slice_forward_br_flow_reg_fwd_ar_slice.pop_valid
+  init_rready = gen_r_slice_forward_br_flow_reg_fwd_r_slice.push_ready
 }

@@ -1,0 +1,8 @@
+pub comb br_mux_bin_p2::[timecheck=false](select:u2, `in`:u272) -> (out:u68, out_valid:u1) {
+  mut _rep_2:u68 = if (unsigned(select == 0) & 1) != 0 { 0xfffffffffffffffff } else { 0 }
+  mut _rep_4:u68 = if (unsigned(select == 1) & 1) != 0 { 0xfffffffffffffffff } else { 0 }
+  mut _rep_6:u68 = if (unsigned(select == 2) & 1) != 0 { 0xfffffffffffffffff } else { 0 }
+  mut _rep_8:u68 = if (unsigned(select == 3) & 1) != 0 { 0xfffffffffffffffff } else { 0 }
+  out = (((0 | (_rep_2 & `in`#[0..=67])) | (_rep_4 & `in`#[68..=135])) | (_rep_6 & `in`#[136..=203])) | (_rep_8 & `in`#[204..=271])
+  out_valid = unsigned(select < 4)
+}

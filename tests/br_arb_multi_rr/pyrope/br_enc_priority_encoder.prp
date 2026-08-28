@@ -1,0 +1,501 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_enc_priority_encoder::[timecheck=false](clk:u1, rst:u1, `in`:(e30:u1, e29:u1, e28:u1, e27:u1, e26:u1, e25:u1, e24:u1, e23:u1, e22:u1, e21:u1, e20:u1, e19:u1, e18:u1, e17:u1, e16:u1, e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)) -> (out:u62@[]) {
+  mut out_internal:u62 = 0
+  out_internal = 0sb?
+  const in_internal__w1 = (`in`.e30 << 30) | (`in`.e29 << 29) | (`in`.e28 << 28) | (`in`.e27 << 27) | (`in`.e26 << 26) | (`in`.e25 << 25) | (`in`.e24 << 24) | (`in`.e23 << 23) | (`in`.e22 << 22) | (`in`.e21 << 21) | (`in`.e20 << 20) | (`in`.e19 << 19) | (`in`.e18 << 18) | (`in`.e17 << 17) | (`in`.e16 << 16) | (`in`.e15 << 15) | (`in`.e14 << 14) | (`in`.e13 << 13) | (`in`.e12 << 12) | (`in`.e11 << 11) | (`in`.e10 << 10) | (`in`.e9 << 9) | (`in`.e8 << 8) | (`in`.e7 << 7) | (`in`.e6 << 6) | (`in`.e5 << 5) | (`in`.e4 << 4) | (`in`.e3 << 3) | (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
+  const gen_out_internal_0_in_masked__w1 = in_internal__w1
+  const t92 = gen_out_internal_0_in_masked__w1 & 1
+  mut out_internal__w1 = out_internal
+  out_internal__w1#[0] = t92
+  const t93 = gen_out_internal_0_in_masked__w1 >> 1
+  const t94 = t93 & 1
+  const t95 = t94 != 0
+  const t96 = gen_out_internal_0_in_masked__w1 & 1
+  const t97 = t96 == 0
+  const t98 = t95 and t97
+  mut out_internal__w2 = out_internal__w1
+  out_internal__w2#[1] = unsigned(t98) & 1
+  const t100 = gen_out_internal_0_in_masked__w1 >> 2
+  const t101 = t100 & 1
+  const t102 = t101 != 0
+  const t103 = gen_out_internal_0_in_masked__w1#[0..=1]
+  const t104 = t103 == 0
+  const t105 = t102 and t104
+  mut out_internal__w3 = out_internal__w2
+  out_internal__w3#[2] = unsigned(t105) & 1
+  const t107 = gen_out_internal_0_in_masked__w1 >> 3
+  const t108 = t107 & 1
+  const t109 = t108 != 0
+  const t110 = gen_out_internal_0_in_masked__w1#[0..=2]
+  const t111 = t110 == 0
+  const t112 = t109 and t111
+  mut out_internal__w4 = out_internal__w3
+  out_internal__w4#[3] = unsigned(t112) & 1
+  const t114 = gen_out_internal_0_in_masked__w1 >> 4
+  const t115 = t114 & 1
+  const t116 = t115 != 0
+  const t117 = gen_out_internal_0_in_masked__w1#[0..=3]
+  const t118 = t117 == 0
+  const t119 = t116 and t118
+  mut out_internal__w5 = out_internal__w4
+  out_internal__w5#[4] = unsigned(t119) & 1
+  const t121 = gen_out_internal_0_in_masked__w1 >> 5
+  const t122 = t121 & 1
+  const t123 = t122 != 0
+  const t124 = gen_out_internal_0_in_masked__w1#[0..=4]
+  const t125 = t124 == 0
+  const t126 = t123 and t125
+  mut out_internal__w6 = out_internal__w5
+  out_internal__w6#[5] = unsigned(t126) & 1
+  const t128 = gen_out_internal_0_in_masked__w1 >> 6
+  const t129 = t128 & 1
+  const t130 = t129 != 0
+  const t131 = gen_out_internal_0_in_masked__w1#[0..=5]
+  const t132 = t131 == 0
+  const t133 = t130 and t132
+  mut out_internal__w7 = out_internal__w6
+  out_internal__w7#[6] = unsigned(t133) & 1
+  const t135 = gen_out_internal_0_in_masked__w1 >> 7
+  const t136 = t135 & 1
+  const t137 = t136 != 0
+  const t138 = gen_out_internal_0_in_masked__w1#[0..=6]
+  const t139 = t138 == 0
+  const t140 = t137 and t139
+  mut out_internal__w8 = out_internal__w7
+  out_internal__w8#[7] = unsigned(t140) & 1
+  const t142 = gen_out_internal_0_in_masked__w1 >> 8
+  const t143 = t142 & 1
+  const t144 = t143 != 0
+  const t145 = gen_out_internal_0_in_masked__w1#[0..=7]
+  const t146 = t145 == 0
+  const t147 = t144 and t146
+  mut out_internal__w9 = out_internal__w8
+  out_internal__w9#[8] = unsigned(t147) & 1
+  const t149 = gen_out_internal_0_in_masked__w1 >> 9
+  const t150 = t149 & 1
+  const t151 = t150 != 0
+  const t152 = gen_out_internal_0_in_masked__w1#[0..=8]
+  const t153 = t152 == 0
+  const t154 = t151 and t153
+  mut out_internal__w10 = out_internal__w9
+  out_internal__w10#[9] = unsigned(t154) & 1
+  const t156 = gen_out_internal_0_in_masked__w1 >> 10
+  const t157 = t156 & 1
+  const t158 = t157 != 0
+  const t159 = gen_out_internal_0_in_masked__w1#[0..=9]
+  const t160 = t159 == 0
+  const t161 = t158 and t160
+  mut out_internal__w11 = out_internal__w10
+  out_internal__w11#[10] = unsigned(t161) & 1
+  const t163 = gen_out_internal_0_in_masked__w1 >> 11
+  const t164 = t163 & 1
+  const t165 = t164 != 0
+  const t166 = gen_out_internal_0_in_masked__w1#[0..=10]
+  const t167 = t166 == 0
+  const t168 = t165 and t167
+  mut out_internal__w12 = out_internal__w11
+  out_internal__w12#[11] = unsigned(t168) & 1
+  const t170 = gen_out_internal_0_in_masked__w1 >> 12
+  const t171 = t170 & 1
+  const t172 = t171 != 0
+  const t173 = gen_out_internal_0_in_masked__w1#[0..=11]
+  const t174 = t173 == 0
+  const t175 = t172 and t174
+  mut out_internal__w13 = out_internal__w12
+  out_internal__w13#[12] = unsigned(t175) & 1
+  const t177 = gen_out_internal_0_in_masked__w1 >> 13
+  const t178 = t177 & 1
+  const t179 = t178 != 0
+  const t180 = gen_out_internal_0_in_masked__w1#[0..=12]
+  const t181 = t180 == 0
+  const t182 = t179 and t181
+  mut out_internal__w14 = out_internal__w13
+  out_internal__w14#[13] = unsigned(t182) & 1
+  const t184 = gen_out_internal_0_in_masked__w1 >> 14
+  const t185 = t184 & 1
+  const t186 = t185 != 0
+  const t187 = gen_out_internal_0_in_masked__w1#[0..=13]
+  const t188 = t187 == 0
+  const t189 = t186 and t188
+  mut out_internal__w15 = out_internal__w14
+  out_internal__w15#[14] = unsigned(t189) & 1
+  const t191 = gen_out_internal_0_in_masked__w1 >> 15
+  const t192 = t191 & 1
+  const t193 = t192 != 0
+  const t194 = gen_out_internal_0_in_masked__w1#[0..=14]
+  const t195 = t194 == 0
+  const t196 = t193 and t195
+  mut out_internal__w16 = out_internal__w15
+  out_internal__w16#[15] = unsigned(t196) & 1
+  const t198 = gen_out_internal_0_in_masked__w1 >> 16
+  const t199 = t198 & 1
+  const t200 = t199 != 0
+  const t201 = gen_out_internal_0_in_masked__w1#[0..=15]
+  const t202 = t201 == 0
+  const t203 = t200 and t202
+  mut out_internal__w17 = out_internal__w16
+  out_internal__w17#[16] = unsigned(t203) & 1
+  const t205 = gen_out_internal_0_in_masked__w1 >> 17
+  const t206 = t205 & 1
+  const t207 = t206 != 0
+  const t208 = gen_out_internal_0_in_masked__w1#[0..=16]
+  const t209 = t208 == 0
+  const t210 = t207 and t209
+  mut out_internal__w18 = out_internal__w17
+  out_internal__w18#[17] = unsigned(t210) & 1
+  const t212 = gen_out_internal_0_in_masked__w1 >> 18
+  const t213 = t212 & 1
+  const t214 = t213 != 0
+  const t215 = gen_out_internal_0_in_masked__w1#[0..=17]
+  const t216 = t215 == 0
+  const t217 = t214 and t216
+  mut out_internal__w19 = out_internal__w18
+  out_internal__w19#[18] = unsigned(t217) & 1
+  const t219 = gen_out_internal_0_in_masked__w1 >> 19
+  const t220 = t219 & 1
+  const t221 = t220 != 0
+  const t222 = gen_out_internal_0_in_masked__w1#[0..=18]
+  const t223 = t222 == 0
+  const t224 = t221 and t223
+  mut out_internal__w20 = out_internal__w19
+  out_internal__w20#[19] = unsigned(t224) & 1
+  const t226 = gen_out_internal_0_in_masked__w1 >> 20
+  const t227 = t226 & 1
+  const t228 = t227 != 0
+  const t229 = gen_out_internal_0_in_masked__w1#[0..=19]
+  const t230 = t229 == 0
+  const t231 = t228 and t230
+  mut out_internal__w21 = out_internal__w20
+  out_internal__w21#[20] = unsigned(t231) & 1
+  const t233 = gen_out_internal_0_in_masked__w1 >> 21
+  const t234 = t233 & 1
+  const t235 = t234 != 0
+  const t236 = gen_out_internal_0_in_masked__w1#[0..=20]
+  const t237 = t236 == 0
+  const t238 = t235 and t237
+  mut out_internal__w22 = out_internal__w21
+  out_internal__w22#[21] = unsigned(t238) & 1
+  const t240 = gen_out_internal_0_in_masked__w1 >> 22
+  const t241 = t240 & 1
+  const t242 = t241 != 0
+  const t243 = gen_out_internal_0_in_masked__w1#[0..=21]
+  const t244 = t243 == 0
+  const t245 = t242 and t244
+  mut out_internal__w23 = out_internal__w22
+  out_internal__w23#[22] = unsigned(t245) & 1
+  const t247 = gen_out_internal_0_in_masked__w1 >> 23
+  const t248 = t247 & 1
+  const t249 = t248 != 0
+  const t250 = gen_out_internal_0_in_masked__w1#[0..=22]
+  const t251 = t250 == 0
+  const t252 = t249 and t251
+  mut out_internal__w24 = out_internal__w23
+  out_internal__w24#[23] = unsigned(t252) & 1
+  const t254 = gen_out_internal_0_in_masked__w1 >> 24
+  const t255 = t254 & 1
+  const t256 = t255 != 0
+  const t257 = gen_out_internal_0_in_masked__w1#[0..=23]
+  const t258 = t257 == 0
+  const t259 = t256 and t258
+  mut out_internal__w25 = out_internal__w24
+  out_internal__w25#[24] = unsigned(t259) & 1
+  const t261 = gen_out_internal_0_in_masked__w1 >> 25
+  const t262 = t261 & 1
+  const t263 = t262 != 0
+  const t264 = gen_out_internal_0_in_masked__w1#[0..=24]
+  const t265 = t264 == 0
+  const t266 = t263 and t265
+  mut out_internal__w26 = out_internal__w25
+  out_internal__w26#[25] = unsigned(t266) & 1
+  const t268 = gen_out_internal_0_in_masked__w1 >> 26
+  const t269 = t268 & 1
+  const t270 = t269 != 0
+  const t271 = gen_out_internal_0_in_masked__w1#[0..=25]
+  const t272 = t271 == 0
+  const t273 = t270 and t272
+  mut out_internal__w27 = out_internal__w26
+  out_internal__w27#[26] = unsigned(t273) & 1
+  const t275 = gen_out_internal_0_in_masked__w1 >> 27
+  const t276 = t275 & 1
+  const t277 = t276 != 0
+  const t278 = gen_out_internal_0_in_masked__w1#[0..=26]
+  const t279 = t278 == 0
+  const t280 = t277 and t279
+  mut out_internal__w28 = out_internal__w27
+  out_internal__w28#[27] = unsigned(t280) & 1
+  const t282 = gen_out_internal_0_in_masked__w1 >> 28
+  const t283 = t282 & 1
+  const t284 = t283 != 0
+  const t285 = gen_out_internal_0_in_masked__w1#[0..=27]
+  const t286 = t285 == 0
+  const t287 = t284 and t286
+  mut out_internal__w29 = out_internal__w28
+  out_internal__w29#[28] = unsigned(t287) & 1
+  const t289 = gen_out_internal_0_in_masked__w1 >> 29
+  const t290 = t289 & 1
+  const t291 = t290 != 0
+  const t292 = gen_out_internal_0_in_masked__w1#[0..=28]
+  const t293 = t292 == 0
+  const t294 = t291 and t293
+  mut out_internal__w30 = out_internal__w29
+  out_internal__w30#[29] = unsigned(t294) & 1
+  const t296 = gen_out_internal_0_in_masked__w1 >> 30
+  const t297 = t296 & 1
+  const t298 = t297 != 0
+  const t299 = gen_out_internal_0_in_masked__w1#[0..=29]
+  const t300 = t299 == 0
+  const t301 = t298 and t300
+  mut out_internal__w31 = out_internal__w30
+  out_internal__w31#[30] = unsigned(t301) & 1
+  mut out_internal__w32 = out_internal__w31
+  out_internal__w32#[31] = 0
+  const gen_out_internal_1_in_masked__w1 = in_internal__w1
+  const t303 = out_internal__w32#[0..=30]
+  const t304 = ~t303
+  const t305 = t304#[0..=30]
+  const t306 = gen_out_internal_1_in_masked__w1 & t305
+  const t307 = t306
+  const gen_out_internal_1_in_masked__w2 = t307
+  const t308 = gen_out_internal_1_in_masked__w2 & 1
+  br_misc_unused::[name=gen_out_internal_1_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in` = t308)
+  const t309 = gen_out_internal_1_in_masked__w2 >> 1
+  const t310 = t309 & 1
+  mut out_internal__w33 = out_internal__w32
+  out_internal__w33#[32] = t310
+  const t311 = gen_out_internal_1_in_masked__w2 >> 2
+  const t312 = t311 & 1
+  const t313 = t312 != 0
+  const t314 = gen_out_internal_1_in_masked__w2 >> 1
+  const t315 = t314 & 1
+  const t316 = t315 == 0
+  const t317 = t313 and t316
+  mut out_internal__w34 = out_internal__w33
+  out_internal__w34#[33] = unsigned(t317) & 1
+  const t319 = gen_out_internal_1_in_masked__w2 >> 3
+  const t320 = t319 & 1
+  const t321 = t320 != 0
+  const t322 = gen_out_internal_1_in_masked__w2#[1..=2]
+  const t323 = t322 == 0
+  const t324 = t321 and t323
+  mut out_internal__w35 = out_internal__w34
+  out_internal__w35#[34] = unsigned(t324) & 1
+  const t326 = gen_out_internal_1_in_masked__w2 >> 4
+  const t327 = t326 & 1
+  const t328 = t327 != 0
+  const t329 = gen_out_internal_1_in_masked__w2#[1..=3]
+  const t330 = t329 == 0
+  const t331 = t328 and t330
+  mut out_internal__w36 = out_internal__w35
+  out_internal__w36#[35] = unsigned(t331) & 1
+  const t333 = gen_out_internal_1_in_masked__w2 >> 5
+  const t334 = t333 & 1
+  const t335 = t334 != 0
+  const t336 = gen_out_internal_1_in_masked__w2#[1..=4]
+  const t337 = t336 == 0
+  const t338 = t335 and t337
+  mut out_internal__w37 = out_internal__w36
+  out_internal__w37#[36] = unsigned(t338) & 1
+  const t340 = gen_out_internal_1_in_masked__w2 >> 6
+  const t341 = t340 & 1
+  const t342 = t341 != 0
+  const t343 = gen_out_internal_1_in_masked__w2#[1..=5]
+  const t344 = t343 == 0
+  const t345 = t342 and t344
+  mut out_internal__w38 = out_internal__w37
+  out_internal__w38#[37] = unsigned(t345) & 1
+  const t347 = gen_out_internal_1_in_masked__w2 >> 7
+  const t348 = t347 & 1
+  const t349 = t348 != 0
+  const t350 = gen_out_internal_1_in_masked__w2#[1..=6]
+  const t351 = t350 == 0
+  const t352 = t349 and t351
+  mut out_internal__w39 = out_internal__w38
+  out_internal__w39#[38] = unsigned(t352) & 1
+  const t354 = gen_out_internal_1_in_masked__w2 >> 8
+  const t355 = t354 & 1
+  const t356 = t355 != 0
+  const t357 = gen_out_internal_1_in_masked__w2#[1..=7]
+  const t358 = t357 == 0
+  const t359 = t356 and t358
+  mut out_internal__w40 = out_internal__w39
+  out_internal__w40#[39] = unsigned(t359) & 1
+  const t361 = gen_out_internal_1_in_masked__w2 >> 9
+  const t362 = t361 & 1
+  const t363 = t362 != 0
+  const t364 = gen_out_internal_1_in_masked__w2#[1..=8]
+  const t365 = t364 == 0
+  const t366 = t363 and t365
+  mut out_internal__w41 = out_internal__w40
+  out_internal__w41#[40] = unsigned(t366) & 1
+  const t368 = gen_out_internal_1_in_masked__w2 >> 10
+  const t369 = t368 & 1
+  const t370 = t369 != 0
+  const t371 = gen_out_internal_1_in_masked__w2#[1..=9]
+  const t372 = t371 == 0
+  const t373 = t370 and t372
+  mut out_internal__w42 = out_internal__w41
+  out_internal__w42#[41] = unsigned(t373) & 1
+  const t375 = gen_out_internal_1_in_masked__w2 >> 11
+  const t376 = t375 & 1
+  const t377 = t376 != 0
+  const t378 = gen_out_internal_1_in_masked__w2#[1..=10]
+  const t379 = t378 == 0
+  const t380 = t377 and t379
+  mut out_internal__w43 = out_internal__w42
+  out_internal__w43#[42] = unsigned(t380) & 1
+  const t382 = gen_out_internal_1_in_masked__w2 >> 12
+  const t383 = t382 & 1
+  const t384 = t383 != 0
+  const t385 = gen_out_internal_1_in_masked__w2#[1..=11]
+  const t386 = t385 == 0
+  const t387 = t384 and t386
+  mut out_internal__w44 = out_internal__w43
+  out_internal__w44#[43] = unsigned(t387) & 1
+  const t389 = gen_out_internal_1_in_masked__w2 >> 13
+  const t390 = t389 & 1
+  const t391 = t390 != 0
+  const t392 = gen_out_internal_1_in_masked__w2#[1..=12]
+  const t393 = t392 == 0
+  const t394 = t391 and t393
+  mut out_internal__w45 = out_internal__w44
+  out_internal__w45#[44] = unsigned(t394) & 1
+  const t396 = gen_out_internal_1_in_masked__w2 >> 14
+  const t397 = t396 & 1
+  const t398 = t397 != 0
+  const t399 = gen_out_internal_1_in_masked__w2#[1..=13]
+  const t400 = t399 == 0
+  const t401 = t398 and t400
+  mut out_internal__w46 = out_internal__w45
+  out_internal__w46#[45] = unsigned(t401) & 1
+  const t403 = gen_out_internal_1_in_masked__w2 >> 15
+  const t404 = t403 & 1
+  const t405 = t404 != 0
+  const t406 = gen_out_internal_1_in_masked__w2#[1..=14]
+  const t407 = t406 == 0
+  const t408 = t405 and t407
+  mut out_internal__w47 = out_internal__w46
+  out_internal__w47#[46] = unsigned(t408) & 1
+  const t410 = gen_out_internal_1_in_masked__w2 >> 16
+  const t411 = t410 & 1
+  const t412 = t411 != 0
+  const t413 = gen_out_internal_1_in_masked__w2#[1..=15]
+  const t414 = t413 == 0
+  const t415 = t412 and t414
+  mut out_internal__w48 = out_internal__w47
+  out_internal__w48#[47] = unsigned(t415) & 1
+  const t417 = gen_out_internal_1_in_masked__w2 >> 17
+  const t418 = t417 & 1
+  const t419 = t418 != 0
+  const t420 = gen_out_internal_1_in_masked__w2#[1..=16]
+  const t421 = t420 == 0
+  const t422 = t419 and t421
+  mut out_internal__w49 = out_internal__w48
+  out_internal__w49#[48] = unsigned(t422) & 1
+  const t424 = gen_out_internal_1_in_masked__w2 >> 18
+  const t425 = t424 & 1
+  const t426 = t425 != 0
+  const t427 = gen_out_internal_1_in_masked__w2#[1..=17]
+  const t428 = t427 == 0
+  const t429 = t426 and t428
+  mut out_internal__w50 = out_internal__w49
+  out_internal__w50#[49] = unsigned(t429) & 1
+  const t431 = gen_out_internal_1_in_masked__w2 >> 19
+  const t432 = t431 & 1
+  const t433 = t432 != 0
+  const t434 = gen_out_internal_1_in_masked__w2#[1..=18]
+  const t435 = t434 == 0
+  const t436 = t433 and t435
+  mut out_internal__w51 = out_internal__w50
+  out_internal__w51#[50] = unsigned(t436) & 1
+  const t438 = gen_out_internal_1_in_masked__w2 >> 20
+  const t439 = t438 & 1
+  const t440 = t439 != 0
+  const t441 = gen_out_internal_1_in_masked__w2#[1..=19]
+  const t442 = t441 == 0
+  const t443 = t440 and t442
+  mut out_internal__w52 = out_internal__w51
+  out_internal__w52#[51] = unsigned(t443) & 1
+  const t445 = gen_out_internal_1_in_masked__w2 >> 21
+  const t446 = t445 & 1
+  const t447 = t446 != 0
+  const t448 = gen_out_internal_1_in_masked__w2#[1..=20]
+  const t449 = t448 == 0
+  const t450 = t447 and t449
+  mut out_internal__w53 = out_internal__w52
+  out_internal__w53#[52] = unsigned(t450) & 1
+  const t452 = gen_out_internal_1_in_masked__w2 >> 22
+  const t453 = t452 & 1
+  const t454 = t453 != 0
+  const t455 = gen_out_internal_1_in_masked__w2#[1..=21]
+  const t456 = t455 == 0
+  const t457 = t454 and t456
+  mut out_internal__w54 = out_internal__w53
+  out_internal__w54#[53] = unsigned(t457) & 1
+  const t459 = gen_out_internal_1_in_masked__w2 >> 23
+  const t460 = t459 & 1
+  const t461 = t460 != 0
+  const t462 = gen_out_internal_1_in_masked__w2#[1..=22]
+  const t463 = t462 == 0
+  const t464 = t461 and t463
+  mut out_internal__w55 = out_internal__w54
+  out_internal__w55#[54] = unsigned(t464) & 1
+  const t466 = gen_out_internal_1_in_masked__w2 >> 24
+  const t467 = t466 & 1
+  const t468 = t467 != 0
+  const t469 = gen_out_internal_1_in_masked__w2#[1..=23]
+  const t470 = t469 == 0
+  const t471 = t468 and t470
+  mut out_internal__w56 = out_internal__w55
+  out_internal__w56#[55] = unsigned(t471) & 1
+  const t473 = gen_out_internal_1_in_masked__w2 >> 25
+  const t474 = t473 & 1
+  const t475 = t474 != 0
+  const t476 = gen_out_internal_1_in_masked__w2#[1..=24]
+  const t477 = t476 == 0
+  const t478 = t475 and t477
+  mut out_internal__w57 = out_internal__w56
+  out_internal__w57#[56] = unsigned(t478) & 1
+  const t480 = gen_out_internal_1_in_masked__w2 >> 26
+  const t481 = t480 & 1
+  const t482 = t481 != 0
+  const t483 = gen_out_internal_1_in_masked__w2#[1..=25]
+  const t484 = t483 == 0
+  const t485 = t482 and t484
+  mut out_internal__w58 = out_internal__w57
+  out_internal__w58#[57] = unsigned(t485) & 1
+  const t487 = gen_out_internal_1_in_masked__w2 >> 27
+  const t488 = t487 & 1
+  const t489 = t488 != 0
+  const t490 = gen_out_internal_1_in_masked__w2#[1..=26]
+  const t491 = t490 == 0
+  const t492 = t489 and t491
+  mut out_internal__w59 = out_internal__w58
+  out_internal__w59#[58] = unsigned(t492) & 1
+  const t494 = gen_out_internal_1_in_masked__w2 >> 28
+  const t495 = t494 & 1
+  const t496 = t495 != 0
+  const t497 = gen_out_internal_1_in_masked__w2#[1..=27]
+  const t498 = t497 == 0
+  const t499 = t496 and t498
+  mut out_internal__w60 = out_internal__w59
+  out_internal__w60#[59] = unsigned(t499) & 1
+  const t501 = gen_out_internal_1_in_masked__w2 >> 29
+  const t502 = t501 & 1
+  const t503 = t502 != 0
+  const t504 = gen_out_internal_1_in_masked__w2#[1..=28]
+  const t505 = t504 == 0
+  const t506 = t503 and t505
+  mut out_internal__w61 = out_internal__w60
+  out_internal__w61#[60] = unsigned(t506) & 1
+  const t508 = gen_out_internal_1_in_masked__w2 >> 30
+  const t509 = t508 & 1
+  const t510 = t509 != 0
+  const t511 = gen_out_internal_1_in_masked__w2#[1..=29]
+  const t512 = t511 == 0
+  const t513 = t510 and t512
+  mut out_internal__w62 = out_internal__w61
+  out_internal__w62#[61] = unsigned(t513) & 1
+  const out__w1 = out_internal__w62
+  out = out__w1
+}

@@ -1,0 +1,16 @@
+const br_arb_multi_rr = import("br_arb_multi_rr.br_arb_multi_rr")
+const br_multi_xfer_distributor_core = import("br_multi_xfer_distributor_core.br_multi_xfer_distributor_core")
+
+pub mod br_multi_xfer_distributor_rr::[timecheck=false](clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_ready:u2) -> (push_receivable:u2@[], pop_valid:u2@[], pop_data:u10@[]) {
+  wire grant:u2
+  wire grant_ordered:u4
+  wire grant_count:u2
+  mut br_multi_xfer_distributor_core_inst = br_multi_xfer_distributor_core::[name=br_multi_xfer_distributor_core_inst](clk = clk, rst = rst, push_sendable = push_sendable, push_data = push_data, pop_ready = pop_ready, grant = grant, grant_ordered = grant_ordered, grant_count = grant_count)
+  mut br_arb_multi_rr_inst = br_arb_multi_rr::[name=br_arb_multi_rr_inst](clk = clk, rst = rst, enable_priority_update = br_multi_xfer_distributor_core_inst.enable_priority_update, request = br_multi_xfer_distributor_core_inst.request, grant_allowed = br_multi_xfer_distributor_core_inst.grant_allowed)
+  grant = br_arb_multi_rr_inst.grant
+  grant_ordered = br_arb_multi_rr_inst.grant_ordered
+  grant_count = br_arb_multi_rr_inst.grant_count
+  push_receivable = br_multi_xfer_distributor_core_inst.push_receivable
+  pop_valid = br_multi_xfer_distributor_core_inst.pop_valid
+  pop_data = br_multi_xfer_distributor_core_inst.pop_data
+}

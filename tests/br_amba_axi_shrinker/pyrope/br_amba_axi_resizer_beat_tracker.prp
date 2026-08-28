@@ -1,0 +1,40 @@
+const br_counter_incr_p2 = import("br_counter_incr_p2.br_counter_incr_p2")
+const br_counter_incr_p3 = import("br_counter_incr_p3.br_counter_incr_p3")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
+const br_misc_unused_p5 = import("br_misc_unused_p5.br_misc_unused_p5")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axi_resizer_beat_tracker::[timecheck=false](clk:u1, rst:u1, start_valid:u1, start_offset:u3, size:u3, burst:u2, shift:u1, beat_valid:u1) -> (beat_lane:u1@[], beat_last:u1@[]) {
+  reg size_reg:u3
+  reg burst_reg:u2
+  reg shift_reg:u1
+  wire beat_id:u1
+  if rst != 0 {
+    size_reg = 0
+  } elif start_valid != 0 {
+    size_reg = size
+  }
+  if rst != 0 {
+    burst_reg = br_amba.AxiBurstReserved
+  } elif start_valid != 0 {
+    burst_reg = burst
+  }
+  if rst != 0 {
+    shift_reg = 0
+  } elif start_valid != 0 {
+    shift_reg = shift
+  }
+  const beats_per_wide_minus1_ext__w1 = ((1 << shift_reg)#[0..=1] - 1)#[0..=1]
+  const beats_per_wide_minus1__w1 = beats_per_wide_minus1_ext__w1 & 1
+  br_misc_unused_p3::[name=br_misc_unused_beats_per_wide_minus1_ext_msbs](`in` = (beats_per_wide_minus1_ext__w1 >> 1) & 1)
+  const beat_offset_incr_ext__w1 = (1 << size_reg)#[0..=7]
+  mut _mux_2:u3 = if rst != 0 { 0 } else { start_offset }
+  mut br_counter_incr_beat_offset = br_counter_incr_p2::[name=br_counter_incr_beat_offset](clk = clk, rst = rst, reinit = start_valid, initial_value = _mux_2, incr_valid = unsigned((beat_valid != 0) and (burst_reg != br_amba.AxiBurstFixed)), incr = beat_offset_incr_ext__w1#[0..=2])
+  br_misc_unused_p5::[name=br_misc_unused_beat_offset_incr_ext_msbs](`in` = beat_offset_incr_ext__w1#[3..=7])
+  br_misc_unused::[name=gen_unused_beat_offset_lsbs_br_misc_unused_beat_offset_lsbs](`in` = br_counter_incr_beat_offset.value#[0..=1])
+  mut br_counter_incr_beat_id = br_counter_incr_p3::[name=br_counter_incr_beat_id](clk = clk, rst = rst, reinit = unsigned((start_valid != 0) or ((beat_valid != 0) and (beat_id == beats_per_wide_minus1__w1))), initial_value = 0, incr_valid = beat_valid, incr = 1)
+  beat_id = br_counter_incr_beat_id.value
+  beat_lane = (br_counter_incr_beat_offset.value >> 2) & 1
+  beat_last = unsigned(beat_id == beats_per_wide_minus1__w1)
+}

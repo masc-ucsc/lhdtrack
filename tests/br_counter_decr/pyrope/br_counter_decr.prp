@@ -6,7 +6,7 @@ pub mod br_counter_decr::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_va
   const gen_reinit_and_decr_base_value__w1 = _mux_1
   mut _mux_2:u8 = if decr_valid != 0 { decr } else { 0 }
   const value_next__w1 = (gen_reinit_and_decr_base_value__w1 - _mux_2)#[0..=7]
-  br_misc_unused::[name=br_misc_unused_underflow](`in` = unsigned((decr_valid != 0) and (decr > gen_reinit_and_decr_base_value__w1)))
+  br_misc_unused::[name=gen_power_of_2_wrap_br_misc_unused_underflow](`in` = unsigned((decr_valid != 0) and (decr > gen_reinit_and_decr_base_value__w1)))
   if rst != 0 {
     value = initial_value
   } elif (decr_valid != 0) or (reinit != 0) {

@@ -1,0 +1,11 @@
+const br_amba = import("br_amba")
+
+pub comb br_shift_left::[timecheck=false](`in`:u8, shift:u1, fill:u1) -> (out_valid:u1, out:u8) {
+  mut stages:u16 = 0
+  stages = 0sb?
+  mut stages__w1 = stages
+  stages__w1#[0..=7] = `in`
+  mut _mux_2:u8 = if (shift & 1) != 0 { (stages__w1#[0..=7]#[0..=6] << 1) | (fill & 1) } else { stages__w1#[0..=7] }
+  out_valid = unsigned(shift <= 1)
+  out = stages__w1#[8..=15]
+}

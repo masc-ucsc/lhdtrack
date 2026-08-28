@@ -1,0 +1,16 @@
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+
+pub mod br_credit_sender::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u4, pop_receiver_in_reset:u1, pop_credit:u1, credit_initial:u2, credit_withhold:u2) -> (push_ready:u1@[], pop_sender_in_reset:u1@[], pop_valid:u1@[], pop_data:u4@[], credit_count:u2@[], credit_available:u2@[]) {
+  const either_rst__w1 = unsigned((rst != 0) or (pop_receiver_in_reset != 0))
+  const pop_sender_in_reset__w1 = rst
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = unsigned(pop_credit != 0), incr = pop_credit, decr_valid = push_valid, decr = 1, initial_value = credit_initial, withhold = credit_withhold)
+  const push_ready__w1 = unsigned((br_credit_counter.decr_ready != 0) and (either_rst__w1 == 0))
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
+  push_ready = push_ready__w1
+  pop_sender_in_reset = pop_sender_in_reset__w1
+  pop_valid = push_ready__w1 & push_valid & 1
+  pop_data = push_data
+  credit_count = br_credit_counter.value
+  credit_available = br_credit_counter.available
+}

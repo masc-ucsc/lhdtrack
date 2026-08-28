@@ -1,0 +1,21 @@
+pub comb br_fifo_shared_pstatic_size_calc::[timecheck=false](clk:u1, rst:u1, config_base:u10, config_bound:u10) -> (config_size:u12, config_error:u1) {
+  mut config_base_gt_bound:u2 = 0
+  mut config_base_lte_prev_bound:u2 = 0
+  config_base_gt_bound = 0sb?
+  config_base_lte_prev_bound = 0sb?
+  config_size = 0sb?
+  mut config_size__w1 = config_size
+  config_size__w1#[0..=5] = ((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5]
+  mut config_base_gt_bound__w1 = config_base_gt_bound
+  config_base_gt_bound__w1#[0] = unsigned(config_base#[0..=4] > config_bound#[0..=4]) & 1
+  mut config_size__w2 = config_size__w1
+  config_size__w2#[6..=11] = ((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5]
+  mut config_base_gt_bound__w2 = config_base_gt_bound__w1
+  config_base_gt_bound__w2#[1] = unsigned(config_base#[5..=9] > config_bound#[5..=9]) & 1
+  mut config_base_lte_prev_bound__w1 = config_base_lte_prev_bound
+  config_base_lte_prev_bound__w1#[0] = 0
+  mut config_base_lte_prev_bound__w2 = config_base_lte_prev_bound__w1
+  config_base_lte_prev_bound__w2#[1] = unsigned(config_base#[5..=9] <= config_bound#[0..=4]) & 1
+  config_size = config_size__w2
+  config_error = unsigned(false or ((config_base_gt_bound__w2 | config_base_lte_prev_bound__w2)#[0..=1] != 0))
+}

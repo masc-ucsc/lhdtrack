@@ -12,65 +12,65 @@ pub mod br_ram_addr_decoder::[timecheck=false](clk:u1, rst:u1, in_valid:u1, in_a
   out_addr = 0sb?
   out_data_valid = 0sb?
   out_data = 0sb?
-  mut br_demux_bin_addr = br_demux_bin::[name=br_demux_bin_addr](select = in_addr#[3..=4], in_valid = in_valid, `in` = in_addr#[0..=2])
-  br_misc_unused::[name=br_misc_unused_in_data_valid](`in` = in_data_valid)
-  br_misc_unused_p1::[name=br_misc_unused_in_data](`in` = in_data)
-  mut br_misc_tieoff_zero_internal_out_data_valid = br_misc_tieoff_zero::[name=br_misc_tieoff_zero_internal_out_data_valid]()
-  const gen_tiles_gt1_internal_out_data_valid__w1 = br_misc_tieoff_zero_internal_out_data_valid
-  mut br_misc_tieoff_zero_internal_out_data = br_misc_tieoff_zero_p1::[name=br_misc_tieoff_zero_internal_out_data]()
-  const gen_tiles_gt1_internal_out_data__w1 = br_misc_tieoff_zero_internal_out_data
-  mut br_delay_valid_addr = br_delay_valid::[name=br_delay_valid_addr](clk = clk, rst = rst, in_valid = br_demux_bin_addr.out_valid & 1, `in` = br_demux_bin_addr.out#[0..=2])
+  mut gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr = br_demux_bin::[name=gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr](select = in_addr#[3..=4], in_valid = in_valid, `in` = in_addr#[0..=2])
+  br_misc_unused::[name=gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_unused_in_data_valid](`in` = in_data_valid)
+  br_misc_unused_p1::[name=gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_unused_in_data](`in` = in_data)
+  mut gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data_valid = br_misc_tieoff_zero::[name=gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data_valid]()
+  const gen_tiles_gt1_internal_out_data_valid__w1 = gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data_valid
+  mut gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data = br_misc_tieoff_zero_p1::[name=gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data]()
+  const gen_tiles_gt1_internal_out_data__w1 = gen_tiles_gt1_gen_demux_impl_gen_no_datapath_br_misc_tieoff_zero_internal_out_data
+  mut gen_tiles_gt1_gen_out_0_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_0_br_delay_valid_addr](clk = clk, rst = rst, in_valid = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[0..=2])
   mut out_valid__w1 = out_valid
-  out_valid__w1#[0] = br_delay_valid_addr["out_valid"] & 1
+  out_valid__w1#[0] = gen_tiles_gt1_gen_out_0_br_delay_valid_addr.out_valid & 1
   mut out_addr__w1 = out_addr
-  out_addr__w1#[0..=2] = br_delay_valid_addr["out"]#[0..=2]
-  br_misc_unused::[name=br_misc_unused_internal_out_data_valid_i](`in` = gen_tiles_gt1_internal_out_data_valid__w1 & 1)
-  br_misc_unused_p1::[name=br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[0..=31])
-  mut br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=br_misc_tieoff_zero_out_data_valid_i]()
+  out_addr__w1#[0..=2] = gen_tiles_gt1_gen_out_0_br_delay_valid_addr.out#[0..=2]
+  br_misc_unused::[name=gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_unused_internal_out_data_valid_i](`in` = gen_tiles_gt1_internal_out_data_valid__w1 & 1)
+  br_misc_unused_p1::[name=gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[0..=31])
+  mut gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i]()
   mut out_data_valid__w1 = out_data_valid
-  out_data_valid__w1#[0] = br_misc_tieoff_zero_out_data_valid_i & 1
-  mut br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=br_misc_tieoff_zero_out_data_i]()
+  out_data_valid__w1#[0] = gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i & 1
+  mut gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_i]()
   mut out_data__w1 = out_data
-  out_data__w1#[0..=31] = br_misc_tieoff_zero_out_data_i#[0..=31]
-  br_delay_valid_addr = br_delay_valid::[name=br_delay_valid_addr](clk = clk, rst = rst, in_valid = (br_demux_bin_addr.out_valid >> 1) & 1, `in` = br_demux_bin_addr.out#[3..=5])
+  out_data__w1#[0..=31] = gen_tiles_gt1_gen_out_0_gen_no_datapath_br_misc_tieoff_zero_out_data_i#[0..=31]
+  mut gen_tiles_gt1_gen_out_1_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_1_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 1) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[3..=5])
   mut out_valid__w2 = out_valid__w1
-  out_valid__w2#[1] = br_delay_valid_addr["out_valid"] & 1
+  out_valid__w2#[1] = gen_tiles_gt1_gen_out_1_br_delay_valid_addr.out_valid & 1
   mut out_addr__w2 = out_addr__w1
-  out_addr__w2#[3..=5] = br_delay_valid_addr["out"]#[0..=2]
-  br_misc_unused::[name=br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 1) & 1)
-  br_misc_unused_p1::[name=br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[32..=63])
-  br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=br_misc_tieoff_zero_out_data_valid_i]()
+  out_addr__w2#[3..=5] = gen_tiles_gt1_gen_out_1_br_delay_valid_addr.out#[0..=2]
+  br_misc_unused::[name=gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 1) & 1)
+  br_misc_unused_p1::[name=gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[32..=63])
+  mut gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i]()
   mut out_data_valid__w2 = out_data_valid__w1
-  out_data_valid__w2#[1] = br_misc_tieoff_zero_out_data_valid_i & 1
-  br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=br_misc_tieoff_zero_out_data_i]()
+  out_data_valid__w2#[1] = gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i & 1
+  mut gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_i]()
   mut out_data__w2 = out_data__w1
-  out_data__w2#[32..=63] = br_misc_tieoff_zero_out_data_i#[0..=31]
-  br_delay_valid_addr = br_delay_valid::[name=br_delay_valid_addr](clk = clk, rst = rst, in_valid = (br_demux_bin_addr.out_valid >> 2) & 1, `in` = br_demux_bin_addr.out#[6..=8])
+  out_data__w2#[32..=63] = gen_tiles_gt1_gen_out_1_gen_no_datapath_br_misc_tieoff_zero_out_data_i#[0..=31]
+  mut gen_tiles_gt1_gen_out_2_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_2_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 2) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[6..=8])
   mut out_valid__w3 = out_valid__w2
-  out_valid__w3#[2] = br_delay_valid_addr["out_valid"] & 1
+  out_valid__w3#[2] = gen_tiles_gt1_gen_out_2_br_delay_valid_addr.out_valid & 1
   mut out_addr__w3 = out_addr__w2
-  out_addr__w3#[6..=8] = br_delay_valid_addr["out"]#[0..=2]
-  br_misc_unused::[name=br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 2) & 1)
-  br_misc_unused_p1::[name=br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[64..=95])
-  br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=br_misc_tieoff_zero_out_data_valid_i]()
+  out_addr__w3#[6..=8] = gen_tiles_gt1_gen_out_2_br_delay_valid_addr.out#[0..=2]
+  br_misc_unused::[name=gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 2) & 1)
+  br_misc_unused_p1::[name=gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[64..=95])
+  mut gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i]()
   mut out_data_valid__w3 = out_data_valid__w2
-  out_data_valid__w3#[2] = br_misc_tieoff_zero_out_data_valid_i & 1
-  br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=br_misc_tieoff_zero_out_data_i]()
+  out_data_valid__w3#[2] = gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i & 1
+  mut gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_i]()
   mut out_data__w3 = out_data__w2
-  out_data__w3#[64..=95] = br_misc_tieoff_zero_out_data_i#[0..=31]
-  br_delay_valid_addr = br_delay_valid::[name=br_delay_valid_addr](clk = clk, rst = rst, in_valid = (br_demux_bin_addr.out_valid >> 3) & 1, `in` = br_demux_bin_addr.out#[9..=11])
+  out_data__w3#[64..=95] = gen_tiles_gt1_gen_out_2_gen_no_datapath_br_misc_tieoff_zero_out_data_i#[0..=31]
+  mut gen_tiles_gt1_gen_out_3_br_delay_valid_addr = br_delay_valid::[name=gen_tiles_gt1_gen_out_3_br_delay_valid_addr](clk = clk, rst = rst, in_valid = (gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out_valid >> 3) & 1, `in` = gen_tiles_gt1_gen_demux_impl_br_demux_bin_addr.out#[9..=11])
   mut out_valid__w4 = out_valid__w3
-  out_valid__w4#[3] = br_delay_valid_addr["out_valid"] & 1
+  out_valid__w4#[3] = gen_tiles_gt1_gen_out_3_br_delay_valid_addr.out_valid & 1
   mut out_addr__w4 = out_addr__w3
-  out_addr__w4#[9..=11] = br_delay_valid_addr["out"]#[0..=2]
-  br_misc_unused::[name=br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 3) & 1)
-  br_misc_unused_p1::[name=br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[96..=127])
-  br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=br_misc_tieoff_zero_out_data_valid_i]()
+  out_addr__w4#[9..=11] = gen_tiles_gt1_gen_out_3_br_delay_valid_addr.out#[0..=2]
+  br_misc_unused::[name=gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_unused_internal_out_data_valid_i](`in` = (gen_tiles_gt1_internal_out_data_valid__w1 >> 3) & 1)
+  br_misc_unused_p1::[name=gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_unused_internal_out_data_i](`in` = gen_tiles_gt1_internal_out_data__w1#[96..=127])
+  mut gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i = br_misc_tieoff_zero_p2::[name=gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i]()
   mut out_data_valid__w4 = out_data_valid__w3
-  out_data_valid__w4#[3] = br_misc_tieoff_zero_out_data_valid_i & 1
-  br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=br_misc_tieoff_zero_out_data_i]()
+  out_data_valid__w4#[3] = gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_valid_i & 1
+  mut gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_i = br_misc_tieoff_zero_p3::[name=gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_i]()
   mut out_data__w4 = out_data__w3
-  out_data__w4#[96..=127] = br_misc_tieoff_zero_out_data_i#[0..=31]
+  out_data__w4#[96..=127] = gen_tiles_gt1_gen_out_3_gen_no_datapath_br_misc_tieoff_zero_out_data_i#[0..=31]
   out_valid = out_valid__w4
   out_addr = out_addr__w4
   out_data_valid = out_data_valid__w4

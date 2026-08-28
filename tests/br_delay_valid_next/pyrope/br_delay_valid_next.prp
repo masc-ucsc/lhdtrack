@@ -1,18 +1,24 @@
 pub mod br_delay_valid_next::[timecheck=false](clk:u1, rst:u1, in_valid_next:u1, `in`:u64) -> (out_valid_next:u1@[], out:u64@[], out_valid_next_stages:u2@[], out_stages:u128@[]) {
-  reg stage_valid_next:u2
-  reg `stage`:[2]u64:[ordering="old"]
-  stage_valid_next#[0] = in_valid_next & 1
-  `stage`[0] = `in`
+  reg stage_valid_next___q:u2
+  mut stage_valid_next:u2 = 0
+  reg stage___q:u128
+  mut `stage`:u128 = 0
+  stage_valid_next = stage_valid_next___q
+  `stage` = stage___q
+  mut stage_valid_next__w1 = stage_valid_next
+  stage_valid_next__w1#[0] = in_valid_next & 1
+  mut stage__w1 = `stage`
+  stage__w1#[0..=63] = `in`
   if rst != 0 {
-    stage_valid_next#[1] = 0
+    stage_valid_next___q#[1] = 0
   } else {
-    stage_valid_next#[1] = stage_valid_next & 1
+    stage_valid_next___q#[1] = stage_valid_next__w1 & 1
   }
-  if ((stage_valid_next >> 1) & 1) != 0 {
-    `stage`[1] = `stage`[0]
+  if ((stage_valid_next__w1 >> 1) & 1) != 0 {
+    stage___q#[64..=127] = stage__w1#[0..=63]
   }
-  out_valid_next = (stage_valid_next >> 1) & 1
-  out = `stage`[1]
-  out_valid_next_stages = stage_valid_next
-  out_stages = `stage`
+  out_valid_next = (stage_valid_next__w1 >> 1) & 1
+  out = stage__w1#[64..=127]
+  out_valid_next_stages = stage_valid_next__w1
+  out_stages = stage__w1
 }

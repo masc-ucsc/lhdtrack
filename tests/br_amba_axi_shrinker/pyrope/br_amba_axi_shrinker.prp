@@ -1,0 +1,355 @@
+const br_amba_axi_resizer_beat_tracker = import("br_amba_axi_resizer_beat_tracker.br_amba_axi_resizer_beat_tracker")
+const br_enc_bin2onehot = import("br_enc_bin2onehot.br_enc_bin2onehot")
+const br_fifo_flops = import("br_fifo_flops.br_fifo_flops")
+const br_flow_fork = import("br_flow_fork.br_flow_fork")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd_p1 = import("br_flow_reg_fwd_p1.br_flow_reg_fwd_p1")
+const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
+const br_flow_reg_fwd_p3 = import("br_flow_reg_fwd_p3.br_flow_reg_fwd_p3")
+const br_flow_reg_fwd_p4 = import("br_flow_reg_fwd_p4.br_flow_reg_fwd_p4")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
+const br_mux_bin = import("br_mux_bin.br_mux_bin")
+const br_mux_bin_p1 = import("br_mux_bin_p1.br_mux_bin_p1")
+const br_mux_bin_p2 = import("br_mux_bin_p2.br_mux_bin_p2")
+const br_ram_flops = import("br_ram_flops.br_ram_flops")
+const br_shift_left = import("br_shift_left.br_shift_left")
+const br_shift_left_p1 = import("br_shift_left_p1.br_shift_left_p1")
+const br_amba = import("br_amba")
+
+pub mod br_amba_axi_shrinker::[timecheck=false](clk:u1, rst:u1, wide_awaddr:u32, wide_awid:u4, wide_awlen:u8, wide_awsize:u3, wide_awburst:u2, wide_awprot:u3, wide_awuser:u1, wide_awvalid:u1, wide_wdata:u64, wide_wstrb:u8, wide_wuser:u1, wide_wlast:u1, wide_wvalid:u1, wide_bready:u1, wide_araddr:u32, wide_arid:u4, wide_arlen:u8, wide_arsize:u3, wide_arburst:u2, wide_arprot:u3, wide_aruser:u1, wide_arvalid:u1, wide_rready:u1, narrow_awready:u1, narrow_wready:u1, narrow_bid:u4, narrow_buser:u1, narrow_bresp:u2, narrow_bvalid:u1, narrow_arready:u1, narrow_rid:u4, narrow_rdata:u32, narrow_ruser:u1, narrow_rresp:u2, narrow_rlast:u1, narrow_rvalid:u1) -> (wide_awready:u1@[], wide_wready:u1@[], wide_bid:u4@[], wide_buser:u1@[], wide_bresp:u2@[], wide_bvalid:u1@[], wide_arready:u1@[], wide_rid:u4@[], wide_rdata:u64@[], wide_ruser:u1@[], wide_rresp:u2@[], wide_rlast:u1@[], wide_rvalid:u1@[], narrow_awaddr:u32@[], narrow_awid:u4@[], narrow_awlen:u8@[], narrow_awsize:u3@[], narrow_awburst:u2@[], narrow_awprot:u3@[], narrow_awuser:u1@[], narrow_awvalid:u1@[], narrow_wdata:u32@[], narrow_wstrb:u4@[], narrow_wuser:u1@[], narrow_wlast:u1@[], narrow_wvalid:u1@[], narrow_bready:u1@[], narrow_araddr:u32@[], narrow_arid:u4@[], narrow_arlen:u8@[], narrow_arsize:u3@[], narrow_arburst:u2@[], narrow_arprot:u3@[], narrow_aruser:u1@[], narrow_arvalid:u1@[], narrow_rready:u1@[]) {
+  reg w_sending:u1
+  reg read_active:u4
+  reg r_first:u4
+  reg wide_rresp_saved:u2
+  reg wide_rresp_saved_s1:u2
+  reg wide_rresp_saved_s2:u2
+  reg wide_rresp_saved_s3:u2
+  reg wide_rdata_saved:u64
+  reg wide_rdata_saved_s1:u64
+  reg wide_rdata_saved_s2:u64
+  reg wide_rdata_saved_s3:u64
+  wire narrow_awready_int:u1
+  wire narrow_wlast_int:u1
+  wire narrow_wready_int:u1
+  wire wide_rready_int:u1
+  wire write_fifo_push_ready:u1
+  wire write_fifo_pop_ready:u1
+  wire narrow_rvalid_int:u1
+  wire narrow_rready_int:u1
+  wire r_beat_last:u1
+  wire r_data_shift:u1
+  mut r_beat_last_per_req:u4 = 0
+  mut r_data_shift_per_req:u4 = 0
+  mut wide_rresp_int_per_req:u8 = 0
+  mut wide_rdata_int_per_req:u256 = 0
+  wire narrow_rready:u1
+  mut rtracker_mux_in__wtmp:u272 = 0sb?
+  wire rtracker_mux_in:u272
+  r_beat_last_per_req = 0sb?
+  r_data_shift_per_req = 0sb?
+  wide_rresp_int_per_req = 0sb?
+  wide_rdata_int_per_req = 0sb?
+  mut gen_r_data_tracking_0_wide_rresp_comb:u2 = 0sb?
+  mut gen_r_data_tracking_1_wide_rresp_comb:u2 = 0sb?
+  mut gen_r_data_tracking_2_wide_rresp_comb:u2 = 0sb?
+  mut gen_r_data_tracking_3_wide_rresp_comb:u2 = 0sb?
+  const narrow_awaddr_int__w1 = wide_awaddr
+  const narrow_awburst_int__w1 = wide_awburst
+  const narrow_araddr_int__w1 = wide_araddr
+  const narrow_arburst_int__w1 = wide_arburst
+  const aw_large_size__w1 = unsigned(wide_awsize > 2)
+  const ar_large_size__w1 = unsigned(wide_arsize > 2)
+  mut _mux_3:u32 = if aw_large_size__w1 != 0 { 2 } else { wide_awsize }
+  const narrow_awsize_int__w1 = _mux_3#[0..=2]
+  mut _mux_4:u32 = if ar_large_size__w1 != 0 { 2 } else { wide_arsize }
+  const narrow_arsize_int__w1 = _mux_4#[0..=2]
+  mut _mux_5:u32 = if aw_large_size__w1 != 0 { (wide_awsize - 2)#[0..=31] } else { 0 }
+  const awsize_diff_ext__w1 = _mux_5#[0..=2]
+  mut _mux_6:u32 = if ar_large_size__w1 != 0 { (wide_arsize - 2)#[0..=31] } else { 0 }
+  const arsize_diff_ext__w1 = _mux_6#[0..=2]
+  const awsize_diff__w1 = awsize_diff_ext__w1 & 1
+  const arsize_diff__w1 = arsize_diff_ext__w1 & 1
+  mut br_shift_left_awlen = br_shift_left::[name=br_shift_left_awlen](`in` = wide_awlen, shift = awsize_diff__w1, fill = 1)
+  mut br_shift_left_arlen = br_shift_left::[name=br_shift_left_arlen](`in` = wide_arlen, shift = arsize_diff__w1, fill = 1)
+  br_misc_unused::[name=gen_unused_size_diff_msbs_br_misc_unused_awsize_diff_ext](`in` = awsize_diff_ext__w1#[1..=2])
+  br_misc_unused::[name=gen_unused_size_diff_msbs_br_misc_unused_arsize_diff_ext](`in` = arsize_diff_ext__w1#[1..=2])
+  mut `write_fifo_push_info.offset` = narrow_awaddr_int__w1#[0..=2]
+  mut `write_fifo_push_info.size` = narrow_awsize_int__w1
+  mut `write_fifo_push_info.burst` = narrow_awburst_int__w1
+  mut `write_fifo_push_info.shift` = awsize_diff__w1 & 1
+  const narrow_wvalid_int__w1 = unsigned((w_sending != 0) and (wide_wvalid != 0))
+  const read_index__w1 = wide_arid#[0..=1]
+  const resp_index__w1 = narrow_rid#[0..=1]
+  mut br_enc_bin2onehot_read_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_read_index](clk = clk, rst = rst, `in` = read_index__w1, in_valid = wide_arvalid)
+  const read_index_onehot__w1 = br_enc_bin2onehot_read_index
+  mut br_enc_bin2onehot_resp_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_resp_index](clk = clk, rst = rst, `in` = resp_index__w1, in_valid = narrow_rvalid)
+  const resp_index_onehot__w1 = br_enc_bin2onehot_resp_index
+  const read_index_available__w1 = unsigned(not ((read_active & read_index_onehot__w1) != 0))
+  mut `read_table_wr_data.offset` = narrow_araddr_int__w1#[0..=2]
+  mut `read_table_wr_data.size` = narrow_arsize_int__w1
+  mut `read_table_wr_data.burst` = narrow_arburst_int__w1
+  mut `read_table_wr_data.shift` = arsize_diff__w1 & 1
+  mut _mux_10:u4 = if narrow_rlast != 0 { (r_first | resp_index_onehot__w1)#[0..=3] } else { r_first & (~resp_index_onehot__w1)#[0..=3] }
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_ar = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_ar](clk = clk, rst = rst, push_valid = unsigned((wide_arvalid != 0) and (read_index_available__w1 != 0)), push_data = (wide_arid << 49) | (narrow_araddr_int__w1 << 17) | (br_shift_left_arlen.out#[0..=7] << 9) | (narrow_arsize_int__w1 << 6) | (narrow_arburst_int__w1 << 4) | (wide_arprot << 1) | (wide_aruser & 1), pop_ready = narrow_arready)
+  mut gen_wide_reg_br_flow_reg_fwd_wide_b = br_flow_reg_fwd_p1::[name=gen_wide_reg_br_flow_reg_fwd_wide_b](clk = clk, rst = rst, push_valid = narrow_bvalid, push_data = (narrow_bid << 3) | ((narrow_buser & 1) << 2) | narrow_bresp, pop_ready = wide_bready)
+  const wide_arready__w1 = unsigned((gen_narrow_reg_br_flow_reg_fwd_narrow_ar.push_ready != 0) and (read_index_available__w1 != 0))
+  const ar_beat__w1 = unsigned((wide_arvalid != 0) and (wide_arready__w1 != 0))
+  mut _rep_13:u4 = if (ar_beat__w1 & 1) != 0 { 15 } else { 0 }
+  mut br_ram_flops_read_table = br_ram_flops::[name=br_ram_flops_read_table](wr_clk = clk, wr_rst = rst, wr_valid = ar_beat__w1, wr_addr = read_index__w1, wr_data = (`read_table_wr_data.offset` << 6) | (`read_table_wr_data.size` << 3) | (`read_table_wr_data.burst` << 1) | `read_table_wr_data.shift`, wr_word_en = 1, rd_clk = clk, rd_rst = rst, rd_addr_valid = narrow_rvalid, rd_addr = resp_index__w1)
+  mut `read_table_rd_data.offset` = br_ram_flops_read_table.rd_data#[6..=8]
+  mut `read_table_rd_data.size` = br_ram_flops_read_table.rd_data#[3..=5]
+  mut `read_table_rd_data.burst` = br_ram_flops_read_table.rd_data#[1..=2]
+  mut `read_table_rd_data.shift` = br_ram_flops_read_table.rd_data & 1
+  br_misc_unused_p3::[name=br_misc_unused_read_table_rd_data_valid](`in` = br_ram_flops_read_table.rd_data_valid)
+  mut br_flow_fork_aw = br_flow_fork::[name=br_flow_fork_aw](clk = clk, rst = rst, push_valid = wide_awvalid, pop_ready = ((write_fifo_push_ready & 1) << 1) | (narrow_awready_int & 1))
+  mut gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo = br_fifo_flops::[name=gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo](clk = clk, rst = rst, push_valid = (br_flow_fork_aw.pop_valid_unstable >> 1) & 1, push_data = ((`write_fifo_push_info.offset` << 6) | (`write_fifo_push_info.size` << 3) | (`write_fifo_push_info.burst` << 1) | `write_fifo_push_info.shift`)#[0..=8], pop_ready = write_fifo_pop_ready)
+  write_fifo_push_ready = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.push_ready
+  mut `write_fifo_pop_info.offset` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8]#[6..=8]
+  mut `write_fifo_pop_info.size` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8]#[3..=5]
+  mut `write_fifo_pop_info.burst` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8]#[1..=2]
+  mut `write_fifo_pop_info.shift` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8] & 1
+  const write_fifo_pop_beat__w1 = unsigned((gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_valid != 0) and (write_fifo_pop_ready != 0))
+  const narrow_w_int_beat__w1 = unsigned((narrow_wvalid_int__w1 != 0) and (narrow_wready_int != 0))
+  write_fifo_pop_ready = unsigned((w_sending == 0) or ((wide_wvalid != 0) and (narrow_wready_int != 0) and (narrow_wlast_int != 0)))
+  w_sending = if rst != 0 { 0 } else { unsigned(((w_sending != 0) and (not ((narrow_w_int_beat__w1 != 0) and (narrow_wlast_int != 0)))) or (write_fifo_pop_beat__w1 != 0)) }
+  mut br_amba_axi_resizer_beat_tracker_w = br_amba_axi_resizer_beat_tracker::[name=br_amba_axi_resizer_beat_tracker_w](clk = clk, rst = rst, start_valid = write_fifo_pop_beat__w1, start_offset = `write_fifo_pop_info.offset`, size = `write_fifo_pop_info.size`, burst = `write_fifo_pop_info.burst`, shift = `write_fifo_pop_info.shift`, beat_valid = narrow_w_int_beat__w1)
+  narrow_wlast_int = unsigned((wide_wlast != 0) and (br_amba_axi_resizer_beat_tracker_w.beat_last != 0))
+  mut br_mux_bin_w_data = br_mux_bin::[name=br_mux_bin_w_data](select = br_amba_axi_resizer_beat_tracker_w.beat_lane, `in` = wide_wdata)
+  mut br_mux_bin_w_strb = br_mux_bin_p1::[name=br_mux_bin_w_strb](select = br_amba_axi_resizer_beat_tracker_w.beat_lane, `in` = wide_wstrb)
+  mut _rep_21:u4 = if (unsigned((narrow_rvalid != 0) and (narrow_rready != 0) and (narrow_rlast != 0)) & 1) != 0 { 15 } else { 0 }
+  const read_active_next__w1 = (read_active | (_rep_13 & read_index_onehot__w1)) & (~(_rep_21 & resp_index_onehot__w1))#[0..=3]
+  read_active = if rst != 0 { 0 } else { read_active_next__w1 }
+  const narrow_r_beat__w1 = unsigned((narrow_rvalid != 0) and (narrow_rready != 0))
+  const narrow_r_new__w1 = unsigned((narrow_r_beat__w1 != 0) and ((r_first & resp_index_onehot__w1) != 0))
+  const narrow_r_int_beat__w1 = unsigned((narrow_rvalid_int != 0) and (narrow_rready_int != 0))
+  if rst != 0 {
+    r_first = 15
+  } elif narrow_r_beat__w1 != 0 {
+    r_first = _mux_10
+  }
+  mut br_flow_reg_fwd_narrow_r = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_narrow_r](clk = clk, rst = rst, push_valid = narrow_rvalid, push_data = (narrow_rid << 36) | (narrow_rresp << 34) | ((narrow_ruser & 1) << 33) | (narrow_rdata << 1) | (narrow_rlast & 1), pop_ready = narrow_rready_int)
+  narrow_rready = br_flow_reg_fwd_narrow_r.push_ready
+  narrow_rvalid_int = br_flow_reg_fwd_narrow_r.pop_valid
+  const narrow_rid_int__w1 = (br_flow_reg_fwd_narrow_r.pop_data >> 36)#[0..=3]
+  const narrow_rresp_int_enum__w1 = (br_flow_reg_fwd_narrow_r.pop_data >> 34)#[0..=1]
+  const r_beat_index__w1 = narrow_rid_int__w1#[0..=1]
+  mut br_shift_left_wide_rdata = br_shift_left_p1::[name=br_shift_left_wide_rdata](`in` = (br_flow_reg_fwd_narrow_r.pop_data >> 1)#[0..=31], shift = r_data_shift, fill = 0)
+  narrow_rready_int = unsigned((r_beat_last == 0) or (wide_rready_int != 0))
+  mut br_mux_bin_rtracker_mux = br_mux_bin_p2::[name=br_mux_bin_rtracker_mux](select = r_beat_index__w1, `in` = rtracker_mux_in)
+  mut `rtracker_mux_out.shift` = (br_mux_bin_rtracker_mux.out >> 0x43) & 1
+  mut `rtracker_mux_out.resp` = br_mux_bin_rtracker_mux.out#[65..=66]
+  mut `rtracker_mux_out.data` = br_mux_bin_rtracker_mux.out#[1..=64]
+  mut `rtracker_mux_out.beat_last` = br_mux_bin_rtracker_mux.out & 1
+  r_data_shift = `rtracker_mux_out.shift`
+  r_beat_last = `rtracker_mux_out.beat_last`
+  const gen_r_data_tracking_0_tracker_start_valid__w1 = unsigned((narrow_r_new__w1 != 0) and ((resp_index_onehot__w1 & 1) != 0))
+  const gen_r_data_tracking_0_tracker_beat_valid__w1 = unsigned((narrow_r_int_beat__w1 != 0) and (r_beat_index__w1 == 0))
+  mut gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r](clk = clk, rst = rst, start_valid = gen_r_data_tracking_0_tracker_start_valid__w1, start_offset = `read_table_rd_data.offset`, size = `read_table_rd_data.size`, burst = `read_table_rd_data.burst`, shift = `read_table_rd_data.shift`, beat_valid = gen_r_data_tracking_0_tracker_beat_valid__w1)
+  mut r_data_shift_per_req__w1 = r_data_shift_per_req
+  r_data_shift_per_req__w1#[0] = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  mut r_beat_last_per_req__w1 = r_beat_last_per_req
+  r_beat_last_per_req__w1#[0] = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum__w1 {
+    == br_amba.AxiRespOkay {
+      gen_r_data_tracking_0_wide_rresp_comb = wide_rresp_saved
+    }
+    == br_amba.AxiRespExOkay {
+      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved }
+    }
+    == br_amba.AxiRespSlverr {
+      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+    }
+    == br_amba.AxiRespDecerr {
+      gen_r_data_tracking_0_wide_rresp_comb = br_amba.AxiRespDecerr
+    }
+    else {
+      gen_r_data_tracking_0_wide_rresp_comb = 0ub?
+    }
+  }
+  mut _mux_29:u2 = if (r_beat_last_per_req__w1 & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_0_wide_rresp_comb }
+  mut wide_rresp_int_per_req__w1 = wide_rresp_int_per_req
+  wide_rresp_int_per_req__w1#[0..=1] = gen_r_data_tracking_0_wide_rresp_comb
+  mut wide_rdata_int_per_req__w1 = wide_rdata_int_per_req
+  wide_rdata_int_per_req__w1#[0..=63] = (br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63]
+  mut _mux_30:u64 = if (gen_r_data_tracking_0_tracker_start_valid__w1 != 0) or ((r_beat_last_per_req__w1 & 1) != 0) { 0 } else { wide_rdata_int_per_req__w1#[0..=63] }
+  if rst != 0 {
+    wide_rdata_saved = 0
+  } elif (gen_r_data_tracking_0_tracker_start_valid__w1 != 0) or (gen_r_data_tracking_0_tracker_beat_valid__w1 != 0) {
+    wide_rdata_saved = _mux_30
+  }
+  if rst != 0 {
+    wide_rresp_saved = br_amba.AxiRespOkay
+  } elif gen_r_data_tracking_0_tracker_beat_valid__w1 != 0 {
+    wide_rresp_saved = _mux_29
+  }
+  rtracker_mux_in__wtmp#[0..=67] = ((r_beat_last_per_req__w1 & 1) | (wide_rdata_int_per_req__w1#[0..=63] << 1) | (wide_rresp_int_per_req__w1#[0..=1] << 0x41) | ((r_data_shift_per_req__w1 & 1) << 0x43))#[0..=67]
+  const gen_r_data_tracking_1_tracker_start_valid__w1 = unsigned((narrow_r_new__w1 != 0) and (((resp_index_onehot__w1 >> 1) & 1) != 0))
+  const gen_r_data_tracking_1_tracker_beat_valid__w1 = unsigned((narrow_r_int_beat__w1 != 0) and (r_beat_index__w1 == 1))
+  mut gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r](clk = clk, rst = rst, start_valid = gen_r_data_tracking_1_tracker_start_valid__w1, start_offset = `read_table_rd_data.offset`, size = `read_table_rd_data.size`, burst = `read_table_rd_data.burst`, shift = `read_table_rd_data.shift`, beat_valid = gen_r_data_tracking_1_tracker_beat_valid__w1)
+  mut r_data_shift_per_req__w2 = r_data_shift_per_req__w1
+  r_data_shift_per_req__w2#[1] = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  mut r_beat_last_per_req__w2 = r_beat_last_per_req__w1
+  r_beat_last_per_req__w2#[1] = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum__w1 {
+    == br_amba.AxiRespOkay {
+      gen_r_data_tracking_1_wide_rresp_comb = wide_rresp_saved_s1
+    }
+    == br_amba.AxiRespExOkay {
+      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s1 }
+    }
+    == br_amba.AxiRespSlverr {
+      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+    }
+    == br_amba.AxiRespDecerr {
+      gen_r_data_tracking_1_wide_rresp_comb = br_amba.AxiRespDecerr
+    }
+    else {
+      gen_r_data_tracking_1_wide_rresp_comb = 0ub?
+    }
+  }
+  mut _mux_33:u2 = if ((r_beat_last_per_req__w2 >> 1) & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_1_wide_rresp_comb }
+  mut wide_rresp_int_per_req__w2 = wide_rresp_int_per_req__w1
+  wide_rresp_int_per_req__w2#[2..=3] = gen_r_data_tracking_1_wide_rresp_comb
+  mut wide_rdata_int_per_req__w2 = wide_rdata_int_per_req__w1
+  wide_rdata_int_per_req__w2#[64..=127] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63]
+  mut _mux_34:u64 = if (gen_r_data_tracking_1_tracker_start_valid__w1 != 0) or (((r_beat_last_per_req__w2 >> 1) & 1) != 0) { 0 } else { wide_rdata_int_per_req__w2#[64..=127] }
+  if rst != 0 {
+    wide_rdata_saved_s1 = 0
+  } elif (gen_r_data_tracking_1_tracker_start_valid__w1 != 0) or (gen_r_data_tracking_1_tracker_beat_valid__w1 != 0) {
+    wide_rdata_saved_s1 = _mux_34
+  }
+  if rst != 0 {
+    wide_rresp_saved_s1 = br_amba.AxiRespOkay
+  } elif gen_r_data_tracking_1_tracker_beat_valid__w1 != 0 {
+    wide_rresp_saved_s1 = _mux_33
+  }
+  mut rtracker_mux_in__wtmp__w1 = rtracker_mux_in__wtmp
+  rtracker_mux_in__wtmp__w1#[68..=135] = (((r_beat_last_per_req__w2 >> 1) & 1) | (wide_rdata_int_per_req__w2#[64..=127] << 1) | (wide_rresp_int_per_req__w2#[2..=3] << 0x41) | (((r_data_shift_per_req__w2 >> 1) & 1) << 0x43))#[0..=67]
+  const gen_r_data_tracking_2_tracker_start_valid__w1 = unsigned((narrow_r_new__w1 != 0) and (((resp_index_onehot__w1 >> 2) & 1) != 0))
+  const gen_r_data_tracking_2_tracker_beat_valid__w1 = unsigned((narrow_r_int_beat__w1 != 0) and (r_beat_index__w1 == 2))
+  mut gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r](clk = clk, rst = rst, start_valid = gen_r_data_tracking_2_tracker_start_valid__w1, start_offset = `read_table_rd_data.offset`, size = `read_table_rd_data.size`, burst = `read_table_rd_data.burst`, shift = `read_table_rd_data.shift`, beat_valid = gen_r_data_tracking_2_tracker_beat_valid__w1)
+  mut r_data_shift_per_req__w3 = r_data_shift_per_req__w2
+  r_data_shift_per_req__w3#[2] = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  mut r_beat_last_per_req__w3 = r_beat_last_per_req__w2
+  r_beat_last_per_req__w3#[2] = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum__w1 {
+    == br_amba.AxiRespOkay {
+      gen_r_data_tracking_2_wide_rresp_comb = wide_rresp_saved_s2
+    }
+    == br_amba.AxiRespExOkay {
+      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s2 }
+    }
+    == br_amba.AxiRespSlverr {
+      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+    }
+    == br_amba.AxiRespDecerr {
+      gen_r_data_tracking_2_wide_rresp_comb = br_amba.AxiRespDecerr
+    }
+    else {
+      gen_r_data_tracking_2_wide_rresp_comb = 0ub?
+    }
+  }
+  mut _mux_37:u2 = if ((r_beat_last_per_req__w3 >> 2) & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_2_wide_rresp_comb }
+  mut wide_rresp_int_per_req__w3 = wide_rresp_int_per_req__w2
+  wide_rresp_int_per_req__w3#[4..=5] = gen_r_data_tracking_2_wide_rresp_comb
+  mut wide_rdata_int_per_req__w3 = wide_rdata_int_per_req__w2
+  wide_rdata_int_per_req__w3#[128..=191] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63]
+  mut _mux_38:u64 = if (gen_r_data_tracking_2_tracker_start_valid__w1 != 0) or (((r_beat_last_per_req__w3 >> 2) & 1) != 0) { 0 } else { wide_rdata_int_per_req__w3#[128..=191] }
+  if rst != 0 {
+    wide_rdata_saved_s2 = 0
+  } elif (gen_r_data_tracking_2_tracker_start_valid__w1 != 0) or (gen_r_data_tracking_2_tracker_beat_valid__w1 != 0) {
+    wide_rdata_saved_s2 = _mux_38
+  }
+  if rst != 0 {
+    wide_rresp_saved_s2 = br_amba.AxiRespOkay
+  } elif gen_r_data_tracking_2_tracker_beat_valid__w1 != 0 {
+    wide_rresp_saved_s2 = _mux_37
+  }
+  mut rtracker_mux_in__wtmp__w2 = rtracker_mux_in__wtmp__w1
+  rtracker_mux_in__wtmp__w2#[136..=203] = (((r_beat_last_per_req__w3 >> 2) & 1) | (wide_rdata_int_per_req__w3#[128..=191] << 1) | (wide_rresp_int_per_req__w3#[4..=5] << 0x41) | (((r_data_shift_per_req__w3 >> 2) & 1) << 0x43))#[0..=67]
+  const gen_r_data_tracking_3_tracker_start_valid__w1 = unsigned((narrow_r_new__w1 != 0) and (((resp_index_onehot__w1 >> 3) & 1) != 0))
+  const gen_r_data_tracking_3_tracker_beat_valid__w1 = unsigned((narrow_r_int_beat__w1 != 0) and (r_beat_index__w1 == 3))
+  mut gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r](clk = clk, rst = rst, start_valid = gen_r_data_tracking_3_tracker_start_valid__w1, start_offset = `read_table_rd_data.offset`, size = `read_table_rd_data.size`, burst = `read_table_rd_data.burst`, shift = `read_table_rd_data.shift`, beat_valid = gen_r_data_tracking_3_tracker_beat_valid__w1)
+  mut r_data_shift_per_req__w4 = r_data_shift_per_req__w3
+  r_data_shift_per_req__w4#[3] = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  mut r_beat_last_per_req__w4 = r_beat_last_per_req__w3
+  r_beat_last_per_req__w4#[3] = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum__w1 {
+    == br_amba.AxiRespOkay {
+      gen_r_data_tracking_3_wide_rresp_comb = wide_rresp_saved_s3
+    }
+    == br_amba.AxiRespExOkay {
+      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s3 }
+    }
+    == br_amba.AxiRespSlverr {
+      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+    }
+    == br_amba.AxiRespDecerr {
+      gen_r_data_tracking_3_wide_rresp_comb = br_amba.AxiRespDecerr
+    }
+    else {
+      gen_r_data_tracking_3_wide_rresp_comb = 0ub?
+    }
+  }
+  mut _mux_41:u2 = if ((r_beat_last_per_req__w4 >> 3) & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_3_wide_rresp_comb }
+  mut wide_rresp_int_per_req__w4 = wide_rresp_int_per_req__w3
+  wide_rresp_int_per_req__w4#[6..=7] = gen_r_data_tracking_3_wide_rresp_comb
+  mut wide_rdata_int_per_req__w4 = wide_rdata_int_per_req__w3
+  wide_rdata_int_per_req__w4#[192..=255] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63]
+  mut _mux_42:u64 = if (gen_r_data_tracking_3_tracker_start_valid__w1 != 0) or (((r_beat_last_per_req__w4 >> 3) & 1) != 0) { 0 } else { wide_rdata_int_per_req__w4#[192..=255] }
+  if rst != 0 {
+    wide_rdata_saved_s3 = 0
+  } elif (gen_r_data_tracking_3_tracker_start_valid__w1 != 0) or (gen_r_data_tracking_3_tracker_beat_valid__w1 != 0) {
+    wide_rdata_saved_s3 = _mux_42
+  }
+  if rst != 0 {
+    wide_rresp_saved_s3 = br_amba.AxiRespOkay
+  } elif gen_r_data_tracking_3_tracker_beat_valid__w1 != 0 {
+    wide_rresp_saved_s3 = _mux_41
+  }
+  mut rtracker_mux_in__wtmp__w3 = rtracker_mux_in__wtmp__w2
+  rtracker_mux_in__wtmp__w3#[204..=271] = (((r_beat_last_per_req__w4 >> 3) & 1) | (wide_rdata_int_per_req__w4#[192..=255] << 1) | (wide_rresp_int_per_req__w4#[6..=7] << 0x41) | (((r_data_shift_per_req__w4 >> 3) & 1) << 0x43))#[0..=67]
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_aw = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_aw](clk = clk, rst = rst, push_valid = br_flow_fork_aw.pop_valid_unstable & 1, push_data = (wide_awid << 49) | (narrow_awaddr_int__w1 << 17) | (br_shift_left_awlen.out#[0..=7] << 9) | (narrow_awsize_int__w1 << 6) | (narrow_awburst_int__w1 << 4) | (wide_awprot << 1) | (wide_awuser & 1), pop_ready = narrow_awready)
+  narrow_awready_int = gen_narrow_reg_br_flow_reg_fwd_narrow_aw.push_ready
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_w = br_flow_reg_fwd_p3::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_w](clk = clk, rst = rst, push_valid = narrow_wvalid_int__w1, push_data = (br_mux_bin_w_data.out#[0..=31] << 6) | (br_mux_bin_w_strb.out#[0..=3] << 2) | ((wide_wuser & 1) << 1) | (narrow_wlast_int & 1), pop_ready = narrow_wready)
+  narrow_wready_int = gen_narrow_reg_br_flow_reg_fwd_narrow_w.push_ready
+  mut gen_wide_reg_br_flow_reg_fwd_wide_r = br_flow_reg_fwd_p4::[name=gen_wide_reg_br_flow_reg_fwd_wide_r](clk = clk, rst = rst, push_valid = unsigned((narrow_rvalid_int != 0) and (r_beat_last != 0)), push_data = (narrow_rid_int__w1 << 68) | (`rtracker_mux_out.data`#[0..=63] << 4) | (`rtracker_mux_out.resp`#[0..=1] << 2) | ((((br_flow_reg_fwd_narrow_r.pop_data >> 33) & 1) & 1) << 1) | ((br_flow_reg_fwd_narrow_r.pop_data & 1) & 1), pop_ready = wide_rready)
+  wide_rready_int = gen_wide_reg_br_flow_reg_fwd_wide_r.push_ready
+  rtracker_mux_in = rtracker_mux_in__wtmp__w3
+  wide_awready = br_flow_fork_aw.push_ready
+  wide_wready = unsigned((w_sending != 0) and (narrow_wready_int != 0) and (br_amba_axi_resizer_beat_tracker_w.beat_last != 0))
+  wide_bid = (gen_wide_reg_br_flow_reg_fwd_wide_b.pop_data >> 3)#[0..=3]
+  wide_buser = (gen_wide_reg_br_flow_reg_fwd_wide_b.pop_data >> 2) & 1
+  wide_bresp = gen_wide_reg_br_flow_reg_fwd_wide_b.pop_data#[0..=1]
+  wide_bvalid = gen_wide_reg_br_flow_reg_fwd_wide_b.pop_valid
+  wide_arready = wide_arready__w1
+  wide_rid = (gen_wide_reg_br_flow_reg_fwd_wide_r.pop_data >> 0x44)#[0..=3]
+  wide_rdata = (gen_wide_reg_br_flow_reg_fwd_wide_r.pop_data >> 4)#[0..=63]
+  wide_ruser = (gen_wide_reg_br_flow_reg_fwd_wide_r.pop_data >> 1) & 1
+  wide_rresp = (gen_wide_reg_br_flow_reg_fwd_wide_r.pop_data >> 2)#[0..=1]
+  wide_rlast = gen_wide_reg_br_flow_reg_fwd_wide_r.pop_data & 1
+  wide_rvalid = gen_wide_reg_br_flow_reg_fwd_wide_r.pop_valid
+  narrow_awaddr = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 17)#[0..=31]
+  narrow_awid = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 49)#[0..=3]
+  narrow_awlen = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 9)#[0..=7]
+  narrow_awsize = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 6)#[0..=2]
+  narrow_awburst = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 4)#[0..=1]
+  narrow_awprot = (gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data >> 1)#[0..=2]
+  narrow_awuser = gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_data & 1
+  narrow_awvalid = gen_narrow_reg_br_flow_reg_fwd_narrow_aw.pop_valid
+  narrow_wdata = (gen_narrow_reg_br_flow_reg_fwd_narrow_w.pop_data >> 6)#[0..=31]
+  narrow_wstrb = (gen_narrow_reg_br_flow_reg_fwd_narrow_w.pop_data >> 2)#[0..=3]
+  narrow_wuser = (gen_narrow_reg_br_flow_reg_fwd_narrow_w.pop_data >> 1) & 1
+  narrow_wlast = gen_narrow_reg_br_flow_reg_fwd_narrow_w.pop_data & 1
+  narrow_wvalid = gen_narrow_reg_br_flow_reg_fwd_narrow_w.pop_valid
+  narrow_bready = gen_wide_reg_br_flow_reg_fwd_wide_b.push_ready
+  narrow_araddr = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 17)#[0..=31]
+  narrow_arid = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 49)#[0..=3]
+  narrow_arlen = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 9)#[0..=7]
+  narrow_arsize = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 6)#[0..=2]
+  narrow_arburst = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 4)#[0..=1]
+  narrow_arprot = (gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data >> 1)#[0..=2]
+  narrow_aruser = gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_data & 1
+  narrow_arvalid = gen_narrow_reg_br_flow_reg_fwd_narrow_ar.pop_valid
+}

@@ -4,7 +4,7 @@ const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.
 pub mod br_flow_reg_rev::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
   reg push_ready:u1
   reg reg_data:u32
-  /* TODO: result 'br_flow_checks_valid_data_intg' of zero-output module 'br_flow_checks_valid_data_intg' is read */
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready, data = push_data)
   const pop_valid__w1 = unsigned((push_ready == 0) or (push_valid != 0))
   mut _mux_2:u32 = if push_ready != 0 { push_data } else { reg_data }
   const pop_data__w1 = _mux_2
@@ -16,7 +16,7 @@ pub mod br_flow_reg_rev::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_d
   if (pop_ready == 0) and (push_ready != 0) and (push_valid != 0) {
     reg_data = push_data
   }
-  /* TODO: result 'br_flow_checks_valid_data_impl' of zero-output module 'br_flow_checks_valid_data_impl' is read */
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w1)
   pop_valid = pop_valid__w1
   pop_data = pop_data__w1
 }

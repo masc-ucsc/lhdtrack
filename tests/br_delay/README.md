@@ -68,30 +68,72 @@ Assertions are inert here: every flow compiles with `-DSYNTHESIS` and without
   `cgen_memory` submodule. Reported as a note rather than as a 0 ns critical
   path, which would read like an extraordinarily fast design.
 
-- **`lec = "refuted"`, and the REFERENCE is the side that is wrong**
-  (established 2026-08-27). cvc5 reports `out_stages(ref=0 impl=254)` at step 1.
-  Emitting the reference LGraph back out as Verilog
-  (`lhd compile verilog --emit verilog:`) shows why:
+- **`lec = "proven"` since 2026-08-27 — it took THREE fixes, and the reference
+  really was the side that was wrong.** The refutation (`out_stages(ref=0
+  impl=254)` at step 1) came apart as follows:
 
-  ```verilog
-  always @(posedge clk) begin
-    if (1'h1) __lhdmem_...[3'h0] <= in;      // <-- upstream is `assign stages[0] = in;`
-    ...
-  ```
+  1. **livehd, `inou/slang`.** Upstream drives lane 0 combinationally
+     (`assign stages[0] = in;`) and flops only lanes 1..NumStages. The reader
+     saw ONE variable written by two kinds of driver and lowered the whole
+     packed `stages` array as one register, so lane 0 got a flop too: the
+     reference was a FIVE-stage delay line with a registered `out_stages[7:0]`.
+     Such a variable is now split into a combinational composite (what every
+     read resolves to) and a hidden flop (what an edge-process write targets).
+     Regression: `//inou/slang:slang_compile-nocheck_slang_partial_reg`.
 
-  Upstream drives lane 0 combinationally (`assign stages[0] = in`) and flops
-  only lanes 1..NumStages. lhd's slang reader collapses the whole packed
-  `stages` array into one memory and gives lane 0 a flop too, so the reference
-  is a FIVE-stage delay line with a registered `out_stages[7:0]`. The machine
-  emission of the same Verilog carries the identical extra flop and therefore
-  proves equivalent to it — which is the tell: both sides of that proof share
-  the front end, and only the hand-written Pyrope, which implements what the
-  SystemVerilog says, disagrees.
+  2. **livehd, `upass/tolg`.** With the reference fixed the refutation moved to
+     the very first post-reset step, on the IMPL side: `reg
+     stages:[4]u8:[reset_pin=ref rst] = 0` lowered to a memory with **no reset
+     at all** — the restore sweep was gated on the module's *implicit* reset
+     input, which a declaration that names its own reset deliberately does not
+     mint. The reset value was silently demoted to a power-on `INIT` and the
+     user writes were never gated, so `in` landed in stage 0 during reset.
 
-  So this refutation is a front-end bug, not a Pyrope bug, and it is very
-  probably the same bug behind the simulator disagreement above. `.prp` is
-  deliberately NOT changed to match: matching it would encode the extra flop
-  into the corpus and make the row green by making the design wrong.
+  3. **This file (`pyrope/br_delay.prp`), twice.** A Pyrope reg array defaults
+     to `ordering="program"` — reads and writes resolve in program order — so
+     the ASCENDING shift loop read the entry it had just written and `in` fell
+     through all four stages in ONE cycle (`out_stages` 0xfefefefe00 against the
+     Verilog's 0xfe00). The loop now writes high stage first; `:[ordering="old"]`
+     on the declaration is the equivalent one-attribute spelling.
+
+     And the RESET was a four-cycle sweep. `reg stages:[4]u8 = 0` on an ARRAY
+     is a reset value, but an array is a memory and a memory has no parallel
+     reset port, so Pyrope realizes it as a one-entry-per-cycle restore — while
+     upstream's `BR_REGI` resets every stage on ONE edge. cvc5 proved it anyway
+     (its two reset-hold cycles plus the memory's zero power-on contents hide
+     the difference); lgcheck's bounded miter leaves `rst` free, found a
+     single-cycle pulse, and correctly refuted. The reset is now the explicit
+     `if rst != 0 { stages[j] = 0 }` arm, which is one edge on both sides.
+     lgcheck now answers INCONCLUSIVE rather than refuting — an honest third
+     state on a memory-versus-flat-register miter, and not a failure.
+
+  The tell that (1) was real, and the reason a machine-emitted Pyrope side would
+  never have found it: both sides of THAT proof share the front end, and only
+  hand-written Pyrope implementing what the SystemVerilog says disagreed.
+
+- **This is the ONLY test in the corpus whose cvc5 proof is BOUNDED** — `PASS(6)`
+  ("equivalent for 6 cycles from reset, deeper cycles not checked"), where the
+  other 150 are inductive. Induction never closes here at any `formal.bound`
+  (12, 24 measured) for a structural reason: the Pyrope side is an ARRAY, i.e. a
+  memory with its own sweep counter, while the reference is a flat packed
+  register, so the two state spaces do not correspond and the miter falls back
+  to BMC. lgcheck cannot decide it either (INCONCLUSIVE), so on its own this row
+  has no independent backing.
+
+  **It is nonetheless closed, by chaining two engines on two links:**
+
+  | link | engine | verdict |
+  | --- | --- | --- |
+  | array `.prp` ≡ packed-vector `.prp` | cvc5 | PROVEN (inductive, 16 ms) |
+  | packed-vector `.prp` ≡ `verilog/` | lgcheck | PROVEN (unconditional) |
+
+  Neither engine closes the direct obligation and neither link is bounded, so
+  the two together prove what one alone cannot. The packed spelling is the same
+  design with `reg stages:u32` and bit-range writes instead of `[4]u8` and
+  element writes; it is deliberately NOT what this file contains, because the
+  point of the `idiomatic` tier is the idiomatic spelling — but it is the reason
+  the bounded row can be trusted.
+
 - One config only, and the top is monomorphic by construction: `Width = 8`,
   `NumStages = 4` are `localparam` in `verilog/br_delay.sv` and literals in
   `pyrope/br_delay.prp`. A second parameter point needs a second test.

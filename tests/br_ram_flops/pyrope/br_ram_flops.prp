@@ -1,0 +1,152 @@
+const br_ram_addr_decoder = import("br_ram_addr_decoder.br_ram_addr_decoder")
+const br_ram_addr_decoder_p1 = import("br_ram_addr_decoder_p1.br_ram_addr_decoder_p1")
+const br_ram_data_rd_pipe = import("br_ram_data_rd_pipe.br_ram_data_rd_pipe")
+const br_ram_flops_tile = import("br_ram_flops_tile.br_ram_flops_tile")
+
+pub mod br_ram_flops::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:u1, wr_addr:u6, wr_data:u64, wr_word_en:u8, rd_clk:u1, rd_rst:u1, rd_addr_valid:u1, rd_addr:u6) -> (rd_data_valid:u1@[], rd_data:u64@[]) {
+  mut tile_wr_valid:u4 = 0sb?
+  mut tile_wr_addr:u16 = 0sb?
+  mut tile_wr_data:[8]u32 = 0
+  mut tile_wr_word_en:[8]u4 = 0
+  mut tile_rd_addr_valid:u4 = 0sb?
+  mut tile_rd_addr:u16 = 0sb?
+  mut tile_rd_data_valid:[8]u1 = 0
+  mut tile_rd_data:[8]u32 = 0
+  mut gen_write_decoder_0_decoded_wr_data:u256 = 0
+  mut gen_write_decoder_0_decoded_wr_word_en:u32 = 0
+  mut gen_read_data_pipe_0_pipe_rd_data_valid:u8 = 0
+  mut gen_read_data_pipe_0_pipe_rd_data:u256 = 0
+  gen_write_decoder_0_decoded_wr_data = 0sb?
+  gen_write_decoder_0_decoded_wr_word_en = 0sb?
+  gen_read_data_pipe_0_pipe_rd_data_valid = 0sb?
+  gen_read_data_pipe_0_pipe_rd_data = 0sb?
+  rd_data_valid = 0ub?
+  rd_data = 0sb?
+  mut gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr = br_ram_addr_decoder::[name=gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr](clk = wr_clk, rst = wr_rst, in_valid = wr_valid & 1, in_addr = wr_addr, in_data_valid = wr_valid & 1, in_data = (wr_data << 8) | wr_word_en)
+  const gen_write_decoder_0_decoded_wr_valid__w1 = (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_valid.e3 << 3) | (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_valid.e2 << 2) | (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_valid.e1 << 1) | gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_valid.e0
+  mut gen_write_decoder_0_decoded_wr_word_en__w1 = gen_write_decoder_0_decoded_wr_word_en
+  gen_write_decoder_0_decoded_wr_word_en__w1#[0..=7] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[0..=71]#[0..=7]
+  mut gen_write_decoder_0_decoded_wr_data__w1 = gen_write_decoder_0_decoded_wr_data
+  gen_write_decoder_0_decoded_wr_data__w1#[0..=63] = (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[0..=71] >> 8)#[0..=63]
+  mut gen_write_decoder_0_decoded_wr_word_en__w2 = gen_write_decoder_0_decoded_wr_word_en__w1
+  gen_write_decoder_0_decoded_wr_word_en__w2#[8..=15] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[72..=143]#[0..=7]
+  mut gen_write_decoder_0_decoded_wr_data__w2 = gen_write_decoder_0_decoded_wr_data__w1
+  gen_write_decoder_0_decoded_wr_data__w2#[64..=127] = (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[72..=143] >> 8)#[0..=63]
+  mut gen_write_decoder_0_decoded_wr_word_en__w3 = gen_write_decoder_0_decoded_wr_word_en__w2
+  gen_write_decoder_0_decoded_wr_word_en__w3#[16..=23] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[144..=215]#[0..=7]
+  mut gen_write_decoder_0_decoded_wr_data__w3 = gen_write_decoder_0_decoded_wr_data__w2
+  gen_write_decoder_0_decoded_wr_data__w3#[128..=191] = (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[144..=215] >> 8)#[0..=63]
+  mut gen_write_decoder_0_decoded_wr_word_en__w4 = gen_write_decoder_0_decoded_wr_word_en__w3
+  gen_write_decoder_0_decoded_wr_word_en__w4#[24..=31] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[216..=287]#[0..=7]
+  mut gen_write_decoder_0_decoded_wr_data__w4 = gen_write_decoder_0_decoded_wr_data__w3
+  gen_write_decoder_0_decoded_wr_data__w4#[192..=255] = (gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_data#[216..=287] >> 8)#[0..=63]
+  tile_wr_valid#[3] = gen_write_decoder_0_decoded_wr_valid__w1 & 1
+  tile_wr_addr#[12..=15] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_addr#[0..=3]
+  tile_wr_data[0] = gen_write_decoder_0_decoded_wr_data__w4#[0..=63]#[0..=31]
+  tile_wr_word_en[0] = gen_write_decoder_0_decoded_wr_word_en__w4#[0..=7]#[0..=3]
+  tile_wr_data[1] = gen_write_decoder_0_decoded_wr_data__w4#[0..=63]#[32..=63]
+  tile_wr_word_en[1] = gen_write_decoder_0_decoded_wr_word_en__w4#[0..=7]#[4..=7]
+  mut tile_wr_valid__w1 = tile_wr_valid
+  tile_wr_valid__w1#[2] = (gen_write_decoder_0_decoded_wr_valid__w1 >> 1) & 1
+  mut tile_wr_addr__w1 = tile_wr_addr
+  tile_wr_addr__w1#[8..=11] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_addr#[4..=7]
+  tile_wr_data[2] = gen_write_decoder_0_decoded_wr_data__w4#[64..=127]#[0..=31]
+  tile_wr_word_en[2] = gen_write_decoder_0_decoded_wr_word_en__w4#[8..=15]#[0..=3]
+  tile_wr_data[3] = gen_write_decoder_0_decoded_wr_data__w4#[64..=127]#[32..=63]
+  tile_wr_word_en[3] = gen_write_decoder_0_decoded_wr_word_en__w4#[8..=15]#[4..=7]
+  mut tile_wr_valid__w2 = tile_wr_valid__w1
+  tile_wr_valid__w2#[1] = (gen_write_decoder_0_decoded_wr_valid__w1 >> 2) & 1
+  mut tile_wr_addr__w2 = tile_wr_addr__w1
+  tile_wr_addr__w2#[4..=7] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_addr#[8..=11]
+  tile_wr_data[4] = gen_write_decoder_0_decoded_wr_data__w4#[128..=191]#[0..=31]
+  tile_wr_word_en[4] = gen_write_decoder_0_decoded_wr_word_en__w4#[16..=23]#[0..=3]
+  tile_wr_data[5] = gen_write_decoder_0_decoded_wr_data__w4#[128..=191]#[32..=63]
+  tile_wr_word_en[5] = gen_write_decoder_0_decoded_wr_word_en__w4#[16..=23]#[4..=7]
+  mut tile_wr_valid__w3 = tile_wr_valid__w2
+  tile_wr_valid__w3#[0] = (gen_write_decoder_0_decoded_wr_valid__w1 >> 3) & 1
+  mut tile_wr_addr__w3 = tile_wr_addr__w2
+  tile_wr_addr__w3#[0..=3] = gen_write_decoder_0_gen_partial_write_addr_decoder_br_ram_addr_decoder_wr.out_addr#[12..=15]
+  tile_wr_data[6] = gen_write_decoder_0_decoded_wr_data__w4#[192..=255]#[0..=31]
+  tile_wr_word_en[6] = gen_write_decoder_0_decoded_wr_word_en__w4#[24..=31]#[0..=3]
+  tile_wr_data[7] = gen_write_decoder_0_decoded_wr_data__w4#[192..=255]#[32..=63]
+  tile_wr_word_en[7] = gen_write_decoder_0_decoded_wr_word_en__w4#[24..=31]#[4..=7]
+  mut gen_read_decoder_0_br_ram_addr_decoder_rd = br_ram_addr_decoder_p1::[name=gen_read_decoder_0_br_ram_addr_decoder_rd](clk = rd_clk, rst = rd_rst, in_valid = rd_addr_valid & 1, in_addr = rd_addr, in_data_valid = 0, in_data = 0)
+  const gen_read_decoder_0_decoded_rd_addr_valid__w1 = (gen_read_decoder_0_br_ram_addr_decoder_rd.out_valid.e3 << 3) | (gen_read_decoder_0_br_ram_addr_decoder_rd.out_valid.e2 << 2) | (gen_read_decoder_0_br_ram_addr_decoder_rd.out_valid.e1 << 1) | gen_read_decoder_0_br_ram_addr_decoder_rd.out_valid.e0
+  tile_rd_addr_valid#[3] = gen_read_decoder_0_decoded_rd_addr_valid__w1 & 1
+  tile_rd_addr#[12..=15] = gen_read_decoder_0_br_ram_addr_decoder_rd.out_addr#[0..=3]
+  mut tile_rd_addr_valid__w1 = tile_rd_addr_valid
+  tile_rd_addr_valid__w1#[2] = (gen_read_decoder_0_decoded_rd_addr_valid__w1 >> 1) & 1
+  mut tile_rd_addr__w1 = tile_rd_addr
+  tile_rd_addr__w1#[8..=11] = gen_read_decoder_0_br_ram_addr_decoder_rd.out_addr#[4..=7]
+  mut tile_rd_addr_valid__w2 = tile_rd_addr_valid__w1
+  tile_rd_addr_valid__w2#[1] = (gen_read_decoder_0_decoded_rd_addr_valid__w1 >> 2) & 1
+  mut tile_rd_addr__w2 = tile_rd_addr__w1
+  tile_rd_addr__w2#[4..=7] = gen_read_decoder_0_br_ram_addr_decoder_rd.out_addr#[8..=11]
+  mut tile_rd_addr_valid__w3 = tile_rd_addr_valid__w2
+  tile_rd_addr_valid__w3#[0] = (gen_read_decoder_0_decoded_rd_addr_valid__w1 >> 3) & 1
+  mut tile_rd_addr__w3 = tile_rd_addr__w2
+  tile_rd_addr__w3#[0..=3] = gen_read_decoder_0_br_ram_addr_decoder_rd.out_addr#[12..=15]
+  mut gen_row_0_gen_col_0_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_0_gen_col_0_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 3) & 1, wr_addr = tile_wr_addr__w3#[12..=15], wr_data = tile_wr_data[0], wr_word_en = tile_wr_word_en[0], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 3) & 1, rd_addr = tile_rd_addr__w3#[12..=15])
+  tile_rd_data_valid[0] = gen_row_0_gen_col_0_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[0] = gen_row_0_gen_col_0_br_ram_flops_tile.rd_data
+  mut gen_row_0_gen_col_1_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_0_gen_col_1_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 3) & 1, wr_addr = tile_wr_addr__w3#[12..=15], wr_data = tile_wr_data[1], wr_word_en = tile_wr_word_en[1], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 3) & 1, rd_addr = tile_rd_addr__w3#[12..=15])
+  tile_rd_data_valid[1] = gen_row_0_gen_col_1_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[1] = gen_row_0_gen_col_1_br_ram_flops_tile.rd_data
+  mut gen_row_1_gen_col_0_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_1_gen_col_0_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 2) & 1, wr_addr = tile_wr_addr__w3#[8..=11], wr_data = tile_wr_data[2], wr_word_en = tile_wr_word_en[2], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 2) & 1, rd_addr = tile_rd_addr__w3#[8..=11])
+  tile_rd_data_valid[2] = gen_row_1_gen_col_0_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[2] = gen_row_1_gen_col_0_br_ram_flops_tile.rd_data
+  mut gen_row_1_gen_col_1_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_1_gen_col_1_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 2) & 1, wr_addr = tile_wr_addr__w3#[8..=11], wr_data = tile_wr_data[3], wr_word_en = tile_wr_word_en[3], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 2) & 1, rd_addr = tile_rd_addr__w3#[8..=11])
+  tile_rd_data_valid[3] = gen_row_1_gen_col_1_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[3] = gen_row_1_gen_col_1_br_ram_flops_tile.rd_data
+  mut gen_row_2_gen_col_0_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_2_gen_col_0_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 1) & 1, wr_addr = tile_wr_addr__w3#[4..=7], wr_data = tile_wr_data[4], wr_word_en = tile_wr_word_en[4], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 1) & 1, rd_addr = tile_rd_addr__w3#[4..=7])
+  tile_rd_data_valid[4] = gen_row_2_gen_col_0_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[4] = gen_row_2_gen_col_0_br_ram_flops_tile.rd_data
+  mut gen_row_2_gen_col_1_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_2_gen_col_1_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = (tile_wr_valid__w3 >> 1) & 1, wr_addr = tile_wr_addr__w3#[4..=7], wr_data = tile_wr_data[5], wr_word_en = tile_wr_word_en[5], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = (tile_rd_addr_valid__w3 >> 1) & 1, rd_addr = tile_rd_addr__w3#[4..=7])
+  tile_rd_data_valid[5] = gen_row_2_gen_col_1_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[5] = gen_row_2_gen_col_1_br_ram_flops_tile.rd_data
+  mut gen_row_3_gen_col_0_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_3_gen_col_0_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = tile_wr_valid__w3 & 1, wr_addr = tile_wr_addr__w3#[0..=3], wr_data = tile_wr_data[6], wr_word_en = tile_wr_word_en[6], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = tile_rd_addr_valid__w3 & 1, rd_addr = tile_rd_addr__w3#[0..=3])
+  tile_rd_data_valid[6] = gen_row_3_gen_col_0_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[6] = gen_row_3_gen_col_0_br_ram_flops_tile.rd_data
+  mut gen_row_3_gen_col_1_br_ram_flops_tile = br_ram_flops_tile::[name=gen_row_3_gen_col_1_br_ram_flops_tile](wr_clk = wr_clk, wr_rst = wr_rst, wr_valid = tile_wr_valid__w3 & 1, wr_addr = tile_wr_addr__w3#[0..=3], wr_data = tile_wr_data[7], wr_word_en = tile_wr_word_en[7], rd_clk = rd_clk, rd_rst = rd_rst, rd_addr_valid = tile_rd_addr_valid__w3 & 1, rd_addr = tile_rd_addr__w3#[0..=3])
+  tile_rd_data_valid[7] = gen_row_3_gen_col_1_br_ram_flops_tile.rd_data_valid
+  tile_rd_data[7] = gen_row_3_gen_col_1_br_ram_flops_tile.rd_data
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w1 = gen_read_data_pipe_0_pipe_rd_data_valid
+  gen_read_data_pipe_0_pipe_rd_data_valid__w1#[0] = tile_rd_data_valid[0]
+  mut gen_read_data_pipe_0_pipe_rd_data__w1 = gen_read_data_pipe_0_pipe_rd_data
+  gen_read_data_pipe_0_pipe_rd_data__w1#[0..=31] = tile_rd_data[0]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w2 = gen_read_data_pipe_0_pipe_rd_data_valid__w1
+  gen_read_data_pipe_0_pipe_rd_data_valid__w2#[1] = tile_rd_data_valid[1]
+  mut gen_read_data_pipe_0_pipe_rd_data__w2 = gen_read_data_pipe_0_pipe_rd_data__w1
+  gen_read_data_pipe_0_pipe_rd_data__w2#[32..=63] = tile_rd_data[1]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w3 = gen_read_data_pipe_0_pipe_rd_data_valid__w2
+  gen_read_data_pipe_0_pipe_rd_data_valid__w3#[2] = tile_rd_data_valid[2]
+  mut gen_read_data_pipe_0_pipe_rd_data__w3 = gen_read_data_pipe_0_pipe_rd_data__w2
+  gen_read_data_pipe_0_pipe_rd_data__w3#[64..=95] = tile_rd_data[2]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w4 = gen_read_data_pipe_0_pipe_rd_data_valid__w3
+  gen_read_data_pipe_0_pipe_rd_data_valid__w4#[3] = tile_rd_data_valid[3]
+  mut gen_read_data_pipe_0_pipe_rd_data__w4 = gen_read_data_pipe_0_pipe_rd_data__w3
+  gen_read_data_pipe_0_pipe_rd_data__w4#[96..=127] = tile_rd_data[3]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w5 = gen_read_data_pipe_0_pipe_rd_data_valid__w4
+  gen_read_data_pipe_0_pipe_rd_data_valid__w5#[4] = tile_rd_data_valid[4]
+  mut gen_read_data_pipe_0_pipe_rd_data__w5 = gen_read_data_pipe_0_pipe_rd_data__w4
+  gen_read_data_pipe_0_pipe_rd_data__w5#[128..=159] = tile_rd_data[4]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w6 = gen_read_data_pipe_0_pipe_rd_data_valid__w5
+  gen_read_data_pipe_0_pipe_rd_data_valid__w6#[5] = tile_rd_data_valid[5]
+  mut gen_read_data_pipe_0_pipe_rd_data__w6 = gen_read_data_pipe_0_pipe_rd_data__w5
+  gen_read_data_pipe_0_pipe_rd_data__w6#[160..=191] = tile_rd_data[5]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w7 = gen_read_data_pipe_0_pipe_rd_data_valid__w6
+  gen_read_data_pipe_0_pipe_rd_data_valid__w7#[6] = tile_rd_data_valid[6]
+  mut gen_read_data_pipe_0_pipe_rd_data__w7 = gen_read_data_pipe_0_pipe_rd_data__w6
+  gen_read_data_pipe_0_pipe_rd_data__w7#[192..=223] = tile_rd_data[6]
+  mut gen_read_data_pipe_0_pipe_rd_data_valid__w8 = gen_read_data_pipe_0_pipe_rd_data_valid__w7
+  gen_read_data_pipe_0_pipe_rd_data_valid__w8#[7] = tile_rd_data_valid[7]
+  mut gen_read_data_pipe_0_pipe_rd_data__w8 = gen_read_data_pipe_0_pipe_rd_data__w7
+  gen_read_data_pipe_0_pipe_rd_data__w8#[224..=255] = tile_rd_data[7]
+  mut gen_read_data_pipe_0_br_ram_data_rd_pipe = br_ram_data_rd_pipe::[name=gen_read_data_pipe_0_br_ram_data_rd_pipe](clk = rd_clk, rst = rd_rst, tile_valid = gen_read_data_pipe_0_pipe_rd_data_valid__w8, tile_data = gen_read_data_pipe_0_pipe_rd_data__w8)
+  mut rd_data_valid__w1 = rd_data_valid
+  rd_data_valid__w1#[0] = gen_read_data_pipe_0_br_ram_data_rd_pipe.valid & 1
+  mut rd_data__w1 = rd_data
+  rd_data__w1#[0..=63] = gen_read_data_pipe_0_br_ram_data_rd_pipe.data#[0..=63]
+  rd_data_valid = rd_data_valid__w1
+  rd_data = rd_data__w1
+}

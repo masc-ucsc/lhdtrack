@@ -1,0 +1,19 @@
+pub mod br_delay::[timecheck=false](clk:u1, rst:u1, `in`:u2) -> (out:u2@[], out_stages:u6@[]) {
+  reg stages___q:u6
+  mut stages:u6 = 0
+  stages = stages___q
+  mut stages__w1 = stages
+  stages__w1#[0..=1] = `in`
+  if rst != 0 {
+    stages___q#[2..=3] = 0
+  } else {
+    stages___q#[2..=3] = stages__w1#[0..=1]
+  }
+  if rst != 0 {
+    stages___q#[4..=5] = 0
+  } else {
+    stages___q#[4..=5] = stages__w1#[2..=3]
+  }
+  out = stages__w1#[4..=5]
+  out_stages = stages__w1
+}

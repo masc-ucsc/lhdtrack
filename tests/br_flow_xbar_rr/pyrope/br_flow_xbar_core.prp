@@ -30,12 +30,11 @@ pub mod br_flow_xbar_core::[timecheck=false](clk:u1, rst:u1, push_valid:(e3:u1, 
   mux_out_ready__w3#[2] = pop_ready.e2 & 1
   mut mux_out_ready__w4 = mux_out_ready__w3
   mux_out_ready__w4#[3] = pop_ready.e3 & 1
-  mut br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[0..=1], push_valid = push_valid.e0, push_data = push_data#[0..=31], pop_ready = demux_out_ready#[0..=3])
-  mut `push_ready__bpo.e0` = br_flow_demux_select_unstable_push["push_ready"]
+  mut gen_demux_0_br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=gen_demux_0_br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[0..=1], push_valid = push_valid.e0, push_data = push_data#[0..=31], pop_ready = demux_out_ready#[0..=3])
   mut demux_out_valid__w1 = demux_out_valid
-  demux_out_valid__w1#[0..=3] = br_flow_demux_select_unstable_push["pop_valid_unstable"]#[0..=3]
+  demux_out_valid__w1#[0..=3] = gen_demux_0_br_flow_demux_select_unstable_push.pop_valid_unstable#[0..=3]
   mut demux_out_data__w1 = demux_out_data
-  demux_out_data__w1#[0..=127] = br_flow_demux_select_unstable_push["pop_data_unstable"]#[0..=127]
+  demux_out_data__w1#[0..=127] = gen_demux_0_br_flow_demux_select_unstable_push.pop_data_unstable#[0..=127]
   mut mux_in_valid__w1 = mux_in_valid
   mux_in_valid__w1#[0] = demux_out_valid__w1#[0..=3] & 1
   mut mux_in_data__w1 = mux_in_data
@@ -59,12 +58,11 @@ pub mod br_flow_xbar_core::[timecheck=false](clk:u1, rst:u1, push_valid:(e3:u1, 
   mux_in_data__w4#[384..=415] = demux_out_data__w1#[0..=127]#[96..=127]
   mut demux_out_ready__wtmp__w3 = demux_out_ready__wtmp__w2
   demux_out_ready__wtmp__w3#[3] = mux_in_ready#[12..=15] & 1
-  br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[2..=3], push_valid = push_valid.e1, push_data = push_data#[32..=63], pop_ready = demux_out_ready#[4..=7])
-  mut `push_ready__bpo.e1` = br_flow_demux_select_unstable_push["push_ready"]
+  mut gen_demux_1_br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=gen_demux_1_br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[2..=3], push_valid = push_valid.e1, push_data = push_data#[32..=63], pop_ready = demux_out_ready#[4..=7])
   mut demux_out_valid__w2 = demux_out_valid__w1
-  demux_out_valid__w2#[4..=7] = br_flow_demux_select_unstable_push["pop_valid_unstable"]#[0..=3]
+  demux_out_valid__w2#[4..=7] = gen_demux_1_br_flow_demux_select_unstable_push.pop_valid_unstable#[0..=3]
   mut demux_out_data__w2 = demux_out_data__w1
-  demux_out_data__w2#[128..=255] = br_flow_demux_select_unstable_push["pop_data_unstable"]#[0..=127]
+  demux_out_data__w2#[128..=255] = gen_demux_1_br_flow_demux_select_unstable_push.pop_data_unstable#[0..=127]
   mut mux_in_valid__w5 = mux_in_valid__w4
   mux_in_valid__w5#[1] = demux_out_valid__w2#[4..=7] & 1
   mut mux_in_data__w5 = mux_in_data__w4
@@ -89,12 +87,11 @@ pub mod br_flow_xbar_core::[timecheck=false](clk:u1, rst:u1, push_valid:(e3:u1, 
   mux_in_data__w8#[416..=447] = demux_out_data__w2#[128..=255]#[96..=127]
   mut demux_out_ready__wtmp__w7 = demux_out_ready__wtmp__w6
   demux_out_ready__wtmp__w7#[7] = (mux_in_ready#[12..=15] >> 1) & 1
-  br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[4..=5], push_valid = push_valid.e2, push_data = push_data#[64..=95], pop_ready = demux_out_ready#[8..=11])
-  mut `push_ready__bpo.e2` = br_flow_demux_select_unstable_push["push_ready"]
+  mut gen_demux_2_br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=gen_demux_2_br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[4..=5], push_valid = push_valid.e2, push_data = push_data#[64..=95], pop_ready = demux_out_ready#[8..=11])
   mut demux_out_valid__w3 = demux_out_valid__w2
-  demux_out_valid__w3#[8..=11] = br_flow_demux_select_unstable_push["pop_valid_unstable"]#[0..=3]
+  demux_out_valid__w3#[8..=11] = gen_demux_2_br_flow_demux_select_unstable_push.pop_valid_unstable#[0..=3]
   mut demux_out_data__w3 = demux_out_data__w2
-  demux_out_data__w3#[256..=383] = br_flow_demux_select_unstable_push["pop_data_unstable"]#[0..=127]
+  demux_out_data__w3#[256..=383] = gen_demux_2_br_flow_demux_select_unstable_push.pop_data_unstable#[0..=127]
   mut mux_in_valid__w9 = mux_in_valid__w8
   mux_in_valid__w9#[2] = demux_out_valid__w3#[8..=11] & 1
   mut mux_in_data__w9 = mux_in_data__w8
@@ -119,12 +116,11 @@ pub mod br_flow_xbar_core::[timecheck=false](clk:u1, rst:u1, push_valid:(e3:u1, 
   mux_in_data__w12#[448..=479] = demux_out_data__w3#[256..=383]#[96..=127]
   mut demux_out_ready__wtmp__w11 = demux_out_ready__wtmp__w10
   demux_out_ready__wtmp__w11#[11] = (mux_in_ready#[12..=15] >> 2) & 1
-  br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[6..=7], push_valid = push_valid.e3, push_data = push_data#[96..=127], pop_ready = demux_out_ready#[12..=15])
-  mut `push_ready__bpo.e3` = br_flow_demux_select_unstable_push["push_ready"]
+  mut gen_demux_3_br_flow_demux_select_unstable_push = br_flow_demux_select_unstable::[name=gen_demux_3_br_flow_demux_select_unstable_push](clk = clk, rst = rst, select = push_dest_id#[6..=7], push_valid = push_valid.e3, push_data = push_data#[96..=127], pop_ready = demux_out_ready#[12..=15])
   mut demux_out_valid__w4 = demux_out_valid__w3
-  demux_out_valid__w4#[12..=15] = br_flow_demux_select_unstable_push["pop_valid_unstable"]#[0..=3]
+  demux_out_valid__w4#[12..=15] = gen_demux_3_br_flow_demux_select_unstable_push.pop_valid_unstable#[0..=3]
   mut demux_out_data__w4 = demux_out_data__w3
-  demux_out_data__w4#[384..=511] = br_flow_demux_select_unstable_push["pop_data_unstable"]#[0..=127]
+  demux_out_data__w4#[384..=511] = gen_demux_3_br_flow_demux_select_unstable_push.pop_data_unstable#[0..=127]
   mut mux_in_valid__w13 = mux_in_valid__w12
   mux_in_valid__w13#[3] = demux_out_valid__w4#[12..=15] & 1
   mut mux_in_data__w13 = mux_in_data__w12
@@ -149,71 +145,67 @@ pub mod br_flow_xbar_core::[timecheck=false](clk:u1, rst:u1, push_valid:(e3:u1, 
   mux_in_data__w16#[480..=511] = demux_out_data__w4#[384..=511]#[96..=127]
   mut demux_out_ready__wtmp__w15 = demux_out_ready__wtmp__w14
   demux_out_ready__wtmp__w15#[15] = (mux_in_ready#[12..=15] >> 3) & 1
-  mut br_flow_mux_core_pop = br_flow_mux_core::[name=br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[0..=3], grant = grant#[0..=3], push_valid = mux_in_valid__w16#[0..=3], push_data = mux_in_data__w16#[0..=127], pop_ready = mux_out_ready__w4 & 1)
+  mut gen_mux_0_br_flow_mux_core_pop = br_flow_mux_core::[name=gen_mux_0_br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[0..=3], grant = grant#[0..=3], push_valid = mux_in_valid__w16#[0..=3], push_data = mux_in_data__w16#[0..=127], pop_ready = mux_out_ready__w4 & 1)
   mut request__w1 = request
-  request__w1#[0..=3] = br_flow_mux_core_pop["request"]#[0..=3]
-  mut `enable_priority_update__bpo.e0` = br_flow_mux_core_pop["enable_priority_update"]
-  mux_in_ready__wtmp#[0..=3] = br_flow_mux_core_pop["push_ready"]#[0..=3]
+  request__w1#[0..=3] = gen_mux_0_br_flow_mux_core_pop.request#[0..=3]
+  mux_in_ready__wtmp#[0..=3] = gen_mux_0_br_flow_mux_core_pop.push_ready#[0..=3]
   mut mux_out_valid__w1 = mux_out_valid
-  mux_out_valid__w1#[0] = br_flow_mux_core_pop["pop_valid_unstable"] & 1
+  mux_out_valid__w1#[0] = gen_mux_0_br_flow_mux_core_pop.pop_valid_unstable & 1
   mut mux_out_data__w1 = mux_out_data
-  mux_out_data__w1#[0..=31] = br_flow_mux_core_pop["pop_data_unstable"]#[0..=31]
+  mux_out_data__w1#[0..=31] = gen_mux_0_br_flow_mux_core_pop.pop_data_unstable#[0..=31]
   mut `pop_valid__bpo.e0` = mux_out_valid__w1 & 1
   mut pop_data__w1 = pop_data
   pop_data__w1#[0..=31] = mux_out_data__w1#[0..=31]
-  br_flow_mux_core_pop = br_flow_mux_core::[name=br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[4..=7], grant = grant#[4..=7], push_valid = mux_in_valid__w16#[4..=7], push_data = mux_in_data__w16#[128..=255], pop_ready = (mux_out_ready__w4 >> 1) & 1)
+  mut gen_mux_1_br_flow_mux_core_pop = br_flow_mux_core::[name=gen_mux_1_br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[4..=7], grant = grant#[4..=7], push_valid = mux_in_valid__w16#[4..=7], push_data = mux_in_data__w16#[128..=255], pop_ready = (mux_out_ready__w4 >> 1) & 1)
   mut request__w2 = request__w1
-  request__w2#[4..=7] = br_flow_mux_core_pop["request"]#[0..=3]
-  mut `enable_priority_update__bpo.e1` = br_flow_mux_core_pop["enable_priority_update"]
+  request__w2#[4..=7] = gen_mux_1_br_flow_mux_core_pop.request#[0..=3]
   mut mux_in_ready__wtmp__w1 = mux_in_ready__wtmp
-  mux_in_ready__wtmp__w1#[4..=7] = br_flow_mux_core_pop["push_ready"]#[0..=3]
+  mux_in_ready__wtmp__w1#[4..=7] = gen_mux_1_br_flow_mux_core_pop.push_ready#[0..=3]
   mut mux_out_valid__w2 = mux_out_valid__w1
-  mux_out_valid__w2#[1] = br_flow_mux_core_pop["pop_valid_unstable"] & 1
+  mux_out_valid__w2#[1] = gen_mux_1_br_flow_mux_core_pop.pop_valid_unstable & 1
   mut mux_out_data__w2 = mux_out_data__w1
-  mux_out_data__w2#[32..=63] = br_flow_mux_core_pop["pop_data_unstable"]#[0..=31]
+  mux_out_data__w2#[32..=63] = gen_mux_1_br_flow_mux_core_pop.pop_data_unstable#[0..=31]
   mut `pop_valid__bpo.e1` = (mux_out_valid__w2 >> 1) & 1
   mut pop_data__w2 = pop_data__w1
   pop_data__w2#[32..=63] = mux_out_data__w2#[32..=63]
-  br_flow_mux_core_pop = br_flow_mux_core::[name=br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[8..=11], grant = grant#[8..=11], push_valid = mux_in_valid__w16#[8..=11], push_data = mux_in_data__w16#[256..=383], pop_ready = (mux_out_ready__w4 >> 2) & 1)
+  mut gen_mux_2_br_flow_mux_core_pop = br_flow_mux_core::[name=gen_mux_2_br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[8..=11], grant = grant#[8..=11], push_valid = mux_in_valid__w16#[8..=11], push_data = mux_in_data__w16#[256..=383], pop_ready = (mux_out_ready__w4 >> 2) & 1)
   mut request__w3 = request__w2
-  request__w3#[8..=11] = br_flow_mux_core_pop["request"]#[0..=3]
-  mut `enable_priority_update__bpo.e2` = br_flow_mux_core_pop["enable_priority_update"]
+  request__w3#[8..=11] = gen_mux_2_br_flow_mux_core_pop.request#[0..=3]
   mut mux_in_ready__wtmp__w2 = mux_in_ready__wtmp__w1
-  mux_in_ready__wtmp__w2#[8..=11] = br_flow_mux_core_pop["push_ready"]#[0..=3]
+  mux_in_ready__wtmp__w2#[8..=11] = gen_mux_2_br_flow_mux_core_pop.push_ready#[0..=3]
   mut mux_out_valid__w3 = mux_out_valid__w2
-  mux_out_valid__w3#[2] = br_flow_mux_core_pop["pop_valid_unstable"] & 1
+  mux_out_valid__w3#[2] = gen_mux_2_br_flow_mux_core_pop.pop_valid_unstable & 1
   mut mux_out_data__w3 = mux_out_data__w2
-  mux_out_data__w3#[64..=95] = br_flow_mux_core_pop["pop_data_unstable"]#[0..=31]
+  mux_out_data__w3#[64..=95] = gen_mux_2_br_flow_mux_core_pop.pop_data_unstable#[0..=31]
   mut `pop_valid__bpo.e2` = (mux_out_valid__w3 >> 2) & 1
   mut pop_data__w3 = pop_data__w2
   pop_data__w3#[64..=95] = mux_out_data__w3#[64..=95]
-  br_flow_mux_core_pop = br_flow_mux_core::[name=br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[12..=15], grant = grant#[12..=15], push_valid = mux_in_valid__w16#[12..=15], push_data = mux_in_data__w16#[384..=511], pop_ready = (mux_out_ready__w4 >> 3) & 1)
+  mut gen_mux_3_br_flow_mux_core_pop = br_flow_mux_core::[name=gen_mux_3_br_flow_mux_core_pop](clk = clk, rst = rst, can_grant = can_grant#[12..=15], grant = grant#[12..=15], push_valid = mux_in_valid__w16#[12..=15], push_data = mux_in_data__w16#[384..=511], pop_ready = (mux_out_ready__w4 >> 3) & 1)
   mut request__w4 = request__w3
-  request__w4#[12..=15] = br_flow_mux_core_pop["request"]#[0..=3]
-  mut `enable_priority_update__bpo.e3` = br_flow_mux_core_pop["enable_priority_update"]
+  request__w4#[12..=15] = gen_mux_3_br_flow_mux_core_pop.request#[0..=3]
   mut mux_in_ready__wtmp__w3 = mux_in_ready__wtmp__w2
-  mux_in_ready__wtmp__w3#[12..=15] = br_flow_mux_core_pop["push_ready"]#[0..=3]
+  mux_in_ready__wtmp__w3#[12..=15] = gen_mux_3_br_flow_mux_core_pop.push_ready#[0..=3]
   mut mux_out_valid__w4 = mux_out_valid__w3
-  mux_out_valid__w4#[3] = br_flow_mux_core_pop["pop_valid_unstable"] & 1
+  mux_out_valid__w4#[3] = gen_mux_3_br_flow_mux_core_pop.pop_valid_unstable & 1
   mut mux_out_data__w4 = mux_out_data__w3
-  mux_out_data__w4#[96..=127] = br_flow_mux_core_pop["pop_data_unstable"]#[0..=31]
+  mux_out_data__w4#[96..=127] = gen_mux_3_br_flow_mux_core_pop.pop_data_unstable#[0..=31]
   mut `pop_valid__bpo.e3` = (mux_out_valid__w4 >> 3) & 1
   mut pop_data__w4 = pop_data__w3
   pop_data__w4#[96..=127] = mux_out_data__w4#[96..=127]
   demux_out_ready = demux_out_ready__wtmp__w15
   mux_in_ready = mux_in_ready__wtmp__w3
-  push_ready.e3 = `push_ready__bpo.e3`
-  push_ready.e2 = `push_ready__bpo.e2`
-  push_ready.e1 = `push_ready__bpo.e1`
-  push_ready.e0 = `push_ready__bpo.e0`
+  push_ready.e3 = gen_demux_3_br_flow_demux_select_unstable_push.push_ready
+  push_ready.e2 = gen_demux_2_br_flow_demux_select_unstable_push.push_ready
+  push_ready.e1 = gen_demux_1_br_flow_demux_select_unstable_push.push_ready
+  push_ready.e0 = gen_demux_0_br_flow_demux_select_unstable_push.push_ready
   pop_valid.e3 = `pop_valid__bpo.e3`
   pop_valid.e2 = `pop_valid__bpo.e2`
   pop_valid.e1 = `pop_valid__bpo.e1`
   pop_valid.e0 = `pop_valid__bpo.e0`
-  enable_priority_update.e3 = `enable_priority_update__bpo.e3`
-  enable_priority_update.e2 = `enable_priority_update__bpo.e2`
-  enable_priority_update.e1 = `enable_priority_update__bpo.e1`
-  enable_priority_update.e0 = `enable_priority_update__bpo.e0`
+  enable_priority_update.e3 = gen_mux_3_br_flow_mux_core_pop.enable_priority_update
+  enable_priority_update.e2 = gen_mux_2_br_flow_mux_core_pop.enable_priority_update
+  enable_priority_update.e1 = gen_mux_1_br_flow_mux_core_pop.enable_priority_update
+  enable_priority_update.e0 = gen_mux_0_br_flow_mux_core_pop.enable_priority_update
   pop_data = pop_data__w4
   request = request__w4
 }

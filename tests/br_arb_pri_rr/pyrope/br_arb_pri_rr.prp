@@ -1,0 +1,427 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
+
+pub mod br_arb_pri_rr::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u16, request_priority:u16) -> (grant:u16@[]) {
+  mut request_unrolled:u48 = 0
+  mut any_higher_pri_req:u48 = 0
+  wire grant:u16
+  request_unrolled = 0sb?
+  any_higher_pri_req = 0sb?
+  mut request_unrolled__w1 = request_unrolled
+  request_unrolled__w1#[32..=47] = request
+  mut any_higher_pri_req__w1 = any_higher_pri_req
+  any_higher_pri_req__w1#[0] = 0
+  mut rr_state_internal = br_rr_state_internal::[name=rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
+  const priority_mask__w1 = (rr_state_internal.priority_mask.e15 << 15) | (rr_state_internal.priority_mask.e14 << 14) | (rr_state_internal.priority_mask.e13 << 13) | (rr_state_internal.priority_mask.e12 << 12) | (rr_state_internal.priority_mask.e11 << 11) | (rr_state_internal.priority_mask.e10 << 10) | (rr_state_internal.priority_mask.e9 << 9) | (rr_state_internal.priority_mask.e8 << 8) | (rr_state_internal.priority_mask.e7 << 7) | (rr_state_internal.priority_mask.e6 << 6) | (rr_state_internal.priority_mask.e5 << 5) | (rr_state_internal.priority_mask.e4 << 4) | (rr_state_internal.priority_mask.e3 << 3) | (rr_state_internal.priority_mask.e2 << 2) | (rr_state_internal.priority_mask.e1 << 1) | rr_state_internal.priority_mask.e0
+  mut request_unrolled__w2 = request_unrolled__w1
+  request_unrolled__w2#[0] = unsigned(((request & 1) != 0) and ((request_priority & 1) == 1) and ((priority_mask__w1 & 1) == 0)) & 1
+  mut request_unrolled__w3 = request_unrolled__w2
+  request_unrolled__w3#[16] = unsigned(((request & 1) != 0) and (((priority_mask__w1 & 1) == 0) or (((request_priority & 1) >= 1) and ((priority_mask__w1 & 1) != 0)))) & 1
+  mut request_unrolled__w4 = request_unrolled__w3
+  request_unrolled__w4#[1] = unsigned((((request >> 1) & 1) != 0) and (((request_priority >> 1) & 1) == 1) and (((priority_mask__w1 >> 1) & 1) == 0)) & 1
+  mut request_unrolled__w5 = request_unrolled__w4
+  request_unrolled__w5#[17] = unsigned((((request >> 1) & 1) != 0) and ((((priority_mask__w1 >> 1) & 1) == 0) or ((((request_priority >> 1) & 1) >= 1) and (((priority_mask__w1 >> 1) & 1) != 0)))) & 1
+  mut request_unrolled__w6 = request_unrolled__w5
+  request_unrolled__w6#[2] = unsigned((((request >> 2) & 1) != 0) and (((request_priority >> 2) & 1) == 1) and (((priority_mask__w1 >> 2) & 1) == 0)) & 1
+  mut request_unrolled__w7 = request_unrolled__w6
+  request_unrolled__w7#[18] = unsigned((((request >> 2) & 1) != 0) and ((((priority_mask__w1 >> 2) & 1) == 0) or ((((request_priority >> 2) & 1) >= 1) and (((priority_mask__w1 >> 2) & 1) != 0)))) & 1
+  mut request_unrolled__w8 = request_unrolled__w7
+  request_unrolled__w8#[3] = unsigned((((request >> 3) & 1) != 0) and (((request_priority >> 3) & 1) == 1) and (((priority_mask__w1 >> 3) & 1) == 0)) & 1
+  mut request_unrolled__w9 = request_unrolled__w8
+  request_unrolled__w9#[19] = unsigned((((request >> 3) & 1) != 0) and ((((priority_mask__w1 >> 3) & 1) == 0) or ((((request_priority >> 3) & 1) >= 1) and (((priority_mask__w1 >> 3) & 1) != 0)))) & 1
+  mut request_unrolled__w10 = request_unrolled__w9
+  request_unrolled__w10#[4] = unsigned((((request >> 4) & 1) != 0) and (((request_priority >> 4) & 1) == 1) and (((priority_mask__w1 >> 4) & 1) == 0)) & 1
+  mut request_unrolled__w11 = request_unrolled__w10
+  request_unrolled__w11#[20] = unsigned((((request >> 4) & 1) != 0) and ((((priority_mask__w1 >> 4) & 1) == 0) or ((((request_priority >> 4) & 1) >= 1) and (((priority_mask__w1 >> 4) & 1) != 0)))) & 1
+  mut request_unrolled__w12 = request_unrolled__w11
+  request_unrolled__w12#[5] = unsigned((((request >> 5) & 1) != 0) and (((request_priority >> 5) & 1) == 1) and (((priority_mask__w1 >> 5) & 1) == 0)) & 1
+  mut request_unrolled__w13 = request_unrolled__w12
+  request_unrolled__w13#[21] = unsigned((((request >> 5) & 1) != 0) and ((((priority_mask__w1 >> 5) & 1) == 0) or ((((request_priority >> 5) & 1) >= 1) and (((priority_mask__w1 >> 5) & 1) != 0)))) & 1
+  mut request_unrolled__w14 = request_unrolled__w13
+  request_unrolled__w14#[6] = unsigned((((request >> 6) & 1) != 0) and (((request_priority >> 6) & 1) == 1) and (((priority_mask__w1 >> 6) & 1) == 0)) & 1
+  mut request_unrolled__w15 = request_unrolled__w14
+  request_unrolled__w15#[22] = unsigned((((request >> 6) & 1) != 0) and ((((priority_mask__w1 >> 6) & 1) == 0) or ((((request_priority >> 6) & 1) >= 1) and (((priority_mask__w1 >> 6) & 1) != 0)))) & 1
+  mut request_unrolled__w16 = request_unrolled__w15
+  request_unrolled__w16#[7] = unsigned((((request >> 7) & 1) != 0) and (((request_priority >> 7) & 1) == 1) and (((priority_mask__w1 >> 7) & 1) == 0)) & 1
+  mut request_unrolled__w17 = request_unrolled__w16
+  request_unrolled__w17#[23] = unsigned((((request >> 7) & 1) != 0) and ((((priority_mask__w1 >> 7) & 1) == 0) or ((((request_priority >> 7) & 1) >= 1) and (((priority_mask__w1 >> 7) & 1) != 0)))) & 1
+  mut request_unrolled__w18 = request_unrolled__w17
+  request_unrolled__w18#[8] = unsigned((((request >> 8) & 1) != 0) and (((request_priority >> 8) & 1) == 1) and (((priority_mask__w1 >> 8) & 1) == 0)) & 1
+  mut request_unrolled__w19 = request_unrolled__w18
+  request_unrolled__w19#[24] = unsigned((((request >> 8) & 1) != 0) and ((((priority_mask__w1 >> 8) & 1) == 0) or ((((request_priority >> 8) & 1) >= 1) and (((priority_mask__w1 >> 8) & 1) != 0)))) & 1
+  mut request_unrolled__w20 = request_unrolled__w19
+  request_unrolled__w20#[9] = unsigned((((request >> 9) & 1) != 0) and (((request_priority >> 9) & 1) == 1) and (((priority_mask__w1 >> 9) & 1) == 0)) & 1
+  mut request_unrolled__w21 = request_unrolled__w20
+  request_unrolled__w21#[25] = unsigned((((request >> 9) & 1) != 0) and ((((priority_mask__w1 >> 9) & 1) == 0) or ((((request_priority >> 9) & 1) >= 1) and (((priority_mask__w1 >> 9) & 1) != 0)))) & 1
+  mut request_unrolled__w22 = request_unrolled__w21
+  request_unrolled__w22#[10] = unsigned((((request >> 10) & 1) != 0) and (((request_priority >> 10) & 1) == 1) and (((priority_mask__w1 >> 10) & 1) == 0)) & 1
+  mut request_unrolled__w23 = request_unrolled__w22
+  request_unrolled__w23#[26] = unsigned((((request >> 10) & 1) != 0) and ((((priority_mask__w1 >> 10) & 1) == 0) or ((((request_priority >> 10) & 1) >= 1) and (((priority_mask__w1 >> 10) & 1) != 0)))) & 1
+  mut request_unrolled__w24 = request_unrolled__w23
+  request_unrolled__w24#[11] = unsigned((((request >> 11) & 1) != 0) and (((request_priority >> 11) & 1) == 1) and (((priority_mask__w1 >> 11) & 1) == 0)) & 1
+  mut request_unrolled__w25 = request_unrolled__w24
+  request_unrolled__w25#[27] = unsigned((((request >> 11) & 1) != 0) and ((((priority_mask__w1 >> 11) & 1) == 0) or ((((request_priority >> 11) & 1) >= 1) and (((priority_mask__w1 >> 11) & 1) != 0)))) & 1
+  mut request_unrolled__w26 = request_unrolled__w25
+  request_unrolled__w26#[12] = unsigned((((request >> 12) & 1) != 0) and (((request_priority >> 12) & 1) == 1) and (((priority_mask__w1 >> 12) & 1) == 0)) & 1
+  mut request_unrolled__w27 = request_unrolled__w26
+  request_unrolled__w27#[28] = unsigned((((request >> 12) & 1) != 0) and ((((priority_mask__w1 >> 12) & 1) == 0) or ((((request_priority >> 12) & 1) >= 1) and (((priority_mask__w1 >> 12) & 1) != 0)))) & 1
+  mut request_unrolled__w28 = request_unrolled__w27
+  request_unrolled__w28#[13] = unsigned((((request >> 13) & 1) != 0) and (((request_priority >> 13) & 1) == 1) and (((priority_mask__w1 >> 13) & 1) == 0)) & 1
+  mut request_unrolled__w29 = request_unrolled__w28
+  request_unrolled__w29#[29] = unsigned((((request >> 13) & 1) != 0) and ((((priority_mask__w1 >> 13) & 1) == 0) or ((((request_priority >> 13) & 1) >= 1) and (((priority_mask__w1 >> 13) & 1) != 0)))) & 1
+  mut request_unrolled__w30 = request_unrolled__w29
+  request_unrolled__w30#[14] = unsigned((((request >> 14) & 1) != 0) and (((request_priority >> 14) & 1) == 1) and (((priority_mask__w1 >> 14) & 1) == 0)) & 1
+  mut request_unrolled__w31 = request_unrolled__w30
+  request_unrolled__w31#[30] = unsigned((((request >> 14) & 1) != 0) and ((((priority_mask__w1 >> 14) & 1) == 0) or ((((request_priority >> 14) & 1) >= 1) and (((priority_mask__w1 >> 14) & 1) != 0)))) & 1
+  mut request_unrolled__w32 = request_unrolled__w31
+  request_unrolled__w32#[15] = unsigned((((request >> 15) & 1) != 0) and (((request_priority >> 15) & 1) == 1) and (((priority_mask__w1 >> 15) & 1) == 0)) & 1
+  mut request_unrolled__w33 = request_unrolled__w32
+  request_unrolled__w33#[31] = unsigned((((request >> 15) & 1) != 0) and ((((priority_mask__w1 >> 15) & 1) == 0) or ((((request_priority >> 15) & 1) >= 1) and (((priority_mask__w1 >> 15) & 1) != 0)))) & 1
+  const request_unrolled_flat__w1 = request_unrolled__w33
+  const t492 = request_unrolled_flat__w1 & 1
+  mut any_higher_pri_req__w2 = any_higher_pri_req__w1
+  any_higher_pri_req__w2#[1] = t492
+  const t493 = request_unrolled_flat__w1#[0..=1]
+  const t494 = t493 != 0
+  mut any_higher_pri_req__w3 = any_higher_pri_req__w2
+  any_higher_pri_req__w3#[2] = unsigned(t494) & 1
+  const t496 = request_unrolled_flat__w1#[0..=2]
+  const t497 = t496 != 0
+  mut any_higher_pri_req__w4 = any_higher_pri_req__w3
+  any_higher_pri_req__w4#[3] = unsigned(t497) & 1
+  const t499 = request_unrolled_flat__w1#[0..=3]
+  const t500 = t499 != 0
+  mut any_higher_pri_req__w5 = any_higher_pri_req__w4
+  any_higher_pri_req__w5#[4] = unsigned(t500) & 1
+  const t502 = request_unrolled_flat__w1#[0..=4]
+  const t503 = t502 != 0
+  mut any_higher_pri_req__w6 = any_higher_pri_req__w5
+  any_higher_pri_req__w6#[5] = unsigned(t503) & 1
+  const t505 = request_unrolled_flat__w1#[0..=5]
+  const t506 = t505 != 0
+  mut any_higher_pri_req__w7 = any_higher_pri_req__w6
+  any_higher_pri_req__w7#[6] = unsigned(t506) & 1
+  const t508 = request_unrolled_flat__w1#[0..=6]
+  const t509 = t508 != 0
+  mut any_higher_pri_req__w8 = any_higher_pri_req__w7
+  any_higher_pri_req__w8#[7] = unsigned(t509) & 1
+  const t511 = request_unrolled_flat__w1#[0..=7]
+  const t512 = t511 != 0
+  mut any_higher_pri_req__w9 = any_higher_pri_req__w8
+  any_higher_pri_req__w9#[8] = unsigned(t512) & 1
+  const t514 = request_unrolled_flat__w1#[0..=8]
+  const t515 = t514 != 0
+  mut any_higher_pri_req__w10 = any_higher_pri_req__w9
+  any_higher_pri_req__w10#[9] = unsigned(t515) & 1
+  const t517 = request_unrolled_flat__w1#[0..=9]
+  const t518 = t517 != 0
+  mut any_higher_pri_req__w11 = any_higher_pri_req__w10
+  any_higher_pri_req__w11#[10] = unsigned(t518) & 1
+  const t520 = request_unrolled_flat__w1#[0..=10]
+  const t521 = t520 != 0
+  mut any_higher_pri_req__w12 = any_higher_pri_req__w11
+  any_higher_pri_req__w12#[11] = unsigned(t521) & 1
+  const t523 = request_unrolled_flat__w1#[0..=11]
+  const t524 = t523 != 0
+  mut any_higher_pri_req__w13 = any_higher_pri_req__w12
+  any_higher_pri_req__w13#[12] = unsigned(t524) & 1
+  const t526 = request_unrolled_flat__w1#[0..=12]
+  const t527 = t526 != 0
+  mut any_higher_pri_req__w14 = any_higher_pri_req__w13
+  any_higher_pri_req__w14#[13] = unsigned(t527) & 1
+  const t529 = request_unrolled_flat__w1#[0..=13]
+  const t530 = t529 != 0
+  mut any_higher_pri_req__w15 = any_higher_pri_req__w14
+  any_higher_pri_req__w15#[14] = unsigned(t530) & 1
+  const t532 = request_unrolled_flat__w1#[0..=14]
+  const t533 = t532 != 0
+  mut any_higher_pri_req__w16 = any_higher_pri_req__w15
+  any_higher_pri_req__w16#[15] = unsigned(t533) & 1
+  const t535 = request_unrolled_flat__w1#[1..=15]
+  const t536 = t535 != 0
+  mut any_higher_pri_req__w17 = any_higher_pri_req__w16
+  any_higher_pri_req__w17#[16] = unsigned(t536) & 1
+  const t538 = request_unrolled_flat__w1#[2..=16]
+  const t539 = t538 != 0
+  mut any_higher_pri_req__w18 = any_higher_pri_req__w17
+  any_higher_pri_req__w18#[17] = unsigned(t539) & 1
+  const t541 = request_unrolled_flat__w1#[3..=17]
+  const t542 = t541 != 0
+  mut any_higher_pri_req__w19 = any_higher_pri_req__w18
+  any_higher_pri_req__w19#[18] = unsigned(t542) & 1
+  const t544 = request_unrolled_flat__w1#[4..=18]
+  const t545 = t544 != 0
+  mut any_higher_pri_req__w20 = any_higher_pri_req__w19
+  any_higher_pri_req__w20#[19] = unsigned(t545) & 1
+  const t547 = request_unrolled_flat__w1#[5..=19]
+  const t548 = t547 != 0
+  mut any_higher_pri_req__w21 = any_higher_pri_req__w20
+  any_higher_pri_req__w21#[20] = unsigned(t548) & 1
+  const t550 = request_unrolled_flat__w1#[6..=20]
+  const t551 = t550 != 0
+  mut any_higher_pri_req__w22 = any_higher_pri_req__w21
+  any_higher_pri_req__w22#[21] = unsigned(t551) & 1
+  const t553 = request_unrolled_flat__w1#[7..=21]
+  const t554 = t553 != 0
+  mut any_higher_pri_req__w23 = any_higher_pri_req__w22
+  any_higher_pri_req__w23#[22] = unsigned(t554) & 1
+  const t556 = request_unrolled_flat__w1#[8..=22]
+  const t557 = t556 != 0
+  mut any_higher_pri_req__w24 = any_higher_pri_req__w23
+  any_higher_pri_req__w24#[23] = unsigned(t557) & 1
+  const t559 = request_unrolled_flat__w1#[9..=23]
+  const t560 = t559 != 0
+  mut any_higher_pri_req__w25 = any_higher_pri_req__w24
+  any_higher_pri_req__w25#[24] = unsigned(t560) & 1
+  const t562 = request_unrolled_flat__w1#[10..=24]
+  const t563 = t562 != 0
+  mut any_higher_pri_req__w26 = any_higher_pri_req__w25
+  any_higher_pri_req__w26#[25] = unsigned(t563) & 1
+  const t565 = request_unrolled_flat__w1#[11..=25]
+  const t566 = t565 != 0
+  mut any_higher_pri_req__w27 = any_higher_pri_req__w26
+  any_higher_pri_req__w27#[26] = unsigned(t566) & 1
+  const t568 = request_unrolled_flat__w1#[12..=26]
+  const t569 = t568 != 0
+  mut any_higher_pri_req__w28 = any_higher_pri_req__w27
+  any_higher_pri_req__w28#[27] = unsigned(t569) & 1
+  const t571 = request_unrolled_flat__w1#[13..=27]
+  const t572 = t571 != 0
+  mut any_higher_pri_req__w29 = any_higher_pri_req__w28
+  any_higher_pri_req__w29#[28] = unsigned(t572) & 1
+  const t574 = request_unrolled_flat__w1#[14..=28]
+  const t575 = t574 != 0
+  mut any_higher_pri_req__w30 = any_higher_pri_req__w29
+  any_higher_pri_req__w30#[29] = unsigned(t575) & 1
+  const t577 = request_unrolled_flat__w1#[15..=29]
+  const t578 = t577 != 0
+  mut any_higher_pri_req__w31 = any_higher_pri_req__w30
+  any_higher_pri_req__w31#[30] = unsigned(t578) & 1
+  const t580 = request_unrolled_flat__w1#[16..=30]
+  const t581 = t580 != 0
+  mut any_higher_pri_req__w32 = any_higher_pri_req__w31
+  any_higher_pri_req__w32#[31] = unsigned(t581) & 1
+  const t583 = request_unrolled_flat__w1#[17..=31]
+  const t584 = t583 != 0
+  mut any_higher_pri_req__w33 = any_higher_pri_req__w32
+  any_higher_pri_req__w33#[32] = unsigned(t584) & 1
+  const t586 = request_unrolled_flat__w1#[18..=32]
+  const t587 = t586 != 0
+  mut any_higher_pri_req__w34 = any_higher_pri_req__w33
+  any_higher_pri_req__w34#[33] = unsigned(t587) & 1
+  const t589 = request_unrolled_flat__w1#[19..=33]
+  const t590 = t589 != 0
+  mut any_higher_pri_req__w35 = any_higher_pri_req__w34
+  any_higher_pri_req__w35#[34] = unsigned(t590) & 1
+  const t592 = request_unrolled_flat__w1#[20..=34]
+  const t593 = t592 != 0
+  mut any_higher_pri_req__w36 = any_higher_pri_req__w35
+  any_higher_pri_req__w36#[35] = unsigned(t593) & 1
+  const t595 = request_unrolled_flat__w1#[21..=35]
+  const t596 = t595 != 0
+  mut any_higher_pri_req__w37 = any_higher_pri_req__w36
+  any_higher_pri_req__w37#[36] = unsigned(t596) & 1
+  const t598 = request_unrolled_flat__w1#[22..=36]
+  const t599 = t598 != 0
+  mut any_higher_pri_req__w38 = any_higher_pri_req__w37
+  any_higher_pri_req__w38#[37] = unsigned(t599) & 1
+  const t601 = request_unrolled_flat__w1#[23..=37]
+  const t602 = t601 != 0
+  mut any_higher_pri_req__w39 = any_higher_pri_req__w38
+  any_higher_pri_req__w39#[38] = unsigned(t602) & 1
+  const t604 = request_unrolled_flat__w1#[24..=38]
+  const t605 = t604 != 0
+  mut any_higher_pri_req__w40 = any_higher_pri_req__w39
+  any_higher_pri_req__w40#[39] = unsigned(t605) & 1
+  const t607 = request_unrolled_flat__w1#[25..=39]
+  const t608 = t607 != 0
+  mut any_higher_pri_req__w41 = any_higher_pri_req__w40
+  any_higher_pri_req__w41#[40] = unsigned(t608) & 1
+  const t610 = request_unrolled_flat__w1#[26..=40]
+  const t611 = t610 != 0
+  mut any_higher_pri_req__w42 = any_higher_pri_req__w41
+  any_higher_pri_req__w42#[41] = unsigned(t611) & 1
+  const t613 = request_unrolled_flat__w1#[27..=41]
+  const t614 = t613 != 0
+  mut any_higher_pri_req__w43 = any_higher_pri_req__w42
+  any_higher_pri_req__w43#[42] = unsigned(t614) & 1
+  const t616 = request_unrolled_flat__w1#[28..=42]
+  const t617 = t616 != 0
+  mut any_higher_pri_req__w44 = any_higher_pri_req__w43
+  any_higher_pri_req__w44#[43] = unsigned(t617) & 1
+  const t619 = request_unrolled_flat__w1#[29..=43]
+  const t620 = t619 != 0
+  mut any_higher_pri_req__w45 = any_higher_pri_req__w44
+  any_higher_pri_req__w45#[44] = unsigned(t620) & 1
+  const t622 = request_unrolled_flat__w1#[30..=44]
+  const t623 = t622 != 0
+  mut any_higher_pri_req__w46 = any_higher_pri_req__w45
+  any_higher_pri_req__w46#[45] = unsigned(t623) & 1
+  const t625 = request_unrolled_flat__w1#[31..=45]
+  const t626 = t625 != 0
+  mut any_higher_pri_req__w47 = any_higher_pri_req__w46
+  any_higher_pri_req__w47#[46] = unsigned(t626) & 1
+  const t628 = request_unrolled_flat__w1#[32..=46]
+  const t629 = t628 != 0
+  mut any_higher_pri_req__w48 = any_higher_pri_req__w47
+  any_higher_pri_req__w48#[47] = unsigned(t629) & 1
+  const t631 = request_unrolled_flat__w1 >> 47
+  const t632 = t631 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_0](`in` = t632)
+  const t633 = request_unrolled_flat__w1 >> 47
+  const t634 = t633 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_1](`in` = t634)
+  const t635 = request_unrolled_flat__w1 >> 47
+  const t636 = t635 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_2](`in` = t636)
+  const t637 = request_unrolled_flat__w1 >> 47
+  const t638 = t637 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_3](`in` = t638)
+  const t639 = request_unrolled_flat__w1 >> 47
+  const t640 = t639 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_4](`in` = t640)
+  const t641 = request_unrolled_flat__w1 >> 47
+  const t642 = t641 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_5](`in` = t642)
+  const t643 = request_unrolled_flat__w1 >> 47
+  const t644 = t643 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_6](`in` = t644)
+  const t645 = request_unrolled_flat__w1 >> 47
+  const t646 = t645 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_7](`in` = t646)
+  const t647 = request_unrolled_flat__w1 >> 47
+  const t648 = t647 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_8](`in` = t648)
+  const t649 = request_unrolled_flat__w1 >> 47
+  const t650 = t649 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_9](`in` = t650)
+  const t651 = request_unrolled_flat__w1 >> 47
+  const t652 = t651 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_10](`in` = t652)
+  const t653 = request_unrolled_flat__w1 >> 47
+  const t654 = t653 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_11](`in` = t654)
+  const t655 = request_unrolled_flat__w1 >> 47
+  const t656 = t655 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_12](`in` = t656)
+  const t657 = request_unrolled_flat__w1 >> 47
+  const t658 = t657 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_13](`in` = t658)
+  const t659 = request_unrolled_flat__w1 >> 47
+  const t660 = t659 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_14](`in` = t660)
+  const t661 = request_unrolled_flat__w1 >> 47
+  const t662 = t661 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_15](`in` = t662)
+  const t663 = request_unrolled_flat__w1 >> 47
+  const t664 = t663 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_16](`in` = t664)
+  const t665 = request_unrolled_flat__w1 >> 47
+  const t666 = t665 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_17](`in` = t666)
+  const t667 = request_unrolled_flat__w1 >> 47
+  const t668 = t667 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_18](`in` = t668)
+  const t669 = request_unrolled_flat__w1 >> 47
+  const t670 = t669 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_19](`in` = t670)
+  const t671 = request_unrolled_flat__w1 >> 47
+  const t672 = t671 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_20](`in` = t672)
+  const t673 = request_unrolled_flat__w1 >> 47
+  const t674 = t673 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_21](`in` = t674)
+  const t675 = request_unrolled_flat__w1 >> 47
+  const t676 = t675 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_22](`in` = t676)
+  const t677 = request_unrolled_flat__w1 >> 47
+  const t678 = t677 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_23](`in` = t678)
+  const t679 = request_unrolled_flat__w1 >> 47
+  const t680 = t679 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_24](`in` = t680)
+  const t681 = request_unrolled_flat__w1 >> 47
+  const t682 = t681 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_25](`in` = t682)
+  const t683 = request_unrolled_flat__w1 >> 47
+  const t684 = t683 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_26](`in` = t684)
+  const t685 = request_unrolled_flat__w1 >> 47
+  const t686 = t685 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_27](`in` = t686)
+  const t687 = request_unrolled_flat__w1 >> 47
+  const t688 = t687 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_28](`in` = t688)
+  const t689 = request_unrolled_flat__w1 >> 47
+  const t690 = t689 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_29](`in` = t690)
+  const t691 = request_unrolled_flat__w1 >> 47
+  const t692 = t691 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_30](`in` = t692)
+  const t693 = request_unrolled_flat__w1 >> 47
+  const t694 = t693 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_31](`in` = t694)
+  const t695 = request_unrolled_flat__w1 >> 47
+  const t696 = t695 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_32](`in` = t696)
+  const t697 = request_unrolled_flat__w1 >> 47
+  const t698 = t697 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_33](`in` = t698)
+  const t699 = request_unrolled_flat__w1 >> 47
+  const t700 = t699 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_34](`in` = t700)
+  const t701 = request_unrolled_flat__w1 >> 47
+  const t702 = t701 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_35](`in` = t702)
+  const t703 = request_unrolled_flat__w1 >> 47
+  const t704 = t703 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_36](`in` = t704)
+  const t705 = request_unrolled_flat__w1 >> 47
+  const t706 = t705 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_37](`in` = t706)
+  const t707 = request_unrolled_flat__w1 >> 47
+  const t708 = t707 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_38](`in` = t708)
+  const t709 = request_unrolled_flat__w1 >> 47
+  const t710 = t709 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_39](`in` = t710)
+  const t711 = request_unrolled_flat__w1 >> 47
+  const t712 = t711 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_40](`in` = t712)
+  const t713 = request_unrolled_flat__w1 >> 47
+  const t714 = t713 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_41](`in` = t714)
+  const t715 = request_unrolled_flat__w1 >> 47
+  const t716 = t715 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_42](`in` = t716)
+  const t717 = request_unrolled_flat__w1 >> 47
+  const t718 = t717 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_43](`in` = t718)
+  const t719 = request_unrolled_flat__w1 >> 47
+  const t720 = t719 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_44](`in` = t720)
+  const t721 = request_unrolled_flat__w1 >> 47
+  const t722 = t721 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_45](`in` = t722)
+  const t723 = request_unrolled_flat__w1 >> 47
+  const t724 = t723 & 1
+  br_misc_unused::[name=br_misc_unused_request_unrolled_flat_46](`in` = t724)
+  const t725 = ~any_higher_pri_req__w48
+  const t726 = t725#[0..=47]
+  const t727 = request_unrolled__w33 & t726
+  const t728 = t727
+  const grant_unrolled__w1 = t728
+  const t729 = grant_unrolled__w1#[0..=15]
+  const t730 = 0 | t729
+  const t731 = t730
+  const grant__wtmp__w1 = t731
+  const t732 = grant_unrolled__w1#[16..=31]
+  const t733 = grant__wtmp__w1 | t732
+  const t734 = t733
+  const grant__wtmp__w2 = t734
+  const t735 = grant_unrolled__w1#[32..=47]
+  const t736 = grant__wtmp__w2 | t735
+  const t737 = t736
+  const grant__wtmp__w3 = t737
+  grant = grant__wtmp__w3
+}

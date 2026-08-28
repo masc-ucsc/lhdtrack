@@ -2,888 +2,1012 @@ const br_misc_unused = import("br_misc_unused.br_misc_unused")
 const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
 
 pub mod br_lru_state_internal::[timecheck=false](clk:u1, rst:u1, update_priority:u1, grant:(e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)) -> (state:u64@[]) {
-  reg state_reg:[8]u8:[ordering="old", wensize=8]
+  reg state_reg___q:u64
+  mut state_reg:u64 = 0
   mut state_reg_next:u64 = 0
+  state_reg = state_reg___q
   state_reg_next = 0sb?
   state = 0sb?
   mut state__w1 = state
   state__w1#[0] = 0
-  state_reg[0][0] = 0
+  mut state_reg__w1 = state_reg
+  state_reg__w1#[0] = 0
   mut state_reg_next__w1 = state_reg_next
   state_reg_next__w1#[0] = 0
   mut state__w2 = state__w1
-  state__w2#[1] = (state_reg[0] >> 1) & 1
+  state__w2#[1] = (state_reg__w1#[0..=7] >> 1) & 1
   mut state__w3 = state__w2
-  state__w3#[2] = (state_reg[0] >> 2) & 1
+  state__w3#[2] = (state_reg__w1#[0..=7] >> 2) & 1
   mut state__w4 = state__w3
-  state__w4#[3] = (state_reg[0] >> 3) & 1
+  state__w4#[3] = (state_reg__w1#[0..=7] >> 3) & 1
   mut state__w5 = state__w4
-  state__w5#[4] = (state_reg[0] >> 4) & 1
+  state__w5#[4] = (state_reg__w1#[0..=7] >> 4) & 1
   mut state__w6 = state__w5
-  state__w6#[5] = (state_reg[0] >> 5) & 1
+  state__w6#[5] = (state_reg__w1#[0..=7] >> 5) & 1
   mut state__w7 = state__w6
-  state__w7#[6] = (state_reg[0] >> 6) & 1
+  state__w7#[6] = (state_reg__w1#[0..=7] >> 6) & 1
   mut state__w8 = state__w7
-  state__w8#[7] = (state_reg[0] >> 7) & 1
+  state__w8#[7] = (state_reg__w1#[0..=7] >> 7) & 1
   mut state__w9 = state__w8
-  state__w9#[8] = unsigned(((state_reg[0] >> 1) & 1) == 0) & 1
+  state__w9#[8] = unsigned(((state_reg__w1#[0..=7] >> 1) & 1) == 0) & 1
   mut state_reg_next__w2 = state_reg_next__w1
   state_reg_next__w2#[8] = 0
-  state_reg[1][0] = 0
+  mut state_reg__w2 = state_reg__w1
+  state_reg__w2#[8] = 0
   mut state__w10 = state__w9
   state__w10#[9] = 0
-  state_reg[1][0] = 1
+  mut state_reg__w3 = state_reg__w2
+  state_reg__w3#[9] = 0
   mut state_reg_next__w3 = state_reg_next__w2
   state_reg_next__w3#[9] = 0
   mut state__w11 = state__w10
-  state__w11#[10] = (state_reg[1] >> 2) & 1
+  state__w11#[10] = (state_reg__w3#[8..=15] >> 2) & 1
   mut state__w12 = state__w11
-  state__w12#[11] = (state_reg[1] >> 3) & 1
+  state__w12#[11] = (state_reg__w3#[8..=15] >> 3) & 1
   mut state__w13 = state__w12
-  state__w13#[12] = (state_reg[1] >> 4) & 1
+  state__w13#[12] = (state_reg__w3#[8..=15] >> 4) & 1
   mut state__w14 = state__w13
-  state__w14#[13] = (state_reg[1] >> 5) & 1
+  state__w14#[13] = (state_reg__w3#[8..=15] >> 5) & 1
   mut state__w15 = state__w14
-  state__w15#[14] = (state_reg[1] >> 6) & 1
+  state__w15#[14] = (state_reg__w3#[8..=15] >> 6) & 1
   mut state__w16 = state__w15
-  state__w16#[15] = (state_reg[1] >> 7) & 1
+  state__w16#[15] = (state_reg__w3#[8..=15] >> 7) & 1
   mut state__w17 = state__w16
-  state__w17#[16] = unsigned(((state_reg[0] >> 2) & 1) == 0) & 1
+  state__w17#[16] = unsigned(((state_reg__w3#[0..=7] >> 2) & 1) == 0) & 1
   mut state_reg_next__w4 = state_reg_next__w3
   state_reg_next__w4#[16] = 0
-  state_reg[2][0] = 0
+  mut state_reg__w4 = state_reg__w3
+  state_reg__w4#[16] = 0
   mut state__w18 = state__w17
-  state__w18#[17] = unsigned(((state_reg[1] >> 2) & 1) == 0) & 1
+  state__w18#[17] = unsigned(((state_reg__w4#[8..=15] >> 2) & 1) == 0) & 1
   mut state_reg_next__w5 = state_reg_next__w4
   state_reg_next__w5#[17] = 0
-  state_reg[2][0] = 1
+  mut state_reg__w5 = state_reg__w4
+  state_reg__w5#[17] = 0
   mut state__w19 = state__w18
   state__w19#[18] = 0
-  state_reg[2][0] = 2
+  mut state_reg__w6 = state_reg__w5
+  state_reg__w6#[18] = 0
   mut state_reg_next__w6 = state_reg_next__w5
   state_reg_next__w6#[18] = 0
   mut state__w20 = state__w19
-  state__w20#[19] = (state_reg[2] >> 3) & 1
+  state__w20#[19] = (state_reg__w6#[16..=23] >> 3) & 1
   mut state__w21 = state__w20
-  state__w21#[20] = (state_reg[2] >> 4) & 1
+  state__w21#[20] = (state_reg__w6#[16..=23] >> 4) & 1
   mut state__w22 = state__w21
-  state__w22#[21] = (state_reg[2] >> 5) & 1
+  state__w22#[21] = (state_reg__w6#[16..=23] >> 5) & 1
   mut state__w23 = state__w22
-  state__w23#[22] = (state_reg[2] >> 6) & 1
+  state__w23#[22] = (state_reg__w6#[16..=23] >> 6) & 1
   mut state__w24 = state__w23
-  state__w24#[23] = (state_reg[2] >> 7) & 1
+  state__w24#[23] = (state_reg__w6#[16..=23] >> 7) & 1
   mut state__w25 = state__w24
-  state__w25#[24] = unsigned(((state_reg[0] >> 3) & 1) == 0) & 1
+  state__w25#[24] = unsigned(((state_reg__w6#[0..=7] >> 3) & 1) == 0) & 1
   mut state_reg_next__w7 = state_reg_next__w6
   state_reg_next__w7#[24] = 0
-  state_reg[3][0] = 0
+  mut state_reg__w7 = state_reg__w6
+  state_reg__w7#[24] = 0
   mut state__w26 = state__w25
-  state__w26#[25] = unsigned(((state_reg[1] >> 3) & 1) == 0) & 1
+  state__w26#[25] = unsigned(((state_reg__w7#[8..=15] >> 3) & 1) == 0) & 1
   mut state_reg_next__w8 = state_reg_next__w7
   state_reg_next__w8#[25] = 0
-  state_reg[3][0] = 1
+  mut state_reg__w8 = state_reg__w7
+  state_reg__w8#[25] = 0
   mut state__w27 = state__w26
-  state__w27#[26] = unsigned(((state_reg[2] >> 3) & 1) == 0) & 1
+  state__w27#[26] = unsigned(((state_reg__w8#[16..=23] >> 3) & 1) == 0) & 1
   mut state_reg_next__w9 = state_reg_next__w8
   state_reg_next__w9#[26] = 0
-  state_reg[3][0] = 2
+  mut state_reg__w9 = state_reg__w8
+  state_reg__w9#[26] = 0
   mut state__w28 = state__w27
   state__w28#[27] = 0
-  state_reg[3][0] = 3
+  mut state_reg__w10 = state_reg__w9
+  state_reg__w10#[27] = 0
   mut state_reg_next__w10 = state_reg_next__w9
   state_reg_next__w10#[27] = 0
   mut state__w29 = state__w28
-  state__w29#[28] = (state_reg[3] >> 4) & 1
+  state__w29#[28] = (state_reg__w10#[24..=31] >> 4) & 1
   mut state__w30 = state__w29
-  state__w30#[29] = (state_reg[3] >> 5) & 1
+  state__w30#[29] = (state_reg__w10#[24..=31] >> 5) & 1
   mut state__w31 = state__w30
-  state__w31#[30] = (state_reg[3] >> 6) & 1
+  state__w31#[30] = (state_reg__w10#[24..=31] >> 6) & 1
   mut state__w32 = state__w31
-  state__w32#[31] = (state_reg[3] >> 7) & 1
+  state__w32#[31] = (state_reg__w10#[24..=31] >> 7) & 1
   mut state__w33 = state__w32
-  state__w33#[32] = unsigned(((state_reg[0] >> 4) & 1) == 0) & 1
+  state__w33#[32] = unsigned(((state_reg__w10#[0..=7] >> 4) & 1) == 0) & 1
   mut state_reg_next__w11 = state_reg_next__w10
   state_reg_next__w11#[32] = 0
-  state_reg[4][0] = 0
+  mut state_reg__w11 = state_reg__w10
+  state_reg__w11#[32] = 0
   mut state__w34 = state__w33
-  state__w34#[33] = unsigned(((state_reg[1] >> 4) & 1) == 0) & 1
+  state__w34#[33] = unsigned(((state_reg__w11#[8..=15] >> 4) & 1) == 0) & 1
   mut state_reg_next__w12 = state_reg_next__w11
   state_reg_next__w12#[33] = 0
-  state_reg[4][0] = 1
+  mut state_reg__w12 = state_reg__w11
+  state_reg__w12#[33] = 0
   mut state__w35 = state__w34
-  state__w35#[34] = unsigned(((state_reg[2] >> 4) & 1) == 0) & 1
+  state__w35#[34] = unsigned(((state_reg__w12#[16..=23] >> 4) & 1) == 0) & 1
   mut state_reg_next__w13 = state_reg_next__w12
   state_reg_next__w13#[34] = 0
-  state_reg[4][0] = 2
+  mut state_reg__w13 = state_reg__w12
+  state_reg__w13#[34] = 0
   mut state__w36 = state__w35
-  state__w36#[35] = unsigned(((state_reg[3] >> 4) & 1) == 0) & 1
+  state__w36#[35] = unsigned(((state_reg__w13#[24..=31] >> 4) & 1) == 0) & 1
   mut state_reg_next__w14 = state_reg_next__w13
   state_reg_next__w14#[35] = 0
-  state_reg[4][0] = 3
+  mut state_reg__w14 = state_reg__w13
+  state_reg__w14#[35] = 0
   mut state__w37 = state__w36
   state__w37#[36] = 0
-  state_reg[4][0] = 4
+  mut state_reg__w15 = state_reg__w14
+  state_reg__w15#[36] = 0
   mut state_reg_next__w15 = state_reg_next__w14
   state_reg_next__w15#[36] = 0
   mut state__w38 = state__w37
-  state__w38#[37] = (state_reg[4] >> 5) & 1
+  state__w38#[37] = (state_reg__w15#[32..=39] >> 5) & 1
   mut state__w39 = state__w38
-  state__w39#[38] = (state_reg[4] >> 6) & 1
+  state__w39#[38] = (state_reg__w15#[32..=39] >> 6) & 1
   mut state__w40 = state__w39
-  state__w40#[39] = (state_reg[4] >> 7) & 1
+  state__w40#[39] = (state_reg__w15#[32..=39] >> 7) & 1
   mut state__w41 = state__w40
-  state__w41#[40] = unsigned(((state_reg[0] >> 5) & 1) == 0) & 1
+  state__w41#[40] = unsigned(((state_reg__w15#[0..=7] >> 5) & 1) == 0) & 1
   mut state_reg_next__w16 = state_reg_next__w15
   state_reg_next__w16#[40] = 0
-  state_reg[5][0] = 0
+  mut state_reg__w16 = state_reg__w15
+  state_reg__w16#[40] = 0
   mut state__w42 = state__w41
-  state__w42#[41] = unsigned(((state_reg[1] >> 5) & 1) == 0) & 1
+  state__w42#[41] = unsigned(((state_reg__w16#[8..=15] >> 5) & 1) == 0) & 1
   mut state_reg_next__w17 = state_reg_next__w16
   state_reg_next__w17#[41] = 0
-  state_reg[5][0] = 1
+  mut state_reg__w17 = state_reg__w16
+  state_reg__w17#[41] = 0
   mut state__w43 = state__w42
-  state__w43#[42] = unsigned(((state_reg[2] >> 5) & 1) == 0) & 1
+  state__w43#[42] = unsigned(((state_reg__w17#[16..=23] >> 5) & 1) == 0) & 1
   mut state_reg_next__w18 = state_reg_next__w17
   state_reg_next__w18#[42] = 0
-  state_reg[5][0] = 2
+  mut state_reg__w18 = state_reg__w17
+  state_reg__w18#[42] = 0
   mut state__w44 = state__w43
-  state__w44#[43] = unsigned(((state_reg[3] >> 5) & 1) == 0) & 1
+  state__w44#[43] = unsigned(((state_reg__w18#[24..=31] >> 5) & 1) == 0) & 1
   mut state_reg_next__w19 = state_reg_next__w18
   state_reg_next__w19#[43] = 0
-  state_reg[5][0] = 3
+  mut state_reg__w19 = state_reg__w18
+  state_reg__w19#[43] = 0
   mut state__w45 = state__w44
-  state__w45#[44] = unsigned(((state_reg[4] >> 5) & 1) == 0) & 1
+  state__w45#[44] = unsigned(((state_reg__w19#[32..=39] >> 5) & 1) == 0) & 1
   mut state_reg_next__w20 = state_reg_next__w19
   state_reg_next__w20#[44] = 0
-  state_reg[5][0] = 4
+  mut state_reg__w20 = state_reg__w19
+  state_reg__w20#[44] = 0
   mut state__w46 = state__w45
   state__w46#[45] = 0
-  state_reg[5][0] = 5
+  mut state_reg__w21 = state_reg__w20
+  state_reg__w21#[45] = 0
   mut state_reg_next__w21 = state_reg_next__w20
   state_reg_next__w21#[45] = 0
   mut state__w47 = state__w46
-  state__w47#[46] = (state_reg[5] >> 6) & 1
+  state__w47#[46] = (state_reg__w21#[40..=47] >> 6) & 1
   mut state__w48 = state__w47
-  state__w48#[47] = (state_reg[5] >> 7) & 1
+  state__w48#[47] = (state_reg__w21#[40..=47] >> 7) & 1
   mut state__w49 = state__w48
-  state__w49#[48] = unsigned(((state_reg[0] >> 6) & 1) == 0) & 1
+  state__w49#[48] = unsigned(((state_reg__w21#[0..=7] >> 6) & 1) == 0) & 1
   mut state_reg_next__w22 = state_reg_next__w21
   state_reg_next__w22#[48] = 0
-  state_reg[6][0] = 0
+  mut state_reg__w22 = state_reg__w21
+  state_reg__w22#[48] = 0
   mut state__w50 = state__w49
-  state__w50#[49] = unsigned(((state_reg[1] >> 6) & 1) == 0) & 1
+  state__w50#[49] = unsigned(((state_reg__w22#[8..=15] >> 6) & 1) == 0) & 1
   mut state_reg_next__w23 = state_reg_next__w22
   state_reg_next__w23#[49] = 0
-  state_reg[6][0] = 1
+  mut state_reg__w23 = state_reg__w22
+  state_reg__w23#[49] = 0
   mut state__w51 = state__w50
-  state__w51#[50] = unsigned(((state_reg[2] >> 6) & 1) == 0) & 1
+  state__w51#[50] = unsigned(((state_reg__w23#[16..=23] >> 6) & 1) == 0) & 1
   mut state_reg_next__w24 = state_reg_next__w23
   state_reg_next__w24#[50] = 0
-  state_reg[6][0] = 2
+  mut state_reg__w24 = state_reg__w23
+  state_reg__w24#[50] = 0
   mut state__w52 = state__w51
-  state__w52#[51] = unsigned(((state_reg[3] >> 6) & 1) == 0) & 1
+  state__w52#[51] = unsigned(((state_reg__w24#[24..=31] >> 6) & 1) == 0) & 1
   mut state_reg_next__w25 = state_reg_next__w24
   state_reg_next__w25#[51] = 0
-  state_reg[6][0] = 3
+  mut state_reg__w25 = state_reg__w24
+  state_reg__w25#[51] = 0
   mut state__w53 = state__w52
-  state__w53#[52] = unsigned(((state_reg[4] >> 6) & 1) == 0) & 1
+  state__w53#[52] = unsigned(((state_reg__w25#[32..=39] >> 6) & 1) == 0) & 1
   mut state_reg_next__w26 = state_reg_next__w25
   state_reg_next__w26#[52] = 0
-  state_reg[6][0] = 4
+  mut state_reg__w26 = state_reg__w25
+  state_reg__w26#[52] = 0
   mut state__w54 = state__w53
-  state__w54#[53] = unsigned(((state_reg[5] >> 6) & 1) == 0) & 1
+  state__w54#[53] = unsigned(((state_reg__w26#[40..=47] >> 6) & 1) == 0) & 1
   mut state_reg_next__w27 = state_reg_next__w26
   state_reg_next__w27#[53] = 0
-  state_reg[6][0] = 5
+  mut state_reg__w27 = state_reg__w26
+  state_reg__w27#[53] = 0
   mut state__w55 = state__w54
   state__w55#[54] = 0
-  state_reg[6][0] = 6
+  mut state_reg__w28 = state_reg__w27
+  state_reg__w28#[54] = 0
   mut state_reg_next__w28 = state_reg_next__w27
   state_reg_next__w28#[54] = 0
   mut state__w56 = state__w55
-  state__w56#[55] = (state_reg[6] >> 7) & 1
+  state__w56#[55] = (state_reg__w28#[48..=55] >> 7) & 1
   mut state__w57 = state__w56
-  state__w57#[56] = unsigned(((state_reg[0] >> 7) & 1) == 0) & 1
+  state__w57#[56] = unsigned(((state_reg__w28#[0..=7] >> 7) & 1) == 0) & 1
   mut state_reg_next__w29 = state_reg_next__w28
   state_reg_next__w29#[56] = 0
-  state_reg[7][0] = 0
+  mut state_reg__w29 = state_reg__w28
+  state_reg__w29#[56] = 0
   mut state__w58 = state__w57
-  state__w58#[57] = unsigned(((state_reg[1] >> 7) & 1) == 0) & 1
+  state__w58#[57] = unsigned(((state_reg__w29#[8..=15] >> 7) & 1) == 0) & 1
   mut state_reg_next__w30 = state_reg_next__w29
   state_reg_next__w30#[57] = 0
-  state_reg[7][0] = 1
+  mut state_reg__w30 = state_reg__w29
+  state_reg__w30#[57] = 0
+  const t231 = ((state_reg__w30#[16..=23] >> 7) & 1) == 0
   mut state__w59 = state__w58
-  state__w59#[58] = unsigned(((state_reg[2] >> 7) & 1) == 0) & 1
+  state__w59#[58] = unsigned(t231) & 1
   mut state_reg_next__w31 = state_reg_next__w30
   state_reg_next__w31#[58] = 0
-  state_reg[7][0] = 2
+  mut state_reg__w31 = state_reg__w30
+  state_reg__w31#[58] = 0
+  const t235 = (state_reg__w31#[24..=31] >> 7) & 1
+  const t236 = t235 == 0
   mut state__w60 = state__w59
-  state__w60#[59] = unsigned(((state_reg[3] >> 7) & 1) == 0) & 1
+  state__w60#[59] = unsigned(t236) & 1
   mut state_reg_next__w32 = state_reg_next__w31
   state_reg_next__w32#[59] = 0
-  state_reg[7][0] = 3
+  mut state_reg__w32 = state_reg__w31
+  state_reg__w32#[59] = 0
+  const t239 = state_reg__w32#[32..=39] >> 7
+  const t240 = t239 & 1
+  const t241 = t240 == 0
   mut state__w61 = state__w60
-  state__w61#[60] = unsigned(((state_reg[4] >> 7) & 1) == 0) & 1
+  state__w61#[60] = unsigned(t241) & 1
   mut state_reg_next__w33 = state_reg_next__w32
   state_reg_next__w33#[60] = 0
-  state_reg[7][0] = 4
+  mut state_reg__w33 = state_reg__w32
+  state_reg__w33#[60] = 0
+  const t243 = state_reg__w33#[40..=47]
+  const t244 = t243 >> 7
+  const t245 = t244 & 1
+  const t246 = t245 == 0
   mut state__w62 = state__w61
-  state__w62#[61] = unsigned(((state_reg[5] >> 7) & 1) == 0) & 1
+  state__w62#[61] = unsigned(t246) & 1
   mut state_reg_next__w34 = state_reg_next__w33
   state_reg_next__w34#[61] = 0
-  state_reg[7][0] = 5
+  mut state_reg__w34 = state_reg__w33
+  state_reg__w34#[61] = 0
+  const t248 = state_reg__w34#[48..=55]
+  const t249 = t248 >> 7
+  const t250 = t249 & 1
+  const t251 = t250 == 0
   mut state__w63 = state__w62
-  state__w63#[62] = unsigned(((state_reg[6] >> 7) & 1) == 0) & 1
+  state__w63#[62] = unsigned(t251) & 1
   mut state_reg_next__w35 = state_reg_next__w34
   state_reg_next__w35#[62] = 0
-  state_reg[7][0] = 6
+  mut state_reg__w35 = state_reg__w34
+  state_reg__w35#[62] = 0
   mut state__w64 = state__w63
   state__w64#[63] = 0
-  state_reg[7][0] = 7
+  mut state_reg__w36 = state_reg__w35
+  state_reg__w36#[63] = 0
   mut state_reg_next__w36 = state_reg_next__w35
   state_reg_next__w36#[63] = 0
-  const t289 = state__w64#[0..=7]
-  const t290 = t289 >> 1
-  const t291 = t290 & 1
-  mut _mux_29:u1 = if grant.e1 != 0 { 1 } else { t291 }
+  const t261 = state__w64#[0..=7]
+  const t262 = t261 >> 1
+  const t263 = t262 & 1
+  mut _mux_29:u1 = if grant.e1 != 0 { 1 } else { t263 }
   mut _mux_30:u1 = if grant.e0 != 0 { 0 } else { _mux_29 & 1 }
   mut state_reg_next__w37 = state_reg_next__w36
   state_reg_next__w37#[1] = _mux_30 & 1
-  const t298 = state__w64#[0..=7]
-  const t299 = t298 >> 2
-  const t300 = t299 & 1
-  mut _mux_31:u1 = if grant.e2 != 0 { 1 } else { t300 }
+  const t270 = state__w64#[0..=7]
+  const t271 = t270 >> 2
+  const t272 = t271 & 1
+  mut _mux_31:u1 = if grant.e2 != 0 { 1 } else { t272 }
   mut _mux_32:u1 = if grant.e0 != 0 { 0 } else { _mux_31 & 1 }
   mut state_reg_next__w38 = state_reg_next__w37
   state_reg_next__w38#[2] = _mux_32 & 1
-  const t307 = state__w64#[0..=7]
-  const t308 = t307 >> 3
-  const t309 = t308 & 1
-  mut _mux_33:u1 = if grant.e3 != 0 { 1 } else { t309 }
+  const t279 = state__w64#[0..=7]
+  const t280 = t279 >> 3
+  const t281 = t280 & 1
+  mut _mux_33:u1 = if grant.e3 != 0 { 1 } else { t281 }
   mut _mux_34:u1 = if grant.e0 != 0 { 0 } else { _mux_33 & 1 }
   mut state_reg_next__w39 = state_reg_next__w38
   state_reg_next__w39#[3] = _mux_34 & 1
-  const t316 = state__w64#[0..=7]
-  const t317 = t316 >> 4
-  const t318 = t317 & 1
-  mut _mux_35:u1 = if grant.e4 != 0 { 1 } else { t318 }
+  const t288 = state__w64#[0..=7]
+  const t289 = t288 >> 4
+  const t290 = t289 & 1
+  mut _mux_35:u1 = if grant.e4 != 0 { 1 } else { t290 }
   mut _mux_36:u1 = if grant.e0 != 0 { 0 } else { _mux_35 & 1 }
   mut state_reg_next__w40 = state_reg_next__w39
   state_reg_next__w40#[4] = _mux_36 & 1
-  const t325 = state__w64#[0..=7]
-  const t326 = t325 >> 5
-  const t327 = t326 & 1
-  mut _mux_37:u1 = if grant.e5 != 0 { 1 } else { t327 }
+  const t297 = state__w64#[0..=7]
+  const t298 = t297 >> 5
+  const t299 = t298 & 1
+  mut _mux_37:u1 = if grant.e5 != 0 { 1 } else { t299 }
   mut _mux_38:u1 = if grant.e0 != 0 { 0 } else { _mux_37 & 1 }
   mut state_reg_next__w41 = state_reg_next__w40
   state_reg_next__w41#[5] = _mux_38 & 1
-  const t334 = state__w64#[0..=7]
-  const t335 = t334 >> 6
-  const t336 = t335 & 1
-  mut _mux_39:u1 = if grant.e6 != 0 { 1 } else { t336 }
+  const t306 = state__w64#[0..=7]
+  const t307 = t306 >> 6
+  const t308 = t307 & 1
+  mut _mux_39:u1 = if grant.e6 != 0 { 1 } else { t308 }
   mut _mux_40:u1 = if grant.e0 != 0 { 0 } else { _mux_39 & 1 }
   mut state_reg_next__w42 = state_reg_next__w41
   state_reg_next__w42#[6] = _mux_40 & 1
-  const t343 = state__w64#[0..=7]
-  const t344 = t343 >> 7
-  const t345 = t344 & 1
-  mut _mux_41:u1 = if grant.e7 != 0 { 1 } else { t345 }
+  const t315 = state__w64#[0..=7]
+  const t316 = t315 >> 7
+  const t317 = t316 & 1
+  mut _mux_41:u1 = if grant.e7 != 0 { 1 } else { t317 }
   mut _mux_42:u1 = if grant.e0 != 0 { 0 } else { _mux_41 & 1 }
   mut state_reg_next__w43 = state_reg_next__w42
   state_reg_next__w43#[7] = _mux_42 & 1
-  const t352 = state__w64#[8..=15]
-  const t353 = t352 >> 2
-  const t354 = t353 & 1
-  mut _mux_43:u1 = if grant.e2 != 0 { 1 } else { t354 }
+  const t324 = state__w64#[8..=15]
+  const t325 = t324 >> 2
+  const t326 = t325 & 1
+  mut _mux_43:u1 = if grant.e2 != 0 { 1 } else { t326 }
   mut _mux_44:u1 = if grant.e1 != 0 { 0 } else { _mux_43 & 1 }
   mut state_reg_next__w44 = state_reg_next__w43
   state_reg_next__w44#[10] = _mux_44 & 1
-  const t361 = state__w64#[8..=15]
-  const t362 = t361 >> 3
-  const t363 = t362 & 1
-  mut _mux_45:u1 = if grant.e3 != 0 { 1 } else { t363 }
+  const t333 = state__w64#[8..=15]
+  const t334 = t333 >> 3
+  const t335 = t334 & 1
+  mut _mux_45:u1 = if grant.e3 != 0 { 1 } else { t335 }
   mut _mux_46:u1 = if grant.e1 != 0 { 0 } else { _mux_45 & 1 }
   mut state_reg_next__w45 = state_reg_next__w44
   state_reg_next__w45#[11] = _mux_46 & 1
-  const t370 = state__w64#[8..=15]
-  const t371 = t370 >> 4
-  const t372 = t371 & 1
-  mut _mux_47:u1 = if grant.e4 != 0 { 1 } else { t372 }
+  const t342 = state__w64#[8..=15]
+  const t343 = t342 >> 4
+  const t344 = t343 & 1
+  mut _mux_47:u1 = if grant.e4 != 0 { 1 } else { t344 }
   mut _mux_48:u1 = if grant.e1 != 0 { 0 } else { _mux_47 & 1 }
   mut state_reg_next__w46 = state_reg_next__w45
   state_reg_next__w46#[12] = _mux_48 & 1
-  const t379 = state__w64#[8..=15]
-  const t380 = t379 >> 5
-  const t381 = t380 & 1
-  mut _mux_49:u1 = if grant.e5 != 0 { 1 } else { t381 }
+  const t351 = state__w64#[8..=15]
+  const t352 = t351 >> 5
+  const t353 = t352 & 1
+  mut _mux_49:u1 = if grant.e5 != 0 { 1 } else { t353 }
   mut _mux_50:u1 = if grant.e1 != 0 { 0 } else { _mux_49 & 1 }
   mut state_reg_next__w47 = state_reg_next__w46
   state_reg_next__w47#[13] = _mux_50 & 1
-  const t388 = state__w64#[8..=15]
-  const t389 = t388 >> 6
-  const t390 = t389 & 1
-  mut _mux_51:u1 = if grant.e6 != 0 { 1 } else { t390 }
+  const t360 = state__w64#[8..=15]
+  const t361 = t360 >> 6
+  const t362 = t361 & 1
+  mut _mux_51:u1 = if grant.e6 != 0 { 1 } else { t362 }
   mut _mux_52:u1 = if grant.e1 != 0 { 0 } else { _mux_51 & 1 }
   mut state_reg_next__w48 = state_reg_next__w47
   state_reg_next__w48#[14] = _mux_52 & 1
-  const t397 = state__w64#[8..=15]
-  const t398 = t397 >> 7
-  const t399 = t398 & 1
-  mut _mux_53:u1 = if grant.e7 != 0 { 1 } else { t399 }
+  const t369 = state__w64#[8..=15]
+  const t370 = t369 >> 7
+  const t371 = t370 & 1
+  mut _mux_53:u1 = if grant.e7 != 0 { 1 } else { t371 }
   mut _mux_54:u1 = if grant.e1 != 0 { 0 } else { _mux_53 & 1 }
   mut state_reg_next__w49 = state_reg_next__w48
   state_reg_next__w49#[15] = _mux_54 & 1
-  const t406 = state__w64#[16..=23]
-  const t407 = t406 >> 3
-  const t408 = t407 & 1
-  mut _mux_55:u1 = if grant.e3 != 0 { 1 } else { t408 }
+  const t378 = state__w64#[16..=23]
+  const t379 = t378 >> 3
+  const t380 = t379 & 1
+  mut _mux_55:u1 = if grant.e3 != 0 { 1 } else { t380 }
   mut _mux_56:u1 = if grant.e2 != 0 { 0 } else { _mux_55 & 1 }
   mut state_reg_next__w50 = state_reg_next__w49
   state_reg_next__w50#[19] = _mux_56 & 1
-  const t415 = state__w64#[16..=23]
-  const t416 = t415 >> 4
-  const t417 = t416 & 1
-  mut _mux_57:u1 = if grant.e4 != 0 { 1 } else { t417 }
+  const t387 = state__w64#[16..=23]
+  const t388 = t387 >> 4
+  const t389 = t388 & 1
+  mut _mux_57:u1 = if grant.e4 != 0 { 1 } else { t389 }
   mut _mux_58:u1 = if grant.e2 != 0 { 0 } else { _mux_57 & 1 }
   mut state_reg_next__w51 = state_reg_next__w50
   state_reg_next__w51#[20] = _mux_58 & 1
-  const t424 = state__w64#[16..=23]
-  const t425 = t424 >> 5
-  const t426 = t425 & 1
-  mut _mux_59:u1 = if grant.e5 != 0 { 1 } else { t426 }
+  const t396 = state__w64#[16..=23]
+  const t397 = t396 >> 5
+  const t398 = t397 & 1
+  mut _mux_59:u1 = if grant.e5 != 0 { 1 } else { t398 }
   mut _mux_60:u1 = if grant.e2 != 0 { 0 } else { _mux_59 & 1 }
   mut state_reg_next__w52 = state_reg_next__w51
   state_reg_next__w52#[21] = _mux_60 & 1
-  const t433 = state__w64#[16..=23]
-  const t434 = t433 >> 6
-  const t435 = t434 & 1
-  mut _mux_61:u1 = if grant.e6 != 0 { 1 } else { t435 }
+  const t405 = state__w64#[16..=23]
+  const t406 = t405 >> 6
+  const t407 = t406 & 1
+  mut _mux_61:u1 = if grant.e6 != 0 { 1 } else { t407 }
   mut _mux_62:u1 = if grant.e2 != 0 { 0 } else { _mux_61 & 1 }
   mut state_reg_next__w53 = state_reg_next__w52
   state_reg_next__w53#[22] = _mux_62 & 1
-  const t442 = state__w64#[16..=23]
-  const t443 = t442 >> 7
-  const t444 = t443 & 1
-  mut _mux_63:u1 = if grant.e7 != 0 { 1 } else { t444 }
+  const t414 = state__w64#[16..=23]
+  const t415 = t414 >> 7
+  const t416 = t415 & 1
+  mut _mux_63:u1 = if grant.e7 != 0 { 1 } else { t416 }
   mut _mux_64:u1 = if grant.e2 != 0 { 0 } else { _mux_63 & 1 }
   mut state_reg_next__w54 = state_reg_next__w53
   state_reg_next__w54#[23] = _mux_64 & 1
-  const t451 = state__w64#[24..=31]
-  const t452 = t451 >> 4
-  const t453 = t452 & 1
-  mut _mux_65:u1 = if grant.e4 != 0 { 1 } else { t453 }
+  const t423 = state__w64#[24..=31]
+  const t424 = t423 >> 4
+  const t425 = t424 & 1
+  mut _mux_65:u1 = if grant.e4 != 0 { 1 } else { t425 }
   mut _mux_66:u1 = if grant.e3 != 0 { 0 } else { _mux_65 & 1 }
   mut state_reg_next__w55 = state_reg_next__w54
   state_reg_next__w55#[28] = _mux_66 & 1
-  const t460 = state__w64#[24..=31]
-  const t461 = t460 >> 5
-  const t462 = t461 & 1
-  mut _mux_67:u1 = if grant.e5 != 0 { 1 } else { t462 }
+  const t432 = state__w64#[24..=31]
+  const t433 = t432 >> 5
+  const t434 = t433 & 1
+  mut _mux_67:u1 = if grant.e5 != 0 { 1 } else { t434 }
   mut _mux_68:u1 = if grant.e3 != 0 { 0 } else { _mux_67 & 1 }
   mut state_reg_next__w56 = state_reg_next__w55
   state_reg_next__w56#[29] = _mux_68 & 1
-  const t469 = state__w64#[24..=31]
-  const t470 = t469 >> 6
-  const t471 = t470 & 1
-  mut _mux_69:u1 = if grant.e6 != 0 { 1 } else { t471 }
+  const t441 = state__w64#[24..=31]
+  const t442 = t441 >> 6
+  const t443 = t442 & 1
+  mut _mux_69:u1 = if grant.e6 != 0 { 1 } else { t443 }
   mut _mux_70:u1 = if grant.e3 != 0 { 0 } else { _mux_69 & 1 }
   mut state_reg_next__w57 = state_reg_next__w56
   state_reg_next__w57#[30] = _mux_70 & 1
-  const t478 = state__w64#[24..=31]
-  const t479 = t478 >> 7
-  const t480 = t479 & 1
-  mut _mux_71:u1 = if grant.e7 != 0 { 1 } else { t480 }
+  const t450 = state__w64#[24..=31]
+  const t451 = t450 >> 7
+  const t452 = t451 & 1
+  mut _mux_71:u1 = if grant.e7 != 0 { 1 } else { t452 }
   mut _mux_72:u1 = if grant.e3 != 0 { 0 } else { _mux_71 & 1 }
   mut state_reg_next__w58 = state_reg_next__w57
   state_reg_next__w58#[31] = _mux_72 & 1
-  const t487 = state__w64#[32..=39]
-  const t488 = t487 >> 5
-  const t489 = t488 & 1
-  mut _mux_73:u1 = if grant.e5 != 0 { 1 } else { t489 }
+  const t459 = state__w64#[32..=39]
+  const t460 = t459 >> 5
+  const t461 = t460 & 1
+  mut _mux_73:u1 = if grant.e5 != 0 { 1 } else { t461 }
   mut _mux_74:u1 = if grant.e4 != 0 { 0 } else { _mux_73 & 1 }
   mut state_reg_next__w59 = state_reg_next__w58
   state_reg_next__w59#[37] = _mux_74 & 1
-  const t496 = state__w64#[32..=39]
-  const t497 = t496 >> 6
-  const t498 = t497 & 1
-  mut _mux_75:u1 = if grant.e6 != 0 { 1 } else { t498 }
+  const t468 = state__w64#[32..=39]
+  const t469 = t468 >> 6
+  const t470 = t469 & 1
+  mut _mux_75:u1 = if grant.e6 != 0 { 1 } else { t470 }
   mut _mux_76:u1 = if grant.e4 != 0 { 0 } else { _mux_75 & 1 }
   mut state_reg_next__w60 = state_reg_next__w59
   state_reg_next__w60#[38] = _mux_76 & 1
-  const t505 = state__w64#[32..=39]
-  const t506 = t505 >> 7
-  const t507 = t506 & 1
-  mut _mux_77:u1 = if grant.e7 != 0 { 1 } else { t507 }
+  const t477 = state__w64#[32..=39]
+  const t478 = t477 >> 7
+  const t479 = t478 & 1
+  mut _mux_77:u1 = if grant.e7 != 0 { 1 } else { t479 }
   mut _mux_78:u1 = if grant.e4 != 0 { 0 } else { _mux_77 & 1 }
   mut state_reg_next__w61 = state_reg_next__w60
   state_reg_next__w61#[39] = _mux_78 & 1
-  const t514 = state__w64#[40..=47]
-  const t515 = t514 >> 6
-  const t516 = t515 & 1
-  mut _mux_79:u1 = if grant.e6 != 0 { 1 } else { t516 }
+  const t486 = state__w64#[40..=47]
+  const t487 = t486 >> 6
+  const t488 = t487 & 1
+  mut _mux_79:u1 = if grant.e6 != 0 { 1 } else { t488 }
   mut _mux_80:u1 = if grant.e5 != 0 { 0 } else { _mux_79 & 1 }
   mut state_reg_next__w62 = state_reg_next__w61
   state_reg_next__w62#[46] = _mux_80 & 1
-  const t523 = state__w64#[40..=47]
-  const t524 = t523 >> 7
-  const t525 = t524 & 1
-  mut _mux_81:u1 = if grant.e7 != 0 { 1 } else { t525 }
+  const t495 = state__w64#[40..=47]
+  const t496 = t495 >> 7
+  const t497 = t496 & 1
+  mut _mux_81:u1 = if grant.e7 != 0 { 1 } else { t497 }
   mut _mux_82:u1 = if grant.e5 != 0 { 0 } else { _mux_81 & 1 }
   mut state_reg_next__w63 = state_reg_next__w62
   state_reg_next__w63#[47] = _mux_82 & 1
-  const t532 = state__w64#[48..=55]
-  const t533 = t532 >> 7
-  const t534 = t533 & 1
-  mut _mux_83:u1 = if grant.e7 != 0 { 1 } else { t534 }
+  const t504 = state__w64#[48..=55]
+  const t505 = t504 >> 7
+  const t506 = t505 & 1
+  mut _mux_83:u1 = if grant.e7 != 0 { 1 } else { t506 }
   mut _mux_84:u1 = if grant.e6 != 0 { 0 } else { _mux_83 & 1 }
   mut state_reg_next__w64 = state_reg_next__w63
   state_reg_next__w64#[55] = _mux_84 & 1
   if rst != 0 {
-    state_reg[6][0x80] = 7
+    state_reg___q#[55] = 1
   } elif update_priority != 0 {
-    const t540 = state_reg_next__w64#[48..=55]
-    const t541 = t540 >> 7
-    const t542 = t541 & 1
-    const t543 = t542 << 7
-    state_reg[6][t543] = 7
+    const t511 = state_reg_next__w64#[48..=55]
+    const t512 = t511 >> 7
+    const t513 = t512 & 1
+    state_reg___q#[55] = t513
   }
-  const t544 = state_reg_next__w64#[56..=63]
+  const t514 = state_reg_next__w64#[56..=63]
+  const t515 = t514 & 1
+  const t516 = state_reg__w36#[56..=63]
+  const t517 = t516 & 1
+  const t518 = (t515 << 1) | t517
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t518)
+  const t519 = state_reg_next__w64#[56..=63]
+  const t520 = t519 >> 1
+  const t521 = t520 & 1
+  const t522 = state_reg__w36#[56..=63]
+  const t523 = t522 >> 1
+  const t524 = t523 & 1
+  const t525 = (t521 << 1) | t524
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t525)
+  const t526 = state_reg_next__w64#[56..=63]
+  const t527 = t526 >> 2
+  const t528 = t527 & 1
+  const t529 = state_reg__w36#[56..=63]
+  const t530 = t529 >> 2
+  const t531 = t530 & 1
+  const t532 = (t528 << 1) | t531
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in` = t532)
+  const t533 = state_reg_next__w64#[56..=63]
+  const t534 = t533 >> 3
+  const t535 = t534 & 1
+  const t536 = state_reg__w36#[56..=63]
+  const t537 = t536 >> 3
+  const t538 = t537 & 1
+  const t539 = (t535 << 1) | t538
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in` = t539)
+  const t540 = state_reg_next__w64#[56..=63]
+  const t541 = t540 >> 4
+  const t542 = t541 & 1
+  const t543 = state_reg__w36#[56..=63]
+  const t544 = t543 >> 4
   const t545 = t544 & 1
-  const t548 = (t545 << 1) | (state_reg[7] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t548)
-  const t549 = state_reg_next__w64#[56..=63]
-  const t550 = t549 >> 1
-  const t551 = t550 & 1
-  const t555 = (t551 << 1) | ((state_reg[7] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t555)
-  const t556 = state_reg_next__w64#[56..=63]
-  const t557 = t556 >> 2
-  const t558 = t557 & 1
-  const t562 = (t558 << 1) | ((state_reg[7] >> 2) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t562)
-  const t563 = state_reg_next__w64#[56..=63]
-  const t564 = t563 >> 3
-  const t565 = t564 & 1
-  const t569 = (t565 << 1) | ((state_reg[7] >> 3) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t569)
-  const t570 = state_reg_next__w64#[56..=63]
-  const t571 = t570 >> 4
+  const t546 = (t542 << 1) | t545
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in` = t546)
+  const t547 = state_reg_next__w64#[56..=63]
+  const t548 = t547 >> 5
+  const t549 = t548 & 1
+  const t550 = state_reg__w36#[56..=63]
+  const t551 = t550 >> 5
+  const t552 = t551 & 1
+  const t553 = (t549 << 1) | t552
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in` = t553)
+  const t554 = state_reg_next__w64#[56..=63]
+  const t555 = t554 >> 6
+  const t556 = t555 & 1
+  const t557 = state_reg__w36#[56..=63]
+  const t558 = t557 >> 6
+  const t559 = t558 & 1
+  const t560 = (t556 << 1) | t559
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in` = t560)
+  const t561 = state_reg_next__w64#[56..=63]
+  const t562 = t561 >> 7
+  const t563 = t562 & 1
+  const t564 = state_reg__w36#[56..=63]
+  const t565 = t564 >> 7
+  const t566 = t565 & 1
+  const t567 = state__w64#[56..=63]
+  const t568 = t567 >> 7
+  const t569 = t568 & 1
+  const t570 = (t563 << 2) | (t566 << 1) | t569
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_7_gen_diag_br_misc_unused_states](`in` = t570)
+  const t571 = state_reg_next__w64#[0..=7]
   const t572 = t571 & 1
-  const t576 = (t572 << 1) | ((state_reg[7] >> 4) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t576)
-  const t577 = state_reg_next__w64#[56..=63]
-  const t578 = t577 >> 5
-  const t579 = t578 & 1
-  const t583 = (t579 << 1) | ((state_reg[7] >> 5) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t583)
-  const t584 = state_reg_next__w64#[56..=63]
-  const t585 = t584 >> 6
-  const t586 = t585 & 1
-  const t590 = (t586 << 1) | ((state_reg[7] >> 6) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t590)
-  const t591 = state_reg_next__w64#[56..=63]
-  const t592 = t591 >> 7
-  const t593 = t592 & 1
-  const t597 = state__w64#[56..=63]
-  const t598 = t597 >> 7
-  const t599 = t598 & 1
-  const t600 = (t593 << 2) | (((state_reg[7] >> 7) & 1) << 1) | t599
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t600)
-  const t601 = state_reg_next__w64#[0..=7]
-  const t602 = t601 & 1
-  const t605 = state__w64#[0..=7]
-  const t606 = t605 & 1
-  const t607 = (t602 << 2) | ((state_reg[0] & 1) << 1) | t606
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t607)
+  const t573 = state_reg__w36#[0..=7]
+  const t574 = t573 & 1
+  const t575 = state__w64#[0..=7]
+  const t576 = t575 & 1
+  const t577 = (t572 << 2) | (t574 << 1) | t576
+  br_misc_unused_p1::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in` = t577)
   if rst != 0 {
-    state_reg[0][2] = 1
+    state_reg___q#[1] = 1
   } elif update_priority != 0 {
-    const t611 = state_reg_next__w64#[0..=7]
-    const t612 = t611 >> 1
-    const t613 = t612 & 1
-    const t614 = t613 << 1
-    state_reg[0][t614] = 1
+    const t580 = state_reg_next__w64#[0..=7]
+    const t581 = t580 >> 1
+    const t582 = t581 & 1
+    state_reg___q#[1] = t582
   }
   if rst != 0 {
-    state_reg[0][4] = 2
+    state_reg___q#[2] = 1
   } elif update_priority != 0 {
-    const t618 = state_reg_next__w64#[0..=7]
-    const t619 = t618 >> 2
-    const t620 = t619 & 1
-    const t621 = t620 << 2
-    state_reg[0][t621] = 2
+    const t585 = state_reg_next__w64#[0..=7]
+    const t586 = t585 >> 2
+    const t587 = t586 & 1
+    state_reg___q#[2] = t587
   }
   if rst != 0 {
-    state_reg[0][8] = 3
+    state_reg___q#[3] = 1
   } elif update_priority != 0 {
-    const t625 = state_reg_next__w64#[0..=7]
-    const t626 = t625 >> 3
-    const t627 = t626 & 1
-    const t628 = t627 << 3
-    state_reg[0][t628] = 3
+    const t590 = state_reg_next__w64#[0..=7]
+    const t591 = t590 >> 3
+    const t592 = t591 & 1
+    state_reg___q#[3] = t592
   }
   if rst != 0 {
-    state_reg[0][16] = 4
+    state_reg___q#[4] = 1
   } elif update_priority != 0 {
-    const t632 = state_reg_next__w64#[0..=7]
-    const t633 = t632 >> 4
-    const t634 = t633 & 1
-    const t635 = t634 << 4
-    state_reg[0][t635] = 4
+    const t595 = state_reg_next__w64#[0..=7]
+    const t596 = t595 >> 4
+    const t597 = t596 & 1
+    state_reg___q#[4] = t597
   }
   if rst != 0 {
-    state_reg[0][32] = 5
+    state_reg___q#[5] = 1
   } elif update_priority != 0 {
-    const t639 = state_reg_next__w64#[0..=7]
-    const t640 = t639 >> 5
-    const t641 = t640 & 1
-    const t642 = t641 << 5
-    state_reg[0][t642] = 5
+    const t600 = state_reg_next__w64#[0..=7]
+    const t601 = t600 >> 5
+    const t602 = t601 & 1
+    state_reg___q#[5] = t602
   }
   if rst != 0 {
-    state_reg[0][0x40] = 6
+    state_reg___q#[6] = 1
   } elif update_priority != 0 {
-    const t646 = state_reg_next__w64#[0..=7]
-    const t647 = t646 >> 6
-    const t648 = t647 & 1
-    const t649 = t648 << 6
-    state_reg[0][t649] = 6
+    const t605 = state_reg_next__w64#[0..=7]
+    const t606 = t605 >> 6
+    const t607 = t606 & 1
+    state_reg___q#[6] = t607
   }
   if rst != 0 {
-    state_reg[0][0x80] = 7
+    state_reg___q#[7] = 1
   } elif update_priority != 0 {
-    const t653 = state_reg_next__w64#[0..=7]
-    const t654 = t653 >> 7
-    const t655 = t654 & 1
-    const t656 = t655 << 7
-    state_reg[0][t656] = 7
+    const t610 = state_reg_next__w64#[0..=7]
+    const t611 = t610 >> 7
+    const t612 = t611 & 1
+    state_reg___q#[7] = t612
   }
-  const t657 = state_reg_next__w64#[8..=15]
-  const t658 = t657 & 1
-  const t661 = (t658 << 1) | (state_reg[1] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t661)
-  const t662 = state_reg_next__w64#[8..=15]
-  const t663 = t662 >> 1
-  const t664 = t663 & 1
-  const t668 = state__w64#[8..=15]
-  const t669 = t668 >> 1
-  const t670 = t669 & 1
-  const t671 = (t664 << 2) | (((state_reg[1] >> 1) & 1) << 1) | t670
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t671)
+  const t613 = state_reg_next__w64#[8..=15]
+  const t614 = t613 & 1
+  const t615 = state_reg__w36#[8..=15]
+  const t616 = t615 & 1
+  const t617 = (t614 << 1) | t616
+  br_misc_unused::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t617)
+  const t618 = state_reg_next__w64#[8..=15]
+  const t619 = t618 >> 1
+  const t620 = t619 & 1
+  const t621 = state_reg__w36#[8..=15]
+  const t622 = t621 >> 1
+  const t623 = t622 & 1
+  const t624 = state__w64#[8..=15]
+  const t625 = t624 >> 1
+  const t626 = t625 & 1
+  const t627 = (t620 << 2) | (t623 << 1) | t626
+  br_misc_unused_p1::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in` = t627)
   if rst != 0 {
-    state_reg[1][4] = 2
+    state_reg___q#[10] = 1
   } elif update_priority != 0 {
-    const t675 = state_reg_next__w64#[8..=15]
-    const t676 = t675 >> 2
-    const t677 = t676 & 1
-    const t678 = t677 << 2
-    state_reg[1][t678] = 2
+    const t630 = state_reg_next__w64#[8..=15]
+    const t631 = t630 >> 2
+    const t632 = t631 & 1
+    state_reg___q#[10] = t632
   }
   if rst != 0 {
-    state_reg[1][8] = 3
+    state_reg___q#[11] = 1
   } elif update_priority != 0 {
-    const t682 = state_reg_next__w64#[8..=15]
+    const t635 = state_reg_next__w64#[8..=15]
+    const t636 = t635 >> 3
+    const t637 = t636 & 1
+    state_reg___q#[11] = t637
+  }
+  if rst != 0 {
+    state_reg___q#[12] = 1
+  } elif update_priority != 0 {
+    const t640 = state_reg_next__w64#[8..=15]
+    const t641 = t640 >> 4
+    const t642 = t641 & 1
+    state_reg___q#[12] = t642
+  }
+  if rst != 0 {
+    state_reg___q#[13] = 1
+  } elif update_priority != 0 {
+    const t645 = state_reg_next__w64#[8..=15]
+    const t646 = t645 >> 5
+    const t647 = t646 & 1
+    state_reg___q#[13] = t647
+  }
+  if rst != 0 {
+    state_reg___q#[14] = 1
+  } elif update_priority != 0 {
+    const t650 = state_reg_next__w64#[8..=15]
+    const t651 = t650 >> 6
+    const t652 = t651 & 1
+    state_reg___q#[14] = t652
+  }
+  if rst != 0 {
+    state_reg___q#[15] = 1
+  } elif update_priority != 0 {
+    const t655 = state_reg_next__w64#[8..=15]
+    const t656 = t655 >> 7
+    const t657 = t656 & 1
+    state_reg___q#[15] = t657
+  }
+  const t658 = state_reg_next__w64#[16..=23]
+  const t659 = t658 & 1
+  const t660 = state_reg__w36#[16..=23]
+  const t661 = t660 & 1
+  const t662 = (t659 << 1) | t661
+  br_misc_unused::[name=gen_state_row_2_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t662)
+  const t663 = state_reg_next__w64#[16..=23]
+  const t664 = t663 >> 1
+  const t665 = t664 & 1
+  const t666 = state_reg__w36#[16..=23]
+  const t667 = t666 >> 1
+  const t668 = t667 & 1
+  const t669 = (t665 << 1) | t668
+  br_misc_unused::[name=gen_state_row_2_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t669)
+  const t670 = state_reg_next__w64#[16..=23]
+  const t671 = t670 >> 2
+  const t672 = t671 & 1
+  const t673 = state_reg__w36#[16..=23]
+  const t674 = t673 >> 2
+  const t675 = t674 & 1
+  const t676 = state__w64#[16..=23]
+  const t677 = t676 >> 2
+  const t678 = t677 & 1
+  const t679 = (t672 << 2) | (t675 << 1) | t678
+  br_misc_unused_p1::[name=gen_state_row_2_gen_state_col_2_gen_diag_br_misc_unused_states](`in` = t679)
+  if rst != 0 {
+    state_reg___q#[19] = 1
+  } elif update_priority != 0 {
+    const t682 = state_reg_next__w64#[16..=23]
     const t683 = t682 >> 3
     const t684 = t683 & 1
-    const t685 = t684 << 3
-    state_reg[1][t685] = 3
+    state_reg___q#[19] = t684
   }
   if rst != 0 {
-    state_reg[1][16] = 4
+    state_reg___q#[20] = 1
   } elif update_priority != 0 {
-    const t689 = state_reg_next__w64#[8..=15]
-    const t690 = t689 >> 4
-    const t691 = t690 & 1
-    const t692 = t691 << 4
-    state_reg[1][t692] = 4
+    const t687 = state_reg_next__w64#[16..=23]
+    const t688 = t687 >> 4
+    const t689 = t688 & 1
+    state_reg___q#[20] = t689
   }
   if rst != 0 {
-    state_reg[1][32] = 5
+    state_reg___q#[21] = 1
   } elif update_priority != 0 {
-    const t696 = state_reg_next__w64#[8..=15]
-    const t697 = t696 >> 5
-    const t698 = t697 & 1
-    const t699 = t698 << 5
-    state_reg[1][t699] = 5
+    const t692 = state_reg_next__w64#[16..=23]
+    const t693 = t692 >> 5
+    const t694 = t693 & 1
+    state_reg___q#[21] = t694
   }
   if rst != 0 {
-    state_reg[1][0x40] = 6
+    state_reg___q#[22] = 1
   } elif update_priority != 0 {
-    const t703 = state_reg_next__w64#[8..=15]
-    const t704 = t703 >> 6
-    const t705 = t704 & 1
-    const t706 = t705 << 6
-    state_reg[1][t706] = 6
+    const t697 = state_reg_next__w64#[16..=23]
+    const t698 = t697 >> 6
+    const t699 = t698 & 1
+    state_reg___q#[22] = t699
   }
   if rst != 0 {
-    state_reg[1][0x80] = 7
+    state_reg___q#[23] = 1
   } elif update_priority != 0 {
-    const t710 = state_reg_next__w64#[8..=15]
-    const t711 = t710 >> 7
-    const t712 = t711 & 1
-    const t713 = t712 << 7
-    state_reg[1][t713] = 7
+    const t702 = state_reg_next__w64#[16..=23]
+    const t703 = t702 >> 7
+    const t704 = t703 & 1
+    state_reg___q#[23] = t704
   }
-  const t714 = state_reg_next__w64#[16..=23]
+  const t705 = state_reg_next__w64#[24..=31]
+  const t706 = t705 & 1
+  const t707 = state_reg__w36#[24..=31]
+  const t708 = t707 & 1
+  const t709 = (t706 << 1) | t708
+  br_misc_unused::[name=gen_state_row_3_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t709)
+  const t710 = state_reg_next__w64#[24..=31]
+  const t711 = t710 >> 1
+  const t712 = t711 & 1
+  const t713 = state_reg__w36#[24..=31]
+  const t714 = t713 >> 1
   const t715 = t714 & 1
-  const t718 = (t715 << 1) | (state_reg[2] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t718)
-  const t719 = state_reg_next__w64#[16..=23]
-  const t720 = t719 >> 1
-  const t721 = t720 & 1
-  const t725 = (t721 << 1) | ((state_reg[2] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t725)
-  const t726 = state_reg_next__w64#[16..=23]
-  const t727 = t726 >> 2
-  const t728 = t727 & 1
-  const t732 = state__w64#[16..=23]
-  const t733 = t732 >> 2
-  const t734 = t733 & 1
-  const t735 = (t728 << 2) | (((state_reg[2] >> 2) & 1) << 1) | t734
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t735)
+  const t716 = (t712 << 1) | t715
+  br_misc_unused::[name=gen_state_row_3_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t716)
+  const t717 = state_reg_next__w64#[24..=31]
+  const t718 = t717 >> 2
+  const t719 = t718 & 1
+  const t720 = state_reg__w36#[24..=31]
+  const t721 = t720 >> 2
+  const t722 = t721 & 1
+  const t723 = (t719 << 1) | t722
+  br_misc_unused::[name=gen_state_row_3_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in` = t723)
+  const t724 = state_reg_next__w64#[24..=31]
+  const t725 = t724 >> 3
+  const t726 = t725 & 1
+  const t727 = state_reg__w36#[24..=31]
+  const t728 = t727 >> 3
+  const t729 = t728 & 1
+  const t730 = state__w64#[24..=31]
+  const t731 = t730 >> 3
+  const t732 = t731 & 1
+  const t733 = (t726 << 2) | (t729 << 1) | t732
+  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_3_gen_diag_br_misc_unused_states](`in` = t733)
   if rst != 0 {
-    state_reg[2][8] = 3
+    state_reg___q#[28] = 1
   } elif update_priority != 0 {
-    const t739 = state_reg_next__w64#[16..=23]
-    const t740 = t739 >> 3
-    const t741 = t740 & 1
-    const t742 = t741 << 3
-    state_reg[2][t742] = 3
+    const t736 = state_reg_next__w64#[24..=31]
+    const t737 = t736 >> 4
+    const t738 = t737 & 1
+    state_reg___q#[28] = t738
   }
   if rst != 0 {
-    state_reg[2][16] = 4
+    state_reg___q#[29] = 1
   } elif update_priority != 0 {
-    const t746 = state_reg_next__w64#[16..=23]
-    const t747 = t746 >> 4
+    const t741 = state_reg_next__w64#[24..=31]
+    const t742 = t741 >> 5
+    const t743 = t742 & 1
+    state_reg___q#[29] = t743
+  }
+  if rst != 0 {
+    state_reg___q#[30] = 1
+  } elif update_priority != 0 {
+    const t746 = state_reg_next__w64#[24..=31]
+    const t747 = t746 >> 6
     const t748 = t747 & 1
-    const t749 = t748 << 4
-    state_reg[2][t749] = 4
+    state_reg___q#[30] = t748
   }
   if rst != 0 {
-    state_reg[2][32] = 5
+    state_reg___q#[31] = 1
   } elif update_priority != 0 {
-    const t753 = state_reg_next__w64#[16..=23]
-    const t754 = t753 >> 5
-    const t755 = t754 & 1
-    const t756 = t755 << 5
-    state_reg[2][t756] = 5
+    const t751 = state_reg_next__w64#[24..=31]
+    const t752 = t751 >> 7
+    const t753 = t752 & 1
+    state_reg___q#[31] = t753
   }
-  if rst != 0 {
-    state_reg[2][0x40] = 6
-  } elif update_priority != 0 {
-    const t760 = state_reg_next__w64#[16..=23]
-    const t761 = t760 >> 6
-    const t762 = t761 & 1
-    const t763 = t762 << 6
-    state_reg[2][t763] = 6
-  }
-  if rst != 0 {
-    state_reg[2][0x80] = 7
-  } elif update_priority != 0 {
-    const t767 = state_reg_next__w64#[16..=23]
-    const t768 = t767 >> 7
-    const t769 = t768 & 1
-    const t770 = t769 << 7
-    state_reg[2][t770] = 7
-  }
-  const t771 = state_reg_next__w64#[24..=31]
-  const t772 = t771 & 1
-  const t775 = (t772 << 1) | (state_reg[3] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t775)
-  const t776 = state_reg_next__w64#[24..=31]
-  const t777 = t776 >> 1
+  const t754 = state_reg_next__w64#[32..=39]
+  const t755 = t754 & 1
+  const t756 = state_reg__w36#[32..=39]
+  const t757 = t756 & 1
+  const t758 = (t755 << 1) | t757
+  br_misc_unused::[name=gen_state_row_4_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t758)
+  const t759 = state_reg_next__w64#[32..=39]
+  const t760 = t759 >> 1
+  const t761 = t760 & 1
+  const t762 = state_reg__w36#[32..=39]
+  const t763 = t762 >> 1
+  const t764 = t763 & 1
+  const t765 = (t761 << 1) | t764
+  br_misc_unused::[name=gen_state_row_4_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t765)
+  const t766 = state_reg_next__w64#[32..=39]
+  const t767 = t766 >> 2
+  const t768 = t767 & 1
+  const t769 = state_reg__w36#[32..=39]
+  const t770 = t769 >> 2
+  const t771 = t770 & 1
+  const t772 = (t768 << 1) | t771
+  br_misc_unused::[name=gen_state_row_4_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in` = t772)
+  const t773 = state_reg_next__w64#[32..=39]
+  const t774 = t773 >> 3
+  const t775 = t774 & 1
+  const t776 = state_reg__w36#[32..=39]
+  const t777 = t776 >> 3
   const t778 = t777 & 1
-  const t782 = (t778 << 1) | ((state_reg[3] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t782)
-  const t783 = state_reg_next__w64#[24..=31]
-  const t784 = t783 >> 2
+  const t779 = (t775 << 1) | t778
+  br_misc_unused::[name=gen_state_row_4_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in` = t779)
+  const t780 = state_reg_next__w64#[32..=39]
+  const t781 = t780 >> 4
+  const t782 = t781 & 1
+  const t783 = state_reg__w36#[32..=39]
+  const t784 = t783 >> 4
   const t785 = t784 & 1
-  const t789 = (t785 << 1) | ((state_reg[3] >> 2) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t789)
-  const t790 = state_reg_next__w64#[24..=31]
-  const t791 = t790 >> 3
-  const t792 = t791 & 1
-  const t796 = state__w64#[24..=31]
-  const t797 = t796 >> 3
-  const t798 = t797 & 1
-  const t799 = (t792 << 2) | (((state_reg[3] >> 3) & 1) << 1) | t798
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t799)
+  const t786 = state__w64#[32..=39]
+  const t787 = t786 >> 4
+  const t788 = t787 & 1
+  const t789 = (t782 << 2) | (t785 << 1) | t788
+  br_misc_unused_p1::[name=gen_state_row_4_gen_state_col_4_gen_diag_br_misc_unused_states](`in` = t789)
   if rst != 0 {
-    state_reg[3][16] = 4
+    state_reg___q#[37] = 1
   } elif update_priority != 0 {
-    const t803 = state_reg_next__w64#[24..=31]
-    const t804 = t803 >> 4
-    const t805 = t804 & 1
-    const t806 = t805 << 4
-    state_reg[3][t806] = 4
+    const t792 = state_reg_next__w64#[32..=39]
+    const t793 = t792 >> 5
+    const t794 = t793 & 1
+    state_reg___q#[37] = t794
   }
   if rst != 0 {
-    state_reg[3][32] = 5
+    state_reg___q#[38] = 1
   } elif update_priority != 0 {
-    const t810 = state_reg_next__w64#[24..=31]
-    const t811 = t810 >> 5
-    const t812 = t811 & 1
-    const t813 = t812 << 5
-    state_reg[3][t813] = 5
+    const t797 = state_reg_next__w64#[32..=39]
+    const t798 = t797 >> 6
+    const t799 = t798 & 1
+    state_reg___q#[38] = t799
   }
   if rst != 0 {
-    state_reg[3][0x40] = 6
+    state_reg___q#[39] = 1
   } elif update_priority != 0 {
-    const t817 = state_reg_next__w64#[24..=31]
-    const t818 = t817 >> 6
-    const t819 = t818 & 1
-    const t820 = t819 << 6
-    state_reg[3][t820] = 6
+    const t802 = state_reg_next__w64#[32..=39]
+    const t803 = t802 >> 7
+    const t804 = t803 & 1
+    state_reg___q#[39] = t804
   }
-  if rst != 0 {
-    state_reg[3][0x80] = 7
-  } elif update_priority != 0 {
-    const t824 = state_reg_next__w64#[24..=31]
-    const t825 = t824 >> 7
-    const t826 = t825 & 1
-    const t827 = t826 << 7
-    state_reg[3][t827] = 7
-  }
-  const t828 = state_reg_next__w64#[32..=39]
+  const t805 = state_reg_next__w64#[40..=47]
+  const t806 = t805 & 1
+  const t807 = state_reg__w36#[40..=47]
+  const t808 = t807 & 1
+  const t809 = (t806 << 1) | t808
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t809)
+  const t810 = state_reg_next__w64#[40..=47]
+  const t811 = t810 >> 1
+  const t812 = t811 & 1
+  const t813 = state_reg__w36#[40..=47]
+  const t814 = t813 >> 1
+  const t815 = t814 & 1
+  const t816 = (t812 << 1) | t815
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t816)
+  const t817 = state_reg_next__w64#[40..=47]
+  const t818 = t817 >> 2
+  const t819 = t818 & 1
+  const t820 = state_reg__w36#[40..=47]
+  const t821 = t820 >> 2
+  const t822 = t821 & 1
+  const t823 = (t819 << 1) | t822
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in` = t823)
+  const t824 = state_reg_next__w64#[40..=47]
+  const t825 = t824 >> 3
+  const t826 = t825 & 1
+  const t827 = state_reg__w36#[40..=47]
+  const t828 = t827 >> 3
   const t829 = t828 & 1
-  const t832 = (t829 << 1) | (state_reg[4] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t832)
-  const t833 = state_reg_next__w64#[32..=39]
-  const t834 = t833 >> 1
-  const t835 = t834 & 1
-  const t839 = (t835 << 1) | ((state_reg[4] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t839)
-  const t840 = state_reg_next__w64#[32..=39]
-  const t841 = t840 >> 2
-  const t842 = t841 & 1
-  const t846 = (t842 << 1) | ((state_reg[4] >> 2) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t846)
-  const t847 = state_reg_next__w64#[32..=39]
-  const t848 = t847 >> 3
-  const t849 = t848 & 1
-  const t853 = (t849 << 1) | ((state_reg[4] >> 3) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t853)
-  const t854 = state_reg_next__w64#[32..=39]
-  const t855 = t854 >> 4
-  const t856 = t855 & 1
-  const t860 = state__w64#[32..=39]
-  const t861 = t860 >> 4
-  const t862 = t861 & 1
-  const t863 = (t856 << 2) | (((state_reg[4] >> 4) & 1) << 1) | t862
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t863)
+  const t830 = (t826 << 1) | t829
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in` = t830)
+  const t831 = state_reg_next__w64#[40..=47]
+  const t832 = t831 >> 4
+  const t833 = t832 & 1
+  const t834 = state_reg__w36#[40..=47]
+  const t835 = t834 >> 4
+  const t836 = t835 & 1
+  const t837 = (t833 << 1) | t836
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in` = t837)
+  const t838 = state_reg_next__w64#[40..=47]
+  const t839 = t838 >> 5
+  const t840 = t839 & 1
+  const t841 = state_reg__w36#[40..=47]
+  const t842 = t841 >> 5
+  const t843 = t842 & 1
+  const t844 = state__w64#[40..=47]
+  const t845 = t844 >> 5
+  const t846 = t845 & 1
+  const t847 = (t840 << 2) | (t843 << 1) | t846
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_5_gen_diag_br_misc_unused_states](`in` = t847)
   if rst != 0 {
-    state_reg[4][32] = 5
+    state_reg___q#[46] = 1
   } elif update_priority != 0 {
-    const t867 = state_reg_next__w64#[32..=39]
-    const t868 = t867 >> 5
-    const t869 = t868 & 1
-    const t870 = t869 << 5
-    state_reg[4][t870] = 5
+    const t850 = state_reg_next__w64#[40..=47]
+    const t851 = t850 >> 6
+    const t852 = t851 & 1
+    state_reg___q#[46] = t852
   }
   if rst != 0 {
-    state_reg[4][0x40] = 6
+    state_reg___q#[47] = 1
   } elif update_priority != 0 {
-    const t874 = state_reg_next__w64#[32..=39]
-    const t875 = t874 >> 6
-    const t876 = t875 & 1
-    const t877 = t876 << 6
-    state_reg[4][t877] = 6
+    const t855 = state_reg_next__w64#[40..=47]
+    const t856 = t855 >> 7
+    const t857 = t856 & 1
+    state_reg___q#[47] = t857
   }
-  if rst != 0 {
-    state_reg[4][0x80] = 7
-  } elif update_priority != 0 {
-    const t881 = state_reg_next__w64#[32..=39]
-    const t882 = t881 >> 7
-    const t883 = t882 & 1
-    const t884 = t883 << 7
-    state_reg[4][t884] = 7
-  }
-  const t885 = state_reg_next__w64#[40..=47]
+  const t858 = state_reg_next__w64#[48..=55]
+  const t859 = t858 & 1
+  const t860 = state_reg__w36#[48..=55]
+  const t861 = t860 & 1
+  const t862 = (t859 << 1) | t861
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = t862)
+  const t863 = state_reg_next__w64#[48..=55]
+  const t864 = t863 >> 1
+  const t865 = t864 & 1
+  const t866 = state_reg__w36#[48..=55]
+  const t867 = t866 >> 1
+  const t868 = t867 & 1
+  const t869 = (t865 << 1) | t868
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in` = t869)
+  const t870 = state_reg_next__w64#[48..=55]
+  const t871 = t870 >> 2
+  const t872 = t871 & 1
+  const t873 = state_reg__w36#[48..=55]
+  const t874 = t873 >> 2
+  const t875 = t874 & 1
+  const t876 = (t872 << 1) | t875
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in` = t876)
+  const t877 = state_reg_next__w64#[48..=55]
+  const t878 = t877 >> 3
+  const t879 = t878 & 1
+  const t880 = state_reg__w36#[48..=55]
+  const t881 = t880 >> 3
+  const t882 = t881 & 1
+  const t883 = (t879 << 1) | t882
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in` = t883)
+  const t884 = state_reg_next__w64#[48..=55]
+  const t885 = t884 >> 4
   const t886 = t885 & 1
-  const t889 = (t886 << 1) | (state_reg[5] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t889)
-  const t890 = state_reg_next__w64#[40..=47]
-  const t891 = t890 >> 1
-  const t892 = t891 & 1
-  const t896 = (t892 << 1) | ((state_reg[5] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t896)
-  const t897 = state_reg_next__w64#[40..=47]
-  const t898 = t897 >> 2
-  const t899 = t898 & 1
-  const t903 = (t899 << 1) | ((state_reg[5] >> 2) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t903)
-  const t904 = state_reg_next__w64#[40..=47]
-  const t905 = t904 >> 3
+  const t887 = state_reg__w36#[48..=55]
+  const t888 = t887 >> 4
+  const t889 = t888 & 1
+  const t890 = (t886 << 1) | t889
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in` = t890)
+  const t891 = state_reg_next__w64#[48..=55]
+  const t892 = t891 >> 5
+  const t893 = t892 & 1
+  const t894 = state_reg__w36#[48..=55]
+  const t895 = t894 >> 5
+  const t896 = t895 & 1
+  const t897 = (t893 << 1) | t896
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in` = t897)
+  const t898 = state_reg_next__w64#[48..=55]
+  const t899 = t898 >> 6
+  const t900 = t899 & 1
+  const t901 = state_reg__w36#[48..=55]
+  const t902 = t901 >> 6
+  const t903 = t902 & 1
+  const t904 = state__w64#[48..=55]
+  const t905 = t904 >> 6
   const t906 = t905 & 1
-  const t910 = (t906 << 1) | ((state_reg[5] >> 3) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t910)
-  const t911 = state_reg_next__w64#[40..=47]
-  const t912 = t911 >> 4
-  const t913 = t912 & 1
-  const t917 = (t913 << 1) | ((state_reg[5] >> 4) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t917)
-  const t918 = state_reg_next__w64#[40..=47]
-  const t919 = t918 >> 5
-  const t920 = t919 & 1
-  const t924 = state__w64#[40..=47]
-  const t925 = t924 >> 5
-  const t926 = t925 & 1
-  const t927 = (t920 << 2) | (((state_reg[5] >> 5) & 1) << 1) | t926
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t927)
-  if rst != 0 {
-    state_reg[5][0x40] = 6
-  } elif update_priority != 0 {
-    const t931 = state_reg_next__w64#[40..=47]
-    const t932 = t931 >> 6
-    const t933 = t932 & 1
-    const t934 = t933 << 6
-    state_reg[5][t934] = 6
-  }
-  if rst != 0 {
-    state_reg[5][0x80] = 7
-  } elif update_priority != 0 {
-    const t938 = state_reg_next__w64#[40..=47]
-    const t939 = t938 >> 7
-    const t940 = t939 & 1
-    const t941 = t940 << 7
-    state_reg[5][t941] = 7
-  }
-  const t942 = state_reg_next__w64#[48..=55]
-  const t943 = t942 & 1
-  const t946 = (t943 << 1) | (state_reg[6] & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t946)
-  const t947 = state_reg_next__w64#[48..=55]
-  const t948 = t947 >> 1
-  const t949 = t948 & 1
-  const t953 = (t949 << 1) | ((state_reg[6] >> 1) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t953)
-  const t954 = state_reg_next__w64#[48..=55]
-  const t955 = t954 >> 2
-  const t956 = t955 & 1
-  const t960 = (t956 << 1) | ((state_reg[6] >> 2) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t960)
-  const t961 = state_reg_next__w64#[48..=55]
-  const t962 = t961 >> 3
-  const t963 = t962 & 1
-  const t967 = (t963 << 1) | ((state_reg[6] >> 3) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t967)
-  const t968 = state_reg_next__w64#[48..=55]
-  const t969 = t968 >> 4
-  const t970 = t969 & 1
-  const t974 = (t970 << 1) | ((state_reg[6] >> 4) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t974)
-  const t975 = state_reg_next__w64#[48..=55]
-  const t976 = t975 >> 5
-  const t977 = t976 & 1
-  const t981 = (t977 << 1) | ((state_reg[6] >> 5) & 1)
-  br_misc_unused::[name=br_misc_unused_states](`in` = t981)
-  const t982 = state_reg_next__w64#[48..=55]
-  const t983 = t982 >> 6
-  const t984 = t983 & 1
-  const t988 = state__w64#[48..=55]
-  const t989 = t988 >> 6
-  const t990 = t989 & 1
-  const t991 = (t984 << 2) | (((state_reg[6] >> 6) & 1) << 1) | t990
-  br_misc_unused_p1::[name=br_misc_unused_states](`in` = t991)
+  const t907 = (t900 << 2) | (t903 << 1) | t906
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_6_gen_diag_br_misc_unused_states](`in` = t907)
   state = state__w64
 }

@@ -1,0 +1,26 @@
+const br_fifo_ctrl_1r1w_push_credit_t = import("br_fifo_ctrl_1r1w_push_credit.br_fifo_ctrl_1r1w_push_credit")
+const br_ram_flops_t = import("br_ram_flops.br_ram_flops")
+
+pub mod br_fifo_flops_push_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u32, pop_ready:u1, credit_initial_push:u2, credit_withhold_push:u2) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], pop_valid:u1@[], pop_data:u32@[], full:u1@[], full_next:u1@[], slots:u2@[], slots_next:u2@[], credit_count_push:u2@[], credit_available_push:u2@[], empty:u1@[], empty_next:u1@[], items:u2@[], items_next:u2@[]) {
+  wire ram_rd_data_valid:u1
+  wire ram_rd_data:u32
+  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
+  mut br_fifo_ctrl_1r1w_push_credit = br_fifo_ctrl_1r1w_push_credit_t::[name=br_fifo_ctrl_1r1w_push_credit](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data)
+  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk = clk, wr_rst = either_rst__w1, wr_valid = br_fifo_ctrl_1r1w_push_credit.ram_wr_valid, wr_addr = br_fifo_ctrl_1r1w_push_credit.ram_wr_addr, wr_data = br_fifo_ctrl_1r1w_push_credit.ram_wr_data, wr_word_en = 1, rd_clk = clk, rd_rst = either_rst__w1, rd_addr_valid = br_fifo_ctrl_1r1w_push_credit.ram_rd_addr_valid, rd_addr = br_fifo_ctrl_1r1w_push_credit.ram_rd_addr)
+  ram_rd_data_valid = br_ram_flops.rd_data_valid
+  ram_rd_data = br_ram_flops.rd_data
+  push_receiver_in_reset = br_fifo_ctrl_1r1w_push_credit.push_receiver_in_reset
+  push_credit = br_fifo_ctrl_1r1w_push_credit.push_credit
+  pop_valid = br_fifo_ctrl_1r1w_push_credit.pop_valid
+  pop_data = br_fifo_ctrl_1r1w_push_credit.pop_data
+  full = br_fifo_ctrl_1r1w_push_credit.full
+  full_next = br_fifo_ctrl_1r1w_push_credit.full_next
+  slots = br_fifo_ctrl_1r1w_push_credit.slots
+  slots_next = br_fifo_ctrl_1r1w_push_credit.slots_next
+  credit_count_push = br_fifo_ctrl_1r1w_push_credit.credit_count_push
+  credit_available_push = br_fifo_ctrl_1r1w_push_credit.credit_available_push
+  empty = br_fifo_ctrl_1r1w_push_credit.empty
+  empty_next = br_fifo_ctrl_1r1w_push_credit.empty_next
+  items = br_fifo_ctrl_1r1w_push_credit.items
+  items_next = br_fifo_ctrl_1r1w_push_credit.items_next
+}

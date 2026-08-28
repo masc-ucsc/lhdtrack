@@ -23,7 +23,7 @@ pub mod br_csr_mem_interface::[timecheck=false](clk:u1, rst:u1, req_valid:u1, re
   req_empty_strb = if (req_word_strb__w1 & 1) != 0 { 0 } else { 1 }
   br_misc_unused::[name=br_misc_unused_req_privileged](`in` = req_privileged)
   br_misc_unused::[name=br_misc_unused_req_secure](`in` = req_secure)
-  br_misc_unused_p1::[name=br_misc_unused_req_addr_msbs](`in` = req_addr#[6..=15])
+  br_misc_unused_p1::[name=gen_unused_addr_msbs_br_misc_unused_req_addr_msbs](`in` = req_addr#[6..=15])
   mut _mux_6:u1 = if req_write != 0 { unsigned((req_error_alignment__w1 != 0) or (unsigned(req_word_partial_strb__w1 != 0) != 0) or false) & 1 } else { req_error_alignment__w1 & 1 }
   const req_error__w1 = _mux_6
   const req_bypass__w1 = unsigned((req_error__w1 != 0) or ((req_write != 0) and (req_empty_strb != 0)))

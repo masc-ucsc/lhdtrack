@@ -1,0 +1,11 @@
+const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_delay_valid_p2 = import("br_delay_valid_p2.br_delay_valid_p2")
+
+pub mod br_ram_addr_decoder_p2::[timecheck=false](clk:u1, rst:u1, in_valid:u1, in_addr:u1, in_data_valid:u1, in_data:u9) -> (out_valid:u1@[], out_addr:u1@[], out_data_valid:u1@[], out_data:u9@[]) {
+  mut gen_tiles_eq1_br_delay_valid_addr = br_delay_valid_p2::[name=gen_tiles_eq1_br_delay_valid_addr](clk = clk, rst = rst, in_valid = in_valid, `in` = in_addr)
+  mut gen_tiles_eq1_gen_datapath_br_delay_valid_data = br_delay_valid_p1::[name=gen_tiles_eq1_gen_datapath_br_delay_valid_data](clk = clk, rst = rst, in_valid = in_data_valid, `in` = in_data)
+  out_valid = gen_tiles_eq1_br_delay_valid_addr.out_valid
+  out_addr = gen_tiles_eq1_br_delay_valid_addr.out
+  out_data_valid = gen_tiles_eq1_gen_datapath_br_delay_valid_data.out_valid
+  out_data = gen_tiles_eq1_gen_datapath_br_delay_valid_data.out
+}

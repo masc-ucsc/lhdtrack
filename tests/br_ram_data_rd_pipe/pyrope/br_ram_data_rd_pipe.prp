@@ -1,7 +1,7 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_mux_onehot_t = import("br_mux_onehot.br_mux_onehot")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
 pub mod br_ram_data_rd_pipe::[timecheck=false](clk:u1, rst:u1, tile_valid:u8, tile_data:u128) -> (valid:u1@[], data:u32@[]) {
   mut tile_valid_q:u8 = 0
@@ -16,87 +16,87 @@ pub mod br_ram_data_rd_pipe::[timecheck=false](clk:u1, rst:u1, tile_valid:u8, ti
   row_data = 0sb?
   row_valid_q = 0sb?
   row_data_q = 0sb?
-  mut br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[0..=1] & 1, `in` = tile_data#[0..=31]#[0..=15])
+  mut gen_d_0_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_0_gen_w_0_br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[0..=1] & 1, `in` = tile_data#[0..=31]#[0..=15])
   mut tile_valid_q__w1 = tile_valid_q
-  tile_valid_q__w1#[0] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w1#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w1 = tile_data_q
-  tile_data_q__w1#[0..=15] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[0..=1] >> 1) & 1, `in` = tile_data#[0..=31]#[16..=31])
+  tile_data_q__w1#[0..=15] = gen_d_0_gen_w_0_br_delay_valid_w.out#[0..=15]
+  mut gen_d_0_gen_w_1_br_delay_valid_w = br_delay_valid::[name=gen_d_0_gen_w_1_br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[0..=1] >> 1) & 1, `in` = tile_data#[0..=31]#[16..=31])
   mut tile_valid_q__w2 = tile_valid_q__w1
-  tile_valid_q__w2#[1] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w2#[1] = gen_d_0_gen_w_1_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w2 = tile_data_q__w1
-  tile_data_q__w2#[16..=31] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[2..=3] & 1, `in` = tile_data#[32..=63]#[0..=15])
+  tile_data_q__w2#[16..=31] = gen_d_0_gen_w_1_br_delay_valid_w.out#[0..=15]
+  mut gen_d_1_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_1_gen_w_0_br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[2..=3] & 1, `in` = tile_data#[32..=63]#[0..=15])
   mut tile_valid_q__w3 = tile_valid_q__w2
-  tile_valid_q__w3#[2] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w3#[2] = gen_d_1_gen_w_0_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w3 = tile_data_q__w2
-  tile_data_q__w3#[32..=47] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[2..=3] >> 1) & 1, `in` = tile_data#[32..=63]#[16..=31])
+  tile_data_q__w3#[32..=47] = gen_d_1_gen_w_0_br_delay_valid_w.out#[0..=15]
+  mut gen_d_1_gen_w_1_br_delay_valid_w = br_delay_valid::[name=gen_d_1_gen_w_1_br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[2..=3] >> 1) & 1, `in` = tile_data#[32..=63]#[16..=31])
   mut tile_valid_q__w4 = tile_valid_q__w3
-  tile_valid_q__w4#[3] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w4#[3] = gen_d_1_gen_w_1_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w4 = tile_data_q__w3
-  tile_data_q__w4#[48..=63] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[4..=5] & 1, `in` = tile_data#[64..=95]#[0..=15])
+  tile_data_q__w4#[48..=63] = gen_d_1_gen_w_1_br_delay_valid_w.out#[0..=15]
+  mut gen_d_2_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_2_gen_w_0_br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[4..=5] & 1, `in` = tile_data#[64..=95]#[0..=15])
   mut tile_valid_q__w5 = tile_valid_q__w4
-  tile_valid_q__w5#[4] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w5#[4] = gen_d_2_gen_w_0_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w5 = tile_data_q__w4
-  tile_data_q__w5#[64..=79] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[4..=5] >> 1) & 1, `in` = tile_data#[64..=95]#[16..=31])
+  tile_data_q__w5#[64..=79] = gen_d_2_gen_w_0_br_delay_valid_w.out#[0..=15]
+  mut gen_d_2_gen_w_1_br_delay_valid_w = br_delay_valid::[name=gen_d_2_gen_w_1_br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[4..=5] >> 1) & 1, `in` = tile_data#[64..=95]#[16..=31])
   mut tile_valid_q__w6 = tile_valid_q__w5
-  tile_valid_q__w6#[5] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w6#[5] = gen_d_2_gen_w_1_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w6 = tile_data_q__w5
-  tile_data_q__w6#[80..=95] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[6..=7] & 1, `in` = tile_data#[96..=127]#[0..=15])
+  tile_data_q__w6#[80..=95] = gen_d_2_gen_w_1_br_delay_valid_w.out#[0..=15]
+  mut gen_d_3_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_3_gen_w_0_br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid#[6..=7] & 1, `in` = tile_data#[96..=127]#[0..=15])
   mut tile_valid_q__w7 = tile_valid_q__w6
-  tile_valid_q__w7#[6] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w7#[6] = gen_d_3_gen_w_0_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w7 = tile_data_q__w6
-  tile_data_q__w7#[96..=111] = br_delay_valid_w["out"]#[0..=15]
-  br_delay_valid_w = br_delay_valid::[name=br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[6..=7] >> 1) & 1, `in` = tile_data#[96..=127]#[16..=31])
+  tile_data_q__w7#[96..=111] = gen_d_3_gen_w_0_br_delay_valid_w.out#[0..=15]
+  mut gen_d_3_gen_w_1_br_delay_valid_w = br_delay_valid::[name=gen_d_3_gen_w_1_br_delay_valid_w](clk = clk, rst = rst, in_valid = (tile_valid#[6..=7] >> 1) & 1, `in` = tile_data#[96..=127]#[16..=31])
   mut tile_valid_q__w8 = tile_valid_q__w7
-  tile_valid_q__w8#[7] = br_delay_valid_w["out_valid"] & 1
+  tile_valid_q__w8#[7] = gen_d_3_gen_w_1_br_delay_valid_w.out_valid & 1
   mut tile_data_q__w8 = tile_data_q__w7
-  tile_data_q__w8#[112..=127] = br_delay_valid_w["out"]#[0..=15]
+  tile_data_q__w8#[112..=127] = gen_d_3_gen_w_1_br_delay_valid_w.out#[0..=15]
   mut row_valid__w1 = row_valid
   row_valid__w1#[3] = (tile_valid_q__w8#[6..=7] >> 1) & 1
-  br_misc_unused::[name=br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[6..=7] & 1)
+  br_misc_unused::[name=gen_d_3_gen_width_lower_tile_valid_q_unused_br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[6..=7] & 1)
   mut row_data__w1 = row_data
   row_data__w1#[96..=127] = tile_data_q__w8#[96..=127]
   mut row_valid__w2 = row_valid__w1
   row_valid__w2#[0] = (tile_valid_q__w8#[0..=1] >> 1) & 1
-  br_misc_unused::[name=br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[0..=1] & 1)
+  br_misc_unused::[name=gen_d_0_gen_width_lower_tile_valid_q_unused_br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[0..=1] & 1)
   mut row_data__w2 = row_data__w1
   row_data__w2#[0..=31] = tile_data_q__w8#[0..=31]
   mut row_valid__w3 = row_valid__w2
   row_valid__w3#[1] = (tile_valid_q__w8#[2..=3] >> 1) & 1
-  br_misc_unused::[name=br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[2..=3] & 1)
+  br_misc_unused::[name=gen_d_1_gen_width_lower_tile_valid_q_unused_br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[2..=3] & 1)
   mut row_data__w3 = row_data__w2
   row_data__w3#[32..=63] = tile_data_q__w8#[32..=63]
   mut row_valid__w4 = row_valid__w3
   row_valid__w4#[2] = (tile_valid_q__w8#[4..=5] >> 1) & 1
-  br_misc_unused::[name=br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[4..=5] & 1)
+  br_misc_unused::[name=gen_d_2_gen_width_lower_tile_valid_q_unused_br_misc_unused_tile_valid_q_lsbs](`in` = tile_valid_q__w8#[4..=5] & 1)
   mut row_data__w4 = row_data__w3
   row_data__w4#[64..=95] = tile_data_q__w8#[64..=95]
-  mut br_delay_valid_d = br_delay_valid_p1::[name=br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 2) & 1, `in` = row_data__w4#[64..=95])
+  mut gen_d_2_br_delay_valid_d = br_delay_valid_p1::[name=gen_d_2_br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 2) & 1, `in` = row_data__w4#[64..=95])
   mut row_valid_q__w1 = row_valid_q
-  row_valid_q__w1#[2] = br_delay_valid_d["out_valid"] & 1
+  row_valid_q__w1#[2] = gen_d_2_br_delay_valid_d.out_valid & 1
   mut row_data_q__w1 = row_data_q
-  row_data_q__w1#[64..=95] = br_delay_valid_d["out"]#[0..=31]
-  br_delay_valid_d = br_delay_valid_p1::[name=br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 3) & 1, `in` = row_data__w4#[96..=127])
+  row_data_q__w1#[64..=95] = gen_d_2_br_delay_valid_d.out#[0..=31]
+  mut gen_d_3_br_delay_valid_d = br_delay_valid_p1::[name=gen_d_3_br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 3) & 1, `in` = row_data__w4#[96..=127])
   mut row_valid_q__w2 = row_valid_q__w1
-  row_valid_q__w2#[3] = br_delay_valid_d["out_valid"] & 1
+  row_valid_q__w2#[3] = gen_d_3_br_delay_valid_d.out_valid & 1
   mut row_data_q__w2 = row_data_q__w1
-  row_data_q__w2#[96..=127] = br_delay_valid_d["out"]#[0..=31]
-  br_delay_valid_d = br_delay_valid_p1::[name=br_delay_valid_d](clk = clk, rst = rst, in_valid = row_valid__w4 & 1, `in` = row_data__w4#[0..=31])
+  row_data_q__w2#[96..=127] = gen_d_3_br_delay_valid_d.out#[0..=31]
+  mut gen_d_0_br_delay_valid_d = br_delay_valid_p1::[name=gen_d_0_br_delay_valid_d](clk = clk, rst = rst, in_valid = row_valid__w4 & 1, `in` = row_data__w4#[0..=31])
   mut row_valid_q__w3 = row_valid_q__w2
-  row_valid_q__w3#[0] = br_delay_valid_d["out_valid"] & 1
+  row_valid_q__w3#[0] = gen_d_0_br_delay_valid_d.out_valid & 1
   mut row_data_q__w3 = row_data_q__w2
-  row_data_q__w3#[0..=31] = br_delay_valid_d["out"]#[0..=31]
-  br_delay_valid_d = br_delay_valid_p1::[name=br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 1) & 1, `in` = row_data__w4#[32..=63])
+  row_data_q__w3#[0..=31] = gen_d_0_br_delay_valid_d.out#[0..=31]
+  mut gen_d_1_br_delay_valid_d = br_delay_valid_p1::[name=gen_d_1_br_delay_valid_d](clk = clk, rst = rst, in_valid = (row_valid__w4 >> 1) & 1, `in` = row_data__w4#[32..=63])
   mut row_valid_q__w4 = row_valid_q__w3
-  row_valid_q__w4#[1] = br_delay_valid_d["out_valid"] & 1
+  row_valid_q__w4#[1] = gen_d_1_br_delay_valid_d.out_valid & 1
   mut row_data_q__w4 = row_data_q__w3
-  row_data_q__w4#[32..=63] = br_delay_valid_d["out"]#[0..=31]
-  mut br_mux_onehot = br_mux_onehot_t::[name=br_mux_onehot](select = row_valid_q__w4, `in` = row_data_q__w4)
+  row_data_q__w4#[32..=63] = gen_d_1_br_delay_valid_d.out#[0..=31]
+  mut gen_mux_br_mux_onehot = br_mux_onehot::[name=gen_mux_br_mux_onehot](select = row_valid_q__w4, `in` = row_data_q__w4)
   valid = unsigned(row_valid_q__w4 != 0)
-  data = br_mux_onehot
+  data = gen_mux_br_mux_onehot
 }

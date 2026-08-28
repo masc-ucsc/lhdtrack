@@ -1,0 +1,48 @@
+const br_arb_multi_rr = import("br_arb_multi_rr.br_arb_multi_rr")
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
+
+pub mod br_credit_sender::[timecheck=false](clk:u1, rst:u1, push_valid:u4, push_data:u256, pop_receiver_in_reset:u1, pop_credit:u3, credit_initial:u5, credit_withhold:u5) -> (push_ready:u4@[], pop_sender_in_reset:u1@[], pop_valid:u4@[], pop_data:u256@[], credit_count:u5@[], credit_available:u5@[]) {
+  reg pop_sender_in_reset:u1
+  reg pop_valid:u4
+  reg pop_data:u256
+  wire credit_decr:u3
+  wire push_ready:u4
+  wire gen_multi_flow_grant_allowed:u3
+  const either_rst__w1 = unsigned((rst != 0) or (pop_receiver_in_reset != 0))
+  pop_sender_in_reset = if rst != 0 { 1 } else { 0 }
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready, data = push_data)
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = unsigned(pop_credit != 0), incr = pop_credit, decr_valid = unsigned(push_valid != 0), decr = credit_decr, initial_value = credit_initial, withhold = credit_withhold)
+  mut gen_multi_flow_br_arb_multi_rr = br_arb_multi_rr::[name=gen_multi_flow_br_arb_multi_rr](clk = clk, rst = either_rst__w1, enable_priority_update = 1, request = push_valid, grant_allowed = gen_multi_flow_grant_allowed)
+  credit_decr = gen_multi_flow_br_arb_multi_rr.grant_count
+  mut _mux_4:u32 = if br_credit_counter.available < 4 { br_credit_counter.available#[0..=2] } else { 4 }
+  gen_multi_flow_grant_allowed = _mux_4#[0..=2]
+  mut _rep_6:u4 = if (unsigned(either_rst__w1 == 0) & 1) != 0 { 15 } else { 0 }
+  push_ready = gen_multi_flow_br_arb_multi_rr.grant & _rep_6
+  br_misc_unused_p1::[name=gen_multi_flow_br_misc_unused_credit_decr_ready](`in` = br_credit_counter.decr_ready)
+  const internal_pop_valid__w1 = push_ready & push_valid
+  pop_valid = if rst != 0 { 0 } else { internal_pop_valid__w1 }
+  if rst != 0 {
+    pop_data#[0..=63] = 0
+  } elif (internal_pop_valid__w1 & 1) != 0 {
+    pop_data#[0..=63] = push_data#[0..=63]
+  }
+  if rst != 0 {
+    pop_data#[64..=127] = 0
+  } elif ((internal_pop_valid__w1 >> 1) & 1) != 0 {
+    pop_data#[64..=127] = push_data#[64..=127]
+  }
+  if rst != 0 {
+    pop_data#[128..=191] = 0
+  } elif ((internal_pop_valid__w1 >> 2) & 1) != 0 {
+    pop_data#[128..=191] = push_data#[128..=191]
+  }
+  if rst != 0 {
+    pop_data#[192..=255] = 0
+  } elif ((internal_pop_valid__w1 >> 3) & 1) != 0 {
+    pop_data#[192..=255] = push_data#[192..=255]
+  }
+  credit_count = br_credit_counter.value
+  credit_available = br_credit_counter.available
+}
