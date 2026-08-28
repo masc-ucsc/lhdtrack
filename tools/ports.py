@@ -147,7 +147,7 @@ def _from_verilator(top, sources, params, verilator, include_dir, filelist) -> P
         out = Path(td) / "tree.json"
         cmd = [
             str(verilator), "--json-only", "--top-module", top, "-Wno-fatal",
-            "-DSYNTHESIS", "--json-only-output", str(out), "--Mdir", td,
+            "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", "--json-only-output", str(out), "--Mdir", td,
         ]
         if include_dir:
             cmd.append(f"-I{include_dir}")
@@ -239,13 +239,13 @@ def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist)
             source_arg = f"-F {filelist}" if filelist and filelist.exists() else src
             params_arg = " ".join(f"-G{k}={v}" for k, v in sorted(params.items()))
             read = (
-                f"read_slang --top {top} --no-proc {inc}-DSYNTHESIS "
+                f"read_slang --top {top} --no-proc {inc}-DSYNTHESIS -DBR_PPA_SYNTHESIS "
                 f"{params_arg} {source_arg}"
             )
             hierarchy = f"hierarchy -check -top {top}"
         else:
             ch = " ".join(f"-chparam {k} {v}" for k, v in sorted(params.items()))
-            read = f"read_verilog -sv {inc}-DSYNTHESIS {src}"
+            read = f"read_verilog -sv {inc}-DSYNTHESIS -DBR_PPA_SYNTHESIS {src}"
             hierarchy = f"hierarchy -check -top {top} {ch}"
         script = (
             f"{read}; "

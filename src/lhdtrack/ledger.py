@@ -105,6 +105,41 @@ class Ledger:
         newest = max(r.get("run_id", "") for r in rows)
         return [r for r in rows if r.get("run_id") == newest]
 
+    def latest_rows(self, host: str | None = None) -> list[dict]:
+        """Newest observation for every report slot, for one host if given.
+
+        A focused corrective run must replace the affected rows without hiding
+        all of the unaffected rows from the last full matrix.  Start at the
+        newest widest run, then overlay only later rows.  This also prevents a
+        configuration removed from the current corpus from lingering forever
+        merely because it exists in old history.  Append order breaks ties
+        within a run, as desired when a slot is deliberately measured twice.
+        """
+        rows = self.load(host)
+        if not rows:
+            return []
+
+        run_width: dict[str, int] = {}
+        for row in rows:
+            run_id = row.get("run_id", "")
+            run_width[run_id] = run_width.get(run_id, 0) + 1
+        base_run = max(run_width, key=lambda run_id: (run_width[run_id], run_id))
+
+        latest: dict[tuple, dict] = {}
+        for row in rows:
+            if row.get("run_id", "") < base_run:
+                continue
+            key = (
+                row.get("test"),
+                row.get("config", "default"),
+                row.get("tech"),
+                row.get("flow"),
+            )
+            previous = latest.get(key)
+            if previous is None or row.get("run_id", "") >= previous.get("run_id", ""):
+                latest[key] = row
+        return list(latest.values())
+
     def hosts(self) -> list[str]:
         return sorted({r.get("host", "unknown") for r in self.load()})
 

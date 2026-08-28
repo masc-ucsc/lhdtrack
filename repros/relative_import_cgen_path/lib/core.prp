@@ -1,0 +1,3 @@
+pub comb core(a:u8) -> (y:u8) {
+  y = a + 1
+}

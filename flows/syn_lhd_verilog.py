@@ -54,7 +54,7 @@ def run(ctx: FlowContext) -> dict:
         [
             lhd, "compile", "verilog", "--top", ctx.top,
             "--emit-dir", "lg:design", "--workdir", "cw",
-            "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS", *params,
+            "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", *params,
         ],
     )
     return _synthesize(ctx, "design", lib_args)
@@ -87,14 +87,15 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
          "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
 
-    netlist = next((ctx.work / "netv").glob("*.v"), None) if (ctx.work / "netv").is_dir() else None
-    if netlist is None:
+    from qor_endpoint import emitted_verilog, evaluate
+
+    try:
+        netlist = emitted_verilog(ctx, ctx.work / "netv")
+    except FlowError as error:
         raise FlowError(
             "lhd emitted no gate-level Verilog; OpenSTA cannot time the netlist "
             "(check `lhd pass cgen verilog` support for mapped designs)"
-        )
-
-    from qor_endpoint import evaluate
+        ) from error
 
     return {"netlist": netlist, **evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
                      qor_json=ctx.work / "W" / "qor.json")}

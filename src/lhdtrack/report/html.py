@@ -124,7 +124,10 @@ def write_report(
     # Scoped to ONE machine (`uname -n`). Wall clock and peak RSS are the
     # majority of what is reported here and they are not portable, so a table
     # mixing hosts would be a table of hardware differences.
-    rows = Ledger(root).latest_run(host)
+    # A focused rerun overlays its corrected slots on the most recent full
+    # matrix.  Showing only the newest run would turn a one-test rerun into a
+    # one-test report and make all unaffected measurements disappear.
+    rows = Ledger(root).latest_rows(host)
     out = out or root / TARGET_DIR / f"report-{slug(host)}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -138,7 +141,7 @@ def write_report(
         )
         return out
 
-    ident = rows[0]
+    ident = max(rows, key=lambda row: row.get("run_id", ""))
     body = [_header(ident, rows)]
 
     # index: (test, config, tech) -> flow -> row
@@ -651,6 +654,7 @@ _VERDICT_CLASS = {
     "unsupported": "muted",
     "error": "warn",
     "none": "muted",
+    "not-measured": "muted",
 }
 
 
@@ -747,14 +751,7 @@ never aggregated — a Pyrope win might be a different circuit.</p>
 
 
 def _netlist_lec_section(rows: list[dict]) -> str:
-    """Did synthesis preserve the design?
-
-    A separate section because it is a separate claim. Every area and delay
-    number in the synthesis tables is a statement about a NETLIST; this is what
-    says the netlist is still the circuit the RTL described. A refutation here
-    is far more serious than two source descriptions differing -- it means the
-    synthesis flow broke the design.
-    """
+    """Report the two source-vs-mapped-netlist obligations side by side."""
     items = [
         r for r in rows
         if r.get("flow") == "lec_netlist" and r.get("lec_result")
@@ -762,37 +759,65 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     if not items:
         return ""
 
-    counts = Counter(r["lec_result"]["verdict"] for r in items)
-    refuted = [r for r in items if r["lec_result"]["verdict"] == "refuted"]
-    skipped = sum(1 for r in rows if r.get("flow") == "lec_netlist" and r["status"] == "skipped")
-
-    body = "".join(
-        f'<tr><td class="l">{_e(r["test"])}</td>'
-        f'<td class="l muted">{_e(r.get("config"))}</td>'
-        f'<td class="l muted">{_e(r.get("tech"))}</td>'
-        f'<td class="l {_VERDICT_CLASS.get(r["lec_result"]["verdict"], "muted")}">'
-        f'{_e(r["lec_result"]["verdict"])}</td>'
-        f'<td>{_fmt(r["lec_result"].get("ms", 0) / 1000, 2)}</td>'
-        f'<td class="note">{_e(r["lec_result"].get("counterexample", "") or r.get("note", ""))}</td></tr>'
-        for r in sorted(items, key=lambda r: (r["lec_result"]["verdict"] != "refuted", r["test"]))
+    counts_lhd = Counter(r["lec_result"]["verdict"] for r in items)
+    counts_yosys = Counter(
+        r.get("lec_aux_result", {}).get("verdict", "not-measured") for r in items
     )
-    summary = ", ".join(f"{n} {_e(v)}" for v, n in counts.most_common())
+    refuted = [
+        r for r in items
+        if "refuted" in {
+            r["lec_result"].get("verdict"),
+            r.get("lec_aux_result", {}).get("verdict"),
+        }
+    ]
+    skipped = sum(
+        1 for r in rows
+        if r.get("flow") == "lec_netlist" and r["status"] == "skipped"
+    )
+
+    body_rows = []
+    for r in sorted(items, key=lambda r: (r["test"], r.get("tech") or "")):
+        py = r["lec_result"]
+        vr = r.get("lec_aux_result", {})
+        vr_verdict = vr.get("verdict", "not-measured")
+        vr_ms = vr.get("ms")
+        note = (
+            py.get("counterexample", "")
+            or vr.get("counterexample", "")
+            or r.get("note", "")
+        )
+        body_rows.append(
+            f'<tr><td class="l">{_e(r["test"])}</td>'
+            f'<td class="l muted">{_e(r.get("config"))}</td>'
+            f'<td class="l muted">{_e(r.get("tech"))}</td>'
+            f'<td class="l {_VERDICT_CLASS.get(py.get("verdict"), "muted")}">'
+            f'{_e(py.get("verdict", "error"))}</td>'
+            f'<td>{_fmt(py.get("ms", 0) / 1000, 2)}</td>'
+            f'<td class="l {_VERDICT_CLASS.get(vr_verdict, "muted")}">'
+            f'{_e(vr_verdict)}</td>'
+            f'<td>{_fmt(vr_ms / 1000, 2) if vr_ms is not None else "—"}</td>'
+            f'<td class="note">{_e(note)}</td></tr>'
+        )
+    summary_lhd = ", ".join(f"{n} {_e(v)}" for v, n in counts_lhd.most_common())
+    summary_yosys = ", ".join(f"{n} {_e(v)}" for v, n in counts_yosys.most_common())
     alarm = (
-        f" <span class='bad'><b>{len(refuted)} netlist(s) NOT equivalent to their RTL</b></span> — "
-        "synthesis changed the design, so every area and delay number above for "
-        "those tests describes a circuit that is not the one written."
+        f" <span class='bad'><b>{len(refuted)} netlist row(s) refuted</b></span> — "
+        "synthesis or one source description changed the circuit."
         if refuted else ""
     )
     return f"""
-<h2>Equivalence — RTL vs synthesized netlist</h2>
-<p class="sub">Behavioural RTL against a flat sea of mapped standard cells: no
-shared boundaries, no shared names, ABC-rewritten logic. A much harder
-obligation than comparing two sources, and the one that says synthesis
-preserved the design. {summary}{f", {skipped} skipped" if skipped else ""}.{alarm}</p>
+<h2>Equivalence — sources vs synthesized netlist</h2>
+<p class="sub">Two obligations over the same flat, mapped standard-cell design:
+LiveHD checks Pyrope vs netlist, while the Yosys-backed engine checks Verilog vs
+netlist. LiveHD: {summary_lhd}. Yosys: {summary_yosys}.
+{f"{skipped} skipped. " if skipped else ""}{alarm} A timeout means no
+counterexample was found within the budget, not a proof; when both engines time
+out the table keeps both explicit.</p>
 <div class="scroll"><table>
 <thead><tr><th class="l">test</th><th class="l">config</th><th class="l">tech</th>
-<th class="l">verdict</th><th>s</th><th class="l">note</th></tr></thead>
-<tbody>{body}</tbody></table></div>
+<th class="l">lhd: Pyrope vs netlist</th><th>s</th>
+<th class="l">yosys: Verilog vs netlist</th><th>s</th><th class="l">note</th></tr></thead>
+<tbody>{''.join(body_rows)}</tbody></table></div>
 """
 
 

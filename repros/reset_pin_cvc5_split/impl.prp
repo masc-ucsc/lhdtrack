@@ -1,0 +1,17 @@
+// Repro:
+//   lhd lec --impl impl.prp --ref ref.sv --top pulse_repro --set formal.solver=cvc5
+// refutes, while the same command with formal.solver=lgyosys proves.
+const bit_toggle_t = import("bit_toggle.bit_toggle")
+
+pub mod pulse_repro::[timecheck=false](src_clk:u1, src_rst:u1, src_pulse:u1, dst_clk:u1) -> (dst_pulse:u1@[]) {
+  reg src_level:u1:[clock_pin=ref src_clk, reset_pin=ref src_rst] = 0
+  reg dst_level_d:u1:[clock_pin=ref dst_clk] = nil
+  mut bit_toggle_inst = bit_toggle_t::[name=bit_toggle_inst](src_bit=src_level, dst_clk=dst_clk)
+  const dst_level:u1 = bit_toggle_inst.dst_bit
+  dst_pulse = dst_level ^ dst_level_d
+  if src_pulse != 0 {
+    const one:u1 = 1
+    src_level = src_level ^ one
+  }
+  dst_level_d = dst_level
+}

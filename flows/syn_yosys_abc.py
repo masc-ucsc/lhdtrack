@@ -41,7 +41,7 @@ def run(ctx: FlowContext) -> dict:
     # cells, abc -liberty for the combinational ones).
     script = f"""
 {reads}
-read_slang --top {ctx.top} --no-proc -DSYNTHESIS {slang_params} -F {ctx.test.filelist}
+read_slang --top {ctx.top} --no-proc -DSYNTHESIS -DBR_PPA_SYNTHESIS {slang_params} -F {ctx.test.filelist}
 hierarchy -check -top {ctx.top}
 synth -top {ctx.top} -flatten
 dfflibmap -liberty {liberty}

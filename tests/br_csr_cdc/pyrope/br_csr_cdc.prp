@@ -1,0 +1,36 @@
+// Hand-written fixed configuration: AddrWidth=16, DataWidth=32,
+// NumSyncStages=2, and all optional output registers disabled.
+const cdc_reg_req_t = import("br_cdc_reg64.br_cdc_reg")
+const cdc_reg_resp_t = import("br_cdc_reg_p1.br_cdc_reg_p1")
+const pulse_t = import("br_cdc_bit_pulse.br_cdc_bit_pulse")
+
+pub mod br_csr_cdc::[timecheck=false](upstream_clk:u1, upstream_rst:u1, upstream_req_valid:u1, upstream_req_write:u1, upstream_req_addr:u16, upstream_req_wdata:u32, upstream_req_wstrb:u4, upstream_req_secure:u1, upstream_req_privileged:u1, upstream_req_abort:u1, downstream_clk:u1, downstream_rst:u1, downstream_resp_valid:u1, downstream_resp_rdata:u32, downstream_resp_slverr:u1, downstream_resp_decerr:u1) -> (upstream_resp_valid:u1@[], upstream_resp_rdata:u32@[], upstream_resp_slverr:u1@[], upstream_resp_decerr:u1@[], downstream_req_valid:u1@[], downstream_req_write:u1@[], downstream_req_addr:u16@[], downstream_req_wdata:u32@[], downstream_req_wstrb:u4@[], downstream_req_secure:u1@[], downstream_req_privileged:u1@[], downstream_req_abort:u1@[]) {
+  mut req_pack:u55 = 0
+  req_pack#[54] = upstream_req_write
+  req_pack#[38..=53] = upstream_req_addr
+  req_pack#[6..=37] = upstream_req_wdata
+  req_pack#[2..=5] = upstream_req_wstrb
+  req_pack#[1] = upstream_req_secure
+  req_pack#[0] = upstream_req_privileged
+  mut req = cdc_reg_req_t::[name=br_cdc_reg_req](push_clk=upstream_clk, push_rst=upstream_rst, push_valid=upstream_req_valid, push_data=req_pack, pop_clk=downstream_clk, pop_rst=downstream_rst, pop_ready=1)
+
+  downstream_req_valid = req.pop_valid
+  downstream_req_write = req.pop_data#[54]
+  downstream_req_addr = req.pop_data#[38..=53]
+  downstream_req_wdata = req.pop_data#[6..=37]
+  downstream_req_wstrb = req.pop_data#[2..=5]
+  downstream_req_secure = req.pop_data#[1]
+  downstream_req_privileged = req.pop_data#[0]
+
+  mut resp_pack:u34 = 0
+  resp_pack#[2..=33] = downstream_resp_rdata
+  resp_pack#[1] = downstream_resp_slverr
+  resp_pack#[0] = downstream_resp_decerr
+  mut resp = cdc_reg_resp_t::[name=br_cdc_reg_resp](push_clk=downstream_clk, push_rst=downstream_rst, push_valid=downstream_resp_valid, push_data=resp_pack, pop_clk=upstream_clk, pop_rst=upstream_rst, pop_ready=1)
+  upstream_resp_valid = resp.pop_valid
+  upstream_resp_rdata = resp.pop_data#[2..=33]
+  upstream_resp_slverr = resp.pop_data#[1]
+  upstream_resp_decerr = resp.pop_data#[0]
+
+  downstream_req_abort = pulse_t::[name=br_cdc_bit_pulse_abort](src_clk=upstream_clk, src_rst=upstream_rst, src_pulse=upstream_req_abort, dst_clk=downstream_clk, dst_rst=downstream_rst)
+}

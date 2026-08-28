@@ -1,0 +1,11 @@
+// Hand-written equivalent of the fixed NumStages=2, AddSourceFlop=0 configuration.
+pub mod br_cdc_bit_toggle::[timecheck=false](src_clk:u1, src_rst:u1, src_bit:u1, dst_clk:u1, dst_rst:u1) -> (dst_bit:u1@[]) {
+  reg br_gate_cdc_sync_in_d:u2:[clock_pin=ref dst_clk] = nil
+
+  dst_bit = br_gate_cdc_sync_in_d#[1]
+
+  mut sync_next:u2 = 0
+  sync_next#[0] = src_bit
+  sync_next#[1] = br_gate_cdc_sync_in_d#[0]
+  br_gate_cdc_sync_in_d = sync_next
+}

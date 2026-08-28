@@ -1,0 +1,11 @@
+// Hand-written equivalent of the fixed NumStages=2 reset synchronizer.
+pub mod br_cdc_rst_sync::[timecheck=false](clk:u1, arst:u1) -> (srst:u1@[]) {
+  reg br_gate_cdc_sync_arst_srst_n_in_d:u2:[clock_pin=ref clk, reset_pin=ref arst, sync=false] = 0
+
+  srst = unsigned(~br_gate_cdc_sync_arst_srst_n_in_d#[1])
+
+  mut sync_next:u2 = 0
+  sync_next#[0] = 1
+  sync_next#[1] = br_gate_cdc_sync_arst_srst_n_in_d#[0]
+  br_gate_cdc_sync_arst_srst_n_in_d = sync_next
+}

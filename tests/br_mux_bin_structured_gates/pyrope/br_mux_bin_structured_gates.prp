@@ -1,0 +1,22 @@
+// Hand-written equivalent of NumSymbolsIn=16 and SymbolWidth=32.
+pub mod br_mux_bin_structured_gates(select:u4, `in`:u512) -> (out:u32@[], out_valid:u1@[]) {
+  const l0_0:u32 = if select#[0] != 0 { `in`#[32..=63] } else { `in`#[0..=31] }
+  const l0_1:u32 = if select#[0] != 0 { `in`#[96..=127] } else { `in`#[64..=95] }
+  const l0_2:u32 = if select#[0] != 0 { `in`#[160..=191] } else { `in`#[128..=159] }
+  const l0_3:u32 = if select#[0] != 0 { `in`#[224..=255] } else { `in`#[192..=223] }
+  const l0_4:u32 = if select#[0] != 0 { `in`#[288..=319] } else { `in`#[256..=287] }
+  const l0_5:u32 = if select#[0] != 0 { `in`#[352..=383] } else { `in`#[320..=351] }
+  const l0_6:u32 = if select#[0] != 0 { `in`#[416..=447] } else { `in`#[384..=415] }
+  const l0_7:u32 = if select#[0] != 0 { `in`#[480..=511] } else { `in`#[448..=479] }
+
+  const l1_0:u32 = if select#[1] != 0 { l0_1 } else { l0_0 }
+  const l1_1:u32 = if select#[1] != 0 { l0_3 } else { l0_2 }
+  const l1_2:u32 = if select#[1] != 0 { l0_5 } else { l0_4 }
+  const l1_3:u32 = if select#[1] != 0 { l0_7 } else { l0_6 }
+
+  const l2_0:u32 = if select#[2] != 0 { l1_1 } else { l1_0 }
+  const l2_1:u32 = if select#[2] != 0 { l1_3 } else { l1_2 }
+
+  out = if select#[3] != 0 { l2_1 } else { l2_0 }
+  out_valid = 1
+}

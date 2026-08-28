@@ -1,0 +1,93 @@
+// Local hand-written helper for the fixed Width=32, RegisterPopOutputs=0,
+// RegisterResetActive=1, NumSyncStages=2 configuration.  It is kept beside the
+// wrapper because lhdtrack stages each benchmark's Pyrope tree independently.
+pub mod br_cdc_reg::[timecheck=false](push_clk:u1, push_rst:u1, push_valid:u1, push_data:u32, pop_clk:u1, pop_rst:u1, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
+  const one:u1 = 1
+
+  reg br_cdc_reg_push_push_flag_int:u1:[clock_pin=ref push_clk] = nil
+  reg br_cdc_reg_push_push_reg_data:u32:[clock_pin=ref push_clk] = nil
+  reg br_cdc_reg_push_pop_flag_saved:u1:[clock_pin=ref push_clk] = nil
+  reg br_cdc_reg_push_br_delay_nr_reset_active_push_stages___q:u2:[clock_pin=ref push_clk] = nil
+  reg br_cdc_reg_push_br_delay_nr_push_flag_stages___q:u3:[clock_pin=ref push_clk] = nil
+  reg br_cdc_bit_toggle_pop_to_push_reset_active_br_gate_cdc_sync_in_d:u2:[clock_pin=ref push_clk] = nil
+  reg br_cdc_bit_toggle_pop_to_push_flag_br_gate_cdc_sync_in_d:u2:[clock_pin=ref push_clk] = nil
+
+  reg br_cdc_reg_pop_push_flag_saved:u1:[clock_pin=ref pop_clk] = nil
+  reg br_cdc_reg_pop_pop_flag_int:u1:[clock_pin=ref pop_clk] = nil
+  reg br_cdc_reg_pop_br_delay_nr_reset_active_pop_stages___q:u2:[clock_pin=ref pop_clk] = nil
+  reg br_cdc_reg_pop_br_delay_nr_pop_flag_stages___q:u3:[clock_pin=ref pop_clk] = nil
+  reg br_cdc_bit_toggle_push_to_pop_reset_active_br_gate_cdc_sync_in_d:u2:[clock_pin=ref pop_clk] = nil
+  reg br_cdc_bit_toggle_push_to_pop_flag_br_gate_cdc_sync_in_d:u2:[clock_pin=ref pop_clk] = nil
+
+  mut push_reset_stages:u2 = br_cdc_reg_push_br_delay_nr_reset_active_push_stages___q
+  push_reset_stages#[0] = push_rst
+  const push_reset_active_push:u1 = (push_reset_stages >> 1) & 1
+  mut push_flag_stages:u3 = br_cdc_reg_push_br_delay_nr_push_flag_stages___q
+  const push_flag:u1 = (push_flag_stages >> 2) & 1
+  mut pop_reset_stages:u2 = br_cdc_reg_pop_br_delay_nr_reset_active_pop_stages___q
+  pop_reset_stages#[0] = pop_rst
+  const pop_reset_active_pop:u1 = (pop_reset_stages >> 1) & 1
+  mut pop_flag_stages:u3 = br_cdc_reg_pop_br_delay_nr_pop_flag_stages___q
+  const pop_flag:u1 = (pop_flag_stages >> 2) & 1
+  const push_reset_active_pop:u1 = br_cdc_bit_toggle_pop_to_push_reset_active_br_gate_cdc_sync_in_d#[1]
+  const pop_push_flag:u1 = br_cdc_bit_toggle_push_to_pop_flag_br_gate_cdc_sync_in_d#[1]
+  const pop_reset_active_push:u1 = br_cdc_bit_toggle_push_to_pop_reset_active_br_gate_cdc_sync_in_d#[1]
+  const push_pop_flag:u1 = br_cdc_bit_toggle_pop_to_push_flag_br_gate_cdc_sync_in_d#[1]
+
+  const push_pop_visible:u1 = if push_reset_active_pop != 0 { br_cdc_reg_push_pop_flag_saved } else { push_pop_flag }
+  const push_ready_int:u1 = unsigned(br_cdc_reg_push_push_flag_int == push_pop_visible)
+  const push_beat:u1 = push_valid & push_ready_int
+  const push_flag_next:u1 = if push_beat != 0 { ~br_cdc_reg_push_push_flag_int } else { br_cdc_reg_push_push_flag_int }
+  push_ready = push_ready_int
+
+  const pop_push_visible:u1 = if pop_reset_active_push != 0 { br_cdc_reg_pop_push_flag_saved } else { pop_push_flag }
+  const pop_valid_int:u1 = unsigned((pop_rst == 0) and (pop_push_visible != br_cdc_reg_pop_pop_flag_int))
+  const pop_beat:u1 = pop_valid_int & pop_ready
+  const pop_flag_next:u1 = if pop_beat != 0 { ~br_cdc_reg_pop_pop_flag_int } else { br_cdc_reg_pop_pop_flag_int }
+  pop_valid = pop_valid_int
+  pop_data = if pop_valid_int != 0 { br_cdc_reg_push_push_reg_data } else { 0 }
+
+  if push_rst != 0 {
+    br_cdc_reg_push_push_flag_int = 0
+    br_cdc_reg_push_push_reg_data = 0
+    br_cdc_reg_push_pop_flag_saved = 0
+  } else {
+    br_cdc_reg_push_push_flag_int = push_flag_next
+    if push_beat != 0 { br_cdc_reg_push_push_reg_data = push_data }
+    if push_reset_active_pop == 0 { br_cdc_reg_push_pop_flag_saved = push_pop_flag }
+  }
+  br_cdc_reg_push_br_delay_nr_reset_active_push_stages___q#[1] = push_reset_stages & 1
+  push_flag_stages#[0] = push_flag_next
+  br_cdc_reg_push_br_delay_nr_push_flag_stages___q#[1] = push_flag_stages & 1
+  br_cdc_reg_push_br_delay_nr_push_flag_stages___q#[2] = (push_flag_stages >> 1) & 1
+
+  mut pop_reset_sync_push_next:u2 = 0
+  pop_reset_sync_push_next#[0] = pop_reset_active_pop
+  pop_reset_sync_push_next#[1] = br_cdc_bit_toggle_pop_to_push_reset_active_br_gate_cdc_sync_in_d#[0]
+  br_cdc_bit_toggle_pop_to_push_reset_active_br_gate_cdc_sync_in_d = pop_reset_sync_push_next
+  mut pop_flag_sync_push_next:u2 = 0
+  pop_flag_sync_push_next#[0] = pop_flag
+  pop_flag_sync_push_next#[1] = br_cdc_bit_toggle_pop_to_push_flag_br_gate_cdc_sync_in_d#[0]
+  br_cdc_bit_toggle_pop_to_push_flag_br_gate_cdc_sync_in_d = pop_flag_sync_push_next
+
+  if pop_rst != 0 {
+    br_cdc_reg_pop_push_flag_saved = 0
+    br_cdc_reg_pop_pop_flag_int = 0
+  } else {
+    if pop_reset_active_push == 0 { br_cdc_reg_pop_push_flag_saved = pop_push_flag }
+    br_cdc_reg_pop_pop_flag_int = pop_flag_next
+  }
+  br_cdc_reg_pop_br_delay_nr_reset_active_pop_stages___q#[1] = pop_reset_stages & 1
+  pop_flag_stages#[0] = pop_flag_next
+  br_cdc_reg_pop_br_delay_nr_pop_flag_stages___q#[1] = pop_flag_stages & 1
+  br_cdc_reg_pop_br_delay_nr_pop_flag_stages___q#[2] = (pop_flag_stages >> 1) & 1
+
+  mut push_reset_sync_pop_next:u2 = 0
+  push_reset_sync_pop_next#[0] = push_reset_active_push
+  push_reset_sync_pop_next#[1] = br_cdc_bit_toggle_push_to_pop_reset_active_br_gate_cdc_sync_in_d#[0]
+  br_cdc_bit_toggle_push_to_pop_reset_active_br_gate_cdc_sync_in_d = push_reset_sync_pop_next
+  mut push_flag_sync_pop_next:u2 = 0
+  push_flag_sync_pop_next#[0] = push_flag
+  push_flag_sync_pop_next#[1] = br_cdc_bit_toggle_push_to_pop_flag_br_gate_cdc_sync_in_d#[0]
+  br_cdc_bit_toggle_push_to_pop_flag_br_gate_cdc_sync_in_d = push_flag_sync_pop_next
+}

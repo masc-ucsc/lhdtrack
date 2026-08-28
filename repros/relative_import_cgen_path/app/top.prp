@@ -1,0 +1,6 @@
+const core_t = import("../lib/core.core")
+
+pub comb relative_top(a:u8) -> (y:u8) {
+  const r = core_t(a=a)
+  y = r.y
+}

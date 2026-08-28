@@ -90,11 +90,12 @@ def run(ctx: FlowContext) -> dict:
         [lhd, "compile", "lg:netlist", "--top", f"{ctx.top}.{ctx.top}",
          "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
-    netlist = next((ctx.work / "netv").glob("*.v"), None) if (ctx.work / "netv").is_dir() else None
-    if netlist is None:
-        raise FlowError("lhd emitted no gate-level Verilog for the Pyrope design")
+    from qor_endpoint import emitted_verilog, evaluate
 
-    from qor_endpoint import evaluate
+    try:
+        netlist = emitted_verilog(ctx, ctx.work / "netv")
+    except FlowError as error:
+        raise FlowError("lhd emitted no gate-level Verilog for the Pyrope design") from error
 
     out = {"netlist": netlist, **evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
                      # The ONE-SHOT `lhd synth` nests its report under <workdir>/synth/,

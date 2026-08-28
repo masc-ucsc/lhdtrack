@@ -216,7 +216,7 @@ def _emit_pyrope_seed(test, tc, params: dict) -> bool:
                 # Before that, omitting these elaborated br_counter_incr at
                 # MaxValue=1 -- every port u1 -- while the Verilog side used
                 # MaxValue=255, and LEC rightly refuted two different circuits.
-                "--", "-F", str(test.filelist), "-DSYNTHESIS",
+                "--", "-F", str(test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
                 *[f"-G{k}={v}" for k, v in sorted(params.items())],
             ],
             check=True, capture_output=True, timeout=900,

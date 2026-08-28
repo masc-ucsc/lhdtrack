@@ -1,21 +1,27 @@
 # br_cdc_stable_data
 
-<!-- What this block does, in a sentence or two. -->
+Synchronizes an infrequently changing 32-bit value through the fixed
+two-stage `br_cdc_reg` configuration, then registers the destination update
+pulse and data.
 
 | | |
 | --- | --- |
 | top | `br_cdc_stable_data` |
 | kind | sequential |
 | suite | cdc |
-| upstream | _fill in_ |
-| revision | _fill in_ |
-| upstream path | _fill in_ |
+| upstream | Bedrock RTL |
+| revision | `0a990f222cd970fdaec42c6e0a4e372cf0e1400f` |
+| upstream path | `cdc/rtl/br_cdc_stable_data.sv` |
 
 ## Known gaps
 
-<!-- Anything a reader of the report needs to know: an unproven LEC, a Pyrope
-     side that is still a machine emission, a parameter set that does not
-     elaborate, a harness that needed hand-adjustment. -->
+The Pyrope is hand-written for the single pinned configuration and keeps a
+local hand-written `br_cdc_reg` helper because lhdtrack stages each benchmark's
+Pyrope directory independently. Its cgen-emitted Verilog and the untouched
+reference produce the same one-million-cycle Verilator checksum
+(`970599117477954039`). After collapsing the reference-only helper hierarchy and
+matching the resetless packed delay state, CVC5 proves the source equivalence.
+The Yosys-backed LEC still reaches its timeout without a counterexample.
 
 ## Generated files
 

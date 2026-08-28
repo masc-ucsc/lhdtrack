@@ -57,5 +57,73 @@
       "syn_lhd_verilog": 0.6069839030157961,
       "syn_lhd_pyrope": 0.6654083659476475
     }
+  },
+  {
+    "run": "20260828T094107",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7700519845196031,
+      "syn_lhd_pyrope": 0.7700519845196031
+    }
+  },
+  {
+    "run": "20260828T095024",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0
+    }
+  },
+  {
+    "run": "20260828T100026",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7421161221482434,
+      "syn_lhd_pyrope": 0.5171361847655059
+    }
+  },
+  {
+    "run": "20260828T113528",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7700519845196031,
+      "syn_lhd_pyrope": 0.7538804249840031
+    }
+  },
+  {
+    "run": "20260828T135950",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled Mar 11 2025 09:09:22),sta=2.0.17,verilator=Verilator 5.040 2025-08-30 rev (Debian 5.040-2),yosys=Yosys 0.60+95 (git sha1 991e70489, g++ 15.2.0-4 -fPIC -O3),yosys_slang=sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6575692562315005,
+      "syn_lhd_pyrope": 0.6455835734482755
+    }
+  },
+  {
+    "run": "20260828T141218",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled Mar 11 2025 09:09:22),sta=2.0.17,verilator=Verilator 5.040 2025-08-30 rev (Debian 5.040-2),yosys=Yosys 0.60+95 (git sha1 991e70489, g++ 15.2.0-4 -fPIC -O3),yosys_slang=sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.759981211836543,
+      "syn_lhd_pyrope": 0.759981211836543
+    }
+  },
+  {
+    "run": "20260828T141628",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled Mar 11 2025 09:09:22),sta=2.0.17,verilator=Verilator 5.040 2025-08-30 rev (Debian 5.040-2),yosys=Yosys 0.60+95 (git sha1 991e70489, g++ 15.2.0-4 -fPIC -O3),yosys_slang=sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7691813758345394,
+      "syn_lhd_pyrope": 0.7475708903309863
+    }
   }
 ]

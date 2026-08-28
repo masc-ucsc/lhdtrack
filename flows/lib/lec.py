@@ -121,7 +121,8 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     ref = ctx.run(
         "elab_ref",
         [lhd, "compile", "verilog", "--top", ctx.top, "--emit-dir", "lg:ref",
-         "--workdir", "rw", "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS", *params],
+         "--workdir", "rw", "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS",
+         "-DBR_PPA_SYNTHESIS", *params],
         check=False,
     )
     if not ref.ok:

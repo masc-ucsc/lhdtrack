@@ -86,6 +86,9 @@ class Row:
     # MANIFEST declares -- keeping them apart is what lets the runner notice
     # the two disagreeing.
     lec_result: dict = field(default_factory=dict)
+    # A second, independently named netlist obligation may share the same
+    # expensive mapped design with `lec_result`.
+    lec_aux_result: dict = field(default_factory=dict)
     sim: dict = field(default_factory=dict)
     time_ms: dict = field(default_factory=dict)
     peak_rss_kb: dict = field(default_factory=dict)
@@ -300,6 +303,7 @@ class Runner:
                     f"manifest declares lec = \"{result['lec']['declared']}\" but "
                     f"{result['lec']['solver']} says {result['lec']['verdict']}"
                 )
+        row.lec_aux_result = result.get("lec_aux", {})
         row.pyrope_status = result.get("pyrope_status", row.pyrope_status)
         row.time_ms, row.peak_rss_kb = ctx.stage.finish()
         row.cmds = ctx.cmds

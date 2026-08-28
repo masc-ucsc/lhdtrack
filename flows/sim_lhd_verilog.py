@@ -40,7 +40,9 @@ def run(ctx: FlowContext) -> dict:
     params = [] if harness.exists() else [
         f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())
     ]
-    sources = ["-F", str(ctx.test.filelist), "-DSYNTHESIS", *params]
+    sources = [
+        "-F", str(ctx.test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", *params
+    ]
     if harness.exists():
         sources.append(str(harness))
 

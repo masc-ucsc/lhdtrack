@@ -1,0 +1,15 @@
+const dut = import("lg:harness")
+
+test bench.run(cycles:u32=1000000) {
+  mut acc = dut
+  mut result:u64 = 0
+  tick cycles {
+    acc.rst = u1(clock < 4)
+    acc.clk = 0
+    step
+    acc.clk = 1
+    step
+    result = acc.checksum
+  }
+  puts("LHDTRACK-DONE cycles={} checksum={}", cycles, result)
+}

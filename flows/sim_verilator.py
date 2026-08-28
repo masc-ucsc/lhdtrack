@@ -62,7 +62,8 @@ def run(ctx: FlowContext) -> dict:
     ]
     setup = [
         ctx.tool("verilator"), "--cc", "--exe", "--Mdir", str(vobj),
-        "--top-module", sim_top, "-Wno-fatal", "-DSYNTHESIS", "-DBR_VERILATOR",
+        "--top-module", sim_top, "-Wno-fatal", "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
+        "-DBR_VERILATOR",
         "-I" + str(ctx.test.verilog_dir),
         *params,
         "-F", str(ctx.test.filelist),

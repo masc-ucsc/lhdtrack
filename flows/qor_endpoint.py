@@ -24,6 +24,21 @@ from pathlib import Path
 
 from lhdtrack.context import FlowContext, FlowError
 
+
+def emitted_verilog(ctx: FlowContext, directory: Path) -> Path:
+    """Return one compilation unit containing every Verilog file lhd emitted.
+
+    Mapped designs may include separately emitted pattern modules.  Passing only
+    the first file makes Yosys report those cells as missing black boxes.
+    """
+    files = sorted(directory.glob("*.v")) if directory.is_dir() else []
+    if not files:
+        raise FlowError("lhd emitted no gate-level Verilog")
+    if len(files) == 1:
+        return files[0]
+    text = "\n".join(path.read_text(errors="replace") for path in files)
+    return ctx.write("emitted-netlist-all.v", text)
+
 NEEDS = ("yosys",)
 OPTIONAL = ("sta",)
 
@@ -179,11 +194,21 @@ def _normalize(ctx: FlowContext, netlist: Path) -> Path:
     fully structural netlist that `stat` can count and OpenSTA can link.
     """
     out = ctx.work / "structural.v"
+    # LiveHD's mapped LGraph vocabulary has explicit constant-source cells.
+    # They are not Liberty cells, so `read_liberty -lib` cannot define them;
+    # provide their two trivial models before hierarchy validation. Yosys then
+    # folds the instances away during the normal optimization below.
+    const_models = ctx.write(
+        "lhd-const-models.v",
+        "module _const0_(output z); assign z = 1'b0; endmodule\n"
+        "module _const1_(output z); assign z = 1'b1; endmodule\n",
+    )
     libs = "\n".join(f"read_liberty -lib {lib}" for lib in ctx.liberty)
     # All families: ASAP7's flops live in SEQ, its inverters in INVBUF.
     map_args = " ".join(f"-liberty {lib}" for lib in ctx.liberty)
     script = f"""
 {libs}
+read_verilog {const_models}
 read_verilog -sv {netlist}
 hierarchy -check -top {ctx.top}
 proc

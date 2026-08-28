@@ -130,6 +130,13 @@ def main() -> int:
     out = args.root / "var" / "toolchain"
     (out / "bin").mkdir(parents=True, exist_ok=True)
 
+    # `yosys_slang` is a shared-library plugin rather than an executable, so it
+    # does not belong in TOOLS/find(). Preserve a valid plugin staged by the
+    # hermetic toolchain (the common local-development path), or accept an
+    # explicit YOSYS_SLANG path when bootstrapping a local toolchain directly.
+    old_slang_link = out / "bin" / "yosys_slang"
+    old_slang = old_slang_link.resolve() if old_slang_link.exists() else None
+
     bins, versions = {}, {}
     for name, (vargs, extra) in TOOLS.items():
         path = find(name, extra, args.root)
@@ -143,6 +150,18 @@ def main() -> int:
         bins[name] = str(path)
         versions[name] = version_of(path, vargs)
         print(f"  {name:<10} {versions[name][:78]}")
+
+    slang_env = os.environ.get("YOSYS_SLANG", "")
+    slang = Path(slang_env).expanduser().resolve() if slang_env else old_slang
+    if slang is not None and slang.is_file():
+        if old_slang_link.is_symlink() or old_slang_link.exists():
+            old_slang_link.unlink()
+        old_slang_link.symlink_to(slang)
+        bins["yosys_slang"] = str(slang)
+        versions["yosys_slang"] = f"sha256:{sha256(slang)[:16]}"
+        print(f"  {'yosys_slang':<10} {versions['yosys_slang']}")
+    else:
+        print("  yosys_slang not found -- syn_yosys_abc will SKIP and say so")
 
     tech = {}
     for spec in args.liberty:

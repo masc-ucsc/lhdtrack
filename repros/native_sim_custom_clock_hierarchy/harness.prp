@@ -1,0 +1,23 @@
+const dut = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+
+pub mod harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
+  reg lfsr:u64:[clock_pin=ref clk] = nil
+  reg sum:u64:[clock_pin=ref clk] = nil
+  checksum = sum
+
+  mut nxt:u64 = lfsr
+  wrap nxt = nxt ^ (nxt << 13)
+  wrap nxt = nxt ^ (nxt >> 7)
+  wrap nxt = nxt ^ (nxt << 17)
+
+  const r = dut(src_clk=clk, dst_clk=clk, src_rst=rst, dst_rst=rst, src_bit=lfsr#[0])
+  mut acc:u64 = sum
+  wrap acc = ((acc << 1) | acc#[63]) ^ r
+  if rst != 0 {
+    lfsr = 2611923443488327891
+    sum = 0
+  } else {
+    lfsr = nxt
+    sum = acc
+  }
+}

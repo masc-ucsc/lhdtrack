@@ -1,21 +1,25 @@
 # br_cdc_stable_data_autoupdate
 
-<!-- What this block does, in a sentence or two. -->
+Detects source-data changes, transfers the latest 32-bit value through the
+fixed two-stage CDC register, and registers the destination update pulse/data.
 
 | | |
 | --- | --- |
 | top | `br_cdc_stable_data_autoupdate` |
 | kind | sequential |
 | suite | cdc |
-| upstream | _fill in_ |
-| revision | _fill in_ |
-| upstream path | _fill in_ |
+| upstream | Bedrock RTL |
+| revision | `0a990f222cd970fdaec42c6e0a4e372cf0e1400f` |
+| upstream path | `cdc/rtl/br_cdc_stable_data_autoupdate.sv` |
 
 ## Known gaps
 
-<!-- Anything a reader of the report needs to know: an unproven LEC, a Pyrope
-     side that is still a machine emission, a parameter set that does not
-     elaborate, a harness that needed hand-adjustment. -->
+The Pyrope is hand-written for the pinned configuration and its cgen-emitted
+Verilog matches the untouched reference's one-million-cycle checksum
+(`11552834563771747320`). Its hand-written `br_cdc_reg` helper mirrors the
+resetless packed delay state in the Verilog hierarchy; CVC5 proves the source
+equivalence after collapsing the reference-only helper modules. The
+Yosys-backed LEC still times out without a counterexample.
 
 ## Generated files
 

@@ -1,0 +1,16 @@
+// Hand-written fixed configuration: Width=32, InitValue=0,
+// RegisterResetActive=1, NumSyncStages=2.
+const cdc_reg_t = import("br_cdc_reg.br_cdc_reg")
+
+pub mod br_cdc_stable_data::[timecheck=false](src_clk:u1, src_rst:u1, src_valid:u1, src_data:u32, dst_clk:u1, dst_rst:u1) -> (reg dst_updated:u1@[]:[clock_pin=ref dst_clk], reg dst_data:u32@[]:[clock_pin=ref dst_clk]) {
+
+  mut crossing = cdc_reg_t::[name=br_cdc_reg_inst](push_clk=src_clk, push_rst=src_rst, push_valid=src_valid, push_data=src_data, pop_clk=dst_clk, pop_rst=dst_rst, pop_ready=1)
+
+  if dst_rst != 0 {
+    dst_updated = 0
+    dst_data = 0
+  } else {
+    dst_updated = crossing.pop_valid
+    if crossing.pop_valid != 0 { dst_data = crossing.pop_data }
+  }
+}
