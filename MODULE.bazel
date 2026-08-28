@@ -111,9 +111,19 @@ http_archive(
     urls = ["https://github.com/ivmai/cudd/archive/refs/tags/cudd-3.0.0.tar.gz"],
 )
 
+# GateTableModel and CheckTableModel hold `unique_ptr<TableModels>` while
+# TableModels is still only forward declared -- it is defined 250 lines further
+# down the same header. Both classes are polymorphic, so clang instantiates
+# their implicit destructors at the closing brace of the class and rejects the
+# deleter on an incomplete type; gcc defers that and builds. The patch moves the
+# TableModels definition above its two users, which is a pure reordering: the
+# class already declares its own destructor out of line, so it does not need
+# TableModel to be complete where it now sits.
 http_archive(
     name = "opensta",
     build_file = "//packages:opensta.BUILD",
+    patch_args = ["-p1"],
+    patches = ["//packages:opensta_tablemodels_order.patch"],
     sha256 = "3751516f6275197aef4bdb2eadd7385a03641de928c362bc5aae37b9177cbf05",
     strip_prefix = "OpenSTA-be771a0116985d57effb4120668ae98e8a7b0f79",
     urls = ["https://github.com/The-OpenROAD-Project/OpenSTA/archive/be771a0116985d57effb4120668ae98e8a7b0f79.tar.gz"],

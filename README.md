@@ -48,6 +48,35 @@ lhdtrack run --refresh yosys_abc                  # force a baseline re-measure
 lhdtrack run --no-cache                           # ignore the baseline cache entirely
 ```
 
+### Manual ASAP7 synthesis example
+
+After `make toolchain` has staged the single merged ASAP7 Liberty, these two commands
+synthesize the Verilog `br_apb_demux_select_onehot` design and emit its mapped gate-level
+Verilog. Run them from the repository root:
+
+```bash
+var/toolchain/bin/lhd synth \
+  --top br_apb_demux_select_onehot \
+  --workdir var/manual/br_apb_demux_select_onehot-asap7/W \
+  --emit-dir lg:var/manual/br_apb_demux_select_onehot-asap7/netlist \
+  --set synth.liberty=var/toolchain/lib/asap7/asap7sc7p5t_RVT_TT_merged.lib \
+  --set synth.sdc=tests/br_apb_demux_select_onehot/constraints/asap7.sdc \
+  --set abc.delay=100 \
+  -- -F tests/br_apb_demux_select_onehot/verilog/filelist.f -DSYNTHESIS
+
+var/toolchain/bin/lhd compile \
+  lg:var/manual/br_apb_demux_select_onehot-asap7/netlist \
+  --top br_apb_demux_select_onehot.br_apb_demux_select_onehot \
+  --emit-dir verilog:var/manual/br_apb_demux_select_onehot-asap7/netv \
+  --workdir var/manual/br_apb_demux_select_onehot-asap7/Wemit
+```
+
+The first command performs compilation, coloring, ASAP7 mapping, and timing. The second
+only emits the mapped `lg:` library as gate-level Verilog. With an `lhd` that supports
+direct mapped-Verilog emission, add
+`--emit verilog:var/manual/br_apb_demux_select_onehot-asap7/netlist.v` to `lhd synth` and
+omit the second command.
+
 ---
 
 ## data/ and target/
@@ -162,8 +191,9 @@ design**. Every area and delay number in the synthesis tables is a claim about a
 netlist; this is what says the netlist is still the circuit. A refutation here
 is far more serious than two source descriptions differing.
 
-It has already earned its keep. On 2026-08-28 it refuted 11 of 149 designs, and
-those refutations were **real**: a generate-block instance name collision made
+It has already earned its keep. On 2026-08-28 it refuted 11 of 149 designs
+(now **1** — 149 proven, 2 timeout, 1 refuted), and those refutations were
+**real**: a generate-block instance name collision made
 two distinct registers flatten to one hierarchical name, `pass.abc`'s register
 read-back disambiguated them on the implementation side only, and the mapped
 netlist computed `{credit_initial[5:3], credit_initial[5:3]}` where the RTL gives
@@ -182,6 +212,14 @@ Two things that triage taught, both worth keeping:
   reach the yosys leg, so a netlist refutes against itself), and yosys cannot
   read the PDK's UDP-based models at all. iverilog can, and that is what settled
   it.
+
+The one design still refuting, `br_tracker_linked_list_ctrl`, is a DIFFERENT
+defect: it refutes under `pass.abc.register=false` too, so it is not the naming
+collision. Behind it sits a hard failure that only became reachable once the
+bogus `mem-readall-collision` refusal was removed — `pass.abc`'s read-back emits
+a `Get_mask` with a ZERO-BIT mask, so `lhd compile lg:<netlist> --emit verilog:`
+aborts on it (`left cell 'get_mask_NNNN' … at bits==0`). Pre-existing and
+previously masked by that refusal; not yet root-caused.
 
 Note that asap7 skips this obligation: lhd takes one Liberty file and asap7
 ships five cell families.

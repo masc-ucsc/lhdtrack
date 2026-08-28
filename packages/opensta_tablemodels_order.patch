@@ -1,0 +1,73 @@
+diff --git a/include/sta/TableModel.hh b/include/sta/TableModel.hh
+--- a/include/sta/TableModel.hh
++++ b/include/sta/TableModel.hh
+@@ -62,6 +62,34 @@
+ tableVariableUnit(TableAxisVariable variable,
+                   const Units *units);
+ 
++// cell/transition/check nldm/ocv/lvf models for one rise/fall edge.
++class TableModels
++{
++public:
++  TableModels();
++  TableModels(TableModel *model);
++  ~TableModels();
++  TableModel *model() const { return model_.get(); }
++  void setModel(TableModel *model);
++  TableModel *sigma(const EarlyLate *early_late) const;
++  void setSigma(TableModel *table,
++                const EarlyLate *early_late);
++  TableModel *meanShift() const { return mean_shift_.get(); }
++  void setMeanShift(TableModel *table);
++  TableModel *skewness() const { return skewness_.get(); }
++  void setSkewness(TableModel *table);
++  TableModel *stdDev() const { return std_dev_.get(); }
++  void setStdDev(TableModel *table);
++
++protected:
++  std::unique_ptr<TableModel> model_;
++  // Note early/late can point to the same model.
++  std::array<TableModel*, EarlyLate::index_count> sigma_;
++  std::unique_ptr<TableModel> std_dev_;
++  std::unique_ptr<TableModel> mean_shift_;
++  std::unique_ptr<TableModel> skewness_;
++};
++
+ class GateTableModel : public GateTimingModel
+ {
+ public:
+@@ -405,34 +433,6 @@
+   bool is_scaled_:1;
+ };
+ 
+-// cell/transition/check nldm/ocv/lvf models for one rise/fall edge.
+-class TableModels
+-{
+-public:
+-  TableModels();
+-  TableModels(TableModel *model);
+-  ~TableModels();
+-  TableModel *model() const { return model_.get(); }
+-  void setModel(TableModel *model);
+-  TableModel *sigma(const EarlyLate *early_late) const;
+-  void setSigma(TableModel *table,
+-                const EarlyLate *early_late);
+-  TableModel *meanShift() const { return mean_shift_.get(); }
+-  void setMeanShift(TableModel *table);
+-  TableModel *skewness() const { return skewness_.get(); }
+-  void setSkewness(TableModel *table);
+-  TableModel *stdDev() const { return std_dev_.get(); }
+-  void setStdDev(TableModel *table);
+-
+-protected:
+-  std::unique_ptr<TableModel> model_;
+-  // Note early/late can point to the same model.
+-  std::array<TableModel*, EarlyLate::index_count> sigma_;
+-  std::unique_ptr<TableModel> std_dev_;
+-  std::unique_ptr<TableModel> mean_shift_;
+-  std::unique_ptr<TableModel> skewness_;
+-};
+-
+ ////////////////////////////////////////////////////////////////
+ 
+ class ReceiverModel
