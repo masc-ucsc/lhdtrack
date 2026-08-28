@@ -30,6 +30,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from merge_liberty import merge as merge_liberty
+
 # How to ask each tool its version, and where to look when it is not on PATH.
 TOOLS = {
     "lhd":       (["version"],     ["../livehd/bazel-bin/lhd/lhd"]),
@@ -163,6 +165,13 @@ def main() -> int:
                 staged.append(dest)
             else:
                 staged.append(lib.resolve())
+        # LiveHD and Yosys's ABC mapping each accept one Liberty path. ASAP7 is
+        # commonly installed as five family files, so make the local escape
+        # hatch obey the same one-library contract as the hermetic toolchain.
+        if name == "asap7" and len(staged) > 1:
+            merged = libdir / "asap7sc7p5t_RVT_TT_merged.lib"
+            merged.write_text(merge_liberty(staged))
+            staged = [merged]
         unit = next((u for u in (time_unit_of(p) for p in staged) if u), "")
         tech[name] = {
             "liberty": [str(p) for p in staged],
@@ -179,6 +188,7 @@ def main() -> int:
         "generated": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "host_class": f"{platform.system()}-{platform.machine()}",
         "bin": bins,
+        "env": {},
         "versions": versions,
         "tech": tech,
     }

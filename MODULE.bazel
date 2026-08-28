@@ -14,9 +14,17 @@ module(
 )
 
 bazel_dep(name = "rules_shell", version = "0.8.0")
-bazel_dep(name = "rules_python", version = "1.9.0")
+bazel_dep(name = "rules_python", version = "2.3.2")
 bazel_dep(name = "bazel_skylib", version = "1.9.2")
 bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+bazel_dep(name = "rules_cc", version = "0.2.22")
+bazel_dep(name = "platforms", version = "1.1.0")
+bazel_dep(name = "boost.multiprecision", version = "1.90.0.bcr.1")
+bazel_dep(name = "boost.unordered", version = "1.90.0.bcr.1")
+# livehd's 36.0 request now resolves to a yanked release; select the registry's
+# fixed republish explicitly so fresh toolchain builds do not require a global
+# --allow_yanked_versions escape hatch.
+bazel_dep(name = "protobuf", version = "36.0.bcr.1", repo_name = "com_google_protobuf")
 
 # ---------------------------------------------------------------- livehd ----
 # Brings `lhd` AND OpenTimer (livehd pins masc-ucsc/OpenTimer). livehd is
@@ -43,22 +51,72 @@ local_path_override(
 bazel_dep(name = "yosys", version = "0.64")
 bazel_dep(name = "abc", version = "0.64-yosyshq.bcr.2")
 
+# The benchmark uses Yosys's command/script interface, not its optional Tcl or
+# readline shells. Disabling them avoids a fragile SourceForge Tcl fetch and
+# reduces the hermetic build without changing any measured synthesis pass.
+single_version_override(
+    module_name = "yosys",
+    patch_strip = 1,
+    patches = ["//packages:yosys_no_tcl.patch"],
+    version = "0.64",
+)
+
+# The baseline uses Yosys's synthesis passes with the same full-SystemVerilog
+# frontend LiveHD uses: povik/sv-elab (formerly yosys-slang).  The plugin must
+# be compiled against THIS Yosys's public headers; a slang.so copied from
+# LiveHD is built against LiveHD's private Yosys 0.60 ABI and is not compatible
+# with the stock 0.64 binary staged below.
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "fmt_v10",
+    build_file = "@livehd//packages:fmt.BUILD",
+    sha256 = "7e85cbf6125a76daa0f83cd9240eff863d988aca68cd5f66c01ff7b59fa886b6",
+    strip_prefix = "fmt-11.1.4",
+    urls = ["https://github.com/fmtlib/fmt/archive/refs/tags/11.1.4.zip"],
+)
+
+http_archive(
+    name = "slang_v10",
+    build_file = "@livehd//packages:slang_v10.BUILD",
+    patches = ["@livehd//packages:slang_v10.patch"],
+    sha256 = "f04fa094e421d7306f817d5411f4de78017e594615e2fb9666b63d22df4188ff",
+    strip_prefix = "slang-10.0",
+    urls = ["https://github.com/MikePopoloski/slang/archive/refs/tags/v10.0.zip"],
+)
+
+http_archive(
+    name = "yosys_slang",
+    build_file = "//packages:yosys_slang.BUILD",
+    patches = ["@livehd//packages:yosys_slang.patch"],
+    sha256 = "5759fda34036d3644683c55912b556533a5f24d4b3e0c2c85c7dc5b9552a79a9",
+    strip_prefix = "sv-elab-7cdd147a6dd14e8f57cd321df8be377c04c9b31f",
+    urls = [
+        "https://github.com/povik/sv-elab/archive/7cdd147a6dd14e8f57cd321df8be377c04c9b31f.zip",
+    ],
+)
+
 # ------------------------------------------------ reference simulation ------
 bazel_dep(name = "verilator", version = "5.046.bcr.5")
 
 # ---------------------------------------------------------------- OpenSTA ---
-# NOT in the BCR. Built from source; it is the awkward pin of the five (TCL,
-# CUDD, Eigen, SWIG). See packages/opensta.BUILD.
-http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+# NOT in the BCR. Build its one non-system library dependency from a pinned
+# source archive as well; relying on a host CUDD was the reason a fresh
+# `sync-toolchain` could configure OpenSTA but not link it.
+http_archive(
+    name = "cudd",
+    build_file = "//packages:cudd.BUILD",
+    sha256 = "5fe145041c594689e6e7cf4cd623d5f2b7c36261708be8c9a72aed72cf67acce",
+    strip_prefix = "cudd-cudd-3.0.0",
+    urls = ["https://github.com/ivmai/cudd/archive/refs/tags/cudd-3.0.0.tar.gz"],
+)
 
 http_archive(
     name = "opensta",
     build_file = "//packages:opensta.BUILD",
-    # Pinned release. Refresh with `tools/pin_tech.py --update opensta`, which
-    # rewrites the sha256 below from the archive it actually downloads.
-    sha256 = "",  # TODO(pin): tools/pin_tech.py --update opensta
-    strip_prefix = "OpenSTA-2.7.0",
-    urls = ["https://github.com/parallaxsw/OpenSTA/archive/refs/tags/v2.7.0.tar.gz"],
+    sha256 = "3751516f6275197aef4bdb2eadd7385a03641de928c362bc5aae37b9177cbf05",
+    strip_prefix = "OpenSTA-be771a0116985d57effb4120668ae98e8a7b0f79",
+    urls = ["https://github.com/The-OpenROAD-Project/OpenSTA/archive/be771a0116985d57effb4120668ae98e8a7b0f79.tar.gz"],
 )
 
 # ---------------------------------------------------------------- Liberty ---
@@ -66,18 +124,51 @@ http_archive(
 # files -- circt-synth-tracker's "ASAP7"/"sky130" are mockturtle genlib
 # abstractions embedded in its AIG judge, which OpenSTA cannot read and which
 # carry no real area or delay.
-http_archive(
-    name = "sky130_fd_sc_hd",
-    build_file = "//tech/sky130:sky130.BUILD",
-    sha256 = "",  # TODO(pin): tools/pin_tech.py --update sky130
-    strip_prefix = "skywater-pdk-libs-sky130_fd_sc_hd-b2540e39fa8730c2b1c2b1f9b3b1b5b1b2b1b2b1",
-    urls = ["https://github.com/google/skywater-pdk-libs-sky130_fd_sc_hd/archive/b2540e39fa8730c2b1c2b1f9b3b1b5b1b2b1b2b1.tar.gz"],
+http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
+http_file(
+    name = "sky130_liberty",
+    downloaded_file_path = "sky130_fd_sc_hd__tt_025C_1v80.lib",
+    sha256 = "ec0e1067a35c8bf20b11e58d1e8ac53326067e4dac84a125cc1b917a3518d0d9",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"],
 )
 
-http_archive(
-    name = "asap7sc7p5t",
-    build_file = "//tech/asap7:asap7.BUILD",
-    sha256 = "",  # TODO(pin): tools/pin_tech.py --update asap7
-    strip_prefix = "asap7-master",
-    urls = ["https://github.com/The-OpenROAD-Project/asap7/archive/refs/heads/master.tar.gz"],
+# ASAP7's main repository contains the standard-cell data as a git submodule,
+# so a GitHub source archive of the superproject contains no Liberty at all.
+# Pin the five RVT/TT NLDM families published by the official OpenROAD flow
+# instead.  //tech/asap7 merges them into one Liberty because both Yosys ABC
+# mapping and LiveHD's pass.abc accept one library file.
+http_file(
+    name = "asap7_ao",
+    downloaded_file_path = "asap7sc7p5t_AO_RVT_TT_nldm_211120.lib.gz",
+    sha256 = "fe9f1c18e88ab129d63ad82adc256f3a85c7e38e47dabbe0a96749b41087dea1",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/asap7/lib/NLDM/asap7sc7p5t_AO_RVT_TT_nldm_211120.lib.gz"],
+)
+
+http_file(
+    name = "asap7_invbuf",
+    downloaded_file_path = "asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib.gz",
+    sha256 = "8d6db2c2f83c3c162be54a5e102b2d379fcaaaef2db5f0b1d4152c395d01fea1",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/asap7/lib/NLDM/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib.gz"],
+)
+
+http_file(
+    name = "asap7_oa",
+    downloaded_file_path = "asap7sc7p5t_OA_RVT_TT_nldm_211120.lib.gz",
+    sha256 = "bbe6d904d58c7367de1ed7639e4eae386c65fa0a5af26ae62dc5e4e2ec52b08b",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/asap7/lib/NLDM/asap7sc7p5t_OA_RVT_TT_nldm_211120.lib.gz"],
+)
+
+http_file(
+    name = "asap7_seq",
+    downloaded_file_path = "asap7sc7p5t_SEQ_RVT_TT_nldm_220123.lib",
+    sha256 = "57a0b403485b99ebd676942af4673ac086b86c7c75fbdc3e5c0038501dd22ba3",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/asap7/lib/NLDM/asap7sc7p5t_SEQ_RVT_TT_nldm_220123.lib"],
+)
+
+http_file(
+    name = "asap7_simple",
+    downloaded_file_path = "asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib.gz",
+    sha256 = "073ac4b6b08f272b6953b0ad54d1d9743767a7d15a0e2964ed86cf44c3dbe00e",
+    urls = ["https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/be0dca0b1fd41df54792b3012350cd52bccd99bb/flow/platforms/asap7/lib/NLDM/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib.gz"],
 )

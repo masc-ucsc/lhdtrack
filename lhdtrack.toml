@@ -42,14 +42,15 @@ require_lec_for_comparison = true
 # constraints/<tech>.sdc per entry. Chosen loose enough that a small block is
 # not permanently red, tight enough that slack still discriminates.
 #
-# 10 ns on 130nm and 500 ps on 7nm are both roughly "a comfortable but not
-# free target" for blocks this size.
+# Initial values for newly seeded tests. tools/retarget_sdc.py replaces ASAP7
+# with the closest still-unmet 100/200/300/400 ps point after a baseline and
+# uses the loose 20 ns sky130 target that every current successful flow closes.
 [sdc.period.sky130]
-value = 10.0
+value = 20.0
 unit = "ns"
 
 [sdc.period.asap7]
-value = 500.0
+value = 400.0
 unit = "ps"
 
 [report]

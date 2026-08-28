@@ -431,7 +431,7 @@ than OpenSTA)</span><span>right = pessimistic</span></p>"""
 
 
 _SYN_FLOWS = ("syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope")
-_SYN_LABELS = ("yosys+abc", "lhd·verilog", "lhd·pyrope")
+_SYN_LABELS = ("yosys+slang+abc", "lhd·verilog", "lhd·pyrope")
 
 
 def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
@@ -499,7 +499,7 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
                         ratios[(flow, metric)].append(gain)
         body.append("<tr>" + "".join(cells) + "</tr>")
 
-    foot = ['<tr><td class="l" colspan="2">geomean vs yosys+abc</td>']
+    foot = ['<tr><td class="l" colspan="2">geomean vs yosys+slang+abc</td>']
     for flow in _SYN_FLOWS:
         foot.append('<td class="g">' + _ratio(ratios[(flow, "delay")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "area")]) + "</td>")

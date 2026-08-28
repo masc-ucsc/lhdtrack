@@ -40,7 +40,6 @@ module br_credit_sender_harness (
   br_credit_sender dut (
     .clk(clk),
     .rst(rst),
-    .pop_sender_in_reset(rst),
     .pop_receiver_in_reset(rst),
     .push_valid(lfsr[3:0]),
     .push_data({196'd0, lfsr[63:4]}),

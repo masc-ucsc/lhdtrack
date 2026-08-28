@@ -28,9 +28,8 @@ endif
 # command line if the PDK lives elsewhere.
 TECH_DIR ?= $(HAGENT_TECH_DIR)
 SKY130   ?= $(TECH_DIR)/sky130_fd_sc_hd__tt_025C_1v80.lib
-# ASAP7 ships gzipped in lambdapdk; local_toolchain decompresses into var/.
-# All five cell families are needed -- a mapped netlist references cells from
-# more than one, and OpenSTA cannot link what it has not read.
+# ASAP7 ships gzipped in lambdapdk; local_toolchain decompresses and merges all
+# five cell families into the single complete Liberty required by ABC/LiveHD.
 ASAP7    ?= $(HOME)/projs/lambdapdk/lambdapdk/asap7/libs/asap7sc7p5t_rvt/nldm/*RVT_TT*.lib.gz
 
 RUN_ARGS ?=

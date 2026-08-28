@@ -1,5 +1,5 @@
 library: sky130_fd_sc_hd
 corner:  tt_025C_1v80
-source:  https://github.com/google/skywater-pdk-libs-sky130_fd_sc_hd
-rev:     b2540e39fa8730c2b1c2b1f9b3b1b5b1b2b1b2b1   # TODO(pin): tools/pin_tech.py --update sky130
+source:  https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts
+rev:     be0dca0b1fd41df54792b3012350cd52bccd99bb
 note:    real Liberty, NOT mockturtle's sky130.genlib. OpenSTA cannot read genlib.

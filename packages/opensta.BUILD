@@ -1,8 +1,7 @@
 # OpenSTA, built with its own CMake through rules_foreign_cc.
 #
-# This is the awkward pin of the five: OpenSTA wants TCL, CUDD, Eigen and SWIG.
-# The BCR has none of it, so the deps are declared here and the whole thing is
-# handed to cmake rather than being re-expressed as cc_library rules.
+# OpenSTA's CUDD dependency is built hermetically; CMake, Tcl, flex, bison and
+# SWIG are build-time/system interfaces supplied by the Bazel execution image.
 #
 # It earns its keep: OpenSTA is the independent check on LiveHD's built-in
 # OpenTimer. Timing both engines on the SAME netlist, .lib and .sdc is what
@@ -24,6 +23,7 @@ cmake(
         # No GUI, no Verilog writer -- the runner only needs the timing engine.
         "USE_TCL_READLINE": "OFF",
     },
+    deps = ["@cudd//:cudd"],
     lib_source = ":all_srcs",
     out_binaries = ["sta"],
 )

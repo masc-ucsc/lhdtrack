@@ -2,13 +2,13 @@
 # To use real constraints for this test, replace this file; the generator will
 # not overwrite a file it did not write (see the marker line above).
 # lhdtrack-generated
-# Period 500 ps -- expressed in THIS library's time unit, which is
+# Period 300 ps -- expressed in THIS library's time unit, which is
 # why constraints are generated per technology (sky130 is 1ns, ASAP7 is 1ps).
 
 # Combinational top: no clock port exists, so the timer is given a VIRTUAL
 # clock. Without one OpenSTA reports no paths at all and the whole
 # input-to-output cone would silently go unmeasured.
-create_clock -name vclk -period 500.0
+create_clock -name vclk -period 300
 
 set_input_delay  -clock vclk 0.0 [all_inputs]
 set_output_delay -clock vclk 0.0 [all_outputs]

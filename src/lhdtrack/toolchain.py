@@ -45,6 +45,7 @@ class Toolchain:
     host_class: str
     generated: str
     _bin: dict[str, Path]
+    _env: dict[str, dict[str, str]]
     _versions: dict[str, str]
     _tech: dict[str, Tech]
 
@@ -59,6 +60,10 @@ class Toolchain:
             host_class=doc.get("host_class", "unknown"),
             generated=doc.get("generated", ""),
             _bin={k: Path(v) for k, v in doc.get("bin", {}).items()},
+            _env={
+                name: {str(k): str(v) for k, v in values.items()}
+                for name, values in doc.get("env", {}).items()
+            },
             _versions=dict(doc.get("versions", {})),
             _tech={
                 name: Tech(
@@ -85,6 +90,14 @@ class Toolchain:
 
     def version(self, name: str) -> str:
         return self._versions.get(name, "missing")
+
+    def env_for(self, executable: str | Path) -> dict[str, str]:
+        """Runtime environment belonging to a staged tool executable."""
+        path = Path(executable)
+        for name, tool_path in self._bin.items():
+            if path == tool_path:
+                return dict(self._env.get(name, {}))
+        return {}
 
     @property
     def versions(self) -> dict[str, str]:

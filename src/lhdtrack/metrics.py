@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import os
 import platform
+import signal
 import subprocess
 import threading
 import time
@@ -111,17 +112,21 @@ def measure(
             stderr=subprocess.STDOUT,
             cwd=str(cwd),
             env=full_env,
+            start_new_session=True,
         )
         # A tool that never returns must not hang the nightly. `os.wait4` has no
         # timeout of its own, so the kill is a watchdog; the process still ends
         # up reaped by the wait4 below, rusage intact.
-        fired = threading.Event()
+        timed_out = threading.Event()
 
-        def _kill() -> None:
-            fired.set()
-            proc.kill()
+        def kill_process_group() -> None:
+            timed_out.set()
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
 
-        watchdog = threading.Timer(timeout, _kill) if timeout else None
+        watchdog = threading.Timer(timeout, kill_process_group) if timeout else None
         if watchdog:
             watchdog.daemon = True
             watchdog.start()
@@ -153,7 +158,7 @@ def measure(
         peak_rss_kb=peak,
         log=log,
         cwd=cwd,
-        timed_out=fired.is_set(),
+        timed_out=timed_out.is_set(),
     )
 
 

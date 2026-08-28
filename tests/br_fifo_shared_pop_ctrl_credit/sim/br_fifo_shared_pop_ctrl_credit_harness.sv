@@ -52,7 +52,6 @@ module br_fifo_shared_pop_ctrl_credit_harness (
   br_fifo_shared_pop_ctrl_credit dut (
     .clk(clk),
     .rst(rst),
-    .pop_sender_in_reset(rst),
     .pop_receiver_in_reset(rst),
     .head_valid(lfsr[1:0]),
     .head(lfsr[11:2]),

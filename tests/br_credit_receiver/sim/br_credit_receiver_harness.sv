@@ -41,7 +41,6 @@ module br_credit_receiver_harness (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
-    .push_receiver_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[4:1]),
     .push_data({197'd0, lfsr[63:5]}),

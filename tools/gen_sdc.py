@@ -16,11 +16,10 @@ boundary rather than the design.
 Both engines read this same file, which is what makes the OpenTimer/OpenSTA
 correlation column a statement about the timers rather than about their inputs.
 
-The period comes from lhdtrack.toml's [sdc].period, per technology. It is
-deliberately uniform: a per-test hand-tuned period is more realistic but turns
-~200 numbers into ~200 judgement calls, and a period chosen too loose makes a
-test permanently uninformative. A test that genuinely needs its own constraints
-checks in its own default.sdc and the generator leaves it alone.
+The initial period comes from lhdtrack.toml's [sdc].period, per technology.
+After a baseline run, tools/retarget_sdc.py selects each ASAP7 design's closest
+still-unmet 100/200/300/400 ps target and a shared loose sky130 target. Existing
+SDCs are authoritative; scaffold only replaces one when explicitly forced.
 """
 
 from __future__ import annotations

@@ -22,7 +22,7 @@ pub mod br_fifo_shared_pstatic_ctrl_push_credit_harness(rst:u1) -> (checksum:u64
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, push_sender_in_reset=rst, push_receiver_in_reset=rst, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_credit_stall=lfsr#[20..=21], push_valid=lfsr#[22], push_data=lfsr#[23..=54], push_fifo_id=lfsr#[55], credit_initial_push=lfsr#[56..=63], credit_withhold_push=lfsr#[4..=15], pop_ready=lfsr#[16..=17], ram_rd_data_valid=lfsr#[18], ram_rd_data=lfsr#[19..=50])
+  const r = dut(clk=0, rst=rst, push_sender_in_reset=rst, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_credit_stall=lfsr#[20..=21], push_valid=lfsr#[22], push_data=lfsr#[23..=54], push_fifo_id=lfsr#[55], credit_initial_push=lfsr#[56..=63], credit_withhold_push=lfsr#[4..=15], pop_ready=lfsr#[16..=17], ram_rd_data_valid=lfsr#[18], ram_rd_data=lfsr#[19..=50])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.config_error

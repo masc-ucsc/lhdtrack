@@ -2,10 +2,10 @@
 # To use real constraints for this test, replace this file; the generator will
 # not overwrite a file it did not write (see the marker line above).
 # lhdtrack-generated
-# Period 10 ns -- expressed in THIS library's time unit, which is
+# Period 20 ns -- expressed in THIS library's time unit, which is
 # why constraints are generated per technology (sky130 is 1ns, ASAP7 is 1ps).
 
-create_clock -name clk -period 10.0 [get_ports wr_clk]
+create_clock -name clk -period 20 [get_ports wr_clk]
 
 # ZERO I/O budget, deliberately. An external delay is part of the arrival
 # time OpenSTA reports but NOT of the path delay lhd's OpenTimer reports,

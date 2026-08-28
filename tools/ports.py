@@ -67,7 +67,7 @@ class Port:
 class PortList:
     top: str
     ports: list[Port]
-    source: str  # "yosys" | "regex"
+    source: str  # "verilator" | "yosys+slang" | "yosys" | "regex"
 
     @property
     def inputs(self) -> list[Port]:
@@ -81,11 +81,14 @@ class PortList:
     def clocks(self) -> list[Port]:
         """EVERY clock port. A multi-domain block has several (`wr_clk`,
         `rd_clk`), and wiring only the first leaves the rest dangling."""
-        return [p for p in self.ports if p.is_clock]
+        return [p for p in self.ports if p.direction == "input" and p.is_clock]
 
     @property
     def resets(self) -> list[Port]:
-        return [p for p in self.ports if p.is_reset]
+        # Direction matters: protocol status outputs such as
+        # `push_receiver_in_reset` are named like resets but must be checksummed,
+        # not driven by the harness as a second DUT input connection.
+        return [p for p in self.ports if p.direction == "input" and p.is_reset]
 
     @property
     def clock(self) -> Port | None:
@@ -101,18 +104,17 @@ def extract(
     sources: list[Path],
     params: dict | None = None,
     yosys: Path | None = None,
+    yosys_slang: Path | None = None,
     include_dir: Path | None = None,
     verilator: Path | None = None,
     filelist: Path | None = None,
 ) -> PortList:
     """Elaborate the design and return its ports, widths resolved.
 
-    VERILATOR FIRST, yosys second. Both elaborate, so both resolve a width that
-    is a parameter expression -- but verilator's SystemVerilog front end is much
-    stronger, and this corpus is full of designs it handles and yosys does not
-    (`br_math_pkg` fails yosys's parser outright; hierarchical access inside a
-    generate block defeats its width inference). bedrock itself elaborates with
-    slang for the same reason.
+    VERILATOR FIRST, yosys+slang second. Both elaborate, so both resolve a width
+    that is a parameter expression. The Slang plugin is important for the
+    package, interface, and generate constructs that plain `read_verilog -sv`
+    cannot elaborate in this corpus.
 
     The regex scan is last and is never silently accepted: it cannot resolve a
     parameterized width, and a harness built on a wrong width mis-drives a bus
@@ -126,7 +128,15 @@ def extract(
             pass
     if yosys and yosys.exists():
         try:
-            return _from_yosys(top, sources, params or {}, yosys, include_dir)
+            return _from_yosys(
+                top,
+                sources,
+                params or {},
+                yosys,
+                yosys_slang,
+                include_dir,
+                filelist,
+            )
         except (subprocess.SubprocessError, OSError, json.JSONDecodeError, KeyError):
             pass
     return _from_regex(top, sources)
@@ -214,8 +224,8 @@ def _width(by_addr: dict, dtype_addr: str | None, depth: int = 0) -> int:
     return max(span, 1) * _width(by_addr, inner, depth + 1)
 
 
-def _from_yosys(top, sources, params, yosys, include_dir) -> PortList:
-    """Elaborate with yosys and read the ports out of `write_json`.
+def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist) -> PortList:
+    """Elaborate with yosys+slang and read the ports out of `write_json`.
 
     The width is `len(bits)` on the port object, which is post-elaboration and
     therefore resolves a parameter expression -- the whole reason a source-level
@@ -225,18 +235,32 @@ def _from_yosys(top, sources, params, yosys, include_dir) -> PortList:
         out = Path(td) / "ports.json"
         inc = f"-I{include_dir} " if include_dir else ""
         src = " ".join(str(s) for s in sources)
-        ch = " ".join(f"-chparam {k} {v}" for k, v in sorted(params.items()))
+        if yosys_slang and yosys_slang.exists():
+            source_arg = f"-F {filelist}" if filelist and filelist.exists() else src
+            params_arg = " ".join(f"-G{k}={v}" for k, v in sorted(params.items()))
+            read = (
+                f"read_slang --top {top} --no-proc {inc}-DSYNTHESIS "
+                f"{params_arg} {source_arg}"
+            )
+            hierarchy = f"hierarchy -check -top {top}"
+        else:
+            ch = " ".join(f"-chparam {k} {v}" for k, v in sorted(params.items()))
+            read = f"read_verilog -sv {inc}-DSYNTHESIS {src}"
+            hierarchy = f"hierarchy -check -top {top} {ch}"
         script = (
-            f"read_verilog -sv {inc}-DSYNTHESIS {src}; "
-            f"hierarchy -check -top {top} {ch}; "
+            f"{read}; "
+            f"{hierarchy}; "
             # `proc` first: the JSON backend refuses a design that still has
             # processes ("not supported by JSON backend"). It rewrites the
             # bodies, never the port list, which is all this reads.
             f"proc; "
             f"write_json {out}"
         )
+        argv = [str(yosys)]
+        if yosys_slang and yosys_slang.exists():
+            argv += ["-m", str(yosys_slang)]
         subprocess.run(  # noqa: S603
-            [str(yosys), "-q", "-p", script],
+            [*argv, "-q", "-p", script],
             check=True, capture_output=True, timeout=600,
         )
         doc = json.loads(out.read_text())
@@ -254,7 +278,7 @@ def _from_yosys(top, sources, params, yosys, include_dir) -> PortList:
         ports.append(Port(name.lstrip("\\"), direction, max(1, len(spec.get("bits") or []))))
     if not ports:
         raise KeyError(f"yosys resolved no ports for {top}")
-    return PortList(top, ports, "yosys")
+    return PortList(top, ports, "yosys+slang" if yosys_slang else "yosys")
 
 
 _RANGE = re.compile(r"^\s*(-?\d+)\s*:\s*(-?\d+)\s*$")

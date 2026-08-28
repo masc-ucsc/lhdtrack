@@ -1,5 +1,5 @@
 library: asap7sc7p5t_28
 corner:  TT (nldm)
-source:  https://github.com/The-OpenROAD-Project/asap7
-rev:     master   # TODO(pin): tools/pin_tech.py --update asap7 (pin a sha, never a branch)
-note:    real Liberty, NOT mockturtle's multioutput.genlib.
+source:  https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts
+rev:     be0dca0b1fd41df54792b3012350cd52bccd99bb
+note:    five real RVT/TT NLDM families merged for single-library consumers; not mockturtle genlib.

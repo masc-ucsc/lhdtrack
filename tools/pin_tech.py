@@ -4,7 +4,7 @@
     tools/pin_tech.py --update sky130
     tools/pin_tech.py --update all
 
-Bazel will fetch an http_archive with an empty sha256 and merely warn. That is
+Bazel will fetch an http_archive/http_file with an empty sha256 and merely warn. That is
 the wrong default here: an unpinned Liberty means today's area number and last
 month's were measured against files that may differ, with nothing in the ledger
 recording it. This downloads each archive, hashes it, and writes the digest
@@ -22,12 +22,16 @@ from pathlib import Path
 
 MODULE = Path(__file__).resolve().parents[1] / "MODULE.bazel"
 BLOCK = re.compile(
-    r'http_archive\(\s*\n\s*name = "(?P<name>[^"]+)".*?'
+    r'http_(?:archive|file)\(\s*\n\s*name = "(?P<name>[^"]+)".*?'
     r'sha256 = "(?P<sha>[^"]*)".*?'
     r'urls = \["(?P<url>[^"]+)"\]',
     re.S,
 )
-ALIASES = {"sky130": "sky130_fd_sc_hd", "asap7": "asap7sc7p5t", "opensta": "opensta"}
+ALIASES = {
+    "sky130": {"sky130_liberty"},
+    "asap7": {"asap7_ao", "asap7_invbuf", "asap7_oa", "asap7_seq", "asap7_simple"},
+    "opensta": {"opensta"},
+}
 
 
 def sha256_of(url: str) -> str:
@@ -44,12 +48,12 @@ def main() -> int:
     args = ap.parse_args()
 
     text = MODULE.read_text()
-    wanted = None if args.update == "all" else ALIASES.get(args.update, args.update)
+    wanted = None if args.update == "all" else ALIASES.get(args.update, {args.update})
 
     changed = 0
     for m in BLOCK.finditer(text):
         name, url = m.group("name"), m.group("url")
-        if wanted and name != wanted:
+        if wanted and name not in wanted:
             continue
         if "/heads/" in url or "/main." in url:
             print(f"! {name}: url points at a BRANCH, not a commit -- pin a sha first:\n  {url}")

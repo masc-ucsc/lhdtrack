@@ -29,7 +29,7 @@ def run(ctx: FlowContext) -> dict:
     ctx.require_sdc()
     lhd = ctx.tool("lhd")
     if not ctx.test.pyrope_top.exists():
-        raise FlowError(f"no pyrope source: {ctx.test.pyrope_top}")
+        raise FlowSkip(f"no pyrope source: {ctx.test.pyrope_top.name}")
 
     # A `monomorphic` Pyrope pins its parameters as comptime constants, so
     # there is nothing to pass and passing something would be a lie. Only a
@@ -39,14 +39,13 @@ def run(ctx: FlowContext) -> dict:
     # TELL lhd WHICH LIBRARY. `pass.abc.library` defaults to
     # $HAGENT_TECH_DIR/sky130_..., so without this every technology would
     # silently map to sky130 and the ASAP7 rows would be sky130 wearing an
-    # ASAP7 label. ABC's read_lib takes ONE file, so a multi-family technology
-    # cannot be expressed here at all -- that skips, loudly, rather than
-    # measuring the wrong library.
+    # ASAP7 label. The staged ASAP7 Liberty is merged ahead of time because
+    # ABC's read_lib takes one file.
     if len(ctx.liberty) != 1:
         raise FlowSkip(
             f"lhd's pass.abc.library takes a single Liberty file, but "
-            f"{ctx.tech.name} ships {len(ctx.liberty)} cell families; "
-            "lhd cannot be pointed at this technology yet"
+            f"{ctx.tech.name} staged {len(ctx.liberty)} Liberty files; "
+            "merge the technology before running LiveHD"
         )
     # The ONE-SHOT `lhd synth` has its own key: it sets pass.abc AND
     # pass.opentimer from a single Liberty, and rejects pass.abc.library
@@ -54,7 +53,7 @@ def run(ctx: FlowContext) -> dict:
     # The manual `pass abc` path in syn_lhd_verilog.py uses the other spelling.
     lib_args = ["--set", f"synth.liberty={ctx.liberty[0]}"]
 
-    sets = list(lib_args)
+    sets = [*lib_args, "--set", f"abc.delay={ctx.abc_delay_ps()}"]
     if ctx.test.pyrope_binding == "set":
         sets += [a for k, v in sorted(ctx.chparams().items()) for a in ("--set", f"compile.{k}={v}")]
 

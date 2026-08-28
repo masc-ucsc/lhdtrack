@@ -126,6 +126,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         sources,
         params,
         yosys=tc.bin("yosys") if tc.has("yosys") else None,
+        yosys_slang=tc.bin("yosys_slang") if tc.has("yosys_slang") else None,
         include_dir=test.verilog_dir,
         verilator=tc.bin("verilator") if tc.has("verilator") else None,
         filelist=test.filelist,
@@ -136,7 +137,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         # the checksum would still agree across simulators because all three
         # would be equally wrong.
         raise RuntimeError(
-            "neither verilator nor yosys could elaborate this design, so the port "
+            "neither verilator nor yosys+slang could elaborate this design, so the port "
             "widths are unresolved; a harness built on them would mis-drive a bus "
             "silently"
         )
@@ -178,8 +179,8 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         period = float(spec["value"]) if isinstance(spec, dict) else float(spec)
         unit = spec.get("unit", "ns") if isinstance(spec, dict) else "ns"
         sdc = test.root / "constraints" / f"{tech}.sdc"
-        if sdc.exists() and not gen_sdc.is_generated(sdc) and not force:
-            continue
+        if sdc.exists() and not force:
+            continue  # hand-written or retargeted: both are authoritative
         sdc.parent.mkdir(parents=True, exist_ok=True)
         sdc.write_text(gen_sdc.generate(pl, period, unit))
         made.append(f"constraints/{tech}.sdc")

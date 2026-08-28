@@ -62,7 +62,7 @@ def run(ctx: FlowContext) -> dict:
     ]
     setup = [
         ctx.tool("verilator"), "--cc", "--exe", "--Mdir", str(vobj),
-        "--top-module", sim_top, "-Wno-fatal", "-DSYNTHESIS",
+        "--top-module", sim_top, "-Wno-fatal", "-DSYNTHESIS", "-DBR_VERILATOR",
         "-I" + str(ctx.test.verilog_dir),
         *params,
         "-F", str(ctx.test.filelist),
@@ -73,10 +73,11 @@ def run(ctx: FlowContext) -> dict:
     ctx.run("setup", setup)
 
     # 2. host C++ compile + link
-    import os
-
-    jobs = str(os.cpu_count() or 4)
-    ctx.run("cc", ["make", "-C", str(vobj), "-f", f"V{sim_top}.mk", "-j", jobs, f"V{sim_top}"])
+    # Each flow invocation is single-threaded by benchmark contract. The outer
+    # runner already schedules independent jobs across cores; an inner
+    # `-j $(nproc)` here oversubscribes the host and makes both wall time and
+    # peak RSS depend on what the other three workers happen to be compiling.
+    ctx.run("cc", ["make", "-C", str(vobj), "-f", f"V{sim_top}.mk", "-j", "1", f"V{sim_top}"])
 
     # 3. the simulation alone, best-of-N
     binary = vobj / f"V{sim_top}"

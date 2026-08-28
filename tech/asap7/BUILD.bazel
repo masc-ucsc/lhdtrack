@@ -1,11 +1,27 @@
 package(default_visibility = ["//visibility:public"])
 
-# ASAP7 ships one Liberty per cell-family (simple / sequential / AO / OA / INVBUF).
-# All of them are needed to link a mapped netlist, so `liberty` is a set, not a
-# single file; qor_endpoint passes each with its own -liberty / read_liberty.
-filegroup(
-    name = "liberty",
-    srcs = ["@asap7sc7p5t//:tt_nldm"],
+genrule(
+    name = "merged_liberty",
+    srcs = [
+        "@asap7_ao//file",
+        "@asap7_invbuf//file",
+        "@asap7_oa//file",
+        "@asap7_seq//file",
+        "@asap7_simple//file",
+    ],
+    outs = ["asap7sc7p5t_RVT_TT_merged.lib"],
+    cmd = "$(execpath //:merge_liberty) --output $@ " +
+          "$(location @asap7_ao//file) " +
+          "$(location @asap7_invbuf//file) " +
+          "$(location @asap7_oa//file) " +
+          "$(location @asap7_simple//file) " +
+          "$(location @asap7_seq//file)",
+    tools = ["//:merge_liberty"],
 )
 
-exports_files(["VERSION", "asap7.BUILD"])
+filegroup(
+    name = "liberty",
+    srcs = [":merged_liberty"],
+)
+
+exports_files(["VERSION"])

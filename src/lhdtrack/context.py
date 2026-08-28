@@ -19,6 +19,7 @@ one inventing its own.
 
 from __future__ import annotations
 
+import re
 import shlex
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -73,7 +74,16 @@ class FlowContext:
         """
         argv = [str(a) for a in argv]
         self.cmds.append(f"{label}: {' '.join(shlex.quote(a) for a in argv)}")
-        m = self.stage.add(measure(label, argv, self.work, self.logs, timeout=timeout))
+        m = self.stage.add(
+            measure(
+                label,
+                argv,
+                self.work,
+                self.logs,
+                env=self.tc.env_for(argv[0]),
+                timeout=timeout,
+            )
+        )
         if check and not m.ok:
             raise FlowError(f"{label} exited {m.rc}\n{m.tail()}")
         return m
@@ -82,7 +92,14 @@ class FlowContext:
         """Measure best-of-N. Only the exec leg of a simulation uses this."""
         argv = [str(a) for a in argv]
         self.cmds.append(f"{label}: {' '.join(shlex.quote(a) for a in argv)}  (x{reps or self.sim_reps}, best)")
-        best, samples = best_of(reps or self.sim_reps, label, argv, self.work, self.logs)
+        best, samples = best_of(
+            reps or self.sim_reps,
+            label,
+            argv,
+            self.work,
+            self.logs,
+            env=self.tc.env_for(argv[0]),
+        )
         if not best.ok:
             raise FlowError(f"{label} exited {best.rc}\n{best.tail()}")
         self.stage.time_ms[label] = best.ms
@@ -135,6 +152,30 @@ class FlowContext:
                 "-- the design's ports could not be resolved, so no SDC was generated"
             )
         return sdc
+
+    def abc_delay_ps(self) -> str:
+        """Return this job's SDC clock period in ABC's picosecond unit.
+
+        OpenSTA reads the SDC in the Liberty's native unit (ps for ASAP7, ns
+        for sky130), but both Yosys's ``abc -D`` and LiveHD's ``abc.delay``
+        ultimately constrain ABC in picoseconds. Derive one value from the
+        shared SDC so synthesis and STA cannot silently target different clocks.
+        """
+        sdc = self.require_sdc()
+        match = re.search(
+            r"^\s*create_clock\b[^\n]*?\s-period\s+([0-9]+(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?)",
+            sdc.read_text(errors="replace"),
+            re.MULTILINE,
+        )
+        if match is None:
+            raise FlowError(f"{sdc}: create_clock has no literal -period for ABC")
+        period = float(match.group(1))
+        scale = {"fs": 0.001, "ps": 1.0, "ns": 1_000.0, "us": 1_000_000.0}.get(
+            self.tech.time_unit if self.tech else "ns"
+        )
+        if scale is None:
+            raise FlowError(f"unsupported Liberty time unit for ABC: {self.tech.time_unit!r}")
+        return f"{period * scale:.12g}"
 
     def chparams(self) -> dict[str, int | str]:
         return dict(self.config.params)

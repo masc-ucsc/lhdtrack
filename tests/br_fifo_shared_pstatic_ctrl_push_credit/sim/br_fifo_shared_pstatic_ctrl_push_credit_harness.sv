@@ -57,7 +57,6 @@ module br_fifo_shared_pstatic_ctrl_push_credit_harness (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
-    .push_receiver_in_reset(rst),
     .config_base(lfsr[9:0]),
     .config_bound(lfsr[19:10]),
     .push_credit_stall(lfsr[21:20]),

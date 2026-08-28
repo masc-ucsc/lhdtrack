@@ -1,4 +1,4 @@
-"""BASELINE synthesis: stock yosys `synth` + `abc -liberty`.
+"""BASELINE synthesis: yosys-slang frontend + stock yosys `synth` and ABC.
 
 This is the reference every LiveHD synthesis number is quoted against, and it is
 deliberately the DEFAULT pass -- the same shape circt-synth-tracker uses for its
@@ -18,52 +18,53 @@ from lhdtrack.context import FlowContext, FlowError, FlowSkip
 
 NAME = "syn_yosys_abc"
 KIND = "synth"
-NEEDS = ("yosys",)
+NEEDS = ("yosys", "yosys_slang")
 OPTIONAL = ("abc", "sta")
 USES_TECH = True
 
 
 def run(ctx: FlowContext) -> dict:
     ctx.require_sdc()
+    abc_delay = ctx.abc_delay_ps()
     netlist = ctx.work / "mapped.v"
-    sources = " ".join(str(p) for p in ctx.verilog_sources())
-    chparam = " ".join(f"-chparam {k} {v}" for k, v in sorted(ctx.chparams().items()))
+    slang_params = " ".join(f"-G{k}={v}" for k, v in sorted(ctx.chparams().items()))
     reads = "\n".join(f"read_liberty -lib {lib}" for lib in ctx.liberty)
-    # EVERY Liberty file, not just the first. sky130 ships one file so the
-    # distinction is invisible there; ASAP7 splits its cells across five
-    # families, and `liberty[0]` is the AND-OR family -- no flops, no
-    # inverters, so dfflibmap died with "D flip-flops are not supported".
-    libs = " ".join(f"-liberty {lib}" for lib in ctx.liberty)
+    if len(ctx.liberty) != 1:
+        raise FlowSkip(
+            f"yosys ABC mapping needs one complete Liberty, but {ctx.tech.name} "
+            f"staged {len(ctx.liberty)} files"
+        )
+    liberty = ctx.liberty[0]
 
     # `synth` is yosys's own default script; the only additions are the ones
     # required to land on a real Liberty at all (dfflibmap for the sequential
     # cells, abc -liberty for the combinational ones).
     script = f"""
 {reads}
-read_verilog -sv {sources}
-hierarchy -check -top {ctx.top} {chparam}
+read_slang --top {ctx.top} --no-proc -DSYNTHESIS {slang_params} -F {ctx.test.filelist}
+hierarchy -check -top {ctx.top}
 synth -top {ctx.top} -flatten
-dfflibmap {libs}
-abc {libs}
+dfflibmap -liberty {liberty}
+abc -liberty {liberty} -D {abc_delay}
 setundef -zero
 splitnets
 opt_clean -purge
 write_verilog -noattr -noexpr {netlist}
 """
     ys = ctx.write("synth.ys", script)
-    m = ctx.run("synth", [ctx.tool("yosys"), "-q", "-s", ys], check=False)
+    m = ctx.run(
+        "synth",
+        [ctx.tool("yosys"), "-m", ctx.tool("yosys_slang"), "-q", "-s", ys],
+        check=False,
+    )
     if not m.ok:
         text = m.log.read_text(errors="replace")
         err = next((ln for ln in text.splitlines() if "ERROR" in ln), "")
-        # yosys's SystemVerilog front end cannot read a large part of
-        # bedrock-rtl (`br_math_pkg` defeats its parser outright; hierarchical
-        # access inside a generate block defeats its width inference). That is a
-        # property of the BASELINE TOOL, not of the test, and it will not change
-        # -- so it is a skip with the parser's own words, not a red row every
-        # night forever. The LiveHD rows still run and still report absolute QoR.
+        # A frontend limitation is a property of the baseline tool, not of the
+        # test, so preserve its own diagnostic as an explicit skip.
         if err:
             raise FlowSkip(
-                "yosys cannot elaborate this design: "
+                "yosys+slang cannot elaborate this design: "
                 + re.sub(r"^.*?ERROR:\s*", "", err).strip()[:120]
             )
         raise FlowError(f"yosys synthesis failed\n{m.tail()}")

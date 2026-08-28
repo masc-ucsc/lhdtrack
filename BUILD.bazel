@@ -5,21 +5,33 @@
 # not shell out to bazel and does not read PATH; it reads
 # var/toolchain/toolchain.json, which this target writes.
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+load("@rules_python//python:defs.bzl", "py_binary")
 
 package(default_visibility = ["//visibility:public"])
 
-# The five binaries and the two Liberty collections the runner needs. Keeping
+# The tool entrypoints and two Liberty collections the runner needs. Yosys's
+# target carries its matching `yosys-abc` helper in runfiles, so it is staged
+# from there rather than from @abc//:abc (which is a static library).
 # them in one filegroup per role means `sync_toolchain.sh` never hardcodes a
-# label -- it walks $(locations).
+# label -- it discovers the declared data files in its runfiles tree.
 filegroup(
     name = "tool_binaries",
     srcs = [
         "@livehd//lhd:lhd",
         "@yosys//:yosys",
-        "@abc//:abc",
+        "@yosys_slang//:slang.so",
         "@verilator//:verilator",
+        # Used by generated model makefiles; the BCR binary does not list it
+        # in its own runtime data despite emitting this path.
+        "@verilator//:bin/verilator_includer",
         "@opensta//:sta",
     ],
+)
+
+py_binary(
+    name = "merge_liberty",
+    srcs = ["tools/merge_liberty.py"],
+    main = "tools/merge_liberty.py",
 )
 
 filegroup(
@@ -33,7 +45,6 @@ filegroup(
 sh_binary(
     name = "sync-toolchain",
     srcs = ["tools/sync_toolchain.sh"],
-    args = ["$(rootpath //:tool_binaries)"],
     data = [
         ":liberty",
         ":tool_binaries",

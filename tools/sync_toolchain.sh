@@ -14,7 +14,7 @@ ROOT="${BUILD_WORKSPACE_DIRECTORY:-$(cd "$(dirname "$0")/.." && pwd)}"
 OUT="$ROOT/var/toolchain"
 RF="${RUNFILES_DIR:-${TEST_SRCDIR:-$0.runfiles}}"
 
-mkdir -p "$OUT/bin" "$OUT/lib"
+mkdir -p "$OUT/bin" "$OUT/lib" "$OUT/share"
 
 # find_runfile RELATIVE_PATH -- resolve a data dep to an absolute path.
 find_runfile() {
@@ -37,9 +37,66 @@ stage() {
 echo "staging binaries into $OUT/bin"
 stage lhd       lhd
 stage yosys     yosys
-stage abc       abc
+stage yosys_slang slang.so
+# The @yosys executable owns the exact ABC helper its `abc` pass invokes.
+stage abc       yosys-abc
 stage verilator verilator
 stage sta       sta
+
+# Bazel-built tools keep non-binary runtime data in the runfiles tree. Preserve
+# stable links to that tree and record the environment below; resolving only an
+# executable path makes Verilator look under @invalid@ and makes LiveHD lose
+# slop.hpp/iassert.hpp during the run-only simulation leg.
+ln -sfn "$RF" "$OUT/runfiles"
+
+# The BCR Verilator binary exports its runtime headers but currently omits the
+# configured `verilated.mk` used by its normal `--cc --exe` workflow. Assemble
+# an install-shaped runtime root from those runfiles and render that one
+# configure output for this Linux execution image.
+VERILATOR_SHARE="$OUT/share/verilator"
+if [ -L "$VERILATOR_SHARE" ]; then
+  unlink "$VERILATOR_SHARE"
+fi
+mkdir -p "$VERILATOR_SHARE/include"
+for entry in "$RF/verilator+"/include/*; do
+  ln -sfn "$entry" "$VERILATOR_SHARE/include/$(basename "$entry")"
+done
+ln -sfn "$RF/verilator+/bin" "$VERILATOR_SHARE/bin"
+python3 - "$RF/verilator+/include/verilated.mk.in" "$VERILATOR_SHARE/include/verilated.mk" <<'PY'
+import re
+import sys
+
+src, dst = sys.argv[1:]
+text = open(src).read()
+substitutions = {
+    "AR": "ar",
+    "CXX": "g++",
+    "OBJCACHE": "",
+    "PERL": "perl",
+    "PYTHON3": "python3",
+    "CFG_WITH_CCWARN": "no",
+    "CFG_WITH_DEV_GCOV": "no",
+    "CFG_WITH_LONGTESTS": "no",
+    "CFG_CXX_VERSION": "g++",
+    "CFG_CXXFLAGS_PROFILE": "-pg",
+    "CFG_CXXFLAGS_STD": "-std=gnu++17",
+    "CFG_CXXFLAGS_STD_NEWEST": "-std=gnu++17",
+    "CFG_CXXFLAGS_NO_UNUSED": "-faligned-new -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable",
+    "CFG_CXXFLAGS_WEXTRA": "-Wextra",
+    "CFG_CXXFLAGS_COROUTINES": "-fcoroutines",
+    "CFG_CXXFLAGS_PCH_I": "-include",
+    "CFG_GCH_IF_CLANG": "",
+    "CFG_LDFLAGS_VERILATED": "",
+    "CFG_LDLIBS_THREADS": "-pthread -lpthread -latomic",
+}
+for key, value in substitutions.items():
+    text = text.replace(f"@{key}@", value)
+unresolved = sorted(set(re.findall(r"@[A-Z][A-Z0-9_]*@", text)))
+if unresolved:
+    raise SystemExit(f"unresolved verilated.mk substitutions: {', '.join(unresolved)}")
+with open(dst, "w") as fh:
+    fh.write(text)
+PY
 
 # Liberty: one directory per technology, mirroring tech/<name>/.
 echo "staging Liberty into $OUT/lib"
@@ -63,7 +120,7 @@ ver() {
 }
 
 python3 - "$OUT" <<'PY'
-import hashlib, json, os, subprocess, sys, platform, datetime
+import hashlib, json, os, subprocess, sys, platform, datetime, re
 
 out = sys.argv[1]
 bindir, libdir = os.path.join(out, "bin"), os.path.join(out, "lib")
@@ -96,12 +153,39 @@ def sha256(path, limit=None):
             h.update(chunk)
     return h.hexdigest()
 
+TIME_UNIT = re.compile(r'time_unit\s*:\s*"?\s*(\d*)\s*([munpf]?s)\s*"?', re.I)
+
+def time_unit_of(path):
+    """Return the unit declared in a Liberty header (for example ns or ps)."""
+    try:
+        with open(path, errors="replace") as fh:
+            for _ in range(4000):
+                line = fh.readline()
+                if not line:
+                    break
+                match = TIME_UNIT.search(line)
+                if match:
+                    multiplier = match.group(1) or "1"
+                    unit = match.group(2).lower()
+                    return unit if multiplier == "1" else f"{multiplier}{unit}"
+    except OSError:
+        pass
+    return ""
+
 tools, versions = {}, {}
 for name, args in VERSION_ARGS.items():
     path = os.path.join(bindir, name)
     if os.path.exists(path):
         tools[name] = os.path.realpath(path)
         versions[name] = first_line(name, args)
+
+# A plugin is not executable, so its content hash is its exact version.  It is
+# recorded separately from Yosys because either half changing invalidates a
+# cached baseline.
+plugin = os.path.join(bindir, "yosys_slang")
+if os.path.exists(plugin):
+    tools["yosys_slang"] = os.path.realpath(plugin)
+    versions["yosys_slang"] = f"yosys-slang sha256:{sha256(plugin)[:16]}"
 
 # Liberty is hashed, not versioned: the file content IS the identity, and it is
 # what a synthesis result actually depends on.
@@ -116,6 +200,7 @@ for name in sorted(os.listdir(libdir)) if os.path.isdir(libdir) else []:
     tech[name] = {
         "liberty": [os.path.realpath(p) for p in libs],
         "sha256": hashlib.sha256("".join(sha256(p) for p in libs).encode()).hexdigest()[:16],
+        "time_unit": next((u for u in (time_unit_of(p) for p in libs) if u), ""),
     }
 
 doc = {
@@ -125,6 +210,10 @@ doc = {
     # evidence, and this is what lets the runner prove it is not reusing one.
     "host_class": f"{platform.system()}-{platform.machine()}",
     "bin": tools,
+    "env": {
+        "lhd": {"RUNFILES_DIR": os.path.join(out, "runfiles")},
+        "verilator": {"VERILATOR_ROOT": os.path.join(out, "share", "verilator")},
+    },
     "versions": versions,
     "tech": tech,
 }

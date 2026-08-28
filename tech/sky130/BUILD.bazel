@@ -6,7 +6,7 @@ package(default_visibility = ["//visibility:public"])
 # swap of this one.
 filegroup(
     name = "liberty",
-    srcs = ["@sky130_fd_sc_hd//:tt_025C_1v80"],
+    srcs = ["@sky130_liberty//file"],
 )
 
 exports_files(["VERSION", "sky130.BUILD"])

@@ -8,7 +8,7 @@ It answers four questions every day, per test:
 
 | | question | how |
 | --- | --- | --- |
-| **QoR** | is LiveHD's synthesis competitive? | area / cells / delay / WNS vs `yosys + abc` |
+| **QoR** | is LiveHD's synthesis competitive? | area / cells / delay / WNS vs `yosys + slang + abc` |
 | **Speed** | is LiveHD fast? | compile, synthesis and simulation wall-clock vs `yosys`/`verilator` |
 | **Memory** | is LiveHD lean? | peak RSS, per stage |
 | **Timing fidelity** | does LiveHD's timer tell the truth? | LiveHD OpenTimer vs OpenSTA, same netlist, same Liberty |
@@ -78,7 +78,7 @@ runs.
 
 ```
 lhdtrack/
-├── MODULE.bazel                  livehd + yosys + abc + verilator + opensta + Liberty pins
+├── MODULE.bazel                  livehd + yosys-slang + abc + verilator + opensta + Liberty pins
 ├── BUILD.bazel                   //:sync-toolchain -> var/toolchain/{bin,lib,toolchain.json}
 ├── pyproject.toml                installs the `lhdtrack` CLI
 ├── lhdtrack.toml                 defaults: techs, cycle budget, cache policy, gates
@@ -184,7 +184,7 @@ Both LiveHD front ends run, always. This is the single most important design dec
 in the tracker.
 
 ```
-verilog/  ──▶ yosys synth + abc -liberty   ─┐
+verilog/  ──▶ yosys + slang + abc -liberty ─┐
 verilog/  ──▶ lhd compile verilog + synth  ─┼──▶  mapped .v  ──▶  qor_endpoint
 pyrope/   ──▶ lhd synth                    ─┘                     ├ area, cells, flops
                                                                   ├ OpenSTA     → wns, path
@@ -192,7 +192,7 @@ pyrope/   ──▶ lhd synth                    ─┘                     ├ 
 ```
 
 - `lhd_verilog` ↔ `lhd_pyrope` isolates **Pyrope vs Verilog as a language** — identical backend.
-- `yosys_abc` ↔ `lhd_verilog` isolates **LiveHD vs yosys/abc as a tool** — identical source.
+- `yosys_abc` ↔ `lhd_verilog` isolates **LiveHD vs yosys+slang/abc as a tool** — identical source.
 
 With only `yosys_abc` and `lhd_pyrope` every delta is confounded and no daily movement can
 be attributed to anything. The same applies on the simulation side (`verilator`,
@@ -289,7 +289,7 @@ be a different circuit.
 `bazel run //:sync-toolchain` builds everything from source and lays down a symlink farm:
 
 ```
-var/toolchain/bin/{lhd, yosys, abc, verilator, sta}
+var/toolchain/bin/{lhd, yosys, yosys_slang, abc, verilator, sta}
 var/toolchain/lib/{sky130/*.lib, asap7/*.lib}
 var/toolchain/toolchain.json      every version string and file hash
 ```
@@ -297,9 +297,9 @@ var/toolchain/toolchain.json      every version string and file hash
 The runner resolves tools **only** from `toolchain.json`, never from `PATH`. That is what
 makes the cache key trustworthy — a stray Homebrew yosys cannot silently redefine a baseline.
 
-`bazel_dep(livehd)` already brings `lhd` and OpenTimer, so lhdtrack pins only yosys, abc,
-verilator (all three from the Bazel Central Registry), OpenSTA (built from source; it is
-the awkward one — TCL, CUDD, Eigen, SWIG), and the two Liberty archives.
+`bazel_dep(livehd)` brings `lhd` and OpenTimer. lhdtrack pins stock Yosys and ABC,
+builds the yosys-slang plugin against that exact Yosys ABI, and also pins Verilator,
+OpenSTA, and both technology libraries.
 
 Everything runs natively on macOS and Linux, so wall-clock and peak-RSS numbers are real on
 both. Nothing in the measured path goes through a container.
@@ -331,6 +331,13 @@ the same reason. One shared `period = 10.0` means 10 ns on sky130 and 10 ps on
 ASAP7, and the 7nm run comes back with -73 ns of slack for a reason that is
 about units rather than about the design.
 
+Synthesis uses those periods too. `tools/retarget_sdc.py` selects, per design,
+the closest still-unmet ASAP7 target from 100/200/300/400 ps using the fastest
+current Yosys/LiveHD-Verilog OpenSTA result. Sky130 uses a shared loose 20 ns
+(50 MHz) target. The flows convert the SDC period to picoseconds for ABC's
+`-D`/`abc.delay`; OpenSTA continues to read the same SDC in the Liberty's native
+unit, so mapping and signoff cannot silently target different clocks.
+
 **Reset is a false path.** It arrives from a top-level port with no logic in
 front of it and fans out to every register, so on a design with a short datapath
 it wins the critical path with a number describing the testbench boundary rather
@@ -348,10 +355,9 @@ timers — a 20% budget made them look 98% apart on `br_delay`, whose worst path
 is a zero-logic feedthrough, so every nanosecond of the "critical path" was the
 budget itself.
 
-Note also that every yosys invocation passes **all** Liberty files
-(`-liberty a -liberty b …`). sky130 ships one file so the distinction is
-invisible there; ASAP7's `liberty[0]` is the AND-OR family, which contains no
-flops, and `dfflibmap` died with "D flip-flops are not supported".
+ASAP7 is published as five cell-family Liberty files. The toolchain merges those
+families deterministically into one complete library, because both Yosys ABC mapping
+and LiveHD's `pass.abc.library` accept one Liberty path.
 
 Note that circt-synth-tracker's "ASAP7" and "sky130" are mockturtle *genlib* abstractions
 embedded into its AIG judge, not Liberty. Genlib cannot be read by OpenSTA and yields no
@@ -412,7 +418,7 @@ the ledger and is regenerated on every run, so a measured regression is visible 
 silently retried.
 
 - **`site/report.html`** — tool versions, tech, host and date in the header; one synthesis
-  table per suite (rows = tests; column groups `yosys+abc` │ `lhd·verilog` │ `lhd·pyrope`,
+  table per suite (rows = tests; column groups `yosys+slang+abc` │ `lhd·verilog` │ `lhd·pyrope`,
   each with area / delay / time / peak-mem plus ratio-to-baseline, geomean footer); a
   simulation table in the same shape; the OpenTimer↔OpenSTA correlation column; cached rows
   visibly dated.
@@ -532,7 +538,7 @@ rediscovered one test at a time:
 | Liberty, one-shot | `--set synth.liberty=PATH` (it sets both `pass.abc` and `pass.opentimer`) |
 | Liberty, manual pass | `--set pass.abc.library=PATH` — the one-shot **rejects** this spelling |
 | Liberty default | `$HAGENT_TECH_DIR/sky130_...` — **not** whatever the caller asked for |
-| multi-family tech | `pass.abc.library` is a single file, so ASAP7's five families cannot be expressed |
+| multi-family tech | `pass.abc.library` is one file; the toolchain merges ASAP7's five families first |
 
 Two of these shape the flows directly.
 

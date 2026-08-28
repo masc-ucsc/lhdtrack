@@ -67,7 +67,6 @@ module br_fifo_ctrl_1r1w_push_credit_harness (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
-    .push_receiver_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[1]),
     .push_data(lfsr[33:2]),

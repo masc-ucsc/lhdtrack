@@ -31,7 +31,7 @@ from .toolchain import Toolchain
 # on every tool would invalidate cached yosys baselines on an unrelated lhd bump
 # -- the exact overhead the cache exists to remove.
 FLOW_TOOLS: dict[str, tuple[str, ...]] = {
-    "syn_yosys_abc": ("yosys", "abc"),
+    "syn_yosys_abc": ("yosys", "yosys_slang", "abc"),
     "syn_lhd_verilog": ("lhd",),
     "syn_lhd_pyrope": ("lhd",),
     "sim_verilator": ("verilator",),

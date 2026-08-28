@@ -22,7 +22,7 @@ pub mod br_fifo_ctrl_1r1w_push_credit_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, push_sender_in_reset=rst, push_receiver_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46], ram_rd_data_valid=lfsr#[47], ram_rd_data=lfsr#[48..=63])
+  const r = dut(clk=0, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46], ram_rd_data_valid=lfsr#[47], ram_rd_data=lfsr#[48..=63])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receiver_in_reset

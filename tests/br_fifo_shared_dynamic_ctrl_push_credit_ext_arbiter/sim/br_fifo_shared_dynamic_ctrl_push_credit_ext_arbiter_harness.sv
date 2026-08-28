@@ -69,7 +69,6 @@ module br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter_harness (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
-    .push_receiver_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[2:1]),
     .push_data({3'd0, lfsr[63:3]}),

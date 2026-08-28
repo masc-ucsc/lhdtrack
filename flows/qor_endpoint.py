@@ -1,6 +1,6 @@
 """The shared endpoint every synthesis flow lands on.
 
-Whoever produced the mapped netlist -- yosys+abc, lhd from Verilog, or lhd from
+Whoever produced the mapped netlist -- yosys+slang+abc, lhd from Verilog, or lhd from
 Pyrope -- it is evaluated here, against the SAME Liberty and the SAME SDC, by
 the SAME two timing engines. Area and delay are therefore comparable by
 construction rather than by hope.
@@ -216,10 +216,8 @@ def _area(ctx: FlowContext, netlist: Path) -> dict:
     disagreeing about what counts as a cell.
     """
     reads = "\n".join(f"read_liberty -lib {lib}" for lib in ctx.liberty)
-    # `stat -liberty` takes ONE file, so a multi-family technology gets one
-    # `stat` per family and the areas are summed. Each cell is priced by
-    # exactly the library that defines it; a cell absent from a given family
-    # contributes 0 there, so nothing is double-counted.
+    # The pinned technologies each stage one complete Liberty. Keep this loop
+    # for local toolchains that deliberately provide multiple libraries.
     stats = "\n".join(f"stat -liberty {lib} -json" for lib in ctx.liberty)
     script = f"""
 {reads}

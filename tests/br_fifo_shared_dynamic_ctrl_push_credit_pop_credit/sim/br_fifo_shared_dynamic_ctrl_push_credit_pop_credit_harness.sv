@@ -73,8 +73,6 @@ module br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_harness (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
-    .push_receiver_in_reset(rst),
-    .pop_sender_in_reset(rst),
     .pop_receiver_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[2:1]),
