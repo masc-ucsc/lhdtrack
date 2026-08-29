@@ -30,7 +30,15 @@ PYROPE_BINDING = ("monomorphic", "set")
 # The SAME vocabulary the LEC flows emit. Two spellings for one concept ("failed"
 # here, "refuted" there) is how a manifest ends up rejecting a verdict the runner
 # just produced.
-LEC_STATUS = ("none", "proven", "refuted", "timeout", "unsupported", "error")
+LEC_STATUS = (
+    "none",
+    "proven",
+    "refuted",
+    "timeout",
+    "inconclusive",
+    "unsupported",
+    "error",
+)
 
 
 class CorpusError(ValueError):

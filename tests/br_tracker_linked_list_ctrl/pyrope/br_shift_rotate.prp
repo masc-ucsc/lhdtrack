@@ -11,5 +11,7 @@ pub comb br_shift_rotate::[timecheck=false](`in`:u4, right:u1, rotate:u3) -> (ou
   mut stages__w2 = stages__w1
   stages__w2#[4..=7] = _mux_3
   mut _mux_4:u4 = if ((left_rotate__w1 >> 1) & 1) != 0 { (stages__w2#[4..=7]#[0..=1] << 2) | stages__w2#[4..=7]#[2..=3] } else { stages__w2#[4..=7] }
-  out = stages__w1#[8..=11]
+  mut stages__w3 = stages__w2
+  stages__w3#[8..=11] = _mux_4
+  out = stages__w3#[8..=11]
 }

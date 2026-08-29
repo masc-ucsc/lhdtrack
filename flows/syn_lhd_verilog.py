@@ -43,6 +43,10 @@ def run(ctx: FlowContext) -> dict:
     lib_args = [
         "--set", f"pass.abc.library={ctx.liberty[0]}",
         "--set", f"pass.abc.delay={ctx.abc_delay_ps()}",
+        # QoR is a whole-design comparison. Keep source hierarchy for compile
+        # and LEC, but let ABC optimize paths that cross module boundaries just
+        # as the Yosys baseline does.
+        "--set", "pass.abc.flatten=true",
     ]
 
 

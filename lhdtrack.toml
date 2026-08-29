@@ -10,9 +10,9 @@ techs = ["sky130", "asap7"]
 jobs = 4
 # The exec leg of a simulation is measured best-of-N, never once.
 sim_reps = 3
-# Per-obligation LEC budget. A solver that gives up is reported as `timeout`,
-# a third state distinct from both `proven` and `refuted` -- but it must be
-# bounded or one hard design stalls the whole nightly.
+# Per-obligation LEC budget. A solver that exhausts this budget is reported as
+# `timeout`, distinct from a fast `inconclusive` and from both definitive
+# answers -- but it must be bounded or one hard design stalls the whole nightly.
 lec_timeout_s = 300
 
 [cache]

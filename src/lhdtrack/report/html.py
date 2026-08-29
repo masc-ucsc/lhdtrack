@@ -80,6 +80,27 @@ def _fmt(v, digits=2, dash="—"):
     return _e(v)
 
 
+def _display_lec_verdict(block: dict | None) -> str | None:
+    """Normalize legacy UNKNOWN rows using the current timeout contract.
+
+    Older ledgers labeled every solver UNKNOWN as `timeout`, even when lgcheck
+    returned in a second against a 300-second budget.  New runs classify those
+    as `inconclusive`; apply the same rule while rendering old measurements so
+    a focused corrective rerun need not re-run hundreds of unaffected netlists.
+    Explicit prerequisite timeouts carry a reason and remain timeouts.
+    """
+    block = block or {}
+    verdict = block.get("verdict")
+    if verdict != "timeout" or block.get("reason"):
+        return verdict
+    timeout_s = block.get("timeout_s")
+    elapsed_ms = block.get("ms")
+    if timeout_s is None or elapsed_ms is None:
+        return verdict
+    budget_ms = timeout_s * 1000 * (2 if block.get("solver") == "lgyosys" else 1)
+    return "inconclusive" if elapsed_ms < budget_ms * 0.98 else verdict
+
+
 def _gain(measured, base) -> float | None:
     """baseline / measured — the ONE orientation used everywhere on this page.
 
@@ -465,7 +486,14 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         ]
         for flow in _SYN_FLOWS:
             r = flows.get(flow)
-            if not r or r.get("status") != "ok":
+            # A failed STA-correlation gate still carries a complete synthesis
+            # measurement (area/cells plus the independent OpenSTA delay). Do
+            # not turn that useful row into five blank cells; show it with a
+            # gate tag and keep the failure in the diagnostics section. A true
+            # synthesis failure has no QoR/STA payload and remains a blank
+            # failed cell.
+            has_measurement = bool(r and r.get("qor") and r.get("sta", {}).get("opensta_ns") is not None)
+            if not r or (r.get("status") != "ok" and not has_measurement):
                 note = (r or {}).get("status", "-")
                 cells.append(f'<td class="muted g" colspan="5">{_e(note)}</td>')
                 continue
@@ -479,9 +507,10 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             mem = r.get("peak_rss_kb", {}).get("max", 0) / 1024
             stale = ' <span class="tag">cached</span>' if r.get("cached") else ""
             norm = ' <span class="tag">norm</span>' if q.get("normalized") else ""
+            gate = ' <span class="tag">STA gate</span>' if r.get("status") == "failed" else ""
             cells.append(
                 f'<td class="g">{_fmt(delay, 2 if unit != "ns" else 3)}</td>'
-                f"<td>{_fmt(area)}{norm}{stale}</td><td>{_fmt(ncells)}</td>"
+                f"<td>{_fmt(area)}{norm}{stale}{gate}</td><td>{_fmt(ncells)}</td>"
                 f"<td>{_fmt(secs, 1)}</td><td>{_fmt(mem, 0)}</td>"
             )
             # Only comparable rows feed the geomean. The Pyrope flow is the one
@@ -516,7 +545,10 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         "better</b>: 2.00&times; means twice as fast, or half the area, or half the "
         "memory. Geomean covers LEC-proven, hand-written Pyrope only. "
         "<span class=\'tag\'>norm</span> marks a netlist whose behavioural registers "
-        "yosys mapped, so it could be counted and timed exactly like the others."
+                "yosys mapped, so it could be counted and timed exactly like the others. "
+                "<span class=\'tag\'>STA gate</span> keeps a complete synthesis measurement "
+                "visible when LiveHD OpenTimer disagrees with OpenSTA; it is excluded from "
+                "the geomean and detailed in STA accuracy below."
     )
 
     heading = f"<h2>{_e(title)}</h2>" if title else ""
@@ -548,14 +580,20 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         cells = [f'<td class="l">{_e(test)} {_tags(flows)}</td><td class="l muted">{_e(config)}</td>']
         for flow in _SIM_FLOWS:
             r = flows.get(flow)
-            if not r or r.get("status") != "ok":
+            # Checksum disagreement fails the cross-simulator correctness gate,
+            # but each simulator did run and its speed is still a measurement.
+            # Show it with a warning while keeping it out of the geomean. A
+            # process/setup failure has no sim payload and remains blank.
+            has_measurement = bool(r and r.get("sim", {}).get("exec_ms") is not None)
+            if not r or (r.get("status") != "ok" and not has_measurement):
                 cells.append(f'<td class="muted g" colspan="4">{_e((r or {}).get("status", "—"))}</td>')
                 continue
             t = r.get("time_ms", {})
             s = r.get("sim", {})
             rate = s.get("cycles_per_s", 0) / 1e6
+            gate = ' <span class="tag">checksum</span>' if r.get("status") == "failed" else ""
             cells.append(
-                f'<td class="g">{_fmt(t.get("setup", 0)/1000, 1)}</td>'
+                f'<td class="g">{_fmt(t.get("setup", 0)/1000, 1)}{gate}</td>'
                 f'<td>{_fmt(t.get("cc", 0)/1000, 1)}</td>'
                 f'<td>{_fmt(s.get("exec_ms", 0)/1000, 2)}</td>'
                 f"<td>{_fmt(rate, 2)}</td>"
@@ -604,7 +642,7 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
     # syn_yosys_abc row that the STA gate just failed still carries its `qor`
     # block, so without this check a number the runner refused to stand behind
     # became the denominator of the headline geomean.
-    if not base or base.get("status") != "ok":
+    if row.get("status") != "ok" or not base or base.get("status") != "ok":
         return False
     if flow != pyrope_flow:
         return True
@@ -643,14 +681,14 @@ def _problems(rows: list[dict]) -> str:
 _LEC_FLOWS = ("lec_lgyosys", "lec_lhd")
 _LEC_LABELS = ("lgcheck (yosys)", "lhd (cvc5)")
 
-# A verdict is THREE-state. `proven` and `refuted` are answers; `timeout`,
-# `unsupported` and `error` are the absence of one, and colouring them like a
-# refutation would report "this design is wrong" when the honest answer is
-# "the solver gave up".
+# `proven` and `refuted` are answers; `timeout`, `inconclusive`, `unsupported`
+# and `error` are the absence of one. Colouring any of those like a refutation
+# would report "this design is wrong" when the honest answer is "no proof".
 _VERDICT_CLASS = {
     "proven": "good",
     "refuted": "bad",
     "timeout": "warn",
+    "inconclusive": "warn",
     "unsupported": "muted",
     "error": "warn",
     "none": "muted",
@@ -683,7 +721,7 @@ def _lec_section(keys, index) -> str:
         for flow in _LEC_FLOWS:
             r = by_flow.get(flow)
             block = (r or {}).get("lec_result", {})
-            verdict = block.get("verdict") or (r or {}).get("status", "—")
+            verdict = _display_lec_verdict(block) or (r or {}).get("status", "—")
             counts[flow][verdict] += 1
             verdicts[flow] = verdict
             # A MEASURED ZERO IS NOT AN ABSENCE. `if secs` printed the dash for
@@ -742,16 +780,17 @@ def _lec_section(keys, index) -> str:
 the verdicts check each other. {summary}.{speed}{split_note}</p>
 <div class="scroll"><table><thead>{head}</thead>
 <tbody>{''.join(rows_html)}</tbody></table></div>
-<p class="sub muted">A verdict is three-state: <span class="good">proven</span> and
+<p class="sub muted">A verdict is not boolean: <span class="good">proven</span> and
 <span class="bad">refuted</span> are answers; <span class="warn">timeout</span>,
-<span class="muted">unsupported</span> and <span class="warn">error</span> are the
+<span class="warn">inconclusive</span>, <span class="muted">unsupported</span> and
+<span class="warn">error</span> are the
 absence of one. Until a test is proven, its QoR numbers above are reported but
 never aggregated — a Pyrope win might be a different circuit.</p>
 """
 
 
 def _netlist_lec_section(rows: list[dict]) -> str:
-    """Report the two source-vs-mapped-netlist obligations side by side."""
+    """Report both source obligations and two Verilog proof backends."""
     items = [
         r for r in rows
         if r.get("flow") == "lec_netlist" and r.get("lec_result")
@@ -759,16 +798,32 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     if not items:
         return ""
 
-    counts_lhd = Counter(r["lec_result"]["verdict"] for r in items)
+    counts_lhd = Counter(_display_lec_verdict(r["lec_result"]) for r in items)
     counts_yosys = Counter(
-        r.get("lec_aux_result", {}).get("verdict", "not-measured") for r in items
+        _display_lec_verdict(r.get("lec_aux_result", {})) or "not-measured" for r in items
     )
+    counts_verilog_cvc5 = Counter(
+        _display_lec_verdict(r.get("lec_verilog_result", {})) or "not-measured" for r in items
+    )
+    checker_conflicts = [
+        r for r in items
+        if _display_lec_verdict(r.get("lec_aux_result", {})) == "refuted"
+        and _display_lec_verdict(r.get("lec_verilog_result", {})) == "proven"
+    ]
+    # A Yosys-only refutation is not evidence that synthesis changed the
+    # circuit when cvc5 proves the identical Verilog-vs-netlist obligation.
+    # Keep both raw verdicts in the table, but report that row as a checker
+    # disagreement rather than a confirmed netlist failure.  This occurs when
+    # lgcheck's bounded miter gives independently initialized, resetless state
+    # to the two sides; cvc5 can instead pair the corresponding machine state.
     refuted = [
         r for r in items
-        if "refuted" in {
-            r["lec_result"].get("verdict"),
-            r.get("lec_aux_result", {}).get("verdict"),
-        }
+        if _display_lec_verdict(r["lec_result"]) == "refuted"
+        or _display_lec_verdict(r.get("lec_verilog_result", {})) == "refuted"
+        or (
+            _display_lec_verdict(r.get("lec_aux_result", {})) == "refuted"
+            and _display_lec_verdict(r.get("lec_verilog_result", {})) != "proven"
+        )
     ]
     skipped = sum(
         1 for r in rows
@@ -779,44 +834,73 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     for r in sorted(items, key=lambda r: (r["test"], r.get("tech") or "")):
         py = r["lec_result"]
         vr = r.get("lec_aux_result", {})
-        vr_verdict = vr.get("verdict", "not-measured")
+        vc = r.get("lec_verilog_result", {})
+        py_verdict = _display_lec_verdict(py) or "error"
+        vr_verdict = _display_lec_verdict(vr) or "not-measured"
         vr_ms = vr.get("ms")
+        vc_verdict = _display_lec_verdict(vc) or "not-measured"
+        vc_ms = vc.get("ms")
         note = (
             py.get("counterexample", "")
             or vr.get("counterexample", "")
+            or vc.get("counterexample", "")
+            or py.get("reason", "")
+            or vr.get("reason", "")
+            or vc.get("reason", "")
             or r.get("note", "")
         )
+        if vr_verdict == "refuted" and vc_verdict == "proven":
+            disagreement = (
+                "checker disagreement: lgyosys refuted while cvc5 proved the "
+                "same Verilog-vs-netlist obligation"
+            )
+            note = f"{disagreement}; {note}" if note else disagreement
         body_rows.append(
             f'<tr><td class="l">{_e(r["test"])}</td>'
             f'<td class="l muted">{_e(r.get("config"))}</td>'
             f'<td class="l muted">{_e(r.get("tech"))}</td>'
-            f'<td class="l {_VERDICT_CLASS.get(py.get("verdict"), "muted")}">'
-            f'{_e(py.get("verdict", "error"))}</td>'
+            f'<td class="l {_VERDICT_CLASS.get(py_verdict, "muted")}">'
+            f'{_e(py_verdict)}</td>'
             f'<td>{_fmt(py.get("ms", 0) / 1000, 2)}</td>'
             f'<td class="l {_VERDICT_CLASS.get(vr_verdict, "muted")}">'
             f'{_e(vr_verdict)}</td>'
             f'<td>{_fmt(vr_ms / 1000, 2) if vr_ms is not None else "—"}</td>'
+            f'<td class="l {_VERDICT_CLASS.get(vc_verdict, "muted")}">'
+            f'{_e(vc_verdict)}</td>'
+            f'<td>{_fmt(vc_ms / 1000, 2) if vc_ms is not None else "—"}</td>'
             f'<td class="note">{_e(note)}</td></tr>'
         )
     summary_lhd = ", ".join(f"{n} {_e(v)}" for v, n in counts_lhd.most_common())
     summary_yosys = ", ".join(f"{n} {_e(v)}" for v, n in counts_yosys.most_common())
+    summary_verilog_cvc5 = ", ".join(
+        f"{n} {_e(v)}" for v, n in counts_verilog_cvc5.most_common()
+    )
     alarm = (
         f" <span class='bad'><b>{len(refuted)} netlist row(s) refuted</b></span> — "
         "synthesis or one source description changed the circuit."
         if refuted else ""
     )
+    conflict_alarm = (
+        f" <span class='warn'><b>{len(checker_conflicts)} checker disagreement(s)</b></span> — "
+        "lgyosys found a counterexample but cvc5 proved the identical "
+        "Verilog-vs-netlist obligation; this is not counted as a confirmed "
+        "synthesis failure."
+        if checker_conflicts else ""
+    )
     return f"""
 <h2>Equivalence — sources vs synthesized netlist</h2>
 <p class="sub">Two obligations over the same flat, mapped standard-cell design:
-LiveHD checks Pyrope vs netlist, while the Yosys-backed engine checks Verilog vs
-netlist. LiveHD: {summary_lhd}. Yosys: {summary_yosys}.
-{f"{skipped} skipped. " if skipped else ""}{alarm} A timeout means no
-counterexample was found within the budget, not a proof; when both engines time
-out the table keeps both explicit.</p>
+LiveHD checks Pyrope vs netlist; both the Yosys-backed engine and LiveHD/cvc5
+check Verilog vs netlist. Pyrope/cvc5: {summary_lhd}. Verilog/Yosys:
+{summary_yosys}. Verilog/cvc5: {summary_verilog_cvc5}.
+{f"{skipped} skipped. " if skipped else ""}{alarm}{conflict_alarm} A timeout exhausted the
+budget; an inconclusive result returned earlier without either a proof or a
+counterexample. The table keeps all three checks explicit.</p>
 <div class="scroll"><table>
 <thead><tr><th class="l">test</th><th class="l">config</th><th class="l">tech</th>
 <th class="l">lhd: Pyrope vs netlist</th><th>s</th>
-<th class="l">yosys: Verilog vs netlist</th><th>s</th><th class="l">note</th></tr></thead>
+<th class="l">yosys: Verilog vs netlist</th><th>s</th>
+<th class="l">cvc5: Verilog vs netlist</th><th>s</th><th class="l">note</th></tr></thead>
 <tbody>{''.join(body_rows)}</tbody></table></div>
 """
 

@@ -1,4 +1,4 @@
-"""Two netlist-preservation checks over one LiveHD-mapped design.
+"""Three netlist-preservation checks over one LiveHD-mapped design.
 
 A HARDER AND DIFFERENT OBLIGATION from `lec_lhd`/`lec_lgyosys`. Those compare
 two SOURCES that a human wrote to describe the same design, so the two sides
@@ -60,7 +60,13 @@ def _check(
             result = json.loads(result_json.read_text())
         except (OSError, json.JSONDecodeError):
             result = None
-    verdict = "timeout" if m.timed_out else classify(result, m.rc)
+    verdict = "timeout" if m.timed_out else classify(
+        result,
+        m.rc,
+        elapsed_ms=m.ms,
+        timeout_s=ctx.lec_timeout_s,
+        solver=solver,
+    )
     block = {
         "verdict": verdict,
         "solver": solver,
@@ -72,6 +78,11 @@ def _check(
     }
     if verdict == "refuted":
         block["counterexample"] = counterexample(result)
+    elif verdict in ("unsupported", "inconclusive", "error"):
+        err = (result or {}).get("error") or {}
+        reason = err.get("hint") or err.get("message")
+        if reason:
+            block["reason"] = str(reason)[:500]
     return block
 
 
@@ -104,7 +115,8 @@ def run(ctx: FlowContext) -> dict:
     mapped = ctx.run(
         "map",
         [lhd, "pass", "abc", "--top", top, "lg:ref", "--emit-dir", "lg:netlist",
-         "--workdir", "W", "--set", f"pass.abc.library={ctx.liberty[0]}"],
+         "--workdir", "W", "--set", f"pass.abc.library={ctx.liberty[0]}",
+         "--set", "pass.abc.flatten=true"],
         check=False,
         timeout=map_wall,
     )
@@ -143,7 +155,22 @@ def run(ctx: FlowContext) -> dict:
                 "wall_limit_s": map_wall,
                 "reason": "ABC mapping timed out before a netlist was available",
             }
-        return {"lec": pyrope_block, "lec_aux": yosys_block, "lec_drift": False}
+        verilog_cvc5_block = {
+            "verdict": "timeout",
+            "solver": "cvc5",
+            "obligation": "verilog-vs-netlist",
+            "declared": "none",
+            "ms": mapped.ms,
+            "timeout_s": ctx.lec_timeout_s,
+            "wall_limit_s": map_wall,
+            "reason": "ABC mapping timed out before a netlist was available",
+        }
+        return {
+            "lec": pyrope_block,
+            "lec_aux": yosys_block,
+            "lec_verilog": verilog_cvc5_block,
+            "lec_drift": False,
+        }
     if not mapped.ok:
         from lhdtrack.context import FlowError
 
@@ -167,6 +194,20 @@ def run(ctx: FlowContext) -> dict:
         solver="lgyosys",
         obligation="verilog-vs-netlist",
         label="lec_yosys_verilog_netlist",
+    )
+
+    # The same Verilog-vs-netlist obligation through LiveHD's in-process cvc5
+    # engine. This is the discriminator for a Yosys/lgcheck refutation: if cvc5
+    # also refutes, synthesis is wrong; if cvc5 proves, the disagreement belongs
+    # to the checker/backend rather than to the mapped circuit.
+    verilog_cvc5_block = _check(
+        ctx,
+        impl="lg:netlist",
+        ref="lg:ref",
+        models="lg:models",
+        solver="cvc5",
+        obligation="verilog-vs-netlist",
+        label="lec_lhd_verilog_netlist",
     )
 
     # LiveHD's in-process engine checks the hand-written Pyrope against that
@@ -197,4 +238,9 @@ def run(ctx: FlowContext) -> dict:
             label="lec_lhd_pyrope_netlist",
         )
 
-    return {"lec": pyrope_block, "lec_aux": yosys_block, "lec_drift": False}
+    return {
+        "lec": pyrope_block,
+        "lec_aux": yosys_block,
+        "lec_verilog": verilog_cvc5_block,
+        "lec_drift": False,
+    }

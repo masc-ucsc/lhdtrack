@@ -1,95 +1,32 @@
 pub comb br_enc_onehot2bin::[timecheck=false](clk:u1, rst:u1, `in`:u32) -> (out_valid:u1, out:u5) {
-  out = 0sb?
-  out = if ((`in` >> 1) & 1) != 0 { 1 } else { 0 }
-  if ((`in` >> 2) & 1) != 0 {
-    out = out | 2
-  }
-  if ((`in` >> 3) & 1) != 0 {
-    out = out | 3
-  }
-  if ((`in` >> 4) & 1) != 0 {
-    out = out | 4
-  }
-  if ((`in` >> 5) & 1) != 0 {
-    out = out | 5
-  }
-  if ((`in` >> 6) & 1) != 0 {
-    out = out | 6
-  }
-  if ((`in` >> 7) & 1) != 0 {
-    out = out | 7
-  }
-  if ((`in` >> 8) & 1) != 0 {
-    out = out | 8
-  }
-  if ((`in` >> 9) & 1) != 0 {
-    out = out | 9
-  }
-  if ((`in` >> 10) & 1) != 0 {
-    out = out | 10
-  }
-  if ((`in` >> 11) & 1) != 0 {
-    out = out | 11
-  }
-  if ((`in` >> 12) & 1) != 0 {
-    out = out | 12
-  }
-  if ((`in` >> 13) & 1) != 0 {
-    out = out | 13
-  }
-  if ((`in` >> 14) & 1) != 0 {
-    out = out | 14
-  }
-  if ((`in` >> 15) & 1) != 0 {
-    out = out | 15
-  }
-  if ((`in` >> 16) & 1) != 0 {
-    out = out | 16
-  }
-  if ((`in` >> 17) & 1) != 0 {
-    out = out | 17
-  }
-  if ((`in` >> 18) & 1) != 0 {
-    out = out | 18
-  }
-  if ((`in` >> 19) & 1) != 0 {
-    out = out | 19
-  }
-  if ((`in` >> 20) & 1) != 0 {
-    out = out | 20
-  }
-  if ((`in` >> 21) & 1) != 0 {
-    out = out | 21
-  }
-  if ((`in` >> 22) & 1) != 0 {
-    out = out | 22
-  }
-  if ((`in` >> 23) & 1) != 0 {
-    out = out | 23
-  }
-  if ((`in` >> 24) & 1) != 0 {
-    out = out | 24
-  }
-  if ((`in` >> 25) & 1) != 0 {
-    out = out | 25
-  }
-  if ((`in` >> 26) & 1) != 0 {
-    out = out | 26
-  }
-  if ((`in` >> 27) & 1) != 0 {
-    out = out | 27
-  }
-  if ((`in` >> 28) & 1) != 0 {
-    out = out | 28
-  }
-  if ((`in` >> 29) & 1) != 0 {
-    out = out | 29
-  }
-  if ((`in` >> 30) & 1) != 0 {
-    out = out | 30
-  }
-  if ((`in` >> 31) & 1) != 0 {
-    out = out | 31
-  }
+  // The Verilog loop ORs the binary index of every asserted input. Spell that
+  // per result bit so the five independent reduction trees stay parallel.
+  const b0:u1 = (((`in`#[1] | `in`#[3]) | (`in`#[5] | `in`#[7]))
+               | ((`in`#[9] | `in`#[11]) | (`in`#[13] | `in`#[15])))
+              | (((`in`#[17] | `in`#[19]) | (`in`#[21] | `in`#[23]))
+               | ((`in`#[25] | `in`#[27]) | (`in`#[29] | `in`#[31])))
+  const b1:u1 = (((`in`#[2] | `in`#[3]) | (`in`#[6] | `in`#[7]))
+               | ((`in`#[10] | `in`#[11]) | (`in`#[14] | `in`#[15])))
+              | (((`in`#[18] | `in`#[19]) | (`in`#[22] | `in`#[23]))
+               | ((`in`#[26] | `in`#[27]) | (`in`#[30] | `in`#[31])))
+  const b2:u1 = (((`in`#[4] | `in`#[5]) | (`in`#[6] | `in`#[7]))
+               | ((`in`#[12] | `in`#[13]) | (`in`#[14] | `in`#[15])))
+              | (((`in`#[20] | `in`#[21]) | (`in`#[22] | `in`#[23]))
+               | ((`in`#[28] | `in`#[29]) | (`in`#[30] | `in`#[31])))
+  const b3:u1 = (((`in`#[8] | `in`#[9]) | (`in`#[10] | `in`#[11]))
+               | ((`in`#[12] | `in`#[13]) | (`in`#[14] | `in`#[15])))
+              | (((`in`#[24] | `in`#[25]) | (`in`#[26] | `in`#[27]))
+               | ((`in`#[28] | `in`#[29]) | (`in`#[30] | `in`#[31])))
+  const b4:u1 = (((`in`#[16] | `in`#[17]) | (`in`#[18] | `in`#[19]))
+               | ((`in`#[20] | `in`#[21]) | (`in`#[22] | `in`#[23])))
+              | (((`in`#[24] | `in`#[25]) | (`in`#[26] | `in`#[27]))
+               | ((`in`#[28] | `in`#[29]) | (`in`#[30] | `in`#[31])))
+
+  out = 0
+  out#[0] = b0
+  out#[1] = b1
+  out#[2] = b2
+  out#[3] = b3
+  out#[4] = b4
   out_valid = unsigned(`in` != 0)
 }

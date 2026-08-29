@@ -171,28 +171,41 @@ different representations, a code-generation bug surfaces as one backend proving
 what the other refutes — a discrepancy no single-engine run can find. run.py
 flags that as a backend disagreement rather than picking a winner.
 
-**A verdict is three-state.** `proven` and `refuted` are answers; `timeout`,
-`unsupported` and `error` are the absence of one. Collapsing a timeout into
-"fail" reports a design as wrong when the solver merely gave up; collapsing it
-into "pass" is far worse. `[run].lec_timeout_s` bounds each obligation so one
+**A verdict is not boolean.** `proven` and `refuted` are answers; `timeout`,
+`inconclusive`, `unsupported` and `error` are the absence of one. A timeout
+exhausted the configured time budget; an inconclusive result returned before
+the budget after exhausting the backend's available proof strategies. Neither
+is a refutation or a proof. `[run].lec_timeout_s` bounds each obligation so one
 hard design cannot stall a nightly.
 
-### `verilog/` ≡ its own synthesized netlist
+### sources ≡ synthesized netlist
 
-`lec_netlist` proves the RTL against the tech-mapped netlist synthesis produced
+`lec_netlist` checks both source descriptions against the tech-mapped netlist synthesis produced
 — **very different Verilog**: no shared module boundaries, no shared signal
 names, registers turned into `sky130_fd_sc_hd__dfxtp_1` instances, combinational
 logic rewritten by ABC into an unrecognisable gate structure. Comparing two
 sources a human wrote is often settled structurally; this is what actually
 exercises the equivalence engine.
 
+One mapped design therefore carries three independently named obligations:
+
+| source vs netlist | engine |
+| --- | --- |
+| Pyrope vs mapped netlist | cvc5 |
+| Verilog vs mapped netlist | lgyosys |
+| Verilog vs mapped netlist | cvc5 (backend discriminator) |
+
+The third check distinguishes a synthesis error from an lgyosys-only
+refutation. A hierarchy mismatch is not a failure: both readers flatten through
+unmatched wrappers until they reach comparable machine state and outputs.
+
 It also checks something nothing else does: **that synthesis preserved the
 design**. Every area and delay number in the synthesis tables is a claim about a
 netlist; this is what says the netlist is still the circuit. A refutation here
 is far more serious than two source descriptions differing.
 
-It has already earned its keep. On 2026-08-28 it refuted 11 of 149 designs
-(now **1** — 149 proven, 2 timeout, 1 refuted), and those refutations were
+It has already earned its keep. On 2026-08-28 it initially refuted 11 designs,
+and those refutations were
 **real**: a generate-block instance name collision made
 two distinct registers flatten to one hierarchical name, `pass.abc`'s register
 read-back disambiguated them on the implementation side only, and the mapped
@@ -213,16 +226,27 @@ Two things that triage taught, both worth keeping:
   read the PDK's UDP-based models at all. iverilog can, and that is what settled
   it.
 
-The one design still refuting, `br_tracker_linked_list_ctrl`, is a DIFFERENT
-defect: it refutes under `pass.abc.register=false` too, so it is not the naming
-collision. Behind it sits a hard failure that only became reachable once the
-bogus `mem-readall-collision` refusal was removed — `pass.abc`'s read-back emits
-a `Get_mask` with a ZERO-BIT mask, so `lhd compile lg:<netlist> --emit verilog:`
-aborts on it (`left cell 'get_mask_NNNN' … at bits==0`). Pre-existing and
-previously masked by that refusal; not yet root-caused.
+The last apparent refutation, `br_tracker_linked_list_ctrl`, exposed two more
+independent defects. Its hand-written Pyrope shift/rotate network computed the
+last mux but never stored it into the final packed-array stage. The direct Slang
+reader repeated the same mistake because symbol-granularity dependency analysis
+put a module-level output read before generated partial writers. Both are now
+fixed and cvc5 proves Pyrope-vs-Verilog and both source-vs-netlist obligations
+for ASAP7 and sky130. lgyosys exhausts its quick proof strategy on this design
+and is reported as `inconclusive`, not refuted.
 
-Note that asap7 skips this obligation: lhd takes one Liberty file and asap7
-ships five cell families.
+`br_amba_axi_demux` exposes the remaining cvc5 limitation in the flat-netlist
+matrix: bit-disjoint combinational feedback packed into one vector. Each fork
+valid bit deliberately excludes its corresponding ready bit, so the bit-level
+graph is acyclic; LiveHD's word-level dependency graph merges the lanes and
+reports a false SCC through the downstream demux. The hierarchical source check
+can cut at module interfaces, but after hierarchy is collapsed against a flat
+mapped netlist the cvc5 encoder requires an acyclic term graph and refuses the
+word-level SCC (`operand ... has no encodable driver`). This is `unsupported`,
+not a timeout; raising the budget cannot help.
+
+ASAP7 uses the staged merged Liberty for this obligation, so both technologies
+are measured.
 
 The mapped cells need behavioural models — `lhd pass liberty gensim` generates
 them from the same Liberty the netlist was mapped against. Without them every

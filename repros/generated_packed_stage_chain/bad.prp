@@ -1,0 +1,14 @@
+pub comb generated_packed_stage_chain(`in`:u4, rotate:u2) -> (out:u4) {
+  mut stages:u12 = 0sb?
+  mut stages__w1 = stages
+  stages__w1#[0..=3] = `in`
+  const stage0 = stages__w1#[0..=3]
+  const rot0 = ((stage0 << 1)#[0..=3] | (stage0 >> 3))#[0..=3]
+  const mux0 = if (rotate & 1) != 0 { rot0 } else { stage0 }
+  mut stages__w2 = stages__w1
+  stages__w2#[4..=7] = mux0
+  const stage1 = stages__w2#[4..=7]
+  const rot1 = ((stage1 << 2)#[0..=3] | (stage1 >> 2))#[0..=3]
+  const mux1 = if ((rotate >> 1) & 1) != 0 { rot1 } else { stage1 }
+  out = stages__w1#[8..=11]
+}

@@ -1,21 +1,9 @@
 pub comb br_shift_rotate::[timecheck=false](`in`:u16, right:u1, rotate:u4) -> (out:u16) {
-  mut stages:u80 = 0
-  stages = 0sb?
-  const real_rotate__w1 = rotate
-  mut _mux_1:u4 = if real_rotate__w1 == 0 { 0 } else { (16 - real_rotate__w1)#[0..=31]#[0..=4]#[0..=3] }
-  mut _mux_2:u4 = if right != 0 { _mux_1 } else { real_rotate__w1 }
-  const left_rotate__w1 = _mux_2
-  mut stages__w1 = stages
-  stages__w1#[0..=15] = `in`
-  mut _mux_3:u16 = if (left_rotate__w1 & 1) != 0 { (stages__w1#[0..=15]#[0..=14] << 1) | ((stages__w1#[0..=15] >> 15) & 1) } else { stages__w1#[0..=15] }
-  mut stages__w2 = stages__w1
-  stages__w2#[16..=31] = _mux_3
-  mut _mux_4:u16 = if ((left_rotate__w1 >> 1) & 1) != 0 { (stages__w2#[16..=31]#[0..=13] << 2) | stages__w2#[16..=31]#[14..=15] } else { stages__w2#[16..=31] }
-  mut stages__w3 = stages__w2
-  stages__w3#[32..=47] = _mux_4
-  mut _mux_5:u16 = if ((left_rotate__w1 >> 2) & 1) != 0 { (stages__w3#[32..=47]#[0..=11] << 4) | stages__w3#[32..=47]#[12..=15] } else { stages__w3#[32..=47] }
-  mut stages__w4 = stages__w3
-  stages__w4#[48..=63] = _mux_5
-  mut _mux_6:u16 = if ((left_rotate__w1 >> 3) & 1) != 0 { (stages__w4#[48..=63]#[0..=7] << 8) | stages__w4#[48..=63]#[8..=15] } else { stages__w4#[48..=63] }
-  out = stages__w1#[64..=79]
+  const inv_rotate:u4 = if rotate == 0 { 0 } else { (16 - rotate)#[0..=3] }
+  const left_rotate:u4 = if right { inv_rotate } else { rotate }
+  const stage1:u16 = if left_rotate#[0] != 0 { (`in`#[0..=14] << 1) | `in`#[15] } else { `in` }
+  const stage2:u16 = if left_rotate#[1] != 0 { (stage1#[0..=13] << 2) | stage1#[14..=15] } else { stage1 }
+  const stage3:u16 = if left_rotate#[2] != 0 { (stage2#[0..=11] << 4) | stage2#[12..=15] } else { stage2 }
+  const stage4:u16 = if left_rotate#[3] != 0 { (stage3#[0..=7] << 8) | stage3#[8..=15] } else { stage3 }
+  out = stage4
 }

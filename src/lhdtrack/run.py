@@ -89,6 +89,9 @@ class Row:
     # A second, independently named netlist obligation may share the same
     # expensive mapped design with `lec_result`.
     lec_aux_result: dict = field(default_factory=dict)
+    # Independent cvc5 check of the same Verilog-vs-netlist obligation carried
+    # by lec_aux_result's lgyosys backend.
+    lec_verilog_result: dict = field(default_factory=dict)
     sim: dict = field(default_factory=dict)
     time_ms: dict = field(default_factory=dict)
     peak_rss_kb: dict = field(default_factory=dict)
@@ -304,11 +307,32 @@ class Runner:
                     f"{result['lec']['solver']} says {result['lec']['verdict']}"
                 )
         row.lec_aux_result = result.get("lec_aux", {})
+        row.lec_verilog_result = result.get("lec_verilog", {})
         row.pyrope_status = result.get("pyrope_status", row.pyrope_status)
         row.time_ms, row.peak_rss_kb = ctx.stage.finish()
         row.cmds = ctx.cmds
-        row.passed = True
-        row.status = "ok"
+        # A real primary LEC answer that contradicts the manifest is a failed
+        # measurement, not merely a red word inside an otherwise green row.
+        # Keep timeout/unsupported/inconclusive non-fatal: those are coverage
+        # outcomes, and large designs are expected to exhaust both checkers.
+        lec_verdict = row.lec_result.get("verdict")
+        lec_declared = row.lec_result.get("declared")
+        lec_mismatch = (
+            lec_verdict in ("proven", "refuted")
+            and lec_declared in ("proven", "refuted")
+            and lec_verdict != lec_declared
+        )
+        if lec_mismatch:
+            row.passed = False
+            row.status = "failed"
+            row.note = (
+                f"{row.lec_result.get('obligation', 'pyrope-vs-verilog')} "
+                f"declared {lec_declared} but {row.lec_result.get('solver', 'solver')} "
+                f"says {lec_verdict}"
+            )
+        else:
+            row.passed = True
+            row.status = "ok"
         row.sta.pop("_", None)
 
         if job.flow in self.baseline_flows:

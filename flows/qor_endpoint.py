@@ -36,7 +36,25 @@ def emitted_verilog(ctx: FlowContext, directory: Path) -> Path:
         raise FlowError("lhd emitted no gate-level Verilog")
     if len(files) == 1:
         return files[0]
-    text = "\n".join(path.read_text(errors="replace") for path in files)
+    # Each separately emitted module is a valid compilation unit and may carry
+    # the same memory-wrapper `include. Concatenating those files verbatim makes
+    # Yosys parse the wrapper module once per source file and reject the second
+    # definition. Keep the first occurrence of each include directive while
+    # retaining every emitted module body.
+    seen_includes: set[str] = set()
+    chunks: list[str] = []
+    for path in files:
+        lines: list[str] = []
+        for line in path.read_text(errors="replace").splitlines(keepends=True):
+            match = re.match(r'^\s*`include\s+"([^"]+)"', line)
+            if match:
+                include = match.group(1)
+                if include in seen_includes:
+                    continue
+                seen_includes.add(include)
+            lines.append(line)
+        chunks.append("".join(lines))
+    text = "\n".join(chunks)
     return ctx.write("emitted-netlist-all.v", text)
 
 NEEDS = ("yosys",)
@@ -204,12 +222,29 @@ def _normalize(ctx: FlowContext, netlist: Path) -> Path:
         "module _const1_(output z); assign z = 1'b1; endmodule\n",
     )
     libs = "\n".join(f"read_liberty -lib {lib}" for lib in ctx.liberty)
+    # cgen emits memory wrappers as `include "cgen_memory_*.v"`. The lhd
+    # executable staged by the local toolchain lives below Bazel's execroot,
+    # where the source tree (including ware/rtl) is available. Keep the include
+    # resolution tied to that exact lhd build rather than to the caller's cwd.
+    lhd_bin = ctx.tool("lhd").resolve()
+    memory_rtl = next(
+        (parent / "ware" / "rtl" for parent in lhd_bin.parents if (parent / "ware" / "rtl").is_dir()),
+        None,
+    )
+    if memory_rtl is None:
+        # Developer checkout fallback for a non-Bazel-staged lhd binary.
+        memory_rtl = ctx.test.root.parents[2] / "livehd" / "ware" / "rtl"
+    if not memory_rtl.is_dir():
+        raise FlowError(
+            "could not locate LiveHD ware/rtl for generated memory includes "
+            f"(lhd={lhd_bin})"
+        )
     # All families: ASAP7's flops live in SEQ, its inverters in INVBUF.
     map_args = " ".join(f"-liberty {lib}" for lib in ctx.liberty)
     script = f"""
 {libs}
 read_verilog {const_models}
-read_verilog -sv {netlist}
+read_verilog -I{memory_rtl} -sv {netlist}
 hierarchy -check -top {ctx.top}
 proc
 opt_clean

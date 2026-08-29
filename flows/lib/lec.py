@@ -14,10 +14,10 @@ cvc5 reasons on the LGraph while lgyosys reasons on the cgen-emitted Verilog, so
 a code-generation bug shows up as one backend proving what the other refutes --
 a discrepancy no single-engine run could ever surface.
 
-A VERDICT IS THREE-STATE, NOT TWO. `proven` and `refuted` are answers;
-`timeout`, `unsupported` and `error` are the absence of one. Collapsing the
-third state into "fail" would make a solver that gave up look like a design
-that is wrong, and collapsing it into "pass" would be far worse.
+A VERDICT IS NOT BOOLEAN. `proven` and `refuted` are answers; `timeout`,
+`inconclusive`, `unsupported` and `error` are the absence of one. A fast
+INCONCLUSIVE result is distinct from a timeout: the former exhausted the
+backend's proof strategies, while the latter exhausted its time budget.
 """
 
 from __future__ import annotations
@@ -41,8 +41,15 @@ _CLASS_TO_VERDICT = {
 }
 
 
-def classify(result: dict | None, rc: int) -> str:
-    """proven | refuted | timeout | unsupported | error.
+def classify(
+    result: dict | None,
+    rc: int,
+    *,
+    elapsed_ms: int | None = None,
+    timeout_s: int | None = None,
+    solver: str | None = None,
+) -> str:
+    """proven | refuted | timeout | inconclusive | unsupported | error.
 
     Three-state on purpose. `proven` and `refuted` are answers; the rest are the
     absence of one. Collapsing a timeout into "fail" would report a design as
@@ -69,8 +76,49 @@ def classify(result: dict | None, rc: int) -> str:
     if verdict in ("proven", "refuted"):
         return verdict
     if verdict == "unknown":
-        # The solver ran and decided nothing: the same third state a timeout is.
-        return "timeout"
+        # UNKNOWN is the solver-level envelope, but a named frontend/encoder
+        # refusal is more specific and must survive classification.  The old
+        # order returned `inconclusive` before consulting error.class, so
+        # br_amba_axi_demux's explicit `unsupported` word-level combinational
+        # cycle was misleadingly reported first as a timeout and then as a
+        # generic give-up. Raising the timeout cannot help a refusal.
+        err = result.get("error") or {}
+        cls = str(err.get("class", "")).lower()
+        msg = str(err.get("message", ""))
+        # LiveHD uses process error.class=unsupported for BOTH fundamentally
+        # different exit-7 cases:
+        #
+        #   * "lec REFUSED ... encoder does not model" -- nothing was encoded;
+        #     more time cannot help, so this really is unsupported.
+        #   * "lec could not decide equivalence" -- the miter ran but an
+        #     incomplete state correspondence or solver budget prevented a
+        #     verdict. A changed hierarchy commonly lands here after collapse;
+        #     it is inconclusive/timeout, never a semantic unsupported feature.
+        #
+        # Consult that explicit message before the coarse process class. This
+        # preserves the refusal distinction while preventing a hierarchy-only
+        # mismatch from being rendered as a failed/unsupported design.
+        undecided = msg.startswith("lec could not decide equivalence")
+        budget_ms = None
+        if timeout_s is not None:
+            budget_ms = timeout_s * 1000 * (2 if solver == "lgyosys" else 1)
+        if undecided:
+            if budget_ms is not None and elapsed_ms is not None and elapsed_ms >= budget_ms * 0.98:
+                return "timeout"
+            return "inconclusive"
+        if cls in _CLASS_TO_VERDICT:
+            return _CLASS_TO_VERDICT[cls]
+        # UNKNOWN does not itself mean TIMEOUT. In particular, lgcheck can run
+        # all of its structural/inductive/BMC strategies and return
+        # INCONCLUSIVE in one second. The old classifier called every such run
+        # a timeout, producing rows such as "timeout, 1.10 s". Only call an
+        # internally returned UNKNOWN a timeout when its elapsed time reaches
+        # the solver budget. lgyosys currently gives its subprocess twice the
+        # configured in-process budget; the outer watchdog adds 60 s of
+        # emission/termination headroom.
+        if budget_ms is not None and elapsed_ms is not None and elapsed_ms >= budget_ms * 0.98:
+            return "timeout"
+        return "inconclusive"
     if result.get("status") == "pass":
         return "proven"
     err = result.get("error") or {}
@@ -168,7 +216,13 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     # `classify` reads that -- correctly -- as "no proof"; but "error" says the
     # run was broken, when what happened is that the backend was still working
     # when the watchdog fired.
-    verdict = "timeout" if m.timed_out else classify(result, m.rc)
+    verdict = "timeout" if m.timed_out else classify(
+        result,
+        m.rc,
+        elapsed_ms=m.ms,
+        timeout_s=timeout_s,
+        solver=solver,
+    )
 
     # A BOUNDED pass is not an unconditional proof. `lhd lec` answers PASS(n) --
     # "equivalent for n cycles from reset, exhaustive over inputs, deeper cycles

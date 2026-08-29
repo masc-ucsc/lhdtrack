@@ -53,7 +53,11 @@ def run(ctx: FlowContext) -> dict:
     # The manual `pass abc` path in syn_lhd_verilog.py uses the other spelling.
     lib_args = ["--set", f"synth.liberty={ctx.liberty[0]}"]
 
-    sets = [*lib_args, "--set", f"abc.delay={ctx.abc_delay_ps()}"]
+    sets = [
+        *lib_args,
+        "--set", f"abc.delay={ctx.abc_delay_ps()}",
+        "--set", "abc.flatten=true",
+    ]
     if ctx.test.pyrope_binding == "set":
         sets += [a for k, v in sorted(ctx.chparams().items()) for a in ("--set", f"compile.{k}={v}")]
 

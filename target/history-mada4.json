@@ -125,5 +125,14 @@
       "syn_lhd_verilog": 0.7691813758345394,
       "syn_lhd_pyrope": 0.7475708903309863
     }
+  },
+  {
+    "run": "20260828T171934",
+    "date": "2026-08-28",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled Mar 11 2025 09:09:22),sta=2.0.17,verilator=Verilator 5.040 2025-08-30 rev (Debian 5.040-2),yosys=Yosys 0.60+95 (git sha1 991e70489, g++ 15.2.0-4 -fPIC -O3),yosys_slang=sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.4933525448628958
+    }
   }
 ]
