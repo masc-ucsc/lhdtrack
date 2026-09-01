@@ -710,6 +710,7 @@ def _lec_section(keys, index) -> str:
     circuit.
     """
     counts: dict[str, Counter] = {f: Counter() for f in _LEC_FLOWS}
+    times: dict[str, list[float]] = {f: [] for f in _LEC_FLOWS}
     splits, rows_html, speedups = [], [], []
 
     for key in keys:
@@ -729,6 +730,8 @@ def _lec_section(keys, index) -> str:
             # the page rendered as "no result" -- and now that the column sorts,
             # it would rank below every slower one instead of first.
             ms = block.get("ms")
+            if ms:
+                times[flow].append(ms / 1000)
             cells.append(
                 f'<td class="l g {_VERDICT_CLASS.get(verdict, "muted")}">{_e(verdict)}</td>'
                 f"<td>{_fmt(ms / 1000, 2) if ms is not None else '—'}</td>"
@@ -775,11 +778,26 @@ def _lec_section(keys, index) -> str:
         + '<th class="l g">verdict</th><th>s</th>' * len(_LEC_FLOWS)
         + "</tr>"
     )
+    # The same geomean footer the synthesis tables carry. The `s` cells are the
+    # geomean of the ABSOLUTE proof times, not a ratio: the two backends already
+    # have their ratio in `lhd speedup`, so repeating it under `s` would say
+    # nothing new, while a typical proof time is the number a reader wants when
+    # deciding whether to run the engine at all. A geomean over seconds is the
+    # right average here too -- proof times span four orders of magnitude, and an
+    # arithmetic mean would just report the slowest test.
+    foot = ['<tr><td class="l" colspan="2">geomean</td>']
+    for flow in _LEC_FLOWS:
+        foot.append(
+            f'<td class="l g muted">{counts[flow].get("proven", 0)}/{len(keys)} proven</td>'
+            f"<td>{_fmt(_geomean(times[flow]), 2)}</td>"
+        )
+    foot.append("<td>" + _ratio(speedups) + "</td>")
+    foot.append('<td class="l muted"></td></tr>')
     return f"""
 <p class="sub">Both backends prove the same obligation, so the times compare and
 the verdicts check each other. {summary}.{speed}{split_note}</p>
 <div class="scroll"><table><thead>{head}</thead>
-<tbody>{''.join(rows_html)}</tbody></table></div>
+<tbody>{''.join(rows_html)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
 <p class="sub muted">A verdict is not boolean: <span class="good">proven</span> and
 <span class="bad">refuted</span> are answers; <span class="warn">timeout</span>,
 <span class="warn">inconclusive</span>, <span class="muted">unsupported</span> and
@@ -831,6 +849,11 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     )
 
     body_rows = []
+    secs: dict[str, list[float]] = {"py": [], "vr": [], "vc": []}
+    # PAIRED, not zipped: the two Verilog-vs-netlist engines skip different rows
+    # (one times out where the other answers), so pairing by list position would
+    # divide one design's seconds by another's.
+    engine_pairs: list[float] = []
     for r in sorted(items, key=lambda r: (r["test"], r.get("tech") or "")):
         py = r["lec_result"]
         vr = r.get("lec_aux_result", {})
@@ -849,6 +872,11 @@ def _netlist_lec_section(rows: list[dict]) -> str:
             or vc.get("reason", "")
             or r.get("note", "")
         )
+        for bucket, ms in (("py", py.get("ms")), ("vr", vr_ms), ("vc", vc_ms)):
+            if ms:
+                secs[bucket].append(ms / 1000)
+        if vr_ms and vc_ms and vr_verdict == vc_verdict:
+            engine_pairs.append(vr_ms / vc_ms)
         if vr_verdict == "refuted" and vc_verdict == "proven":
             disagreement = (
                 "checker disagreement: lgyosys refuted while cvc5 proved the "
@@ -887,13 +915,35 @@ def _netlist_lec_section(rows: list[dict]) -> str:
         "synthesis failure."
         if checker_conflicts else ""
     )
+    # The geomean row the synthesis and simulation tables carry. Proof times span
+    # orders of magnitude, so the geomean is the honest average; an arithmetic
+    # one would just report the slowest design. Absolute seconds, not ratios:
+    # only the two Verilog-vs-netlist columns prove the SAME obligation, and the
+    # `lhd` column proves a different one (Pyrope vs netlist), so a single
+    # baseline column to divide by does not exist. The one ratio that IS
+    # meaningful goes in the caption instead.
+    counts_by_col = (
+        ("py", counts_lhd), ("vr", counts_yosys), ("vc", counts_verilog_cvc5),
+    )
+    foot = '<tr><td class="l" colspan="3">geomean</td>' + "".join(
+        f'<td class="l muted">{c.get("proven", 0)}/{len(items)} proven</td>'
+        f"<td>{_fmt(_geomean(secs[k]), 2)}</td>"
+        for k, c in counts_by_col
+    ) + '<td class="l muted"></td></tr>'
+    engine_gain = _geomean(engine_pairs)
+    engine_note = (
+        f" On the {len(engine_pairs)} row(s) where both Verilog-vs-netlist engines "
+        f"reached the same verdict, cvc5 is <b>{engine_gain:.2f}×</b> the speed of "
+        "the Yosys-backed one."
+        if engine_gain else ""
+    )
     return f"""
 <h2>Equivalence — sources vs synthesized netlist</h2>
 <p class="sub">Two obligations over the same flat, mapped standard-cell design:
 LiveHD checks Pyrope vs netlist; both the Yosys-backed engine and LiveHD/cvc5
 check Verilog vs netlist. Pyrope/cvc5: {summary_lhd}. Verilog/Yosys:
 {summary_yosys}. Verilog/cvc5: {summary_verilog_cvc5}.
-{f"{skipped} skipped. " if skipped else ""}{alarm}{conflict_alarm} A timeout exhausted the
+{f"{skipped} skipped. " if skipped else ""}{engine_note}{alarm}{conflict_alarm} A timeout exhausted the
 budget; an inconclusive result returned earlier without either a proof or a
 counterexample. The table keeps all three checks explicit.</p>
 <div class="scroll"><table>
@@ -901,7 +951,7 @@ counterexample. The table keeps all three checks explicit.</p>
 <th class="l">lhd: Pyrope vs netlist</th><th>s</th>
 <th class="l">yosys: Verilog vs netlist</th><th>s</th>
 <th class="l">cvc5: Verilog vs netlist</th><th>s</th><th class="l">note</th></tr></thead>
-<tbody>{''.join(body_rows)}</tbody></table></div>
+<tbody>{''.join(body_rows)}</tbody><tfoot>{foot}</tfoot></table></div>
 """
 
 
