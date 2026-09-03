@@ -134,5 +134,13 @@
       "syn_yosys_abc": 1.0,
       "syn_lhd_verilog": 0.4933525448628958
     }
+  },
+  {
+    "run": "20260902T131710",
+    "date": "2026-09-02",
+    "seg": "Linux-x86_64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:89637af3686b0f8b",
+    "flows": {
+      "syn_yosys_abc": 1.0
+    }
   }
 ]
