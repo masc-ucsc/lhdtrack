@@ -80,32 +80,32 @@ pub mod br_csr_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   decerr_resp_valid = if rst != 0 { 0 } else { unsigned((upstream_req_valid != 0) and (not (select_onehot != 0))) }
   mut downstream_resp__w1 = downstream_resp
   downstream_resp__w1#[0..=33] = (downstream_resp_slverr.e0 | (downstream_resp_decerr.e0 << 1) | (downstream_resp_rdata#[0..=31] << 2))#[0..=33]
+  mut gen_downstream_resp_retime_0_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_0_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e0, `in` = downstream_resp__w1#[0..=33])
+  mut downstream_resp_valid_int__w1 = downstream_resp_valid_int
+  downstream_resp_valid_int__w1#[0] = gen_downstream_resp_retime_0_br_delay_valid_resp.out_valid & 1
+  mut downstream_resp_int__w1 = downstream_resp_int
+  downstream_resp_int__w1#[0..=33] = gen_downstream_resp_retime_0_br_delay_valid_resp.out#[0..=33]
   mut downstream_resp__w2 = downstream_resp__w1
   downstream_resp__w2#[34..=67] = (downstream_resp_slverr.e1 | (downstream_resp_decerr.e1 << 1) | (downstream_resp_rdata#[32..=63] << 2))#[0..=33]
+  mut gen_downstream_resp_retime_1_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_1_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e1, `in` = downstream_resp__w2#[34..=67])
+  mut downstream_resp_valid_int__w2 = downstream_resp_valid_int__w1
+  downstream_resp_valid_int__w2#[1] = gen_downstream_resp_retime_1_br_delay_valid_resp.out_valid & 1
+  mut downstream_resp_int__w2 = downstream_resp_int__w1
+  downstream_resp_int__w2#[34..=67] = gen_downstream_resp_retime_1_br_delay_valid_resp.out#[0..=33]
   mut downstream_resp__w3 = downstream_resp__w2
   downstream_resp__w3#[68..=101] = (downstream_resp_slverr.e2 | (downstream_resp_decerr.e2 << 1) | (downstream_resp_rdata#[64..=95] << 2))#[0..=33]
+  mut gen_downstream_resp_retime_2_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_2_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e2, `in` = downstream_resp__w3#[68..=101])
+  mut downstream_resp_valid_int__w3 = downstream_resp_valid_int__w2
+  downstream_resp_valid_int__w3#[2] = gen_downstream_resp_retime_2_br_delay_valid_resp.out_valid & 1
+  mut downstream_resp_int__w3 = downstream_resp_int__w2
+  downstream_resp_int__w3#[68..=101] = gen_downstream_resp_retime_2_br_delay_valid_resp.out#[0..=33]
   mut downstream_resp__w4 = downstream_resp__w3
   downstream_resp__w4#[102..=135] = (downstream_resp_slverr.e3 | (downstream_resp_decerr.e3 << 1) | (downstream_resp_rdata#[96..=127] << 2))#[0..=33]
   mut gen_downstream_resp_retime_3_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_3_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e3, `in` = downstream_resp__w4#[102..=135])
-  mut downstream_resp_valid_int__w1 = downstream_resp_valid_int
-  downstream_resp_valid_int__w1#[3] = gen_downstream_resp_retime_3_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w1 = downstream_resp_int
-  downstream_resp_int__w1#[102..=135] = gen_downstream_resp_retime_3_br_delay_valid_resp.out#[0..=33]
-  mut gen_downstream_resp_retime_0_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_0_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e0, `in` = downstream_resp__w4#[0..=33])
-  mut downstream_resp_valid_int__w2 = downstream_resp_valid_int__w1
-  downstream_resp_valid_int__w2#[0] = gen_downstream_resp_retime_0_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w2 = downstream_resp_int__w1
-  downstream_resp_int__w2#[0..=33] = gen_downstream_resp_retime_0_br_delay_valid_resp.out#[0..=33]
-  mut gen_downstream_resp_retime_1_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_1_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e1, `in` = downstream_resp__w4#[34..=67])
-  mut downstream_resp_valid_int__w3 = downstream_resp_valid_int__w2
-  downstream_resp_valid_int__w3#[1] = gen_downstream_resp_retime_1_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w3 = downstream_resp_int__w2
-  downstream_resp_int__w3#[34..=67] = gen_downstream_resp_retime_1_br_delay_valid_resp.out#[0..=33]
-  mut gen_downstream_resp_retime_2_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_2_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid.e2, `in` = downstream_resp__w4#[68..=101])
   mut downstream_resp_valid_int__w4 = downstream_resp_valid_int__w3
-  downstream_resp_valid_int__w4#[2] = gen_downstream_resp_retime_2_br_delay_valid_resp.out_valid & 1
+  downstream_resp_valid_int__w4#[3] = gen_downstream_resp_retime_3_br_delay_valid_resp.out_valid & 1
   mut downstream_resp_int__w4 = downstream_resp_int__w3
-  downstream_resp_int__w4#[68..=101] = gen_downstream_resp_retime_2_br_delay_valid_resp.out#[0..=33]
+  downstream_resp_int__w4#[102..=135] = gen_downstream_resp_retime_3_br_delay_valid_resp.out#[0..=33]
   mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((decerr_resp_valid & 1) << 4) | downstream_resp_valid_int__w4#[0..=3], `in` = (2 << 136) | downstream_resp_int__w4#[0..=135])
   mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
   mut `upstream_resp.decerr` = (br_mux_onehot_resp >> 1) & 1

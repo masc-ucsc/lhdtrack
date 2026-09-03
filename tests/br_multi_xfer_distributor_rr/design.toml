@@ -45,6 +45,12 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 cycles = 1000000
 marker = "LHDTRACK-DONE"
 
+# CountWidth can encode 0..7, but the interface only permits 0..NumSymbols.
+# Pin the count to a legal idle transfer until the generic harness grows a
+# range-constrained stimulus source.
+[sim.inputs]
+push_sendable = 0
+
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

@@ -1,0 +1,212 @@
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_fifo_gray_count_sync = import("br_cdc_fifo_gray_count_sync.br_cdc_fifo_gray_count_sync")
+const br_cdc_fifo_pop_ctrl_t = import("br_cdc_fifo_pop_ctrl.br_cdc_fifo_pop_ctrl")
+const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
+
+pub mod br_cdc_fifo_ctrl_pop_1r1w::[timecheck=false](push_clk:u1, push_rst:u1, push_push_count_gray:u6, push_reset_active_push:u1, pop_clk:u1, pop_rst:u1, pop_ready:u1, pop_ram_rd_data_valid:u1, pop_ram_rd_data:u64) -> (pop_reset_active_pop:u1@[], pop_pop_count_gray:u6@[], pop_valid:u1@[], pop_data:u64@[], pop_empty:u1@[], pop_items:u6@[], pop_ram_rd_addr_valid:u1@[], pop_ram_rd_addr:u5@[]) {
+  mut pop_ram_rd_data_maxdel:u64 = 0
+  pop_ram_rd_data_maxdel = 0sb?
+  mut br_cdc_fifo_gray_count_sync_push2pop = br_cdc_fifo_gray_count_sync::[name=br_cdc_fifo_gray_count_sync_push2pop](src_clk = push_clk, src_rst = push_rst, `src_count_gray.e5` = (push_push_count_gray >> 5) & 1, `src_count_gray.e4` = (push_push_count_gray >> 4) & 1, `src_count_gray.e3` = (push_push_count_gray >> 3) & 1, `src_count_gray.e2` = (push_push_count_gray >> 2) & 1, `src_count_gray.e1` = (push_push_count_gray >> 1) & 1, `src_count_gray.e0` = push_push_count_gray & 1, dst_clk = pop_clk, dst_rst = pop_rst)
+  mut br_cdc_bit_toggle_reset_active_push = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_reset_active_push](src_clk = push_clk, src_rst = push_rst, src_bit = push_reset_active_push, dst_clk = pop_clk, dst_rst = pop_rst)
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_0 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_0](`in` = pop_ram_rd_data & 1)
+  mut pop_ram_rd_data_maxdel__w1 = pop_ram_rd_data_maxdel
+  pop_ram_rd_data_maxdel__w1#[0] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_0 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_1 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_1](`in` = (pop_ram_rd_data >> 1) & 1)
+  mut pop_ram_rd_data_maxdel__w2 = pop_ram_rd_data_maxdel__w1
+  pop_ram_rd_data_maxdel__w2#[1] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_1 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_2 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_2](`in` = (pop_ram_rd_data >> 2) & 1)
+  mut pop_ram_rd_data_maxdel__w3 = pop_ram_rd_data_maxdel__w2
+  pop_ram_rd_data_maxdel__w3#[2] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_2 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_3 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_3](`in` = (pop_ram_rd_data >> 3) & 1)
+  mut pop_ram_rd_data_maxdel__w4 = pop_ram_rd_data_maxdel__w3
+  pop_ram_rd_data_maxdel__w4#[3] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_3 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_4 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_4](`in` = (pop_ram_rd_data >> 4) & 1)
+  mut pop_ram_rd_data_maxdel__w5 = pop_ram_rd_data_maxdel__w4
+  pop_ram_rd_data_maxdel__w5#[4] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_4 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_5 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_5](`in` = (pop_ram_rd_data >> 5) & 1)
+  mut pop_ram_rd_data_maxdel__w6 = pop_ram_rd_data_maxdel__w5
+  pop_ram_rd_data_maxdel__w6#[5] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_5 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_6 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_6](`in` = (pop_ram_rd_data >> 6) & 1)
+  mut pop_ram_rd_data_maxdel__w7 = pop_ram_rd_data_maxdel__w6
+  pop_ram_rd_data_maxdel__w7#[6] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_6 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_7 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_7](`in` = (pop_ram_rd_data >> 7) & 1)
+  mut pop_ram_rd_data_maxdel__w8 = pop_ram_rd_data_maxdel__w7
+  pop_ram_rd_data_maxdel__w8#[7] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_7 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_8 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_8](`in` = (pop_ram_rd_data >> 8) & 1)
+  mut pop_ram_rd_data_maxdel__w9 = pop_ram_rd_data_maxdel__w8
+  pop_ram_rd_data_maxdel__w9#[8] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_8 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_9 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_9](`in` = (pop_ram_rd_data >> 9) & 1)
+  mut pop_ram_rd_data_maxdel__w10 = pop_ram_rd_data_maxdel__w9
+  pop_ram_rd_data_maxdel__w10#[9] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_9 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_10 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_10](`in` = (pop_ram_rd_data >> 10) & 1)
+  mut pop_ram_rd_data_maxdel__w11 = pop_ram_rd_data_maxdel__w10
+  pop_ram_rd_data_maxdel__w11#[10] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_10 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_11 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_11](`in` = (pop_ram_rd_data >> 11) & 1)
+  mut pop_ram_rd_data_maxdel__w12 = pop_ram_rd_data_maxdel__w11
+  pop_ram_rd_data_maxdel__w12#[11] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_11 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_12 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_12](`in` = (pop_ram_rd_data >> 12) & 1)
+  mut pop_ram_rd_data_maxdel__w13 = pop_ram_rd_data_maxdel__w12
+  pop_ram_rd_data_maxdel__w13#[12] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_12 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_13 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_13](`in` = (pop_ram_rd_data >> 13) & 1)
+  mut pop_ram_rd_data_maxdel__w14 = pop_ram_rd_data_maxdel__w13
+  pop_ram_rd_data_maxdel__w14#[13] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_13 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_14 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_14](`in` = (pop_ram_rd_data >> 14) & 1)
+  mut pop_ram_rd_data_maxdel__w15 = pop_ram_rd_data_maxdel__w14
+  pop_ram_rd_data_maxdel__w15#[14] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_14 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_15 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_15](`in` = (pop_ram_rd_data >> 15) & 1)
+  mut pop_ram_rd_data_maxdel__w16 = pop_ram_rd_data_maxdel__w15
+  pop_ram_rd_data_maxdel__w16#[15] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_15 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_16 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_16](`in` = (pop_ram_rd_data >> 16) & 1)
+  mut pop_ram_rd_data_maxdel__w17 = pop_ram_rd_data_maxdel__w16
+  pop_ram_rd_data_maxdel__w17#[16] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_16 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_17 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_17](`in` = (pop_ram_rd_data >> 17) & 1)
+  mut pop_ram_rd_data_maxdel__w18 = pop_ram_rd_data_maxdel__w17
+  pop_ram_rd_data_maxdel__w18#[17] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_17 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_18 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_18](`in` = (pop_ram_rd_data >> 18) & 1)
+  mut pop_ram_rd_data_maxdel__w19 = pop_ram_rd_data_maxdel__w18
+  pop_ram_rd_data_maxdel__w19#[18] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_18 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_19 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_19](`in` = (pop_ram_rd_data >> 19) & 1)
+  mut pop_ram_rd_data_maxdel__w20 = pop_ram_rd_data_maxdel__w19
+  pop_ram_rd_data_maxdel__w20#[19] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_19 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_20 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_20](`in` = (pop_ram_rd_data >> 20) & 1)
+  mut pop_ram_rd_data_maxdel__w21 = pop_ram_rd_data_maxdel__w20
+  pop_ram_rd_data_maxdel__w21#[20] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_20 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_21 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_21](`in` = (pop_ram_rd_data >> 21) & 1)
+  mut pop_ram_rd_data_maxdel__w22 = pop_ram_rd_data_maxdel__w21
+  pop_ram_rd_data_maxdel__w22#[21] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_21 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_22 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_22](`in` = (pop_ram_rd_data >> 22) & 1)
+  mut pop_ram_rd_data_maxdel__w23 = pop_ram_rd_data_maxdel__w22
+  pop_ram_rd_data_maxdel__w23#[22] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_22 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_23 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_23](`in` = (pop_ram_rd_data >> 23) & 1)
+  mut pop_ram_rd_data_maxdel__w24 = pop_ram_rd_data_maxdel__w23
+  pop_ram_rd_data_maxdel__w24#[23] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_23 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_24 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_24](`in` = (pop_ram_rd_data >> 24) & 1)
+  mut pop_ram_rd_data_maxdel__w25 = pop_ram_rd_data_maxdel__w24
+  pop_ram_rd_data_maxdel__w25#[24] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_24 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_25 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_25](`in` = (pop_ram_rd_data >> 25) & 1)
+  mut pop_ram_rd_data_maxdel__w26 = pop_ram_rd_data_maxdel__w25
+  pop_ram_rd_data_maxdel__w26#[25] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_25 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_26 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_26](`in` = (pop_ram_rd_data >> 26) & 1)
+  mut pop_ram_rd_data_maxdel__w27 = pop_ram_rd_data_maxdel__w26
+  pop_ram_rd_data_maxdel__w27#[26] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_26 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_27 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_27](`in` = (pop_ram_rd_data >> 27) & 1)
+  mut pop_ram_rd_data_maxdel__w28 = pop_ram_rd_data_maxdel__w27
+  pop_ram_rd_data_maxdel__w28#[27] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_27 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_28 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_28](`in` = (pop_ram_rd_data >> 28) & 1)
+  mut pop_ram_rd_data_maxdel__w29 = pop_ram_rd_data_maxdel__w28
+  pop_ram_rd_data_maxdel__w29#[28] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_28 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_29 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_29](`in` = (pop_ram_rd_data >> 29) & 1)
+  mut pop_ram_rd_data_maxdel__w30 = pop_ram_rd_data_maxdel__w29
+  pop_ram_rd_data_maxdel__w30#[29] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_29 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_30 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_30](`in` = (pop_ram_rd_data >> 30) & 1)
+  mut pop_ram_rd_data_maxdel__w31 = pop_ram_rd_data_maxdel__w30
+  pop_ram_rd_data_maxdel__w31#[30] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_30 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_31 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_31](`in` = (pop_ram_rd_data >> 31) & 1)
+  mut pop_ram_rd_data_maxdel__w32 = pop_ram_rd_data_maxdel__w31
+  pop_ram_rd_data_maxdel__w32#[31] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_31 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_32 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_32](`in` = (pop_ram_rd_data >> 32) & 1)
+  mut pop_ram_rd_data_maxdel__w33 = pop_ram_rd_data_maxdel__w32
+  pop_ram_rd_data_maxdel__w33#[32] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_32 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_33 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_33](`in` = (pop_ram_rd_data >> 33) & 1)
+  mut pop_ram_rd_data_maxdel__w34 = pop_ram_rd_data_maxdel__w33
+  pop_ram_rd_data_maxdel__w34#[33] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_33 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_34 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_34](`in` = (pop_ram_rd_data >> 34) & 1)
+  mut pop_ram_rd_data_maxdel__w35 = pop_ram_rd_data_maxdel__w34
+  pop_ram_rd_data_maxdel__w35#[34] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_34 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_35 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_35](`in` = (pop_ram_rd_data >> 35) & 1)
+  mut pop_ram_rd_data_maxdel__w36 = pop_ram_rd_data_maxdel__w35
+  pop_ram_rd_data_maxdel__w36#[35] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_35 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_36 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_36](`in` = (pop_ram_rd_data >> 36) & 1)
+  mut pop_ram_rd_data_maxdel__w37 = pop_ram_rd_data_maxdel__w36
+  pop_ram_rd_data_maxdel__w37#[36] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_36 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_37 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_37](`in` = (pop_ram_rd_data >> 37) & 1)
+  mut pop_ram_rd_data_maxdel__w38 = pop_ram_rd_data_maxdel__w37
+  pop_ram_rd_data_maxdel__w38#[37] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_37 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_38 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_38](`in` = (pop_ram_rd_data >> 38) & 1)
+  mut pop_ram_rd_data_maxdel__w39 = pop_ram_rd_data_maxdel__w38
+  pop_ram_rd_data_maxdel__w39#[38] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_38 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_39 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_39](`in` = (pop_ram_rd_data >> 39) & 1)
+  mut pop_ram_rd_data_maxdel__w40 = pop_ram_rd_data_maxdel__w39
+  pop_ram_rd_data_maxdel__w40#[39] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_39 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_40 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_40](`in` = (pop_ram_rd_data >> 40) & 1)
+  mut pop_ram_rd_data_maxdel__w41 = pop_ram_rd_data_maxdel__w40
+  pop_ram_rd_data_maxdel__w41#[40] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_40 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_41 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_41](`in` = (pop_ram_rd_data >> 41) & 1)
+  mut pop_ram_rd_data_maxdel__w42 = pop_ram_rd_data_maxdel__w41
+  pop_ram_rd_data_maxdel__w42#[41] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_41 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_42 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_42](`in` = (pop_ram_rd_data >> 42) & 1)
+  mut pop_ram_rd_data_maxdel__w43 = pop_ram_rd_data_maxdel__w42
+  pop_ram_rd_data_maxdel__w43#[42] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_42 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_43 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_43](`in` = (pop_ram_rd_data >> 43) & 1)
+  mut pop_ram_rd_data_maxdel__w44 = pop_ram_rd_data_maxdel__w43
+  pop_ram_rd_data_maxdel__w44#[43] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_43 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_44 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_44](`in` = (pop_ram_rd_data >> 44) & 1)
+  mut pop_ram_rd_data_maxdel__w45 = pop_ram_rd_data_maxdel__w44
+  pop_ram_rd_data_maxdel__w45#[44] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_44 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_45 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_45](`in` = (pop_ram_rd_data >> 45) & 1)
+  mut pop_ram_rd_data_maxdel__w46 = pop_ram_rd_data_maxdel__w45
+  pop_ram_rd_data_maxdel__w46#[45] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_45 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_46 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_46](`in` = (pop_ram_rd_data >> 46) & 1)
+  mut pop_ram_rd_data_maxdel__w47 = pop_ram_rd_data_maxdel__w46
+  pop_ram_rd_data_maxdel__w47#[46] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_46 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_47 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_47](`in` = (pop_ram_rd_data >> 47) & 1)
+  mut pop_ram_rd_data_maxdel__w48 = pop_ram_rd_data_maxdel__w47
+  pop_ram_rd_data_maxdel__w48#[47] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_47 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_48 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_48](`in` = (pop_ram_rd_data >> 48) & 1)
+  mut pop_ram_rd_data_maxdel__w49 = pop_ram_rd_data_maxdel__w48
+  pop_ram_rd_data_maxdel__w49#[48] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_48 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_49 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_49](`in` = (pop_ram_rd_data >> 49) & 1)
+  mut pop_ram_rd_data_maxdel__w50 = pop_ram_rd_data_maxdel__w49
+  pop_ram_rd_data_maxdel__w50#[49] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_49 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_50 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_50](`in` = (pop_ram_rd_data >> 50) & 1)
+  mut pop_ram_rd_data_maxdel__w51 = pop_ram_rd_data_maxdel__w50
+  pop_ram_rd_data_maxdel__w51#[50] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_50 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_51 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_51](`in` = (pop_ram_rd_data >> 51) & 1)
+  mut pop_ram_rd_data_maxdel__w52 = pop_ram_rd_data_maxdel__w51
+  pop_ram_rd_data_maxdel__w52#[51] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_51 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_52 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_52](`in` = (pop_ram_rd_data >> 52) & 1)
+  mut pop_ram_rd_data_maxdel__w53 = pop_ram_rd_data_maxdel__w52
+  pop_ram_rd_data_maxdel__w53#[52] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_52 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_53 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_53](`in` = (pop_ram_rd_data >> 53) & 1)
+  mut pop_ram_rd_data_maxdel__w54 = pop_ram_rd_data_maxdel__w53
+  pop_ram_rd_data_maxdel__w54#[53] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_53 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_54 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_54](`in` = (pop_ram_rd_data >> 54) & 1)
+  mut pop_ram_rd_data_maxdel__w55 = pop_ram_rd_data_maxdel__w54
+  pop_ram_rd_data_maxdel__w55#[54] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_54 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_55 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_55](`in` = (pop_ram_rd_data >> 55) & 1)
+  mut pop_ram_rd_data_maxdel__w56 = pop_ram_rd_data_maxdel__w55
+  pop_ram_rd_data_maxdel__w56#[55] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_55 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_56 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_56](`in` = (pop_ram_rd_data >> 56) & 1)
+  mut pop_ram_rd_data_maxdel__w57 = pop_ram_rd_data_maxdel__w56
+  pop_ram_rd_data_maxdel__w57#[56] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_56 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_57 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_57](`in` = (pop_ram_rd_data >> 57) & 1)
+  mut pop_ram_rd_data_maxdel__w58 = pop_ram_rd_data_maxdel__w57
+  pop_ram_rd_data_maxdel__w58#[57] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_57 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_58 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_58](`in` = (pop_ram_rd_data >> 58) & 1)
+  mut pop_ram_rd_data_maxdel__w59 = pop_ram_rd_data_maxdel__w58
+  pop_ram_rd_data_maxdel__w59#[58] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_58 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_59 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_59](`in` = (pop_ram_rd_data >> 59) & 1)
+  mut pop_ram_rd_data_maxdel__w60 = pop_ram_rd_data_maxdel__w59
+  pop_ram_rd_data_maxdel__w60#[59] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_59 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_60 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_60](`in` = (pop_ram_rd_data >> 60) & 1)
+  mut pop_ram_rd_data_maxdel__w61 = pop_ram_rd_data_maxdel__w60
+  pop_ram_rd_data_maxdel__w61#[60] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_60 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_61 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_61](`in` = (pop_ram_rd_data >> 61) & 1)
+  mut pop_ram_rd_data_maxdel__w62 = pop_ram_rd_data_maxdel__w61
+  pop_ram_rd_data_maxdel__w62#[61] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_61 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_62 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_62](`in` = (pop_ram_rd_data >> 62) & 1)
+  mut pop_ram_rd_data_maxdel__w63 = pop_ram_rd_data_maxdel__w62
+  pop_ram_rd_data_maxdel__w63#[62] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_62 & 1
+  mut br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_63 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_63](`in` = (pop_ram_rd_data >> 63) & 1)
+  mut pop_ram_rd_data_maxdel__w64 = pop_ram_rd_data_maxdel__w63
+  pop_ram_rd_data_maxdel__w64#[63] = br_gate_cdc_maxdel_pop_ram_rd_data_maxdel_63 & 1
+  mut br_cdc_fifo_pop_ctrl = br_cdc_fifo_pop_ctrl_t::[name=br_cdc_fifo_pop_ctrl](clk = pop_clk, rst = pop_rst, pop_ready = pop_ready, ram_rd_data_valid = pop_ram_rd_data_valid, ram_rd_data = pop_ram_rd_data_maxdel__w64, push_count_gray = (br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e5 << 5) | (br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e4 << 4) | (br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e3 << 3) | (br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e2 << 2) | (br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e1 << 1) | br_cdc_fifo_gray_count_sync_push2pop.dst_count_gray.e0, reset_active_push = br_cdc_bit_toggle_reset_active_push)
+  pop_reset_active_pop = br_cdc_fifo_pop_ctrl.reset_active_pop
+  pop_pop_count_gray = br_cdc_fifo_pop_ctrl.pop_count_gray
+  pop_valid = br_cdc_fifo_pop_ctrl.pop_valid
+  pop_data = br_cdc_fifo_pop_ctrl.pop_data
+  pop_empty = br_cdc_fifo_pop_ctrl.empty
+  pop_items = br_cdc_fifo_pop_ctrl.items
+  pop_ram_rd_addr_valid = br_cdc_fifo_pop_ctrl.ram_rd_addr_valid
+  pop_ram_rd_addr = br_cdc_fifo_pop_ctrl.ram_rd_addr
+}

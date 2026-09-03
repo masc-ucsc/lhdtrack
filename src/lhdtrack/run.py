@@ -23,7 +23,7 @@ import platform
 import shutil
 import sys
 import traceback
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import ModuleType
@@ -191,16 +191,22 @@ class Runner:
         partial = self.root / "var" / "runs" / self.run_id / "partial.jsonl"
         partial.parent.mkdir(parents=True, exist_ok=True)
 
-        rows: list[Row] = []
+        rows_by_index: dict[int, Row] = {}
         with partial.open("a") as fh, ThreadPoolExecutor(max_workers=max(1, jobs_parallel)) as pool:
-            for row in pool.map(self._one, jobs):
-                rows.append(row)
+            futures = {pool.submit(self._one, job): i for i, job in enumerate(jobs)}
+            # Consume completion order so one pathological early job does not
+            # hide the progress (or lose the partial records) of later workers.
+            for future in as_completed(futures):
+                index = futures[future]
+                row = future.result()
+                rows_by_index[index] = row
                 doc = row.to_dict()
                 doc.pop("cmds", None)
                 fh.write(json.dumps(doc, sort_keys=True) + "\n")
                 fh.flush()
                 if on_done:
                     on_done(row)
+        rows = [rows_by_index[i] for i in range(len(jobs))]
         return self.gate(rows)
 
     def _one(self, job: Job) -> Row:
@@ -333,6 +339,24 @@ class Runner:
         else:
             row.passed = True
             row.status = "ok"
+
+        # Every synthesized netlist is expected to preserve its RTL.  A
+        # definitive refutation is therefore fatal regardless of which of the
+        # three netlist obligations found it; timeout and inconclusive remain
+        # coverage outcomes.
+        netlist_refutes = [
+            block for block in (row.lec_result, row.lec_aux_result, row.lec_verilog_result)
+            if block.get("verdict") == "refuted"
+            and block.get("obligation", "").endswith("-vs-netlist")
+        ]
+        if netlist_refutes:
+            row.passed = False
+            row.status = "failed"
+            detail = ", ".join(
+                f"{block.get('solver', 'solver')} {block.get('obligation', 'netlist')}"
+                for block in netlist_refutes
+            )
+            row.note = f"synthesized netlist refuted: {detail}"
         row.sta.pop("_", None)
 
         if job.flow in self.baseline_flows:

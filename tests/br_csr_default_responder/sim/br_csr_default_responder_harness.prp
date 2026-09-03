@@ -22,7 +22,7 @@ pub mod br_csr_default_responder_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, req_valid=lfsr#[0], req_write=lfsr#[1], req_addr=lfsr#[2..=17], req_wdata=lfsr#[18..=49], req_wstrb=lfsr#[50..=53], req_privileged=lfsr#[54], req_secure=lfsr#[55], req_abort=lfsr#[56])
+  const r = dut(clk=1, rst=rst, req_valid=lfsr#[0], req_write=lfsr#[1], req_addr=lfsr#[2..=17], req_wdata=lfsr#[18..=49], req_wstrb=lfsr#[50..=53], req_privileged=lfsr#[54], req_secure=lfsr#[55], req_abort=lfsr#[56])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.resp_valid

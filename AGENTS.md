@@ -39,6 +39,9 @@ constants. Test names are flat, unique, and match their manifest. A flow exposes
   any necessary log scan.
 - Keep gates in `Runner.gate`; flows measure and synthesis flows finish through
   `qor_endpoint.evaluate()`.
+- Synthesis flows pass `pass.abc.memory=true` and `register_max_bits=0`; `lec_netlist` must
+  map with the same knobs (plus the SDC-derived `delay`) as the synth flows, so the proved
+  netlist is the measured one.
 - Never compare across `host_class` or Liberty hashes. Report `baseline / measured` ratios,
   so higher is always better.
 - Limit headline geomeans to idiomatic, LEC-proven Pyrope tests. Do not weaken coverage or

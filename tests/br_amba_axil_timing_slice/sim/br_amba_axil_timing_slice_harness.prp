@@ -22,7 +22,7 @@ pub mod br_amba_axil_timing_slice_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, target_awaddr=lfsr#[0..=31], target_awprot=lfsr#[32..=34], target_awuser=lfsr#[35], target_awvalid=lfsr#[36], target_wdata=lfsr#[37..=63], target_wstrb=lfsr#[5..=8], target_wuser=lfsr#[9], target_wvalid=lfsr#[10], target_bready=lfsr#[11], target_araddr=lfsr#[12..=43], target_arprot=lfsr#[44..=46], target_aruser=lfsr#[47], target_arvalid=lfsr#[48], target_rready=lfsr#[49], init_awready=lfsr#[50], init_wready=lfsr#[51], init_bresp=lfsr#[52..=53], init_buser=lfsr#[54], init_bvalid=lfsr#[55], init_arready=lfsr#[56], init_rdata=lfsr#[57..=63], init_rresp=lfsr#[25..=26], init_ruser=lfsr#[27], init_rvalid=lfsr#[28])
+  const r = dut(clk=1, rst=rst, target_awaddr=lfsr#[0..=31], target_awprot=lfsr#[32..=34], target_awuser=lfsr#[35], target_awvalid=lfsr#[36], target_wdata=lfsr#[37..=63], target_wstrb=lfsr#[5..=8], target_wuser=lfsr#[9], target_wvalid=lfsr#[10], target_bready=lfsr#[11], target_araddr=lfsr#[12..=43], target_arprot=lfsr#[44..=46], target_aruser=lfsr#[47], target_arvalid=lfsr#[48], target_rready=lfsr#[49], init_awready=lfsr#[50], init_wready=lfsr#[51], init_bresp=lfsr#[52..=53], init_buser=lfsr#[54], init_bvalid=lfsr#[55], init_arready=lfsr#[56], init_rdata=lfsr#[57..=63], init_rresp=lfsr#[25..=26], init_ruser=lfsr#[27], init_rvalid=lfsr#[28])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.target_awready

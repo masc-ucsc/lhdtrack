@@ -47,6 +47,13 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 cycles = 1000000
 marker = "LHDTRACK-DONE"
 
+[sim.inputs]
+# NumFifos=2 but the encoded port is two bits wide. Values 2 and 3 are outside
+# the design contract and make packed-array out-of-range behavior tool-defined.
+push_fifo_id = 0
+# Only one write port may target a FIFO in a cycle.
+push_valid = 1
+
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

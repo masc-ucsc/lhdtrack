@@ -22,7 +22,7 @@ pub mod br_amba_apb_timing_slice_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, paddr_in=lfsr#[0..=31], psel_in=lfsr#[32], penable_in=lfsr#[33], pprot_in=lfsr#[34..=36], pstrb_in=lfsr#[37..=40], pwrite_in=lfsr#[41], pwdata_in=lfsr#[42..=63], prdata_in=lfsr#[10..=41], pready_in=lfsr#[42], pslverr_in=lfsr#[43])
+  const r = dut(clk=1, rst=rst, paddr_in=lfsr#[0..=31], psel_in=lfsr#[32], penable_in=lfsr#[33], pprot_in=lfsr#[34..=36], pstrb_in=lfsr#[37..=40], pwrite_in=lfsr#[41], pwdata_in=lfsr#[42..=63], prdata_in=lfsr#[10..=41], pready_in=lfsr#[42], pslverr_in=lfsr#[43])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.prdata_out

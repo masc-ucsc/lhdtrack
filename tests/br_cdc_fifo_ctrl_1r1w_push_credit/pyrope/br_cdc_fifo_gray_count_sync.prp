@@ -1,0 +1,43 @@
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
+
+pub mod br_cdc_fifo_gray_count_sync::[timecheck=false](src_clk:u1, src_rst:u1, src_count_gray:(e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1), dst_clk:u1, dst_rst:u1) -> (dst_count_gray:(e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
+  mut src_count_gray_maxdel:u6 = 0
+  src_count_gray_maxdel = 0sb?
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_0 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_0](`in` = src_count_gray.e0)
+  mut src_count_gray_maxdel__w1 = src_count_gray_maxdel
+  src_count_gray_maxdel__w1#[0] = br_gate_cdc_maxdel_src_count_gray_maxdel_0 & 1
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_1 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_1](`in` = src_count_gray.e1)
+  mut src_count_gray_maxdel__w2 = src_count_gray_maxdel__w1
+  src_count_gray_maxdel__w2#[1] = br_gate_cdc_maxdel_src_count_gray_maxdel_1 & 1
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_2 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_2](`in` = src_count_gray.e2)
+  mut src_count_gray_maxdel__w3 = src_count_gray_maxdel__w2
+  src_count_gray_maxdel__w3#[2] = br_gate_cdc_maxdel_src_count_gray_maxdel_2 & 1
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_3 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_3](`in` = src_count_gray.e3)
+  mut src_count_gray_maxdel__w4 = src_count_gray_maxdel__w3
+  src_count_gray_maxdel__w4#[3] = br_gate_cdc_maxdel_src_count_gray_maxdel_3 & 1
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_4 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_4](`in` = src_count_gray.e4)
+  mut src_count_gray_maxdel__w5 = src_count_gray_maxdel__w4
+  src_count_gray_maxdel__w5#[4] = br_gate_cdc_maxdel_src_count_gray_maxdel_4 & 1
+  mut br_gate_cdc_maxdel_src_count_gray_maxdel_5 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_count_gray_maxdel_5](`in` = src_count_gray.e5)
+  mut src_count_gray_maxdel__w6 = src_count_gray_maxdel__w5
+  src_count_gray_maxdel__w6#[5] = br_gate_cdc_maxdel_src_count_gray_maxdel_5 & 1
+  mut gen_cdc_sync_0_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_0_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = src_count_gray_maxdel__w6 & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e0` = gen_cdc_sync_0_br_cdc_bit_toggle_inst
+  mut gen_cdc_sync_1_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_1_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = (src_count_gray_maxdel__w6 >> 1) & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e1` = gen_cdc_sync_1_br_cdc_bit_toggle_inst
+  mut gen_cdc_sync_2_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_2_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = (src_count_gray_maxdel__w6 >> 2) & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e2` = gen_cdc_sync_2_br_cdc_bit_toggle_inst
+  mut gen_cdc_sync_3_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_3_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = (src_count_gray_maxdel__w6 >> 3) & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e3` = gen_cdc_sync_3_br_cdc_bit_toggle_inst
+  mut gen_cdc_sync_4_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_4_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = (src_count_gray_maxdel__w6 >> 4) & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e4` = gen_cdc_sync_4_br_cdc_bit_toggle_inst
+  mut gen_cdc_sync_5_br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=gen_cdc_sync_5_br_cdc_bit_toggle_inst](src_clk = src_clk, src_rst = src_rst, src_bit = (src_count_gray_maxdel__w6 >> 5) & 1, dst_clk = dst_clk, dst_rst = dst_rst)
+  mut `dst_count_gray__bpo.e5` = gen_cdc_sync_5_br_cdc_bit_toggle_inst
+  dst_count_gray.e5 = `dst_count_gray__bpo.e5`
+  dst_count_gray.e4 = `dst_count_gray__bpo.e4`
+  dst_count_gray.e3 = `dst_count_gray__bpo.e3`
+  dst_count_gray.e2 = `dst_count_gray__bpo.e2`
+  dst_count_gray.e1 = `dst_count_gray__bpo.e1`
+  dst_count_gray.e0 = `dst_count_gray__bpo.e0`
+}

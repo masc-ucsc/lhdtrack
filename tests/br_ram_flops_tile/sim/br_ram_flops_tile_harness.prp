@@ -22,7 +22,7 @@ pub mod br_ram_flops_tile_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(wr_clk=0, rd_clk=0, wr_rst=rst, rd_rst=rst, wr_valid=lfsr#[0], wr_addr=lfsr#[1..=4], wr_data=lfsr#[5..=36], wr_word_en=lfsr#[37], rd_addr_valid=lfsr#[38], rd_addr=lfsr#[39..=42])
+  const r = dut(wr_clk=1, rd_clk=1, wr_rst=rst, rd_rst=rst, wr_valid=lfsr#[0], wr_addr=lfsr#[1..=4], wr_data=lfsr#[5..=36], wr_word_en=lfsr#[37], rd_addr_valid=lfsr#[38], rd_addr=lfsr#[39..=42])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.rd_data_valid

@@ -1,0 +1,11 @@
+pub mod br_delay_nr_p1::[timecheck=false](clk:u1, `in`:u6) -> (out:u6@[], out_stages:u18@[]) {
+  reg stages___q:u18
+  mut stages:u18 = 0
+  stages = stages___q
+  mut stages__w1 = stages
+  stages__w1#[0..=5] = `in`
+  stages___q#[6..=11] = stages__w1#[0..=5]
+  stages___q#[12..=17] = stages__w1#[6..=11]
+  out = stages__w1#[12..=17]
+  out_stages = stages__w1
+}

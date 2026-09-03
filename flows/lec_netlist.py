@@ -4,9 +4,14 @@ A HARDER AND DIFFERENT OBLIGATION from `lec_lhd`/`lec_lgyosys`. Those compare
 two SOURCES that a human wrote to describe the same design, so the two sides
 look alike and a structural match often settles it. This compares behavioural
 RTL against a flat sea of mapped standard cells: no shared module boundaries,
-no shared signal names, registers turned into `sky130_fd_sc_hd__dfxtp_1`
-instances, and combinational logic rewritten by ABC into a completely different
-gate structure.
+no shared signal names, registers and memories turned into DFF cells
+(`dfxtp_1` / `DFFHQx4`) plus mux logic, and combinational logic rewritten by
+ABC into a completely different gate structure.
+
+The netlist proved here is the SAME kind the synthesis rows measure: `pass abc`
+runs with the synth flows' knobs (`memory=true`, `register_max_bits=0`,
+`flatten=true`) and the SDC-derived `delay`, so a verdict covers the netlist
+whose area and delay the report quotes rather than a differently mapped sibling.
 
 That makes it the check that actually exercises the equivalence engine, and it
 validates something nothing else here does: **that synthesis preserved the
@@ -109,14 +114,29 @@ def run(ctx: FlowContext) -> dict:
 
         raise FlowSkip(f"lhd cannot elaborate the Verilog reference: {_why(ref)}")
 
-    # 2. The implementation: that same design, synthesized and tech-mapped.
+    # 2. The implementation: that same design, synthesized and tech-mapped --
+    #    WITH THE SYNTH FLOWS' KNOBS. `memory=true` / `register_max_bits=0`
+    #    decide what the netlist even contains (bit-blasted memories, mapped
+    #    flops instead of native ones) and `delay` decides how ABC maps it, so
+    #    a proof over a netlist mapped with other settings says nothing about
+    #    the measured one (README: "`register=false` proving what
+    #    `register=true` refutes does NOT mean the netlist is fine").
     ctx.run("color", [lhd, "pass", "color", "synth", "--top", top, "lg:ref", "--workdir", "W"])
+    knobs = [
+        "--set", f"pass.abc.library={ctx.liberty[0]}",
+        "--set", "pass.abc.flatten=true",
+        "--set", "pass.abc.memory=true",
+        "--set", "pass.abc.register_max_bits=0",
+    ]
+    # The synth flows skip a test without an SDC, so there is no measured
+    # netlist to match then; the proof itself needs no delay target.
+    if ctx.sdc.exists():
+        knobs += ["--set", f"pass.abc.delay={ctx.abc_delay_ps()}"]
     map_wall = ctx.lec_timeout_s * 2 + 60
     mapped = ctx.run(
         "map",
         [lhd, "pass", "abc", "--top", top, "lg:ref", "--emit-dir", "lg:netlist",
-         "--workdir", "W", "--set", f"pass.abc.library={ctx.liberty[0]}",
-         "--set", "pass.abc.flatten=true"],
+         "--workdir", "W", *knobs],
         check=False,
         timeout=map_wall,
     )

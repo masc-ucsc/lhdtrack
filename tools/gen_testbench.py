@@ -83,6 +83,24 @@ def _slices(inputs: list[Port]) -> list[tuple[Port, int, int]]:
     return out
 
 
+def _input_constants(pl: PortList, values: dict[str, int] | None) -> dict[str, int]:
+    """Validate test-specific constants used to keep generated stimulus legal."""
+    constants = values or {}
+    inputs = {p.name: p for p in pl.inputs}
+    unknown = set(constants) - set(inputs)
+    if unknown:
+        raise HarnessError(f"{pl.top}: simulation constants name non-input ports {sorted(unknown)}")
+    for name, value in constants.items():
+        if not isinstance(value, int):
+            raise HarnessError(f"{pl.top}: simulation constant {name} must be an integer")
+        width = max(1, inputs[name].width)
+        if value < 0 or value >= 1 << width:
+            raise HarnessError(
+                f"{pl.top}: simulation constant {name}={value} does not fit u{width}"
+            )
+    return constants
+
+
 # ---------------------------------------------------------- SV harness ------
 class HarnessError(RuntimeError):
     """The generated harness would not faithfully exercise the DUT."""
@@ -119,10 +137,13 @@ def _check_connections(pl: PortList, connected: list[str]) -> None:
         )
 
 
-def harness_sv(pl: PortList, params: dict) -> str:
+def harness_sv(
+    pl: PortList, params: dict, input_constants: dict[str, int] | None = None
+) -> str:
     top = pl.top
     stim = _slices(pl.inputs)
     outs = pl.outputs
+    constants = _input_constants(pl, input_constants)
 
     decls = [f"  logic [{max(1, p.width)-1}:0] o_{p.name};" for p in outs]
 
@@ -144,9 +165,12 @@ def harness_sv(pl: PortList, params: dict) -> str:
         conns.append(f"    .{r.name}({'~rst' if r.active_low_reset else 'rst'})")
     for p, lo, hi in stim:
         width = max(1, p.width)
-        src = f"lfsr[{hi}:{lo}]" if width > 1 else f"lfsr[{lo}]"
-        if hi - lo + 1 < width:  # the window was clipped at bit 63
-            src = f"{{{width - (hi - lo + 1)}'d0, {src}}}"
+        if p.name in constants:
+            src = f"{width}'d{constants[p.name]}"
+        else:
+            src = f"lfsr[{hi}:{lo}]" if width > 1 else f"lfsr[{lo}]"
+            if hi - lo + 1 < width:  # the window was clipped at bit 63
+                src = f"{{{width - (hi - lo + 1)}'d0, {src}}}"
         conns.append(f"    .{p.name}({src})")
     for p in outs:
         conns.append(f"    .{p.name}(o_{p.name})")
@@ -216,10 +240,11 @@ endmodule
 
 
 # ------------------------------------------------------ Pyrope harness ------
-def harness_prp(pl: PortList) -> str:
+def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> str:
     top = pl.top
     stim = _slices(pl.inputs)
     outs = pl.outputs
+    constants = _input_constants(pl, input_constants)
 
     args = []
     # Auto-emitted Pyrope keeps clk/rst as explicit ports (lhd emits
@@ -228,14 +253,24 @@ def harness_prp(pl: PortList) -> str:
     # implicit and declares neither -- which is why this is driven by the port
     # list from the VERILOG, and why a hand-written module needs its harness
     # adjusted when it is promoted to `idiomatic`.
+    # The translated module keeps the Verilog clock as an explicit input, and
+    # the Pyrope parent advances one full clock period per `step`.  Binding the
+    # child clock high makes its flops commit once in that parent period, which
+    # matches the single low/eval/high/eval edge in the Verilator driver.
+    # Binding it low leaves every child register permanently frozen.
     for c in pl.clocks:
-        args.append(f"{pid(c.name)}=0")
+        args.append(f"{pid(c.name)}=1")
     for r in pl.resets:
         args.append(f"{pid(r.name)}=rst")
     for p, lo, hi in stim:
-        args.append(
-            f"{pid(p.name)}=lfsr#[{lo}..={hi}]" if hi > lo else f"{pid(p.name)}=lfsr#[{lo}]"
-        )
+        if p.name in constants:
+            args.append(f"{pid(p.name)}={constants[p.name]}")
+        else:
+            args.append(
+                f"{pid(p.name)}=lfsr#[{lo}..={hi}]"
+                if hi > lo
+                else f"{pid(p.name)}=lfsr#[{lo}]"
+            )
     call = f"  const r = dut({', '.join(args)})" if args else "  const r = dut()"
 
     # A single-output lambda auto-unwraps its result tuple; more than one keeps

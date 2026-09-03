@@ -1,0 +1,6 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_cdc_fifo_reset_overlap_checks::[timecheck=false](clk:u1, reset_active_push:u1, reset_active_pop:u1) -> () {
+  br_misc_unused::[name=br_misc_unused_reset_active_push](`in` = reset_active_push)
+  br_misc_unused::[name=br_misc_unused_reset_active_pop](`in` = reset_active_pop)
+}

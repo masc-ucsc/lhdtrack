@@ -1,0 +1,3 @@
+pub comb br_enc_bin2gray::[timecheck=false](bin:u6) -> (gray:u6) {
+  gray = bin#[1..=5] ^ bin
+}

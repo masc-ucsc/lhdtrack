@@ -1,0 +1,20 @@
+pub comb br_enc_gray2bin::[timecheck=false](gray:u6) -> (bin:(e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1)) {
+  mut `bin__bpo.e5` = (gray >> 5) & 1
+  mut `bin__bpo.e4` = (gray#[4..=5] ^ (gray#[4..=5] >> 1)) & 1
+  const t15 = gray#[3..=5] ^ (gray#[3..=5] >> 2)
+  mut `bin__bpo.e3` = (t15 ^ (t15 >> 1)) & 1
+  const t21 = gray#[2..=5] ^ (gray#[2..=5] >> 2)
+  mut `bin__bpo.e2` = (t21 ^ (t21 >> 1)) & 1
+  const t27 = gray#[1..=5] ^ (gray#[1..=5] >> 4)
+  const t29 = t27 ^ (t27 >> 2)
+  mut `bin__bpo.e1` = (t29 ^ (t29 >> 1)) & 1
+  const t35 = gray ^ (gray >> 4)
+  const t37 = t35 ^ (t35 >> 2)
+  mut `bin__bpo.e0` = (t37 ^ (t37 >> 1)) & 1
+  bin.e5 = `bin__bpo.e5`
+  bin.e4 = `bin__bpo.e4`
+  bin.e3 = `bin__bpo.e3`
+  bin.e2 = `bin__bpo.e2`
+  bin.e1 = `bin__bpo.e1`
+  bin.e0 = `bin__bpo.e0`
+}

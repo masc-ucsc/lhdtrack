@@ -22,7 +22,7 @@ pub mod br_apb_demux_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, upstream_paddr=lfsr#[0..=11], upstream_psel=lfsr#[12], upstream_penable=lfsr#[13], upstream_pprot=lfsr#[14..=16], upstream_pstrb=lfsr#[17..=20], upstream_pwrite=lfsr#[21], upstream_pwdata=lfsr#[22..=53], downstream_addr_base=lfsr#[54..=63], downstream_addr_size=lfsr#[38..=63], downstream_prdata=lfsr#[22..=63], downstream_pready=lfsr#[22..=25], downstream_pslverr=lfsr#[26..=29])
+  const r = dut(clk=1, rst=rst, upstream_paddr=lfsr#[0..=11], upstream_psel=lfsr#[12], upstream_penable=lfsr#[13], upstream_pprot=lfsr#[14..=16], upstream_pstrb=lfsr#[17..=20], upstream_pwrite=lfsr#[21], upstream_pwdata=lfsr#[22..=53], downstream_addr_base=lfsr#[54..=63], downstream_addr_size=lfsr#[38..=63], downstream_prdata=lfsr#[22..=63], downstream_pready=lfsr#[22..=25], downstream_pslverr=lfsr#[26..=29])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_prdata

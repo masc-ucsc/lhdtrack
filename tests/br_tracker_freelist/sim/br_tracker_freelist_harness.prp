@@ -22,7 +22,7 @@ pub mod br_tracker_freelist_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, alloc_receivable=lfsr#[0], dealloc_valid=lfsr#[1], dealloc_entry_id=lfsr#[2..=5])
+  const r = dut(clk=1, rst=rst, alloc_receivable=lfsr#[0], dealloc_valid=lfsr#[1], dealloc_entry_id=lfsr#[2..=5])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.alloc_sendable

@@ -1,0 +1,5 @@
+pub mod br_gate_cdc_sync::[timecheck=false](clk:u1, `in`:u1) -> (out:u1@[]) {
+  reg in_d:u3
+  in_d = (in_d#[0..=1] << 1) | (`in` & 1)
+  out = (in_d >> 2) & 1
+}

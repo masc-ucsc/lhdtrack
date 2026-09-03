@@ -13,6 +13,9 @@ WHAT IS HELD EQUAL to the LiveHD side (this is the whole premise):
   * the HARNESS  -- both drive sim/<top>_tb*, generated as a matched pair from
                     one port list, so identical work goes into both.
   * the GATE     -- both must print the same checksum.
+  * INITIAL STATE -- both use zero for otherwise-unspecified state and unknown
+                    literal bits.  The final checksum is the oracle; internal
+                    delta-cycle scheduling and VCD transitions need not match.
   * NO TRACING   -- no --trace here, sim.vcd=false there. A VCD writer inside
                     the measured interval turns a simulation benchmark into a
                     filesystem benchmark.
@@ -62,7 +65,8 @@ def run(ctx: FlowContext) -> dict:
     ]
     setup = [
         ctx.tool("verilator"), "--cc", "--exe", "--Mdir", str(vobj),
-        "--top-module", sim_top, "-Wno-fatal", "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
+        "--top-module", sim_top, "-Wno-fatal", "--x-initial", "0", "--x-assign", "0",
+        "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
         "-DBR_VERILATOR",
         "-I" + str(ctx.test.verilog_dir),
         *params,

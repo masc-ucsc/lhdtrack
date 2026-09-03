@@ -22,7 +22,7 @@ pub mod br_fifo_shared_pop_ctrl_credit_ext_arbiter_harness(rst:u1) -> (checksum:
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, pop_receiver_in_reset=rst, head_valid=lfsr#[0..=1], head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], pop_credit=lfsr#[14..=15], credit_initial_pop=lfsr#[16..=21], credit_withhold_pop=lfsr#[22..=27], data_ram_rd_data_valid=lfsr#[28..=29], data_ram_rd_data=lfsr#[30..=63], arb_grant=lfsr#[30..=33], arb_can_grant=lfsr#[34..=37])
+  const r = dut(clk=1, rst=rst, pop_receiver_in_reset=rst, head_valid=lfsr#[0..=1], head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], pop_credit=lfsr#[14..=15], credit_initial_pop=lfsr#[16..=21], credit_withhold_pop=lfsr#[22..=27], data_ram_rd_data_valid=lfsr#[28..=29], data_ram_rd_data=lfsr#[30..=63], arb_grant=lfsr#[30..=33], arb_can_grant=lfsr#[34..=37])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.head_ready

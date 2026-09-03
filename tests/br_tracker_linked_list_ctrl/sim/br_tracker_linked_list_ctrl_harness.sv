@@ -46,10 +46,10 @@ module br_tracker_linked_list_ctrl_harness (
   br_tracker_linked_list_ctrl dut (
     .clk(clk),
     .rst(rst),
-    .next_tail_valid(lfsr[3:0]),
+    .next_tail_valid(4'd0),
     .next_tail(lfsr[31:4]),
     .head_ready(lfsr[32]),
-    .ptr_ram_rd_data_valid(lfsr[33]),
+    .ptr_ram_rd_data_valid(1'd0),
     .ptr_ram_rd_data(lfsr[40:34]),
     .head_valid(o_head_valid),
     .head(o_head),

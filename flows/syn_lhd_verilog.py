@@ -47,8 +47,18 @@ def run(ctx: FlowContext) -> dict:
         # and LEC, but let ABC optimize paths that cross module boundaries just
         # as the Yosys baseline does.
         "--set", "pass.abc.flatten=true",
+        # A STRUCTURAL NETLIST, LIKE THE BASELINE'S. Bit-blast memories into
+        # DFF cells plus mux logic, and never keep a region's flops native.
+        # The yosys baseline maps every flop, so whatever lhd leaves
+        # behavioural is mapped later by qor_endpoint's normalization -- yosys's
+        # own dfflibmap+abc, with no -D -- and then measured as lhd's result.
+        # Measured 2026-09-01 on ASAP7: br_ram_flops (5808 register bits, over
+        # the 4096 default of register_max_bits) read 906 ps with its flops
+        # kept native against 360 ps mapped here (yosys 1292 ps); memory=true
+        # alone moved the 25 memory tests from 11/25 to 22/25 faster than yosys.
+        "--set", "pass.abc.memory=true",
+        "--set", "pass.abc.register_max_bits=0",
     ]
-
 
     # 1. Verilog -> lgraph, through slang. One filelist read, same sources and
     #    same -DSYNTHESIS the verilator side gets, so both front ends see
@@ -68,6 +78,7 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
     """color -> abc -> emit, shared with syn_lhd_pyrope's manual path."""
     lhd = ctx.tool("lhd")
     top = f"{ctx.top}.{ctx.top}"
+    map_wall = ctx.lec_timeout_s * 2 + 60
 
     ctx.run("color", [lhd, "pass", "color", "synth", "--top", top, f"lg:{lgraph}", "--workdir", "W"])
     ctx.run(
@@ -77,6 +88,7 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
             "--emit-dir", "lg:netlist", "--workdir", "W", "--result-json", "abc.json",
             *lib_args,
         ],
+        timeout=map_wall,
     )
     # There is no `pass cgen`. A gate-level Verilog emission comes from feeding
     # the mapped lg: library back through `lhd compile` with an
@@ -88,7 +100,11 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
     ctx.run(
         "emit",
         [lhd, "compile", "lg:netlist", "--top", top,
-         "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
+         # The graph is already technology-mapped. O0 is the typed LG->Verilog
+         # emitter path; the default O1 would run source cprop over internal
+         # mapped-region glue and can reject its deliberately boundary-sized
+         # pins before emission.
+         "--recipe", "O0", "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
 
     from qor_endpoint import emitted_verilog, evaluate

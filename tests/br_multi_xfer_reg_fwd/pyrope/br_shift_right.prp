@@ -3,7 +3,9 @@ pub comb br_shift_right::[timecheck=false](`in`:u64, shift:u1, fill:u32) -> (out
   stages = 0sb?
   mut stages__w1 = stages
   stages__w1#[0..=63] = `in`
-  mut _mux_2:u64 = if (shift & 1) != 0 { (fill << 32) | stages__w1#[0..=63]#[32..=63] } else { stages__w1#[0..=63] }
+  mut _mux_1:u64 = if (shift & 1) != 0 { (fill << 32) | stages__w1#[0..=63]#[32..=63] } else { stages__w1#[0..=63] }
+  mut stages__w2 = stages__w1
+  stages__w2#[64..=127] = _mux_1
   out_valid = unsigned(shift <= 1)
-  out = stages__w1#[64..=127]
+  out = stages__w2#[64..=127]
 }

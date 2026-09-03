@@ -96,13 +96,13 @@ pub mod br_apb_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_one
   mut downstream_pslverr_int__w4 = downstream_pslverr_int__w3
   downstream_pslverr_int__w4#[3] = downstream_pslverr.e3 & 1
   mut downstream_resp__w1 = downstream_resp
-  downstream_resp__w1#[102..=135] = ((downstream_pslverr_int__w4 >> 3) & 1) | (((downstream_pready_int__w4 >> 3) & 1) << 1) | (downstream_prdata_int__w4#[96..=127] << 2)
+  downstream_resp__w1#[0..=33] = (downstream_pslverr_int__w4 & 1) | ((downstream_pready_int__w4 & 1) << 1) | (downstream_prdata_int__w4#[0..=31] << 2)
   mut downstream_resp__w2 = downstream_resp__w1
-  downstream_resp__w2#[0..=33] = (downstream_pslverr_int__w4 & 1) | ((downstream_pready_int__w4 & 1) << 1) | (downstream_prdata_int__w4#[0..=31] << 2)
+  downstream_resp__w2#[34..=67] = ((downstream_pslverr_int__w4 >> 1) & 1) | (((downstream_pready_int__w4 >> 1) & 1) << 1) | (downstream_prdata_int__w4#[32..=63] << 2)
   mut downstream_resp__w3 = downstream_resp__w2
-  downstream_resp__w3#[34..=67] = ((downstream_pslverr_int__w4 >> 1) & 1) | (((downstream_pready_int__w4 >> 1) & 1) << 1) | (downstream_prdata_int__w4#[32..=63] << 2)
+  downstream_resp__w3#[68..=101] = ((downstream_pslverr_int__w4 >> 2) & 1) | (((downstream_pready_int__w4 >> 2) & 1) << 1) | (downstream_prdata_int__w4#[64..=95] << 2)
   mut downstream_resp__w4 = downstream_resp__w3
-  downstream_resp__w4#[68..=101] = ((downstream_pslverr_int__w4 >> 2) & 1) | (((downstream_pready_int__w4 >> 2) & 1) << 1) | (downstream_prdata_int__w4#[64..=95] << 2)
+  downstream_resp__w4#[102..=135] = ((downstream_pslverr_int__w4 >> 3) & 1) | (((downstream_pready_int__w4 >> 3) & 1) << 1) | (downstream_prdata_int__w4#[96..=127] << 2)
   mut gen_decode_error_br_mux_onehot_resp = br_mux_onehot::[name=gen_decode_error_br_mux_onehot_resp](select = ((unsigned((upstream_psel != 0) and (not (select_onehot != 0))) & 1) << 4) | downstream_req_valid_int__w1, `in` = (3 << 136) | downstream_resp__w4#[0..=135])
   mut `upstream_resp.rdata` = gen_decode_error_br_mux_onehot_resp#[2..=33]
   mut `upstream_resp.ready` = (gen_decode_error_br_mux_onehot_resp >> 1) & 1

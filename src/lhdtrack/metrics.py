@@ -31,6 +31,36 @@ from pathlib import Path
 _RSS_TO_KB = 1 if platform.system() == "Linux" else 1024
 
 
+def _linux_descendants(pid: int) -> list[int]:
+    """Snapshot every descendant of *pid* without invoking another process.
+
+    A tool is allowed to create a new session of its own. Such a worker escapes
+    the process-group watchdog and used to survive a timed-out synthesis run as
+    an orphan consuming a full CPU. Linux exposes the exact child relation in
+    procfs; other supported hosts retain the normal process-group cleanup.
+    """
+    if platform.system() != "Linux":
+        return []
+    found: list[int] = []
+    pending = [pid]
+    while pending:
+        parent = pending.pop()
+        try:
+            tasks = list(Path(f"/proc/{parent}/task").iterdir())
+        except OSError:
+            continue
+        for task in tasks:
+            try:
+                children = (task / "children").read_text().split()
+            except OSError:
+                continue
+            for value in children:
+                child = int(value)
+                found.append(child)
+                pending.append(child)
+    return found
+
+
 @dataclass
 class Measured:
     """One timed, memory-tracked subprocess invocation."""
@@ -122,9 +152,23 @@ def measure(
         def kill_process_group() -> None:
             timed_out.set()
             try:
+                # Freeze the original group before taking the descendant
+                # snapshot so it cannot fork a last worker between discovery
+                # and the kill. Detached descendants are killed explicitly;
+                # the ordinary group kill remains the portable fast path.
+                os.killpg(proc.pid, signal.SIGSTOP)
+            except ProcessLookupError:
+                return
+            descendants = _linux_descendants(proc.pid)
+            try:
                 os.killpg(proc.pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
+            for child in reversed(descendants):
+                try:
+                    os.kill(child, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
 
         watchdog = threading.Timer(timeout, kill_process_group) if timeout else None
         if watchdog:

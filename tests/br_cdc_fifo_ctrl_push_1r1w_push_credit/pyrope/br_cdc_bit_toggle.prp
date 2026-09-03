@@ -1,0 +1,8 @@
+const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
+const br_gate_cdc_sync_t = import("br_gate_cdc_sync.br_gate_cdc_sync")
+
+pub mod br_cdc_bit_toggle::[timecheck=false](src_clk:u1, src_rst:u1, src_bit:u1, dst_clk:u1, dst_rst:u1) -> (dst_bit:u1@[]) {
+  mut br_gate_cdc_maxdel_src_bit_internal_maxdel = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_bit_internal_maxdel](`in` = src_bit)
+  mut br_gate_cdc_sync = br_gate_cdc_sync_t::[name=br_gate_cdc_sync](clk = dst_clk, `in` = br_gate_cdc_maxdel_src_bit_internal_maxdel)
+  dst_bit = br_gate_cdc_sync
+}

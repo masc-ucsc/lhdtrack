@@ -182,10 +182,10 @@ hard design cannot stall a nightly.
 
 `lec_netlist` checks both source descriptions against the tech-mapped netlist synthesis produced
 — **very different Verilog**: no shared module boundaries, no shared signal
-names, registers turned into `sky130_fd_sc_hd__dfxtp_1` instances, combinational
-logic rewritten by ABC into an unrecognisable gate structure. Comparing two
-sources a human wrote is often settled structurally; this is what actually
-exercises the equivalence engine.
+names, registers and memories turned into DFF cells (`dfxtp_1` / `DFFHQx4`)
+plus mux logic, combinational logic rewritten by ABC into an unrecognisable
+gate structure. Comparing two sources a human wrote is often settled
+structurally; this is what actually exercises the equivalence engine.
 
 One mapped design therefore carries three independently named obligations:
 
@@ -253,6 +253,11 @@ them from the same Liberty the netlist was mapped against. Without them every
 standard cell is an opaque black box and the proof degrades to UNKNOWN, which
 would look like a solver limitation rather than a missing input.
 
+The netlist checked here is the SAME kind the synthesis rows measure: `pass abc`
+runs with the synth flows' knobs (`memory=true`, `register_max_bits=0`,
+`flatten=true`) and the SDC-derived `delay`, so a verdict covers the netlist
+whose area and delay the report quotes rather than a differently mapped sibling.
+
 The two obligations are reported in **separate sections** and never averaged
 together: a test whose Pyrope is refuted against its Verilog can still have its
 netlist proven against that same Verilog, which correctly says "synthesis is
@@ -292,21 +297,24 @@ hope.
 
 ## The two timers must have seen the same circuit
 
-`lhd pass opentimer` runs over the **raw** `lg:` netlist, whose registers are
-still behavioural — so LiveHD's own timer never sees them. OpenSTA runs over
-the **normalized** netlist, where those registers are real cells.
+`lhd pass opentimer` runs over the **raw** `lg:` netlist. That netlist is now
+structural (the flows ask for `pass.abc.memory=true` and `register_max_bits=0`),
+so the two timers see the same registers; they still differ when
 
-On a combinational design normalization adds nothing and the two agree closely
-(`add`: OpenTimer 1.8893 ns vs OpenSTA 1.8731 ns, **0.86% apart**). On a design
-that is mostly registers they are not timing the same circuit at all:
-`br_delay`'s raw netlist contains **zero** flip-flops, so every endpoint
-OpenTimer reports is a single clock buffer and its "critical path" is 0.052 ns
-against 0.826 ns for the same design with its registers present.
+- **(a)** `pass color synth` produced more than one region — `flatten=true` then
+  emits a wrapper plus `__c<n>` modules, and OpenTimer cuts the wrapper's native
+  glue into zero-arrival boundaries (`native-comb-boundary` in its diagnostics;
+  `br_amba_axi_shrinker` read OpenTimer 358 ps against OpenSTA 1676 ps that
+  way), or
+- **(b)** a memory was refused by mem_lower and stays behavioural, so OpenTimer
+  never saw the logic normalization mapped for OpenSTA.
 
-That is a netlist difference, not a timer error. `qor_endpoint` therefore
-computes the correlation **only when normalization did not change the register
-count**, and otherwise records `delta_note` naming what each timer saw. Blaming
-a 97% timer disagreement on the timer would have been a confident wrong answer.
+`qor_endpoint` computes `delta_pct` only when neither holds and otherwise
+records `delta_note`. On a combinational design the two agree closely (`add`:
+OpenTimer 1.8893 ns vs OpenSTA 1.8731 ns, **0.86% apart**); on a structural
+sequential one normalization changes nothing but the odd duplicate flop yosys
+merges, recorded as `merged_flops` (`br_fifo_flops`: 1111 → 1110). Blaming a
+78% timer disagreement on the timer would have been a confident wrong answer.
 
 ## Timing fidelity is a first-class column
 
@@ -620,7 +628,8 @@ rediscovered one test at a time:
 | `mut a:[] = nil` + `++=` | rejected — an array needs a sized element type at declaration |
 | module import | `import("file.entity")`; `import("file")` yields a value that cannot be called |
 | netlist emission | no `pass cgen`; feed the `lg:` library back through `lhd compile --emit-dir verilog:` |
-| emitted netlist | **hybrid** — mapped combinational cells, but flops stay behavioural `always @(posedge clk)` |
+| emitted netlist | **structural** when `pass.abc.memory=true register_max_bits=0` — combinational cells, `DFF*` cells for flops and bit-blasted memories; behavioural only for memories mem_lower refuses (ROM with init, whole-array update/reset, negedge, type==2, read_all) and for `memory=false` |
+| memories, native flops | `pass.abc.memory` defaults to **false** (memories stay behavioural); `register_max_bits` defaults to **4096** and silently keeps a bigger region's flops native — `br_ram_flops` (5808 bits) then falls back to yosys `dfflibmap+abc` with no `-D`: 906 ps against 360 ps mapped by lhd (ASAP7) |
 | Liberty, one-shot | `--set synth.liberty=PATH` (it sets both `pass.abc` and `pass.opentimer`) |
 | Liberty, manual pass | `--set pass.abc.library=PATH` — the one-shot **rejects** this spelling |
 | Liberty default | `$HAGENT_TECH_DIR/sky130_...` — **not** whatever the caller asked for |
@@ -628,15 +637,16 @@ rediscovered one test at a time:
 
 Two of these shape the flows directly.
 
-**The hybrid netlist is normalized before it is measured.** A LiveHD netlist is
-passed through yosys `proc` → `techmap` → `dfflibmap` → `abc`, which maps only
-what LiveHD left behavioural: cells already read from the Liberty are
-blackboxes, so the combinational logic LiveHD mapped is a boundary `abc` does
-not re-optimize. The result is structural, which means **one counter
-(`yosys stat`) and one timer (OpenSTA) for all three flows**. What normalization
-adds is the register implementation LiveHD did not map itself — which the yosys
-baseline already counts, so this is what makes them comparable rather than what
-makes them differ. Such rows are tagged `norm` in the report.
+**Normalization is a safety net, not the register implementation.** LiveHD's
+flows map flops and memories themselves; `qor_endpoint._normalize` still runs
+yosys `proc` → `memory_map` → `techmap` → `dfflibmap` → `abc` so that whatever a
+flow left behavioural (a refused memory, a `memory=false` run) is mapped and
+**one counter (`yosys stat`) and one timer (OpenSTA) serve all three flows**.
+Cells already read from the Liberty are blackboxes, so the logic LiveHD mapped
+is a boundary `abc` does not re-optimize. On a fully structural netlist it only
+merges duplicate flops (`opt -fast`) and drops the `_const0_/_const1_` models;
+the row records `merged_flops`. Rows where a memory stayed behavioural are
+tagged `norm`.
 
 **The Liberty default is a trap.** `pass.abc.library` falls back to
 `$HAGENT_TECH_DIR`, so a run asking for ASAP7 silently mapped sky130 and only

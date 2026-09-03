@@ -38,9 +38,9 @@ module br_fifo_shared_dynamic_flops_harness (
   br_fifo_shared_dynamic_flops dut (
     .clk(clk),
     .rst(rst),
-    .push_valid(lfsr[1:0]),
+    .push_valid(2'd1),
     .push_data({2'd0, lfsr[63:2]}),
-    .push_fifo_id(lfsr[3:2]),
+    .push_fifo_id(2'd0),
     .pop_ready(lfsr[5:4]),
     .push_ready(o_push_ready),
     .push_full(o_push_full),

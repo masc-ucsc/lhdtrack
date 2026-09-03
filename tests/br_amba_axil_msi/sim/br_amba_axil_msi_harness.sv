@@ -45,7 +45,7 @@ module br_amba_axil_msi_harness (
     .irq(lfsr[3:0]),
     .msi_dest_addr(lfsr[35:4]),
     .msi_enable(lfsr[39:36]),
-    .msi_dest_idx(lfsr[43:40]),
+    .msi_dest_idx(4'd0),
     .device_id_per_irq({44'd0, lfsr[63:44]}),
     .event_id_per_irq({44'd0, lfsr[63:44]}),
     .throttle_en(lfsr[44]),

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 from lhdtrack.context import FlowContext, FlowError
@@ -69,39 +70,48 @@ def evaluate(
 ) -> dict:
     """Area + cells, then both timers. Returns the `qor` and `sta` blocks.
 
-    AREA COMES FROM WHOEVER MAPPED THE DESIGN. The original plan ran
-    `yosys stat -liberty` over every flow's netlist so one counter served all
-    three. That does not survive contact with LiveHD: its Verilog emission is a
-    HYBRID -- combinational logic mapped to sky130 cells, but registers still
-    written as `always @(posedge clk)` -- so yosys sees behavioural RTL, counts
-    no flops, and reports an area for a design it has not actually mapped.
+    ONE COUNTER, ONE NETLIST SHAPE. LiveHD's emission is structural when the
+    flows ask for `pass.abc.memory=true` / `register_max_bits=0` (they do):
+    combinational cells, and DFF cells for both flops and bit-blasted
+    memories. The hybrid case -- a memory written behaviourally next to mapped
+    cells -- survives only for the memories mem_lower refuses (ROM with init,
+    whole-array update/reset, negedge, type==2, read_all) and for a
+    `memory=false` run, which is why one counter (`yosys stat -liberty`) still
+    runs over a NORMALIZED file for every flow rather than over the raw
+    emission: whatever was left behavioural is mapped first, so an area is
+    never reported for a design yosys has not actually seen mapped.
 
-    So each flow's area comes from its own mapper, and every row records
-    `area_source`. Both read the SAME Liberty, which is the part that has to
-    match; what differs is which program sums it, and the report says which.
+    Every row records `area_source`; LiveHD's own `pass abc` total travels
+    beside it as `lhd_area_um2` (combinational cells only -- see _lhd_qor).
+    Both read the SAME Liberty, which is the part that has to match.
     """
-    # NORMALIZE FIRST. LiveHD instantiates real cells for combinational logic
-    # but leaves registers as `always @(posedge clk)`. yosys `stat` therefore
-    # counts no flops, and OpenSTA cannot link the design at all.
-    #
-    # So a LiveHD netlist is passed through yosys `proc` + `dfflibmap` + `abc`,
-    # which maps ONLY what LiveHD left behavioural: cells already read from the
-    # Liberty are blackboxes, so the combinational logic LiveHD mapped is a
-    # boundary abc does not re-optimize. What gets added is the register
-    # implementation LiveHD did not map itself -- which is exactly what the
-    # yosys baseline already counts, so this is what makes the two comparable
-    # rather than what makes them differ.
-    structural, normalized, raw_flops = netlist, False, 0
+    # NORMALIZE FIRST -- a safety net, not the register implementation. With
+    # memory=true / register_max_bits=0 LiveHD maps its own flops and memories,
+    # so on the common path yosys `proc -> memory_map -> techmap -> dfflibmap
+    # -> abc` finds nothing behavioural: it merges duplicate flops (`opt -fast`,
+    # br_fifo_flops 1111 -> 1110) and folds the `_const0_/_const1_` models
+    # away. What it still catches is a memory mem_lower refused (kept as a
+    # `cgen_memory_*` include or an inline `always` block) and a memory=false
+    # run: cells already read from the Liberty are blackboxes, so the logic
+    # LiveHD mapped is a boundary abc does not re-optimize, and only the
+    # leftover is mapped -- which the yosys baseline counts anyway, so this
+    # keeps the rows comparable rather than making them differ.
+    raw, structural, normalized = None, netlist, False
     if netlist is not None and qor_json is not None:
-        # Counted BEFORE normalization; on the yosys netlist normalization never
-        # runs, so reading the whole file there was pure work for a number the
-        # comparison below short-circuits past.
-        raw_flops = _count_flops(netlist)
+        # Scanned BEFORE normalization: whether the raw emission was already
+        # structural decides below whether the two timers saw one circuit. On
+        # the yosys netlist normalization never runs and the scan is skipped.
+        raw = _scan_netlist(netlist)
         structural = _normalize(ctx, netlist)
         normalized = True
 
     qor = _area(ctx, structural) if structural is not None else {}
-    qor["normalized"] = normalized
+    # `normalized` (the report's `norm` tag) marks a row where normalization
+    # had behavioural logic to MAP -- a refused memory, a memory=false run --
+    # not merely that it ran: on a structural emission it only merges flops.
+    qor["normalized"] = normalized and raw is not None and not raw.structural
+    if raw is not None:
+        qor["raw_structural"] = raw.structural
     if qor_json is not None and qor_json.exists():
         # LiveHD's own accounting, kept beside the normalized number rather
         # than instead of it: the gap between them IS the register logic.
@@ -112,11 +122,11 @@ def evaluate(
     # row still carries area and LiveHD's own timing -- it just cannot carry the
     # correlation, and says so rather than leaving a blank that reads like the
     # two timers agreed.
-    # OpenSTA needs a STRUCTURAL netlist. LiveHD's hybrid emission has
-    # behavioural flops, which OpenSTA cannot link, so the independent
-    # reference is only available on the yosys netlist today. Recorded as a
-    # note rather than a blank -- an absent correlation must not read like an
-    # agreement.
+    # OpenSTA needs a STRUCTURAL netlist, and gets one: the raw LiveHD
+    # emission already is one on the common path, and normalization
+    # guarantees it for the refused-memory / memory=false leftovers. An
+    # unstaged sta is recorded as a note rather than a blank -- an absent
+    # correlation must not read like an agreement.
     if ctx.tc.has("sta") and structural is not None:
         out["sta"].update(_opensta(ctx, structural))
     else:
@@ -131,41 +141,78 @@ def evaluate(
     ot, st = out["sta"].get("opentimer_ns"), out["sta"].get("opensta_ns")
     if ot and st:
         # THE TWO TIMERS MUST HAVE SEEN THE SAME CIRCUIT. OpenTimer runs as an
-        # lhd pass over the RAW lg: netlist, whose registers are still
-        # behavioural and therefore invisible to it; OpenSTA runs over the
-        # NORMALIZED one, where those registers are real cells. On a design
-        # that is mostly registers, the raw netlist's longest path is a single
-        # clock buffer -- br_delay measured 0.052 ns that way, against 1.545 ns
-        # for the same design with its flops present.
+        # lhd pass over the RAW lg: netlist; OpenSTA over the normalized
+        # Verilog. The raw emission is structural now, so both see the same
+        # registers and the correlation is computed whenever the raw netlist
+        # is fully structural: normalization then changed nothing but the odd
+        # duplicate flop yosys merged, recorded as `merged_flops` rather than
+        # used as a reason to withhold the column.
         #
-        # That is a netlist difference, not a timer error, and reporting it as
-        # a 97% timer disagreement blames the wrong thing. So the correlation
-        # is only computed when normalization changed nothing.
-        # BOTH counted the same way. Comparing this counter against yosys's
-        # `num_cells` would differ by one on a design where nothing changed --
-        # the question is whether normalization altered the circuit, and only
-        # one counter applied to both files can answer it.
-        norm_flops = _count_flops(structural) if structural is not None else 0
+        # Two cases remain where they are NOT timing the same circuit. Both
+        # are netlist differences, not timer errors, and each records a
+        # `delta_note` naming what happened instead of a `delta_pct` the
+        # gate would fail:
+        #   (a) `pass color synth` produced more than one region. `flatten=true`
+        #       then still emits a wrapper plus `__c<n>` modules, and
+        #       pass.opentimer cuts the wrapper's native glue into zero-arrival
+        #       boundaries (`native-comb-boundary` in its diagnostics):
+        #       br_amba_axi_shrinker read OpenTimer 358 ps against OpenSTA
+        #       1676 ps that way -- a 78% "timer disagreement" that blames the
+        #       wrong thing.
+        #   (b) a memory mem_lower refused stayed behavioural, so OpenTimer
+        #       never saw the logic normalization mapped for OpenSTA.
+        # BOTH files are counted by the same scanner: the question is whether
+        # normalization altered the circuit, and only one counter applied to
+        # both can answer it.
+        norm_flops = _scan_netlist(structural).flops if structural is not None else 0
+        cut = out["sta"].get("opentimer_native_cut") or 0
+        # A purely combinational raw netlist (no flop cells, nothing
+        # behavioural) is comparable too -- there is nothing normalization
+        # could have added -- provided the normalized file has no flops either.
+        comparable = raw is None or (
+            raw.structural and (raw.flops > 0 or norm_flops == 0)
+        )
         if out["sta"].get("opentimer_unit_mismatch"):
             out["sta"]["delta_note"] = (
                 "not comparable: " + out["sta"]["opentimer_unit_mismatch"]
             )
-        elif not normalized or raw_flops == norm_flops:
-            out["sta"]["delta_pct"] = round(abs(ot - st) / max(st, 1e-9) * 100.0, 2)
-        else:
+        elif cut:
             out["sta"]["delta_note"] = (
-                f"not comparable: OpenTimer saw {raw_flops} registers in lhd's raw "
-                f"netlist, OpenSTA saw {norm_flops} after normalization -- lhd's "
-                f"registers are behavioural, so its timer never sees them"
+                f"not comparable: OpenTimer cut {cut} native combinational node(s) "
+                "into zero-arrival boundaries (multi-region wrapper glue, or a "
+                "preserved native SCC), so its delay is not an end-to-end score"
             )
-            out["sta"]["opentimer_flops"] = raw_flops
+        elif not normalized or comparable:
+            out["sta"]["delta_pct"] = round(abs(ot - st) / max(st, 1e-9) * 100.0, 2)
+            if raw is not None and raw.flops != norm_flops:
+                # yosys `opt -fast` merged duplicate flops lhd emitted; still
+                # one circuit, so the correlation stands and the count is kept.
+                out["sta"]["merged_flops"] = raw.flops - norm_flops
+        else:
+            why = (
+                f"is not fully structural ({raw.describe()})" if not raw.structural
+                else f"has no flop cells while the normalized one has {norm_flops}"
+            )
+            out["sta"]["delta_note"] = (
+                f"not comparable: lhd's raw netlist {why}, so OpenTimer never saw "
+                f"the logic OpenSTA timed after normalization"
+            )
+            out["sta"]["opentimer_flops"] = raw.flops
             out["sta"]["opensta_flops"] = norm_flops
     return out
 
 
 # ---------------------------------------------------------------- area ------
 def _lhd_qor(path: Path) -> dict:
-    """LiveHD's own mapping report -- `pass abc` writes it against the same .lib."""
+    """LiveHD's own mapping report -- `pass abc` writes it against the same .lib.
+
+    `total.area` is COMBINATIONAL ONLY: pass.abc sums the cells ABC mapped and
+    excludes the DFF cells it instantiated for flops and bit-blasted memories
+    (br_ram_flops on ASAP7: lhd_area 1343.6 vs yosys-stat 3095 = 1802
+    sequential + 1293 combinational). Compare `lhd_area_um2` against
+    `comb_area_um2`, never against `area_um2`: the gap to the latter is the
+    register logic, not a mapper disagreement.
+    """
     try:
         total = json.loads(path.read_text()).get("total", {})
     except (OSError, json.JSONDecodeError):
@@ -182,24 +229,65 @@ def _lhd_qor(path: Path) -> dict:
 _CELL_INST = re.compile(r"^\s*([A-Za-z_][\w$]*)\s+[A-Za-z_\\][\w$\\.\[\]]*\s*\(", re.M)
 _FLOP_CELL = re.compile(r"(dff|dfxtp|_df|latch|\bdl[a-z]*)", re.I)
 _NOT_A_CELL = {"module", "endmodule", "function", "task", "always", "assign"}
+# What LiveHD leaves BEHAVIOURAL: a clocked `always @(posedge clk)` block (a
+# native register, a refused memory kept inline) and cgen's memory wrappers
+# (`include "cgen_memory_*.v"`). Either one means yosys has logic to map in
+# normalization that OpenTimer never saw. `always_comb` is deliberately NOT
+# counted: cgen wraps plain wiring (bit-selects, concatenations, constant
+# shifts) in it on every emission, the purely combinational `add` included,
+# and real native logic inside one is what pass.opentimer's own
+# `native-comb-boundary` diagnostic reports.
+_ALWAYS_BLOCK = re.compile(r"^\s*always(?:_ff|_latch)?\s*(?:@|begin|$)", re.M)
+_INCLUDE = re.compile(r"^\s*`include\b", re.M)
 
 
-def _count_flops(netlist: Path) -> int:
-    """Flip-flop INSTANCES in a netlist.
+@dataclass(frozen=True)
+class NetlistScan:
+    """What one Verilog emission is made of, as far as comparability cares."""
 
-    This, not the total cell count, is what decides whether two timers saw the
-    same circuit. Normalization legitimately drops the odd buffer even on a
-    purely combinational design, so an exact cell-count match is too strict --
-    but if one netlist has no registers and the other does, they are different
-    circuits and their timings mean different things.
+    flops: int     # flip-flop / latch cell INSTANCES
+    always: int    # clocked `always @(...)` blocks (never `always_comb`)
+    includes: int  # `include directives (cgen memory wrappers)
+
+    @property
+    def structural(self) -> bool:
+        """Nothing behavioural: only cell instances and assigns.
+
+        Flop cells are counted separately rather than required here, because
+        a purely combinational design has none and is still structural; a
+        design whose flops were all kept native shows up in `always`.
+        """
+        return self.always == 0 and self.includes == 0
+
+    def describe(self) -> str:
+        return (
+            f"{self.flops} flop cells, {self.always} clocked always blocks, "
+            f"{self.includes} includes"
+        )
+
+
+def _scan_netlist(netlist: Path) -> NetlistScan:
+    """Count flop instances and behavioural leftovers in one netlist.
+
+    The flop count, not the total cell count, is what decides whether two
+    timers saw the same circuit: normalization legitimately drops the odd
+    buffer even on a purely combinational design, so an exact cell-count
+    match is too strict. The `always`/`include` counts say whether the raw
+    emission was structural at all -- if it was, the two files describe one
+    circuit and a differing flop count is only yosys merging duplicates.
     """
     try:
         text = netlist.read_text(errors="replace")
     except OSError:
-        return 0
-    return sum(
+        return NetlistScan(0, 0, 0)
+    flops = sum(
         1 for m in _CELL_INST.finditer(text)
         if m.group(1) not in _NOT_A_CELL and _FLOP_CELL.search(m.group(1))
+    )
+    return NetlistScan(
+        flops=flops,
+        always=len(_ALWAYS_BLOCK.findall(text)),
+        includes=len(_INCLUDE.findall(text)),
     )
 
 
@@ -208,8 +296,12 @@ def _normalize(ctx: FlowContext, netlist: Path) -> Path:
 
     `read_liberty -lib` makes every already-instantiated cell an opaque
     blackbox, so `abc` cannot reach through one; it only maps the `$_`-gates
-    that `proc` created from the behavioural register block. The result is a
-    fully structural netlist that `stat` can count and OpenSTA can link.
+    that `proc` created from a behavioural block -- a memory mem_lower
+    refused, or every register of a `memory=false` run. On the structural
+    emission the synth flows ask for there is nothing to map: `opt -fast`
+    merges duplicate flops and the `_const0_/_const1_` models fold away.
+    Either way the result is a fully structural netlist that `stat` can count
+    and OpenSTA can link.
     """
     out = ctx.work / "structural.v"
     # LiveHD's mapped LGraph vocabulary has explicit constant-source cells.
@@ -222,7 +314,9 @@ def _normalize(ctx: FlowContext, netlist: Path) -> Path:
         "module _const1_(output z); assign z = 1'b1; endmodule\n",
     )
     libs = "\n".join(f"read_liberty -lib {lib}" for lib in ctx.liberty)
-    # cgen emits memory wrappers as `include "cgen_memory_*.v"`. The lhd
+    # A memory mem_lower refuses (ROM with init, whole-array update/reset,
+    # negedge, type==2, read_all) and every memory of a memory=false run reach
+    # cgen, which emits them as `include "cgen_memory_*.v"` wrappers. The lhd
     # executable staged by the local toolchain lives below Bazel's execroot,
     # where the source tree (including ware/rtl) is available. Keep the include
     # resolution tied to that exact lhd build rather than to the caller's cwd.
@@ -434,6 +528,12 @@ def _opentimer(ctx: FlowContext, lgraph: Path) -> dict:
             f"lg:{lgraph.name}",
             str(ctx.liberty[0]),
             "--workdir", str(wd),
+            # JSONL diagnostics on the run log (stderr is merged into it). The
+            # `native-comb-boundary` warning lives ONLY there -- timing.json
+            # carries no flag for it -- and evaluate() needs it to know whether
+            # the delay is an end-to-end score. Explicit rather than the
+            # isatty default, so the log's shape does not depend on the caller.
+            "--diag-fmt", "jsonl",
         ],
         check=False,
     )
@@ -453,7 +553,50 @@ def _opentimer(ctx: FlowContext, lgraph: Path) -> dict:
     tech_unit = ctx.tech.time_unit if ctx.tech else "ns"
     if lhd_unit and tech_unit and lhd_unit != tech_unit:
         out["opentimer_unit_mismatch"] = f"lhd reports {lhd_unit}, the Liberty is {tech_unit}"
+    # A multi-region design (`pass color synth` split it; `flatten=true` still
+    # emits a wrapper plus `__c<n>` modules) makes pass.opentimer cut the
+    # wrapper's native glue into zero-arrival boundaries. Its max_delay is
+    # then a per-cone figure, not the OpenSTA-comparable end-to-end one.
+    cut = _native_cut(m.log)
+    if cut:
+        out["opentimer_native_cut"] = cut
+        out["opentimer_note"] = (
+            f"OpenTimer cut {cut} native combinational node(s) into zero-arrival "
+            "timing boundaries; its delay is not an end-to-end score"
+        )
     return out
+
+
+_NATIVE_CUT = re.compile(r"cut\s+(\d+)\s+native combinational-logic node")
+
+
+def _native_cut(log: Path) -> int:
+    """Nodes pass.opentimer cut into timing boundaries, from its diagnostics.
+
+    Read from the JSONL diagnostic records on the run log (the `code` field,
+    never a log keyword), after dropping the echoed `$ argv` line. 0 when the
+    warning did not fire; the largest count when it fired more than once.
+    """
+    try:
+        lines = log.read_text(errors="replace").splitlines()
+    except OSError:
+        return 0
+    if lines and lines[0].startswith("$ "):
+        lines = lines[1:]
+    cut = 0
+    for line in lines:
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            rec = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(rec, dict) or rec.get("code") != "native-comb-boundary":
+            continue
+        found = _NATIVE_CUT.search(str(rec.get("message", "")))
+        cut = max(cut, int(found.group(1)) if found else 1)
+    return cut
 
 
 # ---------------------------------------------------------------- utils -----

@@ -51,6 +51,13 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 cycles = 1000000
 marker = "LHDTRACK-DONE"
 
+# The external pointer RAM response and linked-list allocator obey protocols;
+# independent LFSR bits violate the documented latency and no-reuse contracts.
+# Keep transactions idle so this remains a legal simulator-equivalence run.
+[sim.inputs]
+next_tail_valid = 0
+ptr_ram_rd_data_valid = 0
+
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

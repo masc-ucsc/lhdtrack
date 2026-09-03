@@ -1,16 +1,19 @@
 const toggle_t = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
 
 pub mod br_cdc_bit_pulse::[timecheck=false](src_clk:u1, src_rst:u1, src_pulse:u1, dst_clk:u1, dst_rst:u1) -> (dst_pulse:u1@[]) {
-  reg src_toggle:u1:[clock_pin=ref src_clk] = nil
-  reg dst_toggle_d:u1:[clock_pin=ref dst_clk] = nil
-  mut crossing = toggle_t::[name=br_cdc_bit_toggle_inst](src_clk=src_clk, src_rst=src_rst, src_bit=src_toggle, dst_clk=dst_clk, dst_rst=dst_rst)
-  const crossed:u1 = crossing.dst_bit
-  dst_pulse = crossed ^ dst_toggle_d
+  // Keep the RTL state names: resetless initial values are arbitrary, so LEC
+  // must relate each source state to the exact named storage bank in the flat
+  // mapped netlist rather than quantify two independent power-on symbols.
+  reg src_level:u1:[clock_pin=ref src_clk] = nil
+  reg dst_level_d:u1:[clock_pin=ref dst_clk] = nil
+  mut crossing = toggle_t::[name=br_cdc_bit_toggle_inst](src_clk=src_clk, src_rst=src_rst, src_bit=src_level, dst_clk=dst_clk, dst_rst=dst_rst)
+  const dst_level:u1 = crossing.dst_bit
+  dst_pulse = dst_level ^ dst_level_d
   if src_rst != 0 {
-    src_toggle = 0
+    src_level = 0
   } elif src_pulse != 0 {
     const one:u1 = 1
-    src_toggle = src_toggle ^ one
+    src_level = src_level ^ one
   }
-  dst_toggle_d = crossed
+  dst_level_d = dst_level
 }

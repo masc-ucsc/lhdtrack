@@ -22,7 +22,7 @@ pub mod br_csr_axil_widget_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, axil_awvalid=lfsr#[0], axil_awaddr=lfsr#[1..=16], axil_awprot=lfsr#[17..=19], axil_wvalid=lfsr#[20], axil_wdata=lfsr#[21..=52], axil_wstrb=lfsr#[53..=56], axil_bready=lfsr#[57], axil_arvalid=lfsr#[58], axil_araddr=lfsr#[59..=63], axil_arprot=lfsr#[11..=13], axil_rready=lfsr#[14], csr_resp_valid=lfsr#[15], csr_resp_rdata=lfsr#[16..=47], csr_resp_slverr=lfsr#[48], csr_resp_decerr=lfsr#[49], timeout_enable=lfsr#[50], timeout_cycles=lfsr#[51..=57])
+  const r = dut(clk=1, rst=rst, axil_awvalid=lfsr#[0], axil_awaddr=lfsr#[1..=16], axil_awprot=lfsr#[17..=19], axil_wvalid=lfsr#[20], axil_wdata=lfsr#[21..=52], axil_wstrb=lfsr#[53..=56], axil_bready=lfsr#[57], axil_arvalid=lfsr#[58], axil_araddr=lfsr#[59..=63], axil_arprot=lfsr#[11..=13], axil_rready=lfsr#[14], csr_resp_valid=lfsr#[15], csr_resp_rdata=lfsr#[16..=47], csr_resp_slverr=lfsr#[48], csr_resp_decerr=lfsr#[49], timeout_enable=lfsr#[50], timeout_cycles=lfsr#[51..=57])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.axil_awready

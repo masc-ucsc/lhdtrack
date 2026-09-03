@@ -1,0 +1,37 @@
+const br_cdc_fifo_reset_overlap_checks_t = import("br_cdc_fifo_reset_overlap_checks.br_cdc_fifo_reset_overlap_checks")
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_delay_nr = import("br_delay_nr.br_delay_nr")
+const br_delay_nr_p1 = import("br_delay_nr_p1.br_delay_nr_p1")
+const br_enc_bin2gray = import("br_enc_bin2gray.br_enc_bin2gray")
+const br_enc_gray2bin = import("br_enc_gray2bin.br_enc_gray2bin")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_cdc_fifo_push_flag_mgr::[timecheck=false](clk:u1, rst:u1, push_beat:u1, pop_count_gray:u6, reset_active_pop:u1) -> (push_count_gray:u6@[], pop_count_delta:u6@[], slots:u6@[], full:u1@[], reset_active_push:u1@[]) {
+  reg pop_count_saved:u6
+  reset_active_push = 0ub?
+  mut br_counter_incr_push_count = br_counter_incr::[name=br_counter_incr_push_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = push_beat, incr = 1)
+  mut br_enc_gray2bin_inst = br_enc_gray2bin::[name=br_enc_gray2bin_inst](gray = pop_count_gray)
+  const pop_count__w1 = (br_enc_gray2bin_inst.bin.e5 << 5) | (br_enc_gray2bin_inst.bin.e4 << 4) | (br_enc_gray2bin_inst.bin.e3 << 3) | (br_enc_gray2bin_inst.bin.e2 << 2) | (br_enc_gray2bin_inst.bin.e1 << 1) | br_enc_gray2bin_inst.bin.e0
+  mut br_enc_bin2gray_inst = br_enc_bin2gray::[name=br_enc_bin2gray_inst](bin = br_counter_incr_push_count.value_next)
+  mut br_delay_nr_reset_active_push = br_delay_nr::[name=br_delay_nr_reset_active_push](clk = clk, `in` = rst)
+  mut br_delay_nr_push_count_gray = br_delay_nr_p1::[name=br_delay_nr_push_count_gray](clk = clk, `in` = br_enc_bin2gray_inst)
+  mut _mux_1:u6 = if reset_active_pop != 0 { pop_count_saved } else { pop_count__w1#[0..=5] }
+  mut _mux_2:u6 = if reset_active_pop != 0 { 0 } else { (pop_count__w1 - pop_count_saved)#[0..=5] }
+  const push_count_ext__w1 = br_counter_incr_push_count.value#[0..=5]
+  const pop_count_visible_ext__w1 = _mux_1
+  mut _mux_3:u7 = if push_count_ext__w1 >= pop_count_visible_ext__w1 { (push_count_ext__w1 - pop_count_visible_ext__w1)#[0..=6] } else { ((push_count_ext__w1 + 0x40)#[0..=6] - pop_count_visible_ext__w1)#[0..=6] }
+  const items_ext__w1 = _mux_3
+  const slots__w1 = (32 - items_ext__w1#[0..=5])#[0..=31]#[0..=5]
+  if rst != 0 {
+    pop_count_saved = 0
+  } elif reset_active_pop == 0 {
+    pop_count_saved = pop_count__w1
+  }
+  br_misc_unused::[name=br_misc_unused_items_msb](`in` = (items_ext__w1 >> 6) & 1)
+  br_cdc_fifo_reset_overlap_checks_t::[name=br_cdc_fifo_reset_overlap_checks](clk = clk, reset_active_push = br_delay_nr_reset_active_push.out, reset_active_pop = reset_active_pop)
+  push_count_gray = br_delay_nr_push_count_gray.out
+  pop_count_delta = _mux_2
+  slots = slots__w1
+  full = unsigned(slots__w1 == 0)
+  reset_active_push = br_delay_nr_reset_active_push.out
+}

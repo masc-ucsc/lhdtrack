@@ -14,8 +14,8 @@ test bench.run(cycles:u32=1000000) {
     // `u1(...)`, not `int(...)`: this lhd build removed the `int` cast in
     // favour of sized/sign-explicit ones.
     acc.rst = u1(clock < 4)
-    acc.clk = 0
-    step
+    // One LiveHD step is one complete clock period.  Keep the explicit clock
+    // asserted for the CDC harness; two steps would commit every flop twice.
     acc.clk = 1
     step
     result = acc.checksum

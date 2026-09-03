@@ -22,7 +22,7 @@ pub mod br_multi_xfer_distributor_rr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, push_sendable=lfsr#[0..=2], push_data=lfsr#[3..=63], pop_ready=lfsr#[3..=18])
+  const r = dut(clk=1, rst=rst, push_sendable=0, push_data=lfsr#[3..=63], pop_ready=lfsr#[3..=18])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receivable

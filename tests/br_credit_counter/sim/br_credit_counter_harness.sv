@@ -13,8 +13,8 @@ module br_credit_counter_harness (
 
   logic [63:0] lfsr, sum;
   logic [63:0] nxt, acc;
-  logic [0:0] o_decr_ready;
   logic [3:0] o_value;
+  logic [0:0] o_decr_ready;
   logic [3:0] o_available;
 
   // xorshift64 -- cheap, full-period, and trivially identical in both languages.
@@ -26,8 +26,8 @@ module br_credit_counter_harness (
 
   always_comb begin
       acc = sum;
-      acc = {acc[62:0], acc[63]} ^ 64'(o_decr_ready);
       acc = {acc[62:0], acc[63]} ^ 64'(o_value);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_decr_ready);
       acc = {acc[62:0], acc[63]} ^ 64'(o_available);
   end
 
@@ -40,8 +40,8 @@ module br_credit_counter_harness (
     .decr(lfsr[3]),
     .initial_value(lfsr[7:4]),
     .withhold(lfsr[11:8]),
-    .decr_ready(o_decr_ready),
     .value(o_value),
+    .decr_ready(o_decr_ready),
     .available(o_available)
   );
 

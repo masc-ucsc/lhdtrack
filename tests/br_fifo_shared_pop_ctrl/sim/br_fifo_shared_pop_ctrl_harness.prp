@@ -22,7 +22,7 @@ pub mod br_fifo_shared_pop_ctrl_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, head_valid=lfsr#[0..=1], head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], ram_items=lfsr#[14..=25], bypass_valid_unstable=lfsr#[26..=27], bypass_data_unstable=lfsr#[28..=63], pop_ready=lfsr#[28..=29], data_ram_rd_data_valid=lfsr#[30..=31], data_ram_rd_data=lfsr#[32..=63])
+  const r = dut(clk=1, rst=rst, head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], ram_items=lfsr#[14..=25], bypass_valid_unstable=lfsr#[26..=27], bypass_data_unstable=lfsr#[28..=63], pop_ready=lfsr#[28..=29], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr#[32..=63])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.head_ready

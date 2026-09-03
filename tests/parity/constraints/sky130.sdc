@@ -8,7 +8,7 @@
 # Combinational top: no clock port exists, so the timer is given a VIRTUAL
 # clock. Without one OpenSTA reports no paths at all and the whole
 # input-to-output cone would silently go unmeasured.
-create_clock -name vclk -period 20
+create_clock -name vclk -period 20.0
 
 set_input_delay  -clock vclk 0.0 [all_inputs]
 set_output_delay -clock vclk 0.0 [all_outputs]

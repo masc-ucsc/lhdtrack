@@ -22,7 +22,7 @@ pub mod br_credit_receiver_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=4], push_data=lfsr#[5..=63], pop_credit=lfsr#[5..=7], credit_initial=lfsr#[8..=12], credit_withhold=lfsr#[13..=17])
+  const r = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=4], push_data=lfsr#[5..=63], pop_credit=lfsr#[5..=7], credit_initial=lfsr#[8..=12], credit_withhold=lfsr#[13..=17])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receiver_in_reset

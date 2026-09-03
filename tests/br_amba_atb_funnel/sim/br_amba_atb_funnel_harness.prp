@@ -22,7 +22,7 @@ pub mod br_amba_atb_funnel_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, src_atvalid=lfsr#[0..=1], src_atid=lfsr#[2..=15], src_atdata=lfsr#[16..=63], src_atbytes=lfsr#[16..=19], src_atuser=lfsr#[20..=21], dst_atready=lfsr#[22])
+  const r = dut(clk=1, rst=rst, src_atvalid=lfsr#[0..=1], src_atid=lfsr#[2..=15], src_atdata=lfsr#[16..=63], src_atbytes=lfsr#[16..=19], src_atuser=lfsr#[20..=21], dst_atready=lfsr#[22])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.src_atready

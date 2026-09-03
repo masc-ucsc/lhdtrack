@@ -85,6 +85,8 @@ class FlowContext:
             )
         )
         if check and not m.ok:
+            if m.timed_out:
+                raise FlowError(f"{label} timed out after {timeout:g}s\n{m.tail()}")
             raise FlowError(f"{label} exited {m.rc}\n{m.tail()}")
         return m
 

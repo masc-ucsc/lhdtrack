@@ -1,0 +1,6 @@
+const br_gate_buf = import("br_gate_buf.br_gate_buf")
+
+pub mod br_gate_cdc_maxdel::[timecheck=false](`in`:u1) -> (out:u1@[]) {
+  mut br_gate_buf_dont_touch_cdc_maxdel = br_gate_buf::[name=br_gate_buf_dont_touch_cdc_maxdel](`in` = `in`)
+  out = br_gate_buf_dont_touch_cdc_maxdel
+}

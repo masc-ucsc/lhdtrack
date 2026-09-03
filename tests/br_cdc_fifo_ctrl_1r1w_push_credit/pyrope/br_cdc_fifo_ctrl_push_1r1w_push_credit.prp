@@ -1,0 +1,21 @@
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_fifo_gray_count_sync = import("br_cdc_fifo_gray_count_sync.br_cdc_fifo_gray_count_sync")
+const br_cdc_fifo_push_ctrl_credit_t = import("br_cdc_fifo_push_ctrl_credit.br_cdc_fifo_push_ctrl_credit")
+
+pub mod br_cdc_fifo_ctrl_push_1r1w_push_credit::[timecheck=false](push_clk:u1, push_rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u64, credit_initial_push:u6, credit_withhold_push:u6, pop_clk:u1, pop_rst:u1, pop_reset_active_pop:u1, pop_pop_count_gray:u6) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], push_full:u1@[], push_slots:u6@[], credit_count_push:u6@[], credit_available_push:u6@[], push_ram_wr_valid:u1@[], push_ram_wr_addr:u5@[], push_ram_wr_data:u64@[], push_push_count_gray:u6@[], push_reset_active_push:u1@[]) {
+  const push_either_rst__w1 = unsigned((push_rst != 0) or (push_sender_in_reset != 0))
+  mut br_cdc_fifo_gray_count_sync_pop2push = br_cdc_fifo_gray_count_sync::[name=br_cdc_fifo_gray_count_sync_pop2push](src_clk = pop_clk, src_rst = pop_rst, `src_count_gray.e5` = (pop_pop_count_gray >> 5) & 1, `src_count_gray.e4` = (pop_pop_count_gray >> 4) & 1, `src_count_gray.e3` = (pop_pop_count_gray >> 3) & 1, `src_count_gray.e2` = (pop_pop_count_gray >> 2) & 1, `src_count_gray.e1` = (pop_pop_count_gray >> 1) & 1, `src_count_gray.e0` = pop_pop_count_gray & 1, dst_clk = push_clk, dst_rst = push_either_rst__w1)
+  mut br_cdc_bit_toggle_reset_active_pop = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_reset_active_pop](src_clk = pop_clk, src_rst = pop_rst, src_bit = pop_reset_active_pop, dst_clk = push_clk, dst_rst = push_either_rst__w1)
+  mut br_cdc_fifo_push_ctrl_credit = br_cdc_fifo_push_ctrl_credit_t::[name=br_cdc_fifo_push_ctrl_credit](clk = push_clk, rst = push_rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, pop_count_gray = (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e5 << 5) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e4 << 4) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e3 << 3) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e2 << 2) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e1 << 1) | br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e0, reset_active_pop = br_cdc_bit_toggle_reset_active_pop)
+  push_receiver_in_reset = br_cdc_fifo_push_ctrl_credit.push_receiver_in_reset
+  push_credit = br_cdc_fifo_push_ctrl_credit.push_credit
+  push_full = br_cdc_fifo_push_ctrl_credit.full
+  push_slots = br_cdc_fifo_push_ctrl_credit.slots
+  credit_count_push = br_cdc_fifo_push_ctrl_credit.credit_count_push
+  credit_available_push = br_cdc_fifo_push_ctrl_credit.credit_available_push
+  push_ram_wr_valid = br_cdc_fifo_push_ctrl_credit.ram_wr_valid
+  push_ram_wr_addr = br_cdc_fifo_push_ctrl_credit.ram_wr_addr
+  push_ram_wr_data = br_cdc_fifo_push_ctrl_credit.ram_wr_data
+  push_push_count_gray = br_cdc_fifo_push_ctrl_credit.push_count_gray
+  push_reset_active_push = br_cdc_fifo_push_ctrl_credit.reset_active_push
+}

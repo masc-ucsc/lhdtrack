@@ -22,7 +22,7 @@ pub mod br_amba_axil_write_arbiter_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, upstream_awaddr=lfsr#[0..=63], upstream_awprot=lfsr#[16..=21], upstream_awuser=lfsr#[22..=23], upstream_awvalid=lfsr#[24..=25], upstream_wdata=lfsr#[26..=63], upstream_wstrb=lfsr#[26..=41], upstream_wuser=lfsr#[42..=43], upstream_wvalid=lfsr#[44..=45], upstream_bready=lfsr#[46..=47], downstream_awready=lfsr#[48], downstream_wready=lfsr#[49], downstream_bresp=lfsr#[50..=51], downstream_buser=lfsr#[52], downstream_bvalid=lfsr#[53])
+  const r = dut(clk=1, rst=rst, upstream_awaddr=lfsr#[0..=63], upstream_awprot=lfsr#[16..=21], upstream_awuser=lfsr#[22..=23], upstream_awvalid=lfsr#[24..=25], upstream_wdata=lfsr#[26..=63], upstream_wstrb=lfsr#[26..=41], upstream_wuser=lfsr#[42..=43], upstream_wvalid=lfsr#[44..=45], upstream_bready=lfsr#[46..=47], downstream_awready=lfsr#[48], downstream_wready=lfsr#[49], downstream_bresp=lfsr#[50..=51], downstream_buser=lfsr#[52], downstream_bvalid=lfsr#[53])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_awready

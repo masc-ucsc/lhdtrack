@@ -1,0 +1,3 @@
+pub comb br_gate_and2::[timecheck=false](in0:u1, in1:u1) -> (out:u1) {
+  out = unsigned((in0 != 0) and (in1 != 0))
+}

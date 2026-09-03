@@ -46,6 +46,10 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 cycles = 1000000
 marker = "LHDTRACK-DONE"
 
+[sim.inputs]
+head_valid = 0
+data_ram_rd_data_valid = 0
+
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

@@ -1,0 +1,18 @@
+const br_cdc_fifo_push_flag_mgr_t = import("br_cdc_fifo_push_flag_mgr.br_cdc_fifo_push_flag_mgr")
+const br_fifo_push_ctrl_core_t = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
+
+pub mod br_cdc_fifo_push_ctrl::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u64, pop_count_gray:u6, reset_active_pop:u1) -> (push_ready:u1@[], full:u1@[], slots:u6@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u64@[], push_count_gray:u6@[], reset_active_push:u1@[]) {
+  wire push_beat:u1
+  full = 0ub?
+  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk = clk, rst = rst, push_beat = push_beat, pop_count_gray = pop_count_gray, reset_active_pop = reset_active_pop)
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, bypass_ready = 0, addr_base = 0, addr_bound = 31, full = br_cdc_fifo_push_flag_mgr.full)
+  push_beat = br_fifo_push_ctrl_core.push_beat
+  push_ready = br_fifo_push_ctrl_core.push_ready
+  full = br_cdc_fifo_push_flag_mgr.full
+  slots = br_cdc_fifo_push_flag_mgr.slots
+  ram_wr_valid = br_fifo_push_ctrl_core.ram_wr_valid
+  ram_wr_addr = br_fifo_push_ctrl_core.ram_wr_addr
+  ram_wr_data = br_fifo_push_ctrl_core.ram_wr_data
+  push_count_gray = br_cdc_fifo_push_flag_mgr.push_count_gray
+  reset_active_push = br_cdc_fifo_push_flag_mgr.reset_active_push
+}

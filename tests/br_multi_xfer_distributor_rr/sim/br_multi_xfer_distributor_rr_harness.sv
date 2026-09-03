@@ -34,7 +34,7 @@ module br_multi_xfer_distributor_rr_harness (
   br_multi_xfer_distributor_rr dut (
     .clk(clk),
     .rst(rst),
-    .push_sendable(lfsr[2:0]),
+    .push_sendable(3'd0),
     .push_data({195'd0, lfsr[63:3]}),
     .pop_ready(lfsr[18:3]),
     .push_receivable(o_push_receivable),

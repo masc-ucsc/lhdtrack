@@ -6,8 +6,8 @@ pub mod br_ram_initializer::[timecheck=false](clk:u1, rst:u1, initial_value:u32,
   state_next = 0ub?
   wr_addr_next = 0sb?
   const wr_valid__w1 = unsigned(state == 1)
-  state_next = state
   wr_addr_next = (wr_addr + 1)#[0..=3]
+  state_next = state
   match state {
     == 0 {
       if start != 0 {

@@ -22,7 +22,7 @@ pub mod br_amba_axil2apb_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr#[36..=63], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr#[47..=63], pready=lfsr#[15], pslverr=lfsr#[16])
+  const r = dut(clk=1, rst=rst, awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr#[36..=63], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr#[47..=63], pready=lfsr#[15], pslverr=lfsr#[16])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.awready

@@ -22,7 +22,7 @@ pub mod br_arb_rr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, enable_priority_update=lfsr#[0], request=lfsr#[1..=16])
+  const r = dut(clk=1, rst=rst, enable_priority_update=lfsr#[0], request=lfsr#[1..=16])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r

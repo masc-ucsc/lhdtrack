@@ -1,0 +1,17 @@
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+
+pub mod br_counter::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u1, incr_valid:u1, incr:u1, decr_valid:u1, decr:u1) -> (value:u1@[], value_next:u1@[]) {
+  reg value:u1
+  mut _mux_1:u1 = if incr_valid != 0 { incr & 1 } else { 0 }
+  mut _mux_2:u1 = if decr_valid != 0 { decr & 1 } else { 0 }
+  mut _mux_3:u2 = if reinit != 0 { initial_value } else { value }
+  const value_temp__w1 = ((_mux_3 + _mux_1)#[0..=1] - _mux_2)#[0..=1]
+  const value_next__w1 = value_temp__w1 & 1
+  br_misc_unused::[name=gen_no_wrap_or_saturate_gen_unused_br_misc_unused_value_temp_msbs](`in` = (value_temp__w1 >> 1) & 1)
+  if rst != 0 {
+    value = initial_value
+  } elif unsigned((reinit != 0) or (incr_valid != 0) or (decr_valid != 0)) != 0 {
+    value = value_next__w1
+  }
+  value_next = value_next__w1
+}

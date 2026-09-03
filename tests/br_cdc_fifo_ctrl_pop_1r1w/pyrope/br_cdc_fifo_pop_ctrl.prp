@@ -1,0 +1,17 @@
+const br_cdc_fifo_pop_flag_mgr_t = import("br_cdc_fifo_pop_flag_mgr.br_cdc_fifo_pop_flag_mgr")
+const br_fifo_pop_ctrl_core_t = import("br_fifo_pop_ctrl_core.br_fifo_pop_ctrl_core")
+
+pub mod br_cdc_fifo_pop_ctrl::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, ram_rd_data_valid:u1, ram_rd_data:u64, push_count_gray:u6, reset_active_push:u1) -> (pop_valid:u1@[], pop_data:u64@[], empty:u1@[], items:u6@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u5@[], pop_count_gray:u6@[], reset_active_pop:u1@[]) {
+  wire empty:u1
+  wire items:u6
+  mut br_fifo_pop_ctrl_core = br_fifo_pop_ctrl_core_t::[name=br_fifo_pop_ctrl_core](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = 0, bypass_data_unstable = 0, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, empty = empty, items = items)
+  mut br_cdc_fifo_pop_flag_mgr = br_cdc_fifo_pop_flag_mgr_t::[name=br_cdc_fifo_pop_flag_mgr](clk = clk, rst = rst, pop_beat = br_fifo_pop_ctrl_core.pop_beat, push_count_gray = push_count_gray, reset_active_push = reset_active_push)
+  items = br_cdc_fifo_pop_flag_mgr.items
+  empty = br_cdc_fifo_pop_flag_mgr.empty
+  pop_valid = br_fifo_pop_ctrl_core.pop_valid
+  pop_data = br_fifo_pop_ctrl_core.pop_data
+  ram_rd_addr_valid = br_fifo_pop_ctrl_core.ram_rd_addr_valid
+  ram_rd_addr = br_fifo_pop_ctrl_core.ram_rd_addr
+  pop_count_gray = br_cdc_fifo_pop_flag_mgr.pop_count_gray
+  reset_active_pop = br_cdc_fifo_pop_flag_mgr.reset_active_pop
+}

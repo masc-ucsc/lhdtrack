@@ -22,7 +22,7 @@ pub mod br_fifo_shared_dynamic_ctrl_ext_arbiter_harness(rst:u1) -> (checksum:u64
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, push_valid=lfsr#[0..=1], push_data=lfsr#[2..=63], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], arb_grant=lfsr#[6..=9], data_ram_rd_data_valid=lfsr#[10..=11], data_ram_rd_data=lfsr#[12..=63], ptr_ram_rd_data_valid=lfsr#[12..=13], ptr_ram_rd_data=lfsr#[14..=23])
+  const r = dut(clk=1, rst=rst, push_valid=lfsr#[0..=1], push_data=lfsr#[2..=63], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], arb_grant=lfsr#[6..=9], data_ram_rd_data_valid=lfsr#[10..=11], data_ram_rd_data=lfsr#[12..=63], ptr_ram_rd_data_valid=lfsr#[12..=13], ptr_ram_rd_data=lfsr#[14..=23])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready

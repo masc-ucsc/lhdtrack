@@ -22,7 +22,7 @@ pub mod br_counter_incr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, reinit=lfsr#[0], initial_value=lfsr#[1..=8], incr_valid=lfsr#[9], incr=lfsr#[10])
+  const r = dut(clk=1, rst=rst, reinit=lfsr#[0], initial_value=lfsr#[1..=8], incr_valid=lfsr#[9], incr=lfsr#[10])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.value

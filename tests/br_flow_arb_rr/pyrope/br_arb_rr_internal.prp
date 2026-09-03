@@ -4,120 +4,120 @@ pub mod br_arb_rr_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_up
   mut gen_n_req_request_priority:u256 = 0
   wire grant:u16
   gen_n_req_request_priority = 0sb?
-  mut gen_n_req_request_priority__w1 = gen_n_req_request_priority
-  gen_n_req_request_priority__w1#[17] = 0
-  mut gen_n_req_request_priority__w2 = gen_n_req_request_priority__w1
-  gen_n_req_request_priority__w2#[34] = 0
-  mut gen_n_req_request_priority__w3 = gen_n_req_request_priority__w2
-  gen_n_req_request_priority__w3#[51] = 0
-  mut gen_n_req_request_priority__w4 = gen_n_req_request_priority__w3
-  gen_n_req_request_priority__w4#[68] = 0
-  mut gen_n_req_request_priority__w5 = gen_n_req_request_priority__w4
-  gen_n_req_request_priority__w5#[85] = 0
-  mut gen_n_req_request_priority__w6 = gen_n_req_request_priority__w5
-  gen_n_req_request_priority__w6#[102] = 0
-  mut gen_n_req_request_priority__w7 = gen_n_req_request_priority__w6
-  gen_n_req_request_priority__w7#[119] = 0
-  mut gen_n_req_request_priority__w8 = gen_n_req_request_priority__w7
-  gen_n_req_request_priority__w8#[136] = 0
-  mut gen_n_req_request_priority__w9 = gen_n_req_request_priority__w8
-  gen_n_req_request_priority__w9#[153] = 0
-  mut gen_n_req_request_priority__w10 = gen_n_req_request_priority__w9
-  gen_n_req_request_priority__w10#[170] = 0
-  mut gen_n_req_request_priority__w11 = gen_n_req_request_priority__w10
-  gen_n_req_request_priority__w11#[187] = 0
-  mut gen_n_req_request_priority__w12 = gen_n_req_request_priority__w11
-  gen_n_req_request_priority__w12#[204] = 0
-  mut gen_n_req_request_priority__w13 = gen_n_req_request_priority__w12
-  gen_n_req_request_priority__w13#[221] = 0
-  mut gen_n_req_request_priority__w14 = gen_n_req_request_priority__w13
-  gen_n_req_request_priority__w14#[238] = 0
   mut gen_n_req_rr_state_internal = br_rr_state_internal::[name=gen_n_req_rr_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), grant = grant)
   const gen_n_req_priority_mask__w1 = (gen_n_req_rr_state_internal.priority_mask.e15 << 15) | (gen_n_req_rr_state_internal.priority_mask.e14 << 14) | (gen_n_req_rr_state_internal.priority_mask.e13 << 13) | (gen_n_req_rr_state_internal.priority_mask.e12 << 12) | (gen_n_req_rr_state_internal.priority_mask.e11 << 11) | (gen_n_req_rr_state_internal.priority_mask.e10 << 10) | (gen_n_req_rr_state_internal.priority_mask.e9 << 9) | (gen_n_req_rr_state_internal.priority_mask.e8 << 8) | (gen_n_req_rr_state_internal.priority_mask.e7 << 7) | (gen_n_req_rr_state_internal.priority_mask.e6 << 6) | (gen_n_req_rr_state_internal.priority_mask.e5 << 5) | (gen_n_req_rr_state_internal.priority_mask.e4 << 4) | (gen_n_req_rr_state_internal.priority_mask.e3 << 3) | (gen_n_req_rr_state_internal.priority_mask.e2 << 2) | (gen_n_req_rr_state_internal.priority_mask.e1 << 1) | gen_n_req_rr_state_internal.priority_mask.e0
   const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1)#[0..=15]
-  mut gen_n_req_request_priority__w15 = gen_n_req_request_priority__w14
-  gen_n_req_request_priority__w15#[0..=15] = gen_n_req_request_high__w1#[1..=15] << 1
+  mut gen_n_req_request_priority__w1 = gen_n_req_request_priority
+  gen_n_req_request_priority__w1#[0..=15] = gen_n_req_request_high__w1#[1..=15] << 1
   mut _mux_2:u16 = if ((gen_n_req_priority_mask__w1 >> 15) & 1) != 0 { request#[0..=14] } else { gen_n_req_request_high__w1#[0..=14] }
-  mut gen_n_req_request_priority__w16 = gen_n_req_request_priority__w15
-  gen_n_req_request_priority__w16#[240..=255] = _mux_2
+  mut gen_n_req_request_priority__w2 = gen_n_req_request_priority__w1
+  gen_n_req_request_priority__w2#[240..=255] = _mux_2
+  mut gen_n_req_request_priority__w3 = gen_n_req_request_priority__w2
+  gen_n_req_request_priority__w3#[17] = 0
   mut _mux_3:u1 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { request & 1 } else { gen_n_req_request_high__w1 & 1 }
-  mut gen_n_req_request_priority__w17 = gen_n_req_request_priority__w16
-  gen_n_req_request_priority__w17#[16] = _mux_3 & 1
+  mut gen_n_req_request_priority__w4 = gen_n_req_request_priority__w3
+  gen_n_req_request_priority__w4#[16] = _mux_3 & 1
   mut _mux_4:u14 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { gen_n_req_request_high__w1#[2..=15] } else { 0 }
-  mut gen_n_req_request_priority__w18 = gen_n_req_request_priority__w17
-  gen_n_req_request_priority__w18#[18..=31] = _mux_4
+  mut gen_n_req_request_priority__w5 = gen_n_req_request_priority__w4
+  gen_n_req_request_priority__w5#[18..=31] = _mux_4
+  mut gen_n_req_request_priority__w6 = gen_n_req_request_priority__w5
+  gen_n_req_request_priority__w6#[34] = 0
   mut _mux_5:u2 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { request#[0..=1] } else { gen_n_req_request_high__w1#[0..=1] }
-  mut gen_n_req_request_priority__w19 = gen_n_req_request_priority__w18
-  gen_n_req_request_priority__w19#[32..=33] = _mux_5
+  mut gen_n_req_request_priority__w7 = gen_n_req_request_priority__w6
+  gen_n_req_request_priority__w7#[32..=33] = _mux_5
   mut _mux_6:u13 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { gen_n_req_request_high__w1#[3..=15] } else { 0 }
-  mut gen_n_req_request_priority__w20 = gen_n_req_request_priority__w19
-  gen_n_req_request_priority__w20#[35..=47] = _mux_6
+  mut gen_n_req_request_priority__w8 = gen_n_req_request_priority__w7
+  gen_n_req_request_priority__w8#[35..=47] = _mux_6
+  mut gen_n_req_request_priority__w9 = gen_n_req_request_priority__w8
+  gen_n_req_request_priority__w9#[51] = 0
   mut _mux_7:u3 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { request#[0..=2] } else { gen_n_req_request_high__w1#[0..=2] }
-  mut gen_n_req_request_priority__w21 = gen_n_req_request_priority__w20
-  gen_n_req_request_priority__w21#[48..=50] = _mux_7
+  mut gen_n_req_request_priority__w10 = gen_n_req_request_priority__w9
+  gen_n_req_request_priority__w10#[48..=50] = _mux_7
   mut _mux_8:u12 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { gen_n_req_request_high__w1#[4..=15] } else { 0 }
-  mut gen_n_req_request_priority__w22 = gen_n_req_request_priority__w21
-  gen_n_req_request_priority__w22#[52..=63] = _mux_8
+  mut gen_n_req_request_priority__w11 = gen_n_req_request_priority__w10
+  gen_n_req_request_priority__w11#[52..=63] = _mux_8
+  mut gen_n_req_request_priority__w12 = gen_n_req_request_priority__w11
+  gen_n_req_request_priority__w12#[68] = 0
   mut _mux_9:u4 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { request#[0..=3] } else { gen_n_req_request_high__w1#[0..=3] }
-  mut gen_n_req_request_priority__w23 = gen_n_req_request_priority__w22
-  gen_n_req_request_priority__w23#[64..=67] = _mux_9
+  mut gen_n_req_request_priority__w13 = gen_n_req_request_priority__w12
+  gen_n_req_request_priority__w13#[64..=67] = _mux_9
   mut _mux_10:u11 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { gen_n_req_request_high__w1#[5..=15] } else { 0 }
-  mut gen_n_req_request_priority__w24 = gen_n_req_request_priority__w23
-  gen_n_req_request_priority__w24#[69..=79] = _mux_10
+  mut gen_n_req_request_priority__w14 = gen_n_req_request_priority__w13
+  gen_n_req_request_priority__w14#[69..=79] = _mux_10
+  mut gen_n_req_request_priority__w15 = gen_n_req_request_priority__w14
+  gen_n_req_request_priority__w15#[85] = 0
   mut _mux_11:u5 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { request#[0..=4] } else { gen_n_req_request_high__w1#[0..=4] }
-  mut gen_n_req_request_priority__w25 = gen_n_req_request_priority__w24
-  gen_n_req_request_priority__w25#[80..=84] = _mux_11
+  mut gen_n_req_request_priority__w16 = gen_n_req_request_priority__w15
+  gen_n_req_request_priority__w16#[80..=84] = _mux_11
   mut _mux_12:u10 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { gen_n_req_request_high__w1#[6..=15] } else { 0 }
-  mut gen_n_req_request_priority__w26 = gen_n_req_request_priority__w25
-  gen_n_req_request_priority__w26#[86..=95] = _mux_12
+  mut gen_n_req_request_priority__w17 = gen_n_req_request_priority__w16
+  gen_n_req_request_priority__w17#[86..=95] = _mux_12
+  mut gen_n_req_request_priority__w18 = gen_n_req_request_priority__w17
+  gen_n_req_request_priority__w18#[102] = 0
   mut _mux_13:u6 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { request#[0..=5] } else { gen_n_req_request_high__w1#[0..=5] }
-  mut gen_n_req_request_priority__w27 = gen_n_req_request_priority__w26
-  gen_n_req_request_priority__w27#[96..=101] = _mux_13
+  mut gen_n_req_request_priority__w19 = gen_n_req_request_priority__w18
+  gen_n_req_request_priority__w19#[96..=101] = _mux_13
   mut _mux_14:u9 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { gen_n_req_request_high__w1#[7..=15] } else { 0 }
-  mut gen_n_req_request_priority__w28 = gen_n_req_request_priority__w27
-  gen_n_req_request_priority__w28#[103..=111] = _mux_14
+  mut gen_n_req_request_priority__w20 = gen_n_req_request_priority__w19
+  gen_n_req_request_priority__w20#[103..=111] = _mux_14
+  mut gen_n_req_request_priority__w21 = gen_n_req_request_priority__w20
+  gen_n_req_request_priority__w21#[119] = 0
   mut _mux_15:u7 = if ((gen_n_req_priority_mask__w1 >> 7) & 1) != 0 { request#[0..=6] } else { gen_n_req_request_high__w1#[0..=6] }
-  mut gen_n_req_request_priority__w29 = gen_n_req_request_priority__w28
-  gen_n_req_request_priority__w29#[112..=118] = _mux_15
+  mut gen_n_req_request_priority__w22 = gen_n_req_request_priority__w21
+  gen_n_req_request_priority__w22#[112..=118] = _mux_15
   mut _mux_16:u8 = if ((gen_n_req_priority_mask__w1 >> 7) & 1) != 0 { gen_n_req_request_high__w1#[8..=15] } else { 0 }
-  mut gen_n_req_request_priority__w30 = gen_n_req_request_priority__w29
-  gen_n_req_request_priority__w30#[120..=127] = _mux_16
+  mut gen_n_req_request_priority__w23 = gen_n_req_request_priority__w22
+  gen_n_req_request_priority__w23#[120..=127] = _mux_16
+  mut gen_n_req_request_priority__w24 = gen_n_req_request_priority__w23
+  gen_n_req_request_priority__w24#[136] = 0
   mut _mux_17:u8 = if ((gen_n_req_priority_mask__w1 >> 8) & 1) != 0 { request#[0..=7] } else { gen_n_req_request_high__w1#[0..=7] }
-  mut gen_n_req_request_priority__w31 = gen_n_req_request_priority__w30
-  gen_n_req_request_priority__w31#[128..=135] = _mux_17
+  mut gen_n_req_request_priority__w25 = gen_n_req_request_priority__w24
+  gen_n_req_request_priority__w25#[128..=135] = _mux_17
   mut _mux_18:u7 = if ((gen_n_req_priority_mask__w1 >> 8) & 1) != 0 { gen_n_req_request_high__w1#[9..=15] } else { 0 }
-  mut gen_n_req_request_priority__w32 = gen_n_req_request_priority__w31
-  gen_n_req_request_priority__w32#[137..=143] = _mux_18
+  mut gen_n_req_request_priority__w26 = gen_n_req_request_priority__w25
+  gen_n_req_request_priority__w26#[137..=143] = _mux_18
+  mut gen_n_req_request_priority__w27 = gen_n_req_request_priority__w26
+  gen_n_req_request_priority__w27#[153] = 0
   mut _mux_19:u9 = if ((gen_n_req_priority_mask__w1 >> 9) & 1) != 0 { request#[0..=8] } else { gen_n_req_request_high__w1#[0..=8] }
-  mut gen_n_req_request_priority__w33 = gen_n_req_request_priority__w32
-  gen_n_req_request_priority__w33#[144..=152] = _mux_19
+  mut gen_n_req_request_priority__w28 = gen_n_req_request_priority__w27
+  gen_n_req_request_priority__w28#[144..=152] = _mux_19
   mut _mux_20:u6 = if ((gen_n_req_priority_mask__w1 >> 9) & 1) != 0 { gen_n_req_request_high__w1#[10..=15] } else { 0 }
-  mut gen_n_req_request_priority__w34 = gen_n_req_request_priority__w33
-  gen_n_req_request_priority__w34#[154..=159] = _mux_20
+  mut gen_n_req_request_priority__w29 = gen_n_req_request_priority__w28
+  gen_n_req_request_priority__w29#[154..=159] = _mux_20
+  mut gen_n_req_request_priority__w30 = gen_n_req_request_priority__w29
+  gen_n_req_request_priority__w30#[170] = 0
   mut _mux_21:u10 = if ((gen_n_req_priority_mask__w1 >> 10) & 1) != 0 { request#[0..=9] } else { gen_n_req_request_high__w1#[0..=9] }
-  mut gen_n_req_request_priority__w35 = gen_n_req_request_priority__w34
-  gen_n_req_request_priority__w35#[160..=169] = _mux_21
+  mut gen_n_req_request_priority__w31 = gen_n_req_request_priority__w30
+  gen_n_req_request_priority__w31#[160..=169] = _mux_21
   mut _mux_22:u5 = if ((gen_n_req_priority_mask__w1 >> 10) & 1) != 0 { gen_n_req_request_high__w1#[11..=15] } else { 0 }
-  mut gen_n_req_request_priority__w36 = gen_n_req_request_priority__w35
-  gen_n_req_request_priority__w36#[171..=175] = _mux_22
+  mut gen_n_req_request_priority__w32 = gen_n_req_request_priority__w31
+  gen_n_req_request_priority__w32#[171..=175] = _mux_22
+  mut gen_n_req_request_priority__w33 = gen_n_req_request_priority__w32
+  gen_n_req_request_priority__w33#[187] = 0
   mut _mux_23:u11 = if ((gen_n_req_priority_mask__w1 >> 11) & 1) != 0 { request#[0..=10] } else { gen_n_req_request_high__w1#[0..=10] }
-  mut gen_n_req_request_priority__w37 = gen_n_req_request_priority__w36
-  gen_n_req_request_priority__w37#[176..=186] = _mux_23
+  mut gen_n_req_request_priority__w34 = gen_n_req_request_priority__w33
+  gen_n_req_request_priority__w34#[176..=186] = _mux_23
   mut _mux_24:u4 = if ((gen_n_req_priority_mask__w1 >> 11) & 1) != 0 { gen_n_req_request_high__w1#[12..=15] } else { 0 }
-  mut gen_n_req_request_priority__w38 = gen_n_req_request_priority__w37
-  gen_n_req_request_priority__w38#[188..=191] = _mux_24
+  mut gen_n_req_request_priority__w35 = gen_n_req_request_priority__w34
+  gen_n_req_request_priority__w35#[188..=191] = _mux_24
+  mut gen_n_req_request_priority__w36 = gen_n_req_request_priority__w35
+  gen_n_req_request_priority__w36#[204] = 0
   mut _mux_25:u12 = if ((gen_n_req_priority_mask__w1 >> 12) & 1) != 0 { request#[0..=11] } else { gen_n_req_request_high__w1#[0..=11] }
-  mut gen_n_req_request_priority__w39 = gen_n_req_request_priority__w38
-  gen_n_req_request_priority__w39#[192..=203] = _mux_25
+  mut gen_n_req_request_priority__w37 = gen_n_req_request_priority__w36
+  gen_n_req_request_priority__w37#[192..=203] = _mux_25
   mut _mux_26:u3 = if ((gen_n_req_priority_mask__w1 >> 12) & 1) != 0 { gen_n_req_request_high__w1#[13..=15] } else { 0 }
-  mut gen_n_req_request_priority__w40 = gen_n_req_request_priority__w39
-  gen_n_req_request_priority__w40#[205..=207] = _mux_26
+  mut gen_n_req_request_priority__w38 = gen_n_req_request_priority__w37
+  gen_n_req_request_priority__w38#[205..=207] = _mux_26
+  mut gen_n_req_request_priority__w39 = gen_n_req_request_priority__w38
+  gen_n_req_request_priority__w39#[221] = 0
   mut _mux_27:u13 = if ((gen_n_req_priority_mask__w1 >> 13) & 1) != 0 { request#[0..=12] } else { gen_n_req_request_high__w1#[0..=12] }
-  mut gen_n_req_request_priority__w41 = gen_n_req_request_priority__w40
-  gen_n_req_request_priority__w41#[208..=220] = _mux_27
+  mut gen_n_req_request_priority__w40 = gen_n_req_request_priority__w39
+  gen_n_req_request_priority__w40#[208..=220] = _mux_27
   mut _mux_28:u2 = if ((gen_n_req_priority_mask__w1 >> 13) & 1) != 0 { gen_n_req_request_high__w1#[14..=15] } else { 0 }
+  mut gen_n_req_request_priority__w41 = gen_n_req_request_priority__w40
+  gen_n_req_request_priority__w41#[222..=223] = _mux_28
   mut gen_n_req_request_priority__w42 = gen_n_req_request_priority__w41
-  gen_n_req_request_priority__w42#[222..=223] = _mux_28
+  gen_n_req_request_priority__w42#[238] = 0
   mut _mux_29:u14 = if ((gen_n_req_priority_mask__w1 >> 14) & 1) != 0 { request#[0..=13] } else { gen_n_req_request_high__w1#[0..=13] }
   mut gen_n_req_request_priority__w43 = gen_n_req_request_priority__w42
   gen_n_req_request_priority__w43#[224..=237] = _mux_29

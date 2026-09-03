@@ -22,7 +22,7 @@ pub mod br_amba_axil_msi_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=lfsr#[40..=43], device_id_per_irq=lfsr#[44..=63], event_id_per_irq=lfsr#[44..=63], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
+  const r = dut(clk=1, rst=rst, irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=0, device_id_per_irq=lfsr#[44..=63], event_id_per_irq=lfsr#[44..=63], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.error

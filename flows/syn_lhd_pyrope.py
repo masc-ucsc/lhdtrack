@@ -57,6 +57,15 @@ def run(ctx: FlowContext) -> dict:
         *lib_args,
         "--set", f"abc.delay={ctx.abc_delay_ps()}",
         "--set", "abc.flatten=true",
+        # The same structural-netlist knobs as syn_lhd_verilog.py. Under
+        # `lhd synth` the `abc.X` spelling and `pass.abc.X` are ONE canonical
+        # key (pass.abc.X); only the one-shot's Liberty spelling differs.
+        # Bit-blast memories into DFF cells, and never keep a region's flops
+        # native: a native fallback is mapped by yosys in normalization (no -D)
+        # and measured 2-3x slower than the same flops mapped here
+        # (br_ram_flops on ASAP7: 906 -> 360 ps, yosys 1292).
+        "--set", "abc.memory=true",
+        "--set", "abc.register_max_bits=0",
     ]
     if ctx.test.pyrope_binding == "set":
         sets += [a for k, v in sorted(ctx.chparams().items()) for a in ("--set", f"compile.{k}={v}")]
@@ -68,6 +77,9 @@ def run(ctx: FlowContext) -> dict:
             "--workdir", "W", "--emit-dir", "lg:netlist",
             "--result-json", "synth.json", "--stats", *sets,
         ],
+        # ABC has no internal wall watchdog. Reuse the formal policy's outer
+        # bound so one pathological map cannot hold a nightly worker forever.
+        timeout=ctx.lec_timeout_s * 2 + 60,
     )
 
     # Replace the single wall-clock with lhd's own phase account, so this row
@@ -92,7 +104,7 @@ def run(ctx: FlowContext) -> dict:
     ctx.run(
         "emit",
         [lhd, "compile", "lg:netlist", "--top", f"{ctx.top}.{ctx.top}",
-         "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
+         "--recipe", "O0", "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
     from qor_endpoint import emitted_verilog, evaluate
 

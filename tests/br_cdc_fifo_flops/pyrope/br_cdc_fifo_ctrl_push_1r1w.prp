@@ -1,0 +1,17 @@
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_fifo_gray_count_sync = import("br_cdc_fifo_gray_count_sync.br_cdc_fifo_gray_count_sync")
+const br_cdc_fifo_push_ctrl_t = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_push_ctrl")
+
+pub mod br_cdc_fifo_ctrl_push_1r1w::[timecheck=false](push_clk:u1, push_rst:u1, push_valid:u1, push_data:u64, pop_clk:u1, pop_rst:u1, pop_reset_active_pop:u1, pop_pop_count_gray:u6) -> (push_ready:u1@[], push_full:u1@[], push_slots:u6@[], push_ram_wr_valid:u1@[], push_ram_wr_addr:u5@[], push_ram_wr_data:u64@[], push_push_count_gray:u6@[], push_reset_active_push:u1@[]) {
+  mut br_cdc_fifo_gray_count_sync_pop2push = br_cdc_fifo_gray_count_sync::[name=br_cdc_fifo_gray_count_sync_pop2push](src_clk = pop_clk, src_rst = pop_rst, `src_count_gray.e5` = (pop_pop_count_gray >> 5) & 1, `src_count_gray.e4` = (pop_pop_count_gray >> 4) & 1, `src_count_gray.e3` = (pop_pop_count_gray >> 3) & 1, `src_count_gray.e2` = (pop_pop_count_gray >> 2) & 1, `src_count_gray.e1` = (pop_pop_count_gray >> 1) & 1, `src_count_gray.e0` = pop_pop_count_gray & 1, dst_clk = push_clk, dst_rst = push_rst)
+  mut br_cdc_bit_toggle_reset_active_pop = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_reset_active_pop](src_clk = pop_clk, src_rst = pop_rst, src_bit = pop_reset_active_pop, dst_clk = push_clk, dst_rst = push_rst)
+  mut br_cdc_fifo_push_ctrl = br_cdc_fifo_push_ctrl_t::[name=br_cdc_fifo_push_ctrl](clk = push_clk, rst = push_rst, push_valid = push_valid, push_data = push_data, pop_count_gray = (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e5 << 5) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e4 << 4) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e3 << 3) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e2 << 2) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e1 << 1) | br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e0, reset_active_pop = br_cdc_bit_toggle_reset_active_pop)
+  push_ready = br_cdc_fifo_push_ctrl.push_ready
+  push_full = br_cdc_fifo_push_ctrl.full
+  push_slots = br_cdc_fifo_push_ctrl.slots
+  push_ram_wr_valid = br_cdc_fifo_push_ctrl.ram_wr_valid
+  push_ram_wr_addr = br_cdc_fifo_push_ctrl.ram_wr_addr
+  push_ram_wr_data = br_cdc_fifo_push_ctrl.ram_wr_data
+  push_push_count_gray = br_cdc_fifo_push_ctrl.push_count_gray
+  push_reset_active_push = br_cdc_fifo_push_ctrl.reset_active_push
+}

@@ -5,7 +5,9 @@ pub comb br_shift_left::[timecheck=false](`in`:u8, shift:u1, fill:u1) -> (out_va
   stages = 0sb?
   mut stages__w1 = stages
   stages__w1#[0..=7] = `in`
-  mut _mux_2:u8 = if (shift & 1) != 0 { (stages__w1#[0..=7]#[0..=6] << 1) | (fill & 1) } else { stages__w1#[0..=7] }
+  mut _mux_1:u8 = if (shift & 1) != 0 { (stages__w1#[0..=7]#[0..=6] << 1) | (fill & 1) } else { stages__w1#[0..=7] }
+  mut stages__w2 = stages__w1
+  stages__w2#[8..=15] = _mux_1
   out_valid = unsigned(shift <= 1)
-  out = stages__w1#[8..=15]
+  out = stages__w2#[8..=15]
 }

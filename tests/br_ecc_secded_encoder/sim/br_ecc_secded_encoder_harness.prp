@@ -22,7 +22,7 @@ pub mod br_ecc_secded_encoder_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, data_valid=lfsr#[0], data=lfsr#[1..=32])
+  const r = dut(clk=1, rst=rst, data_valid=lfsr#[0], data=lfsr#[1..=32])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.enc_valid

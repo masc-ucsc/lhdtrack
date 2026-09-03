@@ -60,21 +60,36 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     cycles = ctx.test.sim_cycles
     inputs = [design_input, str(tb)]
 
+    # Match Verilator's two-state startup contract.  State without an explicit
+    # initializer or reset powers on at zero, and source-level unknown literal
+    # bits are concretized as zero.  Keep both knobs explicit: init_zero covers
+    # storage while unknown_zero covers `?` literals, so neither simulator's
+    # private randomization policy can affect the checksum.
+    sim_policy = [
+        "--set", "sim.init_zero=true",
+        "--set", "sim.unknown_zero=true",
+        "--set", "sim.vcd=false",
+    ]
     ctx.run(
         "setup",
-        [lhd, "sim", *inputs, "--setup-only", "--set", "sim.vcd=false", "--workdir", "SW"],
+        [lhd, "sim", *inputs, "--setup-only", *sim_policy, "--workdir", "SW"],
     )
     run = ctx.run(
         "run",
         [lhd, "sim", *inputs, "--run-only", "--arg", f"cycles={cycles}",
-         "--set", "sim.vcd=false", "--set", "sim.ninja=false",
+         *sim_policy, "--set", "sim.ninja=false",
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )
 
     drv = ctx.work / "SW" / "sim" / "drv.bin"
     if not drv.exists():
         raise FlowError(f"lhd sim built no driver at {drv}")
-    best, samples = ctx.run_best("exec", [drv, "--cycles", cycles])
+    # `sim.init_zero=true` configures the driver invocation performed inside
+    # `lhd sim --run-only`; it is not baked into drv.bin.  The separately timed
+    # execution must carry the equivalent runtime switch or it silently falls
+    # back to seeded-random storage initialization and no longer matches the
+    # Verilator `--x-initial 0` contract above.
+    best, samples = ctx.run_best("exec", [drv, "--cycles", cycles, "--init-zero"])
 
     # cc = the whole --run-only minus the simulation it also paid for. Clamped
     # at zero: a negative value is only reachable if a stall landed in the lhd

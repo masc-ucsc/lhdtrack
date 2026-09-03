@@ -121,6 +121,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         raise FileNotFoundError("no Verilog sources listed in verilog/filelist.f")
 
     params = test.configs[0].params if test.configs else {}
+    input_constants = dict(test.raw.get("sim", {}).get("inputs", {}))
     pl = extract(
         test.top,
         sources,
@@ -144,14 +145,26 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
     if not pl.outputs:
         raise RuntimeError(f"{test.top} has no outputs -- nothing to checksum")
 
-    # 1. Pyrope seed, if the test has no Pyrope side at all yet.
-    if test.pyrope_status == "none" and tc.has("lhd") and (force or not test.pyrope_top.exists()):
+    # 1. Pyrope seed, if the test has no Pyrope side at all yet.  An explicit
+    # --force also refreshes a machine-generated `auto` tree: otherwise frontend
+    # fixes can never repair an already-seeded benchmark, and stale translation
+    # bugs continue to show up as real LEC refutations.  Never overwrite an
+    # `idiomatic` tree, which is human-owned source.
+    refresh_auto = force and test.pyrope_status == "auto"
+    if (
+        (test.pyrope_status == "none" or refresh_auto)
+        and tc.has("lhd")
+        and (force or not test.pyrope_top.exists())
+    ):
         if _emit_pyrope_seed(test, tc, params):
             # Record the status HERE rather than telling a human to. A seed
             # whose manifest still says `none` is invisible to the runner, and
             # "remember to edit 172 files" is not a workflow.
-            _set_status(test.root / "design.toml", "pyrope", "auto")
-            made.append('pyrope/ (auto seed, status.pyrope = "auto")')
+            if test.pyrope_status == "none":
+                _set_status(test.root / "design.toml", "pyrope", "auto")
+                made.append('pyrope/ (auto seed, status.pyrope = "auto")')
+            else:
+                made.append("pyrope/ (refreshed auto seed)")
     elif test.pyrope_status == "none" and test.pyrope_top.exists():
         # Seeded by an earlier run but never recorded. Without this the manifest
         # says `none`, the runner skips every LiveHD-Pyrope flow, and the .prp
@@ -161,13 +174,19 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
 
     # 2. Harness pair + driver pair.
     for rel, text in (
-        (f"{test.top}_harness.sv", gtb.harness_sv(pl, params)),
-        (f"{test.top}_harness.prp", gtb.harness_prp(pl)),
+        (
+            f"{test.top}_harness.sv",
+            gtb.harness_sv(pl, params, input_constants),
+        ),
+        (
+            f"{test.top}_harness.prp",
+            gtb.harness_prp(pl, input_constants),
+        ),
         (f"{test.top}_tb.prp", gtb.tb_prp(pl, test.sim_cycles or 1_000_000)),
         (f"{test.top}_tb_verilator.cpp", gtb.tb_verilator(pl, test.sim_cycles or 1_000_000)),
     ):
         path = test.sim_dir / rel
-        if path.exists() and not gtb.is_generated(path) and not force:
+        if path.exists() and not gtb.is_generated(path):
             continue  # hand-written: authoritative
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)

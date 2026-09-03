@@ -1,0 +1,21 @@
+const br_cdc_fifo_ctrl_1r1w_push_credit_t = import("br_cdc_fifo_ctrl_1r1w_push_credit.br_cdc_fifo_ctrl_1r1w_push_credit")
+const br_ram_flops_t = import("br_ram_flops.br_ram_flops")
+
+pub mod br_cdc_fifo_flops_push_credit::[timecheck=false](push_clk:u1, push_rst:u1, pop_clk:u1, pop_rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u64, pop_ready:u1, credit_initial_push:u6, credit_withhold_push:u6) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], pop_valid:u1@[], pop_data:u64@[], push_full:u1@[], push_slots:u6@[], credit_count_push:u6@[], credit_available_push:u6@[], pop_empty:u1@[], pop_items:u6@[]) {
+  wire pop_ram_rd_data_valid:u1
+  wire pop_ram_rd_data:u64
+  mut br_cdc_fifo_ctrl_1r1w_push_credit = br_cdc_fifo_ctrl_1r1w_push_credit_t::[name=br_cdc_fifo_ctrl_1r1w_push_credit](push_clk = push_clk, push_rst = push_rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, pop_clk = pop_clk, pop_rst = pop_rst, pop_ready = pop_ready, pop_ram_rd_data_valid = pop_ram_rd_data_valid, pop_ram_rd_data = pop_ram_rd_data)
+  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk = push_clk, wr_rst = unsigned((push_rst != 0) or (push_sender_in_reset != 0)), wr_valid = br_cdc_fifo_ctrl_1r1w_push_credit.push_ram_wr_valid, wr_addr = br_cdc_fifo_ctrl_1r1w_push_credit.push_ram_wr_addr, wr_data = br_cdc_fifo_ctrl_1r1w_push_credit.push_ram_wr_data, wr_word_en = 1, rd_clk = pop_clk, rd_rst = pop_rst, rd_addr_valid = br_cdc_fifo_ctrl_1r1w_push_credit.pop_ram_rd_addr_valid, rd_addr = br_cdc_fifo_ctrl_1r1w_push_credit.pop_ram_rd_addr)
+  pop_ram_rd_data_valid = br_ram_flops.rd_data_valid
+  pop_ram_rd_data = br_ram_flops.rd_data
+  push_receiver_in_reset = br_cdc_fifo_ctrl_1r1w_push_credit.push_receiver_in_reset
+  push_credit = br_cdc_fifo_ctrl_1r1w_push_credit.push_credit
+  pop_valid = br_cdc_fifo_ctrl_1r1w_push_credit.pop_valid
+  pop_data = br_cdc_fifo_ctrl_1r1w_push_credit.pop_data
+  push_full = br_cdc_fifo_ctrl_1r1w_push_credit.push_full
+  push_slots = br_cdc_fifo_ctrl_1r1w_push_credit.push_slots
+  credit_count_push = br_cdc_fifo_ctrl_1r1w_push_credit.credit_count_push
+  credit_available_push = br_cdc_fifo_ctrl_1r1w_push_credit.credit_available_push
+  pop_empty = br_cdc_fifo_ctrl_1r1w_push_credit.pop_empty
+  pop_items = br_cdc_fifo_ctrl_1r1w_push_credit.pop_items
+}

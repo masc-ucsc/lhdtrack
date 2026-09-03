@@ -22,7 +22,7 @@ pub mod br_amba_axi_default_target_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=0, rst=rst, target_awvalid=lfsr#[0], target_awid=lfsr#[1..=4], target_awlen=lfsr#[5], target_wvalid=lfsr#[6], target_wlast=lfsr#[7], target_bready=lfsr#[8], target_arvalid=lfsr#[9], target_arid=lfsr#[10..=13], target_arlen=lfsr#[14], target_rready=lfsr#[15])
+  const r = dut(clk=1, rst=rst, target_awvalid=lfsr#[0], target_awid=lfsr#[1..=4], target_awlen=lfsr#[5], target_wvalid=lfsr#[6], target_wlast=lfsr#[7], target_bready=lfsr#[8], target_arvalid=lfsr#[9], target_arid=lfsr#[10..=13], target_arlen=lfsr#[14], target_rready=lfsr#[15])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r.target_awready

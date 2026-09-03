@@ -191,10 +191,10 @@ pub mod br_ecc_secded_decoder::[timecheck=false](clk:u1, rst:u1, rcv_valid:u1, r
   internal_h_column_match__w38#[37] = unsigned(internal_error_syndrome__w1 == 2) & 1
   mut internal_h_column_match__w39 = internal_h_column_match__w38
   internal_h_column_match__w39#[38] = unsigned(internal_error_syndrome__w1 == 1) & 1
-  const t541 = internal_h_column_match__w39 == 0
-  const t542 = (internal_error_syndrome_is_odd__w1 != 0) and t541
-  const t547 = internal_h_column_match__w39 != 0
-  const t548 = (internal_error_syndrome_is_odd__w1 != 0) and t547
+  const t540 = internal_h_column_match__w39 == 0
+  const t542 = (internal_error_syndrome_is_odd__w1 != 0) and t540
+  const t546 = internal_h_column_match__w39 != 0
+  const t548 = (internal_error_syndrome_is_odd__w1 != 0) and t546
   const t549 = (br_delay_valid_syndrome.out >> 7)#[0..=38] ^ internal_h_column_match__w39
   const t550 = t549#[0..=38]
   const internal_corrected_codeword__w1 = t550

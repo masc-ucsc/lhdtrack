@@ -30,27 +30,17 @@ pub mod br_fifo_shared_pstatic_ptr_mgr::[timecheck=false](clk:u1, rst:u1, config
   const advance_head__w1 = head_ready & head_valid__w1
   mut reinit_head__w1 = reinit_head
   reinit_head__w1#[0] = unsigned(((advance_head__w1 & 1) != 0) and (head#[0..=4] == config_bound#[0..=4])) & 1
+  mut gen_fifo_pointers_0_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_0_br_counter_incr_head](clk = clk, rst = rst, reinit = reinit_head__w1 & 1, initial_value = config_base#[0..=4], incr_valid = advance_head__w1 & 1, incr = 1)
+  head__wtmp#[0..=4] = gen_fifo_pointers_0_br_counter_incr_head.value#[0..=4]
+  mut head_next__w1 = head_next
+  head_next__w1#[0..=4] = gen_fifo_pointers_0_br_counter_incr_head.value_next#[0..=4]
   mut reinit_head__w2 = reinit_head__w1
   reinit_head__w2#[1] = unsigned((((advance_head__w1 >> 1) & 1) != 0) and (head#[5..=9] == config_bound#[5..=9])) & 1
   mut gen_fifo_pointers_1_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_1_br_counter_incr_head](clk = clk, rst = rst, reinit = (reinit_head__w2 >> 1) & 1, initial_value = config_base#[5..=9], incr_valid = (advance_head__w1 >> 1) & 1, incr = 1)
-  head__wtmp#[5..=9] = gen_fifo_pointers_1_br_counter_incr_head.value#[0..=4]
-  mut head_next__w1 = head_next
-  head_next__w1#[5..=9] = gen_fifo_pointers_1_br_counter_incr_head.value_next#[0..=4]
-  mut gen_fifo_pointers_0_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_0_br_counter_incr_head](clk = clk, rst = rst, reinit = reinit_head__w2 & 1, initial_value = config_base#[0..=4], incr_valid = advance_head__w1 & 1, incr = 1)
   mut head__wtmp__w1 = head__wtmp
-  head__wtmp__w1#[0..=4] = gen_fifo_pointers_0_br_counter_incr_head.value#[0..=4]
+  head__wtmp__w1#[5..=9] = gen_fifo_pointers_1_br_counter_incr_head.value#[0..=4]
   mut head_next__w2 = head_next__w1
-  head_next__w2#[0..=4] = gen_fifo_pointers_0_br_counter_incr_head.value_next#[0..=4]
-  if (advance_head__w1 & 1) == advance_tail.e0 {
-    push_full_next#[0] = push_full_q & 1
-    empty_next#[0] = empty_q & 1
-  } elif (advance_head__w1 & 1) != 0 {
-    push_full_next#[0] = 0
-    empty_next#[0] = unsigned(head_next__w2#[0..=4] == tail#[0..=4]) & 1
-  } else {
-    push_full_next#[0] = unsigned(tail_next#[0..=4] == head#[0..=4]) & 1
-    empty_next#[0] = 0
-  }
+  head_next__w2#[5..=9] = gen_fifo_pointers_1_br_counter_incr_head.value_next#[0..=4]
   if ((advance_head__w1 >> 1) & 1) == advance_tail.e1 {
     push_full_next#[1] = (push_full_q >> 1) & 1
     empty_next#[1] = (empty_q >> 1) & 1
@@ -60,6 +50,16 @@ pub mod br_fifo_shared_pstatic_ptr_mgr::[timecheck=false](clk:u1, rst:u1, config
   } else {
     push_full_next#[1] = unsigned(tail_next#[5..=9] == head#[5..=9]) & 1
     empty_next#[1] = 0
+  }
+  if (advance_head__w1 & 1) == advance_tail.e0 {
+    push_full_next#[0] = push_full_q & 1
+    empty_next#[0] = empty_q & 1
+  } elif (advance_head__w1 & 1) != 0 {
+    push_full_next#[0] = 0
+    empty_next#[0] = unsigned(head_next__w2#[0..=4] == tail#[0..=4]) & 1
+  } else {
+    push_full_next#[0] = unsigned(tail_next#[0..=4] == head#[0..=4]) & 1
+    empty_next#[0] = 0
   }
   push_full_q = if rst != 0 { 0 } else { push_full_next }
   empty_q = if rst != 0 { 3 } else { empty_next }

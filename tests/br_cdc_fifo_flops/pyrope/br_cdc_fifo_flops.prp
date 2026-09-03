@@ -1,0 +1,18 @@
+const br_cdc_fifo_ctrl_1r1w_t = import("br_cdc_fifo_ctrl_1r1w.br_cdc_fifo_ctrl_1r1w")
+const br_ram_flops_t = import("br_ram_flops.br_ram_flops")
+
+pub mod br_cdc_fifo_flops::[timecheck=false](push_clk:u1, push_rst:u1, push_valid:u1, push_data:u64, pop_clk:u1, pop_rst:u1, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u64@[], push_full:u1@[], push_slots:u6@[], pop_empty:u1@[], pop_items:u6@[]) {
+  wire pop_ram_rd_data_valid:u1
+  wire pop_ram_rd_data:u64
+  mut br_cdc_fifo_ctrl_1r1w = br_cdc_fifo_ctrl_1r1w_t::[name=br_cdc_fifo_ctrl_1r1w](push_clk = push_clk, push_rst = push_rst, push_valid = push_valid, push_data = push_data, pop_clk = pop_clk, pop_rst = pop_rst, pop_ready = pop_ready, pop_ram_rd_data_valid = pop_ram_rd_data_valid, pop_ram_rd_data = pop_ram_rd_data)
+  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk = push_clk, wr_rst = push_rst, wr_valid = br_cdc_fifo_ctrl_1r1w.push_ram_wr_valid, wr_addr = br_cdc_fifo_ctrl_1r1w.push_ram_wr_addr, wr_data = br_cdc_fifo_ctrl_1r1w.push_ram_wr_data, wr_word_en = 1, rd_clk = pop_clk, rd_rst = pop_rst, rd_addr_valid = br_cdc_fifo_ctrl_1r1w.pop_ram_rd_addr_valid, rd_addr = br_cdc_fifo_ctrl_1r1w.pop_ram_rd_addr)
+  pop_ram_rd_data_valid = br_ram_flops.rd_data_valid
+  pop_ram_rd_data = br_ram_flops.rd_data
+  push_ready = br_cdc_fifo_ctrl_1r1w.push_ready
+  pop_valid = br_cdc_fifo_ctrl_1r1w.pop_valid
+  pop_data = br_cdc_fifo_ctrl_1r1w.pop_data
+  push_full = br_cdc_fifo_ctrl_1r1w.push_full
+  push_slots = br_cdc_fifo_ctrl_1r1w.push_slots
+  pop_empty = br_cdc_fifo_ctrl_1r1w.pop_empty
+  pop_items = br_cdc_fifo_ctrl_1r1w.pop_items
+}

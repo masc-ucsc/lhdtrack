@@ -5,7 +5,7 @@
 # Period 20 ns -- expressed in THIS library's time unit, which is
 # why constraints are generated per technology (sky130 is 1ns, ASAP7 is 1ps).
 
-create_clock -name clk -period 20 [get_ports clk]
+create_clock -name clk -period 20.0 [get_ports clk]
 
 # ZERO I/O budget, deliberately. An external delay is part of the arrival
 # time OpenSTA reports but NOT of the path delay lhd's OpenTimer reports,

@@ -14,31 +14,31 @@ pub mod br_lru_state_internal::[timecheck=false](clk:u1, rst:u1, update_priority
   state_reg__w1#[0] = 0
   mut state_reg_next__w1 = state_reg_next
   state_reg_next__w1#[0] = 0
+  br_misc_unused_p6::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in` = (state_reg__w1#[0..=1] & 1) << 1)
   mut state__w2 = state__w1
   state__w2#[1] = (state_reg__w1#[0..=1] >> 1) & 1
   mut state__w3 = state__w2
   state__w3#[2] = unsigned(((state_reg__w1#[0..=1] >> 1) & 1) == 0) & 1
-  mut state_reg_next__w2 = state_reg_next__w1
-  state_reg_next__w2#[2] = 0
   mut state_reg__w2 = state_reg__w1
   state_reg__w2#[2] = 0
+  mut _mux_2:u1 = if grant.e1 != 0 { 1 } else { (state__w3#[0..=1] >> 1) & 1 }
+  mut _mux_3:u1 = if grant.e0 != 0 { 0 } else { _mux_2 & 1 }
+  mut state_reg_next__w2 = state_reg_next__w1
+  state_reg_next__w2#[1] = _mux_3 & 1
+  if rst != 0 {
+    state_reg___q#[1] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[1] = (state_reg_next__w2#[0..=1] >> 1) & 1
+  }
+  mut state_reg_next__w3 = state_reg_next__w2
+  state_reg_next__w3#[2] = 0
+  br_misc_unused_p7::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = ((state_reg_next__w3#[2..=3] & 1) << 1) | (state_reg__w2#[2..=3] & 1))
   mut state__w4 = state__w3
   state__w4#[3] = 0
   mut state_reg__w3 = state_reg__w2
   state_reg__w3#[3] = 0
-  mut state_reg_next__w3 = state_reg_next__w2
-  state_reg_next__w3#[3] = 0
-  mut _mux_2:u1 = if grant.e1 != 0 { 1 } else { (state__w4#[0..=1] >> 1) & 1 }
-  mut _mux_3:u1 = if grant.e0 != 0 { 0 } else { _mux_2 & 1 }
   mut state_reg_next__w4 = state_reg_next__w3
-  state_reg_next__w4#[1] = _mux_3 & 1
-  if rst != 0 {
-    state_reg___q#[1] = 1
-  } elif update_priority != 0 {
-    state_reg___q#[1] = (state_reg_next__w4#[0..=1] >> 1) & 1
-  }
-  br_misc_unused_p6::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in` = ((state_reg_next__w4#[2..=3] & 1) << 1) | (state_reg__w3#[2..=3] & 1))
-  br_misc_unused_p7::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in` = (((state_reg_next__w4#[2..=3] >> 1) & 1) << 2) | (((state_reg__w3#[2..=3] >> 1) & 1) << 1) | ((state__w4#[2..=3] >> 1) & 1))
-  br_misc_unused_p7::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in` = ((state_reg_next__w4#[0..=1] & 1) << 2) | ((state_reg__w3#[0..=1] & 1) << 1) | (state__w4#[0..=1] & 1))
+  state_reg_next__w4#[3] = 0
+  br_misc_unused_p6::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in` = (((state_reg_next__w4#[2..=3] >> 1) & 1) << 2) | (((state_reg__w3#[2..=3] >> 1) & 1) << 1) | ((state__w4#[2..=3] >> 1) & 1))
   state = state__w4
 }

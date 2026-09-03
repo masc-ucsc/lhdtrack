@@ -46,6 +46,12 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 cycles = 1000000
 marker = "LHDTRACK-DONE"
 
+# NumMsiDestAddr is pinned to one, so every msi_dest_idx lane must be zero.
+# Driving arbitrary LFSR bits violates the DUT's integration assumption and
+# makes the out-of-range packed-array read intentionally undefined.
+[sim.inputs]
+msi_dest_idx = 0
+
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
