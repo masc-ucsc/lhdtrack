@@ -57,6 +57,11 @@ _PRP_KEYWORDS = {
 }
 
 
+# Names the generated harness declares itself; a destructured DUT output that
+# collides with one of these would shadow it.
+_HARNESS_LOCALS = frozenset({"dut", "rst", "checksum", "lfsr", "sum", "nxt", "acc", "r"})
+
+
 def pid(name: str) -> str:
     """A port name, safe to use as a Pyrope identifier."""
     return f"`{name}`" if name in _PRP_KEYWORDS else name
@@ -271,18 +276,30 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
                 if hi > lo
                 else f"{pid(p.name)}=lfsr#[{lo}]"
             )
-    call = f"  const r = dut({', '.join(args)})" if args else "  const r = dut()"
-
-    # A single-output lambda auto-unwraps its result tuple; more than one keeps
-    # the field names. Getting this wrong is the most likely way a generated
-    # Pyrope harness fails to compile, so it is decided here, once.
+    # A single-output lambda auto-unwraps its result tuple; more than one must
+    # be DESTRUCTURED at the call. `const r = dut(...)` on a multi-output call
+    # is rejected outright ("a call returning multiple outputs cannot bind to
+    # the single variable `r`"), and while a `mod` instance used to bind that
+    # way, a multi-output `comb` never did -- so this emits the one spelling
+    # both accept. Getting it wrong is the most likely way a generated Pyrope
+    # harness fails to compile, so it is decided here, once.
     # No cast on the read. `u64(x)` is not a built-in cast in this lhd build,
     # and none is needed: Pyrope integers are unlimited precision and `acc` is
     # declared u64 with `wrap`, so the narrowing is explicit at the assignment.
+    #
+    # The destructured names become harness locals, so an output sharing a name
+    # with one of the harness's own (`lfsr`, `sum`, `acc`, ...) would shadow it.
+    # Prefix the whole tuple in that case rather than only the clashing member:
+    # a mixed spelling is far easier to misread later than a uniform one.
     if len(outs) == 1:
-        reads = ["r"]
+        bind, reads = "r", ["r"]
     else:
-        reads = [f"r.{pid(p.name)}" for p in outs]
+        names = [pid(p.name) for p in outs]
+        if set(names) & _HARNESS_LOCALS:
+            names = [f"o_{n}" for n in names]
+        bind, reads = f"({', '.join(names)})", names
+    call = (f"  const {bind} = dut({', '.join(args)})" if args
+            else f"  const {bind} = dut()")
     fold = "\n".join(
         f"  wrap acc = ((acc << 1) | acc#[63]) ^ {expr}" for expr in reads
     ) or "  wrap acc = (acc << 1) | acc#[63]"

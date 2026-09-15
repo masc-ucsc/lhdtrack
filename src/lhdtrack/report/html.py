@@ -91,6 +91,8 @@ def _display_lec_verdict(block: dict | None) -> str | None:
     """
     block = block or {}
     verdict = block.get("verdict")
+    if verdict == "proven" and block.get("bounded"):
+        return f"bounded({block.get('bound', '?')})"
     if verdict != "timeout" or block.get("reason"):
         return verdict
     timeout_s = block.get("timeout_s")
@@ -131,9 +133,97 @@ def _geomean(values: list[float]) -> float | None:
     return math.exp(sum(math.log(v) for v in vals) / len(vals))
 
 
+def _synth_policy_note(rows: list[dict]) -> str:
+    """Show recorded settings without projecting current defaults onto old rows."""
+    policies: dict[tuple, int] = defaultdict(int)
+    missing = 0
+    for row in rows:
+        if not row.get("flow", "").startswith("syn_lhd_"):
+            continue
+        if row.get("qor", {}).get("cells") is None:
+            continue
+        policy = row.get("qor", {}).get("synth_policy")
+        if policy:
+            policies[tuple(sorted(policy.items()))] += 1
+        else:
+            missing += 1
+    if not policies:
+        return ""
+    parts = []
+    for policy, count in sorted(policies.items()):
+        settings = "; ".join(f"{key.removeprefix('pass.')}={value}" for key, value in policy)
+        parts.append(f"<p class='sub'>LiveHD settings ({count} measurements): "
+                     f"<code>{_e(settings)}</code>.</p>")
+    if missing:
+        parts.append(f"<p class='sub'>{missing} older measurements have no recorded settings.</p>")
+    return "".join(parts)
+
+
 # ---------------------------------------------------------------- report ----
+def _satopt_comparison(root: Path, host: str, name: str = "satopt") -> str:
+    """Render a dated evaluation derived from immutable ledger observations."""
+    path = root / "data" / f"{slug(name)}-{slug(host)}-comparison.json"
+    if not path.exists():
+        return ""
+    doc = json.loads(path.read_text())
+    if doc.get("host") != host or not doc.get("liberty_match"):
+        return ""
+    metrics = ("delay", "area", "cells", "depth", "time", "mem")
+    labels = ("Delay", "Area", "Cells", "Depth", "Runtime", "Memory")
+
+    def ratios(values, counts=None):
+        return "".join(
+            f'<td class="{"good" if values.get(m, 1) >= 1 else "bad"}">'
+            f'{_fmt(values.get(m), 3)}×'
+            f'{" <small>(n=" + str(counts.get(m, 0)) + ")</small>" if counts is not None else ""}</td>'
+            if values.get(m) is not None else '<td>—</td>'
+            for m in metrics
+        )
+
+    headers = "".join(f"<th>{label}</th>" for label in labels)
+    summary = "".join(
+        f'<tr><td class="l">{_e(r["tech"])}</td><td class="l">{_e(r["flow"])}</td>'
+        f'<td class="l">{_e(r["population"])}</td><td>{r["n"]}</td>'
+        f'{ratios(r["ratios"], r["counts"])}</tr>' for r in doc["summary"]
+    )
+    detail = "".join(
+        f'<tr><td class="l">{_e(r["test"])}</td><td class="l">{_e(r["config"])}</td>'
+        f'<td class="l">{_e(r["tech"])}</td><td class="l">{_e(r["flow"])}'
+        f'{" · refuted netlist" if r.get("netlist_refuted") else ""}</td>'
+        f'{ratios(r["ratios"])}</tr>' for r in doc["pairs"]
+    )
+    notes = " ".join(_e(note) for note in doc.get("notes", []))
+    coverage = "".join(
+        f'<tr><td class="l">{_e(r["flow"])}</td><td class="l">{_e(r["tech"])}</td>'
+        f'<td>{r["before_ok"]}</td><td>{r["after_ok"]}</td>'
+        f'<td>{r["new_failures"]}</td><td>{r["recovered"]}</td></tr>'
+        for r in doc.get("coverage", [])
+    )
+    return (
+        f'<section id="{_e(name)}-comparison"><h2>{_e(doc.get("title", "SAT optimization · preserved-report comparison"))}</h2>'
+        f'<p class="sub">Evaluation {_e(doc["date"])} against '
+        f'<a href="{_e(doc["baseline_html"])}">{_e(doc["baseline_html"])}</a>. '
+        f'Ratios are {_e(doc.get("ratio_label", "pre-SAT / measured"))}; higher is better. Geomeans use matched successful '
+        'rows on the same host and unchanged Liberty files. Headline rows require idiomatic '
+        'Pyrope and a proven language-equivalence claim.</p>'
+        '<div class="scroll"><table><thead><tr><th class="l">Tech</th>'
+        '<th class="l">Flow</th><th class="l">Population</th><th>Pairs</th>'
+        f'{headers}</tr></thead><tbody>{summary}</tbody></table></div>'
+        f'<p class="sub">{notes}</p>'
+        '<details><summary>Coverage and every matched measurement</summary>'
+        '<div class="scroll"><table><thead><tr><th class="l">Flow</th>'
+        '<th class="l">Tech</th><th>Before OK</th><th>After OK</th>'
+        '<th>New failures</th><th>Recovered</th></tr></thead>'
+        f'<tbody>{coverage}</tbody></table></div>'
+        '<div class="scroll"><table><thead><tr><th class="l">Test</th>'
+        '<th class="l">Config</th><th class="l">Tech</th><th class="l">Flow</th>'
+        f'{headers}</tr></thead><tbody>{detail}</tbody></table></div></details></section>'
+    )
+
+
 def write_report(
-    root: Path, out: Path | None = None, cfg: dict | None = None, host: str | None = None
+    root: Path, out: Path | None = None, cfg: dict | None = None, host: str | None = None,
+    synthesis_run: str | None = None, comparison_name: str | None = None,
 ) -> Path:
     cfg = cfg or {}
     host = host or host_name()
@@ -148,7 +238,19 @@ def write_report(
     # A focused rerun overlays its corrected slots on the most recent full
     # matrix.  Showing only the newest run would turn a one-test rerun into a
     # one-test report and make all unaffected measurements disappear.
-    rows = Ledger(root).latest_rows(host)
+    ledger = Ledger(root)
+    rows = ledger.latest_rows(host)
+    if synthesis_run is not None:
+        snapshot = [r for r in ledger.load(host) if r.get("run_id") == synthesis_run]
+        if not any(r.get("kind") == "synth" for r in snapshot):
+            raise ValueError(f"no synthesis rows for {host}/{synthesis_run}")
+        # A named snapshot is reproducible even when a later focused run
+        # overlays the ordinary host page. Keep the append-only ledger intact.
+        # A profile rerun may measure only the LHD flows. Keep the existing
+        # baseline flow while replacing every measured flow with its snapshot.
+        snapshot_flows = {r["flow"] for r in snapshot}
+        rows = [r for r in rows if r.get("flow") not in snapshot_flows] + snapshot
+        rows = _gate_snapshot_lec(rows, synthesis_run)
     out = out or root / TARGET_DIR / f"report-{slug(host)}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -164,6 +266,11 @@ def write_report(
 
     ident = max(rows, key=lambda row: row.get("run_id", ""))
     body = [_header(ident, rows)]
+    if synthesis_run is None or comparison_name is not None:
+        body.append(_satopt_comparison(root, host, comparison_name or "satopt"))
+    if synthesis_run is not None:
+        body.append(f'<p class="sub" data-synthesis-run="{_e(synthesis_run)}">'
+                    f'Synthesis snapshot: <code>{_e(synthesis_run)}</code>.</p>')
 
     # index: (test, config, tech) -> flow -> row
     syn: dict[tuple, dict[str, dict]] = defaultdict(dict)
@@ -206,12 +313,14 @@ def write_report(
         # first -- who is ahead, on what, by how much -- and the numbers only
         # once something looks worth chasing.
         body.append(f"<h2>Synthesis · {_e(tech)}</h2>")
+        body.append(_synth_policy_note([r for k in keys for r in syn[k].values()]))
         data = _chart_data(
             keys, syn, base_syn, list(_SYN_FLOWS[1:]),
             [
                 ("delay", "Delay", unit, lambda r: r.get("sta", {}).get("opensta_ns")),
                 ("area", "Area", "µm²", lambda r: r.get("qor", {}).get("area_um2")),
                 ("cells", "Cells", "", lambda r: r.get("qor", {}).get("cells")),
+                ("depth", "Logic depth", "cells", lambda r: r.get("qor", {}).get("logic_depth")),
                 ("time", "Tool runtime", "s",
                  lambda r: r.get("time_ms", {}).get("total")),
                 ("mem", "Peak memory", "MB",
@@ -329,7 +438,8 @@ def _sta_section(rows: list[dict], cfg: dict) -> str:
         and r.get("sta", {}).get("opensta_ns")
     ]
     if not items:
-        notes = {r["sta"]["opensta_note"] for r in rows if r.get("sta", {}).get("opensta_note")}
+        notes = {r["sta"][key] for r in rows for key in ("opensta_note", "delta_note")
+                 if r.get("sta", {}).get(key)}
         missing = {
             r["flow"] for r in rows
             if r.get("kind") == "synth" and "lhd" in r["flow"]
@@ -345,8 +455,8 @@ def _sta_section(rows: list[dict], cfg: dict) -> str:
         return (
             "<h2>STA accuracy — LiveHD OpenTimer vs OpenSTA</h2>"
             f"<p class='sub'>Not available this run. {detail}.{extra} "
-            "Until an independent timer runs on the same netlist, LiveHD's own "
-            "timing numbers are unchecked.</p>"
+            "Accuracy requires matching timing metrics and constraints on the same netlist. "
+            "The synthesis delay comparisons above use OpenSTA for every producer.</p>"
         )
 
     # Signed error: positive means LiveHD reports a LONGER path than OpenSTA
@@ -461,7 +571,7 @@ _SYN_LABELS = ("yosys+slang+abc", "lhd·verilog", "lhd·pyrope")
 def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
     head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>']
     for label in _SYN_LABELS:
-        head.append(f'<th class="g" colspan="5">{_e(label)}</th>')
+        head.append(f'<th class="g" colspan="6">{_e(label)}</th>')
     head.append("</tr><tr>")
     # Timing first, then area, then what the tool cost to run -- the order the
     # metrics actually matter in.
@@ -470,7 +580,7 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         # 1ns and ASAP7 is 1ps, so labelling both "ns" understates ASAP7 by
         # 1000x -- 154 ps would read as 154 ns, i.e. slower than 130nm.
         head.append(
-            f'<th class="g">delay {_e(unit)}</th><th>area µm²</th><th>cells</th>'
+            f'<th class="g">delay {_e(unit)}</th><th>area µm²</th><th>cells</th><th>depth</th>'
             "<th>time s</th><th>mem MB</th>"
         )
     head.append("</tr>")
@@ -488,14 +598,14 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             r = flows.get(flow)
             # A failed STA-correlation gate still carries a complete synthesis
             # measurement (area/cells plus the independent OpenSTA delay). Do
-            # not turn that useful row into five blank cells; show it with a
+            # not turn that useful row into six blank cells; show it with a
             # gate tag and keep the failure in the diagnostics section. A true
             # synthesis failure has no QoR/STA payload and remains a blank
             # failed cell.
             has_measurement = bool(r and r.get("qor") and r.get("sta", {}).get("opensta_ns") is not None)
             if not r or (r.get("status") != "ok" and not has_measurement):
                 note = (r or {}).get("status", "-")
-                cells.append(f'<td class="muted g" colspan="5">{_e(note)}</td>')
+                cells.append(f'<td class="muted g" colspan="6">{_e(note)}</td>')
                 continue
             q = r.get("qor", {})
             area, ncells = q.get("area_um2"), q.get("cells")
@@ -507,11 +617,15 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             mem = r.get("peak_rss_kb", {}).get("max", 0) / 1024
             stale = ' <span class="tag">cached</span>' if r.get("cached") else ""
             norm = ' <span class="tag">norm</span>' if q.get("normalized") else ""
+            if q.get("native_state"):
+                norm += ' <span class="tag" title="Native state preserved; whole-design area and timing unavailable">native</span>'
             gate = ' <span class="tag">STA gate</span>' if r.get("status") == "failed" else ""
+            if r.get("measured_lec_verified") is False:
+                gate += ' <span class="tag" title="No unbounded proof for this run; excluded from averages">LEC unverified</span>'
             cells.append(
                 f'<td class="g">{_fmt(delay, 2 if unit != "ns" else 3)}</td>'
                 f"<td>{_fmt(area)}{norm}{stale}{gate}</td><td>{_fmt(ncells)}</td>"
-                f"<td>{_fmt(secs, 1)}</td><td>{_fmt(mem, 0)}</td>"
+                f"<td>{_fmt(q.get('logic_depth'), 0)}</td><td>{_fmt(secs, 1)}</td><td>{_fmt(mem, 0)}</td>"
             )
             # Only comparable rows feed the geomean. The Pyrope flow is the one
             # that has to earn its place: an `auto` seed or an unproven pair is
@@ -523,6 +637,7 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
                 for metric, val, b in (
                     ("delay", delay, base.get("sta", {}).get("opensta_ns")),
                     ("area", area, base.get("qor", {}).get("area_um2")),
+                    ("depth", q.get("logic_depth"), base.get("qor", {}).get("logic_depth")),
                     ("time", secs, base.get("time_ms", {}).get("total", 0) / 1000),
                     ("mem", mem, base.get("peak_rss_kb", {}).get("max", 0) / 1024),
                 ):
@@ -536,14 +651,17 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         foot.append('<td class="g">' + _ratio(ratios[(flow, "delay")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "area")]) + "</td>")
         foot.append("<td class=\'muted\'>-</td>")
+        foot.append("<td>" + _ratio(ratios[(flow, "depth")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "time")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "mem")]) + "</td>")
     foot.append("</tr>")
 
     note = (
         "Every ratio is <b>baseline &divide; measured</b>, so <b>higher is always "
-        "better</b>: 2.00&times; means twice as fast, or half the area, or half the "
-        "memory. Geomean covers LEC-proven, hand-written Pyrope only. "
+        "better</b>. Depth counts combinational cell levels (buffers included), with "
+        "flop/latch outputs as sources. 2.00&times; means twice as fast, or half the area, or half the "
+        "memory. Named snapshots require unbounded netlist LEC from the same run; "
+        "Pyrope also requires a language-equivalence proof and hand-written source. "
         "<span class=\'tag\'>norm</span> marks a netlist whose behavioural registers "
                 "yosys mapped, so it could be counted and timed exactly like the others. "
                 "<span class=\'tag\'>STA gate</span> keeps a complete synthesis measurement "
@@ -630,6 +748,41 @@ All three simulators fold the same checksum or the test fails.</p>
 """
 
 
+def _gate_snapshot_lec(rows: list[dict], run: str) -> list[dict]:
+    """A named measurement earns its proof from the same run, not its manifest."""
+    proofs = {(r["test"], r.get("config", "default"), r.get("tech"), r["flow"]): r
+              for r in rows if r.get("run_id") == run and r.get("kind") == "lec"}
+
+    def proven(row, field):
+        block = row.get(field, {})
+        return (row.get("status") == "ok" and block.get("verdict") == "proven"
+                and block.get("bounded") is False)
+
+    result = []
+    for original in rows:
+        row = dict(original)
+        flow = row.get("flow")
+        if row.get("run_id") == run and flow in ("syn_lhd_verilog", "syn_lhd_pyrope"):
+            prefix = (row["test"], row.get("config", "default"))
+            netlist = proofs.get((*prefix, row.get("tech"), "lec_netlist"), {})
+            field = "lec_result" if flow == "syn_lhd_pyrope" else "lec_verilog_result"
+            verified = proven(netlist, field)
+            if any(netlist.get(f, {}).get("verdict") == "refuted"
+                   for f in ("lec_result", "lec_verilog_result", "lec_aux_result")):
+                verified = False
+            if flow == "syn_lhd_pyrope":
+                language = [proofs.get((*prefix, None, f), {}) for f in _LEC_FLOWS]
+                language_proven = (any(proven(r, "lec_result") for r in language)
+                                   and not any(r.get("lec_result", {}).get("verdict") == "refuted"
+                                               for r in language))
+                verified = verified and language_proven
+                row["comparable"] = bool(row.get("comparable")) and language_proven
+                row["lec"] = "proven" if language_proven else "unverified"
+            row["measured_lec_verified"] = verified
+        result.append(row)
+    return result
+
+
 def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str) -> bool:
     """May this row's ratio enter the geomean?
 
@@ -642,6 +795,8 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
     # syn_yosys_abc row that the STA gate just failed still carries its `qor`
     # block, so without this check a number the runner refused to stand behind
     # became the denominator of the headline geomean.
+    if row.get("measured_lec_verified") is False:
+        return False
     if row.get("status") != "ok" or not base or base.get("status") != "ok":
         return False
     if flow != pyrope_flow:
@@ -660,6 +815,16 @@ def _tags(flows: dict) -> str:
     return "".join(out)
 
 
+def _problem_note(row: dict) -> str:
+    note = row.get("note") or ""
+    # Old ledger entries used a literal ns suffix for every technology.
+    # Correct their display without rewriting the recorded observations.
+    unit = row.get("sta", {}).get("time_unit", "ns")
+    if note.startswith("OpenTimer ") and unit != "ns":
+        note = note.replace("ns vs OpenSTA ", f"{unit} vs OpenSTA ").replace("ns = ", f"{unit} = ")
+    return note
+
+
 def _problems(rows: list[dict]) -> str:
     bad = [r for r in rows if r.get("status") in ("failed", "skipped") or r.get("note")]
     if not bad:
@@ -667,7 +832,7 @@ def _problems(rows: list[dict]) -> str:
     body = "".join(
         f'<tr><td class="l">{_e(r["test"])}</td><td class="l muted">{_e(r["flow"])}</td>'
         f'<td class="l {"bad" if r.get("status")=="failed" else "warn"}">{_e(r.get("status"))}</td>'
-        f'<td class="note">{_e(r.get("note", ""))}</td></tr>'
+        f'<td class="note">{_e(_problem_note(r))}</td></tr>'
         for r in sorted(bad, key=lambda r: (r.get("status", ""), r["test"]))
     )
     return f"""
@@ -736,11 +901,16 @@ def _lec_section(keys, index) -> str:
                 f'<td class="l g {_VERDICT_CLASS.get(verdict, "muted")}">{_e(verdict)}</td>'
                 f"<td>{_fmt(ms / 1000, 2) if ms is not None else '—'}</td>"
             )
-        # Speedup of lhd over the yosys baseline, on tests where BOTH answered.
+        # Compare definitive answers with the same scope. A bounded proof is
+        # less work than an unbounded proof, even though both store `proven`.
         a = (by_flow.get("lec_lgyosys") or {}).get("lec_result", {})
         b = (by_flow.get("lec_lhd") or {}).get("lec_result", {})
         gain = None
-        if a.get("ms") and b.get("ms") and a.get("verdict") == b.get("verdict"):
+        same_answer = (
+            verdicts["lec_lgyosys"] in ("proven", "refuted")
+            and verdicts["lec_lgyosys"] == verdicts["lec_lhd"]
+        )
+        if a.get("ms") and b.get("ms") and same_answer:
             gain = a["ms"] / b["ms"]
             speedups.append(gain)
         cells.append(f"<td>{_ratio([gain]) if gain else '<span class=\'muted\'>—</span>'}</td>")
@@ -761,7 +931,7 @@ def _lec_section(keys, index) -> str:
     geo = _geomean(speedups)
     speed = (
         f" lhd is <b>{geo:.2f}×</b> the speed of lgcheck over the "
-        f"{len(speedups)} test(s) where both reached the same verdict."
+        f"{len(speedups)} test(s) where both reached the same definitive verdict."
         if geo else ""
     )
     split_note = (
@@ -803,7 +973,8 @@ the verdicts check each other. {summary}.{speed}{split_note}</p>
 <span class="warn">inconclusive</span>, <span class="muted">unsupported</span> and
 <span class="warn">error</span> are the
 absence of one. Until a test is proven, its QoR numbers above are reported but
-never aggregated — a Pyrope win might be a different circuit.</p>
+never aggregated — a Pyrope win might be a different circuit. Bounded checks
+and undecided results are excluded from the speedup comparison.</p>
 """
 
 
@@ -875,7 +1046,7 @@ def _netlist_lec_section(rows: list[dict]) -> str:
         for bucket, ms in (("py", py.get("ms")), ("vr", vr_ms), ("vc", vc_ms)):
             if ms:
                 secs[bucket].append(ms / 1000)
-        if vr_ms and vc_ms and vr_verdict == vc_verdict:
+        if vr_ms and vc_ms and vr_verdict in ("proven", "refuted") and vr_verdict == vc_verdict:
             engine_pairs.append(vr_ms / vc_ms)
         if vr_verdict == "refuted" and vc_verdict == "proven":
             disagreement = (
@@ -933,15 +1104,15 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     engine_gain = _geomean(engine_pairs)
     engine_note = (
         f" On the {len(engine_pairs)} row(s) where both Verilog-vs-netlist engines "
-        f"reached the same verdict, cvc5 is <b>{engine_gain:.2f}×</b> the speed of "
+        f"reached the same definitive verdict, cvc5 is <b>{engine_gain:.2f}×</b> the speed of "
         "the Yosys-backed one."
         if engine_gain else ""
     )
     return f"""
 <h2>Equivalence — sources vs synthesized netlist</h2>
-<p class="sub">Two obligations over the same flat, mapped standard-cell design:
-LiveHD checks Pyrope vs netlist; both the Yosys-backed engine and LiveHD/cvc5
-check Verilog vs netlist. Pyrope/cvc5: {summary_lhd}. Verilog/Yosys:
+<p class="sub">Each source is checked against its own measured synthesis output,
+including preserved native state. LiveHD checks Pyrope vs its netlist; both the
+Yosys-backed engine and LiveHD/cvc5 check Verilog vs its netlist. Pyrope/cvc5: {summary_lhd}. Verilog/Yosys:
 {summary_yosys}. Verilog/cvc5: {summary_verilog_cvc5}.
 {f"{skipped} skipped. " if skipped else ""}{engine_note}{alarm}{conflict_alarm} A timeout exhausted the
 budget; an inconclusive result returned earlier without either a proof or a
@@ -1008,7 +1179,8 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
             # A test whose Pyrope is machine-emitted or unproven is drawn faded:
             # shown, because hiding it would misrepresent coverage, but visually
             # not part of the claim the solid bars make.
-            "solid": bool(first.get("comparable")),
+            "solid": bool(first.get("comparable")) and not any(
+                r.get("measured_lec_verified") is False for r in by_flow.values()),
             "values": values,
         })
     if not groups:

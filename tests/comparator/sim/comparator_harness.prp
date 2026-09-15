@@ -22,14 +22,14 @@ pub mod comparator_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(a=lfsr#[0..=7], b=lfsr#[8..=15])
+  const (eq, lt, gt, lte, gte) = dut(a=lfsr#[0..=7], b=lfsr#[8..=15])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.eq
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.lt
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.gt
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.lte
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.gte
+  wrap acc = ((acc << 1) | acc#[63]) ^ eq
+  wrap acc = ((acc << 1) | acc#[63]) ^ lt
+  wrap acc = ((acc << 1) | acc#[63]) ^ gt
+  wrap acc = ((acc << 1) | acc#[63]) ^ lte
+  wrap acc = ((acc << 1) | acc#[63]) ^ gte
 
   if rst != 0 {
     lfsr = 2611923443488327891

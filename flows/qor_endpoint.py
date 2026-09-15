@@ -1,19 +1,10 @@
 """The shared endpoint every synthesis flow lands on.
 
-Whoever produced the mapped netlist -- yosys+slang+abc, lhd from Verilog, or lhd from
-Pyrope -- it is evaluated here, against the SAME Liberty and the SAME SDC, by
-the SAME two timing engines. Area and delay are therefore comparable by
-construction rather than by hope.
-
-TIMING IS MEASURED TWICE, ON PURPOSE:
-
-  OpenSTA          the independent reference
-  lhd OpenTimer    the engine LiveHD's own decisions are made with
-
-and `delta_pct` between them is reported per test as a first-class column. It is
-independent of which flow produced the netlist, so a LiveHD timing bug shows up
-as a column that reddens across many tests rather than as a QoR number that is
-quietly wrong. run.py fails the test past gates.sta_delta_pct_max.
+Every mapped netlist uses the same Liberty and SDC in OpenSTA, so its area
+and constrained minimum-period measurements are comparable across producers.
+Optional OpenTimer validation reports maximum gate-output arrival with
+zero-default inputs. Keep this diagnostic separate from synthesis results;
+its disagreement with OpenSTA does not gate QoR.
 """
 
 from __future__ import annotations
@@ -67,45 +58,49 @@ def evaluate(
     netlist: Path | None = None,
     lgraph: Path | None = None,
     qor_json: Path | None = None,
+    *,
+    validate_opentimer: bool = False,
 ) -> dict:
-    """Area + cells, then both timers. Returns the `qor` and `sta` blocks.
+    """Measure structural outputs without generating preserved native memories.
 
-    ONE COUNTER, ONE NETLIST SHAPE. LiveHD's emission is structural when the
-    flows ask for `pass.abc.memory=true` / `register_max_bits=0` (they do):
-    combinational cells, and DFF cells for both flops and bit-blasted
-    memories. The hybrid case -- a memory written behaviourally next to mapped
-    cells -- survives only for the memories mem_lower refuses (ROM with init,
-    whole-array update/reset, negedge, type==2, read_all) and for a
-    `memory=false` run, which is why one counter (`yosys stat -liberty`) still
-    runs over a NORMALIZED file for every flow rather than over the raw
-    emission: whatever was left behavioural is mapped first, so an area is
-    never reported for a design yosys has not actually seen mapped.
-
-    Every row records `area_source`; LiveHD's own `pass abc` total travels
-    beside it as `lhd_area_um2` (combinational cells only -- see _lhd_qor).
-    Both read the SAME Liberty, which is the part that has to match.
+    Native state remains part of the emitted design and its equivalence proof.
+    It has no mapped whole-design area or OpenSTA timing. Keep the compiler's
+    partial mapping statistics separately, without synthesizing it in Yosys.
+    The extra OpenTimer validation pass is opt-in and never gates synthesis.
     """
-    # NORMALIZE FIRST -- a safety net, not the register implementation. With
-    # memory=true / register_max_bits=0 LiveHD maps its own flops and memories,
-    # so on the common path yosys `proc -> memory_map -> techmap -> dfflibmap
-    # -> abc` finds nothing behavioural: it merges duplicate flops (`opt -fast`,
-    # br_fifo_flops 1111 -> 1110) and folds the `_const0_/_const1_` models
-    # away. What it still catches is a memory mem_lower refused (kept as a
-    # `cgen_memory_*` include or an inline `always` block) and a memory=false
-    # run: cells already read from the Liberty are blackboxes, so the logic
-    # LiveHD mapped is a boundary abc does not re-optimize, and only the
-    # leftover is mapped -- which the yosys baseline counts anyway, so this
-    # keeps the rows comparable rather than making them differ.
     raw, structural, normalized = None, netlist, False
     if netlist is not None and qor_json is not None:
         # Scanned BEFORE normalization: whether the raw emission was already
         # structural decides below whether the two timers saw one circuit. On
         # the yosys netlist normalization never runs and the scan is skipped.
         raw = _scan_netlist(netlist)
+        if not raw.structural:
+            from lib.lhd_synth_policy import recorded_settings
+
+            qor = _lhd_qor(qor_json) if qor_json.exists() else {}
+            # Even an unreadable compiler report must not invent zero area.
+            qor.pop("cells", None)
+            qor.pop("area_um2", None)
+            qor.update(native_state=True, raw_structural=False, normalized=False,
+                       area_source="unavailable: native state preserved",
+                       synth_policy=recorded_settings(ctx.cmds))
+            reason = "Native state preserved; whole-design mapped area and timing are unavailable"
+            return {"qor": qor, "sta": {"opensta_note": reason, "delta_note": reason,
+                                         "time_unit": ctx.tech.time_unit}}
         structural = _normalize(ctx, netlist)
         normalized = True
 
     qor = _area(ctx, structural) if structural is not None else {}
+    depth_json = ctx.work / "mapped-depth.json"
+    if depth_json.exists():
+        from lib.logic_depth import liberty_cells, mapped_depth
+
+        try:
+            net = json.loads(depth_json.read_text())
+            known, sequential = liberty_cells(ctx.liberty)
+            qor["logic_depth"] = mapped_depth(net["modules"][ctx.top], known, sequential)
+        except (OSError, ValueError, KeyError) as error:
+            qor["depth_note"] = str(error)
     # `normalized` (the report's `norm` tag) marks a row where normalization
     # had behavioural logic to MAP -- a refused memory, a memory=false run --
     # not merely that it ran: on a structural emission it only merges flops.
@@ -116,6 +111,10 @@ def evaluate(
         # LiveHD's own accounting, kept beside the normalized number rather
         # than instead of it: the gap between them IS the register logic.
         qor.update(_lhd_qor(qor_json))
+    if lgraph is not None:
+        from lib.lhd_synth_policy import recorded_settings
+
+        qor["synth_policy"] = recorded_settings(ctx.cmds)
     out: dict = {"qor": qor, "sta": {}}
 
     # OpenSTA is the independent reference, not a prerequisite. Without it the
@@ -132,11 +131,12 @@ def evaluate(
     else:
         out["sta"]["opensta_note"] = "OpenSTA not staged -- no independent timing reference"
 
-    # The LiveHD side only exists when a LiveHD flow produced an lgraph. A yosys
-    # netlist has no lgraph, so its row carries OpenSTA only -- and that is
-    # fine: the baseline's job is the reference number, not the correlation.
-    if lgraph is not None:
+    # Synthesis uses OpenSTA for every producer. Run the extra LiveHD timer
+    # only for callers explicitly requesting its diagnostic comparison.
+    if lgraph is not None and validate_opentimer:
         out["sta"].update(_opentimer(ctx, lgraph))
+    elif lgraph is not None:
+        out["sta"]["opentimer_note"] = "OpenTimer validation not requested"
 
     ot, st = out["sta"].get("opentimer_ns"), out["sta"].get("opensta_ns")
     if ot and st:
@@ -182,6 +182,14 @@ def evaluate(
                 "into zero-arrival boundaries (multi-region wrapper glue, or a "
                 "preserved native SCC), so its delay is not an end-to-end score"
             )
+        elif (out["sta"].get("opentimer_metric") and out["sta"].get("opensta_metric")
+              and out["sta"]["opentimer_metric"] != out["sta"]["opensta_metric"]):
+            out["sta"]["delta_note"] = (
+                "Different timing metrics: OpenTimer reports maximum gate-output arrival "
+                "with zero-default inputs; OpenSTA reports the SDC-constrained minimum "
+                "clock period, including setup and I/O constraints. Their gap is not timer error."
+            )
+            out["sta"]["metric_gap_pct"] = round((ot - st) / max(st, 1e-9) * 100.0, 2)
         elif not normalized or comparable:
             out["sta"]["delta_pct"] = round(abs(ot - st) / max(st, 1e-9) * 100.0, 2)
             if raw is not None and raw.flops != norm_flops:
@@ -214,13 +222,16 @@ def _lhd_qor(path: Path) -> dict:
     register logic, not a mapper disagreement.
     """
     try:
-        total = json.loads(path.read_text()).get("total", {})
+        doc = json.loads(path.read_text())
+        total = doc.get("total", {})
     except (OSError, json.JSONDecodeError):
         return {"cells": 0, "area_um2": 0.0, "area_source": "lhd-qor(unreadable)"}
     return {
         "lhd_cells": int(total.get("gates", 0)),
         "lhd_area_um2": round(float(total.get("area", 0.0)), 3),
         "regions": int(total.get("regions", 0)),
+        "satopt_facts": sum(int(r.get("satopt_facts", 0)) for r in doc.get("regions", [])),
+        "satopt_regions": sum(bool(r.get("satopt_facts", 0)) for r in doc.get("regions", [])),
         # lhd's ABC-reported critical path, distinct from the OpenTimer pass.
         "abc_max_delay_ns": round(float(total.get("max_delay", 0.0)), 4),
     }
@@ -381,6 +392,11 @@ def _area(ctx: FlowContext, netlist: Path) -> dict:
 read_verilog -sv {netlist}
 hierarchy -check -top {ctx.top}
 {stats}
+# Keep the counted netlist, then flatten a copy in memory to measure mapped
+# combinational depth from JSON. No optimization or remapping is performed.
+proc
+flatten
+write_json {ctx.work / "mapped-depth.json"}
 """
     ys = ctx.write("stat.ys", script)
     # Neither -q nor -l: `-q` suppresses the JSON `stat` prints, and `-l` sends
@@ -481,6 +497,7 @@ exit
     # both say 154, so the unit travels with the number instead.
     out = {
         "time_unit": ctx.tech.time_unit if ctx.tech else "ns",
+        "opensta_metric": "sdc-minimum-period",
         "wns_ns": round(wns, 4) if wns is not None else None,
         "tns_ns": round(tns, 4) if tns is not None else None,
         "sdc_period_ns": round(period, 4) if period is not None else None,
@@ -545,7 +562,8 @@ def _opentimer(ctx: FlowContext, lgraph: Path) -> dict:
     except (OSError, json.JSONDecodeError):
         return {"opentimer_ns": None, "opentimer_note": "unparseable timing.json"}
     delay = _dig(doc, "max_delay")
-    out = {"opentimer_ns": round(float(delay), 4) if delay is not None else None}
+    out = {"opentimer_ns": round(float(delay), 4) if delay is not None else None,
+           "opentimer_metric": "zero-input-gate-output-arrival"}
     # lhd declares the unit it reports in. If that disagrees with the library's
     # own, the two timers are being compared across a 1000x scale factor and
     # the correlation below is meaningless -- say so rather than compute it.

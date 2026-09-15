@@ -1,22 +1,100 @@
 [
   {
-    "run": "20260827T135004",
-    "date": "2026-08-27",
-    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled Aug  5 2026 05:43:12),sta=3.1.0,verilator=Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701,yosys=Yosys 0.68+post (git sha1 c12172fbae8af5e20f6fb52e3d4e92d56ed587b6, Release, AppleClang clang++ 21.0.0.21000101)",
+    "run": "20260908T195421",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
     "flows": {
       "syn_yosys_abc": 1.0,
-      "syn_lhd_verilog": 0.7918786462517142,
-      "syn_lhd_pyrope": 0.7918786462517142
+      "syn_lhd_verilog": 0.7601276647459226,
+      "syn_lhd_pyrope": 0.8645219459964028
     }
   },
   {
-    "run": "20260827T154609",
-    "date": "2026-08-27",
-    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled Aug  5 2026 05:43:12),sta=3.1.0,verilator=Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260701,yosys=Yosys 0.68+post (git sha1 c12172fbae8af5e20f6fb52e3d4e92d56ed587b6, Release, AppleClang clang++ 21.0.0.21000101)",
+    "run": "20260909T044205",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
     "flows": {
       "syn_yosys_abc": 1.0,
-      "syn_lhd_verilog": 0.5903710192610855,
-      "syn_lhd_pyrope": 0.7918786462517142
+      "syn_lhd_verilog": 1.0022511686311655,
+      "syn_lhd_pyrope": 1.0022511686311655
+    }
+  },
+  {
+    "run": "20260909T045500-cones",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.8378204100377549,
+      "syn_lhd_pyrope": 1.0022511686311655
+    }
+  },
+  {
+    "run": "20260909T045800-cones",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7852159843693612,
+      "syn_lhd_pyrope": 0.8645219459964028
+    }
+  },
+  {
+    "run": "20260909T060629",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7660962715695065
+    }
+  },
+  {
+    "run": "20260909T060933",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7913487070937884
+    }
+  },
+  {
+    "run": "20260909T071209",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.8502303018977037,
+      "syn_lhd_pyrope": 0.8502303018977037
+    }
+  },
+  {
+    "run": "20260909T071548-cones-final",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.8516564936818203,
+      "syn_lhd_pyrope": 0.8502303018977037
+    }
+  },
+  {
+    "run": "20260909T075131",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.7024316009889762,
+      "syn_lhd_pyrope": 0.8502303018977037
+    }
+  },
+  {
+    "run": "20260909T075240-cones-primary-final",
+    "date": "2026-09-09",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.819201394348979,
+      "syn_lhd_pyrope": 0.9006341095387808
     }
   }
 ]

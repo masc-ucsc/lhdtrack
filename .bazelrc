@@ -9,13 +9,15 @@ build --cxxopt="-std=c++23" --cxxopt="-fexceptions" --force_pic
 build --action_env=BAZEL_CXXOPTS="-std=c++23"
 build --per_file_copt=external/gmp[+~].*@-O2,-g0
 
-# macOS needs 13.3+ for the C++23 features livehd uses.
+# macOS 26.0+: livehd uses floating-point std::from_chars, which current
+# libc++ marks unavailable below that deployment target (matches
+# ../livehd/.bazelrc; raising it there is what forces it here).
 build --enable_platform_specific_config
-build:macos --linkopt="-mmacosx-version-min=13.3"
-build:macos --copt="-mmacosx-version-min=13.3"
-build:macos --cxxopt="-mmacosx-version-min=13.3"
-build:macos --host_linkopt="-mmacosx-version-min=13.3"
-build:macos --host_copt="-mmacosx-version-min=13.3"
+build:macos --linkopt="-mmacosx-version-min=26.0"
+build:macos --copt="-mmacosx-version-min=26.0"
+build:macos --cxxopt="-mmacosx-version-min=26.0"
+build:macos --host_linkopt="-mmacosx-version-min=26.0"
+build:macos --host_copt="-mmacosx-version-min=26.0"
 build:darwin --config=macos
 
 # This repo measures speed as much as correctness. A debug lhd produces

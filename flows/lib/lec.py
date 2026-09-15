@@ -26,7 +26,18 @@ import json
 import re
 from pathlib import Path
 
-from lhdtrack.context import FlowContext, FlowSkip
+from lhdtrack.context import FlowContext, FlowError, FlowSkip
+
+
+def check_elaboration_internal_error(result_path: Path) -> None:
+    """A compiler defect is a failed measurement, not a missing capability."""
+    try:
+        result = json.loads(result_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return
+    error = result.get("error") or {}
+    if error.get("class") == "internal":
+        raise FlowError(f"Verilog elaboration failed: {error.get('message', 'internal compiler error')}")
 
 # lhd's own `error.class` -> our verdict. Read from the RESULT JSON, never from
 # the log: the log echoes "timeout=300s" in an info line, which made every run
@@ -72,7 +83,29 @@ def classify(
         # an equivalence proof, and run.py then writes that "verdict" back into
         # the manifest and lets the test into the headline geomean.
         return "error"
-    verdict = (result.get("lec") or {}).get("verdict")
+    lec = result.get("lec") or {}
+    verdict = lec.get("verdict")
+    if solver == "lgyosys":
+        crosscheck = lec.get("crosscheck") or {}
+        err = result.get("error") or {}
+        message = str(err.get("message", ""))
+        if crosscheck:
+            verdict = crosscheck.get("verdict", "unknown")
+            if verdict == "unknown" and crosscheck.get("exit_code") != 2:
+                return "error"
+        elif message.startswith("lgcheck cross-check did not decide equivalence"):
+            # Older current builds retain the native proof in lec.verdict even
+            # when the independent lgcheck comparison gives up.
+            verdict = "unknown"
+        elif message.startswith("lec engine and lgcheck DISAGREE"):
+            if "lgcheck=different" in message:
+                return "refuted"
+            if "lgcheck=equivalent" in message:
+                return "proven"
+            return "error"
+        elif result.get("status") != "pass" and verdict == "proven":
+            # Emission/setup failed before an independent answer was available.
+            return "error"
     if verdict in ("proven", "refuted"):
         return verdict
     if verdict == "unknown":
@@ -98,7 +131,9 @@ def classify(
         # Consult that explicit message before the coarse process class. This
         # preserves the refusal distinction while preventing a hierarchy-only
         # mismatch from being rendered as a failed/unsupported design.
-        undecided = msg.startswith("lec could not decide equivalence")
+        undecided = msg.startswith((
+            "lec could not decide equivalence", "lgcheck cross-check did not decide equivalence",
+        ))
         budget_ms = None
         if timeout_s is not None:
             budget_ms = timeout_s * 1000 * (2 if solver == "lgyosys" else 1)
@@ -163,26 +198,54 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         raise FlowSkip(f"no pyrope source: {ctx.test.pyrope_top.name}")
 
     params = [f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())]
+    wall = timeout_s * 2 + 60
+
+    def elaboration_timeout(measured, side: str) -> dict:
+        return {
+            "lec": {
+                "verdict": "timeout",
+                "bounded": False,
+                "solver": solver,
+                "obligation": "pyrope-vs-verilog",
+                "declared": ctx.test.lec_status,
+                "ms": measured.ms,
+                "timeout_s": timeout_s,
+                "wall_limit_s": wall,
+                "reason": f"{side} elaboration timed out before equivalence checking",
+            },
+            "lec_drift": False,
+        }
 
     # Both sides are elaborated the same way for both backends, so the timing
     # difference below is the SOLVER's, not the front end's.
     ref = ctx.run(
         "elab_ref",
         [lhd, "compile", "verilog", "--top", ctx.top, "--emit-dir", "lg:ref",
-         "--workdir", "rw", "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS",
+         "--workdir", "rw", "--result-json", str(ctx.work / "elab_ref.json"),
+         "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS",
          "-DBR_PPA_SYNTHESIS", *params],
         check=False,
+        timeout=wall,
     )
+    if ref.timed_out:
+        return elaboration_timeout(ref, "Verilog")
     if not ref.ok:
-        # lhd's slang reader could not elaborate the reference. Same class as
-        # yosys failing to parse: a tool limitation, reported as a skip with the
-        # tool's own words rather than as a red row every night.
+        check_elaboration_internal_error(ctx.work / "elab_ref.json")
+        # Unsupported inputs retain the reader's explicit capability reason.
         raise FlowSkip(f"lhd cannot elaborate the Verilog reference: {_why(ref)}")
-    ctx.run(
+    impl = ctx.run(
         "elab_impl",
         [lhd, "compile", str(ctx.test.pyrope_top), "--top", ctx.top,
          "--emit-dir", "lg:impl", "--workdir", "iw"],
+        check=False,
+        timeout=wall,
     )
+    if impl.timed_out:
+        return elaboration_timeout(impl, "Pyrope")
+    if not impl.ok:
+        from lhdtrack.context import FlowError
+
+        raise FlowError(f"elab_impl exited {impl.rc}\n{impl.tail()}")
 
     result_json = ctx.work / f"lec_{solver}.json"
     # TWO BUDGETS, because one of them is not enforced. `formal.timeout` is the
@@ -193,13 +256,12 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     # at all, which is the one thing lhdtrack.toml's `lec_timeout_s` comment
     # says must not happen. The headroom covers the emission and the process
     # start; a solver inside its own budget never reaches it.
-    wall = timeout_s * 2 + 60
     m = ctx.run(
         "lec",
         [
             lhd, "lec", "--impl", "lg:impl", "--ref", "lg:ref",
             "--top", f"{ctx.top}.{ctx.top}", "--workdir", "LW",
-            "--set", f"formal.solver={solver}",
+            *([] if solver == "cvc5" else ["--set", f"formal.solver={solver}"]),
             "--set", f"formal.timeout={timeout_s}",
             "--result-json", str(result_json),
         ],
@@ -234,6 +296,8 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     # `proven` hid a genuine refutation. Carry the depth so the report -- and
     # anyone reading a headline geomean -- can see which proofs are bounded.
     lec_block = (result or {}).get("lec") or {}
+    if solver == "lgyosys":
+        lec_block = lec_block.get("crosscheck") or lec_block
     block = {
         "verdict": verdict,
         "bounded": bool(lec_block.get("bounded")),

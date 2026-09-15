@@ -22,11 +22,11 @@ pub mod br_shift_right_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(`in`=lfsr#[0..=15], shift=lfsr#[16..=19], fill=lfsr#[20])
+  const (out_valid, out) = dut(`in`=lfsr#[0..=15], shift=lfsr#[16..=19], fill=lfsr#[20])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ out
 
   if rst != 0 {
     lfsr = 2611923443488327891

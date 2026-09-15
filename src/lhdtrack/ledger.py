@@ -106,35 +106,39 @@ class Ledger:
         return [r for r in rows if r.get("run_id") == newest]
 
     def latest_rows(self, host: str | None = None) -> list[dict]:
-        """Newest observation for every report slot, for one host if given.
+        """Newest observations over the widest matrix of each host/flow/tech.
 
-        A focused corrective run must replace the affected rows without hiding
-        all of the unaffected rows from the last full matrix.  Start at the
-        newest widest run, then overlay only later rows.  This also prevents a
-        configuration removed from the current corpus from lingering forever
-        merely because it exists in old history.  Append order breaks ties
-        within a run, as desired when a slot is deliberately measured twice.
+        A focused corrective run overlays the affected slots. A larger run of
+        another flow or technology cannot retire this flow's measurements: in
+        particular, equivalence-only runs must not hide synthesis QoR. Within
+        each scope, start at the newest widest run, preserving the existing
+        retirement rule for configurations removed by a replacement matrix.
+        Count distinct slots so repeated attempts cannot turn a focused run
+        into a full matrix. Append order breaks ties within the same run.
         """
         rows = self.load(host)
         if not rows:
             return []
 
-        run_width: dict[str, int] = {}
+        def scope(row: dict) -> tuple:
+            return row.get("host"), row.get("flow"), row.get("tech")
+
+        run_slots: dict[tuple, dict[str, set[tuple]]] = {}
         for row in rows:
-            run_id = row.get("run_id", "")
-            run_width[run_id] = run_width.get(run_id, 0) + 1
-        base_run = max(run_width, key=lambda run_id: (run_width[run_id], run_id))
+            runs = run_slots.setdefault(scope(row), {})
+            slots = runs.setdefault(row.get("run_id", ""), set())
+            slots.add((row.get("test"), row.get("config", "default")))
+        base_runs = {
+            key: max(runs, key=lambda run_id: (len(runs[run_id]), run_id))
+            for key, runs in run_slots.items()
+        }
 
         latest: dict[tuple, dict] = {}
         for row in rows:
-            if row.get("run_id", "") < base_run:
+            key_scope = scope(row)
+            if row.get("run_id", "") < base_runs[key_scope]:
                 continue
-            key = (
-                row.get("test"),
-                row.get("config", "default"),
-                row.get("tech"),
-                row.get("flow"),
-            )
+            key = (*key_scope, row.get("test"), row.get("config", "default"))
             previous = latest.get(key)
             if previous is None or row.get("run_id", "") >= previous.get("run_id", ""):
                 latest[key] = row

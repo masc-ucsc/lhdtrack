@@ -17,6 +17,7 @@ and re-measuring LiveHD is the entire point.
 from __future__ import annotations
 
 from lhdtrack.context import FlowContext, FlowError, FlowSkip
+from lib.lhd_synth_policy import abc_settings
 
 NAME = "syn_lhd_verilog"
 KIND = "synth"
@@ -29,67 +30,44 @@ def run(ctx: FlowContext) -> dict:
     ctx.require_sdc()
     lhd = ctx.tool("lhd")
     params = [f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())]
-    # TELL lhd WHICH LIBRARY. `pass.abc.library` defaults to
+    # TELL lhd WHICH LIBRARY. `synth.liberty` -- the ONE Liberty pass.abc,
+    # pass.opentimer and `lhd synth` all read (the former per-pass
+    # `pass.abc.library` was removed) -- defaults to
     # $HAGENT_TECH_DIR/sky130_..., so without this every technology would
     # silently map to sky130 and the ASAP7 rows would be sky130 wearing an
     # ASAP7 label. The staged ASAP7 Liberty is merged ahead of time because
     # ABC's read_lib takes one file.
     if len(ctx.liberty) != 1:
         raise FlowSkip(
-            f"lhd's pass.abc.library takes a single Liberty file, but "
+            f"lhd's synth.liberty takes a single Liberty file, but "
             f"{ctx.tech.name} staged {len(ctx.liberty)} Liberty files; "
             "merge the technology before running LiveHD"
         )
-    lib_args = [
-        "--set", f"pass.abc.library={ctx.liberty[0]}",
+    settings = [
+        "--set", f"synth.liberty={ctx.liberty[0]}",
         "--set", f"pass.abc.delay={ctx.abc_delay_ps()}",
-        # QoR is a whole-design comparison. Keep source hierarchy for compile
-        # and LEC, but let ABC optimize paths that cross module boundaries just
-        # as the Yosys baseline does.
-        "--set", "pass.abc.flatten=true",
-        # A STRUCTURAL NETLIST, LIKE THE BASELINE'S. Bit-blast memories into
-        # DFF cells plus mux logic, and never keep a region's flops native.
-        # The yosys baseline maps every flop, so whatever lhd leaves
-        # behavioural is mapped later by qor_endpoint's normalization -- yosys's
-        # own dfflibmap+abc, with no -D -- and then measured as lhd's result.
-        # Measured 2026-09-01 on ASAP7: br_ram_flops (5808 register bits, over
-        # the 4096 default of register_max_bits) read 906 ps with its flops
-        # kept native against 360 ps mapped here (yosys 1292 ps); memory=true
-        # alone moved the 25 memory tests from 11/25 to 22/25 faster than yosys.
-        "--set", "pass.abc.memory=true",
-        "--set", "pass.abc.register_max_bits=0",
+        *abc_settings(ctx.tech.name),
     ]
-
-    # 1. Verilog -> lgraph, through slang. One filelist read, same sources and
-    #    same -DSYNTHESIS the verilator side gets, so both front ends see
-    #    identical RTL rather than one reading a re-emission of it.
-    ctx.run(
-        "elab",
-        [
-            lhd, "compile", "verilog", "--top", ctx.top,
-            "--emit-dir", "lg:design", "--workdir", "cw",
-            "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", *params,
-        ],
-    )
-    return _synthesize(ctx, "design", lib_args)
-
-
-def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
-    """color -> abc -> emit, shared with syn_lhd_pyrope's manual path."""
     lhd = ctx.tool("lhd")
     top = f"{ctx.top}.{ctx.top}"
-    map_wall = ctx.lec_timeout_s * 2 + 60
-
-    ctx.run("color", [lhd, "pass", "color", "synth", "--top", top, f"lg:{lgraph}", "--workdir", "W"])
     ctx.run(
-        "map",
-        [
-            lhd, "pass", "abc", "--top", top, f"lg:{lgraph}",
-            "--emit-dir", "lg:netlist", "--workdir", "W", "--result-json", "abc.json",
-            *lib_args,
-        ],
-        timeout=map_wall,
+        "synth",
+        [lhd, "synth", "--reader", "slang", "--top", ctx.top,
+         "--emit-dir", "lg:netlist", "--workdir", "W",
+         "--result-json", "synth.json", "--stats", *settings,
+         "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", *params],
+        timeout=ctx.lec_timeout_s * 2 + 60,
     )
+    # Both languages use the fused flow and the compiler's threading defaults.
+    from syn_lhd_pyrope import _phases
+
+    phases = _phases(ctx)
+    if phases:
+        del ctx.stage.time_ms["synth"]
+        rss = ctx.stage.peak_rss_kb.pop("synth", 0)
+        ctx.stage.time_ms.update(phases)
+        ctx.stage.peak_rss_kb["map"] = rss
+
     # There is no `pass cgen`. A gate-level Verilog emission comes from feeding
     # the mapped lg: library back through `lhd compile` with an
     # `--emit-dir verilog:` -- lg: directories are valid compile INPUTS.
@@ -99,12 +77,12 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
     # things and the correlation column would mean nothing.
     ctx.run(
         "emit",
+        # The graph is already technology-mapped, so this is only the typed
+        # LG->Verilog emitter. `--recipe O0` used to pin that; recipes were
+        # removed from the CLI (compile now always runs cprop + bitwidth), and
+        # passing one is a hard usage error.
         [lhd, "compile", "lg:netlist", "--top", top,
-         # The graph is already technology-mapped. O0 is the typed LG->Verilog
-         # emitter path; the default O1 would run source cprop over internal
-         # mapped-region glue and can reject its deliberately boundary-sized
-         # pins before emission.
-         "--recipe", "O0", "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
+         "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
 
     from qor_endpoint import emitted_verilog, evaluate
@@ -118,4 +96,4 @@ def _synthesize(ctx: FlowContext, lgraph: str, lib_args: list) -> dict:
         ) from error
 
     return {"netlist": netlist, **evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
-                     qor_json=ctx.work / "W" / "qor.json")}
+                     qor_json=ctx.work / "W" / "synth" / "qor.json")}

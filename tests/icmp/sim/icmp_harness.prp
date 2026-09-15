@@ -22,19 +22,19 @@ pub mod icmp_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(a=lfsr#[0..=7], b=lfsr#[8..=15])
+  const (eq, ne, slt, sle, sgt, sge, ult, ule, ugt, uge) = dut(a=lfsr#[0..=7], b=lfsr#[8..=15])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.eq
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ne
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.slt
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.sle
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.sgt
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.sge
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ult
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ule
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ugt
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.uge
+  wrap acc = ((acc << 1) | acc#[63]) ^ eq
+  wrap acc = ((acc << 1) | acc#[63]) ^ ne
+  wrap acc = ((acc << 1) | acc#[63]) ^ slt
+  wrap acc = ((acc << 1) | acc#[63]) ^ sle
+  wrap acc = ((acc << 1) | acc#[63]) ^ sgt
+  wrap acc = ((acc << 1) | acc#[63]) ^ sge
+  wrap acc = ((acc << 1) | acc#[63]) ^ ult
+  wrap acc = ((acc << 1) | acc#[63]) ^ ule
+  wrap acc = ((acc << 1) | acc#[63]) ^ ugt
+  wrap acc = ((acc << 1) | acc#[63]) ^ uge
 
   if rst != 0 {
     lfsr = 2611923443488327891

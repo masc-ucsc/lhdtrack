@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 
 from lhdtrack.context import FlowContext, FlowError, FlowSkip
+from lib.lhd_synth_policy import abc_settings, color_settings
 
 NAME = "syn_lhd_pyrope"
 KIND = "synth"
@@ -36,36 +37,28 @@ def run(ctx: FlowContext) -> dict:
     # test that declares `[pyrope] param_binding = "set"` gets --set flags --
     # and `lhdtrack check` refuses a monomorphic test with more than one config,
     # which is the case where the mismatch would otherwise go unnoticed.
-    # TELL lhd WHICH LIBRARY. `pass.abc.library` defaults to
+    # TELL lhd WHICH LIBRARY. `synth.liberty` defaults to
     # $HAGENT_TECH_DIR/sky130_..., so without this every technology would
     # silently map to sky130 and the ASAP7 rows would be sky130 wearing an
     # ASAP7 label. The staged ASAP7 Liberty is merged ahead of time because
     # ABC's read_lib takes one file.
     if len(ctx.liberty) != 1:
         raise FlowSkip(
-            f"lhd's pass.abc.library takes a single Liberty file, but "
+            f"lhd's synth.liberty takes a single Liberty file, but "
             f"{ctx.tech.name} staged {len(ctx.liberty)} Liberty files; "
             "merge the technology before running LiveHD"
         )
-    # The ONE-SHOT `lhd synth` has its own key: it sets pass.abc AND
-    # pass.opentimer from a single Liberty, and rejects pass.abc.library
-    # outright ("synth takes ONE Liberty ... --set synth.liberty=PATH").
-    # The manual `pass abc` path in syn_lhd_verilog.py uses the other spelling.
+    # ONE spelling for every path: `synth.liberty` feeds pass.abc AND
+    # pass.opentimer, whether it arrives through the one-shot `lhd synth` here
+    # or the manual `pass abc` in syn_lhd_verilog.py. The old per-pass
+    # `pass.abc.library` was removed and is now a hard usage error.
     lib_args = ["--set", f"synth.liberty={ctx.liberty[0]}"]
 
     sets = [
         *lib_args,
+        *color_settings(ctx.tech.name),
+        *abc_settings(ctx.tech.name),
         "--set", f"abc.delay={ctx.abc_delay_ps()}",
-        "--set", "abc.flatten=true",
-        # The same structural-netlist knobs as syn_lhd_verilog.py. Under
-        # `lhd synth` the `abc.X` spelling and `pass.abc.X` are ONE canonical
-        # key (pass.abc.X); only the one-shot's Liberty spelling differs.
-        # Bit-blast memories into DFF cells, and never keep a region's flops
-        # native: a native fallback is mapped by yosys in normalization (no -D)
-        # and measured 2-3x slower than the same flops mapped here
-        # (br_ram_flops on ASAP7: 906 -> 360 ps, yosys 1292).
-        "--set", "abc.memory=true",
-        "--set", "abc.register_max_bits=0",
     ]
     if ctx.test.pyrope_binding == "set":
         sets += [a for k, v in sorted(ctx.chparams().items()) for a in ("--set", f"compile.{k}={v}")]
@@ -103,8 +96,10 @@ def run(ctx: FlowContext) -> dict:
     # things and the correlation column would mean nothing.
     ctx.run(
         "emit",
+        # `--recipe O0` was removed from the CLI along with recipes; compile
+        # always runs cprop + bitwidth now (see syn_lhd_verilog.py).
         [lhd, "compile", "lg:netlist", "--top", f"{ctx.top}.{ctx.top}",
-         "--recipe", "O0", "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
+         "--emit-dir", "verilog:netv", "--workdir", "Wemit"],
     )
     from qor_endpoint import emitted_verilog, evaluate
 
@@ -131,13 +126,18 @@ def _phases(ctx: FlowContext) -> dict[str, int]:
     except (OSError, json.JSONDecodeError):
         return {}
     phases = doc.get("phases", {})
-    if not isinstance(phases, dict):
+    if isinstance(phases, dict):
+        entries = phases.items()
+    elif isinstance(phases, list):
+        entries = ((phase.get("name", ""), phase.get("ms"))
+                   for phase in phases if isinstance(phase, dict))
+    else:
         return {}
 
-    out = {"compile": 0, "color": 0, "map": 0}
-    for name, ms in phases.items():
+    out = {"compile": 0.0, "color": 0.0, "map": 0.0}
+    for name, ms in entries:
         try:
-            ms = int(float(ms))
+            ms = float(ms)
         except (TypeError, ValueError):
             continue
         low = name.lower()
@@ -149,4 +149,4 @@ def _phases(ctx: FlowContext) -> dict[str, int]:
             continue  # qor_endpoint times STA itself, on both engines
         else:
             out["compile"] += ms
-    return {k: v for k, v in out.items() if v}
+    return {k: round(v) for k, v in out.items() if v}

@@ -52,7 +52,9 @@ ln -sfn "$RF" "$OUT/runfiles"
 # The BCR Verilator binary exports its runtime headers but currently omits the
 # configured `verilated.mk` used by its normal `--cc --exe` workflow. Assemble
 # an install-shaped runtime root from those runfiles and render that one
-# configure output for this Linux execution image.
+# configure output for THIS execution image -- which is not always Linux, so the
+# handful of substitutions that differ per platform are chosen below rather than
+# hardcoded.
 VERILATOR_SHARE="$OUT/share/verilator"
 if [ -L "$VERILATOR_SHARE" ]; then
   unlink "$VERILATOR_SHARE"
@@ -63,11 +65,13 @@ for entry in "$RF/verilator+"/include/*; do
 done
 ln -sfn "$RF/verilator+/bin" "$VERILATOR_SHARE/bin"
 python3 - "$RF/verilator+/include/verilated.mk.in" "$VERILATOR_SHARE/include/verilated.mk" <<'PY'
+import platform
 import re
 import sys
 
 src, dst = sys.argv[1:]
 text = open(src).read()
+macos = platform.system() == "Darwin"
 substitutions = {
     "AR": "ar",
     "CXX": "g++",
@@ -87,7 +91,11 @@ substitutions = {
     "CFG_CXXFLAGS_PCH_I": "-include",
     "CFG_GCH_IF_CLANG": "",
     "CFG_LDFLAGS_VERILATED": "",
-    "CFG_LDLIBS_THREADS": "-pthread -lpthread -latomic",
+    # macOS has no separate libatomic -- the atomics live in the C++ runtime,
+    # and `-latomic` is a hard link failure ("ld: library 'atomic' not found")
+    # that kills every verilator model before it runs.
+    "CFG_LDLIBS_THREADS": (
+        "-pthread -lpthread" if macos else "-pthread -lpthread -latomic"),
 }
 for key, value in substitutions.items():
     text = text.replace(f"@{key}@", value)

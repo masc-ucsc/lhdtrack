@@ -68,7 +68,7 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     sim_policy = [
         "--set", "sim.init_zero=true",
         "--set", "sim.unknown_zero=true",
-        "--set", "sim.vcd=false",
+
     ]
     ctx.run(
         "setup",

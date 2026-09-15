@@ -22,11 +22,11 @@ pub mod br_demux_addr_decode_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, addr_valid=lfsr#[0], upstream_addr=lfsr#[1..=16], downstream_addr_base=lfsr#[17..=63], downstream_addr_size=lfsr#[17..=63], downstream_addr_in=lfsr#[17..=63])
+  const (select_onehot, downstream_addr_out) = dut(clk=1, rst=rst, addr_valid=lfsr#[0], upstream_addr=lfsr#[1..=16], downstream_addr_base=lfsr#[17..=63], downstream_addr_size=lfsr#[17..=63], downstream_addr_in=lfsr#[17..=63])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.select_onehot
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_addr_out
+  wrap acc = ((acc << 1) | acc#[63]) ^ select_onehot
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_addr_out
 
   if rst != 0 {
     lfsr = 2611923443488327891

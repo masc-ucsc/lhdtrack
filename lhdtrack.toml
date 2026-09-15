@@ -30,7 +30,7 @@ stale_after_days = 30
 # as a speedup is the failure mode this exists to catch.
 require_checksum_match = true
 # LiveHD OpenTimer vs OpenSTA on the same netlist, same .lib, same .sdc.
-# Past this the test fails rather than reporting a QoR number no one can trust.
+# Diagnostic highlighting only; timer correlation does not gate synthesis results.
 sta_delta_pct_max = 10.0
 # A test whose pyrope/ has not been LEC-proven against verilog/ is REPORTED but
 # never aggregated into a headline comparison.

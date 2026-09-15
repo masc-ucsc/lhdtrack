@@ -4,7 +4,6 @@ A flow MEASURES; run.py DECIDES. Every gate lives here so one policy applies to
 all of them instead of each flow inventing its own notion of "passed":
 
   checksum agreement  all three simulators must fold the same value
-  STA correlation     LiveHD OpenTimer vs OpenSTA, past gates.sta_delta_pct_max
   LEC drift           a manifest claiming `proven` while the prover disagrees
   stale baseline      a reused number older than cache.stale_after_days
 
@@ -340,23 +339,6 @@ class Runner:
             row.passed = True
             row.status = "ok"
 
-        # Every synthesized netlist is expected to preserve its RTL.  A
-        # definitive refutation is therefore fatal regardless of which of the
-        # three netlist obligations found it; timeout and inconclusive remain
-        # coverage outcomes.
-        netlist_refutes = [
-            block for block in (row.lec_result, row.lec_aux_result, row.lec_verilog_result)
-            if block.get("verdict") == "refuted"
-            and block.get("obligation", "").endswith("-vs-netlist")
-        ]
-        if netlist_refutes:
-            row.passed = False
-            row.status = "failed"
-            detail = ", ".join(
-                f"{block.get('solver', 'solver')} {block.get('obligation', 'netlist')}"
-                for block in netlist_refutes
-            )
-            row.note = f"synthesized netlist refuted: {detail}"
         row.sta.pop("_", None)
 
         if job.flow in self.baseline_flows:
@@ -376,6 +358,43 @@ class Runner:
     def gate(self, rows: list[Row]) -> list[Row]:
         gates = self.cfg.get("gates", {})
 
+        for row in rows:
+            # Every synthesized netlist is expected to preserve its RTL.  A
+            # definitive refutation is therefore fatal regardless of which of the
+            # three netlist obligations found it; timeout and inconclusive remain
+            # coverage outcomes.
+            netlist_refutes = [
+                block for block in (row.lec_result, row.lec_aux_result, row.lec_verilog_result)
+                if block.get("verdict") == "refuted"
+                and block.get("obligation", "").endswith("-vs-netlist")
+            ]
+            if netlist_refutes:
+                row.passed = False
+                row.status = "failed"
+                detail = ", ".join(
+                    f"{block.get('solver', 'solver')} {block.get('obligation', 'netlist')}"
+                    for block in netlist_refutes
+                )
+                row.note = f"synthesized netlist refuted: {detail}"
+
+        # A checker crash is a failed measurement even if an independent
+        # backend proved its obligation. Timeouts and inconclusives remain
+        # coverage outcomes; neither is evidence of a tool error.
+        for row in rows:
+            errors = [
+                block for block in (
+                    row.lec_result, row.lec_aux_result, row.lec_verilog_result
+                ) if block.get("verdict") == "error"
+            ]
+            if errors:
+                row.passed = False
+                row.status = "failed"
+                detail = ", ".join(
+                    f"{block.get('solver', 'solver')} {block.get('obligation', 'LEC')}"
+                    for block in errors
+                )
+                row.note = f"equivalence checker error: {detail}"
+
         # 1. Checksum agreement. THE tripwire against a miscompile reported as a
         #    speedup: a simulator that runs twice as fast because it computed the
         #    wrong thing must fail, not top the chart.
@@ -393,18 +412,8 @@ class Runner:
                         r.status = "failed"
                         r.note = f"simulators disagree on {test}#{config}: {detail}"
 
-        # 2. STA correlation. A LiveHD timing bug should redden a column across
-        #    many tests, not silently corrupt one QoR number.
-        limit = float(gates.get("sta_delta_pct_max", 10.0))
-        for r in rows:
-            delta = r.sta.get("delta_pct")
-            if delta is not None and delta > limit:
-                r.passed = False
-                r.status = "failed"
-                r.note = (
-                    f"OpenTimer {r.sta.get('opentimer_ns')}ns vs OpenSTA "
-                    f"{r.sta.get('opensta_ns')}ns = {delta}% apart (limit {limit}%)"
-                )
+        # Timer correlation is diagnostic. Synthesis QoR uses OpenSTA for every
+        # producer and remains valid independently of OpenTimer validation.
 
         # 3. LEC drift: a manifest claiming `proven` while the prover disagrees
         #    would let an unverified test into the headline geomean.

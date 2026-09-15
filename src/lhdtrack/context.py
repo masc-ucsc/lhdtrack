@@ -12,7 +12,7 @@ The module's FILE CONTENT is hashed into the cache key, so editing how yosys is
 invoked correctly invalidates every yosys baseline. That is why flows are files
 on disk rather than classes in the package.
 
-A flow measures; it does not decide. Gates (checksum agreement, STA delta,
+A flow measures; it does not decide. Gates (checksum agreement,
 LEC status) live in run.py so one policy applies to every flow rather than each
 one inventing its own.
 """

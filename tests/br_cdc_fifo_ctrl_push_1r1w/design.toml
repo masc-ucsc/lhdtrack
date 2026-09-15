@@ -17,7 +17,7 @@ license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
 pyrope = "auto"
 # none | proven | failed | unsupported -- until `proven`, a QoR win might just
 # be a different circuit.
-lec    = "none"
+lec    = "proven"
 
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_fifo_ctrl_push_1r1w#<id>`.
 [[config]]

@@ -22,11 +22,11 @@ pub mod br_mux_bin_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(select=lfsr#[0..=3], `in`=lfsr#[4..=63])
+  const (out, out_valid) = dut(select=lfsr#[0..=3], `in`=lfsr#[4..=63])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ out
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_valid
 
   if rst != 0 {
     lfsr = 2611923443488327891
