@@ -43,7 +43,7 @@ flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 # A shift register is almost free per cycle, so the count is high to clear the
 # noise floor. Re-tune after any large simulator speedup: a benchmark that has
 # outrun its cycle count reports process startup, not the simulator.
-cycles = 20000000
+cycles = 38400000
 marker = "LHDTRACK-DONE"
 
 [lec]

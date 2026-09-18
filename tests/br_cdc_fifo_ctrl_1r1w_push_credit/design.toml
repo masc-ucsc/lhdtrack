@@ -17,7 +17,7 @@ license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
 pyrope = "auto"
 # none | proven | failed | unsupported -- until `proven`, a QoR win might just
 # be a different circuit.
-lec    = "proven"
+lec    = "proven" # Cross-clock formal results are informational, not a run gate.
 
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_fifo_ctrl_1r1w_push_credit#<id>`.
 [[config]]
@@ -43,7 +43,7 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 # Tuned so one simulation lands in the 2-10 s window. Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 1000000
+cycles = 13300000
 marker = "LHDTRACK-DONE"
 
 [lec]

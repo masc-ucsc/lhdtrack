@@ -221,6 +221,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     ref = ctx.run(
         "elab_ref",
         [lhd, "compile", "verilog", "--top", ctx.top, "--emit-dir", "lg:ref",
+         "--set", "compile.upass.inline=false",
          "--workdir", "rw", "--result-json", str(ctx.work / "elab_ref.json"),
          "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS",
          "-DBR_PPA_SYNTHESIS", *params],
@@ -236,6 +237,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     impl = ctx.run(
         "elab_impl",
         [lhd, "compile", str(ctx.test.pyrope_top), "--top", ctx.top,
+         "--set", "compile.upass.inline=false",
          "--emit-dir", "lg:impl", "--workdir", "iw"],
         check=False,
         timeout=wall,

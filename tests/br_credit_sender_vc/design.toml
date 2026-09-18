@@ -42,7 +42,7 @@ flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 # Tuned so one simulation lands in the 2-10 s window. Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 1000000
+cycles = 18200000
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -45,7 +45,7 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 # A pure adder is fast; this lands the run in the 2-10 s window once the
 # harness LFSR is accounted for. Re-tune after any large simulator speedup.
-cycles = 20000000
+cycles = 35000000
 marker = "LHDTRACK-DONE"
 
 [lec]
