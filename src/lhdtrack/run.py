@@ -195,20 +195,27 @@ class Runner:
         partial.parent.mkdir(parents=True, exist_ok=True)
 
         rows_by_index: dict[int, Row] = {}
+        # A flow that consumes sibling workdirs (lec_netlist proves the synth
+        # flows' retained netlists) declares AFTER. Those jobs start only once
+        # the first wave has finished: a sibling directory that exists is not
+        # a sibling that finished writing its graphs.
+        waves = [[i for i, job in enumerate(jobs) if not getattr(job.module, "AFTER", ())],
+                 [i for i, job in enumerate(jobs) if getattr(job.module, "AFTER", ())]]
         with partial.open("a") as fh, ThreadPoolExecutor(max_workers=max(1, jobs_parallel)) as pool:
-            futures = {pool.submit(self._one, job): i for i, job in enumerate(jobs)}
-            # Consume completion order so one pathological early job does not
-            # hide the progress (or lose the partial records) of later workers.
-            for future in as_completed(futures):
-                index = futures[future]
-                row = future.result()
-                rows_by_index[index] = row
-                doc = row.to_dict()
-                doc.pop("cmds", None)
-                fh.write(json.dumps(doc, sort_keys=True) + "\n")
-                fh.flush()
-                if on_done:
-                    on_done(row)
+            for wave in waves:
+                futures = {pool.submit(self._one, jobs[i]): i for i in wave}
+                # Consume completion order so one pathological early job does not
+                # hide the progress (or lose the partial records) of later workers.
+                for future in as_completed(futures):
+                    index = futures[future]
+                    row = future.result()
+                    rows_by_index[index] = row
+                    doc = row.to_dict()
+                    doc.pop("cmds", None)
+                    fh.write(json.dumps(doc, sort_keys=True) + "\n")
+                    fh.flush()
+                    if on_done:
+                        on_done(row)
         rows = [rows_by_index[i] for i in range(len(jobs))]
         return self.gate(rows)
 

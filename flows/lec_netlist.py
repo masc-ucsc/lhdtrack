@@ -32,6 +32,8 @@ NAME = "lec_netlist"
 KIND = "lec"
 NEEDS = ("lhd",)
 USES_TECH = True
+# Proves the synth flows' retained netlists: runs after them (Runner waves).
+AFTER = ("syn_lhd_verilog", "syn_lhd_pyrope")
 
 
 def _check(
@@ -148,7 +150,8 @@ def run(ctx: FlowContext) -> dict:
     verilog_work = ctx.work.parent / "syn_lhd_verilog"
     verilog_net = verilog_work / "netlist"
     verilog_ref = verilog_work / "W/synth/lg"
-    if verilog_net.is_dir() and verilog_ref.is_dir():
+    # synth-artifacts.json is written only after the mapped graphs are emitted.
+    if (verilog_work / "synth-artifacts.json").is_file() and verilog_ref.is_dir():
         impl_input = f"lg:{verilog_net}"
         ref_input = f"lg:{verilog_ref}"
     else:
@@ -291,7 +294,7 @@ def run(ctx: FlowContext) -> dict:
         pyrope_work = ctx.work.parent / "syn_lhd_pyrope"
         pyrope_net = pyrope_work / "netlist"
         pyrope_ref = pyrope_work / "W/synth/lg"
-        if not (pyrope_net.is_dir() and pyrope_ref.is_dir()):
+        if not ((pyrope_net / "library.txt").is_file() and pyrope_ref.is_dir()):
             pyrope_work = ctx.work / "pyrope-synth"
             pyrope_net = pyrope_work / "netlist"
             pyrope_ref = pyrope_work / "W/synth/lg"

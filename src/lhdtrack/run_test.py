@@ -100,3 +100,38 @@ class EquivalenceGates(TestCase):
             for row in (cvc5, lgyosys, netlist):
                 self.assertEqual(row.status, "ok")
                 self.assertTrue(row.passed)
+
+
+class Waves(TestCase):
+    def test_after_jobs_start_only_when_the_first_wave_finished(self):
+        import threading
+        import time
+        from types import SimpleNamespace
+
+        from lhdtrack.run import Job
+
+        events, lock = [], threading.Lock()
+
+        class Probe(Runner):
+            def _one(self, job):
+                with lock:
+                    events.append(("start", job.flow))
+                time.sleep(0.2 if job.flow == "slow_synth" else 0)
+                with lock:
+                    events.append(("end", job.flow))
+                return Row("dut", "default", "test", None, job.flow, "synth", True, False, "d")
+
+            def gate(self, rows):
+                return rows
+
+        synth = SimpleNamespace(KIND="synth")
+        after = SimpleNamespace(KIND="lec", AFTER=("slow_synth",))
+        test = SimpleNamespace(name="dut")
+        jobs = [Job(test, None, None, "slow_synth", synth, Path("s.py")),
+                Job(test, None, None, "lec_netlist", after, Path("l.py"))]
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            tc = Toolchain(root, "test", "", {}, {}, {}, {})
+            rows = Probe(root, tc, Cache(root), "test", {}).execute(jobs, jobs_parallel=4)
+        self.assertEqual([r.flow for r in rows], ["slow_synth", "lec_netlist"])
+        self.assertLess(events.index(("end", "slow_synth")), events.index(("start", "lec_netlist")))
