@@ -11,20 +11,30 @@ def color_settings(tech: str) -> list[str]:
 
 
 def abc_settings(tech: str) -> list[str]:
-    """The optional comparison changes only ABC's SAT optimization switch."""
+    """The optional comparison changes only ABC's SAT optimization switch.
+
+    LHDTRACK_LHD_SET adds explicit `key=value` lhd settings (space separated)
+    for an experiment run, e.g. `pass.abc.memory=true`; they are recorded with
+    each measurement through recorded_settings."""
+    out = []
+    for item in os.environ.get("LHDTRACK_LHD_SET", "").split():
+        if "=" not in item:
+            raise ValueError(f"LHDTRACK_LHD_SET entries must be key=value, got {item!r}")
+        out += ["--set", item]
     satopt = os.environ.get("LHDTRACK_ABC_SATOPT")
     if satopt is None or satopt == "true":
-        return []
+        return out
     if satopt not in {"true", "false"}:
         raise ValueError("LHDTRACK_ABC_SATOPT must be true or false")
-    return ["--set", f"pass.abc.satopt={satopt}"]
+    return out + ["--set", f"pass.abc.satopt={satopt}"]
 
 
 def recorded_settings(commands: list[str]) -> dict[str, str]:
     """Store actual command settings with each measurement; never infer history."""
     selected = {"pass.color.synth_alg", "pass.color.ctrl_cones", "pass.color.forward",
                 "pass.color.stop_arith", "pass.color.stop_mux", "pass.color.max_gate",
-                "pass.abc.area_relax", "pass.abc.area_flow", "pass.abc.satopt"}
+                "pass.abc.area_relax", "pass.abc.area_flow", "pass.abc.satopt",
+                "pass.abc.memory", "pass.satopt"}
     settings = {"base": "compiler defaults"}
     for command in commands:
         argv = shlex.split(command)
