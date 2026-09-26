@@ -1,0 +1,1582 @@
+{
+  "schema_version": 1,
+  "host": "satsuma",
+  "run_id": "20260926T040246",
+  "tech": "asap7",
+  "versions": {
+    "abc": "UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343",
+    "cxx": "cxx (Debian 14.2.0-19) 14.2.0 sha256:6b3696e4dcb85e1c",
+    "lhd": "livehd 41e5939a4 opt sha256:0d57ab3b3b35219c",
+    "make": "GNU Make 4.4.1 sha256:8a229baf64671988",
+    "sta": "3.1.0 sha256:f6cc36b19980821d",
+    "verilator": "Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286",
+    "yosys": "Yosys 0.64 sha256:f0b765c3a575f1c0",
+    "yosys_slang": "yosys-slang sha256:99ad11e3a4df2f47",
+    "lgcheck": "sha256:c79c364a5a6f9afa",
+    "yosys2": "sha256:b0a721ede6d20f40"
+  },
+  "liberty_sha256": "f1474fb23977fd54",
+  "time_unit": "ps",
+  "baselines": [
+    {
+      "test": "add",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "alu",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "barrel_shifter",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_apb_timing_slice",
+      "config": "aw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_atb_funnel",
+      "config": "dw32_ns2_rar0_uw1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi2axil",
+      "config": "aw32_dw32_iw4_mor4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_default_target",
+      "config": "aiw4_dw32_sb1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_demux",
+      "config": "aw32_aaiw1_amopi4_aaiw1_amopi4__f282983d",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_isolate_mgr",
+      "config": "aw32_dw32_iw4_mabl1_mo16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_isolate_sub",
+      "config": "aw32_aaic1_aaiw1_amo16_aaic1_aa_d08e1021",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_shrinker",
+      "config": "aw32_iw4_mor4_ndw32_rno1_rwo1_wdw64_wfd2",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axi_timing_slice",
+      "config": "arst0_awst0_aw32_bst0_dw32_iw4_rst0_wst0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil2apb",
+      "config": "aw32_dw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil_default_target",
+      "config": "dw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil_msi",
+      "config": "aw32_dw32_diw16_eiw16_ni4_nmda1_tcw4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil_split",
+      "config": "aw32_dw32_mor4_mow4_nba0_nbar1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil_timing_slice",
+      "config": "aw32_dw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_axil_write_arbiter",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_amba_pkg",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_apb_demux",
+      "config": "aw12_nd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_apb_demux_select_onehot",
+      "config": "aw12_nd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_fixed",
+      "config": "nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_grant_hold",
+      "config": "nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_lru",
+      "config": "nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_multi_rr",
+      "config": "mgpc2_nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_pri_rr",
+      "config": "np2_nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_rr",
+      "config": "nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_weighted_lru",
+      "config": "maw16_mw4_nr16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_arb_weighted_rr",
+      "config": "maw16_mw4_nr16_upa0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_bit_pulse",
+      "config": "ns2_ro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_bit_toggle",
+      "config": "asf0_ns2",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_1r1w",
+      "config": "d32_nss3_rrl1_rwl2_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_1r1w_push_credit",
+      "config": "d32_nss3_rrl1_rwl2_rpo1_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_pop_1r1w",
+      "config": "d32_nss3_rrl1_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_push_1r1w",
+      "config": "d32_nss3_rwl2_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_push_1r1w_push_credit",
+      "config": "d32_nss3_rwl2_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_flops",
+      "config": "d32_frads1_frdt1_frrdds0_frrdws_7f28a45b",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_fifo_flops_push_credit",
+      "config": "d32_frads1_frdt1_frrdds0_frrdws_57e0788f",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_pkg",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_reg",
+      "config": "nss2_rpo0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_rst_sync",
+      "config": "ns2",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_stable_data",
+      "config": "nss2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_cdc_stable_data_autoupdate",
+      "config": "nss2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_counter",
+      "config": "es0_ew1_mc1_mv255",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_counter_decr",
+      "config": "es0_md1_mv255",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_counter_incr",
+      "config": "es0_ew1_mi1_mv255",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_credit_counter",
+      "config": "mc1_mv8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_credit_receiver",
+      "config": "mc16_nf4_pcmc4_pcmc4_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_credit_sender",
+      "config": "mc16_nf4_pcmc4_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_credit_sender_vc",
+      "config": "mc16_nv4_pcmc4_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_axil_widget",
+      "config": "aw16_dw32_mtc100_rcro0_rro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_cdc",
+      "config": "aw16_dw32_nss2_rda0_rdro0_ruro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_default_responder",
+      "config": "aw16_dw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_demux",
+      "config": "aw16_dw32_hdd0_nd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_demux_select_onehot",
+      "config": "aw16_dw32_nd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_csr_mem_interface",
+      "config": "caw16_cdw32_epw0_md16_mw32_rmo0_rro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay",
+      "config": "w8s4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_deskew",
+      "config": "w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_nr",
+      "config": "ns1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_shift_reg",
+      "config": "ns1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_skew",
+      "config": "w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_valid",
+      "config": "fsu0_ns1_w8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_valid_next",
+      "config": "ns1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_valid_next_nr",
+      "config": "ns1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_delay_valid_nr",
+      "config": "fsu0_ns1_w8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_demux_addr_decode",
+      "config": "aw16_nd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_demux_bin",
+      "config": "nso16_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_demux_onehot",
+      "config": "nso16_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ecc_secded_decoder",
+      "config": "dw32_ri0_ro0_rs0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ecc_secded_encoder",
+      "config": "dw32_ri0_ro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ecc_sed_decoder",
+      "config": "dw32_ri0_ro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ecc_sed_encoder",
+      "config": "dw32_ri0_ro0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_bin2gray",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_bin2onehot",
+      "config": "nv32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_countones",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_gray2bin",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_onehot2bin",
+      "config": "nv32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_priority_dynamic",
+      "config": "nr16_nr1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_enc_priority_encoder",
+      "config": "nr16_nr1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_ctrl_1r1w",
+      "config": "d32_eb1_rrl1_rpo1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_ctrl_1r1w_push_credit",
+      "config": "d32_eb1_rrl1_rpo1_rpo1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_flops",
+      "config": "d16_eb0_rpo1_w64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_flops_push_credit",
+      "config": "d32_eb1_frads1_rpo1_rpo1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_38eeea98",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_38eeea98",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_ee6edd47",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_ee6edd47",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_pop_credit",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_p_7078b70b",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_p_7078b70b",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_ae312bd4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops_push_credit",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_75d7152b",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops_push_credit_pop_credit",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_645b4917",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl",
+      "config": "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_credit",
+      "config": "d32_nf2_nrp2_pmc4_rrl1_rd1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_credit_ext_arbiter",
+      "config": "d32_nf2_nrp2_pmc4_rrl1_rd1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_ext_arbiter",
+      "config": "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_ctrl",
+      "config": "d32_nf2_rrl1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_ctrl_push_credit",
+      "config": "d32_nf2_rrl1_rpo1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_flops",
+      "config": "d32_nf2_rads1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_flops_push_credit",
+      "config": "d32_nf2_rads1_rpo1_rpo1_sbd2_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_arb_fixed",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_arb_lru",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_arb_rr",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_buffer",
+      "config": "d1_rpo1_rpo0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_fixed",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_fixed_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_lru",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_lru_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_rr",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_burst_mux_rr_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_demux_select",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_demux_select_unstable",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_deserializer",
+      "config": "dmsf0_mw8_pw64_pw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_fork",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_fork_lockstep",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_fork_select_multihot",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_join",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_join_lockstep",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_join_select_multihot",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_fixed",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_fixed_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_lru",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_lru_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_rr",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_rr_stable",
+      "config": "nf8_rpr0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_select",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_select_unstable",
+      "config": "nf4_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_weighted_lru",
+      "config": "nf4_w32_mw4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_mux_weighted_rr",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_reg_both",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_reg_fwd",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_reg_none",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_reg_rev",
+      "config": "w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_serializer",
+      "config": "mw8_pw8_pw64_smsf0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_valve",
+      "config": "nf16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_xbar_fixed",
+      "config": "npf4_npf4_rdo0_rpo0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_xbar_lru",
+      "config": "npf4_npf4_rdo0_rpo0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_flow_xbar_rr",
+      "config": "npf4_npf4_rdo0_rpo0_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_gate_mock",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_lfsr",
+      "config": "as1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_lfsr_taps",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_misc_tieoff_one",
+      "config": "w1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_misc_tieoff_zero",
+      "config": "w1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_misc_unused",
+      "config": "w1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_multi_xfer_distributor_rr",
+      "config": "nf16_ns4_sw64",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_multi_xfer_reg_fwd",
+      "config": "ns2_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_mux_bin",
+      "config": "nsi16_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_mux_bin_array",
+      "config": "nsi16_nso2_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_mux_bin_structured_gates",
+      "config": "nsi16_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_mux_bin_structured_gates_mock",
+      "config": "default",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_mux_onehot",
+      "config": "nsi16_sw32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_addr_decoder",
+      "config": "dw32_d32_ed0_s0_t4",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_data_rd_pipe",
+      "config": "ds0_dt4_w32_ws0_wt2",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_flops",
+      "config": "ads1_d64_dt4_epw1_rdds1_rdws1_t_31c8054b",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_flops_1r1w_mock",
+      "config": "d16_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_flops_tile",
+      "config": "d16_nrp1_nwp1_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_ram_initializer",
+      "config": "d16_w32",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_shift_left",
+      "config": "ms15_ns16_sw1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_shift_right",
+      "config": "ms15_ns16_sw1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_shift_rotate",
+      "config": "mr15_ns16_sw1",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_freelist",
+      "config": "eb0_napc1_ndp1_ne16_rao0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_linked_list_ctrl",
+      "config": "d128_nll4_nwp4_rrl2",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_reorder",
+      "config": "eiw4_ne16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+      "config": "dw32_eiw4_ne16_rrl0_rpo0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_reorder_buffer_flops",
+      "config": "dw32_eiw4_ne16_rpo0",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "br_tracker_sequence",
+      "config": "eiw4_mas1_ne16",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "comparator",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "icmp",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "mul",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "mux",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "parity",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    },
+    {
+      "test": "sub",
+      "config": "bw8",
+      "run_id": "20260926T012241"
+    }
+  ],
+  "slots": [
+    {
+      "test": "add",
+      "config": "bw8"
+    },
+    {
+      "test": "alu",
+      "config": "bw8"
+    },
+    {
+      "test": "barrel_shifter",
+      "config": "bw8"
+    },
+    {
+      "test": "br_amba_apb_timing_slice",
+      "config": "aw32"
+    },
+    {
+      "test": "br_amba_atb_funnel",
+      "config": "dw32_ns2_rar0_uw1"
+    },
+    {
+      "test": "br_amba_axi2axil",
+      "config": "aw32_dw32_iw4_mor4"
+    },
+    {
+      "test": "br_amba_axi_default_target",
+      "config": "aiw4_dw32_sb1"
+    },
+    {
+      "test": "br_amba_axi_demux",
+      "config": "aw32_aaiw1_amopi4_aaiw1_amopi4__f282983d"
+    },
+    {
+      "test": "br_amba_axi_isolate_mgr",
+      "config": "aw32_dw32_iw4_mabl1_mo16"
+    },
+    {
+      "test": "br_amba_axi_isolate_sub",
+      "config": "aw32_aaic1_aaiw1_amo16_aaic1_aa_d08e1021"
+    },
+    {
+      "test": "br_amba_axi_shrinker",
+      "config": "aw32_iw4_mor4_ndw32_rno1_rwo1_wdw64_wfd2"
+    },
+    {
+      "test": "br_amba_axi_timing_slice",
+      "config": "arst0_awst0_aw32_bst0_dw32_iw4_rst0_wst0"
+    },
+    {
+      "test": "br_amba_axil2apb",
+      "config": "aw32_dw32"
+    },
+    {
+      "test": "br_amba_axil_default_target",
+      "config": "dw32"
+    },
+    {
+      "test": "br_amba_axil_msi",
+      "config": "aw32_dw32_diw16_eiw16_ni4_nmda1_tcw4"
+    },
+    {
+      "test": "br_amba_axil_split",
+      "config": "aw32_dw32_mor4_mow4_nba0_nbar1"
+    },
+    {
+      "test": "br_amba_axil_timing_slice",
+      "config": "aw32_dw32"
+    },
+    {
+      "test": "br_amba_axil_write_arbiter",
+      "config": "default"
+    },
+    {
+      "test": "br_amba_pkg",
+      "config": "default"
+    },
+    {
+      "test": "br_apb_demux",
+      "config": "aw12_nd4"
+    },
+    {
+      "test": "br_apb_demux_select_onehot",
+      "config": "aw12_nd4"
+    },
+    {
+      "test": "br_arb_fixed",
+      "config": "nr16"
+    },
+    {
+      "test": "br_arb_grant_hold",
+      "config": "nr16"
+    },
+    {
+      "test": "br_arb_lru",
+      "config": "nr16"
+    },
+    {
+      "test": "br_arb_multi_rr",
+      "config": "mgpc2_nr16"
+    },
+    {
+      "test": "br_arb_pri_rr",
+      "config": "np2_nr16"
+    },
+    {
+      "test": "br_arb_rr",
+      "config": "nr16"
+    },
+    {
+      "test": "br_arb_weighted_lru",
+      "config": "maw16_mw4_nr16"
+    },
+    {
+      "test": "br_arb_weighted_rr",
+      "config": "maw16_mw4_nr16_upa0"
+    },
+    {
+      "test": "br_cdc_bit_pulse",
+      "config": "ns2_ro0"
+    },
+    {
+      "test": "br_cdc_bit_toggle",
+      "config": "asf0_ns2"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_1r1w",
+      "config": "d32_nss3_rrl1_rwl2_rpo1_w64"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_1r1w_push_credit",
+      "config": "d32_nss3_rrl1_rwl2_rpo1_rpo1_w64"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_pop_1r1w",
+      "config": "d32_nss3_rrl1_rpo1_w64"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_push_1r1w",
+      "config": "d32_nss3_rwl2_w64"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_push_1r1w_push_credit",
+      "config": "d32_nss3_rwl2_rpo1_w64"
+    },
+    {
+      "test": "br_cdc_fifo_flops",
+      "config": "d32_frads1_frdt1_frrdds0_frrdws_7f28a45b"
+    },
+    {
+      "test": "br_cdc_fifo_flops_push_credit",
+      "config": "d32_frads1_frdt1_frrdds0_frrdws_57e0788f"
+    },
+    {
+      "test": "br_cdc_pkg",
+      "config": "default"
+    },
+    {
+      "test": "br_cdc_reg",
+      "config": "nss2_rpo0_w32"
+    },
+    {
+      "test": "br_cdc_rst_sync",
+      "config": "ns2"
+    },
+    {
+      "test": "br_cdc_stable_data",
+      "config": "nss2_w32"
+    },
+    {
+      "test": "br_cdc_stable_data_autoupdate",
+      "config": "nss2_w32"
+    },
+    {
+      "test": "br_counter",
+      "config": "es0_ew1_mc1_mv255"
+    },
+    {
+      "test": "br_counter_decr",
+      "config": "es0_md1_mv255"
+    },
+    {
+      "test": "br_counter_incr",
+      "config": "es0_ew1_mi1_mv255"
+    },
+    {
+      "test": "br_credit_counter",
+      "config": "mc1_mv8"
+    },
+    {
+      "test": "br_credit_receiver",
+      "config": "mc16_nf4_pcmc4_pcmc4_rpo1_w64"
+    },
+    {
+      "test": "br_credit_sender",
+      "config": "mc16_nf4_pcmc4_rpo1_w64"
+    },
+    {
+      "test": "br_credit_sender_vc",
+      "config": "mc16_nv4_pcmc4_rpo1_w64"
+    },
+    {
+      "test": "br_csr_axil_widget",
+      "config": "aw16_dw32_mtc100_rcro0_rro0"
+    },
+    {
+      "test": "br_csr_cdc",
+      "config": "aw16_dw32_nss2_rda0_rdro0_ruro0"
+    },
+    {
+      "test": "br_csr_default_responder",
+      "config": "aw16_dw32"
+    },
+    {
+      "test": "br_csr_demux",
+      "config": "aw16_dw32_hdd0_nd4"
+    },
+    {
+      "test": "br_csr_demux_select_onehot",
+      "config": "aw16_dw32_nd4"
+    },
+    {
+      "test": "br_csr_mem_interface",
+      "config": "caw16_cdw32_epw0_md16_mw32_rmo0_rro0"
+    },
+    {
+      "test": "br_delay",
+      "config": "w8s4"
+    },
+    {
+      "test": "br_delay_deskew",
+      "config": "w64"
+    },
+    {
+      "test": "br_delay_nr",
+      "config": "ns1_w64"
+    },
+    {
+      "test": "br_delay_shift_reg",
+      "config": "ns1_w64"
+    },
+    {
+      "test": "br_delay_skew",
+      "config": "w64"
+    },
+    {
+      "test": "br_delay_valid",
+      "config": "fsu0_ns1_w8"
+    },
+    {
+      "test": "br_delay_valid_next",
+      "config": "ns1_w64"
+    },
+    {
+      "test": "br_delay_valid_next_nr",
+      "config": "ns1_w64"
+    },
+    {
+      "test": "br_delay_valid_nr",
+      "config": "fsu0_ns1_w8"
+    },
+    {
+      "test": "br_demux_addr_decode",
+      "config": "aw16_nd4"
+    },
+    {
+      "test": "br_demux_bin",
+      "config": "nso16_sw32"
+    },
+    {
+      "test": "br_demux_onehot",
+      "config": "nso16_sw32"
+    },
+    {
+      "test": "br_ecc_secded_decoder",
+      "config": "dw32_ri0_ro0_rs0"
+    },
+    {
+      "test": "br_ecc_secded_encoder",
+      "config": "dw32_ri0_ro0"
+    },
+    {
+      "test": "br_ecc_sed_decoder",
+      "config": "dw32_ri0_ro0"
+    },
+    {
+      "test": "br_ecc_sed_encoder",
+      "config": "dw32_ri0_ro0"
+    },
+    {
+      "test": "br_enc_bin2gray",
+      "config": "w32"
+    },
+    {
+      "test": "br_enc_bin2onehot",
+      "config": "nv32"
+    },
+    {
+      "test": "br_enc_countones",
+      "config": "w32"
+    },
+    {
+      "test": "br_enc_gray2bin",
+      "config": "w32"
+    },
+    {
+      "test": "br_enc_onehot2bin",
+      "config": "nv32"
+    },
+    {
+      "test": "br_enc_priority_dynamic",
+      "config": "nr16_nr1"
+    },
+    {
+      "test": "br_enc_priority_encoder",
+      "config": "nr16_nr1"
+    },
+    {
+      "test": "br_fifo_ctrl_1r1w",
+      "config": "d32_eb1_rrl1_rpo1_w32"
+    },
+    {
+      "test": "br_fifo_ctrl_1r1w_push_credit",
+      "config": "d32_eb1_rrl1_rpo1_rpo1_w32"
+    },
+    {
+      "test": "br_fifo_flops",
+      "config": "d16_eb0_rpo1_w64"
+    },
+    {
+      "test": "br_fifo_flops_push_credit",
+      "config": "d32_eb1_frads1_rpo1_rpo1_w32"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_38eeea98"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_38eeea98"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_ee6edd47"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_r_ee6edd47"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_pop_credit",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_p_7078b70b"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_ext_arbiter",
+      "config": "drrl1_d32_nf2_nrp2_nwp2_prrl1_p_7078b70b"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_ae312bd4"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops_push_credit",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_75d7152b"
+    },
+    {
+      "test": "br_fifo_shared_dynamic_flops_push_credit_pop_credit",
+      "config": "drads1_d32_nf2_nrp2_nwp2_prads1_645b4917"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl",
+      "config": "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_credit",
+      "config": "d32_nf2_nrp2_pmc4_rrl1_rd1_w32"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_credit_ext_arbiter",
+      "config": "d32_nf2_nrp2_pmc4_rrl1_rd1_w32"
+    },
+    {
+      "test": "br_fifo_shared_pop_ctrl_ext_arbiter",
+      "config": "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_ctrl",
+      "config": "d32_nf2_rrl1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_ctrl_push_credit",
+      "config": "d32_nf2_rrl1_rpo1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_flops",
+      "config": "d32_nf2_rads1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_fifo_shared_pstatic_flops_push_credit",
+      "config": "d32_nf2_rads1_rpo1_rpo1_sbd2_w32"
+    },
+    {
+      "test": "br_flow_arb_fixed",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_arb_lru",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_arb_rr",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_buffer",
+      "config": "d1_rpo1_rpo0_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_fixed",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_fixed_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_lru",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_lru_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_rr",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_burst_mux_rr_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_demux_select",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_demux_select_unstable",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_deserializer",
+      "config": "dmsf0_mw8_pw64_pw8"
+    },
+    {
+      "test": "br_flow_fork",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_fork_lockstep",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_fork_select_multihot",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_join",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_join_lockstep",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_join_select_multihot",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_mux_fixed",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_mux_fixed_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_mux_lru",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_mux_lru_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_mux_rr",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_mux_rr_stable",
+      "config": "nf8_rpr0_w32"
+    },
+    {
+      "test": "br_flow_mux_select",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_mux_select_unstable",
+      "config": "nf4_w32"
+    },
+    {
+      "test": "br_flow_mux_weighted_lru",
+      "config": "nf4_w32_mw4"
+    },
+    {
+      "test": "br_flow_mux_weighted_rr",
+      "config": "default"
+    },
+    {
+      "test": "br_flow_reg_both",
+      "config": "w32"
+    },
+    {
+      "test": "br_flow_reg_fwd",
+      "config": "w32"
+    },
+    {
+      "test": "br_flow_reg_none",
+      "config": "w32"
+    },
+    {
+      "test": "br_flow_reg_rev",
+      "config": "w32"
+    },
+    {
+      "test": "br_flow_serializer",
+      "config": "mw8_pw8_pw64_smsf0"
+    },
+    {
+      "test": "br_flow_valve",
+      "config": "nf16"
+    },
+    {
+      "test": "br_flow_xbar_fixed",
+      "config": "npf4_npf4_rdo0_rpo0_w32"
+    },
+    {
+      "test": "br_flow_xbar_lru",
+      "config": "npf4_npf4_rdo0_rpo0_w32"
+    },
+    {
+      "test": "br_flow_xbar_rr",
+      "config": "npf4_npf4_rdo0_rpo0_w32"
+    },
+    {
+      "test": "br_gate_mock",
+      "config": "default"
+    },
+    {
+      "test": "br_lfsr",
+      "config": "as1_w32"
+    },
+    {
+      "test": "br_lfsr_taps",
+      "config": "default"
+    },
+    {
+      "test": "br_misc_tieoff_one",
+      "config": "w1"
+    },
+    {
+      "test": "br_misc_tieoff_zero",
+      "config": "w1"
+    },
+    {
+      "test": "br_misc_unused",
+      "config": "w1"
+    },
+    {
+      "test": "br_multi_xfer_distributor_rr",
+      "config": "nf16_ns4_sw64"
+    },
+    {
+      "test": "br_multi_xfer_reg_fwd",
+      "config": "ns2_sw32"
+    },
+    {
+      "test": "br_mux_bin",
+      "config": "nsi16_sw32"
+    },
+    {
+      "test": "br_mux_bin_array",
+      "config": "nsi16_nso2_sw32"
+    },
+    {
+      "test": "br_mux_bin_structured_gates",
+      "config": "nsi16_sw32"
+    },
+    {
+      "test": "br_mux_bin_structured_gates_mock",
+      "config": "default"
+    },
+    {
+      "test": "br_mux_onehot",
+      "config": "nsi16_sw32"
+    },
+    {
+      "test": "br_ram_addr_decoder",
+      "config": "dw32_d32_ed0_s0_t4"
+    },
+    {
+      "test": "br_ram_data_rd_pipe",
+      "config": "ds0_dt4_w32_ws0_wt2"
+    },
+    {
+      "test": "br_ram_flops",
+      "config": "ads1_d64_dt4_epw1_rdds1_rdws1_t_31c8054b"
+    },
+    {
+      "test": "br_ram_flops_1r1w_mock",
+      "config": "d16_w32"
+    },
+    {
+      "test": "br_ram_flops_tile",
+      "config": "d16_nrp1_nwp1_w32"
+    },
+    {
+      "test": "br_ram_initializer",
+      "config": "d16_w32"
+    },
+    {
+      "test": "br_shift_left",
+      "config": "ms15_ns16_sw1"
+    },
+    {
+      "test": "br_shift_right",
+      "config": "ms15_ns16_sw1"
+    },
+    {
+      "test": "br_shift_rotate",
+      "config": "mr15_ns16_sw1"
+    },
+    {
+      "test": "br_tracker_freelist",
+      "config": "eb0_napc1_ndp1_ne16_rao0"
+    },
+    {
+      "test": "br_tracker_linked_list_ctrl",
+      "config": "d128_nll4_nwp4_rrl2"
+    },
+    {
+      "test": "br_tracker_reorder",
+      "config": "eiw4_ne16"
+    },
+    {
+      "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+      "config": "dw32_eiw4_ne16_rrl0_rpo0"
+    },
+    {
+      "test": "br_tracker_reorder_buffer_flops",
+      "config": "dw32_eiw4_ne16_rpo0"
+    },
+    {
+      "test": "br_tracker_sequence",
+      "config": "eiw4_mas1_ne16"
+    },
+    {
+      "test": "comparator",
+      "config": "bw8"
+    },
+    {
+      "test": "icmp",
+      "config": "bw8"
+    },
+    {
+      "test": "mul",
+      "config": "bw8"
+    },
+    {
+      "test": "mux",
+      "config": "bw8"
+    },
+    {
+      "test": "parity",
+      "config": "bw8"
+    },
+    {
+      "test": "sub",
+      "config": "bw8"
+    }
+  ],
+  "auxiliary_report": "report-satsuma-full.html",
+  "timing_scope": "prepared-verilog-inputs",
+  "satopt_profiles": [
+    true,
+    false
+  ],
+  "phase": "complete",
+  "jobs": 16,
+  "lec_jobs": 32,
+  "usyn_abc": "tmap"
+}
