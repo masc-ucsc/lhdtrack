@@ -33,7 +33,7 @@ from lhdtrack.context import FlowContext, FlowError, FlowSkip
 
 NAME = "sim_verilator"
 KIND = "sim"
-NEEDS = ("verilator",)
+NEEDS = ("verilator", "make", "cxx")
 USES_TECH = False
 
 
@@ -82,7 +82,8 @@ def run(ctx: FlowContext) -> dict:
     # runner already schedules independent jobs across cores; an inner
     # `-j $(nproc)` here oversubscribes the host and makes both wall time and
     # peak RSS depend on what the other three workers happen to be compiling.
-    ctx.run("cc", ["make", "-C", str(vobj), "-f", f"V{sim_top}.mk", "-j", "1", f"V{sim_top}"])
+    ctx.run("cc", [ctx.tool("make"), "-C", str(vobj), "-f", f"V{sim_top}.mk",
+                   "-j", "1", f"CXX={ctx.tool('cxx')}", f"V{sim_top}"])
 
     # 3. the simulation alone, best-of-N
     binary = vobj / f"V{sim_top}"

@@ -54,7 +54,13 @@ cmake(
                 "/usr/local/opt/bison/bin",
             ]),
         },
-        "//conditions:default": {},
+        "//conditions:default": {
+            # Bazel uses the gcc driver for C++ too. Keep its runtime after
+            # the objects in CMake probe/link commands; putting it in linker
+            # flags loses it to --as-needed and falsely rejects std::format.
+            "CMAKE_CXX_STANDARD_LIBRARIES": "-lstdc++ -lm",
+            "CMAKE_TRY_COMPILE_PLATFORM_VARIABLES": "CMAKE_CXX_STANDARD_LIBRARIES",
+        },
     }),
     deps = ["@cudd//:cudd"],
     lib_source = ":all_srcs",

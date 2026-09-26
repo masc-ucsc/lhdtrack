@@ -1,0 +1,13 @@
+{
+  "test": "br_amba_axi_isolate_sub",
+  "mapper": "usyn",
+  "aliases": 126,
+  "seconds": 7.401602739999362,
+  "rc": 0,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}

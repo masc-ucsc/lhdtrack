@@ -34,6 +34,8 @@ from merge_liberty import merge as merge_liberty
 
 # How to ask each tool its version, and where to look when it is not on PATH.
 TOOLS = {
+    "make":      (["--version"], ["/usr/bin/make"]),
+    "cxx":       (["--version"], ["/usr/bin/c++"]),
     "lhd":       (["version"],     ["../livehd/bazel-bin/lhd/lhd"]),
     "yosys":     (["-V"],          ["/opt/homebrew/bin/yosys", "/usr/local/bin/yosys"]),
     "abc":       (["-h"],          ["/opt/homebrew/bin/yosys-abc", "/usr/local/bin/yosys-abc"]),

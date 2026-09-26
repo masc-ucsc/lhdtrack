@@ -27,6 +27,13 @@ USES_TECH = True
 
 
 def run(ctx: FlowContext) -> dict:
+    return run_mapper(ctx, "abc")
+
+
+def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
+    import hashlib
+    import json
+
     ctx.require_sdc()
     lhd = ctx.tool("lhd")
     params = [f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())]
@@ -44,9 +51,13 @@ def run(ctx: FlowContext) -> dict:
             "merge the technology before running LiveHD"
         )
     settings = [
+        "--set", f"synth.mapper={mapper}",
         "--set", f"synth.liberty={ctx.liberty[0]}",
         "--set", f"pass.abc.delay={ctx.abc_delay_ps()}",
         *abc_settings(ctx.tech.name),
+        # `lhd synth` from source runs compile SAT optimization by default; the
+        # comparison profile switches off only that pass.
+        *([] if satopt else ["--set", "pass.satopt=false"]),
     ]
     lhd = ctx.tool("lhd")
     top = f"{ctx.top}.{ctx.top}"
@@ -95,5 +106,23 @@ def run(ctx: FlowContext) -> dict:
             "(check `lhd pass cgen verilog` support for mapped designs)"
         ) from error
 
-    return {"netlist": netlist, **evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
-                     qor_json=ctx.work / "W" / "synth" / "qor.json")}
+    # The proof consumes this exact emission, including when QoR collection fails.
+    digest = hashlib.sha256(netlist.read_bytes()).hexdigest()
+    ctx.write("synth-artifacts.json", json.dumps({
+        "mapper": mapper, "netlist": str(netlist), "sha256": digest,
+        "reference": str(ctx.work / "W/synth/lg"),
+    }, indent=2))
+    result = evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
+                      qor_json=ctx.work / "W" / "synth" / "qor.json")
+    result["qor"].update(mapper=mapper, netlist_sha256=digest,
+                         liberty_sha256=ctx.tech.sha256)
+    policy = result["qor"].setdefault("synth_policy", {})
+    policy["synth.mapper"] = mapper
+    policy["pass.satopt"] = str(satopt).lower()
+    if mapper == "usyn":
+        usyn = json.loads((ctx.work / "W/synth/qor.json.usyn.json").read_text())
+        if usyn["abc"] != "tmap":
+            raise FlowError(f"USYN evaluation requires abc=tmap, got {usyn['abc']}")
+        result["qor"]["usyn_abc"] = usyn["abc"]
+        result["qor"]["synth_policy"]["pass.usyn.abc"] = usyn["abc"]
+    return {"netlist": netlist, **result}

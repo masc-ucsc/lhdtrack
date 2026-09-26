@@ -79,6 +79,10 @@ class Row:
     pyrope_status: str = "none"
     lec: str = "none"
     comparable: bool = False
+    # False keeps formal measurements visible but makes every verdict
+    # informational.  Cross-clock designs use this because single-clock
+    # equivalence encodings are not a valid correctness gate for them.
+    lec_gate: bool = True
     qor: dict = field(default_factory=dict)
     sta: dict = field(default_factory=dict)
     # The equivalence measurement. Distinct from `lec`, which is the status the
@@ -222,6 +226,7 @@ class Runner:
             pyrope_status=job.test.pyrope_status,
             lec=job.test.lec_status,
             comparable=job.test.comparable(),
+            lec_gate=job.test.lec_gate,
         )
 
         if job.tech and job.tech not in self.tc.techs:
@@ -327,7 +332,7 @@ class Runner:
             and lec_declared in ("proven", "refuted")
             and lec_verdict != lec_declared
         )
-        if lec_mismatch:
+        if lec_mismatch and row.lec_gate:
             row.passed = False
             row.status = "failed"
             row.note = (
@@ -359,6 +364,8 @@ class Runner:
         gates = self.cfg.get("gates", {})
 
         for row in rows:
+            if not row.lec_gate:
+                continue
             # Every synthesized netlist is expected to preserve its RTL.  A
             # definitive refutation is therefore fatal regardless of which of the
             # three netlist obligations found it; timeout and inconclusive remain
@@ -381,6 +388,8 @@ class Runner:
         # backend proved its obligation. Timeouts and inconclusives remain
         # coverage outcomes; neither is evidence of a tool error.
         for row in rows:
+            if not row.lec_gate:
+                continue
             errors = [
                 block for block in (
                     row.lec_result, row.lec_aux_result, row.lec_verilog_result
@@ -418,7 +427,7 @@ class Runner:
         # 3. LEC drift: a manifest claiming `proven` while the prover disagrees
         #    would let an unverified test into the headline geomean.
         for r in rows:
-            if r.kind == "lec" and r.note.startswith("manifest declares"):
+            if r.lec_gate and r.kind == "lec" and r.note.startswith("manifest declares"):
                 r.passed = False
                 r.status = "failed"
 
@@ -430,7 +439,11 @@ class Runner:
         # agree; two engines answering different questions have no reason to.
         by_test: dict[tuple[str, str, str], dict[str, Row]] = {}
         for r in rows:
-            if r.kind == "lec" and r.lec_result.get("verdict") in ("proven", "refuted"):
+            if (
+                r.lec_gate
+                and r.kind == "lec"
+                and r.lec_result.get("verdict") in ("proven", "refuted")
+            ):
                 obligation = r.lec_result.get("obligation", "pyrope-vs-verilog")
                 by_test.setdefault((r.test, r.config, obligation), {})[r.flow] = r
         for (test, config, _obligation), group in by_test.items():
@@ -474,7 +487,7 @@ class Runner:
 
         verdicts: dict[str, set[str]] = {}
         for r in rows:
-            if r.kind != "lec" or r.status != "ok":
+            if not r.lec_gate or r.kind != "lec" or r.status != "ok":
                 continue
             if r.lec_result.get("obligation", "pyrope-vs-verilog") != "pyrope-vs-verilog":
                 continue

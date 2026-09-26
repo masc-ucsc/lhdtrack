@@ -34,7 +34,7 @@ FLOW_TOOLS: dict[str, tuple[str, ...]] = {
     "syn_yosys_abc": ("yosys", "yosys_slang", "abc"),
     "syn_lhd_verilog": ("lhd",),
     "syn_lhd_pyrope": ("lhd",),
-    "sim_verilator": ("verilator",),
+    "sim_verilator": ("verilator", "make", "cxx"),
     "sim_lhd_verilog": ("lhd",),
     "sim_lhd_pyrope": ("lhd",),
     "lec_lhd": ("lhd",),

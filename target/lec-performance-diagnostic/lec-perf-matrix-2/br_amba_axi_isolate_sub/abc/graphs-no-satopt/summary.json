@@ -1,0 +1,13 @@
+{
+  "test": "br_amba_axi_isolate_sub",
+  "mapper": "abc",
+  "mode": "graphs-no-satopt",
+  "rc": 0,
+  "seconds": 5.728,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}

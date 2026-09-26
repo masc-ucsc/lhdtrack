@@ -25,6 +25,7 @@ import math
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from ..corpus import discover
 from ..ledger import TARGET_DIR, Ledger, slug
 from ..run import host_name
 
@@ -227,6 +228,11 @@ def write_report(
 ) -> Path:
     cfg = cfg or {}
     host = host or host_name()
+    evaluation = root / "data" / f"verilog-eval-{slug(host)}.json"
+    if evaluation.exists() and synthesis_run is None and comparison_name is None:
+        from .verilog_eval import write_evaluation
+
+        return write_evaluation(root, evaluation, out=out)
     rcfg = cfg.get("report", {})
     base_syn = rcfg.get("baseline_flow", "syn_yosys_abc")
     base_sim = rcfg.get("baseline_sim_flow", "sim_verilator")
@@ -240,6 +246,26 @@ def write_report(
     # one-test report and make all unaffected measurements disappear.
     ledger = Ledger(root)
     rows = ledger.latest_rows(host)
+    # Formal gating is corpus policy, not a property of an old measurement.
+    # Applying the current manifest policy at render time lets a CDC result
+    # remain visible and timed without forcing a ten-minute prover rerun merely
+    # to clear a status bit in an append-only ledger.
+    informational = {test.name for test in discover(root) if not test.lec_gate}
+    if informational:
+        normalized = []
+        for original in rows:
+            row = dict(original)
+            if row.get("kind") == "lec" and row.get("test") in informational:
+                prior_status = row.get("status")
+                prior_note = row.get("note", "")
+                row["status"] = "ok"
+                row["passed"] = True
+                row["comparable"] = False
+                row["lec_gate"] = False
+                if prior_status == "failed" and prior_note:
+                    row["note"] = f"informational formal result: {prior_note}"
+            normalized.append(row)
+        rows = normalized
     if synthesis_run is not None:
         snapshot = [r for r in ledger.load(host) if r.get("run_id") == synthesis_run]
         if not any(r.get("kind") == "synth" for r in snapshot):

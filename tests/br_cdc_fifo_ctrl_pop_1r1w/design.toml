@@ -46,5 +46,6 @@ cycles = 15600000
 marker = "LHDTRACK-DONE"
 
 [lec]
+gate = false # Multi-clock formal verdicts are informational.
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

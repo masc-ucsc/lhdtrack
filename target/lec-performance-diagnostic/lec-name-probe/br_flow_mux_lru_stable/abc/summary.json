@@ -1,0 +1,13 @@
+{
+  "test": "br_flow_mux_lru_stable",
+  "mapper": "abc",
+  "aliases": 97,
+  "seconds": 1.0160049620026257,
+  "rc": 0,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}

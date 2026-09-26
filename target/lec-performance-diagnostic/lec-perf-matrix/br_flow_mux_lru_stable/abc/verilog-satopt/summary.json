@@ -1,0 +1,13 @@
+{
+  "test": "br_flow_mux_lru_stable",
+  "mapper": "abc",
+  "mode": "verilog-satopt",
+  "rc": 2,
+  "seconds": 0.116,
+  "lec": null,
+  "error": {
+    "class": "usage",
+    "message": "lec: ref_models0 has 172 modules; pass --ref_models0-top or --top",
+    "hint": "172 module(s) are instantiated by nothing: A2O1A1Ixp33_ASAP7_75t_R,A2O1A1O1Ixp25_ASAP7_75t_R,AND2x2_ASAP7_75t_R,AND2x4_ASAP7_75t_R,AND2x6_ASAP7_75t_R,AND3x1_ASAP7_75t_R,AND3x2_ASAP7_75t_R,AND3x4_ASAP7_75t_R, ... (164 more)"
+  }
+}

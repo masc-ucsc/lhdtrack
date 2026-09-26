@@ -39,10 +39,14 @@ def _check(
     *,
     impl: str,
     ref: str,
-    models: str,
+    models: str | None,
     solver: str,
     obligation: str,
     label: str,
+    impl_top: str | None = None,
+    ref_top: str | None = None,
+    bound: int | None = None,
+    satopt: bool | None = None,
 ) -> dict:
     import json
 
@@ -53,9 +57,16 @@ def _check(
     wall = ctx.lec_timeout_s * 2 + 60
     m = ctx.run(
         label,
-        [lhd, "lec", "--impl", impl, "--ref", ref, "--lib", models,
-         "--top", f"{ctx.top}.{ctx.top}", "--workdir", f"LW-{label}",
+        [lhd, "lec", "--impl", impl, "--ref", ref,
+         *([] if models is None else ["--lib", models]),
+         "--impl-top", impl_top or f"{ctx.top}.{ctx.top}",
+         "--ref-top", ref_top or f"{ctx.top}.{ctx.top}",
+         "--workdir", f"LW-{label}",
          *([] if solver == "cvc5" else ["--set", f"formal.solver={solver}"]),
+         *([] if bound is None else ["--set", f"formal.bound={bound}"]),
+         *([] if satopt is None else ["--set", f"pass.satopt={str(satopt).lower()}"]),
+         *([] if satopt is None or impl_top != ref_top or not impl_top else
+           ["--set", f"compile.slang.top={impl_top}"]),
          "--set", f"formal.timeout={ctx.lec_timeout_s}",
          "--result-json", str(result_json)],
         check=False,
@@ -100,6 +111,12 @@ def _check(
         "timeout_s": ctx.lec_timeout_s,
         "wall_limit_s": wall,
     }
+    if satopt is not None:
+        block["compile_satopt"] = satopt
+    block["phase_ms"] = {}
+    for phase in (result or {}).get("phases", []):
+        name = phase["name"]
+        block["phase_ms"][name] = block["phase_ms"].get(name, 0) + phase["ms"]
     if resource:
         block["reason"] = resource["reason"]
         block["resource_limit"] = resource
@@ -234,8 +251,9 @@ def run(ctx: FlowContext) -> dict:
 
     # The same Verilog-vs-netlist obligation through LiveHD's in-process cvc5
     # engine. This is the discriminator for a Yosys/lgcheck refutation: if cvc5
-    # also refutes, synthesis is wrong; if cvc5 proves, the disagreement belongs
-    # to the checker/backend rather than to the mapped circuit.
+    # also refutes, inspect synthesis and both models. A native proof alone
+    # cannot dismiss an independent counterexample: compiling both sides with
+    # the same frontend can reproduce the same lowering bug on both sides.
     verilog_cvc5_block = _check(
         ctx,
         impl=impl_input,

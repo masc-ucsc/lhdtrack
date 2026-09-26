@@ -70,3 +70,33 @@ class EquivalenceGates(TestCase):
                 runner.gate([row])
                 self.assertEqual(row.status, "ok")
                 self.assertTrue(row.passed)
+
+    def test_non_gating_formal_retains_refutations_as_information(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            tc = Toolchain(root, "test", "", {}, {}, {}, {})
+            runner = Runner(root, tc, Cache(root), "test", {})
+            cvc5 = Row("dut", "default", "cdc", None, "lec_lhd", "lec",
+                       True, False, "2026-09-18", lec_gate=False)
+            cvc5.lec_result = {
+                "verdict": "refuted", "solver": "cvc5",
+                "obligation": "pyrope-vs-verilog",
+            }
+            lgyosys = Row("dut", "default", "cdc", None, "lec_lgyosys", "lec",
+                          True, False, "2026-09-18", lec_gate=False)
+            lgyosys.lec_result = {
+                "verdict": "proven", "solver": "lgyosys",
+                "obligation": "pyrope-vs-verilog",
+            }
+            netlist = Row("dut", "default", "cdc", "sky130", "lec_netlist", "lec",
+                          True, False, "2026-09-18", lec_gate=False)
+            netlist.lec_verilog_result = {
+                "verdict": "refuted", "solver": "cvc5",
+                "obligation": "verilog-vs-netlist",
+            }
+
+            runner.gate([cvc5, lgyosys, netlist])
+
+            for row in (cvc5, lgyosys, netlist):
+                self.assertEqual(row.status, "ok")
+                self.assertTrue(row.passed)

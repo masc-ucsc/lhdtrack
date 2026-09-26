@@ -1,0 +1,13 @@
+{
+  "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+  "mapper": "usyn",
+  "mode": "graphs",
+  "rc": 0,
+  "seconds": 0.666,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}

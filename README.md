@@ -664,3 +664,77 @@ wrong library.
 | [`circt-synth-tracker`](../circt-synth-tracker) | the report model; source of the combinational suite |
 | [`bedrock-rtl`](../bedrock-rtl) | source of the sequential suite, and of its PPA parameter sets |
 | [`HighTide`](https://github.com/VLSIDA/HighTide) | the hermetic-Bazel-tooling model |
+
+### Verilog-only ABC/USYN evaluation
+
+`python3 tools/run_verilog_eval.py --jobs 4` measures the current staged LiveHD
+against the retained ASAP7 Yosys synthesis baseline. It runs Verilog through
+`abc` and `usyn`, retains each emitted netlist, then checks its exact bytes with
+cvc5 and the Yosys cross-check. Timeouts are coverage outcomes, not refutations.
+`--test add` creates a separate smoke report; `--resume RUN_ID` finishes an
+interrupted run using the same toolchain. No Pyrope or simulation flow runs.
+
+Completed results append to the existing ledger immediately. The host report
+refreshes about every 30 seconds while results arrive. A
+`data/verilog-eval-<host>.json` selection records the fresh run and the retained
+baseline row identities, so `make report` reproduces this focused view without
+reviving old LiveHD values. Historical measurements remain in the ledger.
+
+`--lec-from RUN_ID` reruns only verification with the currently staged LiveHD,
+using the exact retained netlists from that synthesis run. The report records
+both binaries and run IDs. Bounded proofs count as proven and display their
+bound; the cvc5 and lgcheck fallback bounds are both six checked steps.
+
+Synthesis footers compare each metric with Yosys+Slang+ABC using the geometric
+mean of baseline / LiveHD (>1 is better). Unverified rows remain included;
+refuted netlists are excluded. Each column reports its matched sample count,
+omitting missing, zero, or non-finite measurements.
+
+Verilog evaluations run cvc5 once, followed directly by independent `lgcheck`
+on the original RTL and retained netlist, with the same Liberty-derived cell
+models. Both use a six-step bound. Use `--jobs 4 --lec-jobs 32` to retain
+synthesis measurement concurrency while running proofs in parallel.
+
+The evaluation also audits independent-oracle coverage. Older runs used the
+`lhd` cross-check command, which repeats the native proof before invoking
+`lgcheck`; its outer watchdog can expire without reaching Yosys. The audit
+finishes those missed checks directly. Native results remain unchanged;
+replacement oracle results are appended with input hashes, logs, and timing
+provenance. Previous ledger entries are retained. For a live sweep started
+with an older driver, run
+`python3 tools/recheck_missing_oracles.py --run RUN --watch`.
+
+A LEC-only rerun may consume retained netlists from another host. New proof
+measurements and the report belong to the current host; synthesis timings and
+baselines from the source host are never imported. For example:
+
+```sh
+python3 tools/run_verilog_eval.py --lec-from 20260925T111208 --reemit --lec-jobs 32
+```
+
+Stage the current binaries and matching Liberty in `var/toolchain/toolchain.json`
+first. The optional `lgcheck` and `yosys2` entries select LiveHD's independent
+checker explicitly; otherwise they come from the staged LiveHD runfiles.
+The report records the source synthesis host/run and hashes each checked
+netlist. `--reemit` accepts only transparent instance renaming, not logic changes.
+
+The evaluation defaults to both `pass.satopt=true` and `pass.satopt=false`
+profiles, for synthesis and for emitted-netlist LEC. Use `--satopt-profiles enabled`
+or `--satopt-profiles disabled` to select just one. Synthesis without satopt
+(`syn_lhd_verilog[_usyn]_no_satopt`) gets its own table; a "SAT optimization
+effect" table then pairs each design's two profiles (satopt=false ÷ satopt=true,
+>1 means satopt helps) for QoR, synthesis time, memory, and native LEC time.
+Only the satopt=true emission is LEC-checked; satopt=false netlists are shown
+as unverified. Both LEC tables check the same satopt=true
+retained netlist bytes with native LEC and independent lgcheck. Liberty model
+generation and Verilog export are shared setup outside both timers. Timed
+commands include input loading, compilation and proof; native phase timings
+are retained in the ledger and shown in the time-cell tooltip. The frontend
+is given the selected top explicitly so unused cell models are not elaborated.
+
+`python3 tools/run_host_refresh.py --jobs 4` refreshes all declared simulator
+flows and Sky130 synthesis on the current host, including fresh Verilator and
+Yosys baselines. It publishes completed, checksum-gated design/config groups
+incrementally to `target/report-<host>-full.html`, linked from the LEC report.
+Use `--test add` for a smoke run or `--resume RUN_ID` after interruption; a
+resume requires the same staged toolchain.

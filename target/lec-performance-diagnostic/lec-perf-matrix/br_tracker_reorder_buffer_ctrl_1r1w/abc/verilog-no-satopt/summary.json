@@ -1,0 +1,17 @@
+{
+  "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+  "mapper": "abc",
+  "mode": "verilog-no-satopt",
+  "rc": 7,
+  "seconds": 90.106,
+  "lec": {
+    "verdict": "unknown",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": {
+    "class": "unsupported",
+    "message": "lec could not decide equivalence of 'br_tracker_reorder_buffer_ctrl_1r1w'",
+    "hint": "auto INCONCLUSIVE: ind=Unknown(469ms) [solver=cvc5 (cvc5 direct, flop-cut inductive miter); cones: 7/83 PROVEN (7 by abc in 138ms) (residue 76: 11 diff, 65 unknown, 0 unsupported); 5 ref-only cut point(s) {nxt:br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_pop_ctrl_br_fifo_pop_ctrl_core_gen_ram_rd_addr_counter_br_counter_incr_rd_addr_value, nxt:br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_pop_ctrl_empty, nxt:br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_br_credit_receiver_push_credit, nxt:br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_br_credit_receiver_push_receiver_in_reset, nxt:br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_full}; 5 impl-only cut point(s) {nxt:u_br_tracker_reorder_buffer_ctrl_1r1w__c1_br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_pop_ctrl_br_fifo_pop_ctrl_core_gen_ram_rd_addr_counter_br_counter_incr_rd_addr_value, nxt:u_br_tracker_reorder_buffer_ctrl_1r1w__c1_br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_pop_ctrl_empty, nxt:u_br_tracker_reorder_buffer_ctrl_1r1w__c1_br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_br_credit_receiver_push_credit, nxt:u_br_tracker_reorder_buffer_ctrl_1r1w__c1_br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_br_credit_receiver_push_receiver_in_reset, nxt:u_br_tracker_reorder_buffer_ctrl_1r1w__c1_br_fifo_flops_data_skid_br_fifo_ctrl_1r1w_push_credit_br_fifo_push_ctrl_credit_full}; decomposed: 0/76 cuts PROVEN, 76 unresolved {bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, bridge, (+52 more)}; matched portion DIFFERS (witness below; may be an artifact of the unmatched cut points)], bmc=Unknown(14075ms) [solver=cvc5 (bmc, phase=after_reset, 6 checked steps after 13 reset-hold; 119 unmatched state cut(s) synthetically initialized); checkSat returned unknown (hit formal.timeout=10s; raise --set formal.timeout)]; (1 uncertain tier-2 pair(s) applied; Unknown -> no retry); int-blast retry (iand, 1s) also inconclusive. This is NOT a disproof either. Raise formal.timeout/formal.bound or fix the unsupported proof obligation."
+  }
+}

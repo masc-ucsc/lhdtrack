@@ -1,0 +1,13 @@
+{
+  "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+  "mapper": "abc",
+  "mode": "graphs-no-satopt",
+  "rc": 0,
+  "seconds": 0.416,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}

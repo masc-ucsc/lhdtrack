@@ -42,6 +42,10 @@ stage yosys_slang slang.so
 stage abc       yosys-abc
 stage verilator verilator
 stage sta       sta
+# Host compilation is measured too: record its tools, then flows use only
+# these manifest entries rather than resolving a fresh executable from PATH.
+ln -sfn "$(command -v make)" "$OUT/bin/make"
+ln -sfn "$(command -v "${CXX:-c++}")" "$OUT/bin/cxx"
 
 # Bazel-built tools keep non-binary runtime data in the runfiles tree. Preserve
 # stable links to that tree and record the environment below; resolving only an
@@ -134,6 +138,8 @@ out = sys.argv[1]
 bindir, libdir = os.path.join(out, "bin"), os.path.join(out, "lib")
 
 VERSION_ARGS = {
+    "make":      ["--version"],
+    "cxx":       ["--version"],
     "lhd":       ["version"],
     "yosys":     ["-V"],
     "abc":       ["-h"],

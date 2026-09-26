@@ -84,6 +84,7 @@ class Test:
     pyrope_status: str
     pyrope_binding: str
     lec_status: str
+    lec_gate: bool
     sim_cycles: int
     sim_marker: str
     provenance: dict[str, str]
@@ -200,6 +201,9 @@ def load_test(path: Path) -> Test:
 
     synth = doc.get("synth", {})
     sim = doc.get("sim", {})
+    lec = doc.get("lec", {})
+    if not isinstance(lec.get("gate", True), bool):
+        raise CorpusError(f"{manifest}: [lec].gate must be true or false")
     return Test(
         root=path,
         name=d["name"],
@@ -209,10 +213,11 @@ def load_test(path: Path) -> Test:
         configs=configs,
         synth_flows=list(synth.get("flows", [])),
         sim_flows=list(sim.get("flows", [])),
-        lec_flows=list(doc.get("lec", {}).get("flows", [])),
+        lec_flows=list(lec.get("flows", [])),
         pyrope_status=status.get("pyrope", "none"),
         pyrope_binding=doc.get("pyrope", {}).get("param_binding", "monomorphic"),
         lec_status=status.get("lec", "none"),
+        lec_gate=lec.get("gate", True),
         sim_cycles=int(sim.get("cycles", 0)),
         sim_marker=sim.get("marker", "LHDTRACK-DONE"),
         provenance=dict(doc.get("provenance", {})),

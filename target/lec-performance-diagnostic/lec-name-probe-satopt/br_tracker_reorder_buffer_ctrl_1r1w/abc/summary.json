@@ -1,0 +1,13 @@
+{
+  "test": "br_tracker_reorder_buffer_ctrl_1r1w",
+  "mapper": "abc",
+  "aliases": 43,
+  "seconds": 2.2207394359938917,
+  "rc": 0,
+  "lec": {
+    "verdict": "proven",
+    "solver": "cvc5",
+    "bounded": false
+  },
+  "error": null
+}
