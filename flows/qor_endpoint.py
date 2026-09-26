@@ -332,8 +332,11 @@ def _normalize(ctx: FlowContext, netlist: Path) -> Path:
     # where the source tree (including ware/rtl) is available. Keep the include
     # resolution tied to that exact lhd build rather than to the caller's cwd.
     lhd_bin = ctx.tool("lhd").resolve()
+    # A staged copy (var/toolchain/eval/<sha>/lhd) carries its own runfiles tree.
+    runfiles = [Path(d) / "_main" for d in (ctx.tc.env_for(str(ctx.tool("lhd"))).get("RUNFILES_DIR"),
+                                           f"{lhd_bin}.runfiles") if d]
     memory_rtl = next(
-        (parent / "ware" / "rtl" for parent in lhd_bin.parents if (parent / "ware" / "rtl").is_dir()),
+        (parent / "ware" / "rtl" for parent in (*runfiles, *lhd_bin.parents) if (parent / "ware" / "rtl").is_dir()),
         None,
     )
     if memory_rtl is None:

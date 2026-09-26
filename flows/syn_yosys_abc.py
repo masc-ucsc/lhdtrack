@@ -35,16 +35,23 @@ def run(ctx: FlowContext) -> dict:
             f"staged {len(ctx.liberty)} files"
         )
     liberty = ctx.liberty[0]
+    # dfflibmap maps flip-flops only: land latches (clock-gating enables) on
+    # the Liberty's own latch cells, or no Liberty reader/timer knows them.
+    from lib.liberty_latch import techmap_verilog
+
+    latch_map = techmap_verilog(Path(liberty))
+    latch_step = f"techmap -map {ctx.write('latch_map.v', latch_map)}" if latch_map else ""
 
     # `synth` is yosys's own default script; the only additions are the ones
-    # required to land on a real Liberty at all (dfflibmap for the sequential
-    # cells, abc -liberty for the combinational ones).
+    # required to land on a real Liberty at all (dfflibmap for the flops, a
+    # latch techmap for the latches, abc -liberty for the combinational ones).
     script = f"""
 {reads}
 read_slang --top {ctx.top} --no-proc -DSYNTHESIS -DBR_PPA_SYNTHESIS {slang_params} -F {ctx.test.filelist}
 hierarchy -check -top {ctx.top}
 synth -top {ctx.top} -flatten
 dfflibmap -liberty {liberty}
+{latch_step}
 abc -liberty {liberty} -D {abc_delay}
 setundef -zero
 splitnets
