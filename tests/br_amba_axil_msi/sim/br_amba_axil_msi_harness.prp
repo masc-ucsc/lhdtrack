@@ -22,16 +22,20 @@ pub mod br_amba_axil_msi_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=0, device_id_per_irq=lfsr#[44..=63], event_id_per_irq=lfsr#[44..=63], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (error, init_awaddr, init_awvalid, init_wdata, init_wstrb, init_wvalid, init_bready) = dut(clk=1, rst=rst, irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=0, device_id_per_irq=lfsr_x#[44..=107], event_id_per_irq=lfsr_x#[44..=107], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.error
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_awaddr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_awvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_wdata
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_wstrb
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_wvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.init_bready
+  wrap acc = ((acc << 1) | acc#[63]) ^ error
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_awaddr
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_awvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_wdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_wstrb
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_wvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ init_bready
 
   if rst != 0 {
     lfsr = 2611923443488327891

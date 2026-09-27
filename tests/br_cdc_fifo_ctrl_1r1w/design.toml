@@ -22,6 +22,7 @@ lec    = "proven" # Cross-clock formal results are informational, not a run gate
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_fifo_ctrl_1r1w#<id>`.
 [[config]]
 id     = "d32_nss3_rrl1_rwl2_rpo1_w64"
+sim_checksum = { cycles = 15600000, value = "2753610802046674682" }
 # NO PARAMETERS. verilog/br_cdc_fifo_ctrl_1r1w.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

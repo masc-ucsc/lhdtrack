@@ -22,6 +22,7 @@ lec    = "none" # Cross-clock formal results are informational, not a run gate.
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_bit_pulse#<id>`.
 [[config]]
 id     = "ns2_ro0"
+sim_checksum = { cycles = 30400000, value = "16280817373204660663" }
 # NO PARAMETERS. verilog/br_cdc_bit_pulse.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

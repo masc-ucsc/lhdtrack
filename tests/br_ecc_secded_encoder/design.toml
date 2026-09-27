@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_ecc_secded_encoder#<id>`.
 [[config]]
 id     = "dw32_ri0_ro0"
+sim_checksum = { cycles = 31300000, value = "16539267518444405001" }
 # NO PARAMETERS. verilog/br_ecc_secded_encoder.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

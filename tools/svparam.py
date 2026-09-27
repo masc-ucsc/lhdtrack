@@ -84,6 +84,10 @@ class ParamItem:
     name: str
     value_span: tuple[int, int] | None  # span of the default expression
     is_type: bool
+    # No keyword in the source: `#(BW = 8)`. It is still a `parameter` -- or
+    # whatever the previous entry was -- and kw_span is the empty span where
+    # the keyword would go.
+    implicit_kw: bool = False
 
 
 class TopModule:
@@ -115,8 +119,20 @@ class TopModule:
         lo, hi = self.param_open + 1, self.param_close
         pieces = _split_top_level(self.blank, lo, hi)
         out: list[ParamItem] = []
+        prev = "parameter"
         for a, b in pieces:
-            out.append(self._parse_item(a, b))
+            it = self._parse_item(a, b)
+            if it.kw is None and it.name:
+                # IEEE 1800 6.20.1: an entry with no keyword inherits the
+                # previous one's, and the first defaults to `parameter`. Missing
+                # this read `#(BW = 8)` as already pinned, so the top stayed
+                # overridable and its config's -G silently drove every flow.
+                at = a
+                while at < b and self.blank[at] in " \t\n":
+                    at += 1
+                it.kw, it.kw_span, it.implicit_kw = prev, (at, at), True
+            prev = it.kw or prev
+            out.append(it)
         return out
 
     def _parse_item(self, a: int, b: int) -> ParamItem:
@@ -209,7 +225,7 @@ def freeze(text: str, top: str, values: dict[str, object]) -> tuple[str, dict[st
     pinned: dict[str, str] = {}
     for it in mod.items():
         if it.kw == "parameter":
-            edits.append((*it.kw_span, "localparam"))
+            edits.append((*it.kw_span, "localparam " if it.implicit_kw else "localparam"))
         if it.name in values and it.value_span:
             new = str(values[it.name])
             edits.append((*it.value_span, new))

@@ -49,6 +49,10 @@ module br_csr_cdc_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_abort);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_csr_cdc dut (
     .upstream_clk(clk),
     .downstream_clk(clk),
@@ -63,7 +67,7 @@ module br_csr_cdc_harness (
     .upstream_req_privileged(lfsr[55]),
     .upstream_req_abort(lfsr[56]),
     .downstream_resp_valid(lfsr[57]),
-    .downstream_resp_rdata({26'd0, lfsr[63:58]}),
+    .downstream_resp_rdata(lfsr_x[89:58]),
     .downstream_resp_slverr(lfsr[26]),
     .downstream_resp_decerr(lfsr[27]),
     .upstream_resp_valid(o_upstream_resp_valid),

@@ -22,13 +22,13 @@ pub mod br_ram_initializer_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, initial_value=lfsr#[0..=31], start=lfsr#[32])
+  const (busy, wr_valid, wr_addr, wr_data) = dut(clk=1, rst=rst, initial_value=lfsr#[0..=31], start=lfsr#[32])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.busy
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.wr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.wr_addr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.wr_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ busy
+  wrap acc = ((acc << 1) | acc#[63]) ^ wr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ wr_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ wr_data
 
   if rst != 0 {
     lfsr = 2611923443488327891

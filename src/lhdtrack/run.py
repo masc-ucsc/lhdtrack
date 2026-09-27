@@ -161,6 +161,14 @@ def plan(
     return jobs
 
 
+def expected_checksums(jobs: list[Job]) -> dict[tuple[str, str], tuple[int, str]]:
+    """The recorded `sim_checksum` of every (test, config) in a plan."""
+    return {
+        (j.test.name, j.config.id): j.config.sim_checksum
+        for j in jobs if getattr(j.config, "sim_checksum", None)
+    }
+
+
 # --------------------------------------------------------------- execution --
 class Runner:
     def __init__(
@@ -179,9 +187,13 @@ class Runner:
         self.cfg = cfg
         self.keep_work = keep_work
         self.work_root = root / "var" / "work" / run_id
+        # (test, config) -> recorded (cycles, checksum); set per execute().
+        self.references: dict[tuple[str, str], tuple[int, str]] = {}
         self.baseline_flows = set(cfg.get("cache", {}).get("baseline_flows", []))
 
-    def execute(self, jobs: list[Job], jobs_parallel: int = 4, on_done=None) -> list[Row]:
+    def execute(
+        self, jobs: list[Job], jobs_parallel: int = 4, on_done=None, references: bool = True
+    ) -> list[Row]:
         """Run every job, then gate.
 
         Rows are ALSO written out one at a time, to
@@ -217,6 +229,7 @@ class Runner:
                     if on_done:
                         on_done(row)
         rows = [rows_by_index[i] for i in range(len(jobs))]
+        self.references = expected_checksums(jobs) if references else {}
         return self.gate(rows)
 
     def _one(self, job: Job) -> Row:
@@ -367,7 +380,9 @@ class Runner:
         return row
 
     # ------------------------------------------------------------- gates --
-    def gate(self, rows: list[Row]) -> list[Row]:
+    def gate(
+        self, rows: list[Row], expected: dict[tuple[str, str], tuple[int, str]] | None = None
+    ) -> list[Row]:
         gates = self.cfg.get("gates", {})
 
         for row in rows:
@@ -427,6 +442,26 @@ class Runner:
                         r.passed = False
                         r.status = "failed"
                         r.note = f"simulators disagree on {test}#{config}: {detail}"
+
+        # 2. The recorded reference. Agreement among the simulators of ONE run
+        #    says nothing when only one of them ran, or when all of them share a
+        #    regression; the checksum a past verilator run recorded in
+        #    design.toml does. Bound only at the cycle count it was taken at --
+        #    a different length is a different experiment, not a mismatch.
+        if gates.get("require_checksum_match", True):
+            refs = expected if expected is not None else self.references
+            for r in rows:
+                ref = refs.get((r.test, r.config))
+                if not (r.kind == "sim" and r.status == "ok" and ref and r.sim.get("checksum")):
+                    continue
+                cycles, value = ref
+                if r.sim.get("cycles") == cycles and r.sim["checksum"] != value:
+                    r.passed = False
+                    r.status = "failed"
+                    r.note = (
+                        f"checksum {r.sim['checksum']} != recorded {value} "
+                        f"({r.test}#{r.config}, {cycles} cycles)"
+                    )
 
         # Timer correlation is diagnostic. Synthesis QoR uses OpenSTA for every
         # producer and remains valid independently of OpenTimer validation.

@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_mux_bin_array#<id>`.
 [[config]]
 id     = "nsi16_nso2_sw32"
+sim_checksum = { cycles = 31800000, value = "9336323383918905625" }
 # NO PARAMETERS. verilog/br_mux_bin_array.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

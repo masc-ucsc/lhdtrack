@@ -55,6 +55,19 @@ def file_digest(path: Path) -> str:
     return h.hexdigest()
 
 
+def manifest_digest(path: Path) -> str:
+    """design.toml's digest, minus its recorded `sim_checksum` lines.
+
+    The expected checksum is an ORACLE, not an input: it is written back from a
+    verilator run (`lhdtrack run --record-checksum`), and keying on it would
+    make recording the reference invalidate the very baseline it came from --
+    and every cached synthesis row of the test along with it.
+    """
+    lines = path.read_bytes().splitlines(keepends=True)
+    kept = b"".join(l for l in lines if not l.lstrip().startswith(b"sim_checksum"))
+    return hashlib.sha256(kept).hexdigest()
+
+
 def _content_digest(paths: list[Path]) -> str:
     """Hash names AND contents -- a renamed file is a changed benchmark.
 
@@ -64,7 +77,7 @@ def _content_digest(paths: list[Path]) -> str:
     h = hashlib.sha256()
     for p in sorted(paths):
         h.update(f"{p.parent.name}/{p.name}".encode())
-        h.update(file_digest(p).encode())
+        h.update((manifest_digest(p) if p.name == "design.toml" else file_digest(p)).encode())
     return h.hexdigest()
 
 

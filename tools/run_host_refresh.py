@@ -15,7 +15,7 @@ from lhdtrack.cli import load_config
 from lhdtrack.corpus import discover
 from lhdtrack.ledger import Ledger
 from lhdtrack.report.html import write_report, write_index
-from lhdtrack.run import Runner, host_name, load_flows, plan
+from lhdtrack.run import Runner, expected_checksums, host_name, load_flows, plan
 from lhdtrack.toolchain import Toolchain
 
 FLOWS = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope",
@@ -50,6 +50,7 @@ def main():
     jobs = [job for job in jobs
             if (job.test.name, job.config.id, job.tech, job.flow) not in completed]
     expected = Counter((job.test.name, job.config.id) for job in jobs)
+    references = expected_checksums(jobs)
     groups = defaultdict(list)
     done = 0
     last_render = 0.0
@@ -72,7 +73,7 @@ def main():
         # Checksum agreement is a group gate. Publish only when all selected
         # simulators for this design/config have returned.
         if len(groups[key]) == expected[key]:
-            runner.gate(groups[key])
+            runner.gate(groups[key], references)
             ledger.append(identity, groups.pop(key))
         state["completed"] = done
         print(f"[{done}/{len(jobs)}] {row.test}/{row.config} {row.flow}: "

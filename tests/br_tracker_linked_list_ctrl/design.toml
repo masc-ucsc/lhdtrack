@@ -28,6 +28,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_linked_list_ctrl#<id>`.
 [[config]]
 id     = "d128_nll4_nwp4_rrl2"
+sim_checksum = { cycles = 23000000, value = "997454751465706571" }
 # NO PARAMETERS. verilog/br_tracker_linked_list_ctrl.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

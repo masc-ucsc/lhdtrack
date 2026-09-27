@@ -1,15 +1,20 @@
-const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
-const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+// Valid/ready pipeline register that breaks the forward (valid and data)
+// path. It accepts a new beat whenever it is empty or being drained.
+pub mod br_flow_reg_fwd<WIDTH=1>(clk:u1, rst:u1, push_valid:bool, push_data:unsigned(bits=WIDTH), pop_ready:bool) -> (
+  push_ready:bool@[],
+  pop_valid:bool@[],
+  pop_data:unsigned(bits=WIDTH)@[]
+) {
+  reg valid:bool:[reset_pin = ref rst] = false
+  reg data:unsigned(bits=WIDTH)        = nil
 
-pub mod br_flow_reg_fwd::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u64, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u64@[]) {
-  reg pop_valid:u1
-  reg pop_data:u64
-  const push_ready__w1 = unsigned((pop_ready != 0) or (pop_valid == 0))
-  pop_valid = if rst != 0 { 0 } else { unsigned((push_valid != 0) or (push_ready__w1 == 0)) }
-  if unsigned((push_ready__w1 != 0) and (push_valid != 0)) != 0 {
-    pop_data = push_data
+  const ready = pop_ready or not valid
+  valid       = push_valid or not ready
+  if ready and push_valid {
+    data = push_data
   }
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid, ready = pop_ready, data = pop_data)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
-  push_ready = push_ready__w1
+
+  push_ready = ready
+  pop_valid  = valid
+  pop_data   = data
 }

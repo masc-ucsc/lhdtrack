@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_credit_sender_vc#<id>`.
 [[config]]
 id     = "mc16_nv4_pcmc4_rpo1_w64"
+sim_checksum = { cycles = 18200000, value = "11797019476180444587" }
 # NO PARAMETERS. verilog/br_credit_sender_vc.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

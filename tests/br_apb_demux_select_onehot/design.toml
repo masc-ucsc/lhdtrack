@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_apb_demux_select_onehot#<id>`.
 [[config]]
 id     = "aw12_nd4"
+sim_checksum = { cycles = 29900000, value = "5258194596761643209" }
 # NO PARAMETERS. verilog/br_apb_demux_select_onehot.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

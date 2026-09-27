@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_burst_mux_lru_stable#<id>`.
 [[config]]
 id     = "nf8_rpr0_w32"
+sim_checksum = { cycles = 17900000, value = "18087015243850236281" }
 # NO PARAMETERS. verilog/br_flow_burst_mux_lru_stable.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with
 # no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no

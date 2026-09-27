@@ -1,17 +1,43 @@
-const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_bit_toggle           = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
 const br_cdc_fifo_gray_count_sync = import("br_cdc_fifo_gray_count_sync.br_cdc_fifo_gray_count_sync")
-const br_cdc_fifo_push_ctrl_t = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_push_ctrl")
+const br_cdc_fifo_push_ctrl       = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_push_ctrl")
 
-pub mod br_cdc_fifo_ctrl_push_1r1w::[timecheck=false](push_clk:u1, push_rst:u1, push_valid:u1, push_data:u64, pop_clk:u1, pop_rst:u1, pop_reset_active_pop:u1, pop_pop_count_gray:u6) -> (push_ready:u1@[], push_full:u1@[], push_slots:u6@[], push_ram_wr_valid:u1@[], push_ram_wr_addr:u5@[], push_ram_wr_data:u64@[], push_push_count_gray:u6@[], push_reset_active_push:u1@[]) {
-  mut br_cdc_fifo_gray_count_sync_pop2push = br_cdc_fifo_gray_count_sync::[name=br_cdc_fifo_gray_count_sync_pop2push](src_clk = pop_clk, src_rst = pop_rst, `src_count_gray.e5` = (pop_pop_count_gray >> 5) & 1, `src_count_gray.e4` = (pop_pop_count_gray >> 4) & 1, `src_count_gray.e3` = (pop_pop_count_gray >> 3) & 1, `src_count_gray.e2` = (pop_pop_count_gray >> 2) & 1, `src_count_gray.e1` = (pop_pop_count_gray >> 1) & 1, `src_count_gray.e0` = pop_pop_count_gray & 1, dst_clk = push_clk, dst_rst = push_rst)
-  mut br_cdc_bit_toggle_reset_active_pop = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_reset_active_pop](src_clk = pop_clk, src_rst = pop_rst, src_bit = pop_reset_active_pop, dst_clk = push_clk, dst_rst = push_rst)
-  mut br_cdc_fifo_push_ctrl = br_cdc_fifo_push_ctrl_t::[name=br_cdc_fifo_push_ctrl](clk = push_clk, rst = push_rst, push_valid = push_valid, push_data = push_data, pop_count_gray = (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e5 << 5) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e4 << 4) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e3 << 3) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e2 << 2) | (br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e1 << 1) | br_cdc_fifo_gray_count_sync_pop2push.dst_count_gray.e0, reset_active_pop = br_cdc_bit_toggle_reset_active_pop)
-  push_ready = br_cdc_fifo_push_ctrl.push_ready
-  push_full = br_cdc_fifo_push_ctrl.full
-  push_slots = br_cdc_fifo_push_ctrl.slots
-  push_ram_wr_valid = br_cdc_fifo_push_ctrl.ram_wr_valid
-  push_ram_wr_addr = br_cdc_fifo_push_ctrl.ram_wr_addr
-  push_ram_wr_data = br_cdc_fifo_push_ctrl.ram_wr_data
-  push_push_count_gray = br_cdc_fifo_push_ctrl.push_count_gray
-  push_reset_active_push = br_cdc_fifo_push_ctrl.reset_active_push
+// Push half of a CDC FIFO controller (external 1R1W RAM): synchronizes the
+// pop side's count and reset status into push_clk and runs the push control.
+// timecheck=false: works around a false combinational-loop report (LiveHD bug).
+pub mod br_cdc_fifo_ctrl_push_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, NUM_SYNC_STAGES=3, PUSH_COUNT_DELAY=2>::[
+  timecheck = false
+](
+  push_clk:u1,
+  push_rst:u1,
+  push_valid:bool,
+  push_data:unsigned(bits=WIDTH),
+  pop_reset_active_pop:bool,
+  pop_pop_count_gray:unsigned(bits=COUNT_WIDTH)
+) -> (
+  push_ready:bool@[],
+  push_full:bool@[],
+  push_slots:unsigned(bits=COUNT_WIDTH)@[],
+  push_ram_wr_valid:bool@[],
+  push_ram_wr_addr:unsigned(bits=ADDR_WIDTH)@[],
+  push_ram_wr_data:unsigned(bits=WIDTH)@[],
+  push_push_count_gray:unsigned(bits=COUNT_WIDTH)@[],
+  push_reset_active_push:bool@[]
+) {
+  const pop_count_sync = br_cdc_fifo_gray_count_sync<COUNT_WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_SYNC_STAGES>(
+    dst_clk=push_clk, src_count_gray=pop_pop_count_gray
+  )
+  const reset_active_pop_sync = br_cdc_bit_toggle<NUM_STAGES=NUM_SYNC_STAGES>(dst_clk=push_clk, src_bit=pop_reset_active_pop)
+
+  const ctrl = br_cdc_fifo_push_ctrl<DEPTH=DEPTH,WIDTH=WIDTH,ADDR_WIDTH=ADDR_WIDTH,COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(
+    clk=push_clk, rst=push_rst, push_valid=push_valid, push_data=push_data, pop_count_gray=pop_count_sync.dst_count_gray, reset_active_pop=reset_active_pop_sync.dst_bit
+  )
+  push_ready             = ctrl.push_ready
+  push_full              = ctrl.full
+  push_slots             = ctrl.slots
+  push_ram_wr_valid      = ctrl.ram_wr_valid
+  push_ram_wr_addr       = ctrl.ram_wr_addr
+  push_ram_wr_data       = ctrl.ram_wr_data
+  push_push_count_gray   = ctrl.push_count_gray
+  push_reset_active_push = ctrl.reset_active_push
 }

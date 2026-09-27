@@ -47,6 +47,10 @@ module br_fifo_shared_pop_ctrl_ext_arbiter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_arb_enable_priority_update);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_pop_ctrl_ext_arbiter dut (
     .clk(clk),
     .rst(rst),
@@ -55,10 +59,10 @@ module br_fifo_shared_pop_ctrl_ext_arbiter_harness (
     .ram_empty(lfsr[13:12]),
     .ram_items(lfsr[25:14]),
     .bypass_valid_unstable(lfsr[27:26]),
-    .bypass_data_unstable({28'd0, lfsr[63:28]}),
+    .bypass_data_unstable(lfsr_x[91:28]),
     .pop_ready(lfsr[29:28]),
     .data_ram_rd_data_valid(lfsr[31:30]),
-    .data_ram_rd_data({32'd0, lfsr[63:32]}),
+    .data_ram_rd_data(lfsr_x[95:32]),
     .arb_grant(lfsr[35:32]),
     .arb_can_grant(lfsr[39:36]),
     .head_ready(o_head_ready),

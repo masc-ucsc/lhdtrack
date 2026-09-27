@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_enc_onehot2bin#<id>`.
 [[config]]
 id     = "nv32"
+sim_checksum = { cycles = 11300000, value = "14136347134382573366" }
 # NO PARAMETERS. verilog/br_enc_onehot2bin.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

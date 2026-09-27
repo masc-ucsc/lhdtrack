@@ -1,0 +1,12 @@
+// FmaaSgn -- the Pyrope equivalent of verilog/FmaaSgn.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 11),
+// so the generated harness and LEC bind the same external interface.
+//
+// Signed product minus two wide subtrahends (3*BW+1 = 34 bits), truncated
+// to the 34-bit result.
+pub comb FmaaSgn(a:s11, b:s11, c:s34, d:s34) -> (res:s34) { wrap  res = (a*b) - c - d }

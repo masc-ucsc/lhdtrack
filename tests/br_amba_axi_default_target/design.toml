@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_amba_axi_default_target#<id>`.
 [[config]]
 id     = "aiw4_dw32_sb1"
+sim_checksum = { cycles = 26700000, value = "8412757170808598980" }
 # NO PARAMETERS. verilog/br_amba_axi_default_target.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

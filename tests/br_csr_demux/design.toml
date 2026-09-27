@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_csr_demux#<id>`.
 [[config]]
 id     = "aw16_dw32_hdd0_nd4"
+sim_checksum = { cycles = 30400000, value = "7419166231951163409" }
 # NO PARAMETERS. verilog/br_csr_demux.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

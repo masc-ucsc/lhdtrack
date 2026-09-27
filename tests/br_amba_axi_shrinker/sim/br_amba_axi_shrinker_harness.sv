@@ -97,6 +97,10 @@ module br_amba_axi_shrinker_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_narrow_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axi_shrinker dut (
     .clk(clk),
     .rst(rst),
@@ -108,7 +112,7 @@ module br_amba_axi_shrinker_harness (
     .wide_awprot(lfsr[51:49]),
     .wide_awuser(lfsr[52]),
     .wide_awvalid(lfsr[53]),
-    .wide_wdata({54'd0, lfsr[63:54]}),
+    .wide_wdata(lfsr_x[117:54]),
     .wide_wstrb(lfsr[61:54]),
     .wide_wuser(lfsr[62]),
     .wide_wlast(lfsr[63]),

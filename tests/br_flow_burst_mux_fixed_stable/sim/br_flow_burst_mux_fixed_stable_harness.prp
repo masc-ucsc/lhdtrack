@@ -22,13 +22,20 @@ pub mod br_flow_burst_mux_fixed_stable_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, push_valid=lfsr#[0..=7], push_last=lfsr#[8..=15], push_data=lfsr#[16..=63], pop_ready=lfsr#[16])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u320 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
+    (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
+    (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
+    (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
+
+  const (push_ready, pop_valid, pop_last, pop_data) = dut(clk=1, rst=rst, push_valid=lfsr#[0..=7], push_last=lfsr#[8..=15], push_data=lfsr_x#[16..=271], pop_ready=lfsr#[16])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_last
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_last
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
 
   if rst != 0 {
     lfsr = 2611923443488327891

@@ -1,3 +1,0 @@
-pub comb br_enc_countones::[timecheck=false](`in`:u1) -> (count:u1) {
-  count = (0 + (`in` & 1)) & 1
-}

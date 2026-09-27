@@ -53,14 +53,18 @@ module br_amba_axil_write_arbiter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_bready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axil_write_arbiter dut (
     .clk(clk),
     .rst(rst),
-    .upstream_awaddr({16'd0, lfsr[63:0]}),
+    .upstream_awaddr(lfsr_x[79:0]),
     .upstream_awprot(lfsr[21:16]),
     .upstream_awuser(lfsr[23:22]),
     .upstream_awvalid(lfsr[25:24]),
-    .upstream_wdata({90'd0, lfsr[63:26]}),
+    .upstream_wdata(lfsr_x[153:26]),
     .upstream_wstrb(lfsr[41:26]),
     .upstream_wuser(lfsr[43:42]),
     .upstream_wvalid(lfsr[45:44]),

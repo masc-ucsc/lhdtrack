@@ -1,0 +1,12 @@
+// Fma -- the Pyrope equivalent of verilog/Fma.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 32),
+// so the generated harness and LEC bind the same external interface.
+//
+// a*b + c always fits the 64-bit result ((2^32-1)^2 + 2^32-1 < 2^64), so no
+// `wrap`: the range check proves the Verilog never truncates here.
+pub comb Fma(a:u32, b:u32, c:u32) -> (res:u64) { res = (a*b) + c }

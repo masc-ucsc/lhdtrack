@@ -30,14 +30,19 @@ module br_delay_valid_next_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_valid_next);
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_valid_next_stages);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages[127:64]);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_delay_valid_next dut (
     .clk(clk),
     .rst(rst),
     .in_valid_next(lfsr[0]),
-    .in({1'd0, lfsr[63:1]}),
+    .in(lfsr_x[64:1]),
     .out_valid_next(o_out_valid_next),
     .out(o_out),
     .out_valid_next_stages(o_out_valid_next_stages),

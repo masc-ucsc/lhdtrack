@@ -6,7 +6,7 @@
 // Identical driver, identical work, either way.
 const dut = import("lg:br_fifo_shared_pstatic_flops_harness")
 
-test bench.run(cycles:u32=1000000) {
+test bench.run(cycles:u32=13600000) {
   mut acc = dut
   mut result:u64 = 0
 

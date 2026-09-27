@@ -39,6 +39,10 @@ module br_amba_axil_msi_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_init_bready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axil_msi dut (
     .clk(clk),
     .rst(rst),
@@ -46,8 +50,8 @@ module br_amba_axil_msi_harness (
     .msi_dest_addr(lfsr[35:4]),
     .msi_enable(lfsr[39:36]),
     .msi_dest_idx(4'd0),
-    .device_id_per_irq({44'd0, lfsr[63:44]}),
-    .event_id_per_irq({44'd0, lfsr[63:44]}),
+    .device_id_per_irq(lfsr_x[107:44]),
+    .event_id_per_irq(lfsr_x[107:44]),
     .throttle_en(lfsr[44]),
     .throttle_cntr_threshold(lfsr[48:45]),
     .init_awready(lfsr[49]),

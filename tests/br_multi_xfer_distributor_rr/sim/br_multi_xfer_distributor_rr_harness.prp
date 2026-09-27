@@ -22,12 +22,34 @@ pub mod br_multi_xfer_distributor_rr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, push_sendable=0, push_data=lfsr#[3..=63], pop_ready=lfsr#[3..=18])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u320 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
+    (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
+    (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
+    (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
+
+  const (push_receivable, pop_valid, pop_data) = dut(clk=1, rst=rst, push_sendable=0, push_data=lfsr_x#[3..=258], pop_ready=lfsr#[3..=18])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receivable
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_receivable
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[0..=63]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[64..=127]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[128..=191]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[192..=255]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[256..=319]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[320..=383]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[384..=447]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[448..=511]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[512..=575]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[576..=639]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[640..=703]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[704..=767]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[768..=831]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[832..=895]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[896..=959]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[960..=1023]
 
   if rst != 0 {
     lfsr = 2611923443488327891

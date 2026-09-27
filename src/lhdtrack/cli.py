@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -137,6 +138,18 @@ def cmd_check(args, root: Path, cfg: dict) -> int:
                 )
         if t.sim_flows and t.sim_cycles <= 0:
             issues.append("sim flows declared but [sim].cycles is unset")
+        if t.sim_flows and t.sim_cycles > 0:
+            for c in t.configs:
+                if c.sim_checksum is None:
+                    soft.append(
+                        f"#{c.id} has no recorded sim_checksum -- simulators are only "
+                        "checked against each other (`lhdtrack run --record-checksum`)"
+                    )
+                elif c.sim_checksum[0] != t.sim_cycles:
+                    soft.append(
+                        f"#{c.id} sim_checksum was recorded at {c.sim_checksum[0]} cycles, "
+                        f"[sim].cycles is {t.sim_cycles} -- it no longer gates anything"
+                    )
         if (
             t.is_combinational and t.sim_flows
             and (t.sim_dir / f"{t.top}_tb.prp").exists()
@@ -255,8 +268,20 @@ def cmd_run(args, root: Path, cfg: dict) -> int:
         if row.note and row.status != "ok":
             print(f"        {C['dim']}{row.note[:160]}{C['0']}")
 
+    # --record-checksum re-takes the reference, so the one being replaced must
+    # not gate the run that replaces it. Cross-simulator agreement still does.
     rows = runner.execute(jobs, jobs_parallel=int(args.jobs or cfg.get("run", {}).get("jobs", 4)),
-                          on_done=progress)
+                          on_done=progress, references=not args.record_checksum)
+    if args.record_checksum:
+        by_name = {t.name: t for t in tests}
+        for r in rows:
+            if r.flow == "sim_verilator" and r.status == "ok" and r.sim.get("checksum"):
+                record_sim_checksum(
+                    by_name[r.test].root / "design.toml", r.config,
+                    int(r.sim["cycles"]), str(r.sim["checksum"]),
+                )
+                print(f"recorded {r.test}#{r.config} sim_checksum={r.sim['checksum']} "
+                      f"({r.sim['cycles']} cycles)")
 
     ledger = Ledger(root)
     n = ledger.append(runner.identity(), rows)
@@ -275,6 +300,30 @@ def cmd_run(args, root: Path, cfg: dict) -> int:
         for path in write_all(root, cfg=cfg):
             print(f"wrote {path}")
     return 1 if failed else 0
+
+
+def record_sim_checksum(manifest: Path, config: str, cycles: int, value: str) -> None:
+    """Set `sim_checksum` in the `[[config]]` whose id is `config`.
+
+    A text edit, not a TOML round trip: design.toml is commented by hand, and a
+    serializer would drop every comment in it. One line per config, which is
+    also what lets keys.manifest_digest drop it from the cache key.
+    """
+    line = f'sim_checksum = {{ cycles = {cycles}, value = "{value}" }}'
+    blocks = re.split(r"(?m)^(?=\[)", manifest.read_text())
+    for i, block in enumerate(blocks):
+        if not block.startswith("[[config]]"):
+            continue
+        if not re.search(rf'(?m)^id\s*=\s*"{re.escape(config)}"', block):
+            continue
+        if re.search(r"(?m)^sim_checksum\s*=.*$", block):
+            block = re.sub(r"(?m)^sim_checksum\s*=.*$", line, block, count=1)
+        else:
+            block = re.sub(r"(?m)^(id\s*=.*)$", lambda m: f"{m.group(1)}\n{line}", block, count=1)
+        blocks[i] = block
+        manifest.write_text("".join(blocks))
+        return
+    raise CorpusError(f"{manifest}: no [[config]] with id {config!r}")
 
 
 # ----------------------------------------------------------------- report ---
@@ -389,6 +438,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-report", action="store_true")
     r.add_argument("--keep-work", action="store_true", help="keep netlists and build trees")
     r.add_argument("-j", "--jobs", type=int)
+    r.add_argument("--record-checksum", action="store_true",
+                   help="write each sim_verilator checksum into design.toml as the reference")
     r.set_defaults(fn=cmd_run)
 
     rp = sub.add_parser("report", help="render the HTML")

@@ -28,7 +28,8 @@ module br_flow_demux_select_harness (
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_ready);
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[127:64]);
   end
 
   br_flow_demux_select dut (

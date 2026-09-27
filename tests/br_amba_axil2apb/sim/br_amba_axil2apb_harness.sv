@@ -55,13 +55,17 @@ module br_amba_axil2apb_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pwdata);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axil2apb dut (
     .clk(clk),
     .rst(rst),
     .awaddr(lfsr[31:0]),
     .awprot(lfsr[34:32]),
     .awvalid(lfsr[35]),
-    .wdata({4'd0, lfsr[63:36]}),
+    .wdata(lfsr_x[67:36]),
     .wstrb(lfsr[7:4]),
     .wvalid(lfsr[8]),
     .bready(lfsr[9]),
@@ -69,7 +73,7 @@ module br_amba_axil2apb_harness (
     .arprot(lfsr[44:42]),
     .arvalid(lfsr[45]),
     .rready(lfsr[46]),
-    .prdata({15'd0, lfsr[63:47]}),
+    .prdata(lfsr_x[78:47]),
     .pready(lfsr[15]),
     .pslverr(lfsr[16]),
     .awready(o_awready),

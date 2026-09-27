@@ -17,7 +17,7 @@
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
 
-  uint64_t cycles = 1000000;
+  uint64_t cycles = 2700000;
   for (int i = 1; i < argc; ++i) {
     if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {
       cycles = std::strtoull(argv[++i], nullptr, 10);

@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_ram_initializer#<id>`.
 [[config]]
 id     = "d16_w32"
+sim_checksum = { cycles = 28200000, value = "6950681004224850396" }
 # NO PARAMETERS. verilog/br_ram_initializer.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

@@ -1,36 +1,40 @@
-const br_cdc_fifo_reset_overlap_checks_t = import("br_cdc_fifo_reset_overlap_checks.br_cdc_fifo_reset_overlap_checks")
-const br_counter_incr = import("br_counter_incr.br_counter_incr")
-const br_delay_nr = import("br_delay_nr.br_delay_nr")
-const br_delay_nr_p1 = import("br_delay_nr_p1.br_delay_nr_p1")
+const br_delay_nr     = import("br_delay_nr.br_delay_nr")
 const br_enc_bin2gray = import("br_enc_bin2gray.br_enc_bin2gray")
 const br_enc_gray2bin = import("br_enc_gray2bin.br_enc_gray2bin")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_cdc_fifo_pop_flag_mgr::[timecheck=false](clk:u1, rst:u1, pop_beat:u1, push_count_gray:u6, reset_active_push:u1) -> (pop_count_gray:u6@[], items:u6@[], empty:u1@[], reset_active_pop:u1@[]) {
-  reg push_count_saved:u6
-  reset_active_pop = 0ub?
-  mut br_counter_incr_pop_count = br_counter_incr::[name=br_counter_incr_pop_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = pop_beat, incr = 1)
-  mut br_enc_gray2bin_inst = br_enc_gray2bin::[name=br_enc_gray2bin_inst](gray = push_count_gray)
-  const push_count__w1 = (br_enc_gray2bin_inst.bin.e5 << 5) | (br_enc_gray2bin_inst.bin.e4 << 4) | (br_enc_gray2bin_inst.bin.e3 << 3) | (br_enc_gray2bin_inst.bin.e2 << 2) | (br_enc_gray2bin_inst.bin.e1 << 1) | br_enc_gray2bin_inst.bin.e0
-  mut br_enc_bin2gray_inst = br_enc_bin2gray::[name=br_enc_bin2gray_inst](bin = br_counter_incr_pop_count.value_next)
-  mut br_delay_nr_reset_active_pop = br_delay_nr::[name=br_delay_nr_reset_active_pop](clk = clk, `in` = rst)
-  mut br_delay_nr_pop_count_gray = br_delay_nr_p1::[name=br_delay_nr_pop_count_gray](clk = clk, `in` = br_enc_bin2gray_inst)
-  mut _mux_1:u6 = if reset_active_push != 0 { push_count_saved } else { push_count__w1#[0..=5] }
-  const pop_count_ext__w1 = br_counter_incr_pop_count.value#[0..=5]
-  const push_count_visible_ext__w1 = _mux_1
-  mut _mux_2:u7 = if push_count_visible_ext__w1 >= pop_count_ext__w1 { (push_count_visible_ext__w1 - pop_count_ext__w1)#[0..=6] } else { ((push_count_visible_ext__w1 + 0x40)#[0..=6] - pop_count_ext__w1)#[0..=6] }
-  const items_ext__w1 = _mux_2
-  mut _mux_3:u6 = if rst != 0 { 0 } else { items_ext__w1#[0..=5] }
-  const items__w1 = _mux_3
-  if rst != 0 {
-    push_count_saved = 0
-  } elif reset_active_push == 0 {
-    push_count_saved = push_count__w1
+// Pop-side occupancy of a CDC FIFO. Push and pop counts wrap at
+// 2^COUNT_WIDTH and cross domains Gray-coded; items = push - pop.
+pub mod br_cdc_fifo_pop_flag_mgr<COUNT_WIDTH=2, POP_COUNT_DELAY=2>(
+  clk:u1,
+  rst:u1,
+  pop_beat:bool,
+  push_count_gray:unsigned(bits=COUNT_WIDTH),
+  reset_active_push:bool
+) -> (pop_count_gray:unsigned(bits=COUNT_WIDTH)@[], items:unsigned(bits=COUNT_WIDTH)@[], empty:bool@[], reset_active_pop:bool@[]) {
+  reg pop_count:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
+  wrap const pop_count_next:unsigned(bits=COUNT_WIDTH) = pop_count + u1(pop_beat)
+  if pop_beat {
+    pop_count = pop_count_next
   }
-  br_misc_unused::[name=br_misc_unused_items_msb](`in` = (items_ext__w1 >> 6) & 1)
-  br_cdc_fifo_reset_overlap_checks_t::[name=br_cdc_fifo_reset_overlap_checks](clk = clk, reset_active_push = reset_active_push, reset_active_pop = br_delay_nr_reset_active_pop.out)
-  pop_count_gray = br_delay_nr_pop_count_gray.out
-  items = items__w1
-  empty = unsigned(items__w1 == 0)
-  reset_active_pop = br_delay_nr_reset_active_pop.out
+
+  const next_gray   = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=pop_count_next)
+  const count_delay = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=POP_COUNT_DELAY>(clk=clk, `in`=next_gray.gray)
+  pop_count_gray    = count_delay.out
+  const reset_delay = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst)
+  reset_active_pop  = reset_delay.out == 1
+
+  // While the push side is in reset its count is meaningless: use the last
+  // one seen before the reset.
+  const push_decoded = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=push_count_gray)
+  const push_count = push_decoded.bin
+  reg push_count_saved:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
+  if not reset_active_push {
+    push_count_saved = push_count
+  }
+  const push_count_visible = if reset_active_push { push_count_saved } else { push_count }
+
+  wrap const count:unsigned(bits=COUNT_WIDTH) = push_count_visible - pop_count
+  const current = if rst == 1 { 0 } else { count }
+  items = current
+  empty = current == 0
 }

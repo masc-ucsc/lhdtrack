@@ -1,0 +1,15 @@
+// CarrySaveSelect -- the Pyrope equivalent of verilog/CarrySaveSelect.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 24),
+// so the generated harness and LEC bind the same external interface.
+//
+// Selects one of two products, then adds `e`, all at the 24-bit result
+// width.
+pub comb CarrySaveSelect(a:u24, b:u24, c:u24, d:u24, e:u24, sel:u1) -> (res:u24) {
+  const product = if sel != 0 { a*b } else { c*d }
+  wrap res = product + e
+}

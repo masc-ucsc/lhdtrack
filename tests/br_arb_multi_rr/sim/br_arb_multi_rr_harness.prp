@@ -22,12 +22,12 @@ pub mod br_arb_multi_rr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, enable_priority_update=lfsr#[0], request=lfsr#[1..=16], grant_allowed=lfsr#[17..=18])
+  const (grant, grant_ordered, grant_count) = dut(clk=1, rst=rst, enable_priority_update=lfsr#[0], request=lfsr#[1..=16], grant_allowed=lfsr#[17..=18])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.grant
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.grant_ordered
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.grant_count
+  wrap acc = ((acc << 1) | acc#[63]) ^ grant
+  wrap acc = ((acc << 1) | acc#[63]) ^ grant_ordered
+  wrap acc = ((acc << 1) | acc#[63]) ^ grant_count
 
   if rst != 0 {
     lfsr = 2611923443488327891

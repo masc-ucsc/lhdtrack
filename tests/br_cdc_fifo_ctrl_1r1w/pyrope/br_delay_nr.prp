@@ -1,10 +1,11 @@
-pub mod br_delay_nr::[timecheck=false](clk:u1, `in`:u1) -> (out:u1@[], out_stages:u2@[]) {
-  reg stages___q:u2
-  mut stages:u2 = 0
-  stages = stages___q
-  mut stages__w1 = stages
-  stages__w1#[0] = `in` & 1
-  stages___q#[1] = stages__w1 & 1
-  out = (stages__w1 >> 1) & 1
-  out_stages = stages__w1
+// Delay a WIDTH-bit value by NUM_STAGES cycles through flops without reset.
+// stages holds the pipeline, newest value in the low WIDTH bits; all flops
+// are clocked by clk (the implicit clock binds to an input named clk).
+pub mod br_delay_nr<WIDTH=1, NUM_STAGES=1>(clk:u1, `in`:unsigned(bits=WIDTH)) -> (out:unsigned(bits=WIDTH)@[]) {
+  cassert(NUM_STAGES >= 1)
+
+  reg stages:unsigned(bits=WIDTH * NUM_STAGES) = nil
+  wrap stages = (stages << WIDTH) | `in`
+  // Shift, not a bit slice: a one-bit slice at bit 0 does not lower (LiveHD bug).
+  out = stages >> (WIDTH*(NUM_STAGES - 1))
 }

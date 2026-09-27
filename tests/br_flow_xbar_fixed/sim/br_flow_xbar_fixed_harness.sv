@@ -28,14 +28,19 @@ module br_flow_xbar_fixed_harness (
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_ready);
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[127:64]);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_flow_xbar_fixed dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[3:0]),
-    .push_data({68'd0, lfsr[63:4]}),
+    .push_data(lfsr_x[131:4]),
     .push_dest_id(lfsr[11:4]),
     .pop_ready(lfsr[15:12]),
     .push_ready(o_push_ready),

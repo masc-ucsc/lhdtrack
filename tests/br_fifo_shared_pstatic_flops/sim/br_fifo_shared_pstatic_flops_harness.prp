@@ -22,15 +22,15 @@ pub mod br_fifo_shared_pstatic_flops_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_valid=lfsr#[20], push_data=lfsr#[21..=52], push_fifo_id=lfsr#[53], pop_ready=lfsr#[54..=55])
+  const (config_error, push_ready, push_full, pop_valid, pop_data, pop_empty) = dut(clk=1, rst=rst, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_valid=lfsr#[20], push_data=lfsr#[21..=52], push_fifo_id=lfsr#[53], pop_ready=lfsr#[54..=55])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.config_error
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_full
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_empty
+  wrap acc = ((acc << 1) | acc#[63]) ^ config_error
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_full
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_empty
 
   if rst != 0 {
     lfsr = 2611923443488327891

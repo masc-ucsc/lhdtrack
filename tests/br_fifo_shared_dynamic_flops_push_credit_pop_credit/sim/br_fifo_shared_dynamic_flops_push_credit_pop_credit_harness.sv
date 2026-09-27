@@ -49,6 +49,10 @@ module br_fifo_shared_dynamic_flops_push_credit_pop_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_credit_count_pop);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_dynamic_flops_push_credit_pop_credit dut (
     .clk(clk),
     .rst(rst),
@@ -56,7 +60,7 @@ module br_fifo_shared_dynamic_flops_push_credit_pop_credit_harness (
     .pop_receiver_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(2'd1),
-    .push_data({3'd0, lfsr[63:3]}),
+    .push_data(lfsr_x[66:3]),
     .push_fifo_id(2'd0),
     .credit_initial_push(6'd32),
     .credit_withhold_push(6'd0),

@@ -26,7 +26,14 @@ pub mod br_demux_onehot_harness(rst:u1) -> (checksum:u64@[0]) {
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ out_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ out
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[0..=63]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[64..=127]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[128..=191]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[192..=255]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[256..=319]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[320..=383]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[384..=447]
+  wrap acc = ((acc << 1) | acc#[63]) ^ out#[448..=511]
 
   if rst != 0 {
     lfsr = 2611923443488327891

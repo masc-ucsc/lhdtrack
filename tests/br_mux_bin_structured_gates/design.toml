@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_mux_bin_structured_gates#<id>`.
 [[config]]
 id     = "nsi16_sw32"
+sim_checksum = { cycles = 25000000, value = "5027632654725473752" }
 # NO PARAMETERS. verilog/br_mux_bin_structured_gates.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

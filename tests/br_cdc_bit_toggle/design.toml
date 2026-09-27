@@ -22,6 +22,7 @@ lec    = "proven" # Cross-clock formal results are informational, not a run gate
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_bit_toggle#<id>`.
 [[config]]
 id     = "asf0_ns2"
+sim_checksum = { cycles = 30400000, value = "14979581801154904943" }
 # NO PARAMETERS. verilog/br_cdc_bit_toggle.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

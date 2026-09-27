@@ -103,6 +103,10 @@ module br_amba_axi_isolate_mgr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axi_isolate_mgr dut (
     .clk(clk),
     .rst(rst),
@@ -116,7 +120,7 @@ module br_amba_axi_isolate_mgr_harness (
     .upstream_awprot(lfsr[49:47]),
     .upstream_awuser(lfsr[50]),
     .upstream_awvalid(lfsr[51]),
-    .upstream_wdata({20'd0, lfsr[63:52]}),
+    .upstream_wdata(lfsr_x[83:52]),
     .upstream_wstrb(lfsr[23:20]),
     .upstream_wuser(lfsr[24]),
     .upstream_wlast(lfsr[25]),

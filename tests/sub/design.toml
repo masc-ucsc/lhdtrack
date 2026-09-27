@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `sub#<id>`.
 [[config]]
 id     = "bw8"
+sim_checksum = { cycles = 30400000, value = "2216607252364568410" }
 # NO PARAMETERS. verilog/sub.sv declares its parameter port list `localparam`,
 # so the top elaborates to ONE circuit with no flags anywhere -- no -chparam
 # for yosys, no -G for slang or verilator, no `#(...)` on the harness instance

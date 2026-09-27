@@ -47,6 +47,10 @@ module br_fifo_shared_pstatic_ctrl_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_pstatic_ctrl dut (
     .clk(clk),
     .rst(rst),
@@ -57,7 +61,7 @@ module br_fifo_shared_pstatic_ctrl_harness (
     .push_fifo_id(lfsr[53]),
     .pop_ready(lfsr[55:54]),
     .ram_rd_data_valid(lfsr[56]),
-    .ram_rd_data({25'd0, lfsr[63:57]}),
+    .ram_rd_data(lfsr_x[88:57]),
     .config_error(o_config_error),
     .push_ready(o_push_ready),
     .push_full(o_push_full),

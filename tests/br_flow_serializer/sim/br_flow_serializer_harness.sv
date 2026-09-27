@@ -35,11 +35,15 @@ module br_flow_serializer_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_metadata);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_flow_serializer dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[0]),
-    .push_data({1'd0, lfsr[63:1]}),
+    .push_data(lfsr_x[64:1]),
     .push_last(lfsr[1]),
     .push_last_dont_care_count(lfsr[4:2]),
     .push_metadata(lfsr[12:5]),

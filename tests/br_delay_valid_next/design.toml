@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_delay_valid_next#<id>`.
 [[config]]
 id     = "ns1_w64"
+sim_checksum = { cycles = 29000000, value = "13876174762973997100" }
 # NO PARAMETERS. verilog/br_delay_valid_next.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

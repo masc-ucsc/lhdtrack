@@ -1,0 +1,16 @@
+// CarrySaveCompare -- the Pyrope equivalent of verilog/CarrySaveCompare.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 20),
+// so the generated harness and LEC bind the same external interface.
+//
+// Compares a carry-save sum against a full product. Neither side is
+// truncated: the Verilog sizes the sum at 21 bits and the product at 40.
+pub comb CarrySaveCompare(a:u20, b:u20, c:u20, d:u20) -> (res:u1) {
+  const sum     = a + b
+  const product = c*d
+  res           = unsigned(sum > product)
+}

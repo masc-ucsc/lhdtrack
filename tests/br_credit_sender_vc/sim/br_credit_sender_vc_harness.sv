@@ -43,6 +43,10 @@ module br_credit_sender_vc_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_credit_available);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [319:0] lfsr_x;
+  assign lfsr_x = {{lfsr[59:0], lfsr[63:60]}, {lfsr[12:0], lfsr[63:13]}, {lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_credit_sender_vc dut (
     .clk(clk),
     .rst(rst),
@@ -50,7 +54,7 @@ module br_credit_sender_vc_harness (
     .can_grant(lfsr[3:0]),
     .grant(lfsr[7:4]),
     .push_valid(lfsr[11:8]),
-    .push_data({204'd0, lfsr[63:12]}),
+    .push_data(lfsr_x[267:12]),
     .pop_credit(lfsr[23:12]),
     .credit_initial(lfsr[43:24]),
     .credit_withhold(lfsr[63:44]),

@@ -31,12 +31,16 @@ module br_flow_mux_weighted_lru_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_flow_mux_weighted_lru dut (
     .clk(clk),
     .rst(rst),
     .cfg_weight(lfsr[11:0]),
     .push_valid(lfsr[15:12]),
-    .push_data({80'd0, lfsr[63:16]}),
+    .push_data(lfsr_x[143:16]),
     .pop_ready(lfsr[16]),
     .push_ready(o_push_ready),
     .pop_valid_unstable(o_pop_valid_unstable),

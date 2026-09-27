@@ -27,12 +27,16 @@ module br_arb_weighted_rr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_grant);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_arb_weighted_rr dut (
     .clk(clk),
     .rst(rst),
     .enable_priority_update(lfsr[0]),
     .request(lfsr[16:1]),
-    .request_weight({1'd0, lfsr[63:17]}),
+    .request_weight(lfsr_x[64:17]),
     .grant(o_grant)
   );
 

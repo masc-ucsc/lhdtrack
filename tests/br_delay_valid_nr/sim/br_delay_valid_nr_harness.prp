@@ -22,13 +22,13 @@ pub mod br_delay_valid_nr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, in_valid=lfsr#[0], `in`=lfsr#[1..=8])
+  const (out_valid, out, out_valid_stages, out_stages) = dut(clk=1, in_valid=lfsr#[0], `in`=lfsr#[1..=8])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_valid_stages
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_stages
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ out
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_valid_stages
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_stages
 
   if rst != 0 {
     lfsr = 2611923443488327891

@@ -59,6 +59,10 @@ module br_csr_axil_widget_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_request_aborted);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_csr_axil_widget dut (
     .clk(clk),
     .rst(rst),
@@ -70,7 +74,7 @@ module br_csr_axil_widget_harness (
     .axil_wstrb(lfsr[56:53]),
     .axil_bready(lfsr[57]),
     .axil_arvalid(lfsr[58]),
-    .axil_araddr({11'd0, lfsr[63:59]}),
+    .axil_araddr(lfsr_x[74:59]),
     .axil_arprot(lfsr[13:11]),
     .axil_rready(lfsr[14]),
     .csr_resp_valid(lfsr[15]),

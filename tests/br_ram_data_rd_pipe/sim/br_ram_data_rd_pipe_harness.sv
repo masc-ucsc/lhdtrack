@@ -29,11 +29,15 @@ module br_ram_data_rd_pipe_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_data);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_ram_data_rd_pipe dut (
     .clk(clk),
     .rst(rst),
     .tile_valid(lfsr[7:0]),
-    .tile_data({72'd0, lfsr[63:8]}),
+    .tile_data(lfsr_x[135:8]),
     .valid(o_valid),
     .data(o_data)
   );

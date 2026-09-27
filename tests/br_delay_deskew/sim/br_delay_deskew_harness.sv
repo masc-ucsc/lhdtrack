@@ -29,10 +29,14 @@ module br_delay_deskew_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_delay_deskew dut (
     .clk(clk),
     .in_valid_next(lfsr[0]),
-    .in({1'd0, lfsr[63:1]}),
+    .in(lfsr_x[64:1]),
     .out_valid(o_out_valid),
     .out(o_out)
   );

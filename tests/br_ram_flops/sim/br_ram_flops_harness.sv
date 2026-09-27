@@ -29,6 +29,10 @@ module br_ram_flops_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_rd_data);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_ram_flops dut (
     .wr_clk(clk),
     .rd_clk(clk),
@@ -36,7 +40,7 @@ module br_ram_flops_harness (
     .rd_rst(rst),
     .wr_valid(lfsr[0]),
     .wr_addr(lfsr[6:1]),
-    .wr_data({7'd0, lfsr[63:7]}),
+    .wr_data(lfsr_x[70:7]),
     .wr_word_en(lfsr[14:7]),
     .rd_addr_valid(lfsr[15]),
     .rd_addr(lfsr[21:16]),

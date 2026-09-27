@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_counter_incr#<id>`.
 [[config]]
 id     = "es0_ew1_mi1_mv255"
+sim_checksum = { cycles = 24700000, value = "2748487272537913130" }
 # NO PARAMETERS. verilog/br_counter_incr.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

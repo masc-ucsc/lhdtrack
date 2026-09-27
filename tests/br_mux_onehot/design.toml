@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_mux_onehot#<id>`.
 [[config]]
 id     = "nsi16_sw32"
+sim_checksum = { cycles = 30400000, value = "18213634584008553555" }
 # NO PARAMETERS. verilog/br_mux_onehot.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

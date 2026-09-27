@@ -26,7 +26,14 @@ module br_demux_bin_harness (
   always_comb begin
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_out);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[127:64]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[191:128]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[255:192]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[319:256]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[383:320]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[447:384]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out[511:448]);
   end
 
   br_demux_bin dut (

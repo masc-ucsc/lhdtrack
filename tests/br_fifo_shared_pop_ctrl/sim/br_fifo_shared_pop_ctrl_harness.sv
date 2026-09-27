@@ -43,6 +43,10 @@ module br_fifo_shared_pop_ctrl_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_data_ram_rd_addr);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_pop_ctrl dut (
     .clk(clk),
     .rst(rst),
@@ -51,10 +55,10 @@ module br_fifo_shared_pop_ctrl_harness (
     .ram_empty(lfsr[13:12]),
     .ram_items(lfsr[25:14]),
     .bypass_valid_unstable(lfsr[27:26]),
-    .bypass_data_unstable({28'd0, lfsr[63:28]}),
+    .bypass_data_unstable(lfsr_x[91:28]),
     .pop_ready(lfsr[29:28]),
     .data_ram_rd_data_valid(2'd0),
-    .data_ram_rd_data({32'd0, lfsr[63:32]}),
+    .data_ram_rd_data(lfsr_x[95:32]),
     .head_ready(o_head_ready),
     .bypass_ready(o_bypass_ready),
     .pop_valid(o_pop_valid),

@@ -88,12 +88,26 @@ def stage(dest: Path, sources: list[Path], headers: list[Path], licence: Path | 
     return [f.name for f in [*sources, *headers]]
 
 
-def write_provenance(dest: Path, upstream: str, rev: str, path: str, licence: str) -> None:
-    """Stamp the exact revision into design.toml, replacing the empty block."""
+def write_provenance(
+    dest: Path, upstream: str, rev: str, path: str, licence: str, url: str = ""
+) -> None:
+    """Stamp the exact revision into design.toml and README.md, replacing the blanks."""
     toml = dest / "design.toml"
     s = toml.read_text()
     s = re.sub(r'upstream = ""', f'upstream = "{upstream}"', s, count=1)
+    s = re.sub(r'url      = ""', f'url      = "{url}"', s, count=1)
     s = re.sub(r'rev      = ""', f'rev      = "{rev}"', s, count=1)
     s = re.sub(r'path     = ""', f'path     = "{path}"', s, count=1)
     s = re.sub(r'license  = ""', f'license  = "{licence}"', s, count=1)
     toml.write_text(s)
+
+    readme = dest / "README.md"
+    if readme.exists():
+        link = f"[{upstream}]({url})" if url else upstream
+        src = f"[`{path}`]({url}/blob/{rev}/{path})" if url else f"`{path}`"
+        r = readme.read_text()
+        r = r.replace("| upstream | _fill in_ |", f"| upstream | {link} |", 1)
+        r = r.replace("| revision | _fill in_ |", f"| revision | `{rev}` |", 1)
+        r = r.replace("| upstream path | _fill in_ |", f"| upstream path | {src} |", 1)
+        r = r.replace("| suite |", f"| license | {licence} (see `LICENSE`) |\n| suite |", 1)
+        readme.write_text(r)

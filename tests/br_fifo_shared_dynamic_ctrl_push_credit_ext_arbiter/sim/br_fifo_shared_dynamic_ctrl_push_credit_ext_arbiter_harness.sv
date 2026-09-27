@@ -65,20 +65,24 @@ module br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ptr_ram_rd_addr);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter dut (
     .clk(clk),
     .rst(rst),
     .push_sender_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[2:1]),
-    .push_data({3'd0, lfsr[63:3]}),
+    .push_data(lfsr_x[66:3]),
     .push_fifo_id(lfsr[4:3]),
     .credit_initial_push(lfsr[10:5]),
     .credit_withhold_push(lfsr[16:11]),
     .pop_ready(lfsr[18:17]),
     .arb_grant(lfsr[22:19]),
     .data_ram_rd_data_valid(lfsr[24:23]),
-    .data_ram_rd_data({25'd0, lfsr[63:25]}),
+    .data_ram_rd_data(lfsr_x[88:25]),
     .ptr_ram_rd_data_valid(lfsr[26:25]),
     .ptr_ram_rd_data(lfsr[36:27]),
     .push_receiver_in_reset(o_push_receiver_in_reset),

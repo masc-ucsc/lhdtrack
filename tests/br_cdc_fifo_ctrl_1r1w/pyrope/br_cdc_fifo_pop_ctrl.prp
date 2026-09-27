@@ -1,17 +1,49 @@
-const br_cdc_fifo_pop_flag_mgr_t = import("br_cdc_fifo_pop_flag_mgr.br_cdc_fifo_pop_flag_mgr")
-const br_fifo_pop_ctrl_core_t = import("br_fifo_pop_ctrl_core.br_fifo_pop_ctrl_core")
+const br_cdc_fifo_pop_flag_mgr = import("br_cdc_fifo_pop_flag_mgr.br_cdc_fifo_pop_flag_mgr")
+const br_fifo_staging_buffer   = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
 
-pub mod br_cdc_fifo_pop_ctrl::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, ram_rd_data_valid:u1, ram_rd_data:u64, push_count_gray:u6, reset_active_push:u1) -> (pop_valid:u1@[], pop_data:u64@[], empty:u1@[], items:u6@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u5@[], pop_count_gray:u6@[], reset_active_pop:u1@[]) {
-  wire empty:u1
-  wire items:u6
-  mut br_fifo_pop_ctrl_core = br_fifo_pop_ctrl_core_t::[name=br_fifo_pop_ctrl_core](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = 0, bypass_data_unstable = 0, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, empty = empty, items = items)
-  mut br_cdc_fifo_pop_flag_mgr = br_cdc_fifo_pop_flag_mgr_t::[name=br_cdc_fifo_pop_flag_mgr](clk = clk, rst = rst, pop_beat = br_fifo_pop_ctrl_core.pop_beat, push_count_gray = push_count_gray, reset_active_push = reset_active_push)
-  items = br_cdc_fifo_pop_flag_mgr.items
-  empty = br_cdc_fifo_pop_flag_mgr.empty
-  pop_valid = br_fifo_pop_ctrl_core.pop_valid
-  pop_data = br_fifo_pop_ctrl_core.pop_data
-  ram_rd_addr_valid = br_fifo_pop_ctrl_core.ram_rd_addr_valid
-  ram_rd_addr = br_fifo_pop_ctrl_core.ram_rd_addr
-  pop_count_gray = br_cdc_fifo_pop_flag_mgr.pop_count_gray
-  reset_active_pop = br_cdc_fifo_pop_flag_mgr.reset_active_pop
+// Pop side of a CDC FIFO controller: reads consecutive RAM entries ahead of
+// the consumer into a staging buffer. Every flop is in the clk (pop) domain.
+// timecheck=false: works around a false combinational-loop report through the
+// registered children (LiveHD bug).
+pub mod br_cdc_fifo_pop_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, POP_COUNT_DELAY=2>::[timecheck = false](
+  clk:u1,
+  rst:u1,
+  pop_ready:bool,
+  ram_rd_data_valid:bool,
+  ram_rd_data:unsigned(bits=WIDTH),
+  push_count_gray:unsigned(bits=COUNT_WIDTH),
+  reset_active_push:bool
+) -> (
+  pop_valid:bool@[],
+  pop_data:unsigned(bits=WIDTH)@[],
+  empty:bool@[],
+  items:unsigned(bits=COUNT_WIDTH)@[],
+  ram_rd_addr_valid:bool@[],
+  ram_rd_addr:unsigned(bits=ADDR_WIDTH)@[],
+  pop_count_gray:unsigned(bits=COUNT_WIDTH)@[],
+  reset_active_pop:bool@[]
+) {
+  wire pop_beat:bool = nil
+  const flags        = br_cdc_fifo_pop_flag_mgr<COUNT_WIDTH=COUNT_WIDTH,POP_COUNT_DELAY=POP_COUNT_DELAY>(
+    clk=clk, rst=rst, pop_beat=pop_beat, push_count_gray=push_count_gray, reset_active_push=reset_active_push
+  )
+  const staging = br_fifo_staging_buffer<WIDTH=WIDTH,COUNT_WIDTH=COUNT_WIDTH>(
+    clk=clk, rst=rst, total_items=flags.items, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data, pop_ready=pop_ready
+  )
+  pop_beat = pop_ready and staging.pop_valid
+
+  // Read address walks the RAM entries 0..DEPTH-1 and wraps.
+  reg rd_addr:unsigned(bits=ADDR_WIDTH):[reset_pin = ref rst] = 0
+  if staging.ram_rd_addr_valid {
+    wrap rd_addr = if rd_addr == DEPTH - 1 { 0 } else { rd_addr + 1 }
+  }
+
+  pop_valid         = staging.pop_valid
+  pop_data          = staging.pop_data
+  empty             = flags.empty
+  items             = flags.items
+  ram_rd_addr_valid = staging.ram_rd_addr_valid
+  ram_rd_addr       = rd_addr
+  pop_count_gray    = flags.pop_count_gray
+  reset_active_pop  = flags.reset_active_pop
 }

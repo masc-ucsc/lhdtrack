@@ -28,7 +28,8 @@ module br_flow_demux_select_unstable_harness (
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_ready);
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid_unstable);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable[127:64]);
   end
 
   br_flow_demux_select_unstable dut (

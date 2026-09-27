@@ -28,14 +28,33 @@ module br_multi_xfer_distributor_rr_harness (
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_receivable);
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[127:64]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[191:128]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[255:192]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[319:256]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[383:320]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[447:384]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[511:448]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[575:512]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[639:576]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[703:640]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[767:704]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[831:768]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[895:832]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[959:896]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[1023:960]);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [319:0] lfsr_x;
+  assign lfsr_x = {{lfsr[59:0], lfsr[63:60]}, {lfsr[12:0], lfsr[63:13]}, {lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_multi_xfer_distributor_rr dut (
     .clk(clk),
     .rst(rst),
     .push_sendable(3'd0),
-    .push_data({195'd0, lfsr[63:3]}),
+    .push_data(lfsr_x[258:3]),
     .pop_ready(lfsr[18:3]),
     .push_receivable(o_push_receivable),
     .pop_valid(o_pop_valid),

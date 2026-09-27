@@ -27,9 +27,13 @@ module br_mux_onehot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [575:0] lfsr_x;
+  assign lfsr_x = {{lfsr[55:0], lfsr[63:56]}, {lfsr[8:0], lfsr[63:9]}, {lfsr[25:0], lfsr[63:26]}, {lfsr[42:0], lfsr[63:43]}, {lfsr[59:0], lfsr[63:60]}, {lfsr[12:0], lfsr[63:13]}, {lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_mux_onehot dut (
     .select(lfsr[15:0]),
-    .in({464'd0, lfsr[63:16]}),
+    .in(lfsr_x[527:16]),
     .out(o_out)
   );
 

@@ -29,14 +29,18 @@ module br_demux_addr_decode_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_addr_out);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_demux_addr_decode dut (
     .clk(clk),
     .rst(rst),
     .addr_valid(lfsr[0]),
     .upstream_addr(lfsr[16:1]),
-    .downstream_addr_base({17'd0, lfsr[63:17]}),
-    .downstream_addr_size({17'd0, lfsr[63:17]}),
-    .downstream_addr_in({17'd0, lfsr[63:17]}),
+    .downstream_addr_base(lfsr_x[80:17]),
+    .downstream_addr_size(lfsr_x[80:17]),
+    .downstream_addr_in(lfsr_x[80:17]),
     .select_onehot(o_select_onehot),
     .downstream_addr_out(o_downstream_addr_out)
   );

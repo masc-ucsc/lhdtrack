@@ -42,12 +42,17 @@ module br_csr_demux_select_onehot_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_valid);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_write);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_addr);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_wdata);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_wdata[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_wdata[127:64]);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_wstrb);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_privileged);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_secure);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_req_abort);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_csr_demux_select_onehot dut (
     .clk(clk),
@@ -61,8 +66,8 @@ module br_csr_demux_select_onehot_harness (
     .upstream_req_privileged(lfsr[58]),
     .upstream_req_secure(lfsr[59]),
     .upstream_req_abort(lfsr[60]),
-    .downstream_resp_valid({1'd0, lfsr[63:61]}),
-    .downstream_resp_rdata({65'd0, lfsr[63:1]}),
+    .downstream_resp_valid(lfsr_x[64:61]),
+    .downstream_resp_rdata(lfsr_x[128:1]),
     .downstream_resp_decerr(lfsr[4:1]),
     .downstream_resp_slverr(lfsr[8:5]),
     .upstream_resp_valid(o_upstream_resp_valid),

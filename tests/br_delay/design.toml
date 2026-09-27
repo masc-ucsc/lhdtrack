@@ -20,6 +20,7 @@ param_binding = "monomorphic"
 
 [[config]]
 id     = "w8s4"
+sim_checksum = { cycles = 38400000, value = "3623408131301576353" }
 # Bedrock's own PPA sweeps pick a baseline and a scaled point per module; this
 # is the baseline shape for a delay line -- wide enough that the shift chain is
 # not degenerate, deep enough that the flops dominate the cell count.

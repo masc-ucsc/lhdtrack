@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_arb_weighted_lru#<id>`.
 [[config]]
 id     = "maw16_mw4_nr16"
+sim_checksum = { cycles = 4000000, value = "16975843679537708787" }
 # NO PARAMETERS. verilog/br_arb_weighted_lru.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

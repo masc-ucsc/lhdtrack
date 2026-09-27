@@ -99,6 +99,10 @@ module br_amba_axil_split_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_branch_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axil_split dut (
     .clk(clk),
     .rst(rst),
@@ -108,7 +112,7 @@ module br_amba_axil_split_harness (
     .root_awprot(lfsr[34:32]),
     .root_awuser(lfsr[35]),
     .root_awvalid(lfsr[36]),
-    .root_wdata({5'd0, lfsr[63:37]}),
+    .root_wdata(lfsr_x[68:37]),
     .root_wstrb(lfsr[8:5]),
     .root_wuser(lfsr[9]),
     .root_wvalid(lfsr[10]),
@@ -123,7 +127,7 @@ module br_amba_axil_split_harness (
     .trunk_bresp(lfsr[53:52]),
     .trunk_bvalid(lfsr[54]),
     .trunk_arready(lfsr[55]),
-    .trunk_rdata({24'd0, lfsr[63:56]}),
+    .trunk_rdata(lfsr_x[87:56]),
     .trunk_rresp(lfsr[25:24]),
     .trunk_ruser(lfsr[26]),
     .trunk_rvalid(lfsr[27]),
@@ -132,7 +136,7 @@ module br_amba_axil_split_harness (
     .branch_bresp(lfsr[31:30]),
     .branch_bvalid(lfsr[32]),
     .branch_arready(lfsr[33]),
-    .branch_rdata({2'd0, lfsr[63:34]}),
+    .branch_rdata(lfsr_x[65:34]),
     .branch_rresp(lfsr[3:2]),
     .branch_ruser(lfsr[4]),
     .branch_rvalid(lfsr[5]),

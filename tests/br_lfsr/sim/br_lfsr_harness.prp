@@ -22,11 +22,15 @@ pub mod br_lfsr_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, reinit=lfsr#[0], initial_state=lfsr#[1..=32], taps=lfsr#[33..=63], advance=lfsr#[1])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (out, out_state) = dut(clk=1, rst=rst, reinit=lfsr#[0], initial_state=lfsr#[1..=32], taps=lfsr_x#[33..=64], advance=lfsr#[1])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.out_state
+  wrap acc = ((acc << 1) | acc#[63]) ^ out
+  wrap acc = ((acc << 1) | acc#[63]) ^ out_state
 
   if rst != 0 {
     lfsr = 2611923443488327891

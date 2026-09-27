@@ -1,0 +1,12 @@
+// DotProduct -- the Pyrope equivalent of verilog/DotProduct.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 16),
+// so the generated harness and LEC bind the same external interface.
+//
+// Two-term dot product; the sum of two full 32-bit products overflows the
+// 32-bit result.
+pub comb DotProduct(a:u16, b:u16, c:u16, d:u16) -> (res:u32) { wrap  res = (a*b) + (c*d) }

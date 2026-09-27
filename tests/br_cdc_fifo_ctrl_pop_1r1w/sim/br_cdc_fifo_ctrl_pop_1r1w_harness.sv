@@ -41,6 +41,10 @@ module br_cdc_fifo_ctrl_pop_1r1w_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_ram_rd_addr);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_cdc_fifo_ctrl_pop_1r1w dut (
     .push_clk(clk),
     .pop_clk(clk),
@@ -50,7 +54,7 @@ module br_cdc_fifo_ctrl_pop_1r1w_harness (
     .push_reset_active_push(lfsr[6]),
     .pop_ready(lfsr[7]),
     .pop_ram_rd_data_valid(lfsr[8]),
-    .pop_ram_rd_data({9'd0, lfsr[63:9]}),
+    .pop_ram_rd_data(lfsr_x[72:9]),
     .pop_reset_active_pop(o_pop_reset_active_pop),
     .pop_pop_count_gray(o_pop_pop_count_gray),
     .pop_valid(o_pop_valid),

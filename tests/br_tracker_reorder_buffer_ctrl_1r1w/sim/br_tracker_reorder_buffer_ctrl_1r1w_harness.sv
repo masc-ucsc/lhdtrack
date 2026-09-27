@@ -45,6 +45,10 @@ module br_tracker_reorder_buffer_ctrl_1r1w_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr_valid);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_tracker_reorder_buffer_ctrl_1r1w dut (
     .clk(clk),
     .rst(rst),
@@ -53,7 +57,7 @@ module br_tracker_reorder_buffer_ctrl_1r1w_harness (
     .unordered_resp_push_entry_id(lfsr[5:2]),
     .unordered_resp_push_data(lfsr[37:6]),
     .reordered_resp_pop_ready(lfsr[38]),
-    .ram_rd_data({7'd0, lfsr[63:39]}),
+    .ram_rd_data(lfsr_x[70:39]),
     .ram_rd_data_valid(lfsr[7]),
     .alloc_valid(o_alloc_valid),
     .alloc_entry_id(o_alloc_entry_id),

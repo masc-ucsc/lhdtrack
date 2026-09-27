@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_freelist#<id>`.
 [[config]]
 id     = "eb0_napc1_ndp1_ne16_rao0"
+sim_checksum = { cycles = 17900000, value = "13357115996756794661" }
 # NO PARAMETERS. verilog/br_tracker_freelist.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

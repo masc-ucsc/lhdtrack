@@ -49,6 +49,11 @@ constants. Test names are flat, unique, and match their manifest. A flow exposes
   delete bad ledger measurements.
 - Harness checks must wire each DUT port once and exclude clocks/resets from random input;
   simulator agreement cannot detect a shared harness bug.
+- Every simulator is also gated against the config's recorded reference,
+  `sim_checksum = { cycles = N, value = "..." }` in `[[config]]`, taken once from
+  verilator with `lhdtrack run --flow sim_verilator --record-checksum --test <t>`.
+  Re-record only after changing `[sim].cycles` or the harness; the line is excluded
+  from the cache key. New tests tune `[sim].cycles` to ~2 s of verilator.
 - A top module declares NO overridable parameter. `tools/monomorphize.py` pins the chosen
   point into `verilog/<top>.sv` as `localparam`, `[[config]].params` stays empty, and
   `make check` fails a top that regains a parameter port list. Intermediate modules stay

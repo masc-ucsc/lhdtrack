@@ -32,10 +32,17 @@ module br_credit_receiver_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_receiver_in_reset);
       acc = {acc[62:0], acc[63]} ^ 64'(o_push_credit);
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[127:64]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[191:128]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data[255:192]);
       acc = {acc[62:0], acc[63]} ^ 64'(o_credit_count);
       acc = {acc[62:0], acc[63]} ^ 64'(o_credit_available);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [319:0] lfsr_x;
+  assign lfsr_x = {{lfsr[59:0], lfsr[63:60]}, {lfsr[12:0], lfsr[63:13]}, {lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_credit_receiver dut (
     .clk(clk),
@@ -43,7 +50,7 @@ module br_credit_receiver_harness (
     .push_sender_in_reset(rst),
     .push_credit_stall(lfsr[0]),
     .push_valid(lfsr[4:1]),
-    .push_data({197'd0, lfsr[63:5]}),
+    .push_data(lfsr_x[260:5]),
     .pop_credit(lfsr[7:5]),
     .credit_initial(lfsr[12:8]),
     .credit_withhold(lfsr[17:13]),

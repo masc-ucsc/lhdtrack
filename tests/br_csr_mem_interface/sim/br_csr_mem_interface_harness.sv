@@ -43,6 +43,10 @@ module br_csr_mem_interface_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_mem_access_wr_strb);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_csr_mem_interface dut (
     .clk(clk),
     .rst(rst),
@@ -56,7 +60,7 @@ module br_csr_mem_interface_harness (
     .req_abort(lfsr[56]),
     .mem_access_ready(lfsr[57]),
     .mem_read_data_valid(lfsr[58]),
-    .mem_read_data({27'd0, lfsr[63:59]}),
+    .mem_read_data(lfsr_x[90:59]),
     .mem_read_data_err(lfsr[27]),
     .resp_valid(o_resp_valid),
     .resp_rdata(o_resp_rdata),

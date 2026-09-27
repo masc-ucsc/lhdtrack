@@ -64,6 +64,12 @@ class Config:
 
     id: str
     params: dict[str, int | str] = field(default_factory=dict)
+    # The reference checksum of this config: `(cycles, checksum)` from a past
+    # verilator run, recorded by `lhdtrack run --record-checksum` as
+    # `sim_checksum = { cycles = N, value = "..." }`. Every simulator is gated
+    # against it, so an `lhd sim` row fails on its own even when verilator is
+    # not part of the run. It only binds at the SAME cycle count.
+    sim_checksum: tuple[int, str] | None = None
 
     def verilog_defines(self) -> list[str]:
         """`-G<K>=<V>` for slang/verilator; yosys uses -chparam."""
@@ -196,7 +202,8 @@ def load_test(path: Path) -> Test:
             raise CorpusError(f"{manifest}: [status].{key} must be one of {allowed}, got {val!r}")
 
     configs = [
-        Config(id=c["id"], params=dict(c.get("params", {}))) for c in doc.get("config", [])
+        Config(id=c["id"], params=dict(c.get("params", {})), sim_checksum=_sim_checksum(manifest, c))
+        for c in doc.get("config", [])
     ] or [Config(id="default")]
 
     synth = doc.get("synth", {})
@@ -223,6 +230,22 @@ def load_test(path: Path) -> Test:
         provenance=dict(doc.get("provenance", {})),
         raw=doc,
     )
+
+
+def _sim_checksum(manifest: Path, cfg: dict) -> tuple[int, str] | None:
+    spec = cfg.get("sim_checksum")
+    if spec is None:
+        return None
+    if (
+        not isinstance(spec, dict)
+        or not isinstance(spec.get("cycles"), int)
+        or not str(spec.get("value", "")).isdigit()
+    ):
+        raise CorpusError(
+            f"{manifest}: [[config]].sim_checksum must be "
+            '{ cycles = <int>, value = "<unsigned 64-bit>" }'
+        )
+    return spec["cycles"], str(spec["value"])
 
 
 def discover(root: Path, names: list[str] | None = None) -> list[Test]:

@@ -22,17 +22,21 @@ pub mod br_cdc_fifo_ctrl_push_1r1w_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(push_clk=1, pop_clk=1, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr#[1..=63], pop_reset_active_pop=lfsr#[1], pop_pop_count_gray=lfsr#[2..=7])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (push_ready, push_full, push_slots, push_ram_wr_valid, push_ram_wr_addr, push_ram_wr_data, push_push_count_gray, push_reset_active_push) = dut(push_clk=1, pop_clk=1, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_reset_active_pop=lfsr#[1], pop_pop_count_gray=lfsr#[2..=7])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_full
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_slots
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ram_wr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ram_wr_addr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ram_wr_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_push_count_gray
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_reset_active_push
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_full
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_slots
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ram_wr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ram_wr_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ram_wr_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_push_count_gray
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_reset_active_push
 
   if rst != 0 {
     lfsr = 2611923443488327891

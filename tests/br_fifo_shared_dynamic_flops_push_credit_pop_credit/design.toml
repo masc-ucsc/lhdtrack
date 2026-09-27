@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_fifo_shared_dynamic_flops_push_credit_pop_credit#<id>`.
 [[config]]
 id     = "drads1_d32_nf2_nrp2_nwp2_prads1_645b4917"
+sim_checksum = { cycles = 2800000, value = "5219750364192961293" }
 # NO PARAMETERS.
 # verilog/br_fifo_shared_dynamic_flops_push_credit_pop_credit.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with

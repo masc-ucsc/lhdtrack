@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_misc_tieoff_one#<id>`.
 [[config]]
 id     = "w1"
+sim_checksum = { cycles = 33900000, value = "18446744073441116160" }
 # NO PARAMETERS. verilog/br_misc_tieoff_one.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

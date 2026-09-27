@@ -1,34 +1,81 @@
 const br_arb_rr_internal = import("br_arb_rr_internal.br_arb_rr_internal")
-const br_flow_xbar_core = import("br_flow_xbar_core.br_flow_xbar_core")
+const br_flow_mux_core   = import("br_flow_mux_core.br_flow_mux_core")
 
-pub mod br_flow_xbar_rr::[timecheck=false](clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest_id:u8, pop_ready:u4) -> (push_ready:u4@[], pop_valid:u4@[], pop_data:u128@[]) {
-  mut can_grant__wtmp:u16 = 0sb?
-  wire can_grant:u16
-  mut grant__wtmp:u16 = 0sb?
-  wire grant:u16
-  mut br_flow_xbar_core_inst = br_flow_xbar_core::[name=br_flow_xbar_core_inst](clk = clk, rst = rst, `push_valid.e3` = (push_valid >> 3) & 1, `push_valid.e2` = (push_valid >> 2) & 1, `push_valid.e1` = (push_valid >> 1) & 1, `push_valid.e0` = push_valid & 1, push_data = push_data, push_dest_id = push_dest_id, `pop_ready.e3` = (pop_ready >> 3) & 1, `pop_ready.e2` = (pop_ready >> 2) & 1, `pop_ready.e1` = (pop_ready >> 1) & 1, `pop_ready.e0` = pop_ready & 1, can_grant = can_grant, grant = grant)
-  const enable_priority_update__w1 = (br_flow_xbar_core_inst.enable_priority_update.e3 << 3) | (br_flow_xbar_core_inst.enable_priority_update.e2 << 2) | (br_flow_xbar_core_inst.enable_priority_update.e1 << 1) | br_flow_xbar_core_inst.enable_priority_update.e0
-  mut gen_arbiters_0_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_0_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = enable_priority_update__w1 & 1, request = br_flow_xbar_core_inst.request#[0..=3])
-  can_grant__wtmp#[0..=3] = ((gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_0_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
-  grant__wtmp#[0..=3] = gen_arbiters_0_br_arb_rr_internal_inst.grant#[0..=3]
-  mut gen_arbiters_1_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_1_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 1) & 1, request = br_flow_xbar_core_inst.request#[4..=7])
-  mut can_grant__wtmp__w1 = can_grant__wtmp
-  can_grant__wtmp__w1#[4..=7] = ((gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_1_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
-  mut grant__wtmp__w1 = grant__wtmp
-  grant__wtmp__w1#[4..=7] = gen_arbiters_1_br_arb_rr_internal_inst.grant#[0..=3]
-  mut gen_arbiters_2_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_2_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 2) & 1, request = br_flow_xbar_core_inst.request#[8..=11])
-  mut can_grant__wtmp__w2 = can_grant__wtmp__w1
-  can_grant__wtmp__w2#[8..=11] = ((gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_2_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
-  mut grant__wtmp__w2 = grant__wtmp__w1
-  grant__wtmp__w2#[8..=11] = gen_arbiters_2_br_arb_rr_internal_inst.grant#[0..=3]
-  mut gen_arbiters_3_br_arb_rr_internal_inst = br_arb_rr_internal::[name=gen_arbiters_3_br_arb_rr_internal_inst](clk = clk, rst = rst, enable_priority_update = (enable_priority_update__w1 >> 3) & 1, request = br_flow_xbar_core_inst.request#[12..=15])
-  mut can_grant__wtmp__w3 = can_grant__wtmp__w2
-  can_grant__wtmp__w3#[12..=15] = ((gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e3 << 3) | (gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e2 << 2) | (gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e1 << 1) | gen_arbiters_3_br_arb_rr_internal_inst.can_grant.e0)#[0..=3]
-  mut grant__wtmp__w3 = grant__wtmp__w2
-  grant__wtmp__w3#[12..=15] = gen_arbiters_3_br_arb_rr_internal_inst.grant#[0..=3]
-  can_grant = can_grant__wtmp__w3
-  grant = grant__wtmp__w3
-  push_ready = (br_flow_xbar_core_inst.push_ready.e3 << 3) | (br_flow_xbar_core_inst.push_ready.e2 << 2) | (br_flow_xbar_core_inst.push_ready.e1 << 1) | br_flow_xbar_core_inst.push_ready.e0
-  pop_valid = (br_flow_xbar_core_inst.pop_valid.e3 << 3) | (br_flow_xbar_core_inst.pop_valid.e2 << 2) | (br_flow_xbar_core_inst.pop_valid.e1 << 1) | br_flow_xbar_core_inst.pop_valid.e0
-  pop_data = br_flow_xbar_core_inst.pop_data
+// 4x4 valid/ready crossbar of 32-bit flows with a round-robin arbiter per pop
+// flow. Push flow i goes to pop flow push_dest_id[i]. All vectors are packed
+// with flow 0 in the low bits. clk only fed the upstream assertions.
+
+// A packed vector of `count` fields of `width` bits, each holding `value`.
+comb splat(value, width, count) -> (packed) {
+  mut p = 0
+  for k in 0..<count {
+    p |= value << (k*width)
+  }
+  packed = p
+}
+
+pub mod br_flow_xbar_rr(clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest_id:u8, pop_ready:u4) -> (
+  push_ready:u4@[0],
+  pop_valid:u4@[0],
+  pop_data:u128@[0]
+) {
+  comptime const NUM_PUSH  = push_valid.[bits]
+  comptime const NUM_POP   = pop_ready.[bits]
+  comptime const WIDTH     = push_data.[bits]/NUM_PUSH
+  comptime const DEST_BITS = push_dest_id.[bits]/NUM_PUSH
+
+  // Lane (j, i) connects push flow i to pop flow j; lane vectors are packed
+  // with bit j*NUM_PUSH+i.
+
+  // Push side: a valid push flow raises the lane to its destination only.
+  mut lane_valid:unsigned(bits=NUM_POP * NUM_PUSH) = 0
+  for i in 0..<NUM_PUSH {
+    const dest = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
+    const steered:unsigned(bits=NUM_POP) = if push_valid#[i] == 1 { 1 << dest } else { 0 }
+    for j in 0..<NUM_POP {
+      lane_valid#[j*NUM_PUSH + i] = steered#[j]
+    }
+  }
+
+  // Round-robin state of each pop flow: its last granted lane, packed like the
+  // lanes. After reset the top lane counts as last granted, so lane 0 leads.
+  comptime const LAST_GRANT_RESET = splat(value=1 << (NUM_PUSH - 1), width=NUM_PUSH, count=NUM_POP)
+  reg last_grant:unsigned(bits=NUM_POP * NUM_PUSH):[reset_pin = ref rst] = LAST_GRANT_RESET
+  mut next_last_grant = last_grant
+
+  // Pop side: each pop flow arbitrates among its valid lanes. The priority
+  // advances when the pop side is ready and some lane requests. Every lane
+  // carries its push flow's data unchanged, so the mux selects straight from
+  // push_data.
+  mut lane_ready:unsigned(bits=NUM_POP * NUM_PUSH) = 0
+  mut valid:u4 = 0
+  mut data:u128 = 0
+  for j in 0..<NUM_POP {
+    const lanes:unsigned(bits=NUM_PUSH) = lane_valid#[(j*NUM_PUSH)..+NUM_PUSH]
+    const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_PUSH>(
+      last_grant=last_grant#[(j*NUM_PUSH)..+NUM_PUSH], request=lanes
+    )
+    if pop_ready#[j] == 1 and lanes != 0 {
+      next_last_grant#[(j*NUM_PUSH)..+NUM_PUSH] = arb.grant
+    }
+    const mux = br_flow_mux_core<NUM_FLOWS=NUM_PUSH,WIDTH=WIDTH>(
+      can_grant=arb.can_grant, grant=arb.grant, push_valid=lanes, push_data=push_data, pop_ready=pop_ready#[j] == 1
+    )
+    lane_ready#[(j*NUM_PUSH)..+NUM_PUSH] = mux.push_ready
+    valid#[j] = u1(mux.pop_valid_unstable)
+    data#[(j*WIDTH)..+WIDTH]             = mux.pop_data_unstable
+  }
+
+  last_grant = next_last_grant
+
+  // A push flow is ready when the lane to its destination is.
+  mut ready:u4 = 0
+  for i in 0..<NUM_PUSH {
+    const dest = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
+    ready#[i]  = lane_ready#[dest*NUM_PUSH + i]
+  }
+
+  push_ready = ready
+  pop_valid  = valid
+  pop_data   = data
 }

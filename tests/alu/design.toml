@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `alu#<id>`.
 [[config]]
 id     = "bw8"
+sim_checksum = { cycles = 27800000, value = "16717870215329490770" }
 # NO PARAMETERS. verilog/alu.sv declares its parameter port list `localparam`,
 # so the top elaborates to ONE circuit with no flags anywhere -- no -chparam
 # for yosys, no -G for slang or verilator, no `#(...)` on the harness instance

@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_shift_left#<id>`.
 [[config]]
 id     = "ms15_ns16_sw1"
+sim_checksum = { cycles = 27100000, value = "14787524948878906574" }
 # NO PARAMETERS. verilog/br_shift_left.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

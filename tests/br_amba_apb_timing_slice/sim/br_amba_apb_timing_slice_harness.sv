@@ -45,6 +45,10 @@ module br_amba_apb_timing_slice_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pwdata_out);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_apb_timing_slice dut (
     .clk(clk),
     .rst(rst),
@@ -54,7 +58,7 @@ module br_amba_apb_timing_slice_harness (
     .pprot_in(lfsr[36:34]),
     .pstrb_in(lfsr[40:37]),
     .pwrite_in(lfsr[41]),
-    .pwdata_in({10'd0, lfsr[63:42]}),
+    .pwdata_in(lfsr_x[73:42]),
     .prdata_in(lfsr[41:10]),
     .pready_in(lfsr[42]),
     .pslverr_in(lfsr[43]),

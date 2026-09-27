@@ -25,6 +25,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_fifo_shared_pop_ctrl_ext_arbiter#<id>`.
 [[config]]
 id     = "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32"
+sim_checksum = { cycles = 12900000, value = "11509832790594616802" }
 # NO PARAMETERS. verilog/br_fifo_shared_pop_ctrl_ext_arbiter.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with
 # no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no

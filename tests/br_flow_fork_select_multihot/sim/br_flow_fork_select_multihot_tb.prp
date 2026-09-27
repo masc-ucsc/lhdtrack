@@ -6,7 +6,7 @@
 // Identical driver, identical work, either way.
 const dut = import("lg:br_flow_fork_select_multihot_harness")
 
-test bench.run(cycles:u32=1000000) {
+test bench.run(cycles:u32=20000000) {
   mut acc = dut
   mut result:u64 = 0
 

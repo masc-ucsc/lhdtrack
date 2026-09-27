@@ -1,7 +1,13 @@
-pub comb br_mux_onehot::[timecheck=false](select:u4, `in`:u128) -> (out:u32) {
-  mut _rep_1:u32 = if (select & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_2:u32 = if ((select >> 1) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_3:u32 = if ((select >> 2) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_4:u32 = if ((select >> 3) & 1) != 0 { 0xffffffff } else { 0 }
-  out = (((0 | (_rep_1 & `in`#[0..=31])) | (_rep_2 & `in`#[32..=63])) | (_rep_3 & `in`#[64..=95])) | (_rep_4 & `in`#[96..=127])
+// Select one packed symbol with a one-hot select; an all-zero select yields 0.
+pub mod br_mux_onehot<NUM_SYMBOLS=1, SYMBOL_WIDTH=1>(
+  select:unsigned(bits=NUM_SYMBOLS),
+  `in`:unsigned(bits=NUM_SYMBOLS * SYMBOL_WIDTH)
+) -> (out:unsigned(bits=SYMBOL_WIDTH)@[0]) {
+  mut symbol:unsigned(bits=SYMBOL_WIDTH) = 0
+  for i in 0..<NUM_SYMBOLS {
+    if select#[i] == 1 {
+      symbol |= `in`#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH]
+    }
+  }
+  out = symbol
 }

@@ -22,21 +22,25 @@ pub mod br_fifo_shared_pop_ctrl_credit_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, pop_receiver_in_reset=rst, head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], pop_credit=lfsr#[14..=15], credit_initial_pop=lfsr#[16..=21], credit_withhold_pop=lfsr#[22..=27], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr#[30..=63])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (head_ready, pop_sender_in_reset, pop_valid, pop_fifo_id, pop_data, pop_empty, credit_available_pop, credit_count_pop, dealloc_valid, dealloc_entry_id, data_ram_rd_addr_valid, data_ram_rd_addr) = dut(clk=1, rst=rst, pop_receiver_in_reset=rst, head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], pop_credit=lfsr#[14..=15], credit_initial_pop=lfsr#[16..=21], credit_withhold_pop=lfsr#[22..=27], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr_x#[30..=93])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.head_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_sender_in_reset
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_fifo_id
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_empty
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_available_pop
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_count_pop
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dealloc_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dealloc_entry_id
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_rd_addr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_rd_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ head_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_sender_in_reset
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_fifo_id
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_empty
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_available_pop
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_count_pop
+  wrap acc = ((acc << 1) | acc#[63]) ^ dealloc_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ dealloc_entry_id
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr
 
   if rst != 0 {
     lfsr = 2611923443488327891

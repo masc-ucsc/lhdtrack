@@ -29,13 +29,17 @@ module br_delay_shift_reg_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_shift_out);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_delay_shift_reg dut (
     .clk(clk),
     .rst(rst),
     .reinit(lfsr[0]),
-    .initial_value({1'd0, lfsr[63:1]}),
+    .initial_value(lfsr_x[64:1]),
     .shift_en(lfsr[1]),
-    .shift_in({2'd0, lfsr[63:2]}),
+    .shift_in(lfsr_x[65:2]),
     .value(o_value),
     .shift_out(o_shift_out)
   );

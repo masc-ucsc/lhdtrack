@@ -30,6 +30,7 @@ suite = "{suite}"         # groups the report; NOT a path component
 
 [provenance]
 upstream = ""             # e.g. "bedrock-rtl"
+url      = ""             # the upstream repository
 rev      = ""             # the exact commit this was taken from
 path     = ""             # the upstream path of the source
 license  = ""             # SPDX id; LICENSE carries the full text
@@ -54,7 +55,7 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so one verilator simulation lands near 2 s (1-3 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
 cycles = 1000000
@@ -63,7 +64,7 @@ marker = "LHDTRACK-DONE"
 [lec]
 # Both backends prove the same obligation -- lgcheck (yosys) is the baseline,
 # lhd's in-process solver is what is being measured against it.
-flows = ["lec_lgyosys", "lec_lhd"]
+flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
 """
 
 README = """# {name}
@@ -131,6 +132,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         include_dir=test.verilog_dir,
         verilator=tc.bin("verilator") if tc.has("verilator") else None,
         filelist=test.filelist,
+        verilator_env=tc.env_for(tc.bin("verilator")) if tc.has("verilator") else None,
     )
     if pl.source == "regex":
         # A regex scan cannot resolve a width that is a parameter expression, and

@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_valve#<id>`.
 [[config]]
 id     = "nf16"
+sim_checksum = { cycles = 29000000, value = "7192321699237808691" }
 # NO PARAMETERS. verilog/br_flow_valve.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

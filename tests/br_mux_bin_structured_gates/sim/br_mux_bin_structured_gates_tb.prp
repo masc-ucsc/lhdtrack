@@ -6,7 +6,7 @@
 // Identical driver, identical work, either way.
 const dut = import("lg:br_mux_bin_structured_gates_harness")
 
-test bench.run(cycles:u32=1000000) {
+test bench.run(cycles:u32=25000000) {
   mut acc = dut
   mut result:u64 = 0
 

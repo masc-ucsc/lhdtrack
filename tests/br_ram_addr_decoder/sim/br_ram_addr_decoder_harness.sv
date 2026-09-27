@@ -30,7 +30,8 @@ module br_ram_addr_decoder_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_valid);
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_addr);
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_data_valid);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_out_data);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_data[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_data[127:64]);
   end
 
   br_ram_addr_decoder dut (

@@ -22,12 +22,12 @@ pub mod br_credit_counter_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, incr_valid=lfsr#[0], incr=lfsr#[1], decr_valid=lfsr#[2], decr=lfsr#[3], initial_value=lfsr#[4..=7], withhold=lfsr#[8..=11])
+  const (value, decr_ready, available) = dut(clk=1, rst=rst, incr_valid=lfsr#[0], incr=lfsr#[1], decr_valid=lfsr#[2], decr=lfsr#[3], initial_value=lfsr#[4..=7], withhold=lfsr#[8..=11])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.value
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.decr_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.available
+  wrap acc = ((acc << 1) | acc#[63]) ^ value
+  wrap acc = ((acc << 1) | acc#[63]) ^ decr_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ available
 
   if rst != 0 {
     lfsr = 2611923443488327891

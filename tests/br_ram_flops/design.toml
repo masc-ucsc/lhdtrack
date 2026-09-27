@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_ram_flops#<id>`.
 [[config]]
 id     = "ads1_d64_dt4_epw1_rdds1_rdws1_t_31c8054b"
+sim_checksum = { cycles = 3800000, value = "15620868648885679991" }
 # NO PARAMETERS. verilog/br_ram_flops.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

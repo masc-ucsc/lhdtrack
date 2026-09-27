@@ -29,12 +29,16 @@ module br_lfsr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_out_state);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_lfsr dut (
     .clk(clk),
     .rst(rst),
     .reinit(lfsr[0]),
     .initial_state(lfsr[32:1]),
-    .taps({1'd0, lfsr[63:33]}),
+    .taps(lfsr_x[64:33]),
     .advance(lfsr[1]),
     .out(o_out),
     .out_state(o_out_state)

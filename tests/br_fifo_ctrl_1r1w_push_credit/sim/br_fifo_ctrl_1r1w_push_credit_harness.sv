@@ -63,6 +63,10 @@ module br_fifo_ctrl_1r1w_push_credit_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_ram_rd_addr);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_ctrl_1r1w_push_credit dut (
     .clk(clk),
     .rst(rst),
@@ -74,7 +78,7 @@ module br_fifo_ctrl_1r1w_push_credit_harness (
     .credit_initial_push(lfsr[40:35]),
     .credit_withhold_push(lfsr[46:41]),
     .ram_rd_data_valid(lfsr[47]),
-    .ram_rd_data({16'd0, lfsr[63:48]}),
+    .ram_rd_data(lfsr_x[79:48]),
     .push_receiver_in_reset(o_push_receiver_in_reset),
     .push_credit(o_push_credit),
     .pop_valid(o_pop_valid),

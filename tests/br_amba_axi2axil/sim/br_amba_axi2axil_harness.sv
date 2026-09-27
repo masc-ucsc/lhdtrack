@@ -79,6 +79,10 @@ module br_amba_axi2axil_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_axil_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axi2axil dut (
     .clk(clk),
     .rst(rst),
@@ -90,13 +94,13 @@ module br_amba_axi2axil_harness (
     .axi_awprot(lfsr[51:49]),
     .axi_awuser(lfsr[59:52]),
     .axi_awvalid(lfsr[60]),
-    .axi_wdata({29'd0, lfsr[63:61]}),
+    .axi_wdata(lfsr_x[92:61]),
     .axi_wstrb(lfsr[32:29]),
     .axi_wuser(lfsr[40:33]),
     .axi_wlast(lfsr[41]),
     .axi_wvalid(lfsr[42]),
     .axi_bready(lfsr[43]),
-    .axi_araddr({12'd0, lfsr[63:44]}),
+    .axi_araddr(lfsr_x[75:44]),
     .axi_arid(lfsr[15:12]),
     .axi_arlen(lfsr[23:16]),
     .axi_arsize(lfsr[26:24]),
@@ -111,7 +115,7 @@ module br_amba_axi2axil_harness (
     .axil_buser(lfsr[53:46]),
     .axil_bvalid(lfsr[54]),
     .axil_arready(lfsr[55]),
-    .axil_rdata({24'd0, lfsr[63:56]}),
+    .axil_rdata(lfsr_x[87:56]),
     .axil_rresp(lfsr[25:24]),
     .axil_ruser(lfsr[33:26]),
     .axil_rvalid(lfsr[34]),

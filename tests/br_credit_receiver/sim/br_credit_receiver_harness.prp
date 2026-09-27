@@ -22,15 +22,25 @@ pub mod br_credit_receiver_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=4], push_data=lfsr#[5..=63], pop_credit=lfsr#[5..=7], credit_initial=lfsr#[8..=12], credit_withhold=lfsr#[13..=17])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u320 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
+    (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
+    (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
+    (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
+
+  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, credit_count, credit_available) = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=4], push_data=lfsr_x#[5..=260], pop_credit=lfsr#[5..=7], credit_initial=lfsr#[8..=12], credit_withhold=lfsr#[13..=17])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receiver_in_reset
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_credit
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_count
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_available
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_credit
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[0..=63]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[64..=127]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[128..=191]
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data#[192..=255]
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_count
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_available
 
   if rst != 0 {
     lfsr = 2611923443488327891

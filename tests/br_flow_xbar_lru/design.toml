@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_xbar_lru#<id>`.
 [[config]]
 id     = "npf4_npf4_rdo0_rpo0_w32"
+sim_checksum = { cycles = 16600000, value = "10623633694731982952" }
 # NO PARAMETERS. verilog/br_flow_xbar_lru.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

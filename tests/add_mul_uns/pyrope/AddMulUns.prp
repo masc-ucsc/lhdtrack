@@ -1,0 +1,13 @@
+// AddMulUns -- the Pyrope equivalent of verilog/AddMulUns.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 16),
+// so the generated harness and LEC bind the same external interface.
+//
+// P = (XS + XC) * Y. XS + XC is a carry-save pair; the Verilog evaluates it
+// at the 32-bit product width, so wrapping the final product is the same
+// modulo-2^32 result.
+pub comb AddMulUns(XS:u16, XC:u16, Y:u16) -> (P:u32) { wrap  P = (XS + XC)*Y }

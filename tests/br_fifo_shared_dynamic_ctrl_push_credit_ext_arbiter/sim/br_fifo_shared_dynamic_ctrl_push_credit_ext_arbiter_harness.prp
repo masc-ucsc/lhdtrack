@@ -22,29 +22,33 @@ pub mod br_fifo_shared_dynamic_ctrl_push_credit_ext_arbiter_harness(rst:u1) -> (
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=2], push_data=lfsr#[3..=63], push_fifo_id=lfsr#[3..=4], credit_initial_push=lfsr#[5..=10], credit_withhold_push=lfsr#[11..=16], pop_ready=lfsr#[17..=18], arb_grant=lfsr#[19..=22], data_ram_rd_data_valid=lfsr#[23..=24], data_ram_rd_data=lfsr#[25..=63], ptr_ram_rd_data_valid=lfsr#[25..=26], ptr_ram_rd_data=lfsr#[27..=36])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (push_receiver_in_reset, push_credit, push_full, credit_available_push, credit_count_push, pop_valid, pop_data, pop_empty, arb_request, arb_enable_priority_update, data_ram_wr_valid, data_ram_wr_addr, data_ram_wr_data, data_ram_rd_addr_valid, data_ram_rd_addr, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1..=2], push_data=lfsr_x#[3..=66], push_fifo_id=lfsr#[3..=4], credit_initial_push=lfsr#[5..=10], credit_withhold_push=lfsr#[11..=16], pop_ready=lfsr#[17..=18], arb_grant=lfsr#[19..=22], data_ram_rd_data_valid=lfsr#[23..=24], data_ram_rd_data=lfsr_x#[25..=88], ptr_ram_rd_data_valid=lfsr#[25..=26], ptr_ram_rd_data=lfsr#[27..=36])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_receiver_in_reset
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_credit
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_full
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_available_push
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.credit_count_push
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_empty
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.arb_request
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.arb_enable_priority_update
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_wr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_wr_addr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_wr_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_rd_addr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.data_ram_rd_addr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ptr_ram_wr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ptr_ram_wr_addr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ptr_ram_wr_data
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ptr_ram_rd_addr_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.ptr_ram_rd_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_credit
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_full
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_available_push
+  wrap acc = ((acc << 1) | acc#[63]) ^ credit_count_push
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_empty
+  wrap acc = ((acc << 1) | acc#[63]) ^ arb_request
+  wrap acc = ((acc << 1) | acc#[63]) ^ arb_enable_priority_update
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_wr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_wr_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_wr_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_wr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_wr_addr
+  wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_wr_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_rd_addr_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_rd_addr
 
   if rst != 0 {
     lfsr = 2611923443488327891

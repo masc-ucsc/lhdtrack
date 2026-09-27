@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_amba_axi_timing_slice#<id>`.
 [[config]]
 id     = "arst0_awst0_aw32_bst0_dw32_iw4_rst0_wst0"
+sim_checksum = { cycles = 20000000, value = "5216439119205791848" }
 # NO PARAMETERS. verilog/br_amba_axi_timing_slice.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

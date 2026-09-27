@@ -101,6 +101,10 @@ module br_amba_axi_demux_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axi_demux dut (
     .clk(clk),
     .rst(rst),
@@ -114,14 +118,14 @@ module br_amba_axi_demux_harness (
     .upstream_awprot(lfsr[53:51]),
     .upstream_awuser(lfsr[54]),
     .upstream_awvalid(lfsr[55]),
-    .upstream_wdata({24'd0, lfsr[63:56]}),
+    .upstream_wdata(lfsr_x[87:56]),
     .upstream_wstrb(lfsr[27:24]),
     .upstream_wuser(lfsr[28]),
     .upstream_wlast(lfsr[29]),
     .upstream_wvalid(lfsr[30]),
     .upstream_bready(lfsr[31]),
     .upstream_ar_sub_select(lfsr[32]),
-    .upstream_araddr({1'd0, lfsr[63:33]}),
+    .upstream_araddr(lfsr_x[64:33]),
     .upstream_arid(lfsr[1]),
     .upstream_arlen(lfsr[9:2]),
     .upstream_arsize(lfsr[12:10]),
@@ -139,7 +143,7 @@ module br_amba_axi_demux_harness (
     .downstream_bvalid(lfsr[38:37]),
     .downstream_arready(lfsr[40:39]),
     .downstream_rid(lfsr[42:41]),
-    .downstream_rdata({43'd0, lfsr[63:43]}),
+    .downstream_rdata(lfsr_x[106:43]),
     .downstream_ruser(lfsr[44:43]),
     .downstream_rresp(lfsr[48:45]),
     .downstream_rlast(lfsr[50:49]),

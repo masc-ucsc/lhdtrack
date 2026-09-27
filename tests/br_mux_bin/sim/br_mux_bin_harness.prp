@@ -22,7 +22,18 @@ pub mod br_mux_bin_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (out, out_valid) = dut(select=lfsr#[0..=3], `in`=lfsr#[4..=63])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u576 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
+    (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
+    (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
+    (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256) |
+    (((lfsr#[0..=42] << 21) | lfsr#[43..=63]) << 320) |
+    (((lfsr#[0..=25] << 38) | lfsr#[26..=63]) << 384) |
+    (((lfsr#[0..=8] << 55) | lfsr#[9..=63]) << 448) |
+    (((lfsr#[0..=55] << 8) | lfsr#[56..=63]) << 512)
+
+  const (out, out_valid) = dut(select=lfsr#[0..=3], `in`=lfsr_x#[4..=515])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ out

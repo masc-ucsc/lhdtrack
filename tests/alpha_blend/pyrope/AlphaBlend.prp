@@ -1,0 +1,17 @@
+// AlphaBlend -- the Pyrope equivalent of verilog/AlphaBlend.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 8),
+// so the generated harness and LEC bind the same external interface.
+//
+// D = A*B + (1 - A)*C with A a fixed-point alpha: `1` is 1 << WIDTH, so the
+// complement is 9 bits wide. Both products fit 16 bits but their sum does not.
+comptime const WIDTH = 8
+
+pub comb AlphaBlend(A:u8, B:u8, C:u8) -> (D:u16) {
+  const one_minus_a = (1 << WIDTH) - A
+  wrap D = (A*B) + (one_minus_a*C)
+}

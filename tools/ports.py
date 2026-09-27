@@ -13,6 +13,7 @@ is built, and it says so rather than pretending to be equivalent.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import tempfile
@@ -37,6 +38,10 @@ class Port:
     name: str
     direction: str  # input | output | inout
     width: int
+    # Only the PYROPE harness needs this: an `s12` port rejects a raw bit-select
+    # (0..4095 does not fit s12), and a signed output folded without a
+    # bit-select sign-extends into the checksum where the SV side zero-extends.
+    signed: bool = False
 
     @property
     def is_clock(self) -> bool:
@@ -108,6 +113,7 @@ def extract(
     include_dir: Path | None = None,
     verilator: Path | None = None,
     filelist: Path | None = None,
+    verilator_env: dict[str, str] | None = None,
 ) -> PortList:
     """Elaborate the design and return its ports, widths resolved.
 
@@ -123,7 +129,9 @@ def extract(
     """
     if verilator and verilator.exists():
         try:
-            return _from_verilator(top, sources, params or {}, verilator, include_dir, filelist)
+            return _from_verilator(
+                top, sources, params or {}, verilator, include_dir, filelist, verilator_env
+            )
         except (subprocess.SubprocessError, OSError, json.JSONDecodeError, KeyError, ValueError):
             pass
     if yosys and yosys.exists():
@@ -142,7 +150,9 @@ def extract(
     return _from_regex(top, sources)
 
 
-def _from_verilator(top, sources, params, verilator, include_dir, filelist) -> PortList:
+def _from_verilator(
+    top, sources, params, verilator, include_dir, filelist, env=None
+) -> PortList:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "tree.json"
         cmd = [
@@ -156,7 +166,13 @@ def _from_verilator(top, sources, params, verilator, include_dir, filelist) -> P
             cmd += ["-F", str(filelist)]
         else:
             cmd += [str(s) for s in sources]
-        subprocess.run(cmd, check=True, capture_output=True, timeout=600)  # noqa: S603
+        # The staged verilator needs its VERILATOR_ROOT; without it every call
+        # failed and extraction silently fell back to yosys+slang, which does
+        # not report port signedness.
+        subprocess.run(  # noqa: S603
+            cmd, check=True, capture_output=True, timeout=600,
+            env={**os.environ, **(env or {})},
+        )
         doc = json.loads(out.read_text())
 
     by_addr: dict[str, dict] = {}
@@ -188,7 +204,10 @@ def _from_verilator(top, sources, params, verilator, include_dir, filelist) -> P
         direction = (child.get("direction") or "").lower()
         if direction not in ("input", "output", "inout"):
             continue
-        ports.append(Port(child["name"], direction, _width(by_addr, child.get("dtypep"))))
+        dtype = child.get("dtypep")
+        ports.append(Port(
+            child["name"], direction, _width(by_addr, dtype), _signed(by_addr, dtype),
+        ))
     if not ports:
         raise KeyError(f"verilator resolved no ports for {top}")
     return PortList(top, ports, "verilator")
@@ -222,6 +241,20 @@ def _width(by_addr: dict, dtype_addr: str | None, depth: int = 0) -> int:
         return max(span, 1)
     inner = node.get("subDTypep") or node.get("refDTypep")
     return max(span, 1) * _width(by_addr, inner, depth + 1)
+
+
+def _signed(by_addr: dict, dtype_addr: str | None, depth: int = 0) -> bool:
+    """A port is signed when its dtype resolves, through typedef refs only, to a
+    signed BASICDTYPE. A packed array or struct of signed elements is not: it
+    is a plain vector at the port boundary."""
+    node = by_addr.get(dtype_addr) if dtype_addr else None
+    if node is None or depth > 12:
+        return False
+    if node.get("type") == "BASICDTYPE":
+        return bool(node.get("signed"))
+    if node.get("type") == "REFDTYPE":
+        return _signed(by_addr, node.get("refDTypep") or node.get("subDTypep"), depth + 1)
+    return False
 
 
 def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist) -> PortList:
@@ -275,7 +308,10 @@ def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist)
         direction = str(spec.get("direction", "")).lower()
         if direction not in ("input", "output", "inout"):
             continue
-        ports.append(Port(name.lstrip("\\"), direction, max(1, len(spec.get("bits") or []))))
+        ports.append(Port(
+            name.lstrip("\\"), direction, max(1, len(spec.get("bits") or [])),
+            bool(spec.get("signed")),
+        ))
     if not ports:
         raise KeyError(f"yosys resolved no ports for {top}")
     return PortList(top, ports, "yosys+slang" if yosys_slang else "yosys")

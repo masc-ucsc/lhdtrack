@@ -35,11 +35,15 @@ module br_fifo_shared_dynamic_flops_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_empty);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_fifo_shared_dynamic_flops dut (
     .clk(clk),
     .rst(rst),
     .push_valid(2'd1),
-    .push_data({2'd0, lfsr[63:2]}),
+    .push_data(lfsr_x[65:2]),
     .push_fifo_id(2'd0),
     .pop_ready(lfsr[5:4]),
     .push_ready(o_push_ready),

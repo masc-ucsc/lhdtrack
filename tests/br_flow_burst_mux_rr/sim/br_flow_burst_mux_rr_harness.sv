@@ -33,12 +33,16 @@ module br_flow_burst_mux_rr_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data_unstable);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_flow_burst_mux_rr dut (
     .clk(clk),
     .rst(rst),
     .push_valid(lfsr[3:0]),
     .push_last(lfsr[7:4]),
-    .push_data({72'd0, lfsr[63:8]}),
+    .push_data(lfsr_x[135:8]),
     .pop_ready(lfsr[8]),
     .push_ready(o_push_ready),
     .pop_valid_unstable(o_pop_valid_unstable),

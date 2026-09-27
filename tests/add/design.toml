@@ -27,6 +27,7 @@ param_binding = "monomorphic"
 
 [[config]]
 id     = "bw8"
+sim_checksum = { cycles = 35000000, value = "15986531184027978586" }
 # NO PARAMETERS. verilog/add.sv declares its parameter port list `localparam`,
 # so the top elaborates to ONE circuit with no flags anywhere -- no -chparam
 # for yosys, no -G for slang or verilator, no `#(...)` on the harness instance

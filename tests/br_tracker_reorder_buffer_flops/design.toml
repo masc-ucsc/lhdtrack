@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_reorder_buffer_flops#<id>`.
 [[config]]
 id     = "dw32_eiw4_ne16_rpo0"
+sim_checksum = { cycles = 11800000, value = "6690415682437317540" }
 # NO PARAMETERS. verilog/br_tracker_reorder_buffer_flops.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with
 # no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no

@@ -37,12 +37,16 @@ module br_amba_atb_funnel_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_dst_atuser);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_atb_funnel dut (
     .clk(clk),
     .rst(rst),
     .src_atvalid(lfsr[1:0]),
     .src_atid(lfsr[15:2]),
-    .src_atdata({16'd0, lfsr[63:16]}),
+    .src_atdata(lfsr_x[79:16]),
     .src_atbytes(lfsr[19:16]),
     .src_atuser(lfsr[21:20]),
     .dst_atready(lfsr[22]),

@@ -1,0 +1,12 @@
+// Fmaa -- the Pyrope equivalent of verilog/Fmaa.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 24),
+// so the generated harness and LEC bind the same external interface.
+//
+// Fused multiply with two wide addends (3*BW+1 = 73 bits); the addends can
+// carry out of the 73-bit result.
+pub comb Fmaa(a:u24, b:u24, c:u73, d:u73) -> (res:u73) { wrap  res = (a*b) + c + d }

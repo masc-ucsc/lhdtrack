@@ -42,8 +42,13 @@ module br_apb_demux_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pprot);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pstrb);
       acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pwrite);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pwdata);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pwdata[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_downstream_pwdata[127:64]);
   end
+
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [191:0] lfsr_x;
+  assign lfsr_x = {{lfsr[29:0], lfsr[63:30]}, {lfsr[46:0], lfsr[63:47]}, lfsr};
 
   br_apb_demux dut (
     .clk(clk),
@@ -55,9 +60,9 @@ module br_apb_demux_harness (
     .upstream_pstrb(lfsr[20:17]),
     .upstream_pwrite(lfsr[21]),
     .upstream_pwdata(lfsr[53:22]),
-    .downstream_addr_base({38'd0, lfsr[63:54]}),
-    .downstream_addr_size({22'd0, lfsr[63:38]}),
-    .downstream_prdata({86'd0, lfsr[63:22]}),
+    .downstream_addr_base(lfsr_x[101:54]),
+    .downstream_addr_size(lfsr_x[85:38]),
+    .downstream_prdata(lfsr_x[149:22]),
     .downstream_pready(lfsr[25:22]),
     .downstream_pslverr(lfsr[29:26]),
     .upstream_prdata(o_upstream_prdata),

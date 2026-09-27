@@ -1,0 +1,15 @@
+// FmaShare -- the Pyrope equivalent of verilog/FmaShare.sv (DatapathBench).
+//
+// Hand-written, not emitted from the Verilog: a machine emission would enter
+// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
+// the two languages. See [status].pyrope in design.toml.
+//
+// Ports keep the Verilog names and the widths of the pinned point (BW = 14),
+// so the generated harness and LEC bind the same external interface.
+//
+// Two FMAs sharing one product. Each result fits 28 bits, so no `wrap`.
+pub comb FmaShare(a:u14, b:u14, c:u14, d:u14) -> (res_c:u28, res_d:u28) {
+  const product = a*b
+  res_c         = product + c
+  res_d         = product + d
+}

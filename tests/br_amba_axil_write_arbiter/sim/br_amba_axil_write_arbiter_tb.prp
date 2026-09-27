@@ -6,7 +6,7 @@
 // Identical driver, identical work, either way.
 const dut = import("lg:br_amba_axil_write_arbiter_harness")
 
-test bench.run(cycles:u32=1000000) {
+test bench.run(cycles:u32=23900000) {
   mut acc = dut
   mut result:u64 = 0
 

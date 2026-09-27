@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_mux_fixed#<id>`.
 [[config]]
 id     = "nf4_w32"
+sim_checksum = { cycles = 26400000, value = "4723961976124372770" }
 # NO PARAMETERS. verilog/br_flow_mux_fixed.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

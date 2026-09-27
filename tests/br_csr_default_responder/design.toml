@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_csr_default_responder#<id>`.
 [[config]]
 id     = "aw16_dw32"
+sim_checksum = { cycles = 31300000, value = "9934419827097" }
 # NO PARAMETERS. verilog/br_csr_default_responder.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

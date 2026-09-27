@@ -22,15 +22,19 @@ pub mod br_amba_atb_funnel_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, src_atvalid=lfsr#[0..=1], src_atid=lfsr#[2..=15], src_atdata=lfsr#[16..=63], src_atbytes=lfsr#[16..=19], src_atuser=lfsr#[20..=21], dst_atready=lfsr#[22])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (src_atready, dst_atvalid, dst_atid, dst_atdata, dst_atbytes, dst_atuser) = dut(clk=1, rst=rst, src_atvalid=lfsr#[0..=1], src_atid=lfsr#[2..=15], src_atdata=lfsr_x#[16..=79], src_atbytes=lfsr#[16..=19], src_atuser=lfsr#[20..=21], dst_atready=lfsr#[22])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.src_atready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dst_atvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dst_atid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dst_atdata
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dst_atbytes
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.dst_atuser
+  wrap acc = ((acc << 1) | acc#[63]) ^ src_atready
+  wrap acc = ((acc << 1) | acc#[63]) ^ dst_atvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ dst_atid
+  wrap acc = ((acc << 1) | acc#[63]) ^ dst_atdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ dst_atbytes
+  wrap acc = ((acc << 1) | acc#[63]) ^ dst_atuser
 
   if rst != 0 {
     lfsr = 2611923443488327891

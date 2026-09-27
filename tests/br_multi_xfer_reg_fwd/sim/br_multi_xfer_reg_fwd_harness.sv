@@ -31,11 +31,15 @@ module br_multi_xfer_reg_fwd_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_pop_data);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_multi_xfer_reg_fwd dut (
     .clk(clk),
     .rst(rst),
     .push_sendable(lfsr[1:0]),
-    .push_data({2'd0, lfsr[63:2]}),
+    .push_data(lfsr_x[65:2]),
     .pop_receivable(lfsr[3:2]),
     .push_receivable(o_push_receivable),
     .pop_sendable(o_pop_sendable),

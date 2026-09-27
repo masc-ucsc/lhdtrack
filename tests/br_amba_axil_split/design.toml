@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_amba_axil_split#<id>`.
 [[config]]
 id     = "aw32_dw32_mor4_mow4_nba0_nbar1"
+sim_checksum = { cycles = 18600000, value = "14321358448426492689" }
 # NO PARAMETERS. verilog/br_amba_axil_split.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

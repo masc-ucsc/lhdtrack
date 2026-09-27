@@ -22,24 +22,28 @@ pub mod br_amba_axil2apb_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr#[36..=63], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr#[47..=63], pready=lfsr#[15], pslverr=lfsr#[16])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u128 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
+
+  const (awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid, paddr, psel, penable, pprot, pstrb, pwrite, pwdata) = dut(clk=1, rst=rst, awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr_x#[36..=67], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr_x#[47..=78], pready=lfsr#[15], pslverr=lfsr#[16])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.awready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.wready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.bresp
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.bvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.arready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.rdata
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.rresp
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.rvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.paddr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.psel
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.penable
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pprot
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pstrb
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pwrite
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pwdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ awready
+  wrap acc = ((acc << 1) | acc#[63]) ^ wready
+  wrap acc = ((acc << 1) | acc#[63]) ^ bresp
+  wrap acc = ((acc << 1) | acc#[63]) ^ bvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ arready
+  wrap acc = ((acc << 1) | acc#[63]) ^ rdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ rresp
+  wrap acc = ((acc << 1) | acc#[63]) ^ rvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ paddr
+  wrap acc = ((acc << 1) | acc#[63]) ^ psel
+  wrap acc = ((acc << 1) | acc#[63]) ^ penable
+  wrap acc = ((acc << 1) | acc#[63]) ^ pprot
+  wrap acc = ((acc << 1) | acc#[63]) ^ pstrb
+  wrap acc = ((acc << 1) | acc#[63]) ^ pwrite
+  wrap acc = ((acc << 1) | acc#[63]) ^ pwdata
 
   if rst != 0 {
     lfsr = 2611923443488327891

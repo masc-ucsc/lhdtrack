@@ -1,17 +1,16 @@
-const br_flow_arb_core_t = import("br_flow_arb_core.br_flow_arb_core")
-const br_flow_checks_valid_data_impl_p2 = import("br_flow_checks_valid_data_impl_p2.br_flow_checks_valid_data_impl_p2")
-const br_flow_checks_valid_data_intg_p2 = import("br_flow_checks_valid_data_intg_p2.br_flow_checks_valid_data_intg_p2")
-const br_mux_onehot_t = import("br_mux_onehot.br_mux_onehot")
+const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_flow_mux_core::[timecheck=false](clk:u1, rst:u1, can_grant:u4, grant:u4, push_valid:u4, push_data:u128, pop_ready:u1) -> (request:u4@[], enable_priority_update:u1@[], push_ready:u4@[], pop_valid_unstable:u1@[], pop_data_unstable:u32@[]) {
-  mut br_flow_arb_core = br_flow_arb_core_t::[name=br_flow_arb_core](clk = clk, rst = rst, can_grant = can_grant, grant = grant, push_valid = push_valid, pop_ready = pop_ready)
-  mut br_mux_onehot = br_mux_onehot_t::[name=br_mux_onehot](select = grant, `in` = push_data)
-  const pop_data_unstable__w1 = br_mux_onehot
-  br_flow_checks_valid_data_impl_p2::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = br_flow_arb_core.pop_valid_unstable, ready = pop_ready, data = pop_data_unstable__w1)
-  br_flow_checks_valid_data_intg_p2::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = br_flow_arb_core.push_ready, data = push_data)
-  request = br_flow_arb_core.request
-  enable_priority_update = br_flow_arb_core.enable_priority_update
-  push_ready = br_flow_arb_core.push_ready
-  pop_valid_unstable = br_flow_arb_core.pop_valid_unstable
-  pop_data_unstable = pop_data_unstable__w1
+// Merge NUM_FLOWS valid/ready flows into one using an external arbiter's
+// grant. The arbiter always grants some valid request, so the pop side is
+// valid whenever any push flow is.
+pub mod br_flow_mux_core<NUM_FLOWS=1, WIDTH=1>(
+  can_grant:unsigned(bits=NUM_FLOWS),
+  grant:unsigned(bits=NUM_FLOWS),
+  push_valid:unsigned(bits=NUM_FLOWS),
+  push_data:unsigned(bits=NUM_FLOWS * WIDTH),
+  pop_ready:bool
+) -> (push_ready:unsigned(bits=NUM_FLOWS)@[0], pop_valid_unstable:bool@[0], pop_data_unstable:unsigned(bits=WIDTH)@[0]) {
+  push_ready         = if pop_ready { can_grant } else { 0 }
+  pop_valid_unstable = push_valid != 0
+  pop_data_unstable  = br_mux_onehot<NUM_SYMBOLS=NUM_FLOWS,SYMBOL_WIDTH=WIDTH>(select=grant, `in`=push_data)
 }

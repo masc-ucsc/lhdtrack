@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_join_lockstep#<id>`.
 [[config]]
 id     = "nf16"
+sim_checksum = { cycles = 30400000, value = "6574856351562325804" }
 # NO PARAMETERS. verilog/br_flow_join_lockstep.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

@@ -97,6 +97,10 @@ module br_amba_axi_timing_slice_harness (
       acc = {acc[62:0], acc[63]} ^ 64'(o_init_rready);
   end
 
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  logic [127:0] lfsr_x;
+  assign lfsr_x = {{lfsr[46:0], lfsr[63:47]}, lfsr};
+
   br_amba_axi_timing_slice dut (
     .clk(clk),
     .rst(rst),
@@ -108,14 +112,14 @@ module br_amba_axi_timing_slice_harness (
     .target_awprot(lfsr[51:49]),
     .target_awuser(lfsr[52]),
     .target_awvalid(lfsr[53]),
-    .target_wdata({22'd0, lfsr[63:54]}),
+    .target_wdata(lfsr_x[85:54]),
     .target_wstrb(lfsr[25:22]),
     .target_wuser(lfsr[26]),
     .target_wlast(lfsr[27]),
     .target_wvalid(lfsr[28]),
     .target_bready(lfsr[29]),
     .target_araddr(lfsr[61:30]),
-    .target_arid({2'd0, lfsr[63:62]}),
+    .target_arid(lfsr_x[65:62]),
     .target_arlen(lfsr[9:2]),
     .target_arsize(lfsr[12:10]),
     .target_arburst(lfsr[14:13]),
@@ -131,7 +135,7 @@ module br_amba_axi_timing_slice_harness (
     .init_bvalid(lfsr[30]),
     .init_arready(lfsr[31]),
     .init_rid(lfsr[35:32]),
-    .init_rdata({4'd0, lfsr[63:36]}),
+    .init_rdata(lfsr_x[67:36]),
     .init_ruser(lfsr[4]),
     .init_rresp(lfsr[6:5]),
     .init_rlast(lfsr[7]),

@@ -1,43 +1,22 @@
-pub comb br_demux_addr_decode::[timecheck=false](clk:u1, rst:u1, addr_valid:u1, upstream_addr:u12, downstream_addr_base:u48, downstream_addr_size:u48, downstream_addr_in:u48) -> (select_onehot:u4, downstream_addr_out:u48) {
-  mut downstream_addr_limit:u48 = 0
-  mut downstream_addr_range_disabled:u4 = 0
-  downstream_addr_limit = 0sb?
-  downstream_addr_range_disabled = 0sb?
-  select_onehot = 0sb?
-  downstream_addr_out = 0sb?
-  mut downstream_addr_limit__w1 = downstream_addr_limit
-  downstream_addr_limit__w1#[0..=11] = ((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11]
-  mut downstream_addr_range_disabled__w1 = downstream_addr_range_disabled
-  downstream_addr_range_disabled__w1#[0] = unsigned(downstream_addr_size#[0..=11] == 0) & 1
-  mut downstream_addr_limit__w2 = downstream_addr_limit__w1
-  downstream_addr_limit__w2#[12..=23] = ((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11]
-  mut downstream_addr_range_disabled__w2 = downstream_addr_range_disabled__w1
-  downstream_addr_range_disabled__w2#[1] = unsigned(downstream_addr_size#[12..=23] == 0) & 1
-  mut downstream_addr_limit__w3 = downstream_addr_limit__w2
-  downstream_addr_limit__w3#[24..=35] = ((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11]
-  mut downstream_addr_range_disabled__w3 = downstream_addr_range_disabled__w2
-  downstream_addr_range_disabled__w3#[2] = unsigned(downstream_addr_size#[24..=35] == 0) & 1
-  mut downstream_addr_limit__w4 = downstream_addr_limit__w3
-  downstream_addr_limit__w4#[36..=47] = ((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11]
-  mut downstream_addr_range_disabled__w4 = downstream_addr_range_disabled__w3
-  downstream_addr_range_disabled__w4#[3] = unsigned(downstream_addr_size#[36..=47] == 0) & 1
-  const upstream_addr_masked__w1 = upstream_addr & 0xfff
-  mut select_onehot__w1 = select_onehot
-  select_onehot__w1#[0] = unsigned(((downstream_addr_range_disabled__w4 & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[0..=11]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[0..=11])) & 1
-  mut downstream_addr_out__w1 = downstream_addr_out
-  downstream_addr_out__w1#[0..=11] = downstream_addr_in#[0..=11] & 0xfff
-  mut select_onehot__w2 = select_onehot__w1
-  select_onehot__w2#[1] = unsigned((((downstream_addr_range_disabled__w4 >> 1) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[12..=23]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[12..=23])) & 1
-  mut downstream_addr_out__w2 = downstream_addr_out__w1
-  downstream_addr_out__w2#[12..=23] = downstream_addr_in#[12..=23] & 0xfff
-  mut select_onehot__w3 = select_onehot__w2
-  select_onehot__w3#[2] = unsigned((((downstream_addr_range_disabled__w4 >> 2) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[24..=35]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[24..=35])) & 1
-  mut downstream_addr_out__w3 = downstream_addr_out__w2
-  downstream_addr_out__w3#[24..=35] = downstream_addr_in#[24..=35] & 0xfff
-  mut select_onehot__w4 = select_onehot__w3
-  select_onehot__w4#[3] = unsigned((((downstream_addr_range_disabled__w4 >> 3) & 1) == 0) and (upstream_addr_masked__w1 >= downstream_addr_base#[36..=47]) and (upstream_addr_masked__w1 <= downstream_addr_limit__w4#[36..=47])) & 1
-  mut downstream_addr_out__w4 = downstream_addr_out__w3
-  downstream_addr_out__w4#[36..=47] = downstream_addr_in#[36..=47] & 0xfff
-  select_onehot = select_onehot__w4
-  downstream_addr_out = downstream_addr_out__w4
+// Address decoder: select the downstream whose [base, base + size) window
+// holds the upstream address. A zero-size window is disabled. Windows are
+// packed per downstream, ADDR_WIDTH bits each (downstream 0 in the low bits).
+//
+// Supported configuration: no default downstream, all-ones address masks, no
+// address normalization (so each downstream address is the upstream one).
+pub mod br_demux_addr_decode<ADDR_WIDTH=1, NUM_DOWNSTREAMS=1>(
+  upstream_addr:unsigned(bits=ADDR_WIDTH),
+  downstream_addr_base:unsigned(bits=ADDR_WIDTH * NUM_DOWNSTREAMS),
+  downstream_addr_size:unsigned(bits=ADDR_WIDTH * NUM_DOWNSTREAMS)
+) -> (select_onehot:unsigned(bits=NUM_DOWNSTREAMS)@[0]) {
+  mut select:unsigned(bits=NUM_DOWNSTREAMS) = 0
+  for i in 0..<NUM_DOWNSTREAMS {
+    const base = downstream_addr_base#[(i*ADDR_WIDTH)..+ADDR_WIDTH]
+    const size = downstream_addr_size#[(i*ADDR_WIDTH)..+ADDR_WIDTH]
+    // The last address of the window, wrapping at ADDR_WIDTH bits.
+    mut limit:unsigned(bits=ADDR_WIDTH) = 0
+    wrap limit = base + size - 1
+    select#[i] = u1(size != 0 and upstream_addr >= base and upstream_addr <= limit)
+  }
+  select_onehot = select
 }

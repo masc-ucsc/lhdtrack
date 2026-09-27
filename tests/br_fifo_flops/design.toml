@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_fifo_flops#<id>`.
 [[config]]
 id     = "d16_eb0_rpo1_w64"
+sim_checksum = { cycles = 25400000, value = "6537812796351737952" }
 # NO PARAMETERS. verilog/br_fifo_flops.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

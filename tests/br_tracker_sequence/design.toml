@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_sequence#<id>`.
 [[config]]
 id     = "eiw4_mas1_ne16"
+sim_checksum = { cycles = 28200000, value = "10826588767967218196" }
 # NO PARAMETERS. verilog/br_tracker_sequence.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

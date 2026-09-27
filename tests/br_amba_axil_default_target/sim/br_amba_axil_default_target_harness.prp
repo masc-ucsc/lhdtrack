@@ -22,17 +22,17 @@ pub mod br_amba_axil_default_target_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, target_awvalid=lfsr#[0], target_wvalid=lfsr#[1], target_bready=lfsr#[2], target_arvalid=lfsr#[3], target_rready=lfsr#[4])
+  const (target_awready, target_wready, target_bresp, target_bvalid, target_arready, target_rdata, target_rresp, target_rvalid) = dut(clk=1, rst=rst, target_awvalid=lfsr#[0], target_wvalid=lfsr#[1], target_bready=lfsr#[2], target_arvalid=lfsr#[3], target_rready=lfsr#[4])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_awready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_wready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_bresp
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_bvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_arready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_rdata
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_rresp
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.target_rvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_awready
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_wready
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_bresp
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_bvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_arready
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_rdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_rresp
+  wrap acc = ((acc << 1) | acc#[63]) ^ target_rvalid
 
   if rst != 0 {
     lfsr = 2611923443488327891

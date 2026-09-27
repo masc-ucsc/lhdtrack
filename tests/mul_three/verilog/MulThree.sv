@@ -1,0 +1,21 @@
+// Copyright 2025 University College London.
+// MIT License License, see LICENSE for details.
+//
+// Authors:
+// - Samuel Coward <sam.coward@ucl.ac.uk>
+
+module MulThree #(
+    localparam BW = 32
+)  // Parameterized width for the multiplier
+(
+    input logic [BW-1:0] a,
+    input logic [BW-1:0] b,
+    input logic [BW-1:0] c,
+    input logic [BW-1:0] d,
+    output logic [BW-1:0] product
+);  
+
+    always_comb begin
+        product = a * b * c;
+    end
+endmodule

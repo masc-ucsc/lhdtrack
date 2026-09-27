@@ -22,12 +22,12 @@ pub mod br_flow_reg_both_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, push_valid=lfsr#[0], push_data=lfsr#[1..=32], pop_ready=lfsr#[33])
+  const (push_ready, pop_valid, pop_data) = dut(clk=1, rst=rst, push_valid=lfsr#[0], push_data=lfsr#[1..=32], pop_ready=lfsr#[33])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.push_ready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_valid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.pop_data
+  wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
+  wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
 
   if rst != 0 {
     lfsr = 2611923443488327891

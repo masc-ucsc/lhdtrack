@@ -22,23 +22,28 @@ pub mod br_amba_axil_write_arbiter_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const r = dut(clk=1, rst=rst, upstream_awaddr=lfsr#[0..=63], upstream_awprot=lfsr#[16..=21], upstream_awuser=lfsr#[22..=23], upstream_awvalid=lfsr#[24..=25], upstream_wdata=lfsr#[26..=63], upstream_wstrb=lfsr#[26..=41], upstream_wuser=lfsr#[42..=43], upstream_wvalid=lfsr#[44..=45], upstream_bready=lfsr#[46..=47], downstream_awready=lfsr#[48], downstream_wready=lfsr#[49], downstream_bresp=lfsr#[50..=51], downstream_buser=lfsr#[52], downstream_bvalid=lfsr#[53])
+  // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
+  const lfsr_x:u192 = lfsr |
+    (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
+    (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128)
+
+  const (upstream_awready, upstream_wready, upstream_bresp, upstream_buser, upstream_bvalid, downstream_awaddr, downstream_awprot, downstream_awuser, downstream_awvalid, downstream_wdata, downstream_wstrb, downstream_wuser, downstream_wvalid, downstream_bready) = dut(clk=1, rst=rst, upstream_awaddr=lfsr_x#[0..=79], upstream_awprot=lfsr#[16..=21], upstream_awuser=lfsr#[22..=23], upstream_awvalid=lfsr#[24..=25], upstream_wdata=lfsr_x#[26..=153], upstream_wstrb=lfsr#[26..=41], upstream_wuser=lfsr#[42..=43], upstream_wvalid=lfsr#[44..=45], upstream_bready=lfsr#[46..=47], downstream_awready=lfsr#[48], downstream_wready=lfsr#[49], downstream_bresp=lfsr#[50..=51], downstream_buser=lfsr#[52], downstream_bvalid=lfsr#[53])
 
   mut acc:u64 = sum
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_awready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_wready
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_bresp
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_buser
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.upstream_bvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_awaddr
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_awprot
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_awuser
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_awvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_wdata
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_wstrb
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_wuser
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_wvalid
-  wrap acc = ((acc << 1) | acc#[63]) ^ r.downstream_bready
+  wrap acc = ((acc << 1) | acc#[63]) ^ upstream_awready
+  wrap acc = ((acc << 1) | acc#[63]) ^ upstream_wready
+  wrap acc = ((acc << 1) | acc#[63]) ^ upstream_bresp
+  wrap acc = ((acc << 1) | acc#[63]) ^ upstream_buser
+  wrap acc = ((acc << 1) | acc#[63]) ^ upstream_bvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_awaddr
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_awprot
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_awuser
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_awvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_wdata
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_wstrb
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_wuser
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_wvalid
+  wrap acc = ((acc << 1) | acc#[63]) ^ downstream_bready
 
   if rst != 0 {
     lfsr = 2611923443488327891

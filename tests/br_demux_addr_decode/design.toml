@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_demux_addr_decode#<id>`.
 [[config]]
 id     = "aw16_nd4"
+sim_checksum = { cycles = 30800000, value = "5931440243908562194" }
 # NO PARAMETERS. verilog/br_demux_addr_decode.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`

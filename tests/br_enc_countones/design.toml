@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_enc_countones#<id>`.
 [[config]]
 id     = "w32"
+sim_checksum = { cycles = 32300000, value = "8278950514098429886" }
 # NO PARAMETERS. verilog/br_enc_countones.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the

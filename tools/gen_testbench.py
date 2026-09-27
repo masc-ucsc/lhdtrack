@@ -59,7 +59,9 @@ _PRP_KEYWORDS = {
 
 # Names the generated harness declares itself; a destructured DUT output that
 # collides with one of these would shadow it.
-_HARNESS_LOCALS = frozenset({"dut", "rst", "checksum", "lfsr", "sum", "nxt", "acc", "r"})
+_HARNESS_LOCALS = frozenset(
+    {"dut", "rst", "checksum", "lfsr", "lfsr_x", "sum", "nxt", "acc", "r"}
+)
 
 
 def pid(name: str) -> str:
@@ -73,19 +75,74 @@ def is_generated(path: Path) -> bool:
 
 # --------------------------------------------------------------- slicing ----
 def _slices(inputs: list[Port]) -> list[tuple[Port, int, int]]:
-    """Assign each stimulus input a disjoint window of the 64-bit LFSR.
+    """Assign each stimulus input a window of the 64-bit LFSR, as (port, lo, hi).
 
-    Disjoint so two inputs never receive correlated bits, and wrapped modulo 64
-    so a design with more than 64 bits of input still gets every port driven.
+    Consecutive windows, so inputs within the first 64 bits never receive
+    correlated bits, and wrapped modulo 64 so a design with more than 64 bits
+    of input still gets every port driven.
+
+    A window may run PAST bit 63: it then reads `lfsr_x` (see _lfsr_x_copies).
+    It used to be clipped at 63 and zero-padded, which pinned the top bits of
+    every wide or late-starting input at zero for the whole run -- half the
+    corpus simulated with part of its input space never toggling.
     """
     out, bit = [], 0
     for p in inputs:
         width = max(1, p.width)
         lo = bit % 64
-        hi = min(lo + width - 1, 63)
-        out.append((p, lo, hi))
+        out.append((p, lo, lo + width - 1))
         bit += width
     return out
+
+
+def _lfsr_x_copies(stim: list[tuple[Port, int, int]], constants: dict[str, int]) -> int:
+    """How many 64-bit words `lfsr_x` needs for the widest window; 0 if none wraps.
+
+    Word i of `lfsr_x` is `lfsr` rotated left by ROT*i, NOT a plain copy: an
+    array input (`in[8][64]`) lands one element per word, and plain copies
+    would give every element the same value -- a mux selecting between equal
+    inputs checks nothing. ROT is odd, so the first 64 rotations are distinct.
+    """
+    top = max((hi for p, _, hi in stim if p.name not in constants), default=0)
+    return 0 if top < 64 else top // 64 + 1
+
+
+ROT = 17
+
+
+def _rot(i: int) -> int:
+    return (ROT * i) % 64
+
+
+def _lfsr_x_sv(copies: int) -> str:
+    words = []
+    for i in reversed(range(copies)):
+        r = _rot(i)
+        words.append("lfsr" if r == 0 else f"{{lfsr[{63 - r}:0], lfsr[63:{64 - r}]}}")
+    return (
+        f"\n  // lfsr rotated by {ROT}*i in word i, so a stimulus window may wrap past bit 63.\n"
+        f"  logic [{64 * copies - 1}:0] lfsr_x;\n"
+        f"  assign lfsr_x = {{{', '.join(words)}}};\n"
+    )
+
+
+def _lfsr_x_prp(copies: int) -> str:
+    terms = []
+    for i in range(copies):
+        r = _rot(i)
+        word = "lfsr" if r == 0 else f"((lfsr#[0..={63 - r}] << {r}) | lfsr#[{64 - r}..=63])"
+        terms.append(word if i == 0 else f"({word} << {64 * i})")
+    body = " |\n    ".join(terms)
+    return (
+        f"\n  // lfsr rotated by {ROT}*i in word i, so a stimulus window may wrap past bit 63.\n"
+        f"  const lfsr_x:u{64 * copies} = {body}\n"
+    )
+
+
+def _chunks(width: int) -> list[tuple[int, int]]:
+    """64-bit (lo, hi) chunks of an output, so every bit reaches the checksum."""
+    width = max(1, width)
+    return [(lo, min(lo + 63, width - 1)) for lo in range(0, width, 64)]
 
 
 def _input_constants(pl: PortList, values: dict[str, int] | None) -> dict[str, int]:
@@ -168,14 +225,14 @@ def harness_sv(
         conns.append(f"    .{c.name}(clk)")
     for r in pl.resets:
         conns.append(f"    .{r.name}({'~rst' if r.active_low_reset else 'rst'})")
+    copies = _lfsr_x_copies(stim, constants)
     for p, lo, hi in stim:
         width = max(1, p.width)
         if p.name in constants:
             src = f"{width}'d{constants[p.name]}"
         else:
-            src = f"lfsr[{hi}:{lo}]" if width > 1 else f"lfsr[{lo}]"
-            if hi - lo + 1 < width:  # the window was clipped at bit 63
-                src = f"{{{width - (hi - lo + 1)}'d0, {src}}}"
+            reg = "lfsr_x" if hi > 63 else "lfsr"
+            src = f"{reg}[{hi}:{lo}]" if width > 1 else f"{reg}[{lo}]"
         conns.append(f"    .{p.name}({src})")
     for p in outs:
         conns.append(f"    .{p.name}(o_{p.name})")
@@ -190,10 +247,17 @@ def harness_sv(
 
     # Blocking chain seeded from the REGISTER, not from `acc` itself: folding
     # `acc` into `acc` in an always_comb is a combinational loop, not a fold.
-    fold = "\n".join(
-        ["      acc = sum;"]
-        + [f"      acc = {{acc[62:0], acc[63]}} ^ 64'(o_{p.name});" for p in outs]
-    )
+    # One rotate-xor step per 64-bit CHUNK of each output. A single
+    # `64'(o_x)` truncates, so every bit above 63 of a wide bus used to be
+    # invisible to the oracle.
+    steps = []
+    for p in outs:
+        chunks = _chunks(p.width)
+        for lo, hi in chunks:
+            val = f"o_{p.name}" if len(chunks) == 1 else f"o_{p.name}[{hi}:{lo}]"
+            steps.append(f"      acc = {{acc[62:0], acc[63]}} ^ 64'({val});")
+    fold = "\n".join(["      acc = sum;"] + steps)
+    lfsr_x = _lfsr_x_sv(copies) if copies else ""
 
     return f"""{_HEAD_SV}//
 // Wraps {top} with an LFSR stimulus generator and a rotate-xor checksum, so
@@ -221,7 +285,7 @@ module {top}_harness (
   always_comb begin
 {fold}
   end
-
+{lfsr_x}
   {top}{pstr} dut (
 {(',' + chr(10)).join(conns)}
   );
@@ -267,15 +331,21 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
         args.append(f"{pid(c.name)}=1")
     for r in pl.resets:
         args.append(f"{pid(r.name)}=rst")
+    copies = _lfsr_x_copies(stim, constants)
     for p, lo, hi in stim:
         if p.name in constants:
             args.append(f"{pid(p.name)}={constants[p.name]}")
         else:
-            args.append(
-                f"{pid(p.name)}=lfsr#[{lo}..={hi}]"
-                if hi > lo
-                else f"{pid(p.name)}=lfsr#[{lo}]"
-            )
+            reg = "lfsr_x" if hi > 63 else "lfsr"
+            # A signed port takes the SAME bits, reinterpreted: `#sext` reads
+            # the window as two's complement, which is what the SV side's
+            # unsigned wire into a signed port means.
+            if p.signed:
+                args.append(f"{pid(p.name)}={reg}#sext[{lo}..={hi}]")
+            elif hi > lo:
+                args.append(f"{pid(p.name)}={reg}#[{lo}..={hi}]")
+            else:
+                args.append(f"{pid(p.name)}={reg}#[{lo}]")
     # A single-output lambda auto-unwraps its result tuple; more than one must
     # be DESTRUCTURED at the call. `const r = dut(...)` on a multi-output call
     # is rejected outright ("a call returning multiple outputs cannot bind to
@@ -300,9 +370,17 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
         bind, reads = f"({', '.join(names)})", names
     call = (f"  const {bind} = dut({', '.join(args)})" if args
             else f"  const {bind} = dut()")
-    fold = "\n".join(
-        f"  wrap acc = ((acc << 1) | acc#[63]) ^ {expr}" for expr in reads
-    ) or "  wrap acc = (acc << 1) | acc#[63]"
+    steps = []
+    for p, expr in zip(outs, reads):
+        chunks = _chunks(p.width)
+        for lo, hi in chunks:
+            # A signed output is folded as its raw bits: the SV harness reads it
+            # through an unsigned `o_` wire, i.e. zero-extended.
+            whole = len(chunks) == 1 and not p.signed
+            val = expr if whole else f"{expr}#[{lo}..={hi}]"
+            steps.append(f"  wrap acc = ((acc << 1) | acc#[63]) ^ {val}")
+    fold = "\n".join(steps) or "  wrap acc = (acc << 1) | acc#[63]"
+    lfsr_x = _lfsr_x_prp(copies) if copies else ""
 
     return f"""{_HEAD_PRP}//
 // The Pyrope twin of {top}_harness.sv: same LFSR, same fold, same seed, so all
@@ -326,7 +404,7 @@ pub mod {top}_harness(rst:u1) -> (checksum:u64@[0]) {{
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
-
+{lfsr_x}
 {call}
 
   mut acc:u64 = sum

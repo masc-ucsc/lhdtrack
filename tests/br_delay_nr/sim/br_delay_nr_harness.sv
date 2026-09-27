@@ -26,7 +26,8 @@ module br_delay_nr_harness (
   always_comb begin
       acc = sum;
       acc = {acc[62:0], acc[63]} ^ 64'(o_out);
-      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages[63:0]);
+      acc = {acc[62:0], acc[63]} ^ 64'(o_out_stages[127:64]);
   end
 
   br_delay_nr dut (

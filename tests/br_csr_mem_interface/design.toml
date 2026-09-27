@@ -22,6 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_csr_mem_interface#<id>`.
 [[config]]
 id     = "caw16_cdw32_epw0_md16_mw32_rmo0_rro0"
+sim_checksum = { cycles = 27800000, value = "10385686100339967431" }
 # NO PARAMETERS. verilog/br_csr_mem_interface.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
