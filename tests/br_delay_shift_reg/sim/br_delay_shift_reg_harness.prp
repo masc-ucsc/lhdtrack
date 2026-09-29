@@ -26,7 +26,7 @@ pub mod br_delay_shift_reg_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (value, shift_out) = dut(clk=1, rst=rst, reinit=lfsr#[0], initial_value=lfsr_x#[1..=64], shift_en=lfsr#[1], shift_in=lfsr_x#[2..=65])
+  const (value, shift_out) = dut(reinit=lfsr#[0], initial_value=lfsr_x#[1..=64], shift_en=lfsr#[1], shift_in=lfsr_x#[2..=65])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ value

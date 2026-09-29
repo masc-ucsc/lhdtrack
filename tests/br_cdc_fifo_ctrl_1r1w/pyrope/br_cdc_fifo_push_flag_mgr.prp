@@ -22,15 +22,12 @@ pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
   // Publish the next count late enough that the pop side never sees an entry
   // before its RAM write lands.
   const next_gray   = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=push_count_next)
-  const count_delay = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=PUSH_COUNT_DELAY>(clk=clk, `in`=next_gray.gray)
-  push_count_gray   = count_delay.out
-  const reset_delay = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst)
-  reset_active_push = reset_delay.out == 1
+  push_count_gray   = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=PUSH_COUNT_DELAY>(clk=clk, `in`=next_gray)
+  reset_active_push = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst) == 1
 
   // While the pop side is in reset its count is meaningless: use the last one
   // seen before the reset.
-  const pop_decoded = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=pop_count_gray)
-  const pop_count = pop_decoded.bin
+  const pop_count = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=pop_count_gray)
   reg pop_count_saved:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
   if not reset_active_pop {
     pop_count_saved = pop_count

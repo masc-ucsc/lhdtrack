@@ -26,7 +26,7 @@ pub mod br_fifo_shared_dynamic_flops_push_credit_harness(rst:u1) -> (checksum:u6
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_receiver_in_reset, push_credit, push_full, credit_available_push, credit_count_push, pop_valid, pop_data, pop_empty) = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=1, push_data=lfsr_x#[3..=66], push_fifo_id=0, credit_initial_push=32, credit_withhold_push=0, pop_ready=lfsr#[17..=18])
+  const (push_receiver_in_reset, push_credit, push_full, credit_available_push, credit_count_push, pop_valid, pop_data, pop_empty) = dut(push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=1, push_data=lfsr_x#[3..=66], push_fifo_id=0, credit_initial_push=32, credit_withhold_push=0, pop_ready=lfsr#[17..=18])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset

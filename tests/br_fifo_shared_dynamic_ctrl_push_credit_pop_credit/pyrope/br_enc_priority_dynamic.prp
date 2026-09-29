@@ -1,22 +1,33 @@
-const br_enc_priority_encoder_p1 = import("br_enc_priority_encoder_p1.br_enc_priority_encoder_p1")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_enc_priority_encoder = import("br_enc_priority_encoder.br_enc_priority_encoder")
 
-pub mod br_enc_priority_dynamic::[timecheck=false](clk:u1, rst:u1, `in`:u2, lowest_prio:u2) -> (out:u4@[]) {
+// Dynamic-priority encoder: requesters above `lowest_prio` come first, then the
+// others from requester 0 up (a round-robin ring cut after `lowest_prio`).
+// Returns up to NUM_RESULTS one-hot grants in priority order, packed with the
+// highest-priority grant in the low bits.
+pub comb br_enc_priority_dynamic(`in`:u2, lowest_prio:u2) -> (out:u4) {
+  comptime const N           = `in`.[bits]
+  comptime const NUM_RESULTS = out.[bits]/N
+  comptime const RING        = 2*N - 1
+
+  // Requesters at or below the lowest-priority one.
   mut priority_mask:u2 = 0
-  priority_mask = 0sb?
-  out = 0sb?
-  mut priority_mask__w1 = priority_mask
-  priority_mask__w1#[0] = unsigned(lowest_prio != 0) & 1
-  mut priority_mask__w2 = priority_mask__w1
-  priority_mask__w2#[1] = unsigned(((lowest_prio >> 1) & 1) != 0) & 1
-  const in_high_prio__w1 = `in` & (~priority_mask__w2)#[0..=1]
-  const t17 = ((`in` & priority_mask__w2) << 1) | ((in_high_prio__w1 >> 1) & 1)
-  mut br_enc_priority_encoder_inst = br_enc_priority_encoder_p1::[name=br_enc_priority_encoder_inst](clk = clk, rst = rst, `in.e2` = (t17 >> 2) & 1, `in.e1` = (t17 >> 1) & 1, `in.e0` = t17 & 1)
-  const out_internal__w1 = br_enc_priority_encoder_inst
-  br_misc_unused::[name=br_misc_unused_in_high_prio_lsb](`in` = in_high_prio__w1 & 1)
-  mut out__w1 = out
-  out__w1#[0..=1] = out_internal__w1#[0..=2]#[1..=2] | ((out_internal__w1#[0..=2] & 1) << 1)
-  mut out__w2 = out__w1
-  out__w2#[2..=3] = out_internal__w1#[3..=5]#[1..=2] | ((out_internal__w1#[3..=5] & 1) << 1)
-  out = out__w2
+  for i in 0..<N {
+    priority_mask#[i] = lowest_prio#|[i..]
+  }
+  const in_low_prio  = `in` & priority_mask
+  const in_high_prio = `in` & ~priority_mask
+
+  // Unroll the ring: high-priority requesters 1..N-1 first, then low-priority
+  // 0..N-1. Requester 0 is never above the lowest-priority one.
+  const grants = br_enc_priority_encoder<NUM_REQUESTERS=RING,NUM_RESULTS=NUM_RESULTS>(
+    `in`=(in_low_prio << (N - 1)) | (in_high_prio >> 1)
+  )
+
+  // Fold each ring-position grant back onto its requester.
+  mut folded:u4 = 0
+  for k in 0..<NUM_RESULTS {
+    const row          = grants#[(k*RING)..+RING]
+    folded#[(k*N)..+N] = row#[(N - 1)..] | (row#[0..<(N - 1)] << 1)
+  }
+  out = folded
 }

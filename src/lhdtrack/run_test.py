@@ -135,3 +135,44 @@ class Waves(TestCase):
             rows = Probe(root, tc, Cache(root), "test", {}).execute(jobs, jobs_parallel=4)
         self.assertEqual([r.flow for r in rows], ["slow_synth", "lec_netlist"])
         self.assertLess(events.index(("end", "slow_synth")), events.index(("start", "lec_netlist")))
+
+
+class RuntimeData(TestCase):
+    def test_file_only_edit_invalidates_cache_and_restages_image(self):
+        from types import SimpleNamespace
+
+        from lhdtrack.corpus import load_test
+        from lhdtrack.run import Job
+
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_dir = root / "tests" / "dut"
+            (test_dir / "data").mkdir(parents=True)
+            (test_dir / "design.toml").write_text(
+                '[design]\nname="dut"\ntop="dut"\nkind="sequential"\nsuite="cpu"\n'
+            )
+            image = test_dir / "data" / "program.hex"
+            image.write_text("12\n")
+            flow_file = root / "probe.py"
+            flow_file.write_text("# simulated flow recipe\n")
+            seen = []
+
+            def probe(ctx):
+                seen.append((ctx.work / "data" / "program.hex").read_text())
+                return {"sim": {"checksum": seen[-1].strip(), "cycles": 1}}
+
+            test = load_test(test_dir)
+            tc = Toolchain(root, "test", "", {}, {}, {}, {})
+            runner = Runner(root, tc, Cache(root), "test",
+                            {"cache": {"baseline_flows": ["probe"]}}, keep_work=True)
+            module = SimpleNamespace(KIND="sim", NEEDS=(), run=probe)
+            job = Job(test, test.configs[0], None, "probe", module, flow_file)
+            first = runner._one(job)
+            self.assertEqual(first.status, "ok")
+            self.assertEqual(first.sim["checksum"], "12")
+            self.assertTrue(runner._one(job).cached)
+            image.write_text("56\n")
+            changed = runner._one(job)
+            self.assertFalse(changed.cached)
+            self.assertEqual(changed.sim["checksum"], "56")
+            self.assertEqual(seen, ["12\n", "56\n"])

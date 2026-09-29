@@ -1,7 +1,5 @@
 // Gray to binary: each binary bit is the XOR of the gray bits at and above it.
-// A mod, not a comb: a generic comb sizes its outputs from the generic default
-// (LiveHD bug).
-pub mod br_enc_gray2bin<WIDTH=2>(gray:unsigned(bits=WIDTH)) -> (bin:unsigned(bits=WIDTH)@[0]) {
+pub comb br_enc_gray2bin<WIDTH=2>(gray:unsigned(bits=WIDTH)) -> (bin:unsigned(bits=WIDTH)) {
   mut b:unsigned(bits=WIDTH) = 0
   for i in 0..<WIDTH {
     b#[i] = gray#^[i..]

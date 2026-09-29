@@ -22,7 +22,7 @@ pub mod br_tracker_linked_list_ctrl_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (head_valid, head, empty, items, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(clk=1, rst=rst, next_tail_valid=0, next_tail=lfsr#[4..=31], head_ready=lfsr#[32], ptr_ram_rd_data_valid=0, ptr_ram_rd_data=lfsr#[34..=40])
+  const (head_valid, head, empty, items, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(next_tail_valid=0, next_tail=lfsr#[4..=31], head_ready=lfsr#[32], ptr_ram_rd_data_valid=0, ptr_ram_rd_data=lfsr#[34..=40])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ head_valid

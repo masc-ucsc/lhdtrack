@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: MIT
+// lhdtrack driver for the fixed-program Veryl CPU.
+//
+// The C++ twin of cpu_tb.prp: same cycle count, same reset schedule, same
+// printed line. Both must fold the same checksum or the test fails -- that is
+// what stops a miscompile from being reported as a speedup.
+//
+// No --trace anywhere: a VCD writer inside the measured interval turns a
+// simulation benchmark into a filesystem benchmark.
+#include "Vcpu_harness.h"
+#include "verilated.h"
+
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+
+int main(int argc, char **argv) {
+  Verilated::commandArgs(argc, argv);
+
+  uint64_t cycles = 1000000;
+  for (int i = 1; i < argc; ++i) {
+    if (!std::strncmp(argv[i], "+cycles=", 8)) {
+      cycles = std::strtoull(argv[i] + 8, nullptr, 10);
+      break;
+    } else if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {
+      cycles = std::strtoull(argv[++i], nullptr, 10);
+      break;
+    }
+  }
+
+  auto *top = new Vcpu_harness;
+
+  for (uint64_t c = 0; c < cycles; ++c) {
+    top->rst = (c < 4) ? 1 : 0;
+    top->clk = 0;
+    top->eval();
+    top->clk = 1;
+    top->eval();
+  }
+  top->final();
+
+  std::printf("LHDTRACK-DONE cycles=%llu checksum=%llu\n",
+              (unsigned long long)cycles,
+              (unsigned long long)top->checksum);
+
+  delete top;
+  return 0;
+}

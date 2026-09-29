@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_cdc_fifo_ctrl_push_1r1w_push_credit.br_cdc_fifo_ctrl_push_1r1w_push_credit.
 const dut = import("br_cdc_fifo_ctrl_push_1r1w_push_credit.br_cdc_fifo_ctrl_push_1r1w_push_credit")
 
-pub mod br_cdc_fifo_ctrl_push_1r1w_push_credit_harness(rst:u1) -> (checksum:u64@[0]) {
+pub mod br_cdc_fifo_ctrl_push_1r1w_push_credit_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
   reg lfsr:u64 = 2611923443488327891
   reg sum:u64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_cdc_fifo_ctrl_push_1r1w_push_credit_harness(rst:u1) -> (checksum:u64@
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_receiver_in_reset, push_credit, push_full, push_slots, credit_count_push, credit_available_push, push_ram_wr_valid, push_ram_wr_addr, push_ram_wr_data, push_push_count_gray, push_reset_active_push) = dut(push_clk=1, pop_clk=1, push_rst=rst, push_sender_in_reset=rst, pop_rst=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr_x#[2..=65], credit_initial_push=lfsr#[2..=7], credit_withhold_push=lfsr#[8..=13], pop_reset_active_pop=lfsr#[14], pop_pop_count_gray=lfsr#[15..=20])
+  const (push_receiver_in_reset, push_credit, push_full, push_slots, credit_count_push, credit_available_push, push_ram_wr_valid, push_ram_wr_addr, push_ram_wr_data, push_push_count_gray, push_reset_active_push) = dut(push_clk=clk, pop_clk=clk, push_rst=rst, push_sender_in_reset=rst, pop_rst=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr_x#[2..=65], credit_initial_push=lfsr#[2..=7], credit_withhold_push=lfsr#[8..=13], pop_reset_active_pop=lfsr#[14], pop_pop_count_gray=lfsr#[15..=20])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset

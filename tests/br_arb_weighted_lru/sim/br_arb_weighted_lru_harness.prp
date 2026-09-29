@@ -26,7 +26,7 @@ pub mod br_arb_weighted_lru_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const r = dut(clk=1, rst=rst, enable_priority_update=lfsr#[0], request=lfsr#[1..=16], request_weight=lfsr_x#[17..=64])
+  const r = dut(enable_priority_update=lfsr#[0], request=lfsr#[1..=16], request_weight=lfsr_x#[17..=64])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r

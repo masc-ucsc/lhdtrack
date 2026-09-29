@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: MIT
+// The original ALU, expressed as word operations instead of hand-built shifters.
+pub comb alu(a:u32, b:u32, op:u4) -> (value:u32) {
+  comptime const ADD = 0
+  comptime const SUB = 8
+  comptime const SLL = 1
+  comptime const SLT = 2
+  comptime const SLTU = 3
+  comptime const XOR = 4
+  comptime const SRL = 5
+  comptime const SRA = 13
+  comptime const OR = 6
+  comptime const AND = 7
+  const shamt = b#[0..=4]
+  match op {
+    == ADD {
+      wrap value = a + b
+    }
+    == SUB {
+      wrap value = a - b
+    }
+    == SLL {
+      wrap value = a << shamt
+    }
+    == SLT {
+      value = u1(a#sext[0..=31] < b#sext[0..=31])
+    }
+    == SLTU {
+      value = u1(a < b)
+    }
+    == XOR {
+      value = a ^ b
+    }
+    == SRL {
+      value = a >> shamt
+    }
+    == SRA {
+      wrap value = a#sext[0..=31] >> shamt
+    }
+    == OR {
+      value = a | b
+    }
+    == AND {
+      value = a & b
+    }
+    else {
+      wrap value = a + b
+    }
+  }
+}

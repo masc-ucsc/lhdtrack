@@ -1,8 +1,6 @@
 // Gray to binary: each binary bit is the XOR of the gray bits at and above it.
 pub comb br_enc_gray2bin(gray:u32) -> (bin:u32) {
-  mut b:u32 = 0
   for i in 0..<gray.[bits] {
-    b#[i] = gray#^[i..]
+    bin#[i] = gray#^[i..]
   }
-  bin = b
 }

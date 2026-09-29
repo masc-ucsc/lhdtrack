@@ -11,12 +11,10 @@ pub mod br_flow_join_select_multihot<NUM_FLOWS=1, ALLOW_EMPTY_SELECT=true>(
   // An unselected flow never holds the join back.
   const valid_or_unselected = (push_valid | ~select_multihot) & ALL_FLOWS
 
-  mut ready:unsigned(bits=NUM_FLOWS) = 0
   for i in 0..<NUM_FLOWS {
     const others_valid = (valid_or_unselected | (1 << i)) == ALL_FLOWS
-    ready#[i]          = u1(pop_ready and select_multihot#[i] == 1 and others_valid)
+    push_ready#[i]     = u1(pop_ready and select_multihot#[i] == 1 and others_valid)
   }
-  push_ready = ready
 
   const all_valid    = valid_or_unselected == ALL_FLOWS
   pop_valid_unstable = if ALLOW_EMPTY_SELECT { push_valid != 0 and all_valid } else { all_valid }

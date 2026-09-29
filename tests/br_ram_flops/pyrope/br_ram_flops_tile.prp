@@ -1,38 +1,35 @@
-comptime const WORD_WIDTH = 8
-
-// Replace the words of `old` whose word_en bit is set with the words of `new`.
-comb merge_words(old:u32, new:u32, word_en:u4) -> (merged:u32) {
-  mut m:u32 = old
-  for w in 0..<word_en.[bits] {
-    if word_en#[w] == 1 {
-      m#[(w*WORD_WIDTH)..+WORD_WIDTH] = new#[(w*WORD_WIDTH)..+WORD_WIDTH]
-    }
-  }
-  merged = m
-}
-
-// One 16x32 tile of a flop RAM: one write port with byte enables, one read
-// port, and same-cycle write-to-read bypass. The storage has no reset and is
-// clocked by wr_clk; the read side is combinational.
-pub mod br_ram_flops_tile::[timecheck = false](
+// One 16x32 tile of a flop RAM: one write port with 8-bit word enables, one
+// read port, and same-cycle write-to-read bypass. The storage has no reset and
+// is clocked by wr_clk; the read side is combinational.
+pub mod br_ram_flops_tile(
   wr_clk:u1,
-  wr_rst:u1,
-  wr_valid:u1,
+  wr_valid:bool,
   wr_addr:u4,
   wr_data:u32,
   wr_word_en:u4,
-  rd_clk:u1,
-  rd_rst:u1,
-  rd_addr_valid:u1,
+  rd_addr_valid:bool,
   rd_addr:u4
-) -> (rd_data_valid:u1@[], rd_data:u32@[]) {
-  reg mem:[16]u32:[ordering = "old", clock_pin = ref wr_clk] = nil
-  if wr_valid == 1 {
-    mem[wr_addr] = merge_words(old=mem[wr_addr], new=wr_data, word_en=wr_word_en)
-  }
+) -> (rd_data_valid:bool@[0], rd_data:u32@[0]) {
+  comptime const WORD_WIDTH = wr_data.[bits] / wr_word_en.[bits]
 
+  reg mem:[16]u32:[ordering = "old", clock_pin = ref wr_clk] = nil
+
+  // Replace the enabled words of the addressed entry (whole-word write:
+  // per-lane writes to an ordering="old" memory drop lanes, see suggestions2.md).
+  mut written:u32 = mem[wr_addr]
   // Words written this cycle to the address being read bypass the storage.
-  const bypass_en = if wr_valid == 1 and wr_addr == rd_addr { wr_word_en } else { 0 }
-  rd_data_valid   = rd_addr_valid
-  rd_data         = merge_words(old=mem[rd_addr], new=wr_data, word_en=bypass_en)
+  mut data:u32 = mem[rd_addr]
+  for w in 0..<wr_word_en.[bits] {
+    if wr_word_en#[w] == 1 {
+      written#[(w*WORD_WIDTH)..+WORD_WIDTH] = wr_data#[(w*WORD_WIDTH)..+WORD_WIDTH]
+      if wr_valid and wr_addr == rd_addr {
+        data#[(w*WORD_WIDTH)..+WORD_WIDTH] = wr_data#[(w*WORD_WIDTH)..+WORD_WIDTH]
+      }
+    }
+  }
+  if wr_valid {
+    mem[wr_addr] = written
+  }
+  rd_data_valid = rd_addr_valid
+  rd_data       = data
 }

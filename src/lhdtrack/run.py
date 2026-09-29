@@ -304,6 +304,12 @@ class Runner:
         )
 
         try:
+            # Runtime inputs (for example readmemh firmware) are shared by all
+            # frontends. Keep the test-local data/ layout inside each job cwd.
+            # Test.source_files includes these bytes in every flow cache key.
+            data = job.test.root / "data"
+            if data.is_dir():
+                shutil.copytree(data, work / "data")
             result = job.module.run(ctx)
         except FlowSkip as e:
             row.status, row.note = "skipped", str(e)

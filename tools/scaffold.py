@@ -174,7 +174,14 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         _set_status(test.root / "design.toml", "pyrope", "auto")
         made.append('status.pyrope = "auto" (seed was already present)')
 
-    # 2. Harness pair + driver pair.
+    # 2. Harness pair + driver pair. The Verilog port list cannot tell a `bool`
+    # from a `u1`, so the Pyrope DUT's own signature says which ports need a
+    # boolean(...)/u1(...) cast in the Pyrope harness.
+    bool_ports = (
+        gtb.pyrope_bool_ports(test.pyrope_top.read_text(), test.top)
+        if test.pyrope_top.exists()
+        else set()
+    )
     for rel, text in (
         (
             f"{test.top}_harness.sv",
@@ -182,7 +189,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         ),
         (
             f"{test.top}_harness.prp",
-            gtb.harness_prp(pl, input_constants),
+            gtb.harness_prp(pl, input_constants, bool_ports=bool_ports),
         ),
         (f"{test.top}_tb.prp", gtb.tb_prp(pl, test.sim_cycles or 1_000_000)),
         (f"{test.top}_tb_verilator.cpp", gtb.tb_verilator(pl, test.sim_cycles or 1_000_000)),

@@ -249,6 +249,14 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
 
         raise FlowError(f"elab_impl exited {impl.rc}\n{impl.tail()}")
 
+    # Idiomatic Pyrope may group the reference's scalar state into named tuples.
+    # These are correspondence hints, not assumptions: lhd proves the paired
+    # next-state functions. Keep the pairs in the manifest so they key the run.
+    match = ctx.test.raw.get("lec", {}).get("match", "")
+    if not isinstance(match, str):
+        raise FlowError("[lec].match must be a string of ref=impl state pairs")
+    match_args = ["--set", f"formal.lec.match={match}"] if match.strip() else []
+
     result_json = ctx.work / f"lec_{solver}.json"
     # TWO BUDGETS, because one of them is not enforced. `formal.timeout` is the
     # SOLVER's, and the lgyosys backend does not honour it: it emits both sides
@@ -265,6 +273,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
             "--top", f"{ctx.top}.{ctx.top}", "--workdir", "LW",
             *([] if solver == "cvc5" else ["--set", f"formal.solver={solver}"]),
             "--set", f"formal.timeout={timeout_s}",
+            *match_args,
             "--result-json", str(result_json),
         ],
         check=False,

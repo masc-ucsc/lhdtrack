@@ -6,6 +6,5 @@ pub mod br_delay_nr<WIDTH=1, NUM_STAGES=1>(clk:u1, `in`:unsigned(bits=WIDTH)) ->
 
   reg stages:unsigned(bits=WIDTH * NUM_STAGES) = nil
   wrap stages = (stages << WIDTH) | `in`
-  // Shift, not a bit slice: a one-bit slice at bit 0 does not lower (LiveHD bug).
-  out = stages >> (WIDTH*(NUM_STAGES - 1))
+  out    = stages#[(WIDTH*(NUM_STAGES - 1))..+WIDTH]
 }

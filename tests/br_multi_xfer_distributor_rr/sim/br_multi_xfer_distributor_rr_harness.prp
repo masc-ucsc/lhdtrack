@@ -29,7 +29,7 @@ pub mod br_multi_xfer_distributor_rr_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
     (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
 
-  const (push_receivable, pop_valid, pop_data) = dut(clk=1, rst=rst, push_sendable=0, push_data=lfsr_x#[3..=258], pop_ready=lfsr#[3..=18])
+  const (push_receivable, pop_valid, pop_data) = dut(push_sendable=0, push_data=lfsr_x#[3..=258], pop_ready=lfsr#[3..=18])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receivable

@@ -27,7 +27,7 @@ pub mod br_apb_demux_select_onehot_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128)
 
-  const (upstream_prdata, upstream_pready, upstream_pslverr, downstream_paddr, downstream_psel, downstream_penable, downstream_pprot, downstream_pstrb, downstream_pwrite, downstream_pwdata) = dut(clk=1, rst=rst, select_onehot=lfsr#[0..=3], upstream_paddr=lfsr#[4..=15], upstream_psel=lfsr#[16], upstream_penable=lfsr#[17], upstream_pprot=lfsr#[18..=20], upstream_pstrb=lfsr#[21..=24], upstream_pwrite=lfsr#[25], upstream_pwdata=lfsr#[26..=57], downstream_prdata=lfsr_x#[58..=185], downstream_pready=lfsr#[58..=61], downstream_pslverr=lfsr_x#[62..=65])
+  const (upstream_prdata, upstream_pready, upstream_pslverr, downstream_paddr, downstream_psel, downstream_penable, downstream_pprot, downstream_pstrb, downstream_pwrite, downstream_pwdata) = dut(select_onehot=lfsr#[0..=3], upstream_paddr=lfsr#[4..=15], upstream_psel=lfsr#[16], upstream_penable=lfsr#[17], upstream_pprot=lfsr#[18..=20], upstream_pstrb=lfsr#[21..=24], upstream_pwrite=lfsr#[25], upstream_pwdata=lfsr#[26..=57], downstream_prdata=lfsr_x#[58..=185], downstream_pready=lfsr#[58..=61], downstream_pslverr=lfsr_x#[62..=65])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_prdata

@@ -26,7 +26,7 @@ pub mod br_fifo_ctrl_1r1w_push_credit_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, empty, empty_next, items, items_next, credit_count_push, credit_available_push, ram_wr_valid, ram_wr_addr, ram_wr_data, ram_rd_addr_valid, ram_rd_addr) = dut(clk=1, rst=rst, push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46], ram_rd_data_valid=lfsr#[47], ram_rd_data=lfsr_x#[48..=79])
+  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, empty, empty_next, items, items_next, credit_count_push, credit_available_push, ram_wr_valid, ram_wr_addr, ram_wr_data, ram_rd_addr_valid, ram_rd_addr) = dut(push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46], ram_rd_data_valid=lfsr#[47], ram_rd_data=lfsr_x#[48..=79])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset

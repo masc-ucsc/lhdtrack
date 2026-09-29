@@ -1,3 +1,2 @@
-pub comb br_enc_bin2gray::[timecheck=false](bin:u6) -> (gray:u6) {
-  gray = bin#[1..=5] ^ bin
-}
+// Binary to Gray code: adjacent values differ in exactly one bit.
+pub comb br_enc_bin2gray<WIDTH=2>(bin:unsigned(bits=WIDTH)) -> (gray:unsigned(bits=WIDTH)) { gray = bin ^ (bin >> 1) }

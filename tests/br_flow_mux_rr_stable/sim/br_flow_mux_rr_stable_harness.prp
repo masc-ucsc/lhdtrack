@@ -29,7 +29,7 @@ pub mod br_flow_mux_rr_stable_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
     (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
 
-  const (push_ready, pop_valid, pop_data) = dut(clk=1, rst=rst, push_valid=lfsr#[0..=7], push_data=lfsr_x#[8..=263], pop_ready=lfsr#[8])
+  const (push_ready, pop_valid, pop_data) = dut(push_valid=lfsr#[0..=7], push_data=lfsr_x#[8..=263], pop_ready=lfsr#[8])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

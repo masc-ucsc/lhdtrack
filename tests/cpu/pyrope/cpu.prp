@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: MIT
+// Fixed-program Veryl CPU benchmark. Keep the upstream external interface.
+const core_impl = import("riscv_core.riscv_core")
+pub mod cpu(i_clk:u1, i_rst:u1) -> (o_out:u32@[]) {
+  // The benchmark driver observes settled outputs without static cycle alignment.
+  const u_core = core_impl(i_clk, i_rst)
+  o_out = u_core.o_out
+}

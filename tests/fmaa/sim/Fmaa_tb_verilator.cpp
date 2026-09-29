@@ -19,8 +19,12 @@ int main(int argc, char **argv) {
 
   uint64_t cycles = 45700000;
   for (int i = 1; i < argc; ++i) {
-    if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {
+    if (!std::strncmp(argv[i], "+cycles=", 8)) {
+      cycles = std::strtoull(argv[i] + 8, nullptr, 10);
+      break;
+    } else if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {
       cycles = std::strtoull(argv[++i], nullptr, 10);
+      break;
     }
   }
 

@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_cdc_fifo_ctrl_push_1r1w.br_cdc_fifo_ctrl_push_1r1w.
 const dut = import("br_cdc_fifo_ctrl_push_1r1w.br_cdc_fifo_ctrl_push_1r1w")
 
-pub mod br_cdc_fifo_ctrl_push_1r1w_harness(rst:u1) -> (checksum:u64@[0]) {
+pub mod br_cdc_fifo_ctrl_push_1r1w_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
   reg lfsr:u64 = 2611923443488327891
   reg sum:u64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_cdc_fifo_ctrl_push_1r1w_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_ready, push_full, push_slots, push_ram_wr_valid, push_ram_wr_addr, push_ram_wr_data, push_push_count_gray, push_reset_active_push) = dut(push_clk=1, pop_clk=1, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_reset_active_pop=lfsr#[1], pop_pop_count_gray=lfsr#[2..=7])
+  const (push_ready, push_full, push_slots, push_ram_wr_valid, push_ram_wr_addr, push_ram_wr_data, push_push_count_gray, push_reset_active_push) = dut(push_clk=clk, pop_clk=clk, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_reset_active_pop=lfsr#[1], pop_pop_count_gray=lfsr#[2..=7])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

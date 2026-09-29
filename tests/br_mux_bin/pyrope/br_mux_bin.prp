@@ -3,12 +3,11 @@ pub comb br_mux_bin(select:u4, `in`:u512) -> (out:u32, out_valid:u1) {
   comptime const SYMBOL_WIDTH = out.[bits]
   comptime const NUM_SYMBOLS  = `in`.[bits]/SYMBOL_WIDTH
 
-  mut symbol:u32 = 0
+  out = 0
   for i in 0..<NUM_SYMBOLS {
     if select == i {
-      symbol = `in`#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH]
+      out = `in`#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH]
     }
   }
-  out       = symbol
   out_valid = u1(select < NUM_SYMBOLS)
 }

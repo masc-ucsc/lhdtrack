@@ -48,19 +48,16 @@ pub mod br_ram_flops(
     for col in 0..<WIDTH_TILES {
       const tile = br_ram_flops_tile(
         wr_clk=wr_clk,
-        wr_rst=wr_rst,
-        wr_valid=u1(wr.out_valid),
+        wr_valid=wr.out_valid,
         wr_addr=wr.out.addr,
         wr_data=wr.out.data#[(col * TILE_WIDTH)..+TILE_WIDTH],
         wr_word_en=wr.out.word_en#[(col * TILE_WORDS)..+TILE_WORDS],
-        rd_clk=rd_clk,
-        rd_rst=rd_rst,
-        rd_addr_valid=u1(rd.out_valid),
+        rd_addr_valid=rd.out_valid,
         rd_addr=rd.out
       )
       // Width stage: register each tile's read data.
       const tile_q = br_delay_valid<T=u32>(
-        clk=rd_clk, rst=rd_rst, in_valid=tile.rd_data_valid == 1, data_in=tile.rd_data
+        clk=rd_clk, rst=rd_rst, in_valid=tile.rd_data_valid, data_in=tile.rd_data
       )
       row_data#[(col * TILE_WIDTH)..+TILE_WIDTH] = tile_q.out
       // Every tile in a row is valid together; the middle one speaks for the row.

@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_cdc_fifo_ctrl_pop_1r1w.br_cdc_fifo_ctrl_pop_1r1w.
 const dut = import("br_cdc_fifo_ctrl_pop_1r1w.br_cdc_fifo_ctrl_pop_1r1w")
 
-pub mod br_cdc_fifo_ctrl_pop_1r1w_harness(rst:u1) -> (checksum:u64@[0]) {
+pub mod br_cdc_fifo_ctrl_pop_1r1w_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
   reg lfsr:u64 = 2611923443488327891
   reg sum:u64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_cdc_fifo_ctrl_pop_1r1w_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (pop_reset_active_pop, pop_pop_count_gray, pop_valid, pop_data, pop_empty, pop_items, pop_ram_rd_addr_valid, pop_ram_rd_addr) = dut(push_clk=1, pop_clk=1, push_rst=rst, pop_rst=rst, push_push_count_gray=lfsr#[0..=5], push_reset_active_push=lfsr#[6], pop_ready=lfsr#[7], pop_ram_rd_data_valid=lfsr#[8], pop_ram_rd_data=lfsr_x#[9..=72])
+  const (pop_reset_active_pop, pop_pop_count_gray, pop_valid, pop_data, pop_empty, pop_items, pop_ram_rd_addr_valid, pop_ram_rd_addr) = dut(push_clk=clk, pop_clk=clk, push_rst=rst, pop_rst=rst, push_push_count_gray=lfsr#[0..=5], push_reset_active_push=lfsr#[6], pop_ready=lfsr#[7], pop_ram_rd_data_valid=lfsr#[8], pop_ram_rd_data=lfsr_x#[9..=72])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_reset_active_pop

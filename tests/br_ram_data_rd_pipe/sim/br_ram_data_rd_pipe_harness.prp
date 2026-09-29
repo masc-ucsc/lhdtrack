@@ -27,7 +27,7 @@ pub mod br_ram_data_rd_pipe_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128)
 
-  const (valid, data) = dut(clk=1, rst=rst, tile_valid=lfsr#[0..=7], tile_data=lfsr_x#[8..=135])
+  const (valid, data) = dut(tile_valid=lfsr#[0..=7], tile_data=lfsr_x#[8..=135])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ valid

@@ -89,7 +89,7 @@ def run(ctx: FlowContext) -> dict:
     binary = vobj / f"V{sim_top}"
     if not binary.exists():
         raise FlowError(f"verilator built no binary at {binary}")
-    best, samples = ctx.run_best("exec", [binary, "--cycles", cycles])
+    best, samples = ctx.run_best("exec", [binary, f"+cycles={cycles}"])
 
     from lib.simgate import parse_result
 

@@ -5,15 +5,6 @@ const br_flow_mux_core   = import("br_flow_mux_core.br_flow_mux_core")
 // flow. Push flow i goes to pop flow push_dest_id[i]. All vectors are packed
 // with flow 0 in the low bits. clk only fed the upstream assertions.
 
-// A packed vector of `count` fields of `width` bits, each holding `value`.
-comb splat(value, width, count) -> (packed) {
-  mut p = 0
-  for k in 0..<count {
-    p |= value << (k*width)
-  }
-  packed = p
-}
-
 pub mod br_flow_xbar_rr(clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest_id:u8, pop_ready:u4) -> (
   push_ready:u4@[0],
   pop_valid:u4@[0],
@@ -37,45 +28,25 @@ pub mod br_flow_xbar_rr(clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest
     }
   }
 
-  // Round-robin state of each pop flow: its last granted lane, packed like the
-  // lanes. After reset the top lane counts as last granted, so lane 0 leads.
-  comptime const LAST_GRANT_RESET = splat(value=1 << (NUM_PUSH - 1), width=NUM_PUSH, count=NUM_POP)
-  reg last_grant:unsigned(bits=NUM_POP * NUM_PUSH):[reset_pin = ref rst] = LAST_GRANT_RESET
-  mut next_last_grant = last_grant
-
-  // Pop side: each pop flow arbitrates among its valid lanes. The priority
-  // advances when the pop side is ready and some lane requests. Every lane
-  // carries its push flow's data unchanged, so the mux selects straight from
-  // push_data.
+  // Pop side: each pop flow arbitrates round-robin among its valid lanes; its
+  // priority advances when the pop side is ready and some lane requests. Every
+  // lane carries its push flow's data unchanged, so the mux selects straight
+  // from push_data.
   mut lane_ready:unsigned(bits=NUM_POP * NUM_PUSH) = 0
-  mut valid:u4 = 0
-  mut data:u128 = 0
   for j in 0..<NUM_POP {
     const lanes:unsigned(bits=NUM_PUSH) = lane_valid#[(j*NUM_PUSH)..+NUM_PUSH]
-    const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_PUSH>(
-      last_grant=last_grant#[(j*NUM_PUSH)..+NUM_PUSH], request=lanes
-    )
-    if pop_ready#[j] == 1 and lanes != 0 {
-      next_last_grant#[(j*NUM_PUSH)..+NUM_PUSH] = arb.grant
-    }
+    const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_PUSH>(rst=rst, enable_priority_update=pop_ready#[j] == 1, request=lanes)
     const mux = br_flow_mux_core<NUM_FLOWS=NUM_PUSH,WIDTH=WIDTH>(
       can_grant=arb.can_grant, grant=arb.grant, push_valid=lanes, push_data=push_data, pop_ready=pop_ready#[j] == 1
     )
     lane_ready#[(j*NUM_PUSH)..+NUM_PUSH] = mux.push_ready
-    valid#[j] = u1(mux.pop_valid_unstable)
-    data#[(j*WIDTH)..+WIDTH]             = mux.pop_data_unstable
+    pop_valid#[j] = u1(mux.pop_valid_unstable)
+    pop_data#[(j*WIDTH)..+WIDTH]         = mux.pop_data_unstable
   }
-
-  last_grant = next_last_grant
 
   // A push flow is ready when the lane to its destination is.
-  mut ready:u4 = 0
   for i in 0..<NUM_PUSH {
-    const dest = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
-    ready#[i]  = lane_ready#[dest*NUM_PUSH + i]
+    const dest     = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
+    push_ready#[i] = lane_ready#[dest*NUM_PUSH + i]
   }
-
-  push_ready = ready
-  pop_valid  = valid
-  pop_data   = data
 }

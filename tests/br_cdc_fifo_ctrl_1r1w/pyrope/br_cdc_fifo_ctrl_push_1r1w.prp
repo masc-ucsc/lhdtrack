@@ -4,10 +4,7 @@ const br_cdc_fifo_push_ctrl       = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_pu
 
 // Push half of a CDC FIFO controller (external 1R1W RAM): synchronizes the
 // pop side's count and reset status into push_clk and runs the push control.
-// timecheck=false: works around a false combinational-loop report (LiveHD bug).
-pub mod br_cdc_fifo_ctrl_push_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, NUM_SYNC_STAGES=3, PUSH_COUNT_DELAY=2>::[
-  timecheck = false
-](
+pub mod br_cdc_fifo_ctrl_push_1r1w<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, NUM_SYNC_STAGES=3, PUSH_COUNT_DELAY=2>(
   push_clk:u1,
   push_rst:u1,
   push_valid:bool,
@@ -19,7 +16,7 @@ pub mod br_cdc_fifo_ctrl_push_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2
   push_full:bool@[],
   push_slots:unsigned(bits=COUNT_WIDTH)@[],
   push_ram_wr_valid:bool@[],
-  push_ram_wr_addr:unsigned(bits=ADDR_WIDTH)@[],
+  push_ram_wr_addr:unsigned(max=DEPTH - 1)@[],
   push_ram_wr_data:unsigned(bits=WIDTH)@[],
   push_push_count_gray:unsigned(bits=COUNT_WIDTH)@[],
   push_reset_active_push:bool@[]
@@ -29,7 +26,7 @@ pub mod br_cdc_fifo_ctrl_push_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2
   )
   const reset_active_pop_sync = br_cdc_bit_toggle<NUM_STAGES=NUM_SYNC_STAGES>(dst_clk=push_clk, src_bit=pop_reset_active_pop)
 
-  const ctrl = br_cdc_fifo_push_ctrl<DEPTH=DEPTH,WIDTH=WIDTH,ADDR_WIDTH=ADDR_WIDTH,COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(
+  const ctrl = br_cdc_fifo_push_ctrl<DEPTH=DEPTH,WIDTH=WIDTH,COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(
     clk=push_clk, rst=push_rst, push_valid=push_valid, push_data=push_data, pop_count_gray=pop_count_sync.dst_count_gray, reset_active_pop=reset_active_pop_sync.dst_bit
   )
   push_ready             = ctrl.push_ready

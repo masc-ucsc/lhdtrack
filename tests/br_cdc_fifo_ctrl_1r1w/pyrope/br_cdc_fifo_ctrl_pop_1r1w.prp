@@ -6,10 +6,7 @@ const br_cdc_fifo_pop_ctrl        = import("br_cdc_fifo_pop_ctrl.br_cdc_fifo_pop
 // push side's count and reset status into pop_clk and runs the pop control.
 // The RAM read data needs no synchronizer: the Gray count only exposes an
 // entry once its write has settled.
-// timecheck=false: works around a false combinational-loop report (LiveHD bug).
-pub mod br_cdc_fifo_ctrl_pop_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, NUM_SYNC_STAGES=3, POP_COUNT_DELAY=2>::[
-  timecheck = false
-](
+pub mod br_cdc_fifo_ctrl_pop_1r1w<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, NUM_SYNC_STAGES=3, POP_COUNT_DELAY=2>(
   push_push_count_gray:unsigned(bits=COUNT_WIDTH),
   push_reset_active_push:bool,
   pop_clk:u1,
@@ -25,14 +22,14 @@ pub mod br_cdc_fifo_ctrl_pop_1r1w<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2,
   pop_empty:bool@[],
   pop_items:unsigned(bits=COUNT_WIDTH)@[],
   pop_ram_rd_addr_valid:bool@[],
-  pop_ram_rd_addr:unsigned(bits=ADDR_WIDTH)@[]
+  pop_ram_rd_addr:unsigned(max=DEPTH - 1)@[]
 ) {
   const push_count_sync = br_cdc_fifo_gray_count_sync<COUNT_WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_SYNC_STAGES>(
     dst_clk=pop_clk, src_count_gray=push_push_count_gray
   )
   const reset_active_push_sync = br_cdc_bit_toggle<NUM_STAGES=NUM_SYNC_STAGES>(dst_clk=pop_clk, src_bit=push_reset_active_push)
 
-  const ctrl = br_cdc_fifo_pop_ctrl<DEPTH=DEPTH,WIDTH=WIDTH,ADDR_WIDTH=ADDR_WIDTH,COUNT_WIDTH=COUNT_WIDTH,POP_COUNT_DELAY=POP_COUNT_DELAY>(
+  const ctrl = br_cdc_fifo_pop_ctrl<DEPTH=DEPTH,WIDTH=WIDTH,COUNT_WIDTH=COUNT_WIDTH,POP_COUNT_DELAY=POP_COUNT_DELAY>(
     clk=pop_clk, rst=pop_rst, pop_ready=pop_ready, ram_rd_data_valid=pop_ram_rd_data_valid, ram_rd_data=pop_ram_rd_data, push_count_gray=push_count_sync.dst_count_gray,
     reset_active_push=reset_active_push_sync.dst_bit
   )

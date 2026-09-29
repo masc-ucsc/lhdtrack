@@ -26,7 +26,7 @@ pub mod br_multi_xfer_reg_fwd_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_receivable, pop_sendable, pop_data) = dut(clk=1, rst=rst, push_sendable=lfsr#[0..=1], push_data=lfsr_x#[2..=65], pop_receivable=lfsr#[2..=3])
+  const (push_receivable, pop_sendable, pop_data) = dut(push_sendable=lfsr#[0..=1], push_data=lfsr_x#[2..=65], pop_receivable=lfsr#[2..=3])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receivable

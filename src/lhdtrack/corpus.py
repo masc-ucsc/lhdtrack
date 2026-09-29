@@ -154,7 +154,7 @@ class Test:
     def source_files(self) -> list[Path]:
         """Every file whose CONTENT belongs in this test's cache key."""
         out: list[Path] = []
-        for sub in ("verilog", "pyrope", "sim", "constraints"):
+        for sub in ("verilog", "pyrope", "sim", "constraints", "data"):
             d = self.root / sub
             if d.is_dir():
                 out.extend(sorted(p for p in d.rglob("*") if p.is_file()))

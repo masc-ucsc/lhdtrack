@@ -1,14 +1,34 @@
-const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
-const br_flow_mux_core_stable_t = import("br_flow_mux_core_stable.br_flow_mux_core_stable")
+const br_arb_rr_internal = import("br_arb_rr_internal.br_arb_rr_internal")
+const br_flow_reg_fwd    = import("br_flow_reg_fwd.br_flow_reg_fwd")
 
-pub mod br_flow_mux_rr_stable::[timecheck=false](clk:u1, rst:u1, push_valid:u8, push_data:u256, pop_ready:u1) -> (push_ready:u8@[], pop_valid:u1@[], pop_data:u32@[]) {
-  wire request:u8
-  wire enable_priority_update:u1
-  mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request)
-  mut br_flow_mux_core_stable = br_flow_mux_core_stable_t::[name=br_flow_mux_core_stable](clk = clk, rst = rst, can_grant = (br_arb_rr_internal.can_grant.e7 << 7) | (br_arb_rr_internal.can_grant.e6 << 6) | (br_arb_rr_internal.can_grant.e5 << 5) | (br_arb_rr_internal.can_grant.e4 << 4) | (br_arb_rr_internal.can_grant.e3 << 3) | (br_arb_rr_internal.can_grant.e2 << 2) | (br_arb_rr_internal.can_grant.e1 << 1) | br_arb_rr_internal.can_grant.e0, grant = br_arb_rr_internal.grant, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready)
-  request = br_flow_mux_core_stable.request
-  enable_priority_update = br_flow_mux_core_stable.enable_priority_update
-  push_ready = br_flow_mux_core_stable.push_ready
-  pop_valid = br_flow_mux_core_stable.pop_valid
-  pop_data = br_flow_mux_core_stable.pop_data
+// 8-flow round-robin valid/ready mux with a registered (stable) pop side.
+// push_data packs flow i in bits [32*i, 32*i+32). The flow granted by the
+// arbiter is forwarded; the priority updates only when the pop side accepts.
+pub mod br_flow_mux_rr_stable(clk:u1, rst:u1, push_valid:u8, push_data:u256, pop_ready:u1) -> (
+  push_ready:u8@[0],
+  pop_valid:u1@[0],
+  pop_data:u32@[0]
+) {
+  comptime const NUM_FLOWS = push_valid.[bits]
+  comptime const WIDTH     = pop_data.[bits]
+
+  wire out_ready:bool = nil
+  const arb           = br_arb_rr_internal<NUM_REQUESTERS=NUM_FLOWS>(
+    rst=rst, enable_priority_update=out_ready, request=push_valid
+  )
+
+  // One-hot mux of the granted flow's data.
+  mut selected:u32 = 0
+  for i in 0..<NUM_FLOWS {
+    if arb.grant#[i] == 1 {
+      selected |= push_data#[(i*WIDTH)..+WIDTH]
+    }
+  }
+
+  const out_reg = br_flow_reg_fwd<T=u32>(clk=clk, rst=rst, push_valid=push_valid != 0, push_data=selected, pop_ready=pop_ready == 1)
+  out_ready     = out_reg.push_ready
+
+  push_ready = if out_ready { arb.can_grant } else { 0 }
+  pop_valid  = u1(out_reg.pop_valid)
+  pop_data   = out_reg.pop_data
 }

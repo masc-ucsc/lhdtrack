@@ -6,8 +6,7 @@ const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 // buffer when the output register cannot take it.
 // Configuration implemented: no bypass, two staged entries (skid entry plus
 // output register), ram_rd_addr always ready.
-// timecheck=false: works around a false combinational-loop report (LiveHD bug).
-pub mod br_fifo_staging_buffer<WIDTH=1, COUNT_WIDTH=2>::[timecheck = false](
+pub mod br_fifo_staging_buffer<WIDTH=1, COUNT_WIDTH=2>(
   clk:u1,
   rst:u1,
   total_items:unsigned(bits=COUNT_WIDTH),

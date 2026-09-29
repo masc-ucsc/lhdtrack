@@ -1,0 +1,205 @@
+// SPDX-License-Identifier: MIT
+// Five-stage Veryl CPU: forwarding, one-cycle load-use stalls, EX branch flush.
+const execute = import("alu.alu")
+
+type Control = (rd:u5, rs1:u5, rs2:u5, funct3:u3, imm:u32, alu_op:u4, alu_src:bool, mem_read:bool, mem_write:bool, reg_write:bool, wb_sel:u2, branch:bool, jump:bool, is_jalr:bool, imm_result:bool)
+
+pub mod riscv_core(i_clk:u1, i_rst:u1) -> (o_out:u32@[]) {
+  // Firmware loads once; periodic CPU resets preserve all memories.
+  reg imem:[256]u32:[clock_pin=ref i_clk, ordering="old"] = std.readmemh("../data/program.hex")
+  reg dmem:[256]u32:[clock_pin=ref i_clk, ordering="old"] = nil
+  reg regfile:[32]u32:[clock_pin=ref i_clk, ordering="old"] = nil
+
+  reg pc:u32:[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = 0
+  reg if_id:(pc:u32, instr:u32, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (instr=0, pc=0, valid=false)
+  reg id_ex:(pc:u32, rs1_data:u32, rs2_data:u32, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (pc=u32(0), rs1_data=u32(0), rs2_data=u32(0), valid=false)
+  reg id_control:Control:[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (rd=u5(0), rs1=u5(0), rs2=u5(0), funct3=u3(0), imm=u32(0), alu_op=u4(0), alu_src=false, mem_read=false, mem_write=false, reg_write=false, wb_sel=u2(0), branch=false, jump=false, is_jalr=false, imm_result=false)
+  reg ex_mem:(alu_result:u32, rs2_data:u32, rd:u5, pc_plus4:u32, mem_read:bool, mem_write:bool, reg_write:bool, wb_sel:u2, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (alu_result=0, mem_read=false, mem_write=false, pc_plus4=0, rd=0, reg_write=false, rs2_data=0, valid=false, wb_sel=0)
+  reg mem_wb:(result:u32, rd:u5, reg_write:bool, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (rd=0, reg_write=false, result=0, valid=false)
+
+  // Instruction decode.
+  comptime const OP_REG = 0x33
+  comptime const OP_IMM = 0x13
+  comptime const LOAD = 0x03
+  comptime const STORE = 0x23
+  comptime const BRANCH = 0x63
+  comptime const LUI = 0x37
+  comptime const AUIPC = 0x17
+  comptime const JAL = 0x6f
+  comptime const JALR = 0x67
+
+  const funct3:u3 = if_id.instr#[12..=14]
+  mut imm_i:u32 = 0
+  mut imm_s:u32 = 0
+  mut imm_b:u32 = 0
+  mut imm_j:u32 = 0
+  wrap imm_i = if_id.instr#sext[20..=31]
+  const store_bits:u12 = (if_id.instr#[7..=11], if_id.instr#[25..=31])#[..]
+  wrap imm_s = store_bits#sext[..]
+  const branch_bits:u13 = (u1(0), if_id.instr#[8..=11], if_id.instr#[25..=30], if_id.instr#[7], if_id.instr#[31])#[..]
+  wrap imm_b = branch_bits#sext[..]
+  const jump_bits:u21 = (u1(0), if_id.instr#[21..=30], if_id.instr#[20], if_id.instr#[12..=19], if_id.instr#[31])#[..]
+  wrap imm_j = jump_bits#sext[..]
+  const imm_u:u32 = (u12(0), if_id.instr#[12..=31])#[..]
+
+  mut dec:Control = (rd=if_id.instr#[7..=11], rs1=if_id.instr#[15..=19], rs2=if_id.instr#[20..=24], funct3=funct3, imm=0, alu_op=0, alu_src=false, mem_read=false, mem_write=false, reg_write=false, wb_sel=0, branch=false, jump=false, is_jalr=false, imm_result=false)
+  if if_id.valid {
+    match if_id.instr#[0..=6] {
+      == OP_REG {
+        dec.alu_op = (funct3, if_id.instr#[30])#[..]
+        dec.reg_write = true
+      }
+      == OP_IMM {
+        const high:u1 = u1(funct3==5 and if_id.instr#[30]!=0)
+        dec.alu_op = (funct3, high)#[..]
+        dec.alu_src = true
+        dec.reg_write = true
+        dec.imm = imm_i
+      }
+      == LOAD {
+        dec.alu_src = true
+        dec.mem_read = true
+        dec.reg_write = true
+        dec.wb_sel = 1
+        dec.imm = imm_i
+      }
+      == STORE {
+        dec.alu_src = true
+        dec.mem_write = true
+        dec.imm = imm_s
+      }
+      == BRANCH {
+        dec.branch = true
+        dec.imm = imm_b
+      }
+      == LUI {
+        dec.reg_write = true
+        dec.imm = imm_u
+        dec.imm_result = true
+        dec.rs1 = 0
+        dec.rs2 = 0
+      }
+      == AUIPC {
+        dec.reg_write = true
+        wrap dec.imm = if_id.pc + imm_u
+        dec.imm_result = true
+        dec.rs1 = 0
+        dec.rs2 = 0
+      }
+      == JAL {
+        dec.jump = true
+        dec.reg_write = true
+        dec.wb_sel = 2
+        dec.imm = imm_j
+        dec.rs1 = 0
+        dec.rs2 = 0
+      }
+      == JALR {
+        dec.jump = true
+        dec.is_jalr = true
+        dec.reg_write = true
+        dec.wb_sel = 2
+        dec.alu_src = true
+        dec.imm = imm_i
+      }
+      else {
+      }
+    }
+  }
+
+  // Decode bypasses WB; execute gives the younger EX/MEM producer priority.
+  const wb_write = mem_wb.valid and mem_wb.reg_write
+  const ex_write = ex_mem.valid and ex_mem.reg_write
+  const ex_fwd = if ex_mem.wb_sel == 2 { ex_mem.pc_plus4 } else { ex_mem.alu_result }
+  const rs1_data:u32 = if dec.rs1 == 0 { 0 } elif wb_write and mem_wb.rd==dec.rs1 { mem_wb.result } else { regfile[dec.rs1] }
+  const rs2_data:u32 = if dec.rs2 == 0 { 0 } elif wb_write and mem_wb.rd==dec.rs2 { mem_wb.result } else { regfile[dec.rs2] }
+  const fwd_rs1:u32 = if id_control.rs1 == 0 { u32(0) } elif ex_write and ex_mem.rd==id_control.rs1 { ex_fwd } elif wb_write and mem_wb.rd==id_control.rs1 { mem_wb.result } else { id_ex.rs1_data }
+  const fwd_rs2:u32 = if id_control.rs2 == 0 { u32(0) } elif ex_write and ex_mem.rd==id_control.rs2 { ex_fwd } elif wb_write and mem_wb.rd==id_control.rs2 { mem_wb.result } else { id_ex.rs2_data }
+  const stall = id_ex.valid and id_control.mem_read and if_id.valid and id_control.rd!=0 and (dec.rs1==id_control.rd or dec.rs2==id_control.rd)
+
+  const alu_rhs = if id_control.alu_src { id_control.imm } else { fwd_rs2 }
+  const alu_value = execute(a=fwd_rs1, b=alu_rhs, op=id_control.alu_op)
+  const alu_result = if id_control.imm_result { id_control.imm } else { alu_value }
+  const branch_condition = match id_control.funct3 {
+                           == 0 {
+      fwd_rs1 == fwd_rs2
+    }
+                           == 1 {
+      fwd_rs1 != fwd_rs2
+    }
+                           == 4 {
+      fwd_rs1#sext[0..=31] < fwd_rs2#sext[0..=31]
+    }
+                           == 5 {
+      fwd_rs1#sext[0..=31] >= fwd_rs2#sext[0..=31]
+    }
+                           == 6 {
+      fwd_rs1 < fwd_rs2
+    }
+                           == 7 {
+      fwd_rs1 >= fwd_rs2
+    }
+                           else {
+      false
+    }
+                         }
+  const flush = id_ex.valid and (id_control.jump or (id_control.branch and branch_condition))
+  mut branch_target:u32 = 0
+  if id_control.jump and id_control.is_jalr {
+    wrap branch_target = fwd_rs1 + id_control.imm
+    branch_target#[0] = 0
+  } else {
+    wrap branch_target = id_ex.pc + id_control.imm
+  }
+
+  const mem_read_data:u32 = dmem[ex_mem.alu_result#[2..=9]]
+  const wb_data = match ex_mem.wb_sel {
+                  == 1 {
+      mem_read_data
+    }
+                  == 2 {
+      ex_mem.pc_plus4
+    }
+                  else {
+      ex_mem.alu_result
+    }
+                }
+  o_out = mem_wb.result
+
+  // Writes use the current pipeline state, including during reset assertion.
+  if ex_mem.valid and ex_mem.mem_write {
+    dmem[ex_mem.alu_result#[2..=9]] = ex_mem.rs2_data
+  }
+  if wb_write and mem_wb.rd!=0 {
+    regfile[mem_wb.rd] = mem_wb.result
+  }
+
+  mem_wb = (result=wb_data, rd=ex_mem.rd, reg_write=ex_mem.reg_write, valid=ex_mem.valid)
+  mut pc_plus4:u32 = 0
+  wrap pc_plus4 = id_ex.pc + 4
+  ex_mem = (alu_result=alu_result, rs2_data=fwd_rs2, rd=id_control.rd, pc_plus4=pc_plus4, mem_read=id_control.mem_read, mem_write=id_control.mem_write, reg_write=id_control.reg_write, wb_sel=id_control.wb_sel, valid=id_ex.valid)
+
+  // Bubbles clear only the control flags cleared by the upstream core.
+  // Retaining the other fields matters: the public output is ungated WB data.
+  if flush or stall {
+    id_ex.valid = false
+    id_control.reg_write = false
+    id_control.mem_read = false
+    id_control.mem_write = false
+    id_control.branch = false
+    id_control.jump = false
+  } else {
+    id_control = dec
+    id_ex = (pc=if_id.pc, rs1_data=rs1_data, rs2_data=rs2_data, valid=if_id.valid)
+  }
+  if flush {
+    if_id = (pc=u32(0), instr=u32(0), valid=false)
+  } elif not stall {
+    if_id = (pc=pc, instr=imem[pc#[2..=9]], valid=true)
+  }
+  if flush {
+    pc = branch_target
+  } elif not stall {
+    wrap pc += 4
+  }
+}

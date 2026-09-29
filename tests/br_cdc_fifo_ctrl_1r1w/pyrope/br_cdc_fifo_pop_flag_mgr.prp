@@ -17,16 +17,13 @@ pub mod br_cdc_fifo_pop_flag_mgr<COUNT_WIDTH=2, POP_COUNT_DELAY=2>(
     pop_count = pop_count_next
   }
 
-  const next_gray   = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=pop_count_next)
-  const count_delay = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=POP_COUNT_DELAY>(clk=clk, `in`=next_gray.gray)
-  pop_count_gray    = count_delay.out
-  const reset_delay = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst)
-  reset_active_pop  = reset_delay.out == 1
+  const next_gray  = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=pop_count_next)
+  pop_count_gray   = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=POP_COUNT_DELAY>(clk=clk, `in`=next_gray)
+  reset_active_pop = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst) == 1
 
   // While the push side is in reset its count is meaningless: use the last
   // one seen before the reset.
-  const push_decoded = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=push_count_gray)
-  const push_count = push_decoded.bin
+  const push_count = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=push_count_gray)
   reg push_count_saved:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
   if not reset_active_push {
     push_count_saved = push_count

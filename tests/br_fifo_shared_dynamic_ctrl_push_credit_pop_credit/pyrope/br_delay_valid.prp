@@ -1,24 +1,14 @@
-pub mod br_delay_valid::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u2) -> (out_valid:u1@[], out:u2@[], out_valid_stages:u2@[], out_stages:u4@[]) {
-  reg stage_valid___q:u2
-  mut stage_valid:u2 = 0
-  reg stage___q:u4
-  mut `stage`:u4 = 0
-  stage_valid = stage_valid___q
-  `stage` = stage___q
-  mut stage_valid__w1 = stage_valid
-  stage_valid__w1#[0] = in_valid & 1
-  mut stage__w1 = `stage`
-  stage__w1#[0..=1] = `in`
-  if rst != 0 {
-    stage_valid___q#[1] = 0
-  } else {
-    stage_valid___q#[1] = stage_valid__w1 & 1
+// One-stage valid/data delay: the valid register resets to false; the data
+// register has no reset and only loads when in_valid is set. A conditionally
+// written register is state, so `out` lands at @[0] while `out_valid` is a
+// one-cycle stage at @[1].
+pub mod br_delay_valid<T=u1>(rst:u1, in_valid:bool, `in`:T) -> (out_valid:bool@[1], out:T@[0]) {
+  reg stage_valid:bool = false
+  reg `stage`:T        = nil
+  stage_valid          = in_valid
+  if in_valid {
+    `stage` = `in`
   }
-  if (stage_valid__w1 & 1) != 0 {
-    stage___q#[2..=3] = stage__w1#[0..=1]
-  }
-  out_valid = (stage_valid__w1 >> 1) & 1
-  out = stage__w1#[2..=3]
-  out_valid_stages = stage_valid__w1
-  out_stages = stage__w1
+  out_valid = stage_valid
+  out       = `stage`
 }

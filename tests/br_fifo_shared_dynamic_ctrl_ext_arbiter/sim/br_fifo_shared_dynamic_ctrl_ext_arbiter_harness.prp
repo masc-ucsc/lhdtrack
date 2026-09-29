@@ -26,7 +26,7 @@ pub mod br_fifo_shared_dynamic_ctrl_ext_arbiter_harness(rst:u1) -> (checksum:u64
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_ready, push_full, pop_valid, pop_data, pop_empty, arb_request, arb_enable_priority_update, data_ram_wr_valid, data_ram_wr_addr, data_ram_wr_data, data_ram_rd_addr_valid, data_ram_rd_addr, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(clk=1, rst=rst, push_valid=lfsr#[0..=1], push_data=lfsr_x#[2..=65], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], arb_grant=lfsr#[6..=9], data_ram_rd_data_valid=lfsr#[10..=11], data_ram_rd_data=lfsr_x#[12..=75], ptr_ram_rd_data_valid=lfsr#[12..=13], ptr_ram_rd_data=lfsr#[14..=23])
+  const (push_ready, push_full, pop_valid, pop_data, pop_empty, arb_request, arb_enable_priority_update, data_ram_wr_valid, data_ram_wr_addr, data_ram_wr_data, data_ram_rd_addr_valid, data_ram_rd_addr, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(push_valid=lfsr#[0..=1], push_data=lfsr_x#[2..=65], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], arb_grant=lfsr#[6..=9], data_ram_rd_data_valid=lfsr#[10..=11], data_ram_rd_data=lfsr_x#[12..=75], ptr_ram_rd_data_valid=lfsr#[12..=13], ptr_ram_rd_data=lfsr#[14..=23])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

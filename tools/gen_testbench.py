@@ -309,32 +309,163 @@ endmodule
 
 
 # ------------------------------------------------------ Pyrope harness ------
-def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> str:
+# The implicit clock / reset inputs LiveHD auto-wires at a call site when the
+# caller OMITS them (docs 04b "Implicit clock and reset"): a child's `clk` or
+# `clock` gets the caller's implicit clock, a child's `rst`/`reset`/`rst_n`/
+# `reset_n` the caller's implicit reset by its LOGICAL assertion (an active-low
+# child sees the inversion). Case-sensitive, like Pyrope names.
+_AUTO_CLOCKS = frozenset({"clk", "clock"})
+_AUTO_RESETS = frozenset({"rst", "reset", "rst_n", "reset_n"})
+
+
+def _split_top_level(text: str) -> list[str]:
+    """Split a port list at the commas outside any () or [].
+
+    `<`/`>` are not brackets here: a port type or default may hold a shift or
+    comparison (`a:unsigned(bits=N>>1)`, `i:0..<8`), and a generic argument
+    list with a comma needs parentheses in a port type anyway.
+    """
+    items, depth, cur = [], 0, []
+    for ch in text:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth -= 1
+        if ch == "," and depth == 0:
+            items.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    if "".join(cur).strip():
+        items.append("".join(cur))
+    return items
+
+
+def _balanced(text: str, start: int, open_ch: str = "(", close_ch: str = ")") -> tuple[str, int]:
+    """The text inside the bracket opening at `start`, and the index after it.
+
+    Only `open_ch`/`close_ch` nest, except for `<`: a generic list's operators
+    sit inside parentheses (`<N=(A>>1)>`), so parentheses nest there too.
+    """
+    depth, paren = 0, 0
+    for i in range(start, len(text)):
+        ch = text[i]
+        if open_ch == "<" and ch in "()":
+            paren += 1 if ch == "(" else -1
+        elif paren:
+            continue
+        elif ch == open_ch:
+            depth += 1
+        elif ch == close_ch:
+            depth -= 1
+            if depth == 0:
+                return text[start + 1 : i], i + 1
+    return text[start + 1 :], len(text)
+
+
+def _pyrope_signature_start(prp_text: str, top: str) -> int | None:
+    """Index of the `(` opening `mod top`'s input list, or None.
+
+    Skips what may sit between the name and the inputs, in either order: a
+    lambda attribute list (`::[timecheck=false]`) and a generic list
+    (`<N=4, M=(N>>1)>`).
+    """
+    import re
+
+    for m in re.finditer(rf"\bmod\s+{re.escape(top)}\b", prp_text):
+        i = m.end()
+        while True:
+            while i < len(prp_text) and prp_text[i].isspace():
+                i += 1
+            if prp_text.startswith("::[", i):
+                i = _balanced(prp_text, i + 2, "[", "]")[1]
+            elif prp_text.startswith("<", i):
+                i = _balanced(prp_text, i, "<", ">")[1]
+            else:
+                break
+        if prp_text.startswith("(", i):
+            return i
+    return None
+
+
+def pyrope_bool_ports(prp_text: str, top: str) -> set[str]:
+    """The ports the Pyrope DUT `top` declares `bool` (or `boolean`).
+
+    Booleans never mix with integers at a port (user ruling 2026-09-27): an LFSR
+    bit bound to a `bool` input needs `boolean(...)`, and a `bool` output folded
+    into the integer checksum needs `u1(...)`. The Verilog port list cannot tell
+    a `bool` from a `u1`, so the kinds come from the Pyrope signature. Pass the
+    result to harness_prp as `bool_ports`.
+    """
+    import re
+
+    start = _pyrope_signature_start(prp_text, top)
+    if start is None:
+        return set()
+    ins, after = _balanced(prp_text, start)
+    lists = [ins]
+    arrow = re.match(r"\s*->\s*\(", prp_text[after:])
+    if arrow:
+        lists.append(_balanced(prp_text, after + arrow.end() - 1)[0])
+    out = set()
+    for plist in lists:
+        for item in _split_top_level(re.sub(r"//[^\n]*", "", plist)):
+            name, sep, ty = item.partition(":")
+            ty = ty.split("@")[0].split("=")[0].strip()
+            name = name.split()[-1].strip("`") if name.split() else ""
+            if sep and name and ty in ("bool", "boolean"):
+                out.add(name)
+    return out
+
+
+def harness_prp(
+    pl: PortList,
+    input_constants: dict[str, int] | None = None,
+    bool_ports: set[str] | None = None,
+) -> str:
     top = pl.top
     stim = _slices(pl.inputs)
     outs = pl.outputs
     constants = _input_constants(pl, input_constants)
+    bools = bool_ports or set()
 
     args = []
     # Auto-emitted Pyrope keeps clk/rst as explicit ports (lhd emits
-    # `mod X(clk:u1, rst:u1, ...)`), so they must be bound or the call fails
-    # with "does not bind declared input 'clk'". Hand-written Pyrope leaves them
-    # implicit and declares neither -- which is why this is driven by the port
-    # list from the VERILOG, and why a hand-written module needs its harness
-    # adjusted when it is promoted to `idiomatic`.
-    # The translated module keeps the Verilog clock as an explicit input, and
-    # the Pyrope parent advances one full clock period per `step`.  Binding the
-    # child clock high makes its flops commit once in that parent period, which
-    # matches the single low/eval/high/eval edge in the Verilator driver.
-    # Binding it low leaves every child register permanently frozen.
+    # `mod X(clk:u1, rst:u1, ...)`). Hand-written Pyrope leaves them implicit
+    # and declares neither -- which is why this is driven by the port list from
+    # the VERILOG, and why a hand-written module needs its harness adjusted when
+    # it is promoted to `idiomatic`.
+    #
+    # A child clock or reset with the conventional name is OMITTED: LiveHD wires
+    # the harness's own implicit clock/reset into it, reset by its logical
+    # assertion, so an active-low `rst_n` sees `rst` inverted like `~rst` on the
+    # SV side. Binding a clock to a constant (`clk=1`) is a compile error: the
+    # emitted Verilog would never clock that child. Any other clock or reset name
+    # (`wr_clk`, `rst_ni`) is bound explicitly from the harness's `clk`/`rst`.
+    need_clk = False
     for c in pl.clocks:
-        args.append(f"{pid(c.name)}=1")
+        if c.name in _AUTO_CLOCKS:
+            continue
+        need_clk = True
+        args.append(f"{pid(c.name)}={'boolean(clk)' if c.name in bools else 'clk'}")
     for r in pl.resets:
-        args.append(f"{pid(r.name)}=rst")
+        if r.name in _AUTO_RESETS:
+            continue
+        cond = "rst == 0" if r.active_low_reset else "rst != 0"
+        if r.name in bools:
+            args.append(f"{pid(r.name)}={cond}")
+        elif r.active_low_reset:
+            args.append(f"{pid(r.name)}=u1({cond})")
+        else:
+            args.append(f"{pid(r.name)}=rst")
     copies = _lfsr_x_copies(stim, constants)
     for p, lo, hi in stim:
         if p.name in constants:
-            args.append(f"{pid(p.name)}={constants[p.name]}")
+            value = constants[p.name]
+            if p.name in bools:
+                args.append(f"{pid(p.name)}={'true' if value else 'false'}")
+            else:
+                args.append(f"{pid(p.name)}={value}")
         else:
             reg = "lfsr_x" if hi > 63 else "lfsr"
             # A signed port takes the SAME bits, reinterpreted: `#sext` reads
@@ -344,6 +475,8 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
                 args.append(f"{pid(p.name)}={reg}#sext[{lo}..={hi}]")
             elif hi > lo:
                 args.append(f"{pid(p.name)}={reg}#[{lo}..={hi}]")
+            elif p.name in bools:
+                args.append(f"{pid(p.name)}=boolean({reg}#[{lo}])")
             else:
                 args.append(f"{pid(p.name)}={reg}#[{lo}]")
     # A single-output lambda auto-unwraps its result tuple; more than one must
@@ -375,9 +508,13 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
         chunks = _chunks(p.width)
         for lo, hi in chunks:
             # A signed output is folded as its raw bits: the SV harness reads it
-            # through an unsigned `o_` wire, i.e. zero-extended.
+            # through an unsigned `o_` wire, i.e. zero-extended. A `bool` output
+            # is a bit only through `u1(...)` (true == 1).
             whole = len(chunks) == 1 and not p.signed
-            val = expr if whole else f"{expr}#[{lo}..={hi}]"
+            if p.name in bools:
+                val = f"u1({expr})"
+            else:
+                val = expr if whole else f"{expr}#[{lo}..={hi}]"
             steps.append(f"  wrap acc = ((acc << 1) | acc#[63]) ^ {val}")
     fold = "\n".join(steps) or "  wrap acc = (acc << 1) | acc#[63]"
     lfsr_x = _lfsr_x_prp(copies) if copies else ""
@@ -394,7 +531,7 @@ def harness_prp(pl: PortList, input_constants: dict[str, int] | None = None) -> 
 // "call to undefined function". The module inside it is {top}.{top}.
 const dut = import("{top}.{top}")
 
-pub mod {top}_harness(rst:u1) -> (checksum:u64@[0]) {{
+pub mod {top}_harness({"clk:u1, " if need_clk else ""}rst:u1) -> (checksum:u64@[0]) {{
   reg lfsr:u64 = {SEED}
   reg sum:u64  = 0
 
@@ -472,8 +609,12 @@ int main(int argc, char **argv) {{
 
   uint64_t cycles = {cycles};
   for (int i = 1; i < argc; ++i) {{
-    if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {{
+    if (!std::strncmp(argv[i], "+cycles=", 8)) {{
+      cycles = std::strtoull(argv[i] + 8, nullptr, 10);
+      break;
+    }} else if (!std::strcmp(argv[i], "--cycles") && i + 1 < argc) {{
       cycles = std::strtoull(argv[++i], nullptr, 10);
+      break;
     }}
   }}
 

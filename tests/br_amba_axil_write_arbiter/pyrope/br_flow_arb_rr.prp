@@ -1,0 +1,17 @@
+const br_arb_rr_internal = import("br_arb_rr_internal.br_arb_rr_internal")
+
+// Round-robin valid/ready arbiter: picks one of the valid push flows and
+// reports it one-hot in `grant` so the caller can steer the matching data.
+// The round-robin priority only advances when the pop side accepts.
+pub mod br_flow_arb_rr<NUM_FLOWS=2>(rst:u1, push_valid:unsigned(bits=NUM_FLOWS), pop_ready:bool) -> (
+  push_ready:unsigned(bits=NUM_FLOWS)@[0],
+  pop_valid_unstable:bool@[0],
+  grant:unsigned(bits=NUM_FLOWS)@[0]
+) {
+  const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_FLOWS>(rst=rst, enable_priority_update=pop_ready, request=push_valid)
+
+  push_ready = if pop_ready { arb.can_grant } else { 0 }
+  // A round-robin arbiter always grants some valid flow.
+  pop_valid_unstable = push_valid != 0
+  grant              = arb.grant
+}

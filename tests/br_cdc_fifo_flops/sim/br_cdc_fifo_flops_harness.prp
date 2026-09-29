@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_cdc_fifo_flops.br_cdc_fifo_flops.
 const dut = import("br_cdc_fifo_flops.br_cdc_fifo_flops")
 
-pub mod br_cdc_fifo_flops_harness(rst:u1) -> (checksum:u64@[0]) {
+pub mod br_cdc_fifo_flops_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
   reg lfsr:u64 = 2611923443488327891
   reg sum:u64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_cdc_fifo_flops_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_ready, pop_valid, pop_data, push_full, push_slots, pop_empty, pop_items) = dut(push_clk=1, pop_clk=1, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_ready=lfsr#[1])
+  const (push_ready, pop_valid, pop_data, push_full, push_slots, pop_empty, pop_items) = dut(push_clk=clk, pop_clk=clk, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_ready=lfsr#[1])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

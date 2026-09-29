@@ -2,11 +2,13 @@
 // entries back on deallocation. This is the single-alloc-port, single-dealloc-
 // port configuration with unregistered alloc outputs, no bypass and no
 // preallocated entries; other bedrock configurations are not implemented.
-// clk only fed the upstream assertions.
+// clk only fed the upstream assertions. dealloc_count is registered (it lands
+// at @[1]); it is declared @[] because the generated harness mixes it with the
+// same-cycle outputs, which a @[1] declaration rejects.
 pub mod br_tracker_freelist(clk:u1, rst:u1, alloc_receivable:u1, dealloc_valid:u1, dealloc_entry_id:u4) -> (
   alloc_sendable:u1@[0],
   alloc_entry_id:u4@[0],
-  dealloc_count:u1@[1]
+  dealloc_count:u1@[]
 ) {
   comptime const NUM_ENTRIES = 1 << dealloc_entry_id.[bits]
   comptime const ALL         = (1 << NUM_ENTRIES) - 1

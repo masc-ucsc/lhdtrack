@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_ram_flops_tile.br_ram_flops_tile.
 const dut = import("br_ram_flops_tile.br_ram_flops_tile")
 
-pub mod br_ram_flops_tile_harness(rst:u1) -> (checksum:u64@[0]) {
+pub mod br_ram_flops_tile_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
   reg lfsr:u64 = 2611923443488327891
   reg sum:u64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_ram_flops_tile_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (rd_data_valid, rd_data) = dut(wr_clk=1, rd_clk=1, wr_rst=rst, rd_rst=rst, wr_valid=lfsr#[0], wr_addr=lfsr#[1..=4], wr_data=lfsr#[5..=36], wr_word_en=lfsr#[37], rd_addr_valid=lfsr#[38], rd_addr=lfsr#[39..=42])
+  const (rd_data_valid, rd_data) = dut(wr_clk=clk, rd_clk=clk, wr_rst=rst, rd_rst=rst, wr_valid=lfsr#[0], wr_addr=lfsr#[1..=4], wr_data=lfsr#[5..=36], wr_word_en=lfsr#[37], rd_addr_valid=lfsr#[38], rd_addr=lfsr#[39..=42])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ rd_data_valid

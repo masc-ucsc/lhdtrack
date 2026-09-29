@@ -1,15 +1,18 @@
-const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
-const br_flow_checks_valid_data_intg_p2 = import("br_flow_checks_valid_data_intg_p2.br_flow_checks_valid_data_intg_p2")
+// Forward-registered valid/ready slice: breaks the valid/data path with one
+// register stage; ready stays combinational (full throughput).
+pub mod br_flow_reg_fwd<T=u1>(clk:u1, rst:u1, push_valid:bool, push_data:T, pop_ready:bool) -> (
+  push_ready:bool@[0],
+  pop_valid:bool@[0],
+  pop_data:T@[0]
+) {
+  reg valid:bool:[reset_pin = ref rst] = false
+  reg data:T = nil // data needs no reset: it is only read while valid
 
-pub mod br_flow_reg_fwd::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
-  reg pop_valid:u1
-  reg pop_data:u32
-  const push_ready__w1 = unsigned((pop_ready != 0) or (pop_valid == 0))
-  pop_valid = if rst != 0 { 0 } else { unsigned((push_valid != 0) or (push_ready__w1 == 0)) }
-  if unsigned((push_ready__w1 != 0) and (push_valid != 0)) != 0 {
-    pop_data = push_data
+  push_ready = pop_ready or not valid
+  valid      = push_valid or not push_ready
+  if push_ready and push_valid {
+    data = push_data
   }
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid, ready = pop_ready, data = pop_data)
-  br_flow_checks_valid_data_intg_p2::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
-  push_ready = push_ready__w1
+  pop_valid = valid
+  pop_data  = data
 }

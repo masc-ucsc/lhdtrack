@@ -2,9 +2,7 @@ const br_cdc_fifo_push_flag_mgr = import("br_cdc_fifo_push_flag_mgr.br_cdc_fifo_
 
 // Push side of a CDC FIFO controller: accepts data while not full and writes
 // it to consecutive RAM entries. Every flop is in the clk (push) domain.
-// timecheck=false: works around a false combinational-loop report through the
-// registered flag-manager child (LiveHD bug).
-pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>::[timecheck = false](
+pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
   clk:u1,
   rst:u1,
   push_valid:bool,
@@ -16,7 +14,7 @@ pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, PUS
   full:bool@[],
   slots:unsigned(bits=COUNT_WIDTH)@[],
   ram_wr_valid:bool@[],
-  ram_wr_addr:unsigned(bits=ADDR_WIDTH)@[],
+  ram_wr_addr:unsigned(max=DEPTH - 1)@[],
   ram_wr_data:unsigned(bits=WIDTH)@[],
   push_count_gray:unsigned(bits=COUNT_WIDTH)@[],
   reset_active_push:bool@[]
@@ -28,7 +26,7 @@ pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, PUS
   push_beat = push_valid and not flags.full
 
   // Write address walks the RAM entries 0..DEPTH-1 and wraps.
-  reg wr_addr:unsigned(bits=ADDR_WIDTH):[reset_pin = ref rst] = 0
+  reg wr_addr:unsigned(max=DEPTH - 1):[reset_pin = ref rst] = 0
   if push_beat {
     wrap wr_addr = if wr_addr == DEPTH - 1 { 0 } else { wr_addr + 1 }
   }

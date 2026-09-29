@@ -3,9 +3,7 @@ const br_fifo_staging_buffer   = import("br_fifo_staging_buffer.br_fifo_staging_
 
 // Pop side of a CDC FIFO controller: reads consecutive RAM entries ahead of
 // the consumer into a staging buffer. Every flop is in the clk (pop) domain.
-// timecheck=false: works around a false combinational-loop report through the
-// registered children (LiveHD bug).
-pub mod br_cdc_fifo_pop_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, POP_COUNT_DELAY=2>::[timecheck = false](
+pub mod br_cdc_fifo_pop_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, POP_COUNT_DELAY=2>(
   clk:u1,
   rst:u1,
   pop_ready:bool,
@@ -19,7 +17,7 @@ pub mod br_cdc_fifo_pop_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, POP_
   empty:bool@[],
   items:unsigned(bits=COUNT_WIDTH)@[],
   ram_rd_addr_valid:bool@[],
-  ram_rd_addr:unsigned(bits=ADDR_WIDTH)@[],
+  ram_rd_addr:unsigned(max=DEPTH - 1)@[],
   pop_count_gray:unsigned(bits=COUNT_WIDTH)@[],
   reset_active_pop:bool@[]
 ) {
@@ -33,7 +31,7 @@ pub mod br_cdc_fifo_pop_ctrl<DEPTH=2, WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=2, POP_
   pop_beat = pop_ready and staging.pop_valid
 
   // Read address walks the RAM entries 0..DEPTH-1 and wraps.
-  reg rd_addr:unsigned(bits=ADDR_WIDTH):[reset_pin = ref rst] = 0
+  reg rd_addr:unsigned(max=DEPTH - 1):[reset_pin = ref rst] = 0
   if staging.ram_rd_addr_valid {
     wrap rd_addr = if rd_addr == DEPTH - 1 { 0 } else { rd_addr + 1 }
   }

@@ -26,7 +26,7 @@ pub mod br_fifo_shared_pop_ctrl_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (head_ready, bypass_ready, pop_valid, pop_data, pop_empty, dealloc_valid, dealloc_entry_id, data_ram_rd_addr_valid, data_ram_rd_addr) = dut(clk=1, rst=rst, head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], ram_items=lfsr#[14..=25], bypass_valid_unstable=lfsr#[26..=27], bypass_data_unstable=lfsr_x#[28..=91], pop_ready=lfsr#[28..=29], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr_x#[32..=95])
+  const (head_ready, bypass_ready, pop_valid, pop_data, pop_empty, dealloc_valid, dealloc_entry_id, data_ram_rd_addr_valid, data_ram_rd_addr) = dut(head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], ram_items=lfsr#[14..=25], bypass_valid_unstable=lfsr#[26..=27], bypass_data_unstable=lfsr_x#[28..=91], pop_ready=lfsr#[28..=29], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr_x#[32..=95])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ head_ready

@@ -1,33 +1,166 @@
-const br_fifo_shared_pop_ctrl = import("br_fifo_shared_pop_ctrl.br_fifo_shared_pop_ctrl")
+const br_credit_receiver             = import("br_credit_receiver.br_credit_receiver")
+const br_fifo_shared_pop_ctrl        = import("br_fifo_shared_pop_ctrl.br_fifo_shared_pop_ctrl")
 const br_fifo_shared_pstatic_ptr_mgr = import("br_fifo_shared_pstatic_ptr_mgr.br_fifo_shared_pstatic_ptr_mgr")
-const br_fifo_shared_pstatic_push_ctrl_credit = import("br_fifo_shared_pstatic_push_ctrl_credit.br_fifo_shared_pstatic_push_ctrl_credit")
-const br_fifo_shared_pstatic_size_calc_t = import("br_fifo_shared_pstatic_size_calc.br_fifo_shared_pstatic_size_calc")
 
-pub mod br_fifo_shared_pstatic_ctrl_push_credit::[timecheck=false](clk:u1, rst:u1, config_base:u10, config_bound:u10, push_sender_in_reset:u1, push_credit_stall:u2, push_valid:u1, push_data:u32, push_fifo_id:u1, credit_initial_push:u12, credit_withhold_push:u12, pop_ready:u2, ram_rd_data_valid:u1, ram_rd_data:u32) -> (config_error:u1@[], push_receiver_in_reset:u1@[], push_credit:u2@[], push_full:u2@[], credit_available_push:u12@[], credit_count_push:u12@[], pop_valid:u2@[], pop_data:u64@[], pop_empty:u2@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u5@[]) {
-  wire dealloc_valid:u2
-  wire bypass_ready:u2
-  wire head_ready:u2
-  wire push_full:u2
-  mut br_fifo_shared_pstatic_size_calc = br_fifo_shared_pstatic_size_calc_t::[name=br_fifo_shared_pstatic_size_calc](clk = clk, rst = rst, config_base = config_base, config_bound = config_bound)
-  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
-  mut br_fifo_shared_pstatic_push_ctrl_credit_inst = br_fifo_shared_pstatic_push_ctrl_credit::[name=br_fifo_shared_pstatic_push_ctrl_credit_inst](clk = clk, rst = rst, config_size = br_fifo_shared_pstatic_size_calc.config_size, config_base = config_base, config_bound = config_bound, push_sender_in_reset = push_sender_in_reset, `push_credit_stall.e1` = (push_credit_stall >> 1) & 1, `push_credit_stall.e0` = push_credit_stall & 1, push_valid = push_valid, push_data = push_data, push_fifo_id = push_fifo_id, push_full = push_full, `bypass_ready.e1` = (bypass_ready >> 1) & 1, `bypass_ready.e0` = bypass_ready & 1, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, `dealloc_valid.e1` = (dealloc_valid >> 1) & 1, `dealloc_valid.e0` = dealloc_valid & 1)
-  mut br_fifo_shared_pstatic_ptr_mgr_inst = br_fifo_shared_pstatic_ptr_mgr::[name=br_fifo_shared_pstatic_ptr_mgr_inst](clk = clk, rst = either_rst__w1, config_base = config_base, config_bound = config_bound, config_size = br_fifo_shared_pstatic_size_calc.config_size, `advance_tail.e1` = (br_fifo_shared_pstatic_push_ctrl_credit_inst.advance_tail >> 1) & 1, `advance_tail.e0` = br_fifo_shared_pstatic_push_ctrl_credit_inst.advance_tail & 1, tail_next = br_fifo_shared_pstatic_push_ctrl_credit_inst.tail_next, tail = br_fifo_shared_pstatic_push_ctrl_credit_inst.tail, head_ready = head_ready)
-  push_full = (br_fifo_shared_pstatic_ptr_mgr_inst.push_full.e1 << 1) | br_fifo_shared_pstatic_ptr_mgr_inst.push_full.e0
-  mut br_fifo_shared_pop_ctrl_inst = br_fifo_shared_pop_ctrl::[name=br_fifo_shared_pop_ctrl_inst](clk = clk, rst = either_rst__w1, head_valid = br_fifo_shared_pstatic_ptr_mgr_inst.head_valid, head = br_fifo_shared_pstatic_ptr_mgr_inst.head, ram_empty = (br_fifo_shared_pstatic_ptr_mgr_inst.empty.e1 << 1) | br_fifo_shared_pstatic_ptr_mgr_inst.empty.e0, ram_items = br_fifo_shared_pstatic_ptr_mgr_inst.items, bypass_valid_unstable = (br_fifo_shared_pstatic_push_ctrl_credit_inst.bypass_valid_unstable.e1 << 1) | br_fifo_shared_pstatic_push_ctrl_credit_inst.bypass_valid_unstable.e0, bypass_data_unstable = br_fifo_shared_pstatic_push_ctrl_credit_inst.bypass_data_unstable, pop_ready = pop_ready, data_ram_rd_data_valid = ram_rd_data_valid, data_ram_rd_data = ram_rd_data)
-  head_ready = br_fifo_shared_pop_ctrl_inst.head_ready
-  bypass_ready = br_fifo_shared_pop_ctrl_inst.bypass_ready
-  dealloc_valid = br_fifo_shared_pop_ctrl_inst.dealloc_valid
-  config_error = br_fifo_shared_pstatic_size_calc.config_error
-  push_receiver_in_reset = br_fifo_shared_pstatic_push_ctrl_credit_inst.push_receiver_in_reset
-  push_credit = (br_fifo_shared_pstatic_push_ctrl_credit_inst.push_credit.e1 << 1) | br_fifo_shared_pstatic_push_ctrl_credit_inst.push_credit.e0
-  credit_available_push = br_fifo_shared_pstatic_push_ctrl_credit_inst.credit_available_push
-  credit_count_push = br_fifo_shared_pstatic_push_ctrl_credit_inst.credit_count_push
-  pop_valid = br_fifo_shared_pop_ctrl_inst.pop_valid
-  pop_data = br_fifo_shared_pop_ctrl_inst.pop_data
-  pop_empty = br_fifo_shared_pop_ctrl_inst.pop_empty
-  ram_wr_valid = br_fifo_shared_pstatic_push_ctrl_credit_inst.ram_wr_valid
-  ram_wr_addr = br_fifo_shared_pstatic_push_ctrl_credit_inst.ram_wr_addr
-  ram_wr_data = br_fifo_shared_pstatic_push_ctrl_credit_inst.ram_wr_data
-  ram_rd_addr_valid = br_fifo_shared_pop_ctrl_inst.data_ram_rd_addr_valid
-  ram_rd_addr = br_fifo_shared_pop_ctrl_inst.data_ram_rd_addr
+// Controller of 2 credit-based FIFOs statically partitioned inside one shared
+// 32-entry RAM: FIFO f owns entries config_base[f]..config_bound[f].
+//
+// Push side: one write port. push_fifo_id picks the FIFO; each FIFO has its
+// own credit receiver and a tail pointer that wraps within its partition.
+// Pop side: see br_fifo_shared_pop_ctrl. A freed entry returns a credit.
+//
+// Per-FIFO buses are packed with FIFO 0 in the low bits. Supported
+// configuration: one write port, one read port, registered push outputs,
+// RAM read latency 1, no bypass, power-of-two depth (no bound range check).
+pub mod br_fifo_shared_pstatic_ctrl_push_credit(
+  clk:u1,
+  rst:u1,
+  config_base:u10,
+  config_bound:u10,
+  push_sender_in_reset:u1,
+  push_credit_stall:u2,
+  push_valid:u1,
+  push_data:u32,
+  push_fifo_id:u1,
+  credit_initial_push:u12,
+  credit_withhold_push:u12,
+  pop_ready:u2,
+  ram_rd_data_valid:bool,
+  ram_rd_data:u32
+) -> (
+  config_error:u1@[0],
+  push_receiver_in_reset:u1@[],  // registered
+  push_credit:u2@[],             // registered
+  push_full:u2@[0],
+  credit_available_push:u12@[0],
+  credit_count_push:u12@[0],
+  pop_valid:u2@[0],
+  pop_data:u64@[0],
+  pop_empty:u2@[0],
+  ram_wr_valid:bool@[0],
+  ram_wr_addr:u5@[0],
+  ram_wr_data:u32@[0],
+  ram_rd_addr_valid:bool@[0],
+  ram_rd_addr:u5@[0]
+) {
+  comptime const NUM_FIFOS   = push_full.[bits]
+  comptime const ADDR_WIDTH  = config_base.[bits] / NUM_FIFOS
+  comptime const COUNT_WIDTH = credit_initial_push.[bits] / NUM_FIFOS
+
+  const either_rst = rst == 1 or push_sender_in_reset == 1
+
+  // Partition sizes and configuration errors: a partition must not be empty
+  // and must start after the previous one ends.
+  mut size:u12 = 0
+  mut bad      = false
+  for f in 0..<NUM_FIFOS {
+    const base  = config_base#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+    const bound = config_bound#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+    mut s:unsigned(bits=COUNT_WIDTH) = 0
+    wrap s = bound + 1 - base
+    size#[(f*COUNT_WIDTH)..+COUNT_WIDTH] = s
+    bad = bad or base > bound
+    if f > 0 {
+      bad = bad or base <= config_bound#[((f - 1)*ADDR_WIDTH)..+ADDR_WIDTH]
+    }
+  }
+  config_error = u1(bad)
+
+  // Pointer manager outputs used by the push side and the pop side.
+  wire full:u2       = nil
+  wire dealloc:u2    = nil
+  wire head_ready:u2 = nil
+
+  // Push side: steer the write to the selected FIFO unless it is full; its
+  // tail pointer walks base..bound and wraps back to base.
+  reg tails:u10 = nil
+  mut next_tails     = tails
+  mut tail_next:u10  = 0
+  mut advance:u2     = 0
+  mut wr_addr:u5     = 0
+  mut credits:u2     = 0
+  mut receiver_in_reset = false
+  mut available:u12  = 0
+  mut count:u12      = 0
+  for f in 0..<NUM_FIFOS {
+    const t     = tails#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+    const base  = config_base#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+    const bound = config_bound#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+    const write = push_valid == 1 and push_fifo_id == f and full#[f] == 0
+
+    mut t_next:unsigned(bits=ADDR_WIDTH) = 0
+    if write and t == bound {
+      t_next = base
+    } else {
+      wrap t_next = t + u1(write)
+    }
+    if write {
+      next_tails#[(f*ADDR_WIDTH)..+ADDR_WIDTH] = t_next
+      wr_addr |= t
+    }
+    tail_next#[(f*ADDR_WIDTH)..+ADDR_WIDTH] = t_next
+    advance#[f] = u1(write)
+
+    const receiver = br_credit_receiver<COUNT_WIDTH=COUNT_WIDTH>(
+      clk=clk,
+      rst=rst,
+      push_sender_in_reset=push_sender_in_reset == 1,
+      push_credit_stall=push_credit_stall#[f] == 1,
+      pop_credit=dealloc#[f],
+      credit_initial=credit_initial_push#[(f*COUNT_WIDTH)..+COUNT_WIDTH],
+      credit_withhold=credit_withhold_push#[(f*COUNT_WIDTH)..+COUNT_WIDTH]
+    )
+    credits#[f] = u1(receiver.push_credit)
+    // Every receiver leaves reset together; FIFO 0 reports it.
+    if f == 0 {
+      receiver_in_reset = receiver.push_receiver_in_reset
+    }
+    available#[(f*COUNT_WIDTH)..+COUNT_WIDTH] = receiver.credit_available
+    count#[(f*COUNT_WIDTH)..+COUNT_WIDTH]     = receiver.credit_count
+  }
+  tails = if either_rst { config_base } else { next_tails }
+
+  const ptrs = br_fifo_shared_pstatic_ptr_mgr<NUM_FIFOS=NUM_FIFOS, ADDR_WIDTH=ADDR_WIDTH, COUNT_WIDTH=COUNT_WIDTH>(
+    clk=clk,
+    rst=u1(either_rst),
+    config_base=config_base,
+    config_bound=config_bound,
+    config_size=size,
+    advance_tail=advance,
+    tail_next=tail_next,
+    tail=tails,
+    head_ready=head_ready
+  )
+  full = ptrs.push_full
+
+  const pop = br_fifo_shared_pop_ctrl<
+    NUM_FIFOS=NUM_FIFOS, NUM_READ_PORTS=1, FIFO_ID_WIDTH=1, PORT_ID_WIDTH=1, ADDR_WIDTH=ADDR_WIDTH, COUNT_WIDTH=COUNT_WIDTH,
+    WIDTH=push_data.[bits]
+  >(
+    clk=clk,
+    rst=u1(either_rst),
+    head_valid=ptrs.head_valid,
+    head=ptrs.head,
+    ram_empty=ptrs.empty,
+    ram_items=ptrs.items,
+    pop_ready=pop_ready,
+    data_ram_rd_data_valid=u1(ram_rd_data_valid),
+    data_ram_rd_data=ram_rd_data
+  )
+  dealloc    = pop.dealloc_valid
+  head_ready = pop.head_ready
+
+  push_receiver_in_reset = u1(receiver_in_reset)
+  push_credit            = credits
+  push_full              = full
+  credit_available_push  = available
+  credit_count_push      = count
+  pop_valid              = pop.pop_valid
+  pop_data               = pop.pop_data
+  pop_empty              = pop.pop_empty
+  ram_wr_valid           = advance != 0
+  ram_wr_addr            = wr_addr
+  ram_wr_data            = if advance != 0 { push_data } else { 0 }
+  ram_rd_addr_valid      = pop.data_ram_rd_addr_valid == 1
+  ram_rd_addr            = pop.data_ram_rd_addr
 }

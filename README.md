@@ -138,11 +138,16 @@ tests/<name>/
   LICENSE                       the upstream license, carried verbatim
   verilog/                      *.sv *.svh + filelist.f
   pyrope/                       *.prp + manifest.json
+  data/                         optional runtime inputs, e.g. firmware images
   sim/  <top>_tb.prp            generated: LFSR stimulus, checksum result
         <top>_tb_verilator.cpp  generated: line-for-line twin of the above
         <top>_harness.sv/.prp   generated: registered wrapper (combinational tops only)
   constraints/  default.sdc     generated: real clock (sequential) or virtual (combinational)
 ```
+
+Files in a test's `data/` directory are copied into each job's `data/` directory
+and included in its cache key. Verilog runtime filenames are relative to the job
+working directory; staged Pyrope files can use `../data/<file>`.
 
 Test names are flat and globally unique. Imported names are kept verbatim
 (`br_fifo_flops` from bedrock-rtl, `add` from circt-synth-tracker); the `suite`
@@ -738,3 +743,10 @@ Yosys baselines. It publishes completed, checksum-gated design/config groups
 incrementally to `target/report-<host>-full.html`, linked from the LEC report.
 Use `--test add` for a smoke run or `--resume RUN_ID` after interruption; a
 resume requires the same staged toolchain.
+
+Simulation recipes pass runtime application arguments as `+name=value` (for
+example `+cycles=10000000`) to both LiveHD and Verilator drivers. Pyrope test
+signature defaults still apply when an argument is absent. Generated Verilator
+drivers retain `--cycles N` as a compatibility alias. Migrating these recipe and
+harness files changes their source hashes, so existing measurements remain in
+the ledger but new runs use new cache entries.

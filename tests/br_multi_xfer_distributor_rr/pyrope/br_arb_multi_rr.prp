@@ -1,45 +1,55 @@
-const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_priority_dynamic = import("br_enc_priority_dynamic.br_enc_priority_dynamic")
-const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-pub mod br_arb_multi_rr::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u16, grant_allowed:u3) -> (grant:u16@[], grant_ordered:u64@[], grant_count:u3@[]) {
-  reg lowest_prio:u16
-  mut grant_valid:u4 = 0
-  grant_valid = 0sb?
-  grant_ordered = 0sb?
-  mut grant_valid__w1 = grant_valid
-  grant_valid__w1#[0] = unsigned(grant_allowed > 0) & 1
-  mut grant_valid__w2 = grant_valid__w1
-  grant_valid__w2#[1] = unsigned(grant_allowed > 1) & 1
-  mut grant_valid__w3 = grant_valid__w2
-  grant_valid__w3#[2] = unsigned(grant_allowed > 2) & 1
-  mut grant_valid__w4 = grant_valid__w3
-  grant_valid__w4#[3] = unsigned(grant_allowed > 3) & 1
-  mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk = clk, rst = rst, `in` = request, lowest_prio = lowest_prio)
-  const all_grants__w1 = u_enc_priority_dynamic
-  mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in` = request)
-  const request_count__w1 = br_enc_countones_inst
-  mut _mux_6:u3 = if unsigned(request_count__w1 <= grant_allowed) != 0 { request_count__w1#[0..=2] } else { grant_allowed }
-  const grant_count__w1 = _mux_6
-  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select = (grant_count__w1 - 1)#[0..=2]#[0..=1], `in` = all_grants__w1)
-  if rst != 0 {
-    lowest_prio = 0x8000
-  } elif unsigned((enable_priority_update != 0) and (request != 0) and (grant_allowed > 0)) != 0 {
-    lowest_prio = br_mux_bin_last_grant.out
+// Round-robin arbiter granting up to `grant_allowed` (at most MAX_GRANTS)
+// requesters per cycle. grant_ordered packs the grants in priority order,
+// grant k at bits [k*N, k*N + N). The last requester granted becomes the
+// lowest priority for the next cycle.
+pub mod br_arb_multi_rr<NUM_REQUESTERS=2, MAX_GRANTS=2, COUNT_WIDTH=2, SELECT_WIDTH=1>(
+  rst:u1,
+  enable_priority_update:bool,
+  request:unsigned(bits=NUM_REQUESTERS),
+  grant_allowed:unsigned(bits=COUNT_WIDTH)
+) -> (
+  grant:unsigned(bits=NUM_REQUESTERS)@[0],
+  grant_ordered:unsigned(bits=MAX_GRANTS * NUM_REQUESTERS)@[0],
+  grant_count:unsigned(bits=COUNT_WIDTH)@[0]
+) {
+  comptime const N = NUM_REQUESTERS
+  cassert(MAX_GRANTS >= 2 and MAX_GRANTS <= N)
+  cassert((1 << COUNT_WIDTH) > MAX_GRANTS and (1 << SELECT_WIDTH) >= MAX_GRANTS)
+
+  // After reset the top requester is the lowest priority, so requester 0 leads.
+  reg lowest_prio:unsigned(bits=N):[reset_pin = ref rst] = 1 << (N - 1)
+
+  const all_grants = br_enc_priority_dynamic<NUM_REQUESTERS=N,NUM_RESULTS=MAX_GRANTS>(`in`=request, lowest_prio=lowest_prio)
+
+  const request_count = request#+[..]
+  mut count:unsigned(bits=COUNT_WIDTH) = 0
+  wrap count = if request_count <= grant_allowed { request_count } else { grant_allowed }
+
+  mut ordered:unsigned(bits=MAX_GRANTS * N) = 0
+  mut granted:unsigned(bits=N)              = 0
+  for k in 0..<MAX_GRANTS {
+    if grant_allowed > k {
+      ordered#[(k*N)..+N] = all_grants#[(k*N)..+N]
+      granted            |= all_grants#[(k*N)..+N]
+    }
   }
-  mut _mux_8:u16 = if (grant_valid__w4 & 1) != 0 { all_grants__w1#[0..=15] } else { 0 }
-  mut grant_ordered__w1 = grant_ordered
-  grant_ordered__w1#[0..=15] = _mux_8
-  mut _mux_9:u16 = if ((grant_valid__w4 >> 1) & 1) != 0 { all_grants__w1#[16..=31] } else { 0 }
-  mut grant_ordered__w2 = grant_ordered__w1
-  grant_ordered__w2#[16..=31] = _mux_9
-  mut _mux_10:u16 = if ((grant_valid__w4 >> 2) & 1) != 0 { all_grants__w1#[32..=47] } else { 0 }
-  mut grant_ordered__w3 = grant_ordered__w2
-  grant_ordered__w3#[32..=47] = _mux_10
-  mut _mux_11:u16 = if ((grant_valid__w4 >> 3) & 1) != 0 { all_grants__w1#[48..=63] } else { 0 }
-  mut grant_ordered__w4 = grant_ordered__w3
-  grant_ordered__w4#[48..=63] = _mux_11
-  grant = (((0 | grant_ordered__w4#[0..=15]) | grant_ordered__w4#[16..=31]) | grant_ordered__w4#[32..=47]) | grant_ordered__w4#[48..=63]
-  grant_ordered = grant_ordered__w4
-  grant_count = grant_count__w1
+
+  // The last grant of this cycle becomes the lowest priority.
+  mut last:unsigned(bits=SELECT_WIDTH) = 0
+  wrap last = count - 1
+  mut last_grant:unsigned(bits=N) = 0
+  for k in 0..<MAX_GRANTS {
+    if last == k {
+      last_grant = all_grants#[(k*N)..+N]
+    }
+  }
+  if enable_priority_update and request != 0 and grant_allowed > 0 {
+    lowest_prio = last_grant
+  }
+
+  grant         = granted
+  grant_ordered = ordered
+  grant_count   = count
 }

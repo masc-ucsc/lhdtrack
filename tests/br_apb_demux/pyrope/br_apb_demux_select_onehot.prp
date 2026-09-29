@@ -1,4 +1,7 @@
-// Place `copies` copies of a `width`-bit value side by side.
+// APB request fields that every downstream receives unchanged.
+pub type Apb_req = (paddr:u12, pprot:u3, pstrb:u4, pwrite:bool, pwdata:u32)
+
+// Place `copies` copies of `value` side by side, each `width` bits wide.
 comb replicate(value, width, copies) -> (out) {
   mut packed = 0
   for i in 0..<copies {
@@ -12,14 +15,11 @@ comb replicate(value, width, copies) -> (out) {
 // downstream completes at once with a decode error (pslverr).
 //
 // Supported configuration: no retiming stages, decode error enabled.
-pub mod br_apb_demux_select_onehot<NUM_DOWNSTREAMS=1>
-(
+pub mod br_apb_demux_select_onehot<NUM_DOWNSTREAMS=1>(
   select_onehot:unsigned(bits=NUM_DOWNSTREAMS),
   psel:bool,
   penable:bool,
-  // Request fields that every downstream receives unchanged. (Inline tuple
-  // type: a named `type` on a mod port leaves its fields undriven, LiveHD bug.)
-  req:(paddr:u12, pprot:u3, pstrb:u4, pwrite:bool, pwdata:u32),
+  req:Apb_req,
   downstream_prdata:unsigned(bits=32 * NUM_DOWNSTREAMS),
   downstream_pready:unsigned(bits=NUM_DOWNSTREAMS),
   downstream_pslverr:unsigned(bits=NUM_DOWNSTREAMS)
@@ -35,27 +35,24 @@ pub mod br_apb_demux_select_onehot<NUM_DOWNSTREAMS=1>
   downstream_pwrite:unsigned(bits=NUM_DOWNSTREAMS)@[0],
   downstream_pwdata:unsigned(bits=32 * NUM_DOWNSTREAMS)@[0]
 ) {
-  const valid = if psel { select_onehot } else { 0 }
+  comptime const ALL = (1 << NUM_DOWNSTREAMS) - 1
+  const valid        = if psel { select_onehot } else { 0 }
 
   downstream_psel    = valid
   downstream_penable = if penable { valid } else { 0 }
-  // Field widths of `req` (`req.paddr.[bits]` reads nil, see suggestions.md).
-  downstream_paddr  = replicate(value=req.paddr, width=12, copies=NUM_DOWNSTREAMS)
-  downstream_pprot  = replicate(value=req.pprot, width=3, copies=NUM_DOWNSTREAMS)
-  downstream_pstrb  = replicate(value=req.pstrb, width=4, copies=NUM_DOWNSTREAMS)
-  downstream_pwrite = if req.pwrite { (1 << NUM_DOWNSTREAMS) - 1 } else { 0 }
-  downstream_pwdata = replicate(value=req.pwdata, width=32, copies=NUM_DOWNSTREAMS)
+  downstream_paddr   = replicate(value=req.paddr, width=req.paddr.[bits], copies=NUM_DOWNSTREAMS)
+  downstream_pprot   = replicate(value=req.pprot, width=req.pprot.[bits], copies=NUM_DOWNSTREAMS)
+  downstream_pstrb   = replicate(value=req.pstrb, width=req.pstrb.[bits], copies=NUM_DOWNSTREAMS)
+  downstream_pwrite  = if req.pwrite { ALL } else { 0 }
+  downstream_pwdata  = replicate(value=req.pwdata, width=req.pwdata.[bits], copies=NUM_DOWNSTREAMS)
 
   // One-hot response mux: OR together the responses of the valid downstreams.
-  // The typed rebind works around a LiveHD bug: an outlined loop reading a
-  // `bits=32 * N` port gets a 1-bit port (see suggestions.md).
-  const prdata:unsigned(bits=32 * NUM_DOWNSTREAMS) = downstream_prdata
   mut rdata:u32 = 0
-  mut ready = false
-  mut slverr = false
+  mut ready     = false
+  mut slverr    = false
   for i in 0..<NUM_DOWNSTREAMS {
     if valid#[i] == 1 {
-      rdata |= prdata#[(i*32)..+32]
+      rdata |= downstream_prdata#[(i*32)..+32]
       ready  = ready or downstream_pready#[i] == 1
       slverr = slverr or downstream_pslverr#[i] == 1
     }
@@ -64,9 +61,5 @@ pub mod br_apb_demux_select_onehot<NUM_DOWNSTREAMS=1>
 
   // A transfer completes only in its access phase.
   const access = psel and penable
-  resp         = (
-    rdata   = rdata
-    ,ready  = access and (ready or decode_miss)
-    ,slverr = access and (slverr or decode_miss)
-  )
+  resp         = (rdata=rdata, ready=access and (ready or decode_miss), slverr=access and (slverr or decode_miss))
 }

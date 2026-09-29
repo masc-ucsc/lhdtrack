@@ -6,6 +6,5 @@ const br_delay_nr = import("br_delay_nr.br_delay_nr")
 pub mod br_cdc_fifo_gray_count_sync<COUNT_WIDTH=2, NUM_STAGES=3>(dst_clk:u1, src_count_gray:unsigned(bits=COUNT_WIDTH)) -> (
   dst_count_gray:unsigned(bits=COUNT_WIDTH)@[]
 ) {
-  const sync     = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_STAGES>(clk=dst_clk, `in`=src_count_gray)
-  dst_count_gray = sync.out
+  dst_count_gray = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_STAGES>(clk=dst_clk, `in`=src_count_gray)
 }

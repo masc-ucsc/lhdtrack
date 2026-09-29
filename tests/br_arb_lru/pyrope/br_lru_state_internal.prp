@@ -12,33 +12,34 @@ comb upper_triangle(size) -> (mask) {
   mask = m
 }
 
-pub mod br_lru_state_internal<NUM_REQUESTERS=2>(
-  rst:u1,
-  update_priority:bool,
-  grant:unsigned(bits=NUM_REQUESTERS)
-) -> (state:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)@[0]) {
+pub mod br_lru_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, grant:unsigned(bits=NUM_REQUESTERS)) -> (
+  state:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)@[0]
+) {
   comptime const N = NUM_REQUESTERS
 
-  // After reset every lower-numbered requester beats every higher one.
-  comptime const STORED = upper_triangle(size=N)
-  reg wins:unsigned(bits=N * N):[reset_pin = ref rst] = STORED
-
-  mut next_wins = wins
-  if update_priority {
+  // After reset every lower-numbered requester beats every higher one. Only
+  // the upper-triangle bits are reset and updated; the others are never read.
+  comptime const STORED         = upper_triangle(size=N)
+  reg wins:unsigned(bits=N * N) = nil
+  if rst == 1 {
+    wins = wins | STORED
+  }
+  elif update_priority {
+    mut next_wins = wins
     for i in 0..<N {
       // The granted requester loses to everyone; everyone beats a granted one.
       next_wins#[(i*N)..+N] = if grant#[i] == 1 { 0 } else { wins#[(i*N)..+N] | grant }
     }
+    wins = (next_wins & STORED) | (wins & ~STORED)
   }
-  // Bits outside the upper triangle are never stored.
-  wins = next_wins & STORED
 
   mut matrix:unsigned(bits=N * N) = 0
   for i in 0..<N {
     for j in 0..<N {
       if i < j {
         matrix#[i*N + j] = wins#[i*N + j]
-      } elif i > j {
+      }
+      elif i > j {
         matrix#[i*N + j] = ~wins#[j*N + i] & 1
       }
     }

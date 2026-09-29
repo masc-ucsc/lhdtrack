@@ -27,7 +27,7 @@ pub mod br_flow_mux_select_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128)
 
-  const (push_ready, pop_valid, pop_data) = dut(clk=1, rst=rst, select=lfsr#[0..=1], push_valid=lfsr#[2..=5], push_data=lfsr_x#[6..=133], pop_ready=lfsr#[6])
+  const (push_ready, pop_valid, pop_data) = dut(select=lfsr#[0..=1], push_valid=lfsr#[2..=5], push_data=lfsr_x#[6..=133], pop_ready=lfsr#[6])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

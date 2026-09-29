@@ -76,7 +76,7 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     )
     run = ctx.run(
         "run",
-        [lhd, "sim", *inputs, "--run-only", "--arg", f"cycles={cycles}",
+        [lhd, "sim", *inputs, "--run-only", f"+cycles={cycles}",
          *sim_policy, "--set", "sim.ninja=false",
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )
@@ -89,7 +89,7 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     # execution must carry the equivalent runtime switch or it silently falls
     # back to seeded-random storage initialization and no longer matches the
     # Verilator `--x-initial 0` contract above.
-    best, samples = ctx.run_best("exec", [drv, "--cycles", cycles, "--init-zero"])
+    best, samples = ctx.run_best("exec", [drv, f"+cycles={cycles}", "--init-zero"])
 
     # cc = the whole --run-only minus the simulation it also paid for. Clamped
     # at zero: a negative value is only reachable if a stall landed in the lhd

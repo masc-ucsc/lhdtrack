@@ -1,15 +1,49 @@
-const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
+// Credit receiver of one flow: holds the credits of the receiving FIFO, sends
+// one to the sender each cycle a credit is available (above the withheld
+// amount) and not stalled, and takes one back whenever an entry is freed.
+// The counter restarts at credit_initial whenever either side is in reset.
+// Supported configuration: one credit per cycle each way, registered push
+// outputs.
+pub mod br_credit_receiver<COUNT_WIDTH=1>(
+  clk:u1,
+  rst:u1,
+  push_sender_in_reset:bool,
+  push_credit_stall:bool,
+  pop_credit:u1,  // u1, not bool: a bool port in a generic breaks the LEC encoder (LiveHD bug)
+  credit_initial:unsigned(bits=COUNT_WIDTH),
+  credit_withhold:unsigned(bits=COUNT_WIDTH)
+) -> (
+  push_receiver_in_reset:bool@[],  // registered
+  push_credit:bool@[],             // registered
+  credit_count:unsigned(bits=COUNT_WIDTH)@[0],
+  credit_available:unsigned(bits=COUNT_WIDTH)@[0]
+) {
+  const either_rst = rst == 1 or push_sender_in_reset
 
-pub mod br_credit_receiver::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u32, pop_credit:u1, credit_initial:u6, credit_withhold:u6) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], pop_valid:u1@[], pop_data:u32@[], credit_count:u6@[], credit_available:u6@[]) {
-  reg push_receiver_in_reset:u1
-  reg push_credit:u1
-  const either_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0))
-  const credit_decr_valid__w1 = unsigned(push_credit_stall == 0)
-  push_receiver_in_reset = if rst != 0 { 1 } else { 0 }
-  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = unsigned(pop_credit != 0), incr = pop_credit, decr_valid = credit_decr_valid__w1, decr = 1, initial_value = credit_initial, withhold = credit_withhold)
-  push_credit = if rst != 0 { 0 } else { unsigned((credit_decr_valid__w1 != 0) and (br_credit_counter.decr_ready != 0) and (either_rst__w1 == 0)) }
-  pop_valid = push_valid & (unsigned(either_rst__w1 == 0) & 1) & 1
-  pop_data = push_data
-  credit_count = br_credit_counter.value
-  credit_available = br_credit_counter.available
+  // The reset value is a runtime input, so the reset is written out.
+  reg count:unsigned(bits=COUNT_WIDTH) = nil
+  mut with_returned:unsigned(bits=COUNT_WIDTH) = 0
+  wrap with_returned = count + pop_credit
+  mut available:unsigned(bits=COUNT_WIDTH) = 0
+  if with_returned > credit_withhold {
+    wrap available = with_returned - credit_withhold   // positive here; the range check ignores the guard
+  }
+  const send = not push_credit_stall and available != 0
+
+  if either_rst {
+    count = credit_initial
+  } elif pop_credit == 1 or send {
+    wrap count = with_returned - u1(send)
+  }
+
+  // Registered push-side outputs (reset by rst only).
+  reg in_reset:bool = true
+  reg credit:bool   = false
+  in_reset = false
+  credit   = send and not either_rst
+
+  push_receiver_in_reset = in_reset
+  push_credit            = credit
+  credit_count           = count
+  credit_available       = available
 }

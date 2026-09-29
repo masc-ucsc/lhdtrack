@@ -26,7 +26,7 @@ pub mod br_delay_skew_harness(rst:u1) -> (checksum:u64@[0]) {
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (out_valid_next, out) = dut(clk=1, in_valid=lfsr#[0], `in`=lfsr_x#[1..=64])
+  const (out_valid_next, out) = dut(in_valid=lfsr#[0], `in`=lfsr_x#[1..=64])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ out_valid_next

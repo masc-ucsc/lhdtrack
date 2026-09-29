@@ -3,8 +3,7 @@ const br_cdc_fifo_ctrl_push_1r1w = import("br_cdc_fifo_ctrl_push_1r1w.br_cdc_fif
 
 // Clock-domain-crossing FIFO controller for an external 1R1W RAM: 32 entries
 // of 64 bits. The halves exchange Gray-coded push/pop counts and reset status.
-// timecheck=false: works around a false combinational-loop report (LiveHD bug).
-pub mod br_cdc_fifo_ctrl_1r1w::[timecheck = false](
+pub mod br_cdc_fifo_ctrl_1r1w(
   push_clk:u1,
   push_rst:u1,
   push_valid:u1,
@@ -29,17 +28,18 @@ pub mod br_cdc_fifo_ctrl_1r1w::[timecheck = false](
   pop_ram_rd_addr:u5@[]
 ) {
   comptime const DEPTH           = 32
+  comptime const WIDTH           = push_data.[bits]
   comptime const COUNT_WIDTH     = push_slots.[bits]
   comptime const NUM_SYNC_STAGES = 3
 
   wire pop_pop_count_gray:unsigned(bits=COUNT_WIDTH) = nil
   wire pop_reset_active_pop:bool = nil
 
-  const push = br_cdc_fifo_ctrl_push_1r1w<DEPTH=DEPTH,WIDTH=64,ADDR_WIDTH=5,COUNT_WIDTH=COUNT_WIDTH,NUM_SYNC_STAGES=NUM_SYNC_STAGES,PUSH_COUNT_DELAY=2>(
+  const push = br_cdc_fifo_ctrl_push_1r1w<DEPTH=DEPTH,WIDTH=WIDTH,COUNT_WIDTH=COUNT_WIDTH,NUM_SYNC_STAGES=NUM_SYNC_STAGES,PUSH_COUNT_DELAY=2>(
     push_clk=push_clk, push_rst=push_rst, push_valid=push_valid == 1, push_data=push_data, pop_reset_active_pop=pop_reset_active_pop,
     pop_pop_count_gray=pop_pop_count_gray
   )
-  const pop = br_cdc_fifo_ctrl_pop_1r1w<DEPTH=DEPTH,WIDTH=64,ADDR_WIDTH=5,COUNT_WIDTH=COUNT_WIDTH,NUM_SYNC_STAGES=NUM_SYNC_STAGES,POP_COUNT_DELAY=2>(
+  const pop = br_cdc_fifo_ctrl_pop_1r1w<DEPTH=DEPTH,WIDTH=WIDTH,COUNT_WIDTH=COUNT_WIDTH,NUM_SYNC_STAGES=NUM_SYNC_STAGES,POP_COUNT_DELAY=2>(
     push_push_count_gray=push.push_push_count_gray, push_reset_active_push=push.push_reset_active_push, pop_clk=pop_clk, pop_rst=pop_rst,
     pop_ready=pop_ready == 1, pop_ram_rd_data_valid=pop_ram_rd_data_valid == 1, pop_ram_rd_data=pop_ram_rd_data
   )

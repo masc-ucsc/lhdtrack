@@ -22,7 +22,7 @@ pub mod br_ecc_secded_decoder_harness(rst:u1) -> (checksum:u64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (dec_valid, dec_codeword, dec_error_ce, dec_error_due, dec_error_syndrome, dec_data) = dut(clk=1, rst=rst, rcv_valid=lfsr#[0], rcv_data=lfsr#[1..=32], rcv_parity=lfsr#[33..=39])
+  const (dec_valid, dec_codeword, dec_error_ce, dec_error_due, dec_error_syndrome, dec_data) = dut(rcv_valid=lfsr#[0], rcv_data=lfsr#[1..=32], rcv_parity=lfsr#[33..=39])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ dec_valid

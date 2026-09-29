@@ -29,7 +29,7 @@ pub mod br_credit_sender_vc_harness(rst:u1) -> (checksum:u64@[0]) {
     (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
     (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
 
-  const (request, enable_priority_update, push_ready, pop_sender_in_reset, pop_valid, pop_data, pop_vc, credit_count, credit_available) = dut(clk=1, rst=rst, pop_receiver_in_reset=rst, can_grant=lfsr#[0..=3], grant=lfsr#[4..=7], push_valid=lfsr#[8..=11], push_data=lfsr_x#[12..=267], pop_credit=lfsr#[12..=23], credit_initial=lfsr#[24..=43], credit_withhold=lfsr#[44..=63])
+  const (request, enable_priority_update, push_ready, pop_sender_in_reset, pop_valid, pop_data, pop_vc, credit_count, credit_available) = dut(pop_receiver_in_reset=rst, can_grant=lfsr#[0..=3], grant=lfsr#[4..=7], push_valid=lfsr#[8..=11], push_data=lfsr_x#[12..=267], pop_credit=lfsr#[12..=23], credit_initial=lfsr#[24..=43], credit_withhold=lfsr#[44..=63])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ request

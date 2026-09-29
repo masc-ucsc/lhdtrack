@@ -1,4 +1,2 @@
 // Binary to Gray code: adjacent values differ in exactly one bit.
-// A mod, not a comb: a generic comb sizes its outputs from the generic default
-// (LiveHD bug).
-pub mod br_enc_bin2gray<WIDTH=2>(bin:unsigned(bits=WIDTH)) -> (gray:unsigned(bits=WIDTH)@[0]) { gray = bin ^ (bin >> 1) }
+pub comb br_enc_bin2gray<WIDTH=2>(bin:unsigned(bits=WIDTH)) -> (gray:unsigned(bits=WIDTH)) { gray = bin ^ (bin >> 1) }

@@ -1,16 +1,31 @@
 const br_arb_multi_rr = import("br_arb_multi_rr.br_arb_multi_rr")
-const br_multi_xfer_distributor_core = import("br_multi_xfer_distributor_core.br_multi_xfer_distributor_core")
+const br_mux_onehot   = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_multi_xfer_distributor_rr::[timecheck=false](clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_ready:u2) -> (push_receivable:u2@[], pop_valid:u2@[], pop_data:u10@[]) {
-  wire grant:u2
-  wire grant_ordered:u4
-  wire grant_count:u2
-  mut br_multi_xfer_distributor_core_inst = br_multi_xfer_distributor_core::[name=br_multi_xfer_distributor_core_inst](clk = clk, rst = rst, push_sendable = push_sendable, push_data = push_data, pop_ready = pop_ready, grant = grant, grant_ordered = grant_ordered, grant_count = grant_count)
-  mut br_arb_multi_rr_inst = br_arb_multi_rr::[name=br_arb_multi_rr_inst](clk = clk, rst = rst, enable_priority_update = br_multi_xfer_distributor_core_inst.enable_priority_update, request = br_multi_xfer_distributor_core_inst.request, grant_allowed = br_multi_xfer_distributor_core_inst.grant_allowed)
-  grant = br_arb_multi_rr_inst.grant
-  grant_ordered = br_arb_multi_rr_inst.grant_ordered
-  grant_count = br_arb_multi_rr_inst.grant_count
-  push_receivable = br_multi_xfer_distributor_core_inst.push_receivable
-  pop_valid = br_multi_xfer_distributor_core_inst.pop_valid
-  pop_data = br_multi_xfer_distributor_core_inst.pop_data
+// Distribute up to NUM_SYMBOLS pushed symbols per cycle to the ready pop flows,
+// picking flows round-robin: symbol k goes to the k-th granted flow. Symbols
+// and flows are packed with index 0 in the low bits.
+pub mod br_multi_xfer_distributor_rr(clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_ready:u2) -> (
+  push_receivable:u2@[0],
+  pop_valid:u2@[0],
+  pop_data:u10@[0]
+) {
+  comptime const NUM_FLOWS    = pop_ready.[bits]
+  comptime const SYMBOL_WIDTH = pop_data.[bits]/NUM_FLOWS
+  comptime const NUM_SYMBOLS  = push_data.[bits]/SYMBOL_WIDTH
+
+  const arb = br_arb_multi_rr(clk=clk, rst=rst, enable_priority_update=1, request=pop_ready, grant_allowed=push_sendable)
+
+  mut data:u10 = 0
+  for f in 0..<NUM_FLOWS {
+    // The symbol whose ordered grant went to flow f.
+    mut select:unsigned(bits=NUM_SYMBOLS) = 0
+    for k in 0..<NUM_SYMBOLS {
+      select#[k] = arb.grant_ordered#[k*NUM_FLOWS + f]
+    }
+    data#[(f*SYMBOL_WIDTH)..+SYMBOL_WIDTH] = br_mux_onehot<NUM_INPUTS=NUM_SYMBOLS,WIDTH=SYMBOL_WIDTH>(select=select, `in`=push_data)
+  }
+
+  push_receivable = arb.grant_count
+  pop_valid       = arb.grant
+  pop_data        = data
 }

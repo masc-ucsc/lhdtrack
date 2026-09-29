@@ -26,7 +26,7 @@ pub mod br_tracker_reorder_buffer_ctrl_1r1w_harness(rst:u1) -> (checksum:u64@[0]
   const lfsr_x:u128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (alloc_valid, alloc_entry_id, reordered_resp_pop_valid, reordered_resp_pop_data, resp_pending, ram_wr_addr, ram_wr_valid, ram_wr_data, ram_rd_addr, ram_rd_addr_valid) = dut(clk=1, rst=rst, alloc_ready=lfsr#[0], unordered_resp_push_valid=lfsr#[1], unordered_resp_push_entry_id=lfsr#[2..=5], unordered_resp_push_data=lfsr#[6..=37], reordered_resp_pop_ready=lfsr#[38], ram_rd_data=lfsr_x#[39..=70], ram_rd_data_valid=lfsr#[7])
+  const (alloc_valid, alloc_entry_id, reordered_resp_pop_valid, reordered_resp_pop_data, resp_pending, ram_wr_addr, ram_wr_valid, ram_wr_data, ram_rd_addr, ram_rd_addr_valid) = dut(alloc_ready=lfsr#[0], unordered_resp_push_valid=lfsr#[1], unordered_resp_push_entry_id=lfsr#[2..=5], unordered_resp_push_data=lfsr#[6..=37], reordered_resp_pop_ready=lfsr#[38], ram_rd_data=lfsr_x#[39..=70], ram_rd_data_valid=lfsr#[7])
 
   mut acc:u64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ alloc_valid

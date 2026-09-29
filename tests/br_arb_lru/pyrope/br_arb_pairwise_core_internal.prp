@@ -1,9 +1,9 @@
 // Grant each requester that beats every other active requester.
 // priority_matrix is packed row-major: bit i*N+j is 1 when i beats j.
-pub mod br_arb_pairwise_core_internal<NUM_REQUESTERS=2>(
+pub comb br_arb_pairwise_core_internal<NUM_REQUESTERS=2>(
   request:unsigned(bits=NUM_REQUESTERS),
   priority_matrix:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)
-) -> (can_grant:unsigned(bits=NUM_REQUESTERS)@[0], grant:unsigned(bits=NUM_REQUESTERS)@[0]) {
+) -> (can_grant:unsigned(bits=NUM_REQUESTERS), grant:unsigned(bits=NUM_REQUESTERS)) {
   comptime const N   = NUM_REQUESTERS
   comptime const ALL = (1 << N) - 1
 

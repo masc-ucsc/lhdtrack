@@ -2,13 +2,10 @@ const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
 // Round-robin arbiter: the requester after the last grant has the highest
 // priority, wrapping around.
-// timecheck=false: works around a false combinational-loop report through the
-// registered rr_state child (LiveHD bug, see suggestions.md).
-pub mod br_arb_rr_internal<NUM_REQUESTERS=2>::[timecheck = false](
-  rst:u1,
-  enable_priority_update:bool,
-  request:unsigned(bits=NUM_REQUESTERS)
-) -> (can_grant:unsigned(bits=NUM_REQUESTERS)@[0], grant:unsigned(bits=NUM_REQUESTERS)@[0]) {
+pub mod br_arb_rr_internal<NUM_REQUESTERS=2>(rst:u1, enable_priority_update:bool, request:unsigned(bits=NUM_REQUESTERS)) -> (
+  can_grant:unsigned(bits=NUM_REQUESTERS)@[0],
+  grant:unsigned(bits=NUM_REQUESTERS)@[0]
+) {
   cassert(NUM_REQUESTERS >= 2, "a single requester needs no arbiter")
   comptime const ALL = (1 << NUM_REQUESTERS) - 1
 
@@ -24,12 +21,8 @@ pub mod br_arb_rr_internal<NUM_REQUESTERS=2>::[timecheck = false](
     comptime const below = (1 << i) - 1
     comptime const above = ALL & ~((1 << (i + 1)) - 1)
     // Requesters that come before i in the round-robin order.
-    const ahead = if i == 0 or priority_mask#[i] == 1 {
-      (request & below) | (request_high & above)
-    } else {
-      request_high & below
-    }
-    can#[i] = u1(ahead == 0)
+    const ahead = if i == 0 or priority_mask#[i] == 1 { (request & below) | (request_high & above) } else { request_high & below }
+    can#[i]     = u1(ahead == 0)
   }
   granted   = request & can
   can_grant = can
