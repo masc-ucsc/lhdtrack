@@ -1,42 +1,37 @@
+const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_priority_dynamic = import("br_enc_priority_dynamic.br_enc_priority_dynamic")
+const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-// Multi-grant round-robin arbiter: grants up to `grant_allowed` requesters per
-// cycle in round-robin order; the last one granted becomes the lowest priority.
-// grant_ordered packs the grants in priority order, grant 0 in the low bits.
-pub mod br_arb_multi_rr(clk:u1, rst:u1, enable_priority_update:u1, request:u2, grant_allowed:u2) -> (
-  grant:u2@[0],
-  grant_ordered:u4@[0],
-  grant_count:u2@[0]
-) {
-  comptime const N          = request.[bits]
-  comptime const MAX_GRANTS = grant_ordered.[bits]/N
-
-  // After reset the last requester is the lowest priority, so requester 0 leads.
-  reg lowest_prio:u2 = 1 << (N - 1)
-
-  const all_grants    = br_enc_priority_dynamic(`in`=request, lowest_prio=lowest_prio)
-  const request_count = request#+[..]
-  const count         = if request_count <= grant_allowed { request_count } else { grant_allowed }
-
-  // The last grant given this cycle becomes the lowest priority.
-  const last = (count - 1)#[0..<1] // clog2(MAX_GRANTS) bits
-  if enable_priority_update == 1 and request != 0 and grant_allowed > 0 {
-    for k in 0..<MAX_GRANTS {
-      if last == k {
-        lowest_prio = all_grants#[(k*N)..+N]
-      }
+pub mod br_arb_multi_rr<NumRequesters=2, MaxGrantPerCycle=2, EnableCoverBlockPriorityUpdate=0, EnableCoverMoreRequestThanAllowed=0>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant_allowed:U2, request:U2, rst:U1) -> (grant:U2@[], grant_count:U2@[], grant_ordered:U4@[]) {
+  reg lowest_prio:U2:[async=false, initial=2, reset_pin=rst]
+  wire `grant_ordered[0]`:U1 = nil
+  wire `grant_ordered[1]`:U1 = nil
+  wire `grant_ordered[2]`:U1 = nil
+  wire `grant_ordered[3]`:U1 = nil
+  wire grant_ordered:U4 = nil
+  wire `grant_valid[0]`:U1 = nil
+  wire `grant_valid[1]`:U1 = nil
+  `grant_valid[0]` = U1(grant_allowed > 0) & 1
+  `grant_valid[1]` = U1(grant_allowed > 1) & 1
+  mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
+  const all_grants__w1 = u_enc_priority_dynamic
+  mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in`=request)
+  const request_count__w1 = br_enc_countones_inst
+  mut _mux_4:U2 = if U1(request_count__w1 <= grant_allowed) != 0 { request_count__w1#[0..=1] } else { grant_allowed }
+  const grant_count__w1 = _mux_4
+  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=1] & 1, `in`=all_grants__w1)
+  if not (rst != 0) {
+    if U1(enable_priority_update != 0 and request != 0 and grant_allowed > 0) != 0 {
+      lowest_prio = br_mux_bin_last_grant.out
     }
   }
-
-  mut ordered:u4 = 0
-  mut any:u2     = 0
-  for k in 0..<MAX_GRANTS {
-    if grant_allowed > k {
-      ordered#[(k*N)..+N] = all_grants#[(k*N)..+N]
-      any                |= all_grants#[(k*N)..+N]
-    }
-  }
-  grant         = any
-  grant_ordered = ordered
-  grant_count   = count
+  mut _mux_6:U2 = if (`grant_valid[0]` & 1) != 0 { all_grants__w1#[0..=1] } else { 0 }
+  `grant_ordered[0]` = _mux_6 & 1
+  `grant_ordered[1]` = (_mux_6 >> 1) & 1
+  mut _mux_7:U2 = if (`grant_valid[1]` & 1) != 0 { all_grants__w1#[2..=3] } else { 0 }
+  `grant_ordered[2]` = _mux_7 & 1
+  `grant_ordered[3]` = (_mux_7 >> 1) & 1
+  grant_ordered = (`grant_ordered[3]` << 3) | (`grant_ordered[2]` << 2) | (`grant_ordered[1]` << 1) | `grant_ordered[0]`
+  grant = (0 | ((`grant_ordered[1]` << 1) | `grant_ordered[0]`)) | ((`grant_ordered[3]` << 1) | `grant_ordered[2]`)
+  grant_count = grant_count__w1
 }

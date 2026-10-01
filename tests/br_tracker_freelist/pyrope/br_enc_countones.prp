@@ -1,0 +1,3 @@
+pub comb br_enc_countones<Width=1>::[timecheck=false](`in`:U1) -> (count:U1) {
+  count = (0 + (`in` & 1)) & 1
+}

@@ -1,11 +1,20 @@
-pub comb br_arb_fixed_internal::[timecheck=false](request:u4) -> (can_grant:(e3:u1, e2:u1, e1:u1, e0:u1), grant:u4) {
-  mut `can_grant__bpo.e0` = 0
-  mut `can_grant__bpo.e1` = unsigned(not ((request & 1) != 0))
-  mut `can_grant__bpo.e2` = unsigned(not (request#[0..=1] != 0))
-  mut `can_grant__bpo.e3` = unsigned(not (request#[0..=2] != 0))
-  can_grant.e3 = `can_grant__bpo.e3`
-  can_grant.e2 = `can_grant__bpo.e2`
-  can_grant.e1 = `can_grant__bpo.e1`
+pub comb br_arb_fixed_internal<NumRequesters=4>::[timecheck=false](request:U4) -> (can_grant:(e3:U1, e2:U1, e1:U1, e0:U1), grant:U4) {
+  wire can_grant__bpr:(e3:U1, e2:U1, e1:U1, e0:U1) = nil
+  mut `can_grant__bpo.e0` = 1
+  mut `can_grant__bpo.e1` = U1(not ((request & 1) != 0))
+  mut `can_grant__bpo.e2` = U1(not (request#[0..=1] != 0))
+  mut `can_grant__bpo.e3` = U1(not (request#[0..=2] != 0))
+  const grant__w1 = request & ((can_grant__bpr.e3 << 3) | (can_grant__bpr.e2 << 2) | (can_grant__bpr.e1 << 1) | can_grant__bpr.e0)
+  const t26 = `can_grant__bpo.e3`
+  can_grant__bpr.e3 = t26
+  can_grant.e3 = t26
+  const t27 = `can_grant__bpo.e2`
+  can_grant__bpr.e2 = t27
+  can_grant.e2 = t27
+  const t28 = `can_grant__bpo.e1`
+  can_grant__bpr.e1 = t28
+  can_grant.e1 = t28
+  can_grant__bpr.e0 = 1
   can_grant.e0 = 1
-  grant = request & ((`can_grant__bpo.e3` << 3) | (`can_grant__bpo.e2` << 2) | (`can_grant__bpo.e1` << 1) | 1)
+  grant = grant__w1
 }

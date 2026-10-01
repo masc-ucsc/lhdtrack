@@ -2,376 +2,526 @@ const br_enc_bin2onehot = import("br_enc_bin2onehot.br_enc_bin2onehot")
 const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_ram_flops_tile::[timecheck=false](wr_clk:u1, wr_rst:u1, wr_valid:(e1:u1, e0:u1), wr_addr:u10, wr_data:u64, wr_word_en:(e1:u1, e0:u1), rd_clk:u1, rd_rst:u1, rd_addr_valid:u2, rd_addr:u10) -> (rd_data_valid:u2@[], rd_data:u64@[]) {
-  reg mem:[32]u32:[ordering="old", clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk, clock_pin=ref wr_clk]
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot:u64 = 0
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose:u64 = 0
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot = 0sb?
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose = 0sb?
-  rd_data = 0sb?
-  mut gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst = br_enc_bin2onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst](clk = wr_clk, rst = wr_rst, `in` = wr_addr#[0..=4], in_valid = wr_valid.e0)
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w1 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w1#[0..=31] = gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst#[0..=31]
-  mut gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst = br_enc_bin2onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst](clk = wr_clk, rst = wr_rst, `in` = wr_addr#[5..=9], in_valid = wr_valid.e1)
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w1
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] = gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst#[0..=31]
-  br_misc_unused_p1::[name=gen_multi_entry_gen_unused_wr_word_en_br_misc_unused_wr_word_en](`in` = (wr_word_en.e1 << 1) | wr_word_en.e0)
-  mut rd_data__w1 = rd_data
-  rd_data__w1#[0..=31] = mem[rd_addr#[0..=4]]#[0..=31]
-  mut rd_data__w2 = rd_data__w1
-  rd_data__w2#[32..=63] = mem[rd_addr#[5..=9]]#[0..=31]
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w1 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w1#[0] = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w2 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w1
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w2#[2] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 1) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w3 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w2
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w3#[4] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 2) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w4 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w3
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w4#[6] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 3) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w5 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w4
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w5#[8] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 4) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w6 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w5
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w6#[10] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 5) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w7 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w6
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w7#[12] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 6) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w8 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w7
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w8#[14] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 7) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w9 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w8
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w9#[16] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 8) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w10 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w9
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w10#[18] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 9) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w11 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w10
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w11#[20] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 10) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w12 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w11
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w12#[22] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 11) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w13 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w12
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w13#[24] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 12) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w14 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w13
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w14#[26] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 13) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w15 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w14
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w15#[28] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 14) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w16 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w15
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w16#[30] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 15) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w17 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w16
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w17#[32] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 16) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w18 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w17
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w18#[34] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 17) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w19 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w18
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w19#[36] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 18) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w20 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w19
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w20#[38] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 19) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w21 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w20
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w21#[40] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 20) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w22 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w21
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w22#[42] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 21) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w23 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w22
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w23#[44] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 22) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w24 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w23
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w24#[46] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 23) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w25 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w24
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w25#[48] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 24) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w26 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w25
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w26#[50] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 25) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w27 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w26
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w27#[52] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 26) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w28 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w27
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w28#[54] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 27) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w29 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w28
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w29#[56] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 28) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w30 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w29
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w30#[58] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 29) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w31 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w30
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w31#[60] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 30) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w32 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w31
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w32#[62] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[0..=31] >> 31) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w33 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w32
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w33#[1] = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w34 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w33
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w34#[3] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 1) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w35 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w34
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w35#[5] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 2) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w36 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w35
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w36#[7] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 3) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w37 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w36
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w37#[9] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 4) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w38 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w37
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w38#[11] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 5) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w39 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w38
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w39#[13] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 6) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w40 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w39
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w40#[15] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 7) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w41 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w40
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w41#[17] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 8) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w42 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w41
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w42#[19] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 9) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w43 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w42
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w43#[21] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 10) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w44 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w43
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w44#[23] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 11) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w45 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w44
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w45#[25] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 12) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w46 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w45
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w46#[27] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 13) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w47 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w46
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w47#[29] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 14) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w48 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w47
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w48#[31] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 15) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w49 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w48
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w49#[33] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 16) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w50 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w49
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w50#[35] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 17) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w51 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w50
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w51#[37] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 18) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w52 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w51
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w52#[39] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 19) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w53 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w52
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w53#[41] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 20) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w54 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w53
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w54#[43] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 21) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w55 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w54
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w55#[45] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 22) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w56 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w55
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w56#[47] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 23) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w57 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w56
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w57#[49] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 24) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w58 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w57
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w58#[51] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 25) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w59 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w58
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w59#[53] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 26) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w60 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w59
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w60#[55] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 27) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w61 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w60
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w61#[57] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 28) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w62 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w61
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w62#[59] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 29) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w63 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w62
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w63#[61] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 30) & 1
-  mut gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w63
-  gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[63] = (gen_multi_entry_gen_multi_wr_port_wr_addr_onehot__w2#[32..=63] >> 31) & 1
-  const t207 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[0..=1]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_0_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_0_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t207, `in` = wr_data)
-  const t208 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[0..=1]
-  const t209 = t208 != 0
-  if unsigned(t209) != 0 {
+pub mod br_ram_flops_tile<Depth=32, Width=32, NumWritePorts=2, NumReadPorts=2, EnablePartialWrite=0, WordWidth=32, EnableBypass=0, EnableReset=0, UseStructuredGates=0, EnableStructuredGatesDataQualification=1, EnableAssertFinalNotValid=1>::[timecheck=false](rd_addr:U10, rd_addr_valid:U2, rd_clk:Clock, rd_rst:U1, wr_addr:U10, wr_clk:Clock, wr_data:U64, wr_rst:U1, wr_valid:(e1:U1, e0:U1), wr_word_en:(e1:U1, e0:U1)) -> (rd_data:U64@[], rd_data_valid:U2@[]) {
+  reg mem:[32]U32:[ordering="old", __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true, __store_clock_pin=wr_clk, __store_posclk=true]
+  wire `rd_data[0]`:U1 = nil
+  wire `rd_data[1]`:U1 = nil
+  wire `rd_data[2]`:U1 = nil
+  wire `rd_data[3]`:U1 = nil
+  wire `rd_data[4]`:U1 = nil
+  wire `rd_data[5]`:U1 = nil
+  wire `rd_data[6]`:U1 = nil
+  wire `rd_data[7]`:U1 = nil
+  wire `rd_data[8]`:U1 = nil
+  wire `rd_data[9]`:U1 = nil
+  wire `rd_data[10]`:U1 = nil
+  wire `rd_data[11]`:U1 = nil
+  wire `rd_data[12]`:U1 = nil
+  wire `rd_data[13]`:U1 = nil
+  wire `rd_data[14]`:U1 = nil
+  wire `rd_data[15]`:U1 = nil
+  wire `rd_data[16]`:U1 = nil
+  wire `rd_data[17]`:U1 = nil
+  wire `rd_data[18]`:U1 = nil
+  wire `rd_data[19]`:U1 = nil
+  wire `rd_data[20]`:U1 = nil
+  wire `rd_data[21]`:U1 = nil
+  wire `rd_data[22]`:U1 = nil
+  wire `rd_data[23]`:U1 = nil
+  wire `rd_data[24]`:U1 = nil
+  wire `rd_data[25]`:U1 = nil
+  wire `rd_data[26]`:U1 = nil
+  wire `rd_data[27]`:U1 = nil
+  wire `rd_data[28]`:U1 = nil
+  wire `rd_data[29]`:U1 = nil
+  wire `rd_data[30]`:U1 = nil
+  wire `rd_data[31]`:U1 = nil
+  wire `rd_data[32]`:U1 = nil
+  wire `rd_data[33]`:U1 = nil
+  wire `rd_data[34]`:U1 = nil
+  wire `rd_data[35]`:U1 = nil
+  wire `rd_data[36]`:U1 = nil
+  wire `rd_data[37]`:U1 = nil
+  wire `rd_data[38]`:U1 = nil
+  wire `rd_data[39]`:U1 = nil
+  wire `rd_data[40]`:U1 = nil
+  wire `rd_data[41]`:U1 = nil
+  wire `rd_data[42]`:U1 = nil
+  wire `rd_data[43]`:U1 = nil
+  wire `rd_data[44]`:U1 = nil
+  wire `rd_data[45]`:U1 = nil
+  wire `rd_data[46]`:U1 = nil
+  wire `rd_data[47]`:U1 = nil
+  wire `rd_data[48]`:U1 = nil
+  wire `rd_data[49]`:U1 = nil
+  wire `rd_data[50]`:U1 = nil
+  wire `rd_data[51]`:U1 = nil
+  wire `rd_data[52]`:U1 = nil
+  wire `rd_data[53]`:U1 = nil
+  wire `rd_data[54]`:U1 = nil
+  wire `rd_data[55]`:U1 = nil
+  wire `rd_data[56]`:U1 = nil
+  wire `rd_data[57]`:U1 = nil
+  wire `rd_data[58]`:U1 = nil
+  wire `rd_data[59]`:U1 = nil
+  wire `rd_data[60]`:U1 = nil
+  wire `rd_data[61]`:U1 = nil
+  wire `rd_data[62]`:U1 = nil
+  wire `rd_data[63]`:U1 = nil
+  wire rd_data:U64 = nil
+  wire `wr_addr_onehot[0]`:U1 = nil
+  wire `wr_addr_onehot[1]`:U1 = nil
+  wire `wr_addr_onehot[2]`:U1 = nil
+  wire `wr_addr_onehot[3]`:U1 = nil
+  wire `wr_addr_onehot[4]`:U1 = nil
+  wire `wr_addr_onehot[5]`:U1 = nil
+  wire `wr_addr_onehot[6]`:U1 = nil
+  wire `wr_addr_onehot[7]`:U1 = nil
+  wire `wr_addr_onehot[8]`:U1 = nil
+  wire `wr_addr_onehot[9]`:U1 = nil
+  wire `wr_addr_onehot[10]`:U1 = nil
+  wire `wr_addr_onehot[11]`:U1 = nil
+  wire `wr_addr_onehot[12]`:U1 = nil
+  wire `wr_addr_onehot[13]`:U1 = nil
+  wire `wr_addr_onehot[14]`:U1 = nil
+  wire `wr_addr_onehot[15]`:U1 = nil
+  wire `wr_addr_onehot[16]`:U1 = nil
+  wire `wr_addr_onehot[17]`:U1 = nil
+  wire `wr_addr_onehot[18]`:U1 = nil
+  wire `wr_addr_onehot[19]`:U1 = nil
+  wire `wr_addr_onehot[20]`:U1 = nil
+  wire `wr_addr_onehot[21]`:U1 = nil
+  wire `wr_addr_onehot[22]`:U1 = nil
+  wire `wr_addr_onehot[23]`:U1 = nil
+  wire `wr_addr_onehot[24]`:U1 = nil
+  wire `wr_addr_onehot[25]`:U1 = nil
+  wire `wr_addr_onehot[26]`:U1 = nil
+  wire `wr_addr_onehot[27]`:U1 = nil
+  wire `wr_addr_onehot[28]`:U1 = nil
+  wire `wr_addr_onehot[29]`:U1 = nil
+  wire `wr_addr_onehot[30]`:U1 = nil
+  wire `wr_addr_onehot[31]`:U1 = nil
+  wire `wr_addr_onehot[32]`:U1 = nil
+  wire `wr_addr_onehot[33]`:U1 = nil
+  wire `wr_addr_onehot[34]`:U1 = nil
+  wire `wr_addr_onehot[35]`:U1 = nil
+  wire `wr_addr_onehot[36]`:U1 = nil
+  wire `wr_addr_onehot[37]`:U1 = nil
+  wire `wr_addr_onehot[38]`:U1 = nil
+  wire `wr_addr_onehot[39]`:U1 = nil
+  wire `wr_addr_onehot[40]`:U1 = nil
+  wire `wr_addr_onehot[41]`:U1 = nil
+  wire `wr_addr_onehot[42]`:U1 = nil
+  wire `wr_addr_onehot[43]`:U1 = nil
+  wire `wr_addr_onehot[44]`:U1 = nil
+  wire `wr_addr_onehot[45]`:U1 = nil
+  wire `wr_addr_onehot[46]`:U1 = nil
+  wire `wr_addr_onehot[47]`:U1 = nil
+  wire `wr_addr_onehot[48]`:U1 = nil
+  wire `wr_addr_onehot[49]`:U1 = nil
+  wire `wr_addr_onehot[50]`:U1 = nil
+  wire `wr_addr_onehot[51]`:U1 = nil
+  wire `wr_addr_onehot[52]`:U1 = nil
+  wire `wr_addr_onehot[53]`:U1 = nil
+  wire `wr_addr_onehot[54]`:U1 = nil
+  wire `wr_addr_onehot[55]`:U1 = nil
+  wire `wr_addr_onehot[56]`:U1 = nil
+  wire `wr_addr_onehot[57]`:U1 = nil
+  wire `wr_addr_onehot[58]`:U1 = nil
+  wire `wr_addr_onehot[59]`:U1 = nil
+  wire `wr_addr_onehot[60]`:U1 = nil
+  wire `wr_addr_onehot[61]`:U1 = nil
+  wire `wr_addr_onehot[62]`:U1 = nil
+  wire `wr_addr_onehot[63]`:U1 = nil
+  wire `wr_addr_onehot_transpose[0]`:U1 = nil
+  wire `wr_addr_onehot_transpose[1]`:U1 = nil
+  wire `wr_addr_onehot_transpose[2]`:U1 = nil
+  wire `wr_addr_onehot_transpose[3]`:U1 = nil
+  wire `wr_addr_onehot_transpose[4]`:U1 = nil
+  wire `wr_addr_onehot_transpose[5]`:U1 = nil
+  wire `wr_addr_onehot_transpose[6]`:U1 = nil
+  wire `wr_addr_onehot_transpose[7]`:U1 = nil
+  wire `wr_addr_onehot_transpose[8]`:U1 = nil
+  wire `wr_addr_onehot_transpose[9]`:U1 = nil
+  wire `wr_addr_onehot_transpose[10]`:U1 = nil
+  wire `wr_addr_onehot_transpose[11]`:U1 = nil
+  wire `wr_addr_onehot_transpose[12]`:U1 = nil
+  wire `wr_addr_onehot_transpose[13]`:U1 = nil
+  wire `wr_addr_onehot_transpose[14]`:U1 = nil
+  wire `wr_addr_onehot_transpose[15]`:U1 = nil
+  wire `wr_addr_onehot_transpose[16]`:U1 = nil
+  wire `wr_addr_onehot_transpose[17]`:U1 = nil
+  wire `wr_addr_onehot_transpose[18]`:U1 = nil
+  wire `wr_addr_onehot_transpose[19]`:U1 = nil
+  wire `wr_addr_onehot_transpose[20]`:U1 = nil
+  wire `wr_addr_onehot_transpose[21]`:U1 = nil
+  wire `wr_addr_onehot_transpose[22]`:U1 = nil
+  wire `wr_addr_onehot_transpose[23]`:U1 = nil
+  wire `wr_addr_onehot_transpose[24]`:U1 = nil
+  wire `wr_addr_onehot_transpose[25]`:U1 = nil
+  wire `wr_addr_onehot_transpose[26]`:U1 = nil
+  wire `wr_addr_onehot_transpose[27]`:U1 = nil
+  wire `wr_addr_onehot_transpose[28]`:U1 = nil
+  wire `wr_addr_onehot_transpose[29]`:U1 = nil
+  wire `wr_addr_onehot_transpose[30]`:U1 = nil
+  wire `wr_addr_onehot_transpose[31]`:U1 = nil
+  wire `wr_addr_onehot_transpose[32]`:U1 = nil
+  wire `wr_addr_onehot_transpose[33]`:U1 = nil
+  wire `wr_addr_onehot_transpose[34]`:U1 = nil
+  wire `wr_addr_onehot_transpose[35]`:U1 = nil
+  wire `wr_addr_onehot_transpose[36]`:U1 = nil
+  wire `wr_addr_onehot_transpose[37]`:U1 = nil
+  wire `wr_addr_onehot_transpose[38]`:U1 = nil
+  wire `wr_addr_onehot_transpose[39]`:U1 = nil
+  wire `wr_addr_onehot_transpose[40]`:U1 = nil
+  wire `wr_addr_onehot_transpose[41]`:U1 = nil
+  wire `wr_addr_onehot_transpose[42]`:U1 = nil
+  wire `wr_addr_onehot_transpose[43]`:U1 = nil
+  wire `wr_addr_onehot_transpose[44]`:U1 = nil
+  wire `wr_addr_onehot_transpose[45]`:U1 = nil
+  wire `wr_addr_onehot_transpose[46]`:U1 = nil
+  wire `wr_addr_onehot_transpose[47]`:U1 = nil
+  wire `wr_addr_onehot_transpose[48]`:U1 = nil
+  wire `wr_addr_onehot_transpose[49]`:U1 = nil
+  wire `wr_addr_onehot_transpose[50]`:U1 = nil
+  wire `wr_addr_onehot_transpose[51]`:U1 = nil
+  wire `wr_addr_onehot_transpose[52]`:U1 = nil
+  wire `wr_addr_onehot_transpose[53]`:U1 = nil
+  wire `wr_addr_onehot_transpose[54]`:U1 = nil
+  wire `wr_addr_onehot_transpose[55]`:U1 = nil
+  wire `wr_addr_onehot_transpose[56]`:U1 = nil
+  wire `wr_addr_onehot_transpose[57]`:U1 = nil
+  wire `wr_addr_onehot_transpose[58]`:U1 = nil
+  wire `wr_addr_onehot_transpose[59]`:U1 = nil
+  wire `wr_addr_onehot_transpose[60]`:U1 = nil
+  wire `wr_addr_onehot_transpose[61]`:U1 = nil
+  wire `wr_addr_onehot_transpose[62]`:U1 = nil
+  wire `wr_addr_onehot_transpose[63]`:U1 = nil
+  mut gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst = br_enc_bin2onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst](clk=wr_clk, rst=wr_rst, `in`=wr_addr#[0..=4], in_valid=wr_valid.e0)
+  `wr_addr_onehot[0]` = gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst & 1
+  `wr_addr_onehot[1]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 1) & 1
+  `wr_addr_onehot[2]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 2) & 1
+  `wr_addr_onehot[3]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 3) & 1
+  `wr_addr_onehot[4]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 4) & 1
+  `wr_addr_onehot[5]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 5) & 1
+  `wr_addr_onehot[6]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 6) & 1
+  `wr_addr_onehot[7]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 7) & 1
+  `wr_addr_onehot[8]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 8) & 1
+  `wr_addr_onehot[9]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 9) & 1
+  `wr_addr_onehot[10]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 10) & 1
+  `wr_addr_onehot[11]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 11) & 1
+  `wr_addr_onehot[12]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 12) & 1
+  `wr_addr_onehot[13]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 13) & 1
+  `wr_addr_onehot[14]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 14) & 1
+  `wr_addr_onehot[15]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 15) & 1
+  `wr_addr_onehot[16]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 16) & 1
+  `wr_addr_onehot[17]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 17) & 1
+  `wr_addr_onehot[18]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 18) & 1
+  `wr_addr_onehot[19]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 19) & 1
+  `wr_addr_onehot[20]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 20) & 1
+  `wr_addr_onehot[21]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 21) & 1
+  `wr_addr_onehot[22]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 22) & 1
+  `wr_addr_onehot[23]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 23) & 1
+  `wr_addr_onehot[24]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 24) & 1
+  `wr_addr_onehot[25]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 25) & 1
+  `wr_addr_onehot[26]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 26) & 1
+  `wr_addr_onehot[27]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 27) & 1
+  `wr_addr_onehot[28]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 28) & 1
+  `wr_addr_onehot[29]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 29) & 1
+  `wr_addr_onehot[30]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 30) & 1
+  `wr_addr_onehot[31]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_0_br_enc_bin2onehot_inst >> 31) & 1
+  `wr_addr_onehot_transpose[0]` = `wr_addr_onehot[0]` & 1
+  `wr_addr_onehot_transpose[2]` = `wr_addr_onehot[1]` & 1
+  `wr_addr_onehot_transpose[4]` = `wr_addr_onehot[2]` & 1
+  `wr_addr_onehot_transpose[6]` = `wr_addr_onehot[3]` & 1
+  `wr_addr_onehot_transpose[8]` = `wr_addr_onehot[4]` & 1
+  `wr_addr_onehot_transpose[10]` = `wr_addr_onehot[5]` & 1
+  `wr_addr_onehot_transpose[12]` = `wr_addr_onehot[6]` & 1
+  `wr_addr_onehot_transpose[14]` = `wr_addr_onehot[7]` & 1
+  `wr_addr_onehot_transpose[16]` = `wr_addr_onehot[8]` & 1
+  `wr_addr_onehot_transpose[18]` = `wr_addr_onehot[9]` & 1
+  `wr_addr_onehot_transpose[20]` = `wr_addr_onehot[10]` & 1
+  `wr_addr_onehot_transpose[22]` = `wr_addr_onehot[11]` & 1
+  `wr_addr_onehot_transpose[24]` = `wr_addr_onehot[12]` & 1
+  `wr_addr_onehot_transpose[26]` = `wr_addr_onehot[13]` & 1
+  `wr_addr_onehot_transpose[28]` = `wr_addr_onehot[14]` & 1
+  `wr_addr_onehot_transpose[30]` = `wr_addr_onehot[15]` & 1
+  `wr_addr_onehot_transpose[32]` = `wr_addr_onehot[16]` & 1
+  `wr_addr_onehot_transpose[34]` = `wr_addr_onehot[17]` & 1
+  `wr_addr_onehot_transpose[36]` = `wr_addr_onehot[18]` & 1
+  `wr_addr_onehot_transpose[38]` = `wr_addr_onehot[19]` & 1
+  `wr_addr_onehot_transpose[40]` = `wr_addr_onehot[20]` & 1
+  `wr_addr_onehot_transpose[42]` = `wr_addr_onehot[21]` & 1
+  `wr_addr_onehot_transpose[44]` = `wr_addr_onehot[22]` & 1
+  `wr_addr_onehot_transpose[46]` = `wr_addr_onehot[23]` & 1
+  `wr_addr_onehot_transpose[48]` = `wr_addr_onehot[24]` & 1
+  `wr_addr_onehot_transpose[50]` = `wr_addr_onehot[25]` & 1
+  `wr_addr_onehot_transpose[52]` = `wr_addr_onehot[26]` & 1
+  `wr_addr_onehot_transpose[54]` = `wr_addr_onehot[27]` & 1
+  `wr_addr_onehot_transpose[56]` = `wr_addr_onehot[28]` & 1
+  `wr_addr_onehot_transpose[58]` = `wr_addr_onehot[29]` & 1
+  `wr_addr_onehot_transpose[60]` = `wr_addr_onehot[30]` & 1
+  `wr_addr_onehot_transpose[62]` = `wr_addr_onehot[31]` & 1
+  mut gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst = br_enc_bin2onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst](clk=wr_clk, rst=wr_rst, `in`=wr_addr#[5..=9], in_valid=wr_valid.e1)
+  `wr_addr_onehot[32]` = gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst & 1
+  `wr_addr_onehot[33]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 1) & 1
+  `wr_addr_onehot[34]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 2) & 1
+  `wr_addr_onehot[35]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 3) & 1
+  `wr_addr_onehot[36]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 4) & 1
+  `wr_addr_onehot[37]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 5) & 1
+  `wr_addr_onehot[38]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 6) & 1
+  `wr_addr_onehot[39]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 7) & 1
+  `wr_addr_onehot[40]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 8) & 1
+  `wr_addr_onehot[41]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 9) & 1
+  `wr_addr_onehot[42]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 10) & 1
+  `wr_addr_onehot[43]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 11) & 1
+  `wr_addr_onehot[44]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 12) & 1
+  `wr_addr_onehot[45]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 13) & 1
+  `wr_addr_onehot[46]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 14) & 1
+  `wr_addr_onehot[47]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 15) & 1
+  `wr_addr_onehot[48]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 16) & 1
+  `wr_addr_onehot[49]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 17) & 1
+  `wr_addr_onehot[50]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 18) & 1
+  `wr_addr_onehot[51]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 19) & 1
+  `wr_addr_onehot[52]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 20) & 1
+  `wr_addr_onehot[53]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 21) & 1
+  `wr_addr_onehot[54]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 22) & 1
+  `wr_addr_onehot[55]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 23) & 1
+  `wr_addr_onehot[56]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 24) & 1
+  `wr_addr_onehot[57]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 25) & 1
+  `wr_addr_onehot[58]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 26) & 1
+  `wr_addr_onehot[59]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 27) & 1
+  `wr_addr_onehot[60]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 28) & 1
+  `wr_addr_onehot[61]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 29) & 1
+  `wr_addr_onehot[62]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 30) & 1
+  `wr_addr_onehot[63]` = (gen_multi_entry_gen_multi_wr_port_gen_wr_addr_onehot_1_br_enc_bin2onehot_inst >> 31) & 1
+  `wr_addr_onehot_transpose[1]` = `wr_addr_onehot[32]` & 1
+  `wr_addr_onehot_transpose[3]` = `wr_addr_onehot[33]` & 1
+  `wr_addr_onehot_transpose[5]` = `wr_addr_onehot[34]` & 1
+  `wr_addr_onehot_transpose[7]` = `wr_addr_onehot[35]` & 1
+  `wr_addr_onehot_transpose[9]` = `wr_addr_onehot[36]` & 1
+  `wr_addr_onehot_transpose[11]` = `wr_addr_onehot[37]` & 1
+  `wr_addr_onehot_transpose[13]` = `wr_addr_onehot[38]` & 1
+  `wr_addr_onehot_transpose[15]` = `wr_addr_onehot[39]` & 1
+  `wr_addr_onehot_transpose[17]` = `wr_addr_onehot[40]` & 1
+  `wr_addr_onehot_transpose[19]` = `wr_addr_onehot[41]` & 1
+  `wr_addr_onehot_transpose[21]` = `wr_addr_onehot[42]` & 1
+  `wr_addr_onehot_transpose[23]` = `wr_addr_onehot[43]` & 1
+  `wr_addr_onehot_transpose[25]` = `wr_addr_onehot[44]` & 1
+  `wr_addr_onehot_transpose[27]` = `wr_addr_onehot[45]` & 1
+  `wr_addr_onehot_transpose[29]` = `wr_addr_onehot[46]` & 1
+  `wr_addr_onehot_transpose[31]` = `wr_addr_onehot[47]` & 1
+  `wr_addr_onehot_transpose[33]` = `wr_addr_onehot[48]` & 1
+  `wr_addr_onehot_transpose[35]` = `wr_addr_onehot[49]` & 1
+  `wr_addr_onehot_transpose[37]` = `wr_addr_onehot[50]` & 1
+  `wr_addr_onehot_transpose[39]` = `wr_addr_onehot[51]` & 1
+  `wr_addr_onehot_transpose[41]` = `wr_addr_onehot[52]` & 1
+  `wr_addr_onehot_transpose[43]` = `wr_addr_onehot[53]` & 1
+  `wr_addr_onehot_transpose[45]` = `wr_addr_onehot[54]` & 1
+  `wr_addr_onehot_transpose[47]` = `wr_addr_onehot[55]` & 1
+  `wr_addr_onehot_transpose[49]` = `wr_addr_onehot[56]` & 1
+  `wr_addr_onehot_transpose[51]` = `wr_addr_onehot[57]` & 1
+  `wr_addr_onehot_transpose[53]` = `wr_addr_onehot[58]` & 1
+  `wr_addr_onehot_transpose[55]` = `wr_addr_onehot[59]` & 1
+  `wr_addr_onehot_transpose[57]` = `wr_addr_onehot[60]` & 1
+  `wr_addr_onehot_transpose[59]` = `wr_addr_onehot[61]` & 1
+  `wr_addr_onehot_transpose[61]` = `wr_addr_onehot[62]` & 1
+  `wr_addr_onehot_transpose[63]` = `wr_addr_onehot[63]` & 1
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_0_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_0_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[1]` << 1) | `wr_addr_onehot_transpose[0]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[1]` << 1) | `wr_addr_onehot_transpose[0]`) != 0) != 0 {
     mem[0] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_0_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t211 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[2..=3]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_1_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_1_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t211, `in` = wr_data)
-  const t212 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[2..=3]
-  const t213 = t212 != 0
-  if unsigned(t213) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_1_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_1_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[3]` << 1) | `wr_addr_onehot_transpose[2]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[3]` << 1) | `wr_addr_onehot_transpose[2]`) != 0) != 0 {
     mem[1] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_1_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t215 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[4..=5]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_2_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_2_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t215, `in` = wr_data)
-  const t216 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[4..=5]
-  const t217 = t216 != 0
-  if unsigned(t217) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_2_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_2_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[5]` << 1) | `wr_addr_onehot_transpose[4]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[5]` << 1) | `wr_addr_onehot_transpose[4]`) != 0) != 0 {
     mem[2] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_2_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t219 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[6..=7]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_3_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_3_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t219, `in` = wr_data)
-  const t220 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[6..=7]
-  const t221 = t220 != 0
-  if unsigned(t221) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_3_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_3_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[7]` << 1) | `wr_addr_onehot_transpose[6]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[7]` << 1) | `wr_addr_onehot_transpose[6]`) != 0) != 0 {
     mem[3] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_3_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t223 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[8..=9]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_4_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_4_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t223, `in` = wr_data)
-  const t224 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[8..=9]
-  const t225 = t224 != 0
-  if unsigned(t225) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_4_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_4_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[9]` << 1) | `wr_addr_onehot_transpose[8]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[9]` << 1) | `wr_addr_onehot_transpose[8]`) != 0) != 0 {
     mem[4] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_4_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t227 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[10..=11]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_5_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_5_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t227, `in` = wr_data)
-  const t228 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[10..=11]
-  const t229 = t228 != 0
-  if unsigned(t229) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_5_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_5_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[11]` << 1) | `wr_addr_onehot_transpose[10]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[11]` << 1) | `wr_addr_onehot_transpose[10]`) != 0) != 0 {
     mem[5] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_5_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t231 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[12..=13]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_6_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_6_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t231, `in` = wr_data)
-  const t232 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[12..=13]
-  const t233 = t232 != 0
-  if unsigned(t233) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_6_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_6_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[13]` << 1) | `wr_addr_onehot_transpose[12]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[13]` << 1) | `wr_addr_onehot_transpose[12]`) != 0) != 0 {
     mem[6] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_6_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t235 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[14..=15]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_7_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_7_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t235, `in` = wr_data)
-  const t236 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[14..=15]
-  const t237 = t236 != 0
-  if unsigned(t237) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_7_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_7_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[15]` << 1) | `wr_addr_onehot_transpose[14]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[15]` << 1) | `wr_addr_onehot_transpose[14]`) != 0) != 0 {
     mem[7] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_7_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t239 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[16..=17]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_8_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_8_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t239, `in` = wr_data)
-  const t240 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[16..=17]
-  const t241 = t240 != 0
-  if unsigned(t241) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_8_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_8_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[17]` << 1) | `wr_addr_onehot_transpose[16]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[17]` << 1) | `wr_addr_onehot_transpose[16]`) != 0) != 0 {
     mem[8] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_8_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t243 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[18..=19]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_9_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_9_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t243, `in` = wr_data)
-  const t244 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[18..=19]
-  const t245 = t244 != 0
-  if unsigned(t245) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_9_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_9_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[19]` << 1) | `wr_addr_onehot_transpose[18]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[19]` << 1) | `wr_addr_onehot_transpose[18]`) != 0) != 0 {
     mem[9] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_9_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t247 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[20..=21]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_10_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_10_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t247, `in` = wr_data)
-  const t248 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[20..=21]
-  const t249 = t248 != 0
-  if unsigned(t249) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_10_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_10_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[21]` << 1) | `wr_addr_onehot_transpose[20]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[21]` << 1) | `wr_addr_onehot_transpose[20]`) != 0) != 0 {
     mem[10] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_10_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t251 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[22..=23]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_11_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_11_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t251, `in` = wr_data)
-  const t252 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[22..=23]
-  const t253 = t252 != 0
-  if unsigned(t253) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_11_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_11_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[23]` << 1) | `wr_addr_onehot_transpose[22]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[23]` << 1) | `wr_addr_onehot_transpose[22]`) != 0) != 0 {
     mem[11] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_11_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t255 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[24..=25]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_12_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_12_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t255, `in` = wr_data)
-  const t256 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[24..=25]
-  const t257 = t256 != 0
-  if unsigned(t257) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_12_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_12_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[25]` << 1) | `wr_addr_onehot_transpose[24]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[25]` << 1) | `wr_addr_onehot_transpose[24]`) != 0) != 0 {
     mem[12] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_12_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t259 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[26..=27]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_13_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_13_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t259, `in` = wr_data)
-  const t260 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[26..=27]
-  const t261 = t260 != 0
-  if unsigned(t261) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_13_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_13_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[27]` << 1) | `wr_addr_onehot_transpose[26]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[27]` << 1) | `wr_addr_onehot_transpose[26]`) != 0) != 0 {
     mem[13] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_13_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t263 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[28..=29]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_14_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_14_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t263, `in` = wr_data)
-  const t264 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[28..=29]
-  const t265 = t264 != 0
-  if unsigned(t265) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_14_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_14_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[29]` << 1) | `wr_addr_onehot_transpose[28]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[29]` << 1) | `wr_addr_onehot_transpose[28]`) != 0) != 0 {
     mem[14] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_14_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t267 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[30..=31]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_15_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_15_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t267, `in` = wr_data)
-  const t268 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[30..=31]
-  const t269 = t268 != 0
-  if unsigned(t269) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_15_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_15_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[31]` << 1) | `wr_addr_onehot_transpose[30]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[31]` << 1) | `wr_addr_onehot_transpose[30]`) != 0) != 0 {
     mem[15] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_15_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t271 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[32..=33]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_16_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_16_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t271, `in` = wr_data)
-  const t272 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[32..=33]
-  const t273 = t272 != 0
-  if unsigned(t273) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_16_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_16_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[33]` << 1) | `wr_addr_onehot_transpose[32]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[33]` << 1) | `wr_addr_onehot_transpose[32]`) != 0) != 0 {
     mem[16] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_16_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t275 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[34..=35]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_17_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_17_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t275, `in` = wr_data)
-  const t276 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[34..=35]
-  const t277 = t276 != 0
-  if unsigned(t277) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_17_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_17_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[35]` << 1) | `wr_addr_onehot_transpose[34]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[35]` << 1) | `wr_addr_onehot_transpose[34]`) != 0) != 0 {
     mem[17] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_17_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t279 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[36..=37]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_18_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_18_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t279, `in` = wr_data)
-  const t280 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[36..=37]
-  const t281 = t280 != 0
-  if unsigned(t281) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_18_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_18_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[37]` << 1) | `wr_addr_onehot_transpose[36]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[37]` << 1) | `wr_addr_onehot_transpose[36]`) != 0) != 0 {
     mem[18] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_18_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t283 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[38..=39]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_19_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_19_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t283, `in` = wr_data)
-  const t284 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[38..=39]
-  const t285 = t284 != 0
-  if unsigned(t285) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_19_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_19_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[39]` << 1) | `wr_addr_onehot_transpose[38]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[39]` << 1) | `wr_addr_onehot_transpose[38]`) != 0) != 0 {
     mem[19] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_19_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t287 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[40..=41]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_20_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_20_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t287, `in` = wr_data)
-  const t288 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[40..=41]
-  const t289 = t288 != 0
-  if unsigned(t289) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_20_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_20_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[41]` << 1) | `wr_addr_onehot_transpose[40]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[41]` << 1) | `wr_addr_onehot_transpose[40]`) != 0) != 0 {
     mem[20] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_20_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t291 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[42..=43]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_21_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_21_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t291, `in` = wr_data)
-  const t292 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[42..=43]
-  const t293 = t292 != 0
-  if unsigned(t293) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_21_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_21_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[43]` << 1) | `wr_addr_onehot_transpose[42]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[43]` << 1) | `wr_addr_onehot_transpose[42]`) != 0) != 0 {
     mem[21] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_21_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t295 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[44..=45]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_22_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_22_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t295, `in` = wr_data)
-  const t296 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[44..=45]
-  const t297 = t296 != 0
-  if unsigned(t297) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_22_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_22_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[45]` << 1) | `wr_addr_onehot_transpose[44]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[45]` << 1) | `wr_addr_onehot_transpose[44]`) != 0) != 0 {
     mem[22] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_22_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t299 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[46..=47]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_23_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_23_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t299, `in` = wr_data)
-  const t300 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[46..=47]
-  const t301 = t300 != 0
-  if unsigned(t301) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_23_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_23_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[47]` << 1) | `wr_addr_onehot_transpose[46]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[47]` << 1) | `wr_addr_onehot_transpose[46]`) != 0) != 0 {
     mem[23] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_23_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t303 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[48..=49]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_24_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_24_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t303, `in` = wr_data)
-  const t304 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[48..=49]
-  const t305 = t304 != 0
-  if unsigned(t305) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_24_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_24_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[49]` << 1) | `wr_addr_onehot_transpose[48]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[49]` << 1) | `wr_addr_onehot_transpose[48]`) != 0) != 0 {
     mem[24] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_24_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t307 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[50..=51]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_25_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_25_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t307, `in` = wr_data)
-  const t308 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[50..=51]
-  const t309 = t308 != 0
-  if unsigned(t309) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_25_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_25_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[51]` << 1) | `wr_addr_onehot_transpose[50]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[51]` << 1) | `wr_addr_onehot_transpose[50]`) != 0) != 0 {
     mem[25] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_25_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t311 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[52..=53]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_26_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_26_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t311, `in` = wr_data)
-  const t312 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[52..=53]
-  const t313 = t312 != 0
-  if unsigned(t313) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_26_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_26_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[53]` << 1) | `wr_addr_onehot_transpose[52]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[53]` << 1) | `wr_addr_onehot_transpose[52]`) != 0) != 0 {
     mem[26] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_26_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t315 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[54..=55]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_27_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_27_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t315, `in` = wr_data)
-  const t316 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[54..=55]
-  const t317 = t316 != 0
-  if unsigned(t317) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_27_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_27_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[55]` << 1) | `wr_addr_onehot_transpose[54]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[55]` << 1) | `wr_addr_onehot_transpose[54]`) != 0) != 0 {
     mem[27] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_27_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t319 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[56..=57]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_28_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_28_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t319, `in` = wr_data)
-  const t320 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[56..=57]
-  const t321 = t320 != 0
-  if unsigned(t321) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_28_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_28_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[57]` << 1) | `wr_addr_onehot_transpose[56]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[57]` << 1) | `wr_addr_onehot_transpose[56]`) != 0) != 0 {
     mem[28] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_28_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t323 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[58..=59]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_29_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_29_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t323, `in` = wr_data)
-  const t324 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[58..=59]
-  const t325 = t324 != 0
-  if unsigned(t325) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_29_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_29_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[59]` << 1) | `wr_addr_onehot_transpose[58]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[59]` << 1) | `wr_addr_onehot_transpose[58]`) != 0) != 0 {
     mem[29] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_29_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t327 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[60..=61]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_30_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_30_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t327, `in` = wr_data)
-  const t328 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[60..=61]
-  const t329 = t328 != 0
-  if unsigned(t329) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_30_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_30_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[61]` << 1) | `wr_addr_onehot_transpose[60]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[61]` << 1) | `wr_addr_onehot_transpose[60]`) != 0) != 0 {
     mem[30] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_30_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
-  const t331 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[62..=63]
-  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_31_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_31_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select = t331, `in` = wr_data)
-  const t332 = gen_multi_entry_gen_multi_wr_port_wr_addr_onehot_transpose__w64#[62..=63]
-  const t333 = t332 != 0
-  if unsigned(t333) != 0 {
+  mut gen_multi_entry_gen_multi_wr_port_gen_storage_flops_31_gen_mux_onehot_wr_data_br_mux_onehot_wr_data = br_mux_onehot::[name=gen_multi_entry_gen_multi_wr_port_gen_storage_flops_31_gen_mux_onehot_wr_data_br_mux_onehot_wr_data](select=(`wr_addr_onehot_transpose[63]` << 1) | `wr_addr_onehot_transpose[62]`, `in`=wr_data)
+  if U1(((`wr_addr_onehot_transpose[63]` << 1) | `wr_addr_onehot_transpose[62]`) != 0) != 0 {
     mem[31] = gen_multi_entry_gen_multi_wr_port_gen_storage_flops_31_gen_mux_onehot_wr_data_br_mux_onehot_wr_data
   }
+  br_misc_unused_p1::[name=gen_multi_entry_gen_unused_wr_word_en_br_misc_unused_wr_word_en](`in`=(wr_word_en.e1 << 1) | wr_word_en.e0)
+  const gen_multi_entry_gen_read_port_0_rd_data_mem__w1 = mem[rd_addr#[0..=4]]
+  `rd_data[0]` = gen_multi_entry_gen_read_port_0_rd_data_mem__w1 & 1
+  `rd_data[1]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 1) & 1
+  `rd_data[2]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 2) & 1
+  `rd_data[3]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 3) & 1
+  `rd_data[4]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 4) & 1
+  `rd_data[5]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 5) & 1
+  `rd_data[6]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 6) & 1
+  `rd_data[7]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 7) & 1
+  `rd_data[8]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 8) & 1
+  `rd_data[9]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 9) & 1
+  `rd_data[10]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 10) & 1
+  `rd_data[11]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 11) & 1
+  `rd_data[12]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 12) & 1
+  `rd_data[13]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 13) & 1
+  `rd_data[14]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 14) & 1
+  `rd_data[15]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 15) & 1
+  `rd_data[16]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 16) & 1
+  `rd_data[17]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 17) & 1
+  `rd_data[18]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 18) & 1
+  `rd_data[19]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 19) & 1
+  `rd_data[20]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 20) & 1
+  `rd_data[21]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 21) & 1
+  `rd_data[22]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 22) & 1
+  `rd_data[23]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 23) & 1
+  `rd_data[24]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 24) & 1
+  `rd_data[25]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 25) & 1
+  `rd_data[26]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 26) & 1
+  `rd_data[27]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 27) & 1
+  `rd_data[28]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 28) & 1
+  `rd_data[29]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 29) & 1
+  `rd_data[30]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 30) & 1
+  `rd_data[31]` = (gen_multi_entry_gen_read_port_0_rd_data_mem__w1 >> 31) & 1
+  const gen_multi_entry_gen_read_port_1_rd_data_mem__w1 = mem[rd_addr#[5..=9]]
+  `rd_data[32]` = gen_multi_entry_gen_read_port_1_rd_data_mem__w1 & 1
+  `rd_data[33]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 1) & 1
+  `rd_data[34]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 2) & 1
+  `rd_data[35]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 3) & 1
+  `rd_data[36]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 4) & 1
+  `rd_data[37]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 5) & 1
+  `rd_data[38]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 6) & 1
+  `rd_data[39]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 7) & 1
+  `rd_data[40]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 8) & 1
+  `rd_data[41]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 9) & 1
+  `rd_data[42]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 10) & 1
+  `rd_data[43]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 11) & 1
+  `rd_data[44]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 12) & 1
+  `rd_data[45]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 13) & 1
+  `rd_data[46]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 14) & 1
+  `rd_data[47]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 15) & 1
+  `rd_data[48]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 16) & 1
+  `rd_data[49]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 17) & 1
+  `rd_data[50]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 18) & 1
+  `rd_data[51]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 19) & 1
+  `rd_data[52]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 20) & 1
+  `rd_data[53]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 21) & 1
+  `rd_data[54]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 22) & 1
+  `rd_data[55]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 23) & 1
+  `rd_data[56]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 24) & 1
+  `rd_data[57]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 25) & 1
+  `rd_data[58]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 26) & 1
+  `rd_data[59]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 27) & 1
+  `rd_data[60]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 28) & 1
+  `rd_data[61]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 29) & 1
+  `rd_data[62]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 30) & 1
+  `rd_data[63]` = (gen_multi_entry_gen_read_port_1_rd_data_mem__w1 >> 31) & 1
+  rd_data = (`rd_data[63]` << 63) | (`rd_data[62]` << 62) | (`rd_data[61]` << 61) | (`rd_data[60]` << 60) | (`rd_data[59]` << 59) | (`rd_data[58]` << 58) | (`rd_data[57]` << 57) | (`rd_data[56]` << 56) | (`rd_data[55]` << 55) | (`rd_data[54]` << 54) | (`rd_data[53]` << 53) | (`rd_data[52]` << 52) | (`rd_data[51]` << 51) | (`rd_data[50]` << 50) | (`rd_data[49]` << 49) | (`rd_data[48]` << 48) | (`rd_data[47]` << 47) | (`rd_data[46]` << 46) | (`rd_data[45]` << 45) | (`rd_data[44]` << 44) | (`rd_data[43]` << 43) | (`rd_data[42]` << 42) | (`rd_data[41]` << 41) | (`rd_data[40]` << 40) | (`rd_data[39]` << 39) | (`rd_data[38]` << 38) | (`rd_data[37]` << 37) | (`rd_data[36]` << 36) | (`rd_data[35]` << 35) | (`rd_data[34]` << 34) | (`rd_data[33]` << 33) | (`rd_data[32]` << 32) | (`rd_data[31]` << 31) | (`rd_data[30]` << 30) | (`rd_data[29]` << 29) | (`rd_data[28]` << 28) | (`rd_data[27]` << 27) | (`rd_data[26]` << 26) | (`rd_data[25]` << 25) | (`rd_data[24]` << 24) | (`rd_data[23]` << 23) | (`rd_data[22]` << 22) | (`rd_data[21]` << 21) | (`rd_data[20]` << 20) | (`rd_data[19]` << 19) | (`rd_data[18]` << 18) | (`rd_data[17]` << 17) | (`rd_data[16]` << 16) | (`rd_data[15]` << 15) | (`rd_data[14]` << 14) | (`rd_data[13]` << 13) | (`rd_data[12]` << 12) | (`rd_data[11]` << 11) | (`rd_data[10]` << 10) | (`rd_data[9]` << 9) | (`rd_data[8]` << 8) | (`rd_data[7]` << 7) | (`rd_data[6]` << 6) | (`rd_data[5]` << 5) | (`rd_data[4]` << 4) | (`rd_data[3]` << 3) | (`rd_data[2]` << 2) | (`rd_data[1]` << 1) | `rd_data[0]`
   rd_data_valid = rd_addr_valid
-  rd_data = rd_data__w2
 }

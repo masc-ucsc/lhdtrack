@@ -1,9 +1,6 @@
 // Select one packed symbol with a one-hot select; an all-zero select yields 0.
-pub mod br_mux_onehot<NUM_SYMBOLS=1, SYMBOL_WIDTH=1>(
-  select:unsigned(bits=NUM_SYMBOLS),
-  `in`:unsigned(bits=NUM_SYMBOLS * SYMBOL_WIDTH)
-) -> (out:unsigned(bits=SYMBOL_WIDTH)@[0]) {
-  mut symbol:unsigned(bits=SYMBOL_WIDTH) = 0
+pub mod br_mux_onehot<NUM_SYMBOLS=1, SYMBOL_WIDTH=1>(`in`:Unsigned(bits=NUM_SYMBOLS*SYMBOL_WIDTH), select:Unsigned(bits=NUM_SYMBOLS)) -> (out:Unsigned(bits=SYMBOL_WIDTH)@[0]) {
+  mut symbol:Unsigned(bits=SYMBOL_WIDTH) = 0
   for i in 0..<NUM_SYMBOLS {
     if select#[i] == 1 {
       symbol |= `in`#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH]

@@ -1,0 +1,12 @@
+pub comb br_mux_bin<NumSymbolsIn=8, SymbolWidth=8>::[timecheck=false](`in`:U64, select:U3) -> (out:U8, out_valid:U1) {
+  mut _rep_2:U8 = if (U1(select == 0) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_4:U8 = if (U1(select == 1) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_6:U8 = if (U1(select == 2) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_8:U8 = if (U1(select == 3) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_10:U8 = if (U1(select == 4) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_12:U8 = if (U1(select == 5) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_14:U8 = if (U1(select == 6) & 1) != 0 { 0xff } else { 0 }
+  mut _rep_16:U8 = if (U1(select == 7) & 1) != 0 { 0xff } else { 0 }
+  out = (((((((0 | (_rep_2 & `in`#[0..=7])) | (_rep_4 & `in`#[8..=15])) | (_rep_6 & `in`#[16..=23])) | (_rep_8 & `in`#[24..=31])) | (_rep_10 & `in`#[32..=39])) | (_rep_12 & `in`#[40..=47])) | (_rep_14 & `in`#[48..=55])) | (_rep_16 & `in`#[56..=63])
+  out_valid = U1(select < NumSymbolsIn)
+}

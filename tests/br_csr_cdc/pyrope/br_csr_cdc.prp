@@ -1,36 +1,42 @@
-// Hand-written fixed configuration: AddrWidth=16, DataWidth=32,
-// NumSyncStages=2, and all optional output registers disabled.
-const cdc_reg_req_t = import("br_cdc_reg64.br_cdc_reg")
-const cdc_reg_resp_t = import("br_cdc_reg_p1.br_cdc_reg_p1")
-const pulse_t = import("br_cdc_bit_pulse.br_cdc_bit_pulse")
+const br_cdc_bit_pulse = import("br_cdc_bit_pulse.br_cdc_bit_pulse")
+const br_cdc_reg = import("br_cdc_reg.br_cdc_reg")
+const br_cdc_reg_p1 = import("br_cdc_reg_p1.br_cdc_reg_p1")
+const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
 
-pub mod br_csr_cdc::[timecheck=false](upstream_clk:u1, upstream_rst:u1, upstream_req_valid:u1, upstream_req_write:u1, upstream_req_addr:u16, upstream_req_wdata:u32, upstream_req_wstrb:u4, upstream_req_secure:u1, upstream_req_privileged:u1, upstream_req_abort:u1, downstream_clk:u1, downstream_rst:u1, downstream_resp_valid:u1, downstream_resp_rdata:u32, downstream_resp_slverr:u1, downstream_resp_decerr:u1) -> (upstream_resp_valid:u1@[], upstream_resp_rdata:u32@[], upstream_resp_slverr:u1@[], upstream_resp_decerr:u1@[], downstream_req_valid:u1@[], downstream_req_write:u1@[], downstream_req_addr:u16@[], downstream_req_wdata:u32@[], downstream_req_wstrb:u4@[], downstream_req_secure:u1@[], downstream_req_privileged:u1@[], downstream_req_abort:u1@[]) {
-  mut req_pack:u55 = 0
-  req_pack#[54] = upstream_req_write
-  req_pack#[38..=53] = upstream_req_addr
-  req_pack#[6..=37] = upstream_req_wdata
-  req_pack#[2..=5] = upstream_req_wstrb
-  req_pack#[1] = upstream_req_secure
-  req_pack#[0] = upstream_req_privileged
-  mut req = cdc_reg_req_t::[name=br_cdc_reg_req](push_clk=upstream_clk, push_rst=upstream_rst, push_valid=upstream_req_valid, push_data=req_pack, pop_clk=downstream_clk, pop_rst=downstream_rst, pop_ready=1)
-
-  downstream_req_valid = req.pop_valid
-  downstream_req_write = req.pop_data#[54]
-  downstream_req_addr = req.pop_data#[38..=53]
-  downstream_req_wdata = req.pop_data#[6..=37]
-  downstream_req_wstrb = req.pop_data#[2..=5]
-  downstream_req_secure = req.pop_data#[1]
-  downstream_req_privileged = req.pop_data#[0]
-
-  mut resp_pack:u34 = 0
-  resp_pack#[2..=33] = downstream_resp_rdata
-  resp_pack#[1] = downstream_resp_slverr
-  resp_pack#[0] = downstream_resp_decerr
-  mut resp = cdc_reg_resp_t::[name=br_cdc_reg_resp](push_clk=downstream_clk, push_rst=downstream_rst, push_valid=downstream_resp_valid, push_data=resp_pack, pop_clk=upstream_clk, pop_rst=upstream_rst, pop_ready=1)
-  upstream_resp_valid = resp.pop_valid
-  upstream_resp_rdata = resp.pop_data#[2..=33]
-  upstream_resp_slverr = resp.pop_data#[1]
-  upstream_resp_decerr = resp.pop_data#[0]
-
-  downstream_req_abort = pulse_t::[name=br_cdc_bit_pulse_abort](src_clk=upstream_clk, src_rst=upstream_rst, src_pulse=upstream_req_abort, dst_clk=downstream_clk, dst_rst=downstream_rst)
+pub mod br_csr_cdc::[timecheck=false](downstream_clk:Clock, downstream_resp_decerr:U1, downstream_resp_rdata:U32, downstream_resp_slverr:U1, downstream_resp_valid:U1, downstream_rst:U1, upstream_clk:Clock, upstream_req_abort:U1, upstream_req_addr:U16, upstream_req_privileged:U1, upstream_req_secure:U1, upstream_req_valid:U1, upstream_req_wdata:U32, upstream_req_write:U1, upstream_req_wstrb:U4, upstream_rst:U1) -> (downstream_req_abort:U1@[], downstream_req_addr:U16@[], downstream_req_privileged:U1@[], downstream_req_secure:U1@[], downstream_req_valid:U1@[], downstream_req_wdata:U32@[], downstream_req_write:U1@[], downstream_req_wstrb:U4@[], upstream_resp_decerr:U1@[], upstream_resp_rdata:U32@[], upstream_resp_slverr:U1@[], upstream_resp_valid:U1@[]) {
+  mut `upstream_req.write` = upstream_req_write & 1
+  mut `upstream_req.addr` = upstream_req_addr
+  mut `upstream_req.wdata` = upstream_req_wdata
+  mut `upstream_req.wstrb` = upstream_req_wstrb
+  mut `upstream_req.secure` = upstream_req_secure & 1
+  mut `upstream_req.privileged` = upstream_req_privileged & 1
+  mut br_cdc_reg_req = br_cdc_reg::[name=br_cdc_reg_req](push_clk=upstream_clk, push_rst=upstream_rst, push_valid=upstream_req_valid, push_data=(`upstream_req.write` << 54) | (`upstream_req.addr` << 38) | (`upstream_req.wdata` << 6) | (`upstream_req.wstrb` << 2) | (`upstream_req.secure` << 1) | `upstream_req.privileged`, pop_clk=downstream_clk, pop_rst=downstream_rst, pop_ready=1)
+  mut `downstream_req.write` = (br_cdc_reg_req.pop_data >> 54) & 1
+  mut `downstream_req.addr` = br_cdc_reg_req.pop_data#[38..=53]
+  mut `downstream_req.wdata` = br_cdc_reg_req.pop_data#[6..=37]
+  mut `downstream_req.wstrb` = br_cdc_reg_req.pop_data#[2..=5]
+  mut `downstream_req.secure` = (br_cdc_reg_req.pop_data >> 1) & 1
+  mut `downstream_req.privileged` = br_cdc_reg_req.pop_data & 1
+  mut `downstream_resp.rdata` = downstream_resp_rdata
+  mut `downstream_resp.slverr` = downstream_resp_slverr & 1
+  mut `downstream_resp.decerr` = downstream_resp_decerr & 1
+  mut br_cdc_reg_resp = br_cdc_reg_p1::[name=br_cdc_reg_resp](push_clk=downstream_clk, push_rst=downstream_rst, push_valid=downstream_resp_valid, push_data=(`downstream_resp.rdata` << 2) | (`downstream_resp.slverr` << 1) | `downstream_resp.decerr`, pop_clk=upstream_clk, pop_rst=upstream_rst, pop_ready=1)
+  mut `upstream_resp.rdata` = br_cdc_reg_resp.pop_data#[2..=33]
+  mut `upstream_resp.slverr` = (br_cdc_reg_resp.pop_data >> 1) & 1
+  mut `upstream_resp.decerr` = br_cdc_reg_resp.pop_data & 1
+  mut br_cdc_bit_pulse_abort = br_cdc_bit_pulse::[name=br_cdc_bit_pulse_abort](src_clk=upstream_clk, src_rst=upstream_rst, src_pulse=upstream_req_abort, dst_clk=downstream_clk, dst_rst=downstream_rst)
+  br_misc_unused_p2::[name=br_misc_unused_upstream_req_ready](`in`=br_cdc_reg_req.push_ready)
+  br_misc_unused_p2::[name=br_misc_unused_downstream_resp_ready](`in`=br_cdc_reg_resp.push_ready)
+  upstream_resp_valid = br_cdc_reg_resp.pop_valid
+  upstream_resp_rdata = `upstream_resp.rdata`
+  upstream_resp_slverr = `upstream_resp.slverr`
+  upstream_resp_decerr = `upstream_resp.decerr`
+  downstream_req_valid = br_cdc_reg_req.pop_valid
+  downstream_req_write = `downstream_req.write`
+  downstream_req_addr = `downstream_req.addr`
+  downstream_req_wdata = `downstream_req.wdata`
+  downstream_req_wstrb = `downstream_req.wstrb`
+  downstream_req_secure = `downstream_req.secure`
+  downstream_req_privileged = `downstream_req.privileged`
+  downstream_req_abort = br_cdc_bit_pulse_abort
 }

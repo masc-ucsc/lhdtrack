@@ -2,20 +2,20 @@ const br_fifo_shared_dynamic_ctrl = import("br_fifo_shared_dynamic_ctrl.br_fifo_
 const br_ram_flops = import("br_ram_flops.br_ram_flops")
 const br_ram_flops_p1 = import("br_ram_flops_p1.br_ram_flops_p1")
 
-pub mod br_fifo_shared_dynamic_flops::[timecheck=false](clk:u1, rst:u1, push_valid:u2, push_data:u64, push_fifo_id:u2, pop_ready:u2) -> (push_ready:u2@[], push_full:u1@[], pop_valid:u2@[], pop_data:u64@[], pop_empty:u2@[]) {
-  wire data_ram_wr_valid:u2
-  wire data_ram_wr_addr:u10
-  wire data_ram_wr_data:u64
-  wire data_ram_rd_addr_valid:u2
-  wire data_ram_rd_addr:u10
-  wire ptr_ram_wr_valid:u2
-  wire ptr_ram_wr_addr:u10
-  wire ptr_ram_wr_data:u10
-  wire ptr_ram_rd_addr_valid:u2
-  wire ptr_ram_rd_addr:u10
-  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk = clk, wr_rst = rst, `wr_valid.e1` = (data_ram_wr_valid >> 1) & 1, `wr_valid.e0` = data_ram_wr_valid & 1, wr_addr = data_ram_wr_addr, wr_data = data_ram_wr_data, `wr_word_en.e1` = 1, `wr_word_en.e0` = 1, rd_clk = clk, rd_rst = rst, `rd_addr_valid.e1` = (data_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0` = data_ram_rd_addr_valid & 1, rd_addr = data_ram_rd_addr)
-  mut br_ram_flops_pointer = br_ram_flops_p1::[name=br_ram_flops_pointer](wr_clk = clk, wr_rst = rst, `wr_valid.e1` = (ptr_ram_wr_valid >> 1) & 1, `wr_valid.e0` = ptr_ram_wr_valid & 1, wr_addr = ptr_ram_wr_addr, wr_data = ptr_ram_wr_data, `wr_word_en.e1` = 1, `wr_word_en.e0` = 1, rd_clk = clk, rd_rst = rst, `rd_addr_valid.e1` = (ptr_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0` = ptr_ram_rd_addr_valid & 1, rd_addr = ptr_ram_rd_addr)
-  mut br_fifo_shared_dynamic_ctrl_inst = br_fifo_shared_dynamic_ctrl::[name=br_fifo_shared_dynamic_ctrl_inst](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, push_fifo_id = push_fifo_id, pop_ready = pop_ready, data_ram_rd_data_valid = (br_ram_flops_data.rd_data_valid.e1 << 1) | br_ram_flops_data.rd_data_valid.e0, data_ram_rd_data = br_ram_flops_data.rd_data, ptr_ram_rd_data_valid = (br_ram_flops_pointer.rd_data_valid.e1 << 1) | br_ram_flops_pointer.rd_data_valid.e0, ptr_ram_rd_data = br_ram_flops_pointer.rd_data)
+pub mod br_fifo_shared_dynamic_flops::[timecheck=false](clk:Clock, pop_ready:U2, push_data:U64, push_fifo_id:U2, push_valid:U2, rst:Reset) -> (pop_data:U64@[], pop_empty:U2@[], pop_valid:U2@[], push_full:U1@[], push_ready:U2@[]) {
+  wire data_ram_wr_valid:U2 = nil
+  wire data_ram_wr_addr:U10 = nil
+  wire data_ram_wr_data:U64 = nil
+  wire data_ram_rd_addr_valid:U2 = nil
+  wire data_ram_rd_addr:U10 = nil
+  wire ptr_ram_wr_valid:U2 = nil
+  wire ptr_ram_wr_addr:U10 = nil
+  wire ptr_ram_wr_data:U10 = nil
+  wire ptr_ram_rd_addr_valid:U2 = nil
+  wire ptr_ram_rd_addr:U10 = nil
+  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk=clk, wr_rst=rst, `wr_valid.e1`=(data_ram_wr_valid >> 1) & 1, `wr_valid.e0`=data_ram_wr_valid & 1, wr_addr=data_ram_wr_addr, wr_data=data_ram_wr_data, `wr_word_en.e1`=1, `wr_word_en.e0`=1, rd_clk=clk, rd_rst=rst, `rd_addr_valid.e1`=(data_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0`=data_ram_rd_addr_valid & 1, rd_addr=data_ram_rd_addr)
+  mut br_ram_flops_pointer = br_ram_flops_p1::[name=br_ram_flops_pointer](wr_clk=clk, wr_rst=rst, `wr_valid.e1`=(ptr_ram_wr_valid >> 1) & 1, `wr_valid.e0`=ptr_ram_wr_valid & 1, wr_addr=ptr_ram_wr_addr, wr_data=ptr_ram_wr_data, `wr_word_en.e1`=1, `wr_word_en.e0`=1, rd_clk=clk, rd_rst=rst, `rd_addr_valid.e1`=(ptr_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0`=ptr_ram_rd_addr_valid & 1, rd_addr=ptr_ram_rd_addr)
+  mut br_fifo_shared_dynamic_ctrl_inst = br_fifo_shared_dynamic_ctrl::[name=br_fifo_shared_dynamic_ctrl_inst](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, push_fifo_id=push_fifo_id, pop_ready=pop_ready, data_ram_rd_data_valid=(br_ram_flops_data.rd_data_valid.e1 << 1) | br_ram_flops_data.rd_data_valid.e0, data_ram_rd_data=br_ram_flops_data.rd_data, ptr_ram_rd_data_valid=(br_ram_flops_pointer.rd_data_valid.e1 << 1) | br_ram_flops_pointer.rd_data_valid.e0, ptr_ram_rd_data=br_ram_flops_pointer.rd_data)
   data_ram_wr_valid = br_fifo_shared_dynamic_ctrl_inst.data_ram_wr_valid
   data_ram_wr_addr = br_fifo_shared_dynamic_ctrl_inst.data_ram_wr_addr
   data_ram_wr_data = br_fifo_shared_dynamic_ctrl_inst.data_ram_wr_data

@@ -1,11 +1,11 @@
 const br_fifo_pop_ctrl_t = import("br_fifo_pop_ctrl.br_fifo_pop_ctrl")
 const br_fifo_push_ctrl_t = import("br_fifo_push_ctrl.br_fifo_push_ctrl")
 
-pub mod br_fifo_ctrl_1r1w::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1, ram_rd_data_valid:u1, ram_rd_data:u32) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[], full:u1@[], full_next:u1@[], slots:u6@[], slots_next:u6@[], empty:u1@[], empty_next:u1@[], items:u6@[], items_next:u6@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u5@[]) {
-  wire bypass_ready:u1
-  wire pop_beat:u1
-  mut br_fifo_push_ctrl = br_fifo_push_ctrl_t::[name=br_fifo_push_ctrl](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, bypass_ready = bypass_ready, pop_beat = pop_beat)
-  mut br_fifo_pop_ctrl = br_fifo_pop_ctrl_t::[name=br_fifo_pop_ctrl](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = br_fifo_push_ctrl.bypass_valid_unstable, bypass_data_unstable = br_fifo_push_ctrl.bypass_data_unstable, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, push_beat = br_fifo_push_ctrl.push_beat)
+pub mod br_fifo_ctrl_1r1w::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, ram_rd_data:U32, ram_rd_data_valid:U1, rst:Reset) -> (empty:U1@[], empty_next:U1@[], full:U1@[], full_next:U1@[], items:U6@[], items_next:U6@[], pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[], ram_rd_addr:U5@[], ram_rd_addr_valid:U1@[], ram_wr_addr:U5@[], ram_wr_data:U32@[], ram_wr_valid:U1@[], slots:U6@[], slots_next:U6@[]) {
+  wire bypass_ready:U1 = nil
+  wire pop_beat:U1 = nil
+  mut br_fifo_push_ctrl = br_fifo_push_ctrl_t::[name=br_fifo_push_ctrl](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, bypass_ready=bypass_ready, pop_beat=pop_beat)
+  mut br_fifo_pop_ctrl = br_fifo_pop_ctrl_t::[name=br_fifo_pop_ctrl](clk=clk, rst=rst, pop_ready=pop_ready, bypass_valid_unstable=br_fifo_push_ctrl.bypass_valid_unstable, bypass_data_unstable=br_fifo_push_ctrl.bypass_data_unstable, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data, push_beat=br_fifo_push_ctrl.push_beat)
   bypass_ready = br_fifo_pop_ctrl.bypass_ready
   pop_beat = br_fifo_pop_ctrl.pop_beat
   push_ready = br_fifo_push_ctrl.push_ready

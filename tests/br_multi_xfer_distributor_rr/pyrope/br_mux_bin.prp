@@ -1,0 +1,8 @@
+pub comb br_mux_bin<NumSymbolsIn=4, SymbolWidth=16>::[timecheck=false](`in`:U64, select:U2) -> (out:U16, out_valid:U1) {
+  mut _rep_2:U16 = if (U1(select == 0) & 1) != 0 { 0xffff } else { 0 }
+  mut _rep_4:U16 = if (U1(select == 1) & 1) != 0 { 0xffff } else { 0 }
+  mut _rep_6:U16 = if (U1(select == 2) & 1) != 0 { 0xffff } else { 0 }
+  mut _rep_8:U16 = if (U1(select == 3) & 1) != 0 { 0xffff } else { 0 }
+  out = (((0 | (_rep_2 & `in`#[0..=15])) | (_rep_4 & `in`#[16..=31])) | (_rep_6 & `in`#[32..=47])) | (_rep_8 & `in`#[48..=63])
+  out_valid = U1(select < NumSymbolsIn)
+}

@@ -1,1 +1,1 @@
-pub comptime const AxiRespOkay:u2 = 0
+pub comptime const AxiRespOkay:U2 = 0

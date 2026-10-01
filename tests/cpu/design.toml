@@ -12,7 +12,7 @@ path = "crates/simulator/compare/cpu/test.sv"
 license = "MIT"
 
 [status]
-pyrope = "idiomatic"
+pyrope = "auto"
 lec = "proven"
 
 [pyrope]
@@ -35,40 +35,4 @@ marker = "LHDTRACK-DONE"
 [lec]
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
 
-# Explicit state correspondence for the idiomatic pipeline records.
-match = """
-id_ex_rd=id_control.rd
-id_ex_rs1=id_control.rs1
-id_ex_rs2=id_control.rs2
-id_ex_funct3=id_control.funct3
-id_ex_imm=id_control.imm
-id_ex_alu_op=id_control.alu_op
-id_ex_alu_src=id_control.alu_src
-id_ex_mem_read=id_control.mem_read
-id_ex_mem_write=id_control.mem_write
-id_ex_reg_write=id_control.reg_write
-id_ex_wb_sel=id_control.wb_sel
-id_ex_branch=id_control.branch
-id_ex_jump=id_control.jump
-id_ex_is_jalr=id_control.is_jalr
-id_ex_imm_result=id_control.imm_result
-ex_mem_reg_write=ex_mem.reg_write
-mem_wb_reg_write=mem_wb.reg_write
-u_core.id_ex_rd=u_core.id_control.rd
-u_core.id_ex_rs1=u_core.id_control.rs1
-u_core.id_ex_rs2=u_core.id_control.rs2
-u_core.id_ex_funct3=u_core.id_control.funct3
-u_core.id_ex_imm=u_core.id_control.imm
-u_core.id_ex_alu_op=u_core.id_control.alu_op
-u_core.id_ex_alu_src=u_core.id_control.alu_src
-u_core.id_ex_mem_read=u_core.id_control.mem_read
-u_core.id_ex_mem_write=u_core.id_control.mem_write
-u_core.id_ex_reg_write=u_core.id_control.reg_write
-u_core.id_ex_wb_sel=u_core.id_control.wb_sel
-u_core.id_ex_branch=u_core.id_control.branch
-u_core.id_ex_jump=u_core.id_control.jump
-u_core.id_ex_is_jalr=u_core.id_control.is_jalr
-u_core.id_ex_imm_result=u_core.id_control.imm_result
-u_core.ex_mem_reg_write=u_core.ex_mem.reg_write
-u_core.mem_wb_reg_write=u_core.mem_wb.reg_write
-"""
+# Regenerated modules preserve the reference state names; no renamed-state map.

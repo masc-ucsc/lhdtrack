@@ -1,94 +1,123 @@
-// Head/tail pointer manager of statically partitioned FIFOs sharing one RAM:
-// FIFO f owns the entries config_base[f]..config_bound[f]. Tracks each FIFO's
-// head pointer (wrapping at its bound), its full and empty flags, and the
-// number of items it holds in the RAM.
-//
-// Per-FIFO buses are packed with FIFO 0 in the low bits. The tail pointers come
-// from the push controller. Supported configuration: items are reconstructed
-// from the pointers (not registered).
-pub mod br_fifo_shared_pstatic_ptr_mgr<NUM_FIFOS=2, ADDR_WIDTH=1, COUNT_WIDTH=1>(
-  clk:u1,
-  rst:u1,
-  config_base:unsigned(bits=NUM_FIFOS * ADDR_WIDTH),
-  config_bound:unsigned(bits=NUM_FIFOS * ADDR_WIDTH),
-  config_size:unsigned(bits=NUM_FIFOS * COUNT_WIDTH),
-  advance_tail:unsigned(bits=NUM_FIFOS),
-  tail_next:unsigned(bits=NUM_FIFOS * ADDR_WIDTH),
-  tail:unsigned(bits=NUM_FIFOS * ADDR_WIDTH),
-  head_ready:unsigned(bits=NUM_FIFOS)
-) -> (
-  push_full:unsigned(bits=NUM_FIFOS)@[0],
-  head_valid:unsigned(bits=NUM_FIFOS)@[0],
-  head:unsigned(bits=NUM_FIFOS * ADDR_WIDTH)@[0],
-  empty:unsigned(bits=NUM_FIFOS)@[0],
-  items:unsigned(bits=NUM_FIFOS * COUNT_WIDTH)@[0]
-) {
-  reg full:unsigned(bits=NUM_FIFOS)     = 0
-  reg is_empty:unsigned(bits=NUM_FIFOS) = (1 << NUM_FIFOS) - 1
-  // Resets to config_base (a runtime input), so the reset is written out.
-  reg heads:unsigned(bits=NUM_FIFOS * ADDR_WIDTH) = nil
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
 
-  mut next_full  = full
-  mut next_empty = is_empty
-  mut next_heads = heads
-  for f in 0..<NUM_FIFOS {
-    const h        = heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const t        = tail#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const base     = config_base#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const bound    = config_bound#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const adv_head = head_ready#[f] == 1 and is_empty#[f] == 0
-    const adv_tail = advance_tail#[f] == 1
-
-    // The head walks base..bound and wraps back to base.
-    mut h_next:unsigned(bits=ADDR_WIDTH) = 0
-    if adv_head and h == bound {
-      h_next = base
-    }
-    else {
-      wrap h_next = h + u1(adv_head)
-    }
-    if adv_head {
-      next_heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH] = h_next
-    }
-
-    // A pop alone can only empty the FIFO; a push alone can only fill it.
-    if adv_head and not adv_tail {
-      next_full#[f]  = 0
-      next_empty#[f] = u1(h_next == t)
-    } elif adv_tail and not adv_head {
-      next_full#[f]  = u1(tail_next#[(f*ADDR_WIDTH)..+ADDR_WIDTH] == h)
-      next_empty#[f] = 0
-    }
+pub mod br_fifo_shared_pstatic_ptr_mgr<NumFifos=2, Depth=32, EnableAssertFinalNotValid=1, RegisterRamItems=0>::[timecheck=false](advance_tail:(e1:U1, e0:U1), clk:Clock, config_base:U10, config_bound:U10, config_size:U12, head_ready:U2, rst:U1, tail:U10, tail_next:U10) -> (empty:(e1:U1, e0:U1)@[], head:U10@[], head_valid:U2@[], items:U12@[], push_full:(e1:U1, e0:U1)@[]) {
+  reg push_full_q:U2:[async=false, initial=0, reset_pin=rst]
+  reg empty_q:U2:[async=false, initial=3, reset_pin=rst]
+  wire `head[0]`:U1 = nil
+  wire `head[1]`:U1 = nil
+  wire `head[2]`:U1 = nil
+  wire `head[3]`:U1 = nil
+  wire `head[4]`:U1 = nil
+  wire `head[5]`:U1 = nil
+  wire `head[6]`:U1 = nil
+  wire `head[7]`:U1 = nil
+  wire `head[8]`:U1 = nil
+  wire `head[9]`:U1 = nil
+  wire head:U10 = nil
+  wire `items[0]`:U1 = nil
+  wire `items[1]`:U1 = nil
+  wire `items[2]`:U1 = nil
+  wire `items[3]`:U1 = nil
+  wire `items[4]`:U1 = nil
+  wire `items[5]`:U1 = nil
+  wire `items[6]`:U1 = nil
+  wire `items[7]`:U1 = nil
+  wire `items[8]`:U1 = nil
+  wire `items[9]`:U1 = nil
+  wire `items[10]`:U1 = nil
+  wire `items[11]`:U1 = nil
+  wire items:U12 = nil
+  wire `reinit_head[0]`:U1 = nil
+  wire `reinit_head[1]`:U1 = nil
+  wire `head_next[0]`:U1 = nil
+  wire `head_next[1]`:U1 = nil
+  wire `head_next[2]`:U1 = nil
+  wire `head_next[3]`:U1 = nil
+  wire `head_next[4]`:U1 = nil
+  wire `head_next[5]`:U1 = nil
+  wire `head_next[6]`:U1 = nil
+  wire `head_next[7]`:U1 = nil
+  wire `head_next[8]`:U1 = nil
+  wire `head_next[9]`:U1 = nil
+  mut push_full_next:U2 = 0
+  mut empty_next:U2 = 0
+  push_full.e1 = (push_full_q >> 1) & 1
+  push_full.e0 = push_full_q & 1
+  empty.e1 = (empty_q >> 1) & 1
+  empty.e0 = empty_q & 1
+  push_full_next = 0sb?
+  empty_next = 0sb?
+  const head_valid__w1 = ~empty_q
+  mut _mux_1:U6 = if tail#[0..=4] >= ((`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`) { (tail#[0..=4] - ((`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`))#[0..=4] } else { (config_size#[0..=5] - (((`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`) - tail#[0..=4])#[0..=4])#[0..=5] }
+  mut _mux_2:U6 = if (push_full_q & 1) != 0 { config_size#[0..=5] } else { _mux_1 }
+  `items[0]` = _mux_2 & 1
+  `items[1]` = (_mux_2 >> 1) & 1
+  `items[2]` = (_mux_2 >> 2) & 1
+  `items[3]` = (_mux_2 >> 3) & 1
+  `items[4]` = (_mux_2 >> 4) & 1
+  `items[5]` = (_mux_2 >> 5) & 1
+  mut _mux_3:U6 = if tail#[5..=9] >= ((`head[9]` << 4) | (`head[8]` << 3) | (`head[7]` << 2) | (`head[6]` << 1) | `head[5]`) { (tail#[5..=9] - ((`head[9]` << 4) | (`head[8]` << 3) | (`head[7]` << 2) | (`head[6]` << 1) | `head[5]`))#[0..=4] } else { (config_size#[6..=11] - (((`head[9]` << 4) | (`head[8]` << 3) | (`head[7]` << 2) | (`head[6]` << 1) | `head[5]`) - tail#[5..=9])#[0..=4])#[0..=5] }
+  mut _mux_4:U6 = if ((push_full_q >> 1) & 1) != 0 { config_size#[6..=11] } else { _mux_3 }
+  `items[6]` = _mux_4 & 1
+  `items[7]` = (_mux_4 >> 1) & 1
+  `items[8]` = (_mux_4 >> 2) & 1
+  `items[9]` = (_mux_4 >> 3) & 1
+  `items[10]` = (_mux_4 >> 4) & 1
+  `items[11]` = (_mux_4 >> 5) & 1
+  const advance_head__w1 = head_ready & head_valid__w1
+  mut _b2i_5 = if (advance_head__w1 & 1) != 0 and ((`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`) == config_bound#[0..=4] { 1 } else { 0 }
+  `reinit_head[0]` = _b2i_5 & 1
+  mut gen_fifo_pointers_0_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_0_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[0]` & 1, initial_value=config_base#[0..=4], incr_valid=advance_head__w1 & 1, incr=1)
+  `head[0]` = gen_fifo_pointers_0_br_counter_incr_head.value & 1
+  `head[1]` = (gen_fifo_pointers_0_br_counter_incr_head.value >> 1) & 1
+  `head[2]` = (gen_fifo_pointers_0_br_counter_incr_head.value >> 2) & 1
+  `head[3]` = (gen_fifo_pointers_0_br_counter_incr_head.value >> 3) & 1
+  `head[4]` = (gen_fifo_pointers_0_br_counter_incr_head.value >> 4) & 1
+  `head_next[0]` = gen_fifo_pointers_0_br_counter_incr_head.value_next & 1
+  `head_next[1]` = (gen_fifo_pointers_0_br_counter_incr_head.value_next >> 1) & 1
+  `head_next[2]` = (gen_fifo_pointers_0_br_counter_incr_head.value_next >> 2) & 1
+  `head_next[3]` = (gen_fifo_pointers_0_br_counter_incr_head.value_next >> 3) & 1
+  `head_next[4]` = (gen_fifo_pointers_0_br_counter_incr_head.value_next >> 4) & 1
+  if (advance_head__w1 & 1) == advance_tail.e0 {
+    push_full_next#[0] = push_full_q & 1
+    empty_next#[0] = empty_q & 1
+  } elif (advance_head__w1 & 1) != 0 {
+    push_full_next#[0] = 0
+    empty_next#[0] = U1(((`head_next[4]` << 4) | (`head_next[3]` << 3) | (`head_next[2]` << 2) | (`head_next[1]` << 1) | `head_next[0]`) == tail#[0..=4]) & 1
+  } else {
+    push_full_next#[0] = U1(tail_next#[0..=4] == ((`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`)) & 1
+    empty_next#[0] = 0
   }
-
-  // Items between head and tail, wrapping within the FIFO's partition. A
-  // separate loop: sharing the pointer loop above makes items look
-  // combinationally dependent on head_ready (rolled-loop false cycle in lhd sim).
-  mut count:unsigned(bits=NUM_FIFOS * COUNT_WIDTH) = 0
-  for f in 0..<NUM_FIFOS {
-    const h = heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const t = tail#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
-    const size = config_size#[(f*COUNT_WIDTH)..+COUNT_WIDTH]
-    mut n:unsigned(bits=COUNT_WIDTH) = 0
-    if full#[f] == 1 {
-      n = size
-    } elif t >= h {
-      wrap n = t - h // t >= h here, but the range check ignores the guard
-    }
-    else {
-      mut gap:unsigned(bits=ADDR_WIDTH) = 0
-      wrap gap = h - t
-      wrap n = size - gap
-    }
-    count#[(f*COUNT_WIDTH)..+COUNT_WIDTH] = n
+  mut _b2i_8 = if ((advance_head__w1 >> 1) & 1) != 0 and ((`head[9]` << 4) | (`head[8]` << 3) | (`head[7]` << 2) | (`head[6]` << 1) | `head[5]`) == config_bound#[5..=9] { 1 } else { 0 }
+  `reinit_head[1]` = _b2i_8 & 1
+  mut gen_fifo_pointers_1_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_1_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[1]` & 1, initial_value=config_base#[5..=9], incr_valid=(advance_head__w1 >> 1) & 1, incr=1)
+  `head[5]` = gen_fifo_pointers_1_br_counter_incr_head.value & 1
+  `head[6]` = (gen_fifo_pointers_1_br_counter_incr_head.value >> 1) & 1
+  `head[7]` = (gen_fifo_pointers_1_br_counter_incr_head.value >> 2) & 1
+  `head[8]` = (gen_fifo_pointers_1_br_counter_incr_head.value >> 3) & 1
+  `head[9]` = (gen_fifo_pointers_1_br_counter_incr_head.value >> 4) & 1
+  `head_next[5]` = gen_fifo_pointers_1_br_counter_incr_head.value_next & 1
+  `head_next[6]` = (gen_fifo_pointers_1_br_counter_incr_head.value_next >> 1) & 1
+  `head_next[7]` = (gen_fifo_pointers_1_br_counter_incr_head.value_next >> 2) & 1
+  `head_next[8]` = (gen_fifo_pointers_1_br_counter_incr_head.value_next >> 3) & 1
+  `head_next[9]` = (gen_fifo_pointers_1_br_counter_incr_head.value_next >> 4) & 1
+  if ((advance_head__w1 >> 1) & 1) == advance_tail.e1 {
+    push_full_next#[1] = (push_full_q >> 1) & 1
+    empty_next#[1] = (empty_q >> 1) & 1
+  } elif ((advance_head__w1 >> 1) & 1) != 0 {
+    push_full_next#[1] = 0
+    empty_next#[1] = U1(((`head_next[9]` << 4) | (`head_next[8]` << 3) | (`head_next[7]` << 2) | (`head_next[6]` << 1) | `head_next[5]`) == tail#[5..=9]) & 1
+  } else {
+    push_full_next#[1] = U1(tail_next#[5..=9] == ((`head[9]` << 4) | (`head[8]` << 3) | (`head[7]` << 2) | (`head[6]` << 1) | `head[5]`)) & 1
+    empty_next#[1] = 0
   }
-  full     = next_full
-  is_empty = next_empty
-  heads    = if rst == 1 { config_base } else { next_heads }
-
-  push_full  = full
-  head_valid = ~is_empty & ((1 << NUM_FIFOS) - 1)
-  head       = heads
-  empty      = is_empty
-  items      = count
+  if not (rst != 0) {
+    push_full_q = push_full_next
+  }
+  if not (rst != 0) {
+    empty_q = empty_next
+  }
+  head = (`head[9]` << 9) | (`head[8]` << 8) | (`head[7]` << 7) | (`head[6]` << 6) | (`head[5]` << 5) | (`head[4]` << 4) | (`head[3]` << 3) | (`head[2]` << 2) | (`head[1]` << 1) | `head[0]`
+  items = (`items[11]` << 11) | (`items[10]` << 10) | (`items[9]` << 9) | (`items[8]` << 8) | (`items[7]` << 7) | (`items[6]` << 6) | (`items[5]` << 5) | (`items[4]` << 4) | (`items[3]` << 3) | (`items[2]` << 2) | (`items[1]` << 1) | `items[0]`
+  head_valid = head_valid__w1
 }

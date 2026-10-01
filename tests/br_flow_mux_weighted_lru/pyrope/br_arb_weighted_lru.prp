@@ -2,63 +2,63 @@ const br_arb_pairwise_core_internal = import("br_arb_pairwise_core_internal.br_a
 const br_arb_weight_handler = import("br_arb_weight_handler.br_arb_weight_handler")
 const br_lru_state_internal = import("br_lru_state_internal.br_lru_state_internal")
 
-pub mod br_arb_weighted_lru::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u4, request_weight:u12) -> (grant:u4@[]) {
-  mut gen_n_req_priority_matrix:u16 = 0
-  wire grant:u4
-  wire gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority:u4
-  gen_n_req_priority_matrix = 0sb?
-  mut gen_n_req_br_lru_state_internal = br_lru_state_internal::[name=gen_n_req_br_lru_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), `grant.e3` = (grant >> 3) & 1, `grant.e2` = (grant >> 2) & 1, `grant.e1` = (grant >> 1) & 1, `grant.e0` = grant & 1)
+pub mod br_arb_weighted_lru<NumRequesters=4, MaxWeight=4, MaxAccumulatedWeight=16>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U4, request_weight:U12, rst:Reset) -> (grant:U4@[]) {
+  wire `priority_matrix[0]`:U1 = nil
+  wire `priority_matrix[1]`:U1 = nil
+  wire `priority_matrix[2]`:U1 = nil
+  wire `priority_matrix[3]`:U1 = nil
+  wire `priority_matrix[4]`:U1 = nil
+  wire `priority_matrix[5]`:U1 = nil
+  wire `priority_matrix[6]`:U1 = nil
+  wire `priority_matrix[7]`:U1 = nil
+  wire `priority_matrix[8]`:U1 = nil
+  wire `priority_matrix[9]`:U1 = nil
+  wire `priority_matrix[10]`:U1 = nil
+  wire `priority_matrix[11]`:U1 = nil
+  wire `priority_matrix[12]`:U1 = nil
+  wire `priority_matrix[13]`:U1 = nil
+  wire `priority_matrix[14]`:U1 = nil
+  wire `priority_matrix[15]`:U1 = nil
+  wire priority_matrix:U16 = nil
+  grant = 0sb?
+  mut gen_n_req_br_arb_pairwise_core_internal = br_arb_pairwise_core_internal::[name=gen_n_req_br_arb_pairwise_core_internal](request=request, priority_matrix=priority_matrix)
+  mut gen_n_req_br_arb_weight_handler = br_arb_weight_handler::[name=gen_n_req_br_arb_weight_handler](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request, request_weight=request_weight, grant=gen_n_req_br_arb_pairwise_core_internal.grant)
+  const gen_n_req_request_priority__w1 = (gen_n_req_br_arb_weight_handler.request_priority.e3 << 3) | (gen_n_req_br_arb_weight_handler.request_priority.e2 << 2) | (gen_n_req_br_arb_weight_handler.request_priority.e1 << 1) | gen_n_req_br_arb_weight_handler.request_priority.e0
+  mut _b2i_1 = if enable_priority_update != 0 and request != 0 { 1 } else { 0 }
+  mut gen_n_req_br_lru_state_internal = br_lru_state_internal::[name=gen_n_req_br_lru_state_internal](clk=clk, rst=rst, update_priority=_b2i_1, `grant.e3`=(gen_n_req_br_arb_pairwise_core_internal.grant >> 3) & 1, `grant.e2`=(gen_n_req_br_arb_pairwise_core_internal.grant >> 2) & 1, `grant.e1`=(gen_n_req_br_arb_pairwise_core_internal.grant >> 1) & 1, `grant.e0`=gen_n_req_br_arb_pairwise_core_internal.grant & 1)
   const gen_n_req_state__w1 = gen_n_req_br_lru_state_internal
-  mut _mux_2:u1 = if (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) == (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) { gen_n_req_state__w1#[0..=3] & 1 } else { gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1 }
-  mut gen_n_req_priority_matrix__w1 = gen_n_req_priority_matrix
-  gen_n_req_priority_matrix__w1#[0] = _mux_2 & 1
-  mut _mux_3:u1 = if (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) { (gen_n_req_state__w1#[0..=3] >> 1) & 1 } else { gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1 }
-  mut gen_n_req_priority_matrix__w2 = gen_n_req_priority_matrix__w1
-  gen_n_req_priority_matrix__w2#[1] = _mux_3 & 1
-  mut _mux_4:u1 = if (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) { (gen_n_req_state__w1#[0..=3] >> 2) & 1 } else { gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1 }
-  mut gen_n_req_priority_matrix__w3 = gen_n_req_priority_matrix__w2
-  gen_n_req_priority_matrix__w3#[2] = _mux_4 & 1
-  mut _mux_5:u1 = if (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) { (gen_n_req_state__w1#[0..=3] >> 3) & 1 } else { gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1 }
-  mut gen_n_req_priority_matrix__w4 = gen_n_req_priority_matrix__w3
-  gen_n_req_priority_matrix__w4#[3] = _mux_5 & 1
-  mut _mux_6:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) == (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) { gen_n_req_state__w1#[4..=7] & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1 }
-  mut gen_n_req_priority_matrix__w5 = gen_n_req_priority_matrix__w4
-  gen_n_req_priority_matrix__w5#[4] = _mux_6 & 1
-  mut _mux_7:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) { (gen_n_req_state__w1#[4..=7] >> 1) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1 }
-  mut gen_n_req_priority_matrix__w6 = gen_n_req_priority_matrix__w5
-  gen_n_req_priority_matrix__w6#[5] = _mux_7 & 1
-  mut _mux_8:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) { (gen_n_req_state__w1#[4..=7] >> 2) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1 }
-  mut gen_n_req_priority_matrix__w7 = gen_n_req_priority_matrix__w6
-  gen_n_req_priority_matrix__w7#[6] = _mux_8 & 1
-  mut _mux_9:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) { (gen_n_req_state__w1#[4..=7] >> 3) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1 }
-  mut gen_n_req_priority_matrix__w8 = gen_n_req_priority_matrix__w7
-  gen_n_req_priority_matrix__w8#[7] = _mux_9 & 1
-  mut _mux_10:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) == (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) { gen_n_req_state__w1#[8..=11] & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1 }
-  mut gen_n_req_priority_matrix__w9 = gen_n_req_priority_matrix__w8
-  gen_n_req_priority_matrix__w9#[8] = _mux_10 & 1
-  mut _mux_11:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) { (gen_n_req_state__w1#[8..=11] >> 1) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1 }
-  mut gen_n_req_priority_matrix__w10 = gen_n_req_priority_matrix__w9
-  gen_n_req_priority_matrix__w10#[9] = _mux_11 & 1
-  mut _mux_12:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) { (gen_n_req_state__w1#[8..=11] >> 2) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1 }
-  mut gen_n_req_priority_matrix__w11 = gen_n_req_priority_matrix__w10
-  gen_n_req_priority_matrix__w11#[10] = _mux_12 & 1
-  mut _mux_13:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) { (gen_n_req_state__w1#[8..=11] >> 3) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1 }
-  mut gen_n_req_priority_matrix__w12 = gen_n_req_priority_matrix__w11
-  gen_n_req_priority_matrix__w12#[11] = _mux_13 & 1
-  mut _mux_14:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) == (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority & 1) { gen_n_req_state__w1#[12..=15] & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1 }
-  mut gen_n_req_priority_matrix__w13 = gen_n_req_priority_matrix__w12
-  gen_n_req_priority_matrix__w13#[12] = _mux_14 & 1
-  mut _mux_15:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 1) & 1) { (gen_n_req_state__w1#[12..=15] >> 1) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1 }
-  mut gen_n_req_priority_matrix__w14 = gen_n_req_priority_matrix__w13
-  gen_n_req_priority_matrix__w14#[13] = _mux_15 & 1
-  mut _mux_16:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 2) & 1) { (gen_n_req_state__w1#[12..=15] >> 2) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1 }
-  mut gen_n_req_priority_matrix__w15 = gen_n_req_priority_matrix__w14
-  gen_n_req_priority_matrix__w15#[14] = _mux_16 & 1
-  mut _mux_17:u1 = if ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) == ((gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1) { (gen_n_req_state__w1#[12..=15] >> 3) & 1 } else { (gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority >> 3) & 1 }
-  mut gen_n_req_priority_matrix__w16 = gen_n_req_priority_matrix__w15
-  gen_n_req_priority_matrix__w16#[15] = _mux_17 & 1
-  mut gen_n_req_br_arb_pairwise_core_internal = br_arb_pairwise_core_internal::[name=gen_n_req_br_arb_pairwise_core_internal](request = request, priority_matrix = gen_n_req_priority_matrix__w16)
+  mut _mux_2:U1 = if (gen_n_req_request_priority__w1 & 1) == (gen_n_req_request_priority__w1 & 1) { gen_n_req_state__w1#[0..=3] & 1 } else { gen_n_req_request_priority__w1 & 1 }
+  `priority_matrix[0]` = _mux_2 & 1
+  mut _mux_3:U1 = if (gen_n_req_request_priority__w1 & 1) == ((gen_n_req_request_priority__w1 >> 1) & 1) { (gen_n_req_state__w1#[0..=3] >> 1) & 1 } else { gen_n_req_request_priority__w1 & 1 }
+  `priority_matrix[1]` = _mux_3 & 1
+  mut _mux_4:U1 = if (gen_n_req_request_priority__w1 & 1) == ((gen_n_req_request_priority__w1 >> 2) & 1) { (gen_n_req_state__w1#[0..=3] >> 2) & 1 } else { gen_n_req_request_priority__w1 & 1 }
+  `priority_matrix[2]` = _mux_4 & 1
+  mut _mux_5:U1 = if (gen_n_req_request_priority__w1 & 1) == ((gen_n_req_request_priority__w1 >> 3) & 1) { (gen_n_req_state__w1#[0..=3] >> 3) & 1 } else { gen_n_req_request_priority__w1 & 1 }
+  `priority_matrix[3]` = _mux_5 & 1
+  mut _mux_6:U1 = if ((gen_n_req_request_priority__w1 >> 1) & 1) == (gen_n_req_request_priority__w1 & 1) { gen_n_req_state__w1#[4..=7] & 1 } else { (gen_n_req_request_priority__w1 >> 1) & 1 }
+  `priority_matrix[4]` = _mux_6 & 1
+  mut _mux_7:U1 = if ((gen_n_req_request_priority__w1 >> 1) & 1) == ((gen_n_req_request_priority__w1 >> 1) & 1) { (gen_n_req_state__w1#[4..=7] >> 1) & 1 } else { (gen_n_req_request_priority__w1 >> 1) & 1 }
+  `priority_matrix[5]` = _mux_7 & 1
+  mut _mux_8:U1 = if ((gen_n_req_request_priority__w1 >> 1) & 1) == ((gen_n_req_request_priority__w1 >> 2) & 1) { (gen_n_req_state__w1#[4..=7] >> 2) & 1 } else { (gen_n_req_request_priority__w1 >> 1) & 1 }
+  `priority_matrix[6]` = _mux_8 & 1
+  mut _mux_9:U1 = if ((gen_n_req_request_priority__w1 >> 1) & 1) == ((gen_n_req_request_priority__w1 >> 3) & 1) { (gen_n_req_state__w1#[4..=7] >> 3) & 1 } else { (gen_n_req_request_priority__w1 >> 1) & 1 }
+  `priority_matrix[7]` = _mux_9 & 1
+  mut _mux_10:U1 = if ((gen_n_req_request_priority__w1 >> 2) & 1) == (gen_n_req_request_priority__w1 & 1) { gen_n_req_state__w1#[8..=11] & 1 } else { (gen_n_req_request_priority__w1 >> 2) & 1 }
+  `priority_matrix[8]` = _mux_10 & 1
+  mut _mux_11:U1 = if ((gen_n_req_request_priority__w1 >> 2) & 1) == ((gen_n_req_request_priority__w1 >> 1) & 1) { (gen_n_req_state__w1#[8..=11] >> 1) & 1 } else { (gen_n_req_request_priority__w1 >> 2) & 1 }
+  `priority_matrix[9]` = _mux_11 & 1
+  mut _mux_12:U1 = if ((gen_n_req_request_priority__w1 >> 2) & 1) == ((gen_n_req_request_priority__w1 >> 2) & 1) { (gen_n_req_state__w1#[8..=11] >> 2) & 1 } else { (gen_n_req_request_priority__w1 >> 2) & 1 }
+  `priority_matrix[10]` = _mux_12 & 1
+  mut _mux_13:U1 = if ((gen_n_req_request_priority__w1 >> 2) & 1) == ((gen_n_req_request_priority__w1 >> 3) & 1) { (gen_n_req_state__w1#[8..=11] >> 3) & 1 } else { (gen_n_req_request_priority__w1 >> 2) & 1 }
+  `priority_matrix[11]` = _mux_13 & 1
+  mut _mux_14:U1 = if ((gen_n_req_request_priority__w1 >> 3) & 1) == (gen_n_req_request_priority__w1 & 1) { gen_n_req_state__w1#[12..=15] & 1 } else { (gen_n_req_request_priority__w1 >> 3) & 1 }
+  `priority_matrix[12]` = _mux_14 & 1
+  mut _mux_15:U1 = if ((gen_n_req_request_priority__w1 >> 3) & 1) == ((gen_n_req_request_priority__w1 >> 1) & 1) { (gen_n_req_state__w1#[12..=15] >> 1) & 1 } else { (gen_n_req_request_priority__w1 >> 3) & 1 }
+  `priority_matrix[13]` = _mux_15 & 1
+  mut _mux_16:U1 = if ((gen_n_req_request_priority__w1 >> 3) & 1) == ((gen_n_req_request_priority__w1 >> 2) & 1) { (gen_n_req_state__w1#[12..=15] >> 2) & 1 } else { (gen_n_req_request_priority__w1 >> 3) & 1 }
+  `priority_matrix[14]` = _mux_16 & 1
+  mut _mux_17:U1 = if ((gen_n_req_request_priority__w1 >> 3) & 1) == ((gen_n_req_request_priority__w1 >> 3) & 1) { (gen_n_req_state__w1#[12..=15] >> 3) & 1 } else { (gen_n_req_request_priority__w1 >> 3) & 1 }
+  `priority_matrix[15]` = _mux_17 & 1
+  priority_matrix = (`priority_matrix[15]` << 15) | (`priority_matrix[14]` << 14) | (`priority_matrix[13]` << 13) | (`priority_matrix[12]` << 12) | (`priority_matrix[11]` << 11) | (`priority_matrix[10]` << 10) | (`priority_matrix[9]` << 9) | (`priority_matrix[8]` << 8) | (`priority_matrix[7]` << 7) | (`priority_matrix[6]` << 6) | (`priority_matrix[5]` << 5) | (`priority_matrix[4]` << 4) | (`priority_matrix[3]` << 3) | (`priority_matrix[2]` << 2) | (`priority_matrix[1]` << 1) | `priority_matrix[0]`
   grant = gen_n_req_br_arb_pairwise_core_internal.grant
-  mut gen_n_req_br_arb_weight_handler = br_arb_weight_handler::[name=gen_n_req_br_arb_weight_handler](clk = clk, rst = rst, enable_priority_update = enable_priority_update, request = request, request_weight = request_weight, grant = grant)
-  gen_n_req_gen_priority_matrix_row_0_gen_priority_matrix_col_0_request_priority = (gen_n_req_br_arb_weight_handler.request_priority.e3 << 3) | (gen_n_req_br_arb_weight_handler.request_priority.e2 << 2) | (gen_n_req_br_arb_weight_handler.request_priority.e1 << 1) | gen_n_req_br_arb_weight_handler.request_priority.e0
 }

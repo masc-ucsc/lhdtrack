@@ -1,33 +1,174 @@
 const br_enc_priority_encoder = import("br_enc_priority_encoder.br_enc_priority_encoder")
+const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
 
-// Priority encoder whose order rotates: the requester just above the one-hot
-// `lowest_prio` has the highest priority and `lowest_prio` itself the lowest.
-// Results are packed like br_enc_priority_encoder.
-pub mod br_enc_priority_dynamic<NUM_REQUESTERS=2, NUM_RESULTS=1>(
-  `in`:unsigned(bits=NUM_REQUESTERS),
-  lowest_prio:unsigned(bits=NUM_REQUESTERS)
-) -> (out:unsigned(bits=NUM_RESULTS * NUM_REQUESTERS)@[0]) {
-  comptime const N = NUM_REQUESTERS
-
-  // Requesters at or below lowest_prio come after the ones above it.
-  mut wrapped:unsigned(bits=N) = 0
-  for i in 0..<N {
-    wrapped#[i] = lowest_prio#|[i..]
-  }
-  const in_low  = `in` & wrapped
-  const in_high = `in` & ~wrapped
-
-  // Unroll the ring into one 2N-1 bit vector, high-priority requesters first.
-  // in_high[0] is dropped: bit 0 is in the low half whenever lowest_prio != 0.
-  comptime const RING = 2*N - 1
-  const unrolled      = (in_low << (N - 1)) | (in_high >> 1)
-  const ordered       = br_enc_priority_encoder<NUM_REQUESTERS=RING,NUM_RESULTS=NUM_RESULTS>(`in`=unrolled)
-
-  // Fold each result back onto the N requesters.
-  mut results:unsigned(bits=NUM_RESULTS * N) = 0
-  for k in 0..<NUM_RESULTS {
-    const pick          = ordered#[(k*RING)..+RING]
-    results#[(k*N)..+N] = pick#[(N - 1)..] | (pick#[0..<(N - 1)] << 1)
-  }
-  out = results
+pub mod br_enc_priority_dynamic<NumRequesters=16, NumResults=4>::[timecheck=false](clk:Clock, `in`:U16, lowest_prio:U16, rst:Reset) -> (out:U64@[]) {
+  wire `out[0]`:U1 = nil
+  wire `out[1]`:U1 = nil
+  wire `out[2]`:U1 = nil
+  wire `out[3]`:U1 = nil
+  wire `out[4]`:U1 = nil
+  wire `out[5]`:U1 = nil
+  wire `out[6]`:U1 = nil
+  wire `out[7]`:U1 = nil
+  wire `out[8]`:U1 = nil
+  wire `out[9]`:U1 = nil
+  wire `out[10]`:U1 = nil
+  wire `out[11]`:U1 = nil
+  wire `out[12]`:U1 = nil
+  wire `out[13]`:U1 = nil
+  wire `out[14]`:U1 = nil
+  wire `out[15]`:U1 = nil
+  wire `out[16]`:U1 = nil
+  wire `out[17]`:U1 = nil
+  wire `out[18]`:U1 = nil
+  wire `out[19]`:U1 = nil
+  wire `out[20]`:U1 = nil
+  wire `out[21]`:U1 = nil
+  wire `out[22]`:U1 = nil
+  wire `out[23]`:U1 = nil
+  wire `out[24]`:U1 = nil
+  wire `out[25]`:U1 = nil
+  wire `out[26]`:U1 = nil
+  wire `out[27]`:U1 = nil
+  wire `out[28]`:U1 = nil
+  wire `out[29]`:U1 = nil
+  wire `out[30]`:U1 = nil
+  wire `out[31]`:U1 = nil
+  wire `out[32]`:U1 = nil
+  wire `out[33]`:U1 = nil
+  wire `out[34]`:U1 = nil
+  wire `out[35]`:U1 = nil
+  wire `out[36]`:U1 = nil
+  wire `out[37]`:U1 = nil
+  wire `out[38]`:U1 = nil
+  wire `out[39]`:U1 = nil
+  wire `out[40]`:U1 = nil
+  wire `out[41]`:U1 = nil
+  wire `out[42]`:U1 = nil
+  wire `out[43]`:U1 = nil
+  wire `out[44]`:U1 = nil
+  wire `out[45]`:U1 = nil
+  wire `out[46]`:U1 = nil
+  wire `out[47]`:U1 = nil
+  wire `out[48]`:U1 = nil
+  wire `out[49]`:U1 = nil
+  wire `out[50]`:U1 = nil
+  wire `out[51]`:U1 = nil
+  wire `out[52]`:U1 = nil
+  wire `out[53]`:U1 = nil
+  wire `out[54]`:U1 = nil
+  wire `out[55]`:U1 = nil
+  wire `out[56]`:U1 = nil
+  wire `out[57]`:U1 = nil
+  wire `out[58]`:U1 = nil
+  wire `out[59]`:U1 = nil
+  wire `out[60]`:U1 = nil
+  wire `out[61]`:U1 = nil
+  wire `out[62]`:U1 = nil
+  wire `out[63]`:U1 = nil
+  wire out:U64 = nil
+  wire `priority_mask[0]`:U1 = nil
+  wire `priority_mask[1]`:U1 = nil
+  wire `priority_mask[2]`:U1 = nil
+  wire `priority_mask[3]`:U1 = nil
+  wire `priority_mask[4]`:U1 = nil
+  wire `priority_mask[5]`:U1 = nil
+  wire `priority_mask[6]`:U1 = nil
+  wire `priority_mask[7]`:U1 = nil
+  wire `priority_mask[8]`:U1 = nil
+  wire `priority_mask[9]`:U1 = nil
+  wire `priority_mask[10]`:U1 = nil
+  wire `priority_mask[11]`:U1 = nil
+  wire `priority_mask[12]`:U1 = nil
+  wire `priority_mask[13]`:U1 = nil
+  wire `priority_mask[14]`:U1 = nil
+  wire `priority_mask[15]`:U1 = nil
+  wire priority_mask:U16 = nil
+  `priority_mask[0]` = U1(lowest_prio != 0) & 1
+  `priority_mask[1]` = U1(lowest_prio#[1..=15] != 0) & 1
+  `priority_mask[2]` = U1(lowest_prio#[2..=15] != 0) & 1
+  `priority_mask[3]` = U1(lowest_prio#[3..=15] != 0) & 1
+  `priority_mask[4]` = U1(lowest_prio#[4..=15] != 0) & 1
+  `priority_mask[5]` = U1(lowest_prio#[5..=15] != 0) & 1
+  `priority_mask[6]` = U1(lowest_prio#[6..=15] != 0) & 1
+  `priority_mask[7]` = U1(lowest_prio#[7..=15] != 0) & 1
+  `priority_mask[8]` = U1(lowest_prio#[8..=15] != 0) & 1
+  `priority_mask[9]` = U1(lowest_prio#[9..=15] != 0) & 1
+  `priority_mask[10]` = U1(lowest_prio#[10..=15] != 0) & 1
+  `priority_mask[11]` = U1(lowest_prio#[11..=15] != 0) & 1
+  `priority_mask[12]` = U1(lowest_prio#[12..=15] != 0) & 1
+  `priority_mask[13]` = U1(lowest_prio#[13..=15] != 0) & 1
+  `priority_mask[14]` = U1(lowest_prio#[14..=15] != 0) & 1
+  `priority_mask[15]` = U1(((lowest_prio >> 15) & 1) != 0) & 1
+  const in_high_prio__w1 = `in` & (~priority_mask)
+  const t61 = ((`in` & priority_mask) << 15) | in_high_prio__w1#[1..=15]
+  mut br_enc_priority_encoder_inst = br_enc_priority_encoder::[name=br_enc_priority_encoder_inst](clk=clk, rst=rst, `in.e30`=(t61 >> 30) & 1, `in.e29`=(t61 >> 29) & 1, `in.e28`=(t61 >> 28) & 1, `in.e27`=(t61 >> 27) & 1, `in.e26`=(t61 >> 26) & 1, `in.e25`=(t61 >> 25) & 1, `in.e24`=(t61 >> 24) & 1, `in.e23`=(t61 >> 23) & 1, `in.e22`=(t61 >> 22) & 1, `in.e21`=(t61 >> 21) & 1, `in.e20`=(t61 >> 20) & 1, `in.e19`=(t61 >> 19) & 1, `in.e18`=(t61 >> 18) & 1, `in.e17`=(t61 >> 17) & 1, `in.e16`=(t61 >> 16) & 1, `in.e15`=(t61 >> 15) & 1, `in.e14`=(t61 >> 14) & 1, `in.e13`=(t61 >> 13) & 1, `in.e12`=(t61 >> 12) & 1, `in.e11`=(t61 >> 11) & 1, `in.e10`=(t61 >> 10) & 1, `in.e9`=(t61 >> 9) & 1, `in.e8`=(t61 >> 8) & 1, `in.e7`=(t61 >> 7) & 1, `in.e6`=(t61 >> 6) & 1, `in.e5`=(t61 >> 5) & 1, `in.e4`=(t61 >> 4) & 1, `in.e3`=(t61 >> 3) & 1, `in.e2`=(t61 >> 2) & 1, `in.e1`=(t61 >> 1) & 1, `in.e0`=t61 & 1)
+  const out_internal__w1 = br_enc_priority_encoder_inst
+  br_misc_unused_p2::[name=br_misc_unused_in_high_prio_lsb](`in`=in_high_prio__w1 & 1)
+  `out[0]` = (out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) & 1
+  `out[1]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 1) & 1
+  `out[2]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 2) & 1
+  `out[3]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 3) & 1
+  `out[4]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 4) & 1
+  `out[5]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 5) & 1
+  `out[6]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 6) & 1
+  `out[7]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 7) & 1
+  `out[8]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 8) & 1
+  `out[9]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 9) & 1
+  `out[10]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 10) & 1
+  `out[11]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 11) & 1
+  `out[12]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 12) & 1
+  `out[13]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 13) & 1
+  `out[14]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 14) & 1
+  `out[15]` = ((out_internal__w1#[0..=30]#[15..=30] | (out_internal__w1#[0..=30]#[0..=14] << 1)) >> 15) & 1
+  `out[16]` = (out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) & 1
+  `out[17]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 1) & 1
+  `out[18]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 2) & 1
+  `out[19]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 3) & 1
+  `out[20]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 4) & 1
+  `out[21]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 5) & 1
+  `out[22]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 6) & 1
+  `out[23]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 7) & 1
+  `out[24]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 8) & 1
+  `out[25]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 9) & 1
+  `out[26]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 10) & 1
+  `out[27]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 11) & 1
+  `out[28]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 12) & 1
+  `out[29]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 13) & 1
+  `out[30]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 14) & 1
+  `out[31]` = ((out_internal__w1#[31..=61]#[15..=30] | (out_internal__w1#[31..=61]#[0..=14] << 1)) >> 15) & 1
+  `out[32]` = (out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) & 1
+  `out[33]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 1) & 1
+  `out[34]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 2) & 1
+  `out[35]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 3) & 1
+  `out[36]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 4) & 1
+  `out[37]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 5) & 1
+  `out[38]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 6) & 1
+  `out[39]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 7) & 1
+  `out[40]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 8) & 1
+  `out[41]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 9) & 1
+  `out[42]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 10) & 1
+  `out[43]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 11) & 1
+  `out[44]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 12) & 1
+  `out[45]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 13) & 1
+  `out[46]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 14) & 1
+  `out[47]` = ((out_internal__w1#[62..=92]#[15..=30] | (out_internal__w1#[62..=92]#[0..=14] << 1)) >> 15) & 1
+  `out[48]` = (out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) & 1
+  `out[49]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 1) & 1
+  `out[50]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 2) & 1
+  `out[51]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 3) & 1
+  `out[52]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 4) & 1
+  `out[53]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 5) & 1
+  `out[54]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 6) & 1
+  `out[55]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 7) & 1
+  `out[56]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 8) & 1
+  `out[57]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 9) & 1
+  `out[58]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 10) & 1
+  `out[59]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 11) & 1
+  `out[60]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 12) & 1
+  `out[61]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 13) & 1
+  `out[62]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 14) & 1
+  `out[63]` = ((out_internal__w1#[93..=123]#[15..=30] | (out_internal__w1#[93..=123]#[0..=14] << 1)) >> 15) & 1
+  out = (`out[63]` << 63) | (`out[62]` << 62) | (`out[61]` << 61) | (`out[60]` << 60) | (`out[59]` << 59) | (`out[58]` << 58) | (`out[57]` << 57) | (`out[56]` << 56) | (`out[55]` << 55) | (`out[54]` << 54) | (`out[53]` << 53) | (`out[52]` << 52) | (`out[51]` << 51) | (`out[50]` << 50) | (`out[49]` << 49) | (`out[48]` << 48) | (`out[47]` << 47) | (`out[46]` << 46) | (`out[45]` << 45) | (`out[44]` << 44) | (`out[43]` << 43) | (`out[42]` << 42) | (`out[41]` << 41) | (`out[40]` << 40) | (`out[39]` << 39) | (`out[38]` << 38) | (`out[37]` << 37) | (`out[36]` << 36) | (`out[35]` << 35) | (`out[34]` << 34) | (`out[33]` << 33) | (`out[32]` << 32) | (`out[31]` << 31) | (`out[30]` << 30) | (`out[29]` << 29) | (`out[28]` << 28) | (`out[27]` << 27) | (`out[26]` << 26) | (`out[25]` << 25) | (`out[24]` << 24) | (`out[23]` << 23) | (`out[22]` << 22) | (`out[21]` << 21) | (`out[20]` << 20) | (`out[19]` << 19) | (`out[18]` << 18) | (`out[17]` << 17) | (`out[16]` << 16) | (`out[15]` << 15) | (`out[14]` << 14) | (`out[13]` << 13) | (`out[12]` << 12) | (`out[11]` << 11) | (`out[10]` << 10) | (`out[9]` << 9) | (`out[8]` << 8) | (`out[7]` << 7) | (`out[6]` << 6) | (`out[5]` << 5) | (`out[4]` << 4) | (`out[3]` << 3) | (`out[2]` << 2) | (`out[1]` << 1) | `out[0]`
+  priority_mask = (`priority_mask[15]` << 15) | (`priority_mask[14]` << 14) | (`priority_mask[13]` << 13) | (`priority_mask[12]` << 12) | (`priority_mask[11]` << 11) | (`priority_mask[10]` << 10) | (`priority_mask[9]` << 9) | (`priority_mask[8]` << 8) | (`priority_mask[7]` << 7) | (`priority_mask[6]` << 6) | (`priority_mask[5]` << 5) | (`priority_mask[4]` << 4) | (`priority_mask[3]` << 3) | (`priority_mask[2]` << 2) | (`priority_mask[1]` << 1) | `priority_mask[0]`
 }

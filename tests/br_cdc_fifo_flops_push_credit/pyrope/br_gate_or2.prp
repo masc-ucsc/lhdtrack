@@ -1,3 +1,3 @@
-pub comb br_gate_or2::[timecheck=false](in0:u1, in1:u1) -> (out:u1) {
-  out = unsigned((in0 != 0) or (in1 != 0))
+pub comb br_gate_or2::[timecheck=false](in0:U1, in1:U1) -> (out:U1) {
+  out = U1(in0 != 0 or in1 != 0)
 }

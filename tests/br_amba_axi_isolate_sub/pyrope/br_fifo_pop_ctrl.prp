@@ -1,17 +1,17 @@
 const br_counter_p2 = import("br_counter_p2.br_counter_p2")
 const br_fifo_pop_ctrl_core_t = import("br_fifo_pop_ctrl_core.br_fifo_pop_ctrl_core")
 
-pub mod br_fifo_pop_ctrl::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, bypass_valid_unstable:u1, bypass_data_unstable:u2, ram_rd_data_valid:u1, ram_rd_data:u2, push_beat:u1) -> (pop_valid:u1@[], pop_data:u2@[], empty:u1@[], empty_next:u1@[], items:u2@[], items_next:u2@[], bypass_ready:u1@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u1@[], pop_beat:u1@[]) {
-  reg empty:u1
-  wire items:u2
-  mut br_fifo_pop_ctrl_core = br_fifo_pop_ctrl_core_t::[name=br_fifo_pop_ctrl_core](clk = clk, rst = rst, pop_ready = pop_ready, bypass_valid_unstable = bypass_valid_unstable, bypass_data_unstable = bypass_data_unstable, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data, empty = empty, items = items)
-  mut br_counter_items = br_counter_p2::[name=br_counter_items](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = push_beat, incr = 1, decr_valid = br_fifo_pop_ctrl_core.pop_beat, decr = 1)
+pub mod br_fifo_pop_ctrl<Depth=2, Width=2, EnableBypass=1, RamReadLatency=0, RegisterPopOutputs=0, RamDepth=2, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](bypass_data_unstable:U2, bypass_valid_unstable:U1, clk:Clock, pop_ready:U1, push_beat:U1, ram_rd_data:U2, ram_rd_data_valid:U1, rst:U1) -> (bypass_ready:U1@[], empty:U1@[], empty_next:U1@[], items:U2@[], items_next:U2@[], pop_beat:U1@[], pop_data:U2@[], pop_valid:U1@[], ram_rd_addr:U1@[], ram_rd_addr_valid:U1@[]) {
+  reg empty:U1:[async=false, initial=1, reset_pin=rst]
+  wire items:U2 = nil
+  mut br_fifo_pop_ctrl_core = br_fifo_pop_ctrl_core_t::[name=br_fifo_pop_ctrl_core](clk=clk, rst=rst, pop_ready=pop_ready, bypass_valid_unstable=bypass_valid_unstable, bypass_data_unstable=bypass_data_unstable, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data, empty=empty, items=items)
+  mut br_counter_items = br_counter_p2::[name=br_counter_items](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=push_beat, incr=1, decr_valid=br_fifo_pop_ctrl_core.pop_beat, decr=1)
   items = br_counter_items.value
-  const empty_next__w1 = unsigned(br_counter_items.value_next == 0)
-  if rst != 0 {
-    empty = 1
-  } elif (push_beat != 0) or (br_fifo_pop_ctrl_core.pop_beat != 0) {
-    empty = empty_next__w1
+  const empty_next__w1 = U1(br_counter_items.value_next == 0)
+  if not (rst != 0) {
+    if push_beat != 0 or br_fifo_pop_ctrl_core.pop_beat != 0 {
+      empty = empty_next__w1
+    }
   }
   pop_valid = br_fifo_pop_ctrl_core.pop_valid
   pop_data = br_fifo_pop_ctrl_core.pop_data

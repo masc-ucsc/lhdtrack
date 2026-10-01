@@ -1,48 +1,26 @@
-const br_cdc_bit_toggle           = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
 const br_cdc_fifo_gray_count_sync = import("br_cdc_fifo_gray_count_sync.br_cdc_fifo_gray_count_sync")
-const br_cdc_fifo_push_ctrl       = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_push_ctrl")
+const br_cdc_fifo_push_ctrl = import("br_cdc_fifo_push_ctrl.br_cdc_fifo_push_ctrl")
 
 // Push half of a clock-domain-crossing FIFO controller for an external 1R1W
 // RAM: 32 entries of 64 bits. The pop side's Gray-coded count and reset
 // status are synchronized into push_clk; every flop here is in that domain.
 // pop_clk and pop_rst only fed the upstream source-side assertions.
-pub mod br_cdc_fifo_ctrl_push_1r1w(
-  push_clk:u1,
-  push_rst:u1,
-  push_valid:u1,
-  push_data:u64,
-  pop_clk:u1,
-  pop_rst:u1,
-  pop_reset_active_pop:u1,
-  pop_pop_count_gray:u6
-) -> (
-  push_ready:u1@[],
-  push_full:u1@[],
-  push_slots:u6@[],
-  push_ram_wr_valid:u1@[],
-  push_ram_wr_addr:u5@[],
-  push_ram_wr_data:u64@[],
-  push_push_count_gray:u6@[],
-  push_reset_active_push:u1@[]
-) {
-  comptime const DEPTH           = 32
-  comptime const COUNT_WIDTH     = push_slots.[bits]
+pub mod br_cdc_fifo_ctrl_push_1r1w(pop_clk:Clock, pop_pop_count_gray:U6, pop_reset_active_pop:U1, pop_rst:U1, push_clk:Clock, push_data:U64, push_rst:U1, push_valid:U1) -> (push_full:U1@[], push_push_count_gray:U6@[], push_ram_wr_addr:U5@[], push_ram_wr_data:U64@[], push_ram_wr_valid:U1@[], push_ready:U1@[], push_reset_active_push:U1@[], push_slots:U6@[]) {
+  comptime const DEPTH = 32
+  comptime const COUNT_WIDTH = push_slots.[bits]
   comptime const NUM_SYNC_STAGES = 3
 
-  const pop_count_gray = br_cdc_fifo_gray_count_sync<COUNT_WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_SYNC_STAGES>(
-    dst_clk=push_clk, src_count_gray=pop_pop_count_gray
-  )
+  const pop_count_gray = br_cdc_fifo_gray_count_sync<COUNT_WIDTH=COUNT_WIDTH, NUM_STAGES=NUM_SYNC_STAGES>(dst_clk=push_clk, src_count_gray=pop_pop_count_gray)
   const reset_active_pop = br_cdc_bit_toggle<NUM_STAGES=NUM_SYNC_STAGES>(dst_clk=push_clk, src_bit=pop_reset_active_pop == 1)
 
-  const ctrl = br_cdc_fifo_push_ctrl<DEPTH=DEPTH,WIDTH=push_data.[bits],COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=2>(
-    clk=push_clk, rst=push_rst, push_valid=push_valid == 1, push_data=push_data, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop
-  )
-  push_ready             = u1(ctrl.push_ready)
-  push_full              = u1(ctrl.full)
-  push_slots             = ctrl.slots
-  push_ram_wr_valid      = u1(ctrl.ram_wr_valid)
-  push_ram_wr_addr       = ctrl.ram_wr_addr
-  push_ram_wr_data       = ctrl.ram_wr_data
-  push_push_count_gray   = ctrl.push_count_gray
-  push_reset_active_push = u1(ctrl.reset_active_push)
+  const ctrl = br_cdc_fifo_push_ctrl<COUNT_WIDTH=COUNT_WIDTH, DEPTH=DEPTH, PUSH_COUNT_DELAY=2, WIDTH=push_data.[bits]>(clk=push_clk, rst=push_rst, push_valid=push_valid == 1, push_data=push_data, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
+  push_ready = U1(ctrl.push_ready)
+  push_full = U1(ctrl.full)
+  push_slots = ctrl.slots
+  push_ram_wr_valid = U1(ctrl.ram_wr_valid)
+  push_ram_wr_addr = ctrl.ram_wr_addr
+  push_ram_wr_data = ctrl.ram_wr_data
+  push_push_count_gray = ctrl.push_count_gray
+  push_reset_active_push = U1(ctrl.reset_active_push)
 }

@@ -1,5 +1,5 @@
-pub mod br_delay_skew::[timecheck=false](clk:u1, in_valid:u1, `in`:u64) -> (out_valid_next:u1@[], out:u64@[]) {
-  reg out:u64
+pub mod br_delay_skew::[timecheck=false](clk:Clock, `in`:U64, in_valid:U1) -> (out:U64@[], out_valid_next:U1@[]) {
+  reg out:U64
   if in_valid != 0 {
     out = `in`
   }

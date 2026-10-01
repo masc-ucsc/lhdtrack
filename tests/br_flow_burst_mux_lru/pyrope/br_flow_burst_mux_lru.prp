@@ -1,40 +1,32 @@
-const br_arb_grant_hold   = import("br_arb_grant_hold.br_arb_grant_hold")
+const br_arb_grant_hold = import("br_arb_grant_hold.br_arb_grant_hold")
 const br_arb_lru_internal = import("br_arb_lru_internal.br_arb_lru_internal")
 
 // 4-flow burst mux with least-recently-used arbitration: once a flow wins it
 // keeps the pop side until it transfers a beat with push_last set.
 // push_data packs flow i in bits [32*i, 32*i+32). Pop outputs are unstable
-// (combinational from the push side). clk only fed the upstream assertions.
-pub mod br_flow_burst_mux_lru(clk:u1, rst:u1, push_valid:u4, push_last:u4, push_data:u128, pop_ready:u1) -> (
-  push_ready:u4@[0],
-  pop_valid_unstable:u1@[0],
-  pop_last_unstable:u1@[0],
-  pop_data_unstable:u32@[0]
-) {
+// (combinational from the push side). clk owns the arbiter state through the implicit Clock binding.
+pub mod br_flow_burst_mux_lru(clk:Clock, pop_ready:U1, push_data:U128, push_last:U4, push_valid:U4, rst:U1) -> (pop_data_unstable:U32@[0], pop_last_unstable:U1@[0], pop_valid_unstable:U1@[0], push_ready:U4@[0]) {
   comptime const NUM_FLOWS = push_valid.[bits]
-  comptime const WIDTH     = pop_data_unstable.[bits]
+  comptime const WIDTH = pop_data_unstable.[bits]
 
-  wire grant:u4        = nil
-  wire arb_update:bool = nil
-  const arb            = br_arb_lru_internal<NUM_REQUESTERS=NUM_FLOWS>(rst=rst, enable_priority_update=arb_update, request=push_valid)
+  wire grant:U4 = nil
+  wire arb_update:Bool = nil
+  const arb = br_arb_lru_internal<NUM_REQUESTERS=NUM_FLOWS>(rst=rst, enable_priority_update=arb_update, request=push_valid)
 
   // The granted flow keeps the pop side until its last beat transfers.
-  const held = br_arb_grant_hold<NUM_REQUESTERS=NUM_FLOWS>(
-    rst=rst, grant_hold=~(push_valid & push_last) & ((1 << NUM_FLOWS) - 1), enable_grant_hold_update=pop_ready == 1
-      and (grant & push_valid) != 0, grant_from_arb=arb.grant
-  )
-  grant      = held.grant
+  const held = br_arb_grant_hold<NUM_REQUESTERS=NUM_FLOWS>(rst=rst, grant_hold=~(push_valid & push_last), enable_grant_hold_update=pop_ready == 1 and (grant & push_valid) != 0, grant_from_arb=arb.grant)
+  grant = held.grant
   arb_update = held.enable_priority_update_to_arb
 
   // One-hot mux of the granted flow.
-  mut data:u32 = 0
+  mut data:U32 = 0
   for i in 0..<NUM_FLOWS {
     if grant#[i] == 1 {
       data |= push_data#[(i*WIDTH)..+WIDTH]
     }
   }
-  push_ready         = if pop_ready == 1 { grant } else { 0 }
-  pop_valid_unstable = u1((push_valid & grant) != 0)
-  pop_last_unstable  = u1((push_last & grant) != 0)
-  pop_data_unstable  = data
+  push_ready = if pop_ready == 1 { grant } else { 0 }
+  pop_valid_unstable = U1((push_valid & grant) != 0)
+  pop_last_unstable = U1((push_last & grant) != 0)
+  pop_data_unstable = data
 }

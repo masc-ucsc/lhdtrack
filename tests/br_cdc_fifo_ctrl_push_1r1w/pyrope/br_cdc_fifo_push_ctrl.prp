@@ -2,41 +2,23 @@ const br_cdc_fifo_push_flag_mgr = import("br_cdc_fifo_push_flag_mgr.br_cdc_fifo_
 
 // Push side of a CDC FIFO controller: accepts data while not full and writes
 // it to consecutive RAM entries. Every flop is in the clk (push) domain.
-pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
-  clk:u1,
-  rst:u1,
-  push_valid:bool,
-  push_data:unsigned(bits=WIDTH),
-  pop_count_gray:unsigned(bits=COUNT_WIDTH),
-  reset_active_pop:bool
-) -> (
-  push_ready:bool@[],
-  full:bool@[],
-  slots:unsigned(bits=COUNT_WIDTH)@[],
-  ram_wr_valid:bool@[],
-  ram_wr_addr:unsigned(max=DEPTH - 1)@[],
-  ram_wr_data:unsigned(bits=WIDTH)@[],
-  push_count_gray:unsigned(bits=COUNT_WIDTH)@[],
-  reset_active_push:bool@[]
-) {
-  wire push_beat:bool = nil
-  const flags         = br_cdc_fifo_push_flag_mgr<DEPTH=DEPTH,COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(
-    clk=clk, rst=rst, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop
-  )
+pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(clk:Clock, pop_count_gray:Unsigned(bits=COUNT_WIDTH), push_data:Unsigned(bits=WIDTH), push_valid:Bool, reset_active_pop:Bool, rst:U1) -> (full:Bool@[], push_count_gray:Unsigned(bits=COUNT_WIDTH)@[], push_ready:Bool@[], ram_wr_addr:Unsigned(max=DEPTH - 1)@[], ram_wr_data:Unsigned(bits=WIDTH)@[], ram_wr_valid:Bool@[], reset_active_push:Bool@[], slots:Unsigned(bits=COUNT_WIDTH)@[]) {
+  wire push_beat:Bool = nil
+  const flags = br_cdc_fifo_push_flag_mgr<COUNT_WIDTH=COUNT_WIDTH, DEPTH=DEPTH, PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(clk=clk, rst=rst, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
   push_beat = push_valid and not flags.full
 
   // Write address walks the RAM entries 0..DEPTH-1 and wraps.
-  reg wr_addr:unsigned(max=DEPTH - 1):[reset_pin = ref rst] = 0
+  reg wr_addr:Unsigned(max=DEPTH - 1):[reset_pin=rst != 0] = 0
   if push_beat {
     wrap wr_addr = if wr_addr == DEPTH - 1 { 0 } else { wr_addr + 1 }
   }
 
-  push_ready        = not flags.full
-  full              = flags.full
-  slots             = flags.slots
-  ram_wr_valid      = push_beat
-  ram_wr_addr       = wr_addr
-  ram_wr_data       = push_data
-  push_count_gray   = flags.push_count_gray
+  push_ready = not flags.full
+  full = flags.full
+  slots = flags.slots
+  ram_wr_valid = push_beat
+  ram_wr_addr = wr_addr
+  ram_wr_data = push_data
+  push_count_gray = flags.push_count_gray
   reset_active_push = flags.reset_active_push
 }

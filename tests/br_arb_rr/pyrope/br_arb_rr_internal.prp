@@ -1,30 +1,632 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-// Round-robin arbiter: the requester after the last grant has the highest
-// priority, wrapping around.
-pub mod br_arb_rr_internal<NUM_REQUESTERS=2>(rst:u1, enable_priority_update:bool, request:unsigned(bits=NUM_REQUESTERS)) -> (
-  can_grant:unsigned(bits=NUM_REQUESTERS)@[0],
-  grant:unsigned(bits=NUM_REQUESTERS)@[0]
-) {
-  cassert(NUM_REQUESTERS >= 2, "a single requester needs no arbiter")
-  comptime const ALL = (1 << NUM_REQUESTERS) - 1
-
-  wire granted:unsigned(bits=NUM_REQUESTERS) = nil
-  const priority_mask = br_rr_state_internal<NUM_REQUESTERS=NUM_REQUESTERS>(
-    rst=rst, update_priority=enable_priority_update and request != 0, grant=granted
-  )
-  // Requesters above the last grant come first.
-  const request_high = request & ~priority_mask & ALL
-
-  mut can:unsigned(bits=NUM_REQUESTERS) = 0
-  for i in 0..<NUM_REQUESTERS {
-    comptime const below = (1 << i) - 1
-    comptime const above = ALL & ~((1 << (i + 1)) - 1)
-    // Requesters that come before i in the round-robin order.
-    const ahead = if i == 0 or priority_mask#[i] == 1 { (request & below) | (request_high & above) } else { request_high & below }
-    can#[i]     = u1(ahead == 0)
-  }
-  granted   = request & can
-  can_grant = can
-  grant     = granted
+pub mod br_arb_rr_internal<NumRequesters=16>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (can_grant:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[], grant:U16@[]) {
+  wire can_grant__bpr:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1) = nil
+  wire `request_priority[0]`:U1 = nil
+  wire `request_priority[1]`:U1 = nil
+  wire `request_priority[2]`:U1 = nil
+  wire `request_priority[3]`:U1 = nil
+  wire `request_priority[4]`:U1 = nil
+  wire `request_priority[5]`:U1 = nil
+  wire `request_priority[6]`:U1 = nil
+  wire `request_priority[7]`:U1 = nil
+  wire `request_priority[8]`:U1 = nil
+  wire `request_priority[9]`:U1 = nil
+  wire `request_priority[10]`:U1 = nil
+  wire `request_priority[11]`:U1 = nil
+  wire `request_priority[12]`:U1 = nil
+  wire `request_priority[13]`:U1 = nil
+  wire `request_priority[14]`:U1 = nil
+  wire `request_priority[15]`:U1 = nil
+  wire `request_priority[16]`:U1 = nil
+  wire `request_priority[17]`:U1 = nil
+  wire `request_priority[18]`:U1 = nil
+  wire `request_priority[19]`:U1 = nil
+  wire `request_priority[20]`:U1 = nil
+  wire `request_priority[21]`:U1 = nil
+  wire `request_priority[22]`:U1 = nil
+  wire `request_priority[23]`:U1 = nil
+  wire `request_priority[24]`:U1 = nil
+  wire `request_priority[25]`:U1 = nil
+  wire `request_priority[26]`:U1 = nil
+  wire `request_priority[27]`:U1 = nil
+  wire `request_priority[28]`:U1 = nil
+  wire `request_priority[29]`:U1 = nil
+  wire `request_priority[30]`:U1 = nil
+  wire `request_priority[31]`:U1 = nil
+  wire `request_priority[32]`:U1 = nil
+  wire `request_priority[33]`:U1 = nil
+  wire `request_priority[34]`:U1 = nil
+  wire `request_priority[35]`:U1 = nil
+  wire `request_priority[36]`:U1 = nil
+  wire `request_priority[37]`:U1 = nil
+  wire `request_priority[38]`:U1 = nil
+  wire `request_priority[39]`:U1 = nil
+  wire `request_priority[40]`:U1 = nil
+  wire `request_priority[41]`:U1 = nil
+  wire `request_priority[42]`:U1 = nil
+  wire `request_priority[43]`:U1 = nil
+  wire `request_priority[44]`:U1 = nil
+  wire `request_priority[45]`:U1 = nil
+  wire `request_priority[46]`:U1 = nil
+  wire `request_priority[47]`:U1 = nil
+  wire `request_priority[48]`:U1 = nil
+  wire `request_priority[49]`:U1 = nil
+  wire `request_priority[50]`:U1 = nil
+  wire `request_priority[51]`:U1 = nil
+  wire `request_priority[52]`:U1 = nil
+  wire `request_priority[53]`:U1 = nil
+  wire `request_priority[54]`:U1 = nil
+  wire `request_priority[55]`:U1 = nil
+  wire `request_priority[56]`:U1 = nil
+  wire `request_priority[57]`:U1 = nil
+  wire `request_priority[58]`:U1 = nil
+  wire `request_priority[59]`:U1 = nil
+  wire `request_priority[60]`:U1 = nil
+  wire `request_priority[61]`:U1 = nil
+  wire `request_priority[62]`:U1 = nil
+  wire `request_priority[63]`:U1 = nil
+  wire `request_priority[64]`:U1 = nil
+  wire `request_priority[65]`:U1 = nil
+  wire `request_priority[66]`:U1 = nil
+  wire `request_priority[67]`:U1 = nil
+  wire `request_priority[68]`:U1 = nil
+  wire `request_priority[69]`:U1 = nil
+  wire `request_priority[70]`:U1 = nil
+  wire `request_priority[71]`:U1 = nil
+  wire `request_priority[72]`:U1 = nil
+  wire `request_priority[73]`:U1 = nil
+  wire `request_priority[74]`:U1 = nil
+  wire `request_priority[75]`:U1 = nil
+  wire `request_priority[76]`:U1 = nil
+  wire `request_priority[77]`:U1 = nil
+  wire `request_priority[78]`:U1 = nil
+  wire `request_priority[79]`:U1 = nil
+  wire `request_priority[80]`:U1 = nil
+  wire `request_priority[81]`:U1 = nil
+  wire `request_priority[82]`:U1 = nil
+  wire `request_priority[83]`:U1 = nil
+  wire `request_priority[84]`:U1 = nil
+  wire `request_priority[85]`:U1 = nil
+  wire `request_priority[86]`:U1 = nil
+  wire `request_priority[87]`:U1 = nil
+  wire `request_priority[88]`:U1 = nil
+  wire `request_priority[89]`:U1 = nil
+  wire `request_priority[90]`:U1 = nil
+  wire `request_priority[91]`:U1 = nil
+  wire `request_priority[92]`:U1 = nil
+  wire `request_priority[93]`:U1 = nil
+  wire `request_priority[94]`:U1 = nil
+  wire `request_priority[95]`:U1 = nil
+  wire `request_priority[96]`:U1 = nil
+  wire `request_priority[97]`:U1 = nil
+  wire `request_priority[98]`:U1 = nil
+  wire `request_priority[99]`:U1 = nil
+  wire `request_priority[100]`:U1 = nil
+  wire `request_priority[101]`:U1 = nil
+  wire `request_priority[102]`:U1 = nil
+  wire `request_priority[103]`:U1 = nil
+  wire `request_priority[104]`:U1 = nil
+  wire `request_priority[105]`:U1 = nil
+  wire `request_priority[106]`:U1 = nil
+  wire `request_priority[107]`:U1 = nil
+  wire `request_priority[108]`:U1 = nil
+  wire `request_priority[109]`:U1 = nil
+  wire `request_priority[110]`:U1 = nil
+  wire `request_priority[111]`:U1 = nil
+  wire `request_priority[112]`:U1 = nil
+  wire `request_priority[113]`:U1 = nil
+  wire `request_priority[114]`:U1 = nil
+  wire `request_priority[115]`:U1 = nil
+  wire `request_priority[116]`:U1 = nil
+  wire `request_priority[117]`:U1 = nil
+  wire `request_priority[118]`:U1 = nil
+  wire `request_priority[119]`:U1 = nil
+  wire `request_priority[120]`:U1 = nil
+  wire `request_priority[121]`:U1 = nil
+  wire `request_priority[122]`:U1 = nil
+  wire `request_priority[123]`:U1 = nil
+  wire `request_priority[124]`:U1 = nil
+  wire `request_priority[125]`:U1 = nil
+  wire `request_priority[126]`:U1 = nil
+  wire `request_priority[127]`:U1 = nil
+  wire `request_priority[128]`:U1 = nil
+  wire `request_priority[129]`:U1 = nil
+  wire `request_priority[130]`:U1 = nil
+  wire `request_priority[131]`:U1 = nil
+  wire `request_priority[132]`:U1 = nil
+  wire `request_priority[133]`:U1 = nil
+  wire `request_priority[134]`:U1 = nil
+  wire `request_priority[135]`:U1 = nil
+  wire `request_priority[136]`:U1 = nil
+  wire `request_priority[137]`:U1 = nil
+  wire `request_priority[138]`:U1 = nil
+  wire `request_priority[139]`:U1 = nil
+  wire `request_priority[140]`:U1 = nil
+  wire `request_priority[141]`:U1 = nil
+  wire `request_priority[142]`:U1 = nil
+  wire `request_priority[143]`:U1 = nil
+  wire `request_priority[144]`:U1 = nil
+  wire `request_priority[145]`:U1 = nil
+  wire `request_priority[146]`:U1 = nil
+  wire `request_priority[147]`:U1 = nil
+  wire `request_priority[148]`:U1 = nil
+  wire `request_priority[149]`:U1 = nil
+  wire `request_priority[150]`:U1 = nil
+  wire `request_priority[151]`:U1 = nil
+  wire `request_priority[152]`:U1 = nil
+  wire `request_priority[153]`:U1 = nil
+  wire `request_priority[154]`:U1 = nil
+  wire `request_priority[155]`:U1 = nil
+  wire `request_priority[156]`:U1 = nil
+  wire `request_priority[157]`:U1 = nil
+  wire `request_priority[158]`:U1 = nil
+  wire `request_priority[159]`:U1 = nil
+  wire `request_priority[160]`:U1 = nil
+  wire `request_priority[161]`:U1 = nil
+  wire `request_priority[162]`:U1 = nil
+  wire `request_priority[163]`:U1 = nil
+  wire `request_priority[164]`:U1 = nil
+  wire `request_priority[165]`:U1 = nil
+  wire `request_priority[166]`:U1 = nil
+  wire `request_priority[167]`:U1 = nil
+  wire `request_priority[168]`:U1 = nil
+  wire `request_priority[169]`:U1 = nil
+  wire `request_priority[170]`:U1 = nil
+  wire `request_priority[171]`:U1 = nil
+  wire `request_priority[172]`:U1 = nil
+  wire `request_priority[173]`:U1 = nil
+  wire `request_priority[174]`:U1 = nil
+  wire `request_priority[175]`:U1 = nil
+  wire `request_priority[176]`:U1 = nil
+  wire `request_priority[177]`:U1 = nil
+  wire `request_priority[178]`:U1 = nil
+  wire `request_priority[179]`:U1 = nil
+  wire `request_priority[180]`:U1 = nil
+  wire `request_priority[181]`:U1 = nil
+  wire `request_priority[182]`:U1 = nil
+  wire `request_priority[183]`:U1 = nil
+  wire `request_priority[184]`:U1 = nil
+  wire `request_priority[185]`:U1 = nil
+  wire `request_priority[186]`:U1 = nil
+  wire `request_priority[187]`:U1 = nil
+  wire `request_priority[188]`:U1 = nil
+  wire `request_priority[189]`:U1 = nil
+  wire `request_priority[190]`:U1 = nil
+  wire `request_priority[191]`:U1 = nil
+  wire `request_priority[192]`:U1 = nil
+  wire `request_priority[193]`:U1 = nil
+  wire `request_priority[194]`:U1 = nil
+  wire `request_priority[195]`:U1 = nil
+  wire `request_priority[196]`:U1 = nil
+  wire `request_priority[197]`:U1 = nil
+  wire `request_priority[198]`:U1 = nil
+  wire `request_priority[199]`:U1 = nil
+  wire `request_priority[200]`:U1 = nil
+  wire `request_priority[201]`:U1 = nil
+  wire `request_priority[202]`:U1 = nil
+  wire `request_priority[203]`:U1 = nil
+  wire `request_priority[204]`:U1 = nil
+  wire `request_priority[205]`:U1 = nil
+  wire `request_priority[206]`:U1 = nil
+  wire `request_priority[207]`:U1 = nil
+  wire `request_priority[208]`:U1 = nil
+  wire `request_priority[209]`:U1 = nil
+  wire `request_priority[210]`:U1 = nil
+  wire `request_priority[211]`:U1 = nil
+  wire `request_priority[212]`:U1 = nil
+  wire `request_priority[213]`:U1 = nil
+  wire `request_priority[214]`:U1 = nil
+  wire `request_priority[215]`:U1 = nil
+  wire `request_priority[216]`:U1 = nil
+  wire `request_priority[217]`:U1 = nil
+  wire `request_priority[218]`:U1 = nil
+  wire `request_priority[219]`:U1 = nil
+  wire `request_priority[220]`:U1 = nil
+  wire `request_priority[221]`:U1 = nil
+  wire `request_priority[222]`:U1 = nil
+  wire `request_priority[223]`:U1 = nil
+  wire `request_priority[224]`:U1 = nil
+  wire `request_priority[225]`:U1 = nil
+  wire `request_priority[226]`:U1 = nil
+  wire `request_priority[227]`:U1 = nil
+  wire `request_priority[228]`:U1 = nil
+  wire `request_priority[229]`:U1 = nil
+  wire `request_priority[230]`:U1 = nil
+  wire `request_priority[231]`:U1 = nil
+  wire `request_priority[232]`:U1 = nil
+  wire `request_priority[233]`:U1 = nil
+  wire `request_priority[234]`:U1 = nil
+  wire `request_priority[235]`:U1 = nil
+  wire `request_priority[236]`:U1 = nil
+  wire `request_priority[237]`:U1 = nil
+  wire `request_priority[238]`:U1 = nil
+  wire `request_priority[239]`:U1 = nil
+  wire `request_priority[240]`:U1 = nil
+  wire `request_priority[241]`:U1 = nil
+  wire `request_priority[242]`:U1 = nil
+  wire `request_priority[243]`:U1 = nil
+  wire `request_priority[244]`:U1 = nil
+  wire `request_priority[245]`:U1 = nil
+  wire `request_priority[246]`:U1 = nil
+  wire `request_priority[247]`:U1 = nil
+  wire `request_priority[248]`:U1 = nil
+  wire `request_priority[249]`:U1 = nil
+  wire `request_priority[250]`:U1 = nil
+  wire `request_priority[251]`:U1 = nil
+  wire `request_priority[252]`:U1 = nil
+  wire `request_priority[253]`:U1 = nil
+  wire `request_priority[254]`:U1 = nil
+  wire `request_priority[255]`:U1 = nil
+  grant = 0sb?
+  `request_priority[17]` = 0
+  `request_priority[34]` = 0
+  `request_priority[51]` = 0
+  `request_priority[68]` = 0
+  `request_priority[85]` = 0
+  `request_priority[102]` = 0
+  `request_priority[119]` = 0
+  `request_priority[136]` = 0
+  `request_priority[153]` = 0
+  `request_priority[170]` = 0
+  `request_priority[187]` = 0
+  `request_priority[204]` = 0
+  `request_priority[221]` = 0
+  `request_priority[238]` = 0
+  mut `can_grant__bpo.e0` = U1(not (((`request_priority[15]` << 15) | (`request_priority[14]` << 14) | (`request_priority[13]` << 13) | (`request_priority[12]` << 12) | (`request_priority[11]` << 11) | (`request_priority[10]` << 10) | (`request_priority[9]` << 9) | (`request_priority[8]` << 8) | (`request_priority[7]` << 7) | (`request_priority[6]` << 6) | (`request_priority[5]` << 5) | (`request_priority[4]` << 4) | (`request_priority[3]` << 3) | (`request_priority[2]` << 2) | (`request_priority[1]` << 1) | `request_priority[0]`) != 0))
+  mut _b2i_3 = if not (((`request_priority[31]` << 15) | (`request_priority[30]` << 14) | (`request_priority[29]` << 13) | (`request_priority[28]` << 12) | (`request_priority[27]` << 11) | (`request_priority[26]` << 10) | (`request_priority[25]` << 9) | (`request_priority[24]` << 8) | (`request_priority[23]` << 7) | (`request_priority[22]` << 6) | (`request_priority[21]` << 5) | (`request_priority[20]` << 4) | (`request_priority[19]` << 3) | (`request_priority[18]` << 2) | (`request_priority[17]` << 1) | `request_priority[16]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e1` = _b2i_3
+  mut _b2i_4 = if not (((`request_priority[47]` << 15) | (`request_priority[46]` << 14) | (`request_priority[45]` << 13) | (`request_priority[44]` << 12) | (`request_priority[43]` << 11) | (`request_priority[42]` << 10) | (`request_priority[41]` << 9) | (`request_priority[40]` << 8) | (`request_priority[39]` << 7) | (`request_priority[38]` << 6) | (`request_priority[37]` << 5) | (`request_priority[36]` << 4) | (`request_priority[35]` << 3) | (`request_priority[34]` << 2) | (`request_priority[33]` << 1) | `request_priority[32]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e2` = _b2i_4
+  mut _b2i_5 = if not (((`request_priority[63]` << 15) | (`request_priority[62]` << 14) | (`request_priority[61]` << 13) | (`request_priority[60]` << 12) | (`request_priority[59]` << 11) | (`request_priority[58]` << 10) | (`request_priority[57]` << 9) | (`request_priority[56]` << 8) | (`request_priority[55]` << 7) | (`request_priority[54]` << 6) | (`request_priority[53]` << 5) | (`request_priority[52]` << 4) | (`request_priority[51]` << 3) | (`request_priority[50]` << 2) | (`request_priority[49]` << 1) | `request_priority[48]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e3` = _b2i_5
+  mut _b2i_6 = if not (((`request_priority[79]` << 15) | (`request_priority[78]` << 14) | (`request_priority[77]` << 13) | (`request_priority[76]` << 12) | (`request_priority[75]` << 11) | (`request_priority[74]` << 10) | (`request_priority[73]` << 9) | (`request_priority[72]` << 8) | (`request_priority[71]` << 7) | (`request_priority[70]` << 6) | (`request_priority[69]` << 5) | (`request_priority[68]` << 4) | (`request_priority[67]` << 3) | (`request_priority[66]` << 2) | (`request_priority[65]` << 1) | `request_priority[64]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e4` = _b2i_6
+  mut _b2i_7 = if not (((`request_priority[95]` << 15) | (`request_priority[94]` << 14) | (`request_priority[93]` << 13) | (`request_priority[92]` << 12) | (`request_priority[91]` << 11) | (`request_priority[90]` << 10) | (`request_priority[89]` << 9) | (`request_priority[88]` << 8) | (`request_priority[87]` << 7) | (`request_priority[86]` << 6) | (`request_priority[85]` << 5) | (`request_priority[84]` << 4) | (`request_priority[83]` << 3) | (`request_priority[82]` << 2) | (`request_priority[81]` << 1) | `request_priority[80]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e5` = _b2i_7
+  mut _b2i_8 = if not (((`request_priority[111]` << 15) | (`request_priority[110]` << 14) | (`request_priority[109]` << 13) | (`request_priority[108]` << 12) | (`request_priority[107]` << 11) | (`request_priority[106]` << 10) | (`request_priority[105]` << 9) | (`request_priority[104]` << 8) | (`request_priority[103]` << 7) | (`request_priority[102]` << 6) | (`request_priority[101]` << 5) | (`request_priority[100]` << 4) | (`request_priority[99]` << 3) | (`request_priority[98]` << 2) | (`request_priority[97]` << 1) | `request_priority[96]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e6` = _b2i_8
+  mut _b2i_9 = if not (((`request_priority[127]` << 15) | (`request_priority[126]` << 14) | (`request_priority[125]` << 13) | (`request_priority[124]` << 12) | (`request_priority[123]` << 11) | (`request_priority[122]` << 10) | (`request_priority[121]` << 9) | (`request_priority[120]` << 8) | (`request_priority[119]` << 7) | (`request_priority[118]` << 6) | (`request_priority[117]` << 5) | (`request_priority[116]` << 4) | (`request_priority[115]` << 3) | (`request_priority[114]` << 2) | (`request_priority[113]` << 1) | `request_priority[112]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e7` = _b2i_9
+  mut _b2i_10 = if not (((`request_priority[143]` << 15) | (`request_priority[142]` << 14) | (`request_priority[141]` << 13) | (`request_priority[140]` << 12) | (`request_priority[139]` << 11) | (`request_priority[138]` << 10) | (`request_priority[137]` << 9) | (`request_priority[136]` << 8) | (`request_priority[135]` << 7) | (`request_priority[134]` << 6) | (`request_priority[133]` << 5) | (`request_priority[132]` << 4) | (`request_priority[131]` << 3) | (`request_priority[130]` << 2) | (`request_priority[129]` << 1) | `request_priority[128]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e8` = _b2i_10
+  mut _b2i_11 = if not (((`request_priority[159]` << 15) | (`request_priority[158]` << 14) | (`request_priority[157]` << 13) | (`request_priority[156]` << 12) | (`request_priority[155]` << 11) | (`request_priority[154]` << 10) | (`request_priority[153]` << 9) | (`request_priority[152]` << 8) | (`request_priority[151]` << 7) | (`request_priority[150]` << 6) | (`request_priority[149]` << 5) | (`request_priority[148]` << 4) | (`request_priority[147]` << 3) | (`request_priority[146]` << 2) | (`request_priority[145]` << 1) | `request_priority[144]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e9` = _b2i_11
+  mut _b2i_12 = if not (((`request_priority[175]` << 15) | (`request_priority[174]` << 14) | (`request_priority[173]` << 13) | (`request_priority[172]` << 12) | (`request_priority[171]` << 11) | (`request_priority[170]` << 10) | (`request_priority[169]` << 9) | (`request_priority[168]` << 8) | (`request_priority[167]` << 7) | (`request_priority[166]` << 6) | (`request_priority[165]` << 5) | (`request_priority[164]` << 4) | (`request_priority[163]` << 3) | (`request_priority[162]` << 2) | (`request_priority[161]` << 1) | `request_priority[160]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e10` = _b2i_12
+  mut _b2i_13 = if not (((`request_priority[191]` << 15) | (`request_priority[190]` << 14) | (`request_priority[189]` << 13) | (`request_priority[188]` << 12) | (`request_priority[187]` << 11) | (`request_priority[186]` << 10) | (`request_priority[185]` << 9) | (`request_priority[184]` << 8) | (`request_priority[183]` << 7) | (`request_priority[182]` << 6) | (`request_priority[181]` << 5) | (`request_priority[180]` << 4) | (`request_priority[179]` << 3) | (`request_priority[178]` << 2) | (`request_priority[177]` << 1) | `request_priority[176]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e11` = _b2i_13
+  mut _b2i_14 = if not (((`request_priority[207]` << 15) | (`request_priority[206]` << 14) | (`request_priority[205]` << 13) | (`request_priority[204]` << 12) | (`request_priority[203]` << 11) | (`request_priority[202]` << 10) | (`request_priority[201]` << 9) | (`request_priority[200]` << 8) | (`request_priority[199]` << 7) | (`request_priority[198]` << 6) | (`request_priority[197]` << 5) | (`request_priority[196]` << 4) | (`request_priority[195]` << 3) | (`request_priority[194]` << 2) | (`request_priority[193]` << 1) | `request_priority[192]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e12` = _b2i_14
+  mut _b2i_15 = if not (((`request_priority[223]` << 15) | (`request_priority[222]` << 14) | (`request_priority[221]` << 13) | (`request_priority[220]` << 12) | (`request_priority[219]` << 11) | (`request_priority[218]` << 10) | (`request_priority[217]` << 9) | (`request_priority[216]` << 8) | (`request_priority[215]` << 7) | (`request_priority[214]` << 6) | (`request_priority[213]` << 5) | (`request_priority[212]` << 4) | (`request_priority[211]` << 3) | (`request_priority[210]` << 2) | (`request_priority[209]` << 1) | `request_priority[208]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e13` = _b2i_15
+  mut _b2i_16 = if not (((`request_priority[239]` << 15) | (`request_priority[238]` << 14) | (`request_priority[237]` << 13) | (`request_priority[236]` << 12) | (`request_priority[235]` << 11) | (`request_priority[234]` << 10) | (`request_priority[233]` << 9) | (`request_priority[232]` << 8) | (`request_priority[231]` << 7) | (`request_priority[230]` << 6) | (`request_priority[229]` << 5) | (`request_priority[228]` << 4) | (`request_priority[227]` << 3) | (`request_priority[226]` << 2) | (`request_priority[225]` << 1) | `request_priority[224]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e14` = _b2i_16
+  mut _b2i_17 = if not (((`request_priority[255]` << 15) | (`request_priority[254]` << 14) | (`request_priority[253]` << 13) | (`request_priority[252]` << 12) | (`request_priority[251]` << 11) | (`request_priority[250]` << 10) | (`request_priority[249]` << 9) | (`request_priority[248]` << 8) | (`request_priority[247]` << 7) | (`request_priority[246]` << 6) | (`request_priority[245]` << 5) | (`request_priority[244]` << 4) | (`request_priority[243]` << 3) | (`request_priority[242]` << 2) | (`request_priority[241]` << 1) | `request_priority[240]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e15` = _b2i_17
+  const grant__w1 = request & ((can_grant__bpr.e15 << 15) | (can_grant__bpr.e14 << 14) | (can_grant__bpr.e13 << 13) | (can_grant__bpr.e12 << 12) | (can_grant__bpr.e11 << 11) | (can_grant__bpr.e10 << 10) | (can_grant__bpr.e9 << 9) | (can_grant__bpr.e8 << 8) | (can_grant__bpr.e7 << 7) | (can_grant__bpr.e6 << 6) | (can_grant__bpr.e5 << 5) | (can_grant__bpr.e4 << 4) | (can_grant__bpr.e3 << 3) | (can_grant__bpr.e2 << 2) | (can_grant__bpr.e1 << 1) | can_grant__bpr.e0)
+  mut gen_n_req_rr_state_internal = br_rr_state_internal::[name=gen_n_req_rr_state_internal](clk=clk, rst=rst, update_priority=U1(enable_priority_update != 0 and request != 0), grant=grant__w1)
+  const gen_n_req_priority_mask__w1 = (gen_n_req_rr_state_internal.priority_mask.e15 << 15) | (gen_n_req_rr_state_internal.priority_mask.e14 << 14) | (gen_n_req_rr_state_internal.priority_mask.e13 << 13) | (gen_n_req_rr_state_internal.priority_mask.e12 << 12) | (gen_n_req_rr_state_internal.priority_mask.e11 << 11) | (gen_n_req_rr_state_internal.priority_mask.e10 << 10) | (gen_n_req_rr_state_internal.priority_mask.e9 << 9) | (gen_n_req_rr_state_internal.priority_mask.e8 << 8) | (gen_n_req_rr_state_internal.priority_mask.e7 << 7) | (gen_n_req_rr_state_internal.priority_mask.e6 << 6) | (gen_n_req_rr_state_internal.priority_mask.e5 << 5) | (gen_n_req_rr_state_internal.priority_mask.e4 << 4) | (gen_n_req_rr_state_internal.priority_mask.e3 << 3) | (gen_n_req_rr_state_internal.priority_mask.e2 << 2) | (gen_n_req_rr_state_internal.priority_mask.e1 << 1) | gen_n_req_rr_state_internal.priority_mask.e0
+  const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1#[0..=15])
+  const t166 = gen_n_req_request_high__w1#[1..=15] << 1
+  `request_priority[0]` = t166 & 1
+  `request_priority[1]` = (t166 >> 1) & 1
+  `request_priority[2]` = (t166 >> 2) & 1
+  `request_priority[3]` = (t166 >> 3) & 1
+  `request_priority[4]` = (t166 >> 4) & 1
+  `request_priority[5]` = (t166 >> 5) & 1
+  `request_priority[6]` = (t166 >> 6) & 1
+  `request_priority[7]` = (t166 >> 7) & 1
+  `request_priority[8]` = (t166 >> 8) & 1
+  `request_priority[9]` = (t166 >> 9) & 1
+  `request_priority[10]` = (t166 >> 10) & 1
+  `request_priority[11]` = (t166 >> 11) & 1
+  `request_priority[12]` = (t166 >> 12) & 1
+  `request_priority[13]` = (t166 >> 13) & 1
+  `request_priority[14]` = (t166 >> 14) & 1
+  `request_priority[15]` = (t166 >> 15) & 1
+  mut _mux_18:U16 = if ((gen_n_req_priority_mask__w1 >> (NumRequesters - 1)) & 1) != 0 { request#[0..=14] } else { gen_n_req_request_high__w1#[0..=14] }
+  `request_priority[240]` = _mux_18 & 1
+  `request_priority[241]` = (_mux_18 >> 1) & 1
+  `request_priority[242]` = (_mux_18 >> 2) & 1
+  `request_priority[243]` = (_mux_18 >> 3) & 1
+  `request_priority[244]` = (_mux_18 >> 4) & 1
+  `request_priority[245]` = (_mux_18 >> 5) & 1
+  `request_priority[246]` = (_mux_18 >> 6) & 1
+  `request_priority[247]` = (_mux_18 >> 7) & 1
+  `request_priority[248]` = (_mux_18 >> 8) & 1
+  `request_priority[249]` = (_mux_18 >> 9) & 1
+  `request_priority[250]` = (_mux_18 >> 10) & 1
+  `request_priority[251]` = (_mux_18 >> 11) & 1
+  `request_priority[252]` = (_mux_18 >> 12) & 1
+  `request_priority[253]` = (_mux_18 >> 13) & 1
+  `request_priority[254]` = (_mux_18 >> 14) & 1
+  `request_priority[255]` = (_mux_18 >> 15) & 1
+  mut _mux_19:U1 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { request & 1 } else { gen_n_req_request_high__w1 & 1 }
+  `request_priority[16]` = _mux_19 & 1
+  mut _mux_20:U14 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { gen_n_req_request_high__w1#[2..=15] } else { 0 }
+  `request_priority[18]` = _mux_20 & 1
+  `request_priority[19]` = (_mux_20 >> 1) & 1
+  `request_priority[20]` = (_mux_20 >> 2) & 1
+  `request_priority[21]` = (_mux_20 >> 3) & 1
+  `request_priority[22]` = (_mux_20 >> 4) & 1
+  `request_priority[23]` = (_mux_20 >> 5) & 1
+  `request_priority[24]` = (_mux_20 >> 6) & 1
+  `request_priority[25]` = (_mux_20 >> 7) & 1
+  `request_priority[26]` = (_mux_20 >> 8) & 1
+  `request_priority[27]` = (_mux_20 >> 9) & 1
+  `request_priority[28]` = (_mux_20 >> 10) & 1
+  `request_priority[29]` = (_mux_20 >> 11) & 1
+  `request_priority[30]` = (_mux_20 >> 12) & 1
+  `request_priority[31]` = (_mux_20 >> 13) & 1
+  mut _mux_21:U2 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { request#[0..=1] } else { gen_n_req_request_high__w1#[0..=1] }
+  `request_priority[32]` = _mux_21 & 1
+  `request_priority[33]` = (_mux_21 >> 1) & 1
+  mut _mux_22:U13 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { gen_n_req_request_high__w1#[3..=15] } else { 0 }
+  `request_priority[35]` = _mux_22 & 1
+  `request_priority[36]` = (_mux_22 >> 1) & 1
+  `request_priority[37]` = (_mux_22 >> 2) & 1
+  `request_priority[38]` = (_mux_22 >> 3) & 1
+  `request_priority[39]` = (_mux_22 >> 4) & 1
+  `request_priority[40]` = (_mux_22 >> 5) & 1
+  `request_priority[41]` = (_mux_22 >> 6) & 1
+  `request_priority[42]` = (_mux_22 >> 7) & 1
+  `request_priority[43]` = (_mux_22 >> 8) & 1
+  `request_priority[44]` = (_mux_22 >> 9) & 1
+  `request_priority[45]` = (_mux_22 >> 10) & 1
+  `request_priority[46]` = (_mux_22 >> 11) & 1
+  `request_priority[47]` = (_mux_22 >> 12) & 1
+  mut _mux_23:U3 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { request#[0..=2] } else { gen_n_req_request_high__w1#[0..=2] }
+  `request_priority[48]` = _mux_23 & 1
+  `request_priority[49]` = (_mux_23 >> 1) & 1
+  `request_priority[50]` = (_mux_23 >> 2) & 1
+  mut _mux_24:U12 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { gen_n_req_request_high__w1#[4..=15] } else { 0 }
+  `request_priority[52]` = _mux_24 & 1
+  `request_priority[53]` = (_mux_24 >> 1) & 1
+  `request_priority[54]` = (_mux_24 >> 2) & 1
+  `request_priority[55]` = (_mux_24 >> 3) & 1
+  `request_priority[56]` = (_mux_24 >> 4) & 1
+  `request_priority[57]` = (_mux_24 >> 5) & 1
+  `request_priority[58]` = (_mux_24 >> 6) & 1
+  `request_priority[59]` = (_mux_24 >> 7) & 1
+  `request_priority[60]` = (_mux_24 >> 8) & 1
+  `request_priority[61]` = (_mux_24 >> 9) & 1
+  `request_priority[62]` = (_mux_24 >> 10) & 1
+  `request_priority[63]` = (_mux_24 >> 11) & 1
+  mut _mux_25:U4 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { request#[0..=3] } else { gen_n_req_request_high__w1#[0..=3] }
+  `request_priority[64]` = _mux_25 & 1
+  `request_priority[65]` = (_mux_25 >> 1) & 1
+  `request_priority[66]` = (_mux_25 >> 2) & 1
+  `request_priority[67]` = (_mux_25 >> 3) & 1
+  mut _mux_26:U11 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { gen_n_req_request_high__w1#[5..=15] } else { 0 }
+  `request_priority[69]` = _mux_26 & 1
+  `request_priority[70]` = (_mux_26 >> 1) & 1
+  `request_priority[71]` = (_mux_26 >> 2) & 1
+  `request_priority[72]` = (_mux_26 >> 3) & 1
+  `request_priority[73]` = (_mux_26 >> 4) & 1
+  `request_priority[74]` = (_mux_26 >> 5) & 1
+  `request_priority[75]` = (_mux_26 >> 6) & 1
+  `request_priority[76]` = (_mux_26 >> 7) & 1
+  `request_priority[77]` = (_mux_26 >> 8) & 1
+  `request_priority[78]` = (_mux_26 >> 9) & 1
+  `request_priority[79]` = (_mux_26 >> 10) & 1
+  mut _mux_27:U5 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { request#[0..=4] } else { gen_n_req_request_high__w1#[0..=4] }
+  `request_priority[80]` = _mux_27 & 1
+  `request_priority[81]` = (_mux_27 >> 1) & 1
+  `request_priority[82]` = (_mux_27 >> 2) & 1
+  `request_priority[83]` = (_mux_27 >> 3) & 1
+  `request_priority[84]` = (_mux_27 >> 4) & 1
+  mut _mux_28:U10 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { gen_n_req_request_high__w1#[6..=15] } else { 0 }
+  `request_priority[86]` = _mux_28 & 1
+  `request_priority[87]` = (_mux_28 >> 1) & 1
+  `request_priority[88]` = (_mux_28 >> 2) & 1
+  `request_priority[89]` = (_mux_28 >> 3) & 1
+  `request_priority[90]` = (_mux_28 >> 4) & 1
+  `request_priority[91]` = (_mux_28 >> 5) & 1
+  `request_priority[92]` = (_mux_28 >> 6) & 1
+  `request_priority[93]` = (_mux_28 >> 7) & 1
+  `request_priority[94]` = (_mux_28 >> 8) & 1
+  `request_priority[95]` = (_mux_28 >> 9) & 1
+  mut _mux_29:U6 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { request#[0..=5] } else { gen_n_req_request_high__w1#[0..=5] }
+  `request_priority[96]` = _mux_29 & 1
+  `request_priority[97]` = (_mux_29 >> 1) & 1
+  `request_priority[98]` = (_mux_29 >> 2) & 1
+  `request_priority[99]` = (_mux_29 >> 3) & 1
+  `request_priority[100]` = (_mux_29 >> 4) & 1
+  `request_priority[101]` = (_mux_29 >> 5) & 1
+  mut _mux_30:U9 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { gen_n_req_request_high__w1#[7..=15] } else { 0 }
+  `request_priority[103]` = _mux_30 & 1
+  `request_priority[104]` = (_mux_30 >> 1) & 1
+  `request_priority[105]` = (_mux_30 >> 2) & 1
+  `request_priority[106]` = (_mux_30 >> 3) & 1
+  `request_priority[107]` = (_mux_30 >> 4) & 1
+  `request_priority[108]` = (_mux_30 >> 5) & 1
+  `request_priority[109]` = (_mux_30 >> 6) & 1
+  `request_priority[110]` = (_mux_30 >> 7) & 1
+  `request_priority[111]` = (_mux_30 >> 8) & 1
+  mut _mux_31:U7 = if ((gen_n_req_priority_mask__w1 >> 7) & 1) != 0 { request#[0..=6] } else { gen_n_req_request_high__w1#[0..=6] }
+  `request_priority[112]` = _mux_31 & 1
+  `request_priority[113]` = (_mux_31 >> 1) & 1
+  `request_priority[114]` = (_mux_31 >> 2) & 1
+  `request_priority[115]` = (_mux_31 >> 3) & 1
+  `request_priority[116]` = (_mux_31 >> 4) & 1
+  `request_priority[117]` = (_mux_31 >> 5) & 1
+  `request_priority[118]` = (_mux_31 >> 6) & 1
+  mut _mux_32:U8 = if ((gen_n_req_priority_mask__w1 >> 7) & 1) != 0 { gen_n_req_request_high__w1#[8..=15] } else { 0 }
+  `request_priority[120]` = _mux_32 & 1
+  `request_priority[121]` = (_mux_32 >> 1) & 1
+  `request_priority[122]` = (_mux_32 >> 2) & 1
+  `request_priority[123]` = (_mux_32 >> 3) & 1
+  `request_priority[124]` = (_mux_32 >> 4) & 1
+  `request_priority[125]` = (_mux_32 >> 5) & 1
+  `request_priority[126]` = (_mux_32 >> 6) & 1
+  `request_priority[127]` = (_mux_32 >> 7) & 1
+  mut _mux_33:U8 = if ((gen_n_req_priority_mask__w1 >> 8) & 1) != 0 { request#[0..=7] } else { gen_n_req_request_high__w1#[0..=7] }
+  `request_priority[128]` = _mux_33 & 1
+  `request_priority[129]` = (_mux_33 >> 1) & 1
+  `request_priority[130]` = (_mux_33 >> 2) & 1
+  `request_priority[131]` = (_mux_33 >> 3) & 1
+  `request_priority[132]` = (_mux_33 >> 4) & 1
+  `request_priority[133]` = (_mux_33 >> 5) & 1
+  `request_priority[134]` = (_mux_33 >> 6) & 1
+  `request_priority[135]` = (_mux_33 >> 7) & 1
+  mut _mux_34:U7 = if ((gen_n_req_priority_mask__w1 >> 8) & 1) != 0 { gen_n_req_request_high__w1#[9..=15] } else { 0 }
+  `request_priority[137]` = _mux_34 & 1
+  `request_priority[138]` = (_mux_34 >> 1) & 1
+  `request_priority[139]` = (_mux_34 >> 2) & 1
+  `request_priority[140]` = (_mux_34 >> 3) & 1
+  `request_priority[141]` = (_mux_34 >> 4) & 1
+  `request_priority[142]` = (_mux_34 >> 5) & 1
+  `request_priority[143]` = (_mux_34 >> 6) & 1
+  mut _mux_35:U9 = if ((gen_n_req_priority_mask__w1 >> 9) & 1) != 0 { request#[0..=8] } else { gen_n_req_request_high__w1#[0..=8] }
+  `request_priority[144]` = _mux_35 & 1
+  `request_priority[145]` = (_mux_35 >> 1) & 1
+  `request_priority[146]` = (_mux_35 >> 2) & 1
+  `request_priority[147]` = (_mux_35 >> 3) & 1
+  `request_priority[148]` = (_mux_35 >> 4) & 1
+  `request_priority[149]` = (_mux_35 >> 5) & 1
+  `request_priority[150]` = (_mux_35 >> 6) & 1
+  `request_priority[151]` = (_mux_35 >> 7) & 1
+  `request_priority[152]` = (_mux_35 >> 8) & 1
+  mut _mux_36:U6 = if ((gen_n_req_priority_mask__w1 >> 9) & 1) != 0 { gen_n_req_request_high__w1#[10..=15] } else { 0 }
+  `request_priority[154]` = _mux_36 & 1
+  `request_priority[155]` = (_mux_36 >> 1) & 1
+  `request_priority[156]` = (_mux_36 >> 2) & 1
+  `request_priority[157]` = (_mux_36 >> 3) & 1
+  `request_priority[158]` = (_mux_36 >> 4) & 1
+  `request_priority[159]` = (_mux_36 >> 5) & 1
+  mut _mux_37:U10 = if ((gen_n_req_priority_mask__w1 >> 10) & 1) != 0 { request#[0..=9] } else { gen_n_req_request_high__w1#[0..=9] }
+  `request_priority[160]` = _mux_37 & 1
+  `request_priority[161]` = (_mux_37 >> 1) & 1
+  `request_priority[162]` = (_mux_37 >> 2) & 1
+  `request_priority[163]` = (_mux_37 >> 3) & 1
+  `request_priority[164]` = (_mux_37 >> 4) & 1
+  `request_priority[165]` = (_mux_37 >> 5) & 1
+  `request_priority[166]` = (_mux_37 >> 6) & 1
+  `request_priority[167]` = (_mux_37 >> 7) & 1
+  `request_priority[168]` = (_mux_37 >> 8) & 1
+  `request_priority[169]` = (_mux_37 >> 9) & 1
+  mut _mux_38:U5 = if ((gen_n_req_priority_mask__w1 >> 10) & 1) != 0 { gen_n_req_request_high__w1#[11..=15] } else { 0 }
+  `request_priority[171]` = _mux_38 & 1
+  `request_priority[172]` = (_mux_38 >> 1) & 1
+  `request_priority[173]` = (_mux_38 >> 2) & 1
+  `request_priority[174]` = (_mux_38 >> 3) & 1
+  `request_priority[175]` = (_mux_38 >> 4) & 1
+  mut _mux_39:U11 = if ((gen_n_req_priority_mask__w1 >> 11) & 1) != 0 { request#[0..=10] } else { gen_n_req_request_high__w1#[0..=10] }
+  `request_priority[176]` = _mux_39 & 1
+  `request_priority[177]` = (_mux_39 >> 1) & 1
+  `request_priority[178]` = (_mux_39 >> 2) & 1
+  `request_priority[179]` = (_mux_39 >> 3) & 1
+  `request_priority[180]` = (_mux_39 >> 4) & 1
+  `request_priority[181]` = (_mux_39 >> 5) & 1
+  `request_priority[182]` = (_mux_39 >> 6) & 1
+  `request_priority[183]` = (_mux_39 >> 7) & 1
+  `request_priority[184]` = (_mux_39 >> 8) & 1
+  `request_priority[185]` = (_mux_39 >> 9) & 1
+  `request_priority[186]` = (_mux_39 >> 10) & 1
+  mut _mux_40:U4 = if ((gen_n_req_priority_mask__w1 >> 11) & 1) != 0 { gen_n_req_request_high__w1#[12..=15] } else { 0 }
+  `request_priority[188]` = _mux_40 & 1
+  `request_priority[189]` = (_mux_40 >> 1) & 1
+  `request_priority[190]` = (_mux_40 >> 2) & 1
+  `request_priority[191]` = (_mux_40 >> 3) & 1
+  mut _mux_41:U12 = if ((gen_n_req_priority_mask__w1 >> 12) & 1) != 0 { request#[0..=11] } else { gen_n_req_request_high__w1#[0..=11] }
+  `request_priority[192]` = _mux_41 & 1
+  `request_priority[193]` = (_mux_41 >> 1) & 1
+  `request_priority[194]` = (_mux_41 >> 2) & 1
+  `request_priority[195]` = (_mux_41 >> 3) & 1
+  `request_priority[196]` = (_mux_41 >> 4) & 1
+  `request_priority[197]` = (_mux_41 >> 5) & 1
+  `request_priority[198]` = (_mux_41 >> 6) & 1
+  `request_priority[199]` = (_mux_41 >> 7) & 1
+  `request_priority[200]` = (_mux_41 >> 8) & 1
+  `request_priority[201]` = (_mux_41 >> 9) & 1
+  `request_priority[202]` = (_mux_41 >> 10) & 1
+  `request_priority[203]` = (_mux_41 >> 11) & 1
+  mut _mux_42:U3 = if ((gen_n_req_priority_mask__w1 >> 12) & 1) != 0 { gen_n_req_request_high__w1#[13..=15] } else { 0 }
+  `request_priority[205]` = _mux_42 & 1
+  `request_priority[206]` = (_mux_42 >> 1) & 1
+  `request_priority[207]` = (_mux_42 >> 2) & 1
+  mut _mux_43:U13 = if ((gen_n_req_priority_mask__w1 >> 13) & 1) != 0 { request#[0..=12] } else { gen_n_req_request_high__w1#[0..=12] }
+  `request_priority[208]` = _mux_43 & 1
+  `request_priority[209]` = (_mux_43 >> 1) & 1
+  `request_priority[210]` = (_mux_43 >> 2) & 1
+  `request_priority[211]` = (_mux_43 >> 3) & 1
+  `request_priority[212]` = (_mux_43 >> 4) & 1
+  `request_priority[213]` = (_mux_43 >> 5) & 1
+  `request_priority[214]` = (_mux_43 >> 6) & 1
+  `request_priority[215]` = (_mux_43 >> 7) & 1
+  `request_priority[216]` = (_mux_43 >> 8) & 1
+  `request_priority[217]` = (_mux_43 >> 9) & 1
+  `request_priority[218]` = (_mux_43 >> 10) & 1
+  `request_priority[219]` = (_mux_43 >> 11) & 1
+  `request_priority[220]` = (_mux_43 >> 12) & 1
+  mut _mux_44:U2 = if ((gen_n_req_priority_mask__w1 >> 13) & 1) != 0 { gen_n_req_request_high__w1#[14..=15] } else { 0 }
+  `request_priority[222]` = _mux_44 & 1
+  `request_priority[223]` = (_mux_44 >> 1) & 1
+  mut _mux_45:U14 = if ((gen_n_req_priority_mask__w1 >> 14) & 1) != 0 { request#[0..=13] } else { gen_n_req_request_high__w1#[0..=13] }
+  `request_priority[224]` = _mux_45 & 1
+  `request_priority[225]` = (_mux_45 >> 1) & 1
+  `request_priority[226]` = (_mux_45 >> 2) & 1
+  `request_priority[227]` = (_mux_45 >> 3) & 1
+  `request_priority[228]` = (_mux_45 >> 4) & 1
+  `request_priority[229]` = (_mux_45 >> 5) & 1
+  `request_priority[230]` = (_mux_45 >> 6) & 1
+  `request_priority[231]` = (_mux_45 >> 7) & 1
+  `request_priority[232]` = (_mux_45 >> 8) & 1
+  `request_priority[233]` = (_mux_45 >> 9) & 1
+  `request_priority[234]` = (_mux_45 >> 10) & 1
+  `request_priority[235]` = (_mux_45 >> 11) & 1
+  `request_priority[236]` = (_mux_45 >> 12) & 1
+  `request_priority[237]` = (_mux_45 >> 13) & 1
+  mut _mux_46:U1 = if ((gen_n_req_priority_mask__w1 >> 14) & 1) != 0 { (gen_n_req_request_high__w1 >> 15) & 1 } else { 0 }
+  `request_priority[239]` = _mux_46 & 1
+  const t757 = `can_grant__bpo.e15`
+  can_grant__bpr.e15 = t757
+  can_grant.e15 = t757
+  const t758 = `can_grant__bpo.e14`
+  can_grant__bpr.e14 = t758
+  can_grant.e14 = t758
+  const t759 = `can_grant__bpo.e13`
+  can_grant__bpr.e13 = t759
+  can_grant.e13 = t759
+  const t760 = `can_grant__bpo.e12`
+  can_grant__bpr.e12 = t760
+  can_grant.e12 = t760
+  const t761 = `can_grant__bpo.e11`
+  can_grant__bpr.e11 = t761
+  can_grant.e11 = t761
+  const t762 = `can_grant__bpo.e10`
+  can_grant__bpr.e10 = t762
+  can_grant.e10 = t762
+  const t763 = `can_grant__bpo.e9`
+  can_grant__bpr.e9 = t763
+  can_grant.e9 = t763
+  const t764 = `can_grant__bpo.e8`
+  can_grant__bpr.e8 = t764
+  can_grant.e8 = t764
+  const t765 = `can_grant__bpo.e7`
+  can_grant__bpr.e7 = t765
+  can_grant.e7 = t765
+  const t766 = `can_grant__bpo.e6`
+  can_grant__bpr.e6 = t766
+  can_grant.e6 = t766
+  const t767 = `can_grant__bpo.e5`
+  can_grant__bpr.e5 = t767
+  can_grant.e5 = t767
+  const t768 = `can_grant__bpo.e4`
+  can_grant__bpr.e4 = t768
+  can_grant.e4 = t768
+  const t769 = `can_grant__bpo.e3`
+  can_grant__bpr.e3 = t769
+  can_grant.e3 = t769
+  const t770 = `can_grant__bpo.e2`
+  can_grant__bpr.e2 = t770
+  can_grant.e2 = t770
+  const t771 = `can_grant__bpo.e1`
+  can_grant__bpr.e1 = t771
+  can_grant.e1 = t771
+  const t772 = `can_grant__bpo.e0`
+  can_grant__bpr.e0 = t772
+  can_grant.e0 = t772
+  grant = grant__w1
 }

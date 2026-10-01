@@ -1,17 +1,34 @@
-pub comb br_shift_rotate_p1::[timecheck=false](`in`:u4, right:u1, rotate:u1) -> (out:u4) {
-  mut stages:u12 = 0
-  stages = 0sb?
+pub comb br_shift_rotate_p1<NumSymbols=4, SymbolWidth=1, MaxRotate=1>::[timecheck=false](`in`:U4, right:U1, rotate:U1) -> (out:U4) {
+  wire `stages[0]`:U1 = nil
+  wire `stages[1]`:U1 = nil
+  wire `stages[2]`:U1 = nil
+  wire `stages[3]`:U1 = nil
+  wire `stages[4]`:U1 = nil
+  wire `stages[5]`:U1 = nil
+  wire `stages[6]`:U1 = nil
+  wire `stages[7]`:U1 = nil
+  wire `stages[8]`:U1 = nil
+  wire `stages[9]`:U1 = nil
+  wire `stages[10]`:U1 = nil
+  wire `stages[11]`:U1 = nil
   const real_rotate__w1 = rotate
-  mut _mux_1:u2 = if real_rotate__w1 == 0 { 0 } else { (4 - real_rotate__w1)#[0..=31]#[0..=2]#[0..=1] }
-  mut _mux_2:u2 = if right != 0 { _mux_1 } else { real_rotate__w1 }
+  mut _mux_1:U2 = if real_rotate__w1 == 0 { 0 } else { (NumSymbols - real_rotate__w1)#[0..=31]#[0..=2]#[0..=1] }
+  mut _mux_2:U2 = if right != 0 { _mux_1 } else { real_rotate__w1 }
   const left_rotate__w1 = _mux_2
-  mut stages__w1 = stages
-  stages__w1#[0..=3] = `in`
-  mut _mux_3:u4 = if (left_rotate__w1 & 1) != 0 { (stages__w1#[0..=3]#[0..=2] << 1) | ((stages__w1#[0..=3] >> 3) & 1) } else { stages__w1#[0..=3] }
-  mut stages__w2 = stages__w1
-  stages__w2#[4..=7] = _mux_3
-  mut _mux_4:u4 = if ((left_rotate__w1 >> 1) & 1) != 0 { (stages__w2#[4..=7]#[0..=1] << 2) | stages__w2#[4..=7]#[2..=3] } else { stages__w2#[4..=7] }
-  mut stages__w3 = stages__w2
-  stages__w3#[8..=11] = _mux_4
-  out = stages__w3#[8..=11]
+  `stages[0]` = `in` & 1
+  `stages[1]` = (`in` >> 1) & 1
+  `stages[2]` = (`in` >> 2) & 1
+  `stages[3]` = (`in` >> 3) & 1
+  const out__w1 = (`stages[11]` << 3) | (`stages[10]` << 2) | (`stages[9]` << 1) | `stages[8]`
+  mut _mux_3:U4 = if (left_rotate__w1 & 1) != 0 { (((`stages[2]` << 2) | (`stages[1]` << 1) | `stages[0]`) << 1) | (`stages[3]` & 1) } else { (`stages[3]` << 3) | (`stages[2]` << 2) | (`stages[1]` << 1) | `stages[0]` }
+  `stages[4]` = _mux_3 & 1
+  `stages[5]` = (_mux_3 >> 1) & 1
+  `stages[6]` = (_mux_3 >> 2) & 1
+  `stages[7]` = (_mux_3 >> 3) & 1
+  mut _mux_4:U4 = if ((left_rotate__w1 >> 1) & 1) != 0 { (((`stages[5]` << 1) | `stages[4]`) << 2) | ((`stages[7]` << 1) | `stages[6]`) } else { (`stages[7]` << 3) | (`stages[6]` << 2) | (`stages[5]` << 1) | `stages[4]` }
+  `stages[8]` = _mux_4 & 1
+  `stages[9]` = (_mux_4 >> 1) & 1
+  `stages[10]` = (_mux_4 >> 2) & 1
+  `stages[11]` = (_mux_4 >> 3) & 1
+  out = out__w1
 }

@@ -1,173 +1,310 @@
-pub comb br_arb_pairwise_core_internal::[timecheck=false](request:u8, priority_matrix:u64) -> (can_grant:u8, grant:u8) {
-  can_grant = 0sb?
-  can_grant = 0xff
-  {
-    can_grant#[0] = 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[0..=7] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[0..=7] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[0..=7] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[0..=7] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[0..=7] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[0..=7] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[0] = can_grant & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[0..=7] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[8..=15] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[8..=15] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[8..=15] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[8..=15] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[8..=15] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[8..=15] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[1] = (can_grant >> 1) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[8..=15] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[16..=23] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[16..=23] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[16..=23] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[16..=23] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[16..=23] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[16..=23] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[2] = (can_grant >> 2) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[16..=23] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[24..=31] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[24..=31] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[24..=31] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[24..=31] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[24..=31] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[24..=31] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[3] = (can_grant >> 3) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[24..=31] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[32..=39] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[32..=39] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[32..=39] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[32..=39] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[32..=39] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[32..=39] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[4] = (can_grant >> 4) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[32..=39] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[40..=47] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[40..=47] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[40..=47] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[40..=47] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[40..=47] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[40..=47] >> 6) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[5] = (can_grant >> 5) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[40..=47] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[48..=55] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[48..=55] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[48..=55] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[48..=55] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[48..=55] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[48..=55] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[6] = (can_grant >> 6) & 1 & unsigned((((request >> 7) & 1) == 0) or (((priority_matrix#[48..=55] >> 7) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned(((request & 1) == 0) or ((priority_matrix#[56..=63] & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 1) & 1) == 0) or (((priority_matrix#[56..=63] >> 1) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 2) & 1) == 0) or (((priority_matrix#[56..=63] >> 2) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 3) & 1) == 0) or (((priority_matrix#[56..=63] >> 3) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 4) & 1) == 0) or (((priority_matrix#[56..=63] >> 4) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 5) & 1) == 0) or (((priority_matrix#[56..=63] >> 5) & 1) != 0)) & 1
-  }
-  {
-    can_grant#[7] = (can_grant >> 7) & 1 & unsigned((((request >> 6) & 1) == 0) or (((priority_matrix#[56..=63] >> 6) & 1) != 0)) & 1
-  }
-  grant = request & can_grant
+pub comb br_arb_pairwise_core_internal<NumRequesters=8>::[timecheck=false](priority_matrix:U64, request:U8) -> (can_grant:U8, grant:U8) {
+  mut can_grant__w2 = 0xff
+  can_grant__w2#[0] = 1 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[0..=7] >> 1) & 1) != 0) & 1
+  mut can_grant__w3 = can_grant__w2
+  can_grant__w3#[0] = can_grant__w2 & 1 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[0..=7] >> 2) & 1) != 0) & 1
+  mut can_grant__w4 = can_grant__w3
+  can_grant__w4#[0] = can_grant__w3 & 1 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[0..=7] >> 3) & 1) != 0) & 1
+  mut can_grant__w5 = can_grant__w4
+  can_grant__w5#[0] = can_grant__w4 & 1 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[0..=7] >> 4) & 1) != 0) & 1
+  mut can_grant__w6 = can_grant__w5
+  can_grant__w6#[0] = can_grant__w5 & 1 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[0..=7] >> 5) & 1) != 0) & 1
+  mut can_grant__w7 = can_grant__w6
+  can_grant__w7#[0] = can_grant__w6 & 1 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[0..=7] >> 6) & 1) != 0) & 1
+  mut can_grant__w8 = can_grant__w7
+  can_grant__w8#[0] = can_grant__w7 & 1 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[0..=7] >> 7) & 1) != 0) & 1
+  mut can_grant__w9 = can_grant__w8
+  can_grant__w9#[1] = (can_grant__w8 >> 1) & 1 & U1((request & 1) == 0 or (priority_matrix#[8..=15] & 1) != 0) & 1
+  const t89 = (can_grant__w9 >> 1) & 1
+  const t98 = t89 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[8..=15] >> 2) & 1) != 0)
+  const t99 = t98 & 1
+  mut can_grant__w10 = can_grant__w9
+  can_grant__w10#[1] = t99
+  const t100 = can_grant__w10 >> 1
+  const t101 = t100 & 1
+  const t110 = t101 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[8..=15] >> 3) & 1) != 0)
+  const t111 = t110 & 1
+  mut can_grant__w11 = can_grant__w10
+  can_grant__w11#[1] = t111
+  const t112 = can_grant__w11 >> 1
+  const t113 = t112 & 1
+  const t122 = t113 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[8..=15] >> 4) & 1) != 0)
+  const t123 = t122 & 1
+  mut can_grant__w12 = can_grant__w11
+  can_grant__w12#[1] = t123
+  const t124 = can_grant__w12 >> 1
+  const t125 = t124 & 1
+  const t134 = t125 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[8..=15] >> 5) & 1) != 0)
+  const t135 = t134 & 1
+  mut can_grant__w13 = can_grant__w12
+  can_grant__w13#[1] = t135
+  const t136 = can_grant__w13 >> 1
+  const t137 = t136 & 1
+  const t146 = t137 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[8..=15] >> 6) & 1) != 0)
+  const t147 = t146 & 1
+  mut can_grant__w14 = can_grant__w13
+  can_grant__w14#[1] = t147
+  const t148 = can_grant__w14 >> 1
+  const t149 = t148 & 1
+  const t158 = t149 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[8..=15] >> 7) & 1) != 0)
+  const t159 = t158 & 1
+  mut can_grant__w15 = can_grant__w14
+  can_grant__w15#[1] = t159
+  const t160 = can_grant__w15 >> 2
+  const t161 = t160 & 1
+  const t168 = t161 & U1((request & 1) == 0 or (priority_matrix#[16..=23] & 1) != 0)
+  const t169 = t168 & 1
+  mut can_grant__w16 = can_grant__w15
+  can_grant__w16#[2] = t169
+  const t170 = can_grant__w16 >> 2
+  const t171 = t170 & 1
+  const t180 = t171 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[16..=23] >> 1) & 1) != 0)
+  const t181 = t180 & 1
+  mut can_grant__w17 = can_grant__w16
+  can_grant__w17#[2] = t181
+  const t182 = can_grant__w17 >> 2
+  const t183 = t182 & 1
+  const t192 = t183 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[16..=23] >> 3) & 1) != 0)
+  const t193 = t192 & 1
+  mut can_grant__w18 = can_grant__w17
+  can_grant__w18#[2] = t193
+  const t194 = can_grant__w18 >> 2
+  const t195 = t194 & 1
+  const t204 = t195 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[16..=23] >> 4) & 1) != 0)
+  const t205 = t204 & 1
+  mut can_grant__w19 = can_grant__w18
+  can_grant__w19#[2] = t205
+  const t206 = can_grant__w19 >> 2
+  const t207 = t206 & 1
+  const t216 = t207 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[16..=23] >> 5) & 1) != 0)
+  const t217 = t216 & 1
+  mut can_grant__w20 = can_grant__w19
+  can_grant__w20#[2] = t217
+  const t218 = can_grant__w20 >> 2
+  const t219 = t218 & 1
+  const t228 = t219 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[16..=23] >> 6) & 1) != 0)
+  const t229 = t228 & 1
+  mut can_grant__w21 = can_grant__w20
+  can_grant__w21#[2] = t229
+  const t230 = can_grant__w21 >> 2
+  const t231 = t230 & 1
+  const t240 = t231 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[16..=23] >> 7) & 1) != 0)
+  const t241 = t240 & 1
+  mut can_grant__w22 = can_grant__w21
+  can_grant__w22#[2] = t241
+  const t242 = can_grant__w22 >> 3
+  const t243 = t242 & 1
+  const t250 = t243 & U1((request & 1) == 0 or (priority_matrix#[24..=31] & 1) != 0)
+  const t251 = t250 & 1
+  mut can_grant__w23 = can_grant__w22
+  can_grant__w23#[3] = t251
+  const t252 = can_grant__w23 >> 3
+  const t253 = t252 & 1
+  const t262 = t253 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[24..=31] >> 1) & 1) != 0)
+  const t263 = t262 & 1
+  mut can_grant__w24 = can_grant__w23
+  can_grant__w24#[3] = t263
+  const t264 = can_grant__w24 >> 3
+  const t265 = t264 & 1
+  const t274 = t265 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[24..=31] >> 2) & 1) != 0)
+  const t275 = t274 & 1
+  mut can_grant__w25 = can_grant__w24
+  can_grant__w25#[3] = t275
+  const t276 = can_grant__w25 >> 3
+  const t277 = t276 & 1
+  const t286 = t277 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[24..=31] >> 4) & 1) != 0)
+  const t287 = t286 & 1
+  mut can_grant__w26 = can_grant__w25
+  can_grant__w26#[3] = t287
+  const t288 = can_grant__w26 >> 3
+  const t289 = t288 & 1
+  const t298 = t289 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[24..=31] >> 5) & 1) != 0)
+  const t299 = t298 & 1
+  mut can_grant__w27 = can_grant__w26
+  can_grant__w27#[3] = t299
+  const t300 = can_grant__w27 >> 3
+  const t301 = t300 & 1
+  const t310 = t301 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[24..=31] >> 6) & 1) != 0)
+  const t311 = t310 & 1
+  mut can_grant__w28 = can_grant__w27
+  can_grant__w28#[3] = t311
+  const t312 = can_grant__w28 >> 3
+  const t313 = t312 & 1
+  const t322 = t313 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[24..=31] >> 7) & 1) != 0)
+  const t323 = t322 & 1
+  mut can_grant__w29 = can_grant__w28
+  can_grant__w29#[3] = t323
+  const t324 = can_grant__w29 >> 4
+  const t325 = t324 & 1
+  const t332 = t325 & U1((request & 1) == 0 or (priority_matrix#[32..=39] & 1) != 0)
+  const t333 = t332 & 1
+  mut can_grant__w30 = can_grant__w29
+  can_grant__w30#[4] = t333
+  const t334 = can_grant__w30 >> 4
+  const t335 = t334 & 1
+  const t344 = t335 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[32..=39] >> 1) & 1) != 0)
+  const t345 = t344 & 1
+  mut can_grant__w31 = can_grant__w30
+  can_grant__w31#[4] = t345
+  const t346 = can_grant__w31 >> 4
+  const t347 = t346 & 1
+  const t356 = t347 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[32..=39] >> 2) & 1) != 0)
+  const t357 = t356 & 1
+  mut can_grant__w32 = can_grant__w31
+  can_grant__w32#[4] = t357
+  const t358 = can_grant__w32 >> 4
+  const t359 = t358 & 1
+  const t368 = t359 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[32..=39] >> 3) & 1) != 0)
+  const t369 = t368 & 1
+  mut can_grant__w33 = can_grant__w32
+  can_grant__w33#[4] = t369
+  const t370 = can_grant__w33 >> 4
+  const t371 = t370 & 1
+  const t380 = t371 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[32..=39] >> 5) & 1) != 0)
+  const t381 = t380 & 1
+  mut can_grant__w34 = can_grant__w33
+  can_grant__w34#[4] = t381
+  const t382 = can_grant__w34 >> 4
+  const t383 = t382 & 1
+  const t392 = t383 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[32..=39] >> 6) & 1) != 0)
+  const t393 = t392 & 1
+  mut can_grant__w35 = can_grant__w34
+  can_grant__w35#[4] = t393
+  const t394 = can_grant__w35 >> 4
+  const t395 = t394 & 1
+  const t404 = t395 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[32..=39] >> 7) & 1) != 0)
+  const t405 = t404 & 1
+  mut can_grant__w36 = can_grant__w35
+  can_grant__w36#[4] = t405
+  const t406 = can_grant__w36 >> 5
+  const t407 = t406 & 1
+  const t414 = t407 & U1((request & 1) == 0 or (priority_matrix#[40..=47] & 1) != 0)
+  const t415 = t414 & 1
+  mut can_grant__w37 = can_grant__w36
+  can_grant__w37#[5] = t415
+  const t416 = can_grant__w37 >> 5
+  const t417 = t416 & 1
+  const t426 = t417 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[40..=47] >> 1) & 1) != 0)
+  const t427 = t426 & 1
+  mut can_grant__w38 = can_grant__w37
+  can_grant__w38#[5] = t427
+  const t428 = can_grant__w38 >> 5
+  const t429 = t428 & 1
+  const t438 = t429 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[40..=47] >> 2) & 1) != 0)
+  const t439 = t438 & 1
+  mut can_grant__w39 = can_grant__w38
+  can_grant__w39#[5] = t439
+  const t440 = can_grant__w39 >> 5
+  const t441 = t440 & 1
+  const t450 = t441 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[40..=47] >> 3) & 1) != 0)
+  const t451 = t450 & 1
+  mut can_grant__w40 = can_grant__w39
+  can_grant__w40#[5] = t451
+  const t452 = can_grant__w40 >> 5
+  const t453 = t452 & 1
+  const t462 = t453 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[40..=47] >> 4) & 1) != 0)
+  const t463 = t462 & 1
+  mut can_grant__w41 = can_grant__w40
+  can_grant__w41#[5] = t463
+  const t464 = can_grant__w41 >> 5
+  const t465 = t464 & 1
+  const t474 = t465 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[40..=47] >> 6) & 1) != 0)
+  const t475 = t474 & 1
+  mut can_grant__w42 = can_grant__w41
+  can_grant__w42#[5] = t475
+  const t476 = can_grant__w42 >> 5
+  const t477 = t476 & 1
+  const t486 = t477 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[40..=47] >> 7) & 1) != 0)
+  const t487 = t486 & 1
+  mut can_grant__w43 = can_grant__w42
+  can_grant__w43#[5] = t487
+  const t488 = can_grant__w43 >> 6
+  const t489 = t488 & 1
+  const t496 = t489 & U1((request & 1) == 0 or (priority_matrix#[48..=55] & 1) != 0)
+  const t497 = t496 & 1
+  mut can_grant__w44 = can_grant__w43
+  can_grant__w44#[6] = t497
+  const t498 = can_grant__w44 >> 6
+  const t499 = t498 & 1
+  const t508 = t499 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[48..=55] >> 1) & 1) != 0)
+  const t509 = t508 & 1
+  mut can_grant__w45 = can_grant__w44
+  can_grant__w45#[6] = t509
+  const t510 = can_grant__w45 >> 6
+  const t511 = t510 & 1
+  const t520 = t511 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[48..=55] >> 2) & 1) != 0)
+  const t521 = t520 & 1
+  mut can_grant__w46 = can_grant__w45
+  can_grant__w46#[6] = t521
+  const t522 = can_grant__w46 >> 6
+  const t523 = t522 & 1
+  const t532 = t523 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[48..=55] >> 3) & 1) != 0)
+  const t533 = t532 & 1
+  mut can_grant__w47 = can_grant__w46
+  can_grant__w47#[6] = t533
+  const t534 = can_grant__w47 >> 6
+  const t535 = t534 & 1
+  const t544 = t535 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[48..=55] >> 4) & 1) != 0)
+  const t545 = t544 & 1
+  mut can_grant__w48 = can_grant__w47
+  can_grant__w48#[6] = t545
+  const t546 = can_grant__w48 >> 6
+  const t547 = t546 & 1
+  const t556 = t547 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[48..=55] >> 5) & 1) != 0)
+  const t557 = t556 & 1
+  mut can_grant__w49 = can_grant__w48
+  can_grant__w49#[6] = t557
+  const t558 = can_grant__w49 >> 6
+  const t559 = t558 & 1
+  const t568 = t559 & U1(((request >> 7) & 1) == 0 or ((priority_matrix#[48..=55] >> 7) & 1) != 0)
+  const t569 = t568 & 1
+  mut can_grant__w50 = can_grant__w49
+  can_grant__w50#[6] = t569
+  const t570 = can_grant__w50 >> 7
+  const t571 = t570 & 1
+  const t578 = t571 & U1((request & 1) == 0 or (priority_matrix#[56..=63] & 1) != 0)
+  const t579 = t578 & 1
+  mut can_grant__w51 = can_grant__w50
+  can_grant__w51#[7] = t579
+  const t580 = can_grant__w51 >> 7
+  const t581 = t580 & 1
+  const t590 = t581 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[56..=63] >> 1) & 1) != 0)
+  const t591 = t590 & 1
+  mut can_grant__w52 = can_grant__w51
+  can_grant__w52#[7] = t591
+  const t592 = can_grant__w52 >> 7
+  const t593 = t592 & 1
+  const t602 = t593 & U1(((request >> 2) & 1) == 0 or ((priority_matrix#[56..=63] >> 2) & 1) != 0)
+  const t603 = t602 & 1
+  mut can_grant__w53 = can_grant__w52
+  can_grant__w53#[7] = t603
+  const t604 = can_grant__w53 >> 7
+  const t605 = t604 & 1
+  const t614 = t605 & U1(((request >> 3) & 1) == 0 or ((priority_matrix#[56..=63] >> 3) & 1) != 0)
+  const t615 = t614 & 1
+  mut can_grant__w54 = can_grant__w53
+  can_grant__w54#[7] = t615
+  const t616 = can_grant__w54 >> 7
+  const t617 = t616 & 1
+  const t626 = t617 & U1(((request >> 4) & 1) == 0 or ((priority_matrix#[56..=63] >> 4) & 1) != 0)
+  const t627 = t626 & 1
+  mut can_grant__w55 = can_grant__w54
+  can_grant__w55#[7] = t627
+  const t628 = can_grant__w55 >> 7
+  const t629 = t628 & 1
+  const t638 = t629 & U1(((request >> 5) & 1) == 0 or ((priority_matrix#[56..=63] >> 5) & 1) != 0)
+  const t639 = t638 & 1
+  mut can_grant__w56 = can_grant__w55
+  can_grant__w56#[7] = t639
+  const t640 = can_grant__w56 >> 7
+  const t641 = t640 & 1
+  const t650 = t641 & U1(((request >> 6) & 1) == 0 or ((priority_matrix#[56..=63] >> 6) & 1) != 0)
+  const t651 = t650 & 1
+  mut can_grant__w57 = can_grant__w56
+  can_grant__w57#[7] = t651
+  const t652 = request & can_grant__w57
+  const t653 = t652
+  const grant__w1 = t653
+  can_grant = can_grant__w57
+  grant = grant__w1
 }

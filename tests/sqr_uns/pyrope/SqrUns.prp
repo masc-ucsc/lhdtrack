@@ -1,11 +1,5 @@
-// SqrUns -- the Pyrope equivalent of verilog/SqrUns.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 28),
-// so the generated harness and LEC bind the same external interface.
-//
-// Unsigned square; always fits the 56-bit result.
-pub comb SqrUns(X:u28) -> (P:u56) { P = X*X }
+// Unsigned 28-bit square; the full product fits in 56 bits.
+// External names and widths match the pinned Verilog and generated harness.
+pub comb SqrUns(X:U28) -> (P:U56) {
+  P = X*X
+}

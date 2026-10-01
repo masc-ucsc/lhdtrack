@@ -1,19 +1,17 @@
-const toggle_t = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
+const br_cdc_bit_toggle = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
 
-pub mod br_cdc_bit_pulse::[timecheck=false](src_clk:u1, src_rst:u1, src_pulse:u1, dst_clk:u1, dst_rst:u1) -> (dst_pulse:u1@[]) {
-  // Keep the RTL state names: resetless initial values are arbitrary, so LEC
-  // must relate each source state to the exact named storage bank in the flat
-  // mapped netlist rather than quantify two independent power-on symbols.
-  reg src_level:u1:[clock_pin=ref src_clk] = nil
-  reg dst_level_d:u1:[clock_pin=ref dst_clk] = nil
-  mut crossing = toggle_t::[name=br_cdc_bit_toggle_inst](src_clk=src_clk, src_rst=src_rst, src_bit=src_level, dst_clk=dst_clk, dst_rst=dst_rst)
-  const dst_level:u1 = crossing.dst_bit
-  dst_pulse = dst_level ^ dst_level_d
-  if src_rst != 0 {
-    src_level = 0
-  } elif src_pulse != 0 {
-    const one:u1 = 1
-    src_level = src_level ^ one
+pub mod br_cdc_bit_pulse<NumStages=2, RegisterOutput=0>::[timecheck=false](dst_clk:Clock, dst_rst:U1, src_clk:Clock, src_pulse:U1, src_rst:U1) -> (dst_pulse:U1@[]) {
+  mut _b2i_1 = 0
+  reg src_level:U1:[async=false, clock_pin=src_clk, initial=0, reset_pin=src_rst]
+  reg dst_level_d:U1:[clock_pin=dst_clk]
+  if not (src_rst != 0) {
+    if src_pulse != 0 {
+      _b2i_1 = if src_level == 0 { 1 } else { 0 }
+      src_level = _b2i_1
+    }
   }
-  dst_level_d = dst_level
+  mut br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_inst](src_clk=src_clk, src_rst=src_rst, src_bit=src_level, dst_clk=dst_clk, dst_rst=dst_rst)
+  const dst_level__w1 = br_cdc_bit_toggle_inst
+  dst_level_d = dst_level__w1
+  dst_pulse = (dst_level__w1 ^ dst_level_d) & 1
 }

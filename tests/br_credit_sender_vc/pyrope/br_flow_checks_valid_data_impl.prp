@@ -1,5 +1,5 @@
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_flow_checks_valid_data_impl::[timecheck=false](clk:u1, rst:u1, valid:u2, ready:u2, data:u2) -> () {
-  br_misc_unused::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 6) | (valid << 4) | (ready << 2) | data)
+pub mod br_flow_checks_valid_data_impl<NumFlows=1, Width=1, EnableCoverBackpressure=0, NumBackpressureCheckFlows=1, EnableAssertValidStability=0, EnableAssertDataStability=0, EnableAssertDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoBackpressure=1>::[timecheck=false](clk:Clock, data:U1, ready:U1, rst:U1, valid:U1) -> () {
+  br_misc_unused::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 3) | ((valid & 1) << 2) | ((ready & 1) << 1) | (data & 1))
 }

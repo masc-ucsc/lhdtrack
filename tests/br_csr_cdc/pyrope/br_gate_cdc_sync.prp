@@ -1,0 +1,5 @@
+pub mod br_gate_cdc_sync<NumStages=2>::[timecheck=false](clk:Clock, `in`:U1) -> (out:U1@[]) {
+  reg in_d:U2
+  in_d = ((in_d & 1) << 1) | (`in` & 1)
+  out = (in_d >> (NumStages - 1)) & 1
+}

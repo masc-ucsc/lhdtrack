@@ -5,57 +5,94 @@ const br_enc_priority_encoder_p3 = import("br_enc_priority_encoder_p3.br_enc_pri
 const br_flow_checks_valid_data_impl_p1 = import("br_flow_checks_valid_data_impl_p1.br_flow_checks_valid_data_impl_p1")
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail_valid:(e1:u1, e0:u1), next_tail:u10, head_ready:u1, ptr_ram_rd_data_valid:u1, ptr_ram_rd_data:u5) -> (head_valid:u1@[], head:u5@[], empty:u1@[], items:u6@[], ptr_ram_wr_valid:(e1:u1, e0:u1)@[], ptr_ram_wr_addr:u10@[], ptr_ram_wr_data:u10@[], ptr_ram_rd_addr_valid:u1@[], ptr_ram_rd_addr:u5@[]) {
-  reg ll_empty:u1
-  reg ll_head_valid:u1
-  reg ll_head:[1]u5:[ordering="old"]
-  reg ll_tail:[1]u5:[ordering="old"]
-  mut ll_empty_next:u1 = 0
-  mut ll_head_bypass:u1 = 0
-  mut ll_count_next:u6 = 0
-  mut ll_head_last:u1 = 0
-  mut ll_next_tail_valid_transpose:u2 = 0
-  mut ll_ptr_ram_wr_valid:u2 = 0
-  mut ll_ptr_ram_wr_addr:u10 = 0
-  mut ll_count__wtmp:u6 = 0sb?
-  wire ll_count:u6
+pub mod br_tracker_linked_list_ctrl<Depth=32, NumWritePorts=2, NumLinkedLists=1, RamReadLatency=1>::[timecheck=false](clk:Clock, head_ready:U1, next_tail:U10, next_tail_valid:(e1:U1, e0:U1), ptr_ram_rd_data:U5, ptr_ram_rd_data_valid:U1, rst:U1) -> (empty:U1@[], head:U5@[], head_valid:U1@[], items:U6@[], ptr_ram_rd_addr:U5@[], ptr_ram_rd_addr_valid:U1@[], ptr_ram_wr_addr:U10@[], ptr_ram_wr_data:U10@[], ptr_ram_wr_valid:(e1:U1, e0:U1)@[]) {
+  reg ll_empty:U1:[async=false, initial=1, reset_pin=rst]
+  reg ll_head_valid:U1:[async=false, initial=0, reset_pin=rst]
+  reg ll_head:[1]U5:[ordering="old"]
+  reg ll_tail:[1]U5:[ordering="old"]
+  wire `ptr_ram_wr_addr[0]`:U1 = nil
+  wire `ptr_ram_wr_addr[1]`:U1 = nil
+  wire `ptr_ram_wr_addr[2]`:U1 = nil
+  wire `ptr_ram_wr_addr[3]`:U1 = nil
+  wire `ptr_ram_wr_addr[4]`:U1 = nil
+  wire `ptr_ram_wr_addr[5]`:U1 = nil
+  wire `ptr_ram_wr_addr[6]`:U1 = nil
+  wire `ptr_ram_wr_addr[7]`:U1 = nil
+  wire `ptr_ram_wr_addr[8]`:U1 = nil
+  wire `ptr_ram_wr_addr[9]`:U1 = nil
+  wire ptr_ram_wr_addr:U10 = nil
+  wire `ptr_ram_wr_data[0]`:U1 = nil
+  wire `ptr_ram_wr_data[1]`:U1 = nil
+  wire `ptr_ram_wr_data[2]`:U1 = nil
+  wire `ptr_ram_wr_data[3]`:U1 = nil
+  wire `ptr_ram_wr_data[4]`:U1 = nil
+  wire `ptr_ram_wr_data[5]`:U1 = nil
+  wire `ptr_ram_wr_data[6]`:U1 = nil
+  wire `ptr_ram_wr_data[7]`:U1 = nil
+  wire `ptr_ram_wr_data[8]`:U1 = nil
+  wire `ptr_ram_wr_data[9]`:U1 = nil
+  wire ptr_ram_wr_data:U10 = nil
+  wire `ll_next_tail_valid_transpose[0]`:U1 = nil
+  wire `ll_next_tail_valid_transpose[1]`:U1 = nil
+  wire `ll_ptr_ram_wr_valid[0]`:U1 = nil
+  wire `ll_ptr_ram_wr_valid[1]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[0]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[1]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[2]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[3]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[4]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[5]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[6]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[7]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[8]`:U1 = nil
+  wire `ll_ptr_ram_wr_addr[9]`:U1 = nil
+  mut ll_empty_next:U1 = 0
+  mut ll_head_bypass:U1 = 0
+  mut ll_head_last:U1 = 0
+  wire `ptr_ram_wr_valid__bpr.e1`:U1 = nil
+  wire `ptr_ram_wr_valid__bpr.e0`:U1 = nil
+  mut ll_count__wtmp:U6 = 0sb?
+  wire ll_count:U6 = nil
+  mut ll_count_next__wtmp:U6 = 0sb?
+  wire ll_count_next:U6 = nil
   ll_empty_next = 0ub?
   ll_head_bypass = 0ub?
-  ll_count_next = 0sb?
   ll_head_last = 0ub?
-  ll_next_tail_valid_transpose = 0sb?
-  ll_ptr_ram_wr_valid = 0sb?
-  ll_ptr_ram_wr_addr = 0sb?
-  ptr_ram_wr_addr = 0sb?
-  ptr_ram_wr_data = 0sb?
-  {
-  }
   const ll_next_tail_valid__w1 = ((next_tail_valid.e1 << 1) | next_tail_valid.e0) & 3
-  mut ll_next_tail_valid_transpose__w1 = ll_next_tail_valid_transpose
-  ll_next_tail_valid_transpose__w1#[0] = ll_next_tail_valid__w1 & 1
-  mut ll_next_tail_valid_transpose__w2 = ll_next_tail_valid_transpose__w1
-  ll_next_tail_valid_transpose__w2#[1] = (ll_next_tail_valid__w1 >> 1) & 1
-  mut gen_linked_list_0_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_0_br_enc_countones_ll_next_tail_valid](`in` = ll_next_tail_valid_transpose__w2#[0..=1])
-  const gen_linked_list_0_ll_tail_update__w1 = unsigned(ll_next_tail_valid_transpose__w2#[0..=1] != 0)
+  `ll_next_tail_valid_transpose[0]` = ll_next_tail_valid__w1 & 1
+  `ll_next_tail_valid_transpose[1]` = (ll_next_tail_valid__w1 >> 1) & 1
+  mut gen_linked_list_0_br_enc_countones_ll_next_tail_valid = br_enc_countones::[name=gen_linked_list_0_br_enc_countones_ll_next_tail_valid](`in`=(`ll_next_tail_valid_transpose[1]` << 1) | `ll_next_tail_valid_transpose[0]`)
+  const gen_linked_list_0_ll_tail_update__w1 = U1(((`ll_next_tail_valid_transpose[1]` << 1) | `ll_next_tail_valid_transpose[0]`) != 0)
   mut ll_head_last__w1 = ll_head_last
-  ll_head_last__w1#[0] = unsigned(ll_count == 1) & 1
+  ll_head_last__w1#[0] = U1(ll_count == 1) & 1
+  mut _b2i_5 = if (ll_empty & 1) != 0 or ((ll_head_last__w1 & 1) != 0 and (ll_head_valid & 1) != 0 and true and head_ready != 0) { 1 } else { 0 }
   mut ll_head_bypass__w1 = ll_head_bypass
-  ll_head_bypass__w1#[0] = unsigned(((ll_empty & 1) != 0) or (((ll_head_last__w1 & 1) != 0) and ((ll_head_valid & 1) != 0) and true and (head_ready != 0))) & 1
-  mut ll_ptr_ram_wr_valid__w1 = ll_ptr_ram_wr_valid
-  ll_ptr_ram_wr_valid__w1#[0] = unsigned(((ll_next_tail_valid__w1 & 1) != 0) and ((ll_empty & 1) == 0)) & 1
-  mut ll_ptr_ram_wr_addr__w1 = ll_ptr_ram_wr_addr
-  ll_ptr_ram_wr_addr__w1#[0..=4] = ll_tail[0]
-  mut ll_ptr_ram_wr_valid__w2 = ll_ptr_ram_wr_valid__w1
-  ll_ptr_ram_wr_valid__w2#[1] = unsigned((((ll_next_tail_valid__w1 >> 1) & 1) != 0) and (((ll_empty & 1) == 0) or ((ll_next_tail_valid__w1 & 1) != 0))) & 1
-  mut _mux_8:u5 = if (ll_next_tail_valid__w1 & 1) != 0 { next_tail#[0..=4] } else { ll_tail[0] }
-  mut ll_ptr_ram_wr_addr__w2 = ll_ptr_ram_wr_addr__w1
-  ll_ptr_ram_wr_addr__w2#[5..=9] = _mux_8
-  mut gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select = br_enc_priority_encoder_p2::[name=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select](clk = clk, rst = rst, `in.e1` = (ll_next_tail_valid_transpose__w2#[0..=1] >> 1) & 1, `in.e0` = ll_next_tail_valid_transpose__w2#[0..=1] & 1)
-  mut gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_next_tail](select = gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select, `in` = next_tail)
-  mut gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select = br_enc_priority_encoder_p3::[name=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select](clk = clk, rst = rst, `in.e1` = (ll_next_tail_valid_transpose__w2#[0..=1] >> 1) & 1, `in.e0` = ll_next_tail_valid_transpose__w2#[0..=1] & 1)
-  mut gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next = br_mux_onehot::[name=gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next](select = gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select, `in` = next_tail)
-  mut _mux_9:u5 = if (ll_head_bypass__w1 & 1) != 0 { gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next#[0..=4] } else { ptr_ram_rd_data }
-  const gen_linked_list_0_ll_head_update__w1 = unsigned((unsigned((gen_linked_list_0_ll_tail_update__w1 != 0) and ((ll_head_bypass__w1 & 1) != 0)) != 0) or (unsigned((ptr_ram_rd_data_valid != 0) and true) != 0))
+  ll_head_bypass__w1#[0] = _b2i_5 & 1
+  mut _b2i_6 = if (ll_next_tail_valid__w1 & 1) != 0 and (ll_empty & 1) == 0 { 1 } else { 0 }
+  `ll_ptr_ram_wr_valid[0]` = _b2i_6 & 1
+  `ll_ptr_ram_wr_addr[0]` = ll_tail[0] & 1
+  `ll_ptr_ram_wr_addr[1]` = (ll_tail[0] >> 1) & 1
+  `ll_ptr_ram_wr_addr[2]` = (ll_tail[0] >> 2) & 1
+  `ll_ptr_ram_wr_addr[3]` = (ll_tail[0] >> 3) & 1
+  `ll_ptr_ram_wr_addr[4]` = (ll_tail[0] >> 4) & 1
+  mut _b2i_7 = if ((ll_next_tail_valid__w1 >> 1) & 1) != 0 and ((ll_empty & 1) == 0 or (ll_next_tail_valid__w1 & 1) != 0) { 1 } else { 0 }
+  `ll_ptr_ram_wr_valid[1]` = _b2i_7 & 1
+  mut _mux_8:U5 = if (ll_next_tail_valid__w1 & 1) != 0 { next_tail#[0..=4] } else { ll_tail[0] }
+  `ll_ptr_ram_wr_addr[5]` = _mux_8 & 1
+  `ll_ptr_ram_wr_addr[6]` = (_mux_8 >> 1) & 1
+  `ll_ptr_ram_wr_addr[7]` = (_mux_8 >> 2) & 1
+  `ll_ptr_ram_wr_addr[8]` = (_mux_8 >> 3) & 1
+  `ll_ptr_ram_wr_addr[9]` = (_mux_8 >> 4) & 1
+  const t76 = (`ll_next_tail_valid_transpose[1]` << 1) | `ll_next_tail_valid_transpose[0]`
+  mut gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select = br_enc_priority_encoder_p2::[name=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select](clk=clk, rst=rst, `in.e1`=(t76 >> 1) & 1, `in.e0`=t76 & 1)
+  mut gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_next_tail = br_mux_onehot::[name=gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_next_tail](select=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_tail_next_select, `in`=next_tail)
+  const t80 = (`ll_next_tail_valid_transpose[1]` << 1) | `ll_next_tail_valid_transpose[0]`
+  mut gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select = br_enc_priority_encoder_p3::[name=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select](clk=clk, rst=rst, `in.e1`=(t80 >> 1) & 1, `in.e0`=t80 & 1)
+  mut gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next = br_mux_onehot::[name=gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next](select=gen_linked_list_0_gen_tail_update_chaining_br_enc_priority_encoder_ll_head_next_select, `in`=next_tail)
+  mut _mux_9:U5 = if (ll_head_bypass__w1 & 1) != 0 { gen_linked_list_0_gen_tail_update_chaining_br_mux_onehot_ll_head_next#[0..=4] } else { ptr_ram_rd_data }
+  mut _b2i_10 = if gen_linked_list_0_ll_tail_update__w1 != 0 and (ll_head_bypass__w1 & 1) != 0 { 1 } else { 0 }
+  mut _b2i_12 = if _b2i_10 != 0 or U1(ptr_ram_rd_data_valid != 0 and true) != 0 { 1 } else { 0 }
+  const gen_linked_list_0_ll_head_update__w1 = _b2i_12
   if rst != 0 {
     ll_tail[0] = 0
   } elif gen_linked_list_0_ll_tail_update__w1 != 0 {
@@ -66,45 +103,68 @@ pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:u1, rst:u1, next_tail
   } elif gen_linked_list_0_ll_head_update__w1 != 0 {
     ll_head[0] = _mux_9
   }
-  const head_valid__w1 = unsigned((1 & (~ll_empty) & 1 & 1 & ll_head_valid & 1) != 0)
+  mut _b2i_13 = if (1 & (~ll_empty) & 1 & ll_head_valid & 1) != 0 { 1 } else { 0 }
+  const head_valid__w1 = _b2i_13
+  mut _b2i_14 = if (1 & (~ll_head_last__w1#[0]) & 1) != 0 { 1 } else { 0 }
+  mut _b2i_15 = if head_valid__w1 != 0 and head_ready != 0 and _b2i_14 != 0 { 1 } else { 0 }
   const head__w1 = ll_head[0]
-  mut `ptr_ram_wr_valid__bpo.e0` = unsigned((ll_ptr_ram_wr_valid__w2 & 1) != 0)
-  mut ptr_ram_wr_addr__w1 = ptr_ram_wr_addr
-  ptr_ram_wr_addr__w1#[0..=4] = ll_ptr_ram_wr_addr__w2#[0..=4]
-  mut ptr_ram_wr_data__w1 = ptr_ram_wr_data
-  ptr_ram_wr_data__w1#[0..=4] = next_tail#[0..=4]
-  mut `ptr_ram_wr_valid__bpo.e1` = unsigned(((ll_ptr_ram_wr_valid__w2 >> 1) & 1) != 0)
-  mut ptr_ram_wr_addr__w2 = ptr_ram_wr_addr__w1
-  ptr_ram_wr_addr__w2#[5..=9] = ll_ptr_ram_wr_addr__w2#[5..=9]
-  mut ptr_ram_wr_data__w2 = ptr_ram_wr_data__w1
-  ptr_ram_wr_data__w2#[5..=9] = next_tail#[5..=9]
+  mut _b2i_16 = if (`ll_ptr_ram_wr_valid[0]` & 1) != 0 { 1 } else { 0 }
+  mut `ptr_ram_wr_valid__bpo.e0` = _b2i_16
+  const t121 = (`ll_ptr_ram_wr_addr[4]` << 4) | (`ll_ptr_ram_wr_addr[3]` << 3) | (`ll_ptr_ram_wr_addr[2]` << 2) | (`ll_ptr_ram_wr_addr[1]` << 1) | `ll_ptr_ram_wr_addr[0]`
+  `ptr_ram_wr_addr[0]` = t121 & 1
+  `ptr_ram_wr_addr[1]` = (t121 >> 1) & 1
+  `ptr_ram_wr_addr[2]` = (t121 >> 2) & 1
+  `ptr_ram_wr_addr[3]` = (t121 >> 3) & 1
+  `ptr_ram_wr_addr[4]` = (t121 >> 4) & 1
+  `ptr_ram_wr_data[0]` = next_tail#[0..=4] & 1
+  `ptr_ram_wr_data[1]` = (next_tail#[0..=4] >> 1) & 1
+  `ptr_ram_wr_data[2]` = (next_tail#[0..=4] >> 2) & 1
+  `ptr_ram_wr_data[3]` = (next_tail#[0..=4] >> 3) & 1
+  `ptr_ram_wr_data[4]` = (next_tail#[0..=4] >> 4) & 1
+  mut _b2i_17 = if (`ll_ptr_ram_wr_valid[1]` & 1) != 0 { 1 } else { 0 }
+  mut `ptr_ram_wr_valid__bpo.e1` = _b2i_17
+  const t143 = (`ll_ptr_ram_wr_addr[9]` << 4) | (`ll_ptr_ram_wr_addr[8]` << 3) | (`ll_ptr_ram_wr_addr[7]` << 2) | (`ll_ptr_ram_wr_addr[6]` << 1) | `ll_ptr_ram_wr_addr[5]`
+  `ptr_ram_wr_addr[5]` = t143 & 1
+  `ptr_ram_wr_addr[6]` = (t143 >> 1) & 1
+  `ptr_ram_wr_addr[7]` = (t143 >> 2) & 1
+  `ptr_ram_wr_addr[8]` = (t143 >> 3) & 1
+  `ptr_ram_wr_addr[9]` = (t143 >> 4) & 1
+  `ptr_ram_wr_data[5]` = next_tail#[5..=9] & 1
+  `ptr_ram_wr_data[6]` = (next_tail#[5..=9] >> 1) & 1
+  `ptr_ram_wr_data[7]` = (next_tail#[5..=9] >> 2) & 1
+  `ptr_ram_wr_data[8]` = (next_tail#[5..=9] >> 3) & 1
+  `ptr_ram_wr_data[9]` = (next_tail#[5..=9] >> 4) & 1
+  mut _b2i_18 = if ll_empty == 1 { 1 } else { 0 }
   const items__w2 = (0 + ll_count)#[0..=5]
-  br_flow_checks_valid_data_impl_p1::[name=br_flow_checks_valid_data_impl_head](clk = clk, rst = rst, valid = head_valid__w1, ready = head_ready, data = head__w1)
-  mut gen_linked_list_0_br_counter_ll_count = br_counter::[name=gen_linked_list_0_br_counter_ll_count](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(ll_next_tail_valid_transpose__w2#[0..=1] != 0), incr = gen_linked_list_0_br_enc_countones_ll_next_tail_valid, decr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and true), decr = 1)
+  br_flow_checks_valid_data_impl_p1::[name=br_flow_checks_valid_data_impl_head](clk=clk, rst=rst, valid=head_valid__w1, ready=head_ready, data=head__w1)
+  mut _b2i_19 = if head_valid__w1 != 0 and head_ready != 0 and true { 1 } else { 0 }
+  mut gen_linked_list_0_br_counter_ll_count = br_counter::[name=gen_linked_list_0_br_counter_ll_count](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=U1(((`ll_next_tail_valid_transpose[1]` << 1) | `ll_next_tail_valid_transpose[0]`) != 0), incr=gen_linked_list_0_br_enc_countones_ll_next_tail_valid, decr_valid=_b2i_19, decr=1)
   ll_count__wtmp#[0..=5] = gen_linked_list_0_br_counter_ll_count.value#[0..=5]
-  mut ll_count_next__w1 = ll_count_next
-  ll_count_next__w1#[0..=5] = gen_linked_list_0_br_counter_ll_count.value_next#[0..=5]
+  ll_count_next__wtmp#[0..=5] = gen_linked_list_0_br_counter_ll_count.value_next#[0..=5]
   mut ll_empty_next__w1 = ll_empty_next
-  ll_empty_next__w1#[0] = unsigned(ll_count_next__w1#[0..=5] == 0) & 1
-  if rst != 0 {
-    ll_empty#[0] = 1
-  } else {
+  ll_empty_next__w1#[0] = U1(ll_count_next == 0) & 1
+  if not (rst != 0) {
     ll_empty#[0] = ll_empty_next__w1 & 1
   }
-  if rst != 0 {
-    ll_head_valid#[0] = 0
-  } else {
-    ll_head_valid#[0] = unsigned((((ll_head_valid & 1) != 0) and (unsigned((head_valid__w1 != 0) and (head_ready != 0) and true) == 0)) or (gen_linked_list_0_ll_head_update__w1 != 0)) & 1
+  mut _b2i_21 = if head_valid__w1 != 0 and head_ready != 0 and true { 1 } else { 0 }
+  mut _b2i_22 = if ((ll_head_valid & 1) != 0 and _b2i_21 == 0) or gen_linked_list_0_ll_head_update__w1 != 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    ll_head_valid#[0] = _b2i_22 & 1
   }
+  ptr_ram_wr_addr = (`ptr_ram_wr_addr[9]` << 9) | (`ptr_ram_wr_addr[8]` << 8) | (`ptr_ram_wr_addr[7]` << 7) | (`ptr_ram_wr_addr[6]` << 6) | (`ptr_ram_wr_addr[5]` << 5) | (`ptr_ram_wr_addr[4]` << 4) | (`ptr_ram_wr_addr[3]` << 3) | (`ptr_ram_wr_addr[2]` << 2) | (`ptr_ram_wr_addr[1]` << 1) | `ptr_ram_wr_addr[0]`
+  ptr_ram_wr_data = (`ptr_ram_wr_data[9]` << 9) | (`ptr_ram_wr_data[8]` << 8) | (`ptr_ram_wr_data[7]` << 7) | (`ptr_ram_wr_data[6]` << 6) | (`ptr_ram_wr_data[5]` << 5) | (`ptr_ram_wr_data[4]` << 4) | (`ptr_ram_wr_data[3]` << 3) | (`ptr_ram_wr_data[2]` << 2) | (`ptr_ram_wr_data[1]` << 1) | `ptr_ram_wr_data[0]`
   ll_count = ll_count__wtmp
-  ptr_ram_wr_valid.e1 = `ptr_ram_wr_valid__bpo.e1`
-  ptr_ram_wr_valid.e0 = `ptr_ram_wr_valid__bpo.e0`
+  ll_count_next = ll_count_next__wtmp
+  const t203 = `ptr_ram_wr_valid__bpo.e1`
+  `ptr_ram_wr_valid__bpr.e1` = t203
+  ptr_ram_wr_valid.e1 = t203
+  const t204 = `ptr_ram_wr_valid__bpo.e0`
+  `ptr_ram_wr_valid__bpr.e0` = t204
+  ptr_ram_wr_valid.e0 = t204
   head_valid = head_valid__w1
   head = head__w1
-  empty = unsigned(ll_empty == 1)
+  empty = _b2i_18
   items = items__w2
-  ptr_ram_wr_addr = ptr_ram_wr_addr__w2
-  ptr_ram_wr_data = ptr_ram_wr_data__w2
-  ptr_ram_rd_addr_valid = unsigned((head_valid__w1 != 0) and (head_ready != 0) and (unsigned((1 & (~ll_head_last__w1) & 1 & 1) != 0) != 0))
+  ptr_ram_rd_addr_valid = _b2i_15
   ptr_ram_rd_addr = head__w1
 }

@@ -1,21 +1,20 @@
-// Registered forward flow stage: a one-entry pipeline register between a
-// valid/ready push side and a pop side. The data register has no reset.
-pub mod br_flow_reg_fwd<WIDTH=1>(clk:u1, rst:u1, push_valid:bool, push_data:unsigned(bits=WIDTH), pop_ready:bool) -> (
-  push_ready:bool@[0],
-  pop_valid:bool@[0],
-  pop_data:unsigned(bits=WIDTH)@[0]
-) {
-  reg valid:bool                = false
-  reg data:unsigned(bits=WIDTH) = nil
+const br_flow_checks_valid_data_impl_p3 = import("br_flow_checks_valid_data_impl_p3.br_flow_checks_valid_data_impl_p3")
+const br_flow_checks_valid_data_intg_p4 = import("br_flow_checks_valid_data_intg_p4.br_flow_checks_valid_data_intg_p4")
 
-  // Accept a new item when the register is empty or being drained.
-  const ready = pop_ready or not valid
-  if ready and push_valid {
-    data = push_data
+pub mod br_flow_reg_fwd<Width=32, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableCoverPopBackpressure=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
+  reg pop_valid:U1:[async=false, initial=0, reset_pin=rst]
+  reg pop_data:U32
+  mut _b2i_1 = if pop_ready != 0 or pop_valid == 0 { 1 } else { 0 }
+  const push_ready__w1 = _b2i_1
+  mut _b2i_2 = if push_valid != 0 or push_ready__w1 == 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    pop_valid = _b2i_2
   }
-  valid = push_valid or not ready
-
-  push_ready = ready
-  pop_valid  = valid
-  pop_data   = data
+  mut _b2i_3 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
+  if _b2i_3 != 0 {
+    pop_data = push_data
+  }
+  br_flow_checks_valid_data_impl_p3::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid, ready=pop_ready, data=pop_data)
+  br_flow_checks_valid_data_intg_p4::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
+  push_ready = push_ready__w1
 }

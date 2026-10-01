@@ -1,36 +1,59 @@
-// Multi-symbol forwarding register: holds up to NUM_SYMBOLS symbols. Each
-// cycle the pop side takes some from the front and the push side appends new
-// ones behind those left. Symbol 0 (the oldest) is in the low bits.
-pub mod br_multi_xfer_reg_fwd(clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_receivable:u2) -> (
-  push_receivable:u2@[0],
-  pop_sendable:u2@[0],
-  pop_data:u10@[0]
-) {
-  comptime const NUM_SYMBOLS  = 2
-  comptime const SYMBOL_WIDTH = push_data.[bits]/NUM_SYMBOLS
+const br_multi_xfer_checks_sendable_data_impl = import("br_multi_xfer_checks_sendable_data_impl.br_multi_xfer_checks_sendable_data_impl")
+const br_multi_xfer_checks_sendable_data_intg = import("br_multi_xfer_checks_sendable_data_intg.br_multi_xfer_checks_sendable_data_intg")
+const br_shift_left = import("br_shift_left.br_shift_left")
+const br_shift_right = import("br_shift_right.br_shift_right")
 
-  // The registers are the pop-side outputs.
-  reg pop_sendable:u2 = 0
-  reg pop_data:u10    = 0
-
-  const pop_xfer = if pop_sendable < pop_receivable { pop_sendable } else { pop_receivable }
-  mut kept:u2    = 0
-  wrap kept         = pop_sendable - pop_xfer
-  mut receivable:u2 = 0
-  wrap receivable = NUM_SYMBOLS - kept
-  const push_xfer = if push_sendable < receivable { push_sendable } else { receivable }
-
-  // Only the symbols actually pushed count; the rest of push_data is ignored.
-  mut pushed:u10 = 0
-  for i in 0..<NUM_SYMBOLS {
-    if push_sendable > i {
-      pushed#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH] = push_data#[(i*SYMBOL_WIDTH)..+SYMBOL_WIDTH]
+pub mod br_multi_xfer_reg_fwd<NumSymbols=2, SymbolWidth=5, EnableCoverPushBackpressure=1, EnableAssertPushDataStability=0, EnableAssertFinalNotSendable=0, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_receivable:U2, push_data:U10, push_sendable:U2, rst:U1) -> (pop_data:U10@[], pop_sendable:U2@[], push_receivable:U2@[]) {
+  reg pop_sendable:U2:[async=false, initial=0, reset_pin=rst]
+  reg pop_data:U10:[async=false, initial=0, reset_pin=rst]
+  wire `push_data_qual[0]`:U1 = nil
+  wire `push_data_qual[1]`:U1 = nil
+  wire `push_data_qual[2]`:U1 = nil
+  wire `push_data_qual[3]`:U1 = nil
+  wire `push_data_qual[4]`:U1 = nil
+  wire `push_data_qual[5]`:U1 = nil
+  wire `push_data_qual[6]`:U1 = nil
+  wire `push_data_qual[7]`:U1 = nil
+  wire `push_data_qual[8]`:U1 = nil
+  wire `push_data_qual[9]`:U1 = nil
+  wire push_data_qual:U10 = nil
+  mut _mux_1:U2 = if pop_sendable < pop_receivable { pop_sendable } else { pop_receivable }
+  const pop_xfer_count__w1 = _mux_1
+  const pop_sendable_after_xfer__w1 = (pop_sendable - pop_xfer_count__w1)#[0..=1]
+  const push_receivable__w1 = (NumSymbols - pop_sendable_after_xfer__w1)#[0..=31]#[0..=1]
+  mut _mux_2:U2 = if push_sendable < push_receivable__w1 { push_sendable } else { push_receivable__w1 }
+  const push_xfer_count__w1 = _mux_2
+  const pop_sendable_next__w1 = (pop_sendable_after_xfer__w1 + push_xfer_count__w1)#[0..=1]
+  mut br_shift_right_data = br_shift_right::[name=br_shift_right_data](`in`=pop_data, shift=pop_xfer_count__w1 & 1, fill=0)
+  mut _mux_3:U10 = if pop_xfer_count__w1 == NumSymbols { 0 } else { br_shift_right_data.out#[0..=9] }
+  mut _mux_4:U5 = if push_sendable > 0 { push_data#[0..=4] } else { 0 }
+  `push_data_qual[0]` = _mux_4 & 1
+  `push_data_qual[1]` = (_mux_4 >> 1) & 1
+  `push_data_qual[2]` = (_mux_4 >> 2) & 1
+  `push_data_qual[3]` = (_mux_4 >> 3) & 1
+  `push_data_qual[4]` = (_mux_4 >> 4) & 1
+  mut _mux_5:U5 = if push_sendable > 1 { push_data#[5..=9] } else { 0 }
+  `push_data_qual[5]` = _mux_5 & 1
+  `push_data_qual[6]` = (_mux_5 >> 1) & 1
+  `push_data_qual[7]` = (_mux_5 >> 2) & 1
+  `push_data_qual[8]` = (_mux_5 >> 3) & 1
+  `push_data_qual[9]` = (_mux_5 >> 4) & 1
+  mut br_shift_left_data = br_shift_left::[name=br_shift_left_data](`in`=push_data_qual, shift=pop_sendable_after_xfer__w1 & 1, fill=0)
+  mut _mux_6:U10 = if pop_sendable_after_xfer__w1 == NumSymbols { 0 } else { br_shift_left_data.out#[0..=9] }
+  mut _b2i_7 = if push_xfer_count__w1 != 0 or pop_xfer_count__w1 != 0 { 1 } else { 0 }
+  const pop_update__w1 = _b2i_7
+  if not (rst != 0) {
+    if pop_update__w1 != 0 {
+      pop_sendable = pop_sendable_next__w1
     }
   }
-
-  if push_xfer != 0 or pop_xfer != 0 {
-    wrap pop_sendable = kept + push_xfer
-    wrap pop_data = (pop_data >> (pop_xfer*SYMBOL_WIDTH)) | (pushed << (kept*SYMBOL_WIDTH))
+  if not (rst != 0) {
+    if pop_update__w1 != 0 {
+      pop_data = _mux_3 | _mux_6
+    }
   }
-  push_receivable = receivable
+  br_multi_xfer_checks_sendable_data_impl::[name=br_multi_xfer_checks_sendable_data_impl_pop](clk=clk, rst=rst, receivable=pop_receivable, sendable=pop_sendable, data=pop_data)
+  br_multi_xfer_checks_sendable_data_intg::[name=br_multi_xfer_checks_sendable_data_intg_push](clk=clk, rst=rst, receivable=push_receivable__w1, sendable=push_sendable, data=push_data)
+  push_data_qual = (`push_data_qual[9]` << 9) | (`push_data_qual[8]` << 8) | (`push_data_qual[7]` << 7) | (`push_data_qual[6]` << 6) | (`push_data_qual[5]` << 5) | (`push_data_qual[4]` << 4) | (`push_data_qual[3]` << 3) | (`push_data_qual[2]` << 2) | (`push_data_qual[1]` << 1) | `push_data_qual[0]`
+  push_receivable = push_receivable__w1
 }

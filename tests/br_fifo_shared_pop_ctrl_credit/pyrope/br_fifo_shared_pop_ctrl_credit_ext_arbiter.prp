@@ -2,70 +2,233 @@ const br_credit_counter = import("br_credit_counter.br_credit_counter")
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_enc_onehot2bin = import("br_enc_onehot2bin.br_enc_onehot2bin")
 const br_fifo_shared_read_xbar_t = import("br_fifo_shared_read_xbar.br_fifo_shared_read_xbar")
-const br_flow_checks_valid_data_intg = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_flow_checks_valid_data_intg_p3 = import("br_flow_checks_valid_data_intg_p3.br_flow_checks_valid_data_intg_p3")
 const br_flow_join = import("br_flow_join.br_flow_join")
 const br_misc_unused_p7 = import("br_misc_unused_p7.br_misc_unused_p7")
 
-pub mod br_fifo_shared_pop_ctrl_credit_ext_arbiter::[timecheck=false](clk:u1, rst:u1, head_valid:(e1:u1, e0:u1), head:u10, ram_empty:(e1:u1, e0:u1), pop_receiver_in_reset:u1, pop_credit:(e1:u1, e0:u1), credit_initial_pop:u6, credit_withhold_pop:u6, data_ram_rd_data_valid:(e1:u1, e0:u1), data_ram_rd_data:u64, arb_grant:u4, arb_can_grant:u4) -> (head_ready:(e1:u1, e0:u1)@[], pop_sender_in_reset:u1@[], pop_valid:(e1:u1, e0:u1)@[], pop_fifo_id:(e1:u1, e0:u1)@[], pop_data:u64@[], pop_empty:(e1:u1, e0:u1)@[], credit_available_pop:u6@[], credit_count_pop:u6@[], dealloc_valid:u2@[], dealloc_entry_id:u10@[], data_ram_rd_addr_valid:(e1:u1, e0:u1)@[], data_ram_rd_addr:u10@[], arb_request:u4@[], arb_enable_priority_update:u2@[]) {
-  reg dealloc_valid:u2
-  reg dealloc_entry_id:u10
-  wire fifo_ram_rd_addr_ready:u2
-  mut fifo_ram_rd_addr_valid:u2 = 0
-  mut fifo_ram_rd_addr:u10 = 0
-  mut `head_ready__bpo.e1` = 0
-  mut `head_ready__bpo.e0` = 0
-  mut credit_count_pop__wtmp:u6 = 0sb?
-  wire credit_count_pop:u6
-  wire gen_fifo_ram_read_0_ram_rd_req_ready:u1
-  wire gen_fifo_ram_read_1_ram_rd_req_ready:u1
-  fifo_ram_rd_addr_valid = 0sb?
-  fifo_ram_rd_addr = 0sb?
-  pop_data = 0sb?
-  credit_available_pop = 0sb?
-  const either_rst__w1 = unsigned((pop_receiver_in_reset != 0) or (rst != 0))
+pub mod br_fifo_shared_pop_ctrl_credit_ext_arbiter<NumReadPorts=2, NumFifos=2, Depth=32, Width=32, PopMaxCredits=4, RegisterDeallocation=1, RamReadLatency=1, ArbiterAlwaysGrants=1>::[timecheck=false](arb_can_grant:U4, arb_grant:U4, clk:Clock, credit_initial_pop:U6, credit_withhold_pop:U6, data_ram_rd_data:U64, data_ram_rd_data_valid:(e1:U1, e0:U1), head:U10, head_valid:(e1:U1, e0:U1), pop_credit:(e1:U1, e0:U1), pop_receiver_in_reset:U1, ram_empty:(e1:U1, e0:U1), rst:U1) -> (arb_enable_priority_update:U2@[], arb_request:U4@[], credit_available_pop:U6@[], credit_count_pop:U6@[], data_ram_rd_addr:U10@[], data_ram_rd_addr_valid:(e1:U1, e0:U1)@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:(e1:U1, e0:U1)@[], pop_data:U64@[], pop_empty:(e1:U1, e0:U1)@[], pop_fifo_id:(e1:U1, e0:U1)@[], pop_sender_in_reset:U1@[], pop_valid:(e1:U1, e0:U1)@[]) {
+  wire head_ready__bpr:(e1:U1, e0:U1) = nil
+  wire data_ram_rd_addr_valid__bpr:(e1:U1, e0:U1) = nil
+  wire either_rst__w1
+  reg dealloc_valid:U2:[async=false, initial=0, reset_pin=either_rst__w1]
+  reg dealloc_entry_id:U10
+  wire `pop_data[0]`:U1 = nil
+  wire `pop_data[1]`:U1 = nil
+  wire `pop_data[2]`:U1 = nil
+  wire `pop_data[3]`:U1 = nil
+  wire `pop_data[4]`:U1 = nil
+  wire `pop_data[5]`:U1 = nil
+  wire `pop_data[6]`:U1 = nil
+  wire `pop_data[7]`:U1 = nil
+  wire `pop_data[8]`:U1 = nil
+  wire `pop_data[9]`:U1 = nil
+  wire `pop_data[10]`:U1 = nil
+  wire `pop_data[11]`:U1 = nil
+  wire `pop_data[12]`:U1 = nil
+  wire `pop_data[13]`:U1 = nil
+  wire `pop_data[14]`:U1 = nil
+  wire `pop_data[15]`:U1 = nil
+  wire `pop_data[16]`:U1 = nil
+  wire `pop_data[17]`:U1 = nil
+  wire `pop_data[18]`:U1 = nil
+  wire `pop_data[19]`:U1 = nil
+  wire `pop_data[20]`:U1 = nil
+  wire `pop_data[21]`:U1 = nil
+  wire `pop_data[22]`:U1 = nil
+  wire `pop_data[23]`:U1 = nil
+  wire `pop_data[24]`:U1 = nil
+  wire `pop_data[25]`:U1 = nil
+  wire `pop_data[26]`:U1 = nil
+  wire `pop_data[27]`:U1 = nil
+  wire `pop_data[28]`:U1 = nil
+  wire `pop_data[29]`:U1 = nil
+  wire `pop_data[30]`:U1 = nil
+  wire `pop_data[31]`:U1 = nil
+  wire `pop_data[32]`:U1 = nil
+  wire `pop_data[33]`:U1 = nil
+  wire `pop_data[34]`:U1 = nil
+  wire `pop_data[35]`:U1 = nil
+  wire `pop_data[36]`:U1 = nil
+  wire `pop_data[37]`:U1 = nil
+  wire `pop_data[38]`:U1 = nil
+  wire `pop_data[39]`:U1 = nil
+  wire `pop_data[40]`:U1 = nil
+  wire `pop_data[41]`:U1 = nil
+  wire `pop_data[42]`:U1 = nil
+  wire `pop_data[43]`:U1 = nil
+  wire `pop_data[44]`:U1 = nil
+  wire `pop_data[45]`:U1 = nil
+  wire `pop_data[46]`:U1 = nil
+  wire `pop_data[47]`:U1 = nil
+  wire `pop_data[48]`:U1 = nil
+  wire `pop_data[49]`:U1 = nil
+  wire `pop_data[50]`:U1 = nil
+  wire `pop_data[51]`:U1 = nil
+  wire `pop_data[52]`:U1 = nil
+  wire `pop_data[53]`:U1 = nil
+  wire `pop_data[54]`:U1 = nil
+  wire `pop_data[55]`:U1 = nil
+  wire `pop_data[56]`:U1 = nil
+  wire `pop_data[57]`:U1 = nil
+  wire `pop_data[58]`:U1 = nil
+  wire `pop_data[59]`:U1 = nil
+  wire `pop_data[60]`:U1 = nil
+  wire `pop_data[61]`:U1 = nil
+  wire `pop_data[62]`:U1 = nil
+  wire `pop_data[63]`:U1 = nil
+  wire pop_data:U64 = nil
+  wire `credit_available_pop[0]`:U1 = nil
+  wire `credit_available_pop[1]`:U1 = nil
+  wire `credit_available_pop[2]`:U1 = nil
+  wire `credit_available_pop[3]`:U1 = nil
+  wire `credit_available_pop[4]`:U1 = nil
+  wire `credit_available_pop[5]`:U1 = nil
+  wire credit_available_pop:U6 = nil
+  wire `credit_count_pop[0]`:U1 = nil
+  wire `credit_count_pop[1]`:U1 = nil
+  wire `credit_count_pop[2]`:U1 = nil
+  wire `credit_count_pop[3]`:U1 = nil
+  wire `credit_count_pop[4]`:U1 = nil
+  wire `credit_count_pop[5]`:U1 = nil
+  wire credit_count_pop:U6 = nil
+  wire `fifo_ram_rd_addr_valid[0]`:U1 = nil
+  wire `fifo_ram_rd_addr_valid[1]`:U1 = nil
+  wire fifo_ram_rd_addr_valid:U2 = nil
+  wire `fifo_ram_rd_addr[0]`:U1 = nil
+  wire `fifo_ram_rd_addr[1]`:U1 = nil
+  wire `fifo_ram_rd_addr[2]`:U1 = nil
+  wire `fifo_ram_rd_addr[3]`:U1 = nil
+  wire `fifo_ram_rd_addr[4]`:U1 = nil
+  wire `fifo_ram_rd_addr[5]`:U1 = nil
+  wire `fifo_ram_rd_addr[6]`:U1 = nil
+  wire `fifo_ram_rd_addr[7]`:U1 = nil
+  wire `fifo_ram_rd_addr[8]`:U1 = nil
+  wire `fifo_ram_rd_addr[9]`:U1 = nil
+  wire fifo_ram_rd_addr:U10 = nil
+  wire `pop_valid__bpr.e1`:U1 = nil
+  wire `pop_valid__bpr.e0`:U1 = nil
+  wire `pop_fifo_id__bpr.e1`:U1 = nil
+  wire `pop_fifo_id__bpr.e0`:U1 = nil
+  wire `pop_empty__bpr.e1`:U1 = nil
+  wire `pop_empty__bpr.e0`:U1 = nil
+  wire gen_fifo_ram_read_0_ram_rd_req_ready:U1 = nil
+  wire gen_fifo_ram_read_1_ram_rd_req_ready:U1 = nil
+  mut _b2i_1 = if pop_receiver_in_reset != 0 or rst != 0 { 1 } else { 0 }
+  either_rst__w1 = _b2i_1
   const pop_sender_in_reset__w1 = rst
   mut `pop_empty__bpo.e0` = ram_empty.e0
-  mut fifo_ram_rd_addr__w1 = fifo_ram_rd_addr
-  fifo_ram_rd_addr__w1#[0..=4] = head#[0..=4]
+  `fifo_ram_rd_addr[0]` = head#[0..=4] & 1
+  `fifo_ram_rd_addr[1]` = (head#[0..=4] >> 1) & 1
+  `fifo_ram_rd_addr[2]` = (head#[0..=4] >> 2) & 1
+  `fifo_ram_rd_addr[3]` = (head#[0..=4] >> 3) & 1
+  `fifo_ram_rd_addr[4]` = (head#[0..=4] >> 4) & 1
   mut `pop_empty__bpo.e1` = ram_empty.e1
-  mut fifo_ram_rd_addr__w2 = fifo_ram_rd_addr__w1
-  fifo_ram_rd_addr__w2#[5..=9] = head#[5..=9]
-  mut gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin::[name=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id](clk = clk, rst = either_rst__w1, `in` = arb_grant#[0..=1])
+  `fifo_ram_rd_addr[5]` = head#[5..=9] & 1
+  `fifo_ram_rd_addr[6]` = (head#[5..=9] >> 1) & 1
+  `fifo_ram_rd_addr[7]` = (head#[5..=9] >> 2) & 1
+  `fifo_ram_rd_addr[8]` = (head#[5..=9] >> 3) & 1
+  `fifo_ram_rd_addr[9]` = (head#[5..=9] >> 4) & 1
+  mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk=clk, rst=either_rst__w1, `push_rd_addr_valid.e1`=(fifo_ram_rd_addr_valid >> 1) & 1, `push_rd_addr_valid.e0`=fifo_ram_rd_addr_valid & 1, push_rd_addr=fifo_ram_rd_addr, `pop_rd_data_valid.e1`=data_ram_rd_data_valid.e1, `pop_rd_data_valid.e0`=data_ram_rd_data_valid.e0, pop_rd_data=data_ram_rd_data, arb_can_grant=arb_can_grant, arb_grant=arb_grant)
+  const fifo_ram_rd_addr_ready__w1 = (br_fifo_shared_read_xbar.push_rd_addr_ready.e1 << 1) | br_fifo_shared_read_xbar.push_rd_addr_ready.e0
+  mut gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin::[name=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst__w1, `in`=arb_grant#[0..=1])
+  mut gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id = br_delay_valid::[name=gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst__w1, in_valid=data_ram_rd_addr_valid__bpr.e0, `in`=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id.out)
   mut `pop_valid__bpo.e0` = data_ram_rd_data_valid.e0
-  mut pop_data__w1 = pop_data
-  pop_data__w1#[0..=31] = data_ram_rd_data#[0..=31]
-  mut gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin::[name=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id](clk = clk, rst = either_rst__w1, `in` = arb_grant#[2..=3])
+  `pop_data[0]` = data_ram_rd_data#[0..=31] & 1
+  `pop_data[1]` = (data_ram_rd_data#[0..=31] >> 1) & 1
+  `pop_data[2]` = (data_ram_rd_data#[0..=31] >> 2) & 1
+  `pop_data[3]` = (data_ram_rd_data#[0..=31] >> 3) & 1
+  `pop_data[4]` = (data_ram_rd_data#[0..=31] >> 4) & 1
+  `pop_data[5]` = (data_ram_rd_data#[0..=31] >> 5) & 1
+  `pop_data[6]` = (data_ram_rd_data#[0..=31] >> 6) & 1
+  `pop_data[7]` = (data_ram_rd_data#[0..=31] >> 7) & 1
+  `pop_data[8]` = (data_ram_rd_data#[0..=31] >> 8) & 1
+  `pop_data[9]` = (data_ram_rd_data#[0..=31] >> 9) & 1
+  `pop_data[10]` = (data_ram_rd_data#[0..=31] >> 10) & 1
+  `pop_data[11]` = (data_ram_rd_data#[0..=31] >> 11) & 1
+  `pop_data[12]` = (data_ram_rd_data#[0..=31] >> 12) & 1
+  `pop_data[13]` = (data_ram_rd_data#[0..=31] >> 13) & 1
+  `pop_data[14]` = (data_ram_rd_data#[0..=31] >> 14) & 1
+  `pop_data[15]` = (data_ram_rd_data#[0..=31] >> 15) & 1
+  `pop_data[16]` = (data_ram_rd_data#[0..=31] >> 16) & 1
+  `pop_data[17]` = (data_ram_rd_data#[0..=31] >> 17) & 1
+  `pop_data[18]` = (data_ram_rd_data#[0..=31] >> 18) & 1
+  `pop_data[19]` = (data_ram_rd_data#[0..=31] >> 19) & 1
+  `pop_data[20]` = (data_ram_rd_data#[0..=31] >> 20) & 1
+  `pop_data[21]` = (data_ram_rd_data#[0..=31] >> 21) & 1
+  `pop_data[22]` = (data_ram_rd_data#[0..=31] >> 22) & 1
+  `pop_data[23]` = (data_ram_rd_data#[0..=31] >> 23) & 1
+  `pop_data[24]` = (data_ram_rd_data#[0..=31] >> 24) & 1
+  `pop_data[25]` = (data_ram_rd_data#[0..=31] >> 25) & 1
+  `pop_data[26]` = (data_ram_rd_data#[0..=31] >> 26) & 1
+  `pop_data[27]` = (data_ram_rd_data#[0..=31] >> 27) & 1
+  `pop_data[28]` = (data_ram_rd_data#[0..=31] >> 28) & 1
+  `pop_data[29]` = (data_ram_rd_data#[0..=31] >> 29) & 1
+  `pop_data[30]` = (data_ram_rd_data#[0..=31] >> 30) & 1
+  `pop_data[31]` = (data_ram_rd_data#[0..=31] >> 31) & 1
+  br_misc_unused_p7::[name=gen_pop_fifo_id_onehot_0_br_misc_unused_pop_fifo_id_valid](`in`=gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out_valid)
+  mut gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin::[name=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst__w1, `in`=arb_grant#[2..=3])
+  mut gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id = br_delay_valid::[name=gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst__w1, in_valid=data_ram_rd_addr_valid__bpr.e1, `in`=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id.out)
   mut `pop_valid__bpo.e1` = data_ram_rd_data_valid.e1
-  mut pop_data__w2 = pop_data__w1
-  pop_data__w2#[32..=63] = data_ram_rd_data#[32..=63]
-  br_flow_checks_valid_data_intg::[name=br_flow_checks_valid_data_intg_head](clk = clk, rst = rst, valid = (head_valid.e1 << 1) | head_valid.e0, ready = (`head_ready__bpo.e1` << 1) | `head_ready__bpo.e0`, data = head)
-  mut gen_fifo_ram_read_0_br_credit_counter = br_credit_counter::[name=gen_fifo_ram_read_0_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = pop_credit.e0, incr = 1, decr_valid = gen_fifo_ram_read_0_ram_rd_req_ready, decr = 1, initial_value = credit_initial_pop#[0..=2], withhold = credit_withhold_pop#[0..=2])
-  credit_count_pop__wtmp#[0..=2] = gen_fifo_ram_read_0_br_credit_counter.value#[0..=2]
-  mut credit_available_pop__w1 = credit_available_pop
-  credit_available_pop__w1#[0..=2] = gen_fifo_ram_read_0_br_credit_counter.available#[0..=2]
-  mut gen_fifo_ram_read_0_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_0_br_flow_join_ram_rd_addr](clk = clk, rst = either_rst__w1, push_valid = ((head_valid.e0 & 1) << 1) | (gen_fifo_ram_read_0_br_credit_counter.decr_ready & 1), pop_ready = fifo_ram_rd_addr_ready & 1)
+  `pop_data[32]` = data_ram_rd_data#[32..=63] & 1
+  `pop_data[33]` = (data_ram_rd_data#[32..=63] >> 1) & 1
+  `pop_data[34]` = (data_ram_rd_data#[32..=63] >> 2) & 1
+  `pop_data[35]` = (data_ram_rd_data#[32..=63] >> 3) & 1
+  `pop_data[36]` = (data_ram_rd_data#[32..=63] >> 4) & 1
+  `pop_data[37]` = (data_ram_rd_data#[32..=63] >> 5) & 1
+  `pop_data[38]` = (data_ram_rd_data#[32..=63] >> 6) & 1
+  `pop_data[39]` = (data_ram_rd_data#[32..=63] >> 7) & 1
+  `pop_data[40]` = (data_ram_rd_data#[32..=63] >> 8) & 1
+  `pop_data[41]` = (data_ram_rd_data#[32..=63] >> 9) & 1
+  `pop_data[42]` = (data_ram_rd_data#[32..=63] >> 10) & 1
+  `pop_data[43]` = (data_ram_rd_data#[32..=63] >> 11) & 1
+  `pop_data[44]` = (data_ram_rd_data#[32..=63] >> 12) & 1
+  `pop_data[45]` = (data_ram_rd_data#[32..=63] >> 13) & 1
+  `pop_data[46]` = (data_ram_rd_data#[32..=63] >> 14) & 1
+  `pop_data[47]` = (data_ram_rd_data#[32..=63] >> 15) & 1
+  `pop_data[48]` = (data_ram_rd_data#[32..=63] >> 16) & 1
+  `pop_data[49]` = (data_ram_rd_data#[32..=63] >> 17) & 1
+  `pop_data[50]` = (data_ram_rd_data#[32..=63] >> 18) & 1
+  `pop_data[51]` = (data_ram_rd_data#[32..=63] >> 19) & 1
+  `pop_data[52]` = (data_ram_rd_data#[32..=63] >> 20) & 1
+  `pop_data[53]` = (data_ram_rd_data#[32..=63] >> 21) & 1
+  `pop_data[54]` = (data_ram_rd_data#[32..=63] >> 22) & 1
+  `pop_data[55]` = (data_ram_rd_data#[32..=63] >> 23) & 1
+  `pop_data[56]` = (data_ram_rd_data#[32..=63] >> 24) & 1
+  `pop_data[57]` = (data_ram_rd_data#[32..=63] >> 25) & 1
+  `pop_data[58]` = (data_ram_rd_data#[32..=63] >> 26) & 1
+  `pop_data[59]` = (data_ram_rd_data#[32..=63] >> 27) & 1
+  `pop_data[60]` = (data_ram_rd_data#[32..=63] >> 28) & 1
+  `pop_data[61]` = (data_ram_rd_data#[32..=63] >> 29) & 1
+  `pop_data[62]` = (data_ram_rd_data#[32..=63] >> 30) & 1
+  `pop_data[63]` = (data_ram_rd_data#[32..=63] >> 31) & 1
+  br_misc_unused_p7::[name=gen_pop_fifo_id_onehot_1_br_misc_unused_pop_fifo_id_valid](`in`=gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out_valid)
+  br_flow_checks_valid_data_intg_p3::[name=br_flow_checks_valid_data_intg_head](clk=clk, rst=rst, valid=(head_valid.e1 << 1) | head_valid.e0, ready=(head_ready__bpr.e1 << 1) | head_ready__bpr.e0, data=head)
+  mut gen_fifo_ram_read_0_br_credit_counter = br_credit_counter::[name=gen_fifo_ram_read_0_br_credit_counter](clk=clk, rst=either_rst__w1, incr_valid=pop_credit.e0, incr=1, decr_valid=gen_fifo_ram_read_0_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[0..=2], withhold=credit_withhold_pop#[0..=2])
+  `credit_count_pop[0]` = gen_fifo_ram_read_0_br_credit_counter.value & 1
+  `credit_count_pop[1]` = (gen_fifo_ram_read_0_br_credit_counter.value >> 1) & 1
+  `credit_count_pop[2]` = (gen_fifo_ram_read_0_br_credit_counter.value >> 2) & 1
+  `credit_available_pop[0]` = gen_fifo_ram_read_0_br_credit_counter.available & 1
+  `credit_available_pop[1]` = (gen_fifo_ram_read_0_br_credit_counter.available >> 1) & 1
+  `credit_available_pop[2]` = (gen_fifo_ram_read_0_br_credit_counter.available >> 2) & 1
+  mut gen_fifo_ram_read_0_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_0_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst__w1, push_valid=((head_valid.e0 & 1) << 1) | (gen_fifo_ram_read_0_br_credit_counter.decr_ready & 1), pop_ready=fifo_ram_rd_addr_ready__w1 & 1)
   gen_fifo_ram_read_0_ram_rd_req_ready = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready & 1
-  `head_ready__bpo.e0` = (gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
-  mut fifo_ram_rd_addr_valid__w1 = fifo_ram_rd_addr_valid
-  fifo_ram_rd_addr_valid__w1#[0] = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.pop_valid & 1
-  mut gen_fifo_ram_read_1_br_credit_counter = br_credit_counter::[name=gen_fifo_ram_read_1_br_credit_counter](clk = clk, rst = either_rst__w1, incr_valid = pop_credit.e1, incr = 1, decr_valid = gen_fifo_ram_read_1_ram_rd_req_ready, decr = 1, initial_value = credit_initial_pop#[3..=5], withhold = credit_withhold_pop#[3..=5])
-  mut credit_count_pop__wtmp__w1 = credit_count_pop__wtmp
-  credit_count_pop__wtmp__w1#[3..=5] = gen_fifo_ram_read_1_br_credit_counter.value#[0..=2]
-  mut credit_available_pop__w2 = credit_available_pop__w1
-  credit_available_pop__w2#[3..=5] = gen_fifo_ram_read_1_br_credit_counter.available#[0..=2]
-  mut gen_fifo_ram_read_1_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_1_br_flow_join_ram_rd_addr](clk = clk, rst = either_rst__w1, push_valid = ((head_valid.e1 & 1) << 1) | (gen_fifo_ram_read_1_br_credit_counter.decr_ready & 1), pop_ready = (fifo_ram_rd_addr_ready >> 1) & 1)
+  mut `head_ready__bpo.e0` = (gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
+  `fifo_ram_rd_addr_valid[0]` = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.pop_valid & 1
+  mut gen_fifo_ram_read_1_br_credit_counter = br_credit_counter::[name=gen_fifo_ram_read_1_br_credit_counter](clk=clk, rst=either_rst__w1, incr_valid=pop_credit.e1, incr=1, decr_valid=gen_fifo_ram_read_1_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[3..=5], withhold=credit_withhold_pop#[3..=5])
+  `credit_count_pop[3]` = gen_fifo_ram_read_1_br_credit_counter.value & 1
+  `credit_count_pop[4]` = (gen_fifo_ram_read_1_br_credit_counter.value >> 1) & 1
+  `credit_count_pop[5]` = (gen_fifo_ram_read_1_br_credit_counter.value >> 2) & 1
+  `credit_available_pop[3]` = gen_fifo_ram_read_1_br_credit_counter.available & 1
+  `credit_available_pop[4]` = (gen_fifo_ram_read_1_br_credit_counter.available >> 1) & 1
+  `credit_available_pop[5]` = (gen_fifo_ram_read_1_br_credit_counter.available >> 2) & 1
+  mut gen_fifo_ram_read_1_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_1_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst__w1, push_valid=((head_valid.e1 & 1) << 1) | (gen_fifo_ram_read_1_br_credit_counter.decr_ready & 1), pop_ready=(fifo_ram_rd_addr_ready__w1 >> 1) & 1)
   gen_fifo_ram_read_1_ram_rd_req_ready = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready & 1
-  `head_ready__bpo.e1` = (gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
-  mut fifo_ram_rd_addr_valid__w2 = fifo_ram_rd_addr_valid__w1
-  fifo_ram_rd_addr_valid__w2#[1] = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.pop_valid & 1
-  mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk = clk, rst = either_rst__w1, `push_rd_addr_valid.e1` = (fifo_ram_rd_addr_valid__w2 >> 1) & 1, `push_rd_addr_valid.e0` = fifo_ram_rd_addr_valid__w2 & 1, push_rd_addr = fifo_ram_rd_addr__w2, `pop_rd_data_valid.e1` = data_ram_rd_data_valid.e1, `pop_rd_data_valid.e0` = data_ram_rd_data_valid.e0, pop_rd_data = data_ram_rd_data, arb_can_grant = arb_can_grant, arb_grant = arb_grant)
-  fifo_ram_rd_addr_ready = (br_fifo_shared_read_xbar.push_rd_addr_ready.e1 << 1) | br_fifo_shared_read_xbar.push_rd_addr_ready.e0
-  mut gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id = br_delay_valid::[name=gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id](clk = clk, rst = either_rst__w1, in_valid = br_fifo_shared_read_xbar.pop_rd_addr_valid.e0, `in` = gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id.out)
-  br_misc_unused_p7::[name=gen_pop_fifo_id_onehot_0_br_misc_unused_pop_fifo_id_valid](`in` = gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out_valid)
-  mut gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id = br_delay_valid::[name=gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id](clk = clk, rst = either_rst__w1, in_valid = br_fifo_shared_read_xbar.pop_rd_addr_valid.e1, `in` = gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id.out)
-  br_misc_unused_p7::[name=gen_pop_fifo_id_onehot_1_br_misc_unused_pop_fifo_id_valid](`in` = gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out_valid)
-  const gen_reg_dealloc_dealloc_valid_next__w1 = (((head_valid.e1 << 1) | head_valid.e0) & ((`head_ready__bpo.e1` << 1) | `head_ready__bpo.e0`))#[0..=1]
-  dealloc_valid = if either_rst__w1 != 0 { 0 } else { gen_reg_dealloc_dealloc_valid_next__w1 }
+  mut `head_ready__bpo.e1` = (gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
+  `fifo_ram_rd_addr_valid[1]` = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.pop_valid & 1
+  const gen_reg_dealloc_dealloc_valid_next__w1 = (((head_valid.e1 << 1) | head_valid.e0) & ((head_ready__bpr.e1 << 1) | head_ready__bpr.e0))#[0..=1]
+  if not (either_rst__w1 != 0) {
+    dealloc_valid = gen_reg_dealloc_dealloc_valid_next__w1
+  }
   if either_rst__w1 != 0 {
     dealloc_entry_id#[0..=4] = 0
   } elif (gen_reg_dealloc_dealloc_valid_next__w1 & 1) != 0 {
@@ -76,20 +239,42 @@ pub mod br_fifo_shared_pop_ctrl_credit_ext_arbiter::[timecheck=false](clk:u1, rs
   } elif ((gen_reg_dealloc_dealloc_valid_next__w1 >> 1) & 1) != 0 {
     dealloc_entry_id#[5..=9] = head#[5..=9]
   }
-  credit_count_pop = credit_count_pop__wtmp__w1
-  head_ready.e1 = `head_ready__bpo.e1`
-  head_ready.e0 = `head_ready__bpo.e0`
-  pop_valid.e1 = `pop_valid__bpo.e1`
-  pop_valid.e0 = `pop_valid__bpo.e0`
-  pop_fifo_id.e1 = gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out
-  pop_fifo_id.e0 = gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out
-  pop_empty.e1 = `pop_empty__bpo.e1`
-  pop_empty.e0 = `pop_empty__bpo.e0`
-  data_ram_rd_addr_valid.e1 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e1
-  data_ram_rd_addr_valid.e0 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e0
+  pop_data = (`pop_data[63]` << 63) | (`pop_data[62]` << 62) | (`pop_data[61]` << 61) | (`pop_data[60]` << 60) | (`pop_data[59]` << 59) | (`pop_data[58]` << 58) | (`pop_data[57]` << 57) | (`pop_data[56]` << 56) | (`pop_data[55]` << 55) | (`pop_data[54]` << 54) | (`pop_data[53]` << 53) | (`pop_data[52]` << 52) | (`pop_data[51]` << 51) | (`pop_data[50]` << 50) | (`pop_data[49]` << 49) | (`pop_data[48]` << 48) | (`pop_data[47]` << 47) | (`pop_data[46]` << 46) | (`pop_data[45]` << 45) | (`pop_data[44]` << 44) | (`pop_data[43]` << 43) | (`pop_data[42]` << 42) | (`pop_data[41]` << 41) | (`pop_data[40]` << 40) | (`pop_data[39]` << 39) | (`pop_data[38]` << 38) | (`pop_data[37]` << 37) | (`pop_data[36]` << 36) | (`pop_data[35]` << 35) | (`pop_data[34]` << 34) | (`pop_data[33]` << 33) | (`pop_data[32]` << 32) | (`pop_data[31]` << 31) | (`pop_data[30]` << 30) | (`pop_data[29]` << 29) | (`pop_data[28]` << 28) | (`pop_data[27]` << 27) | (`pop_data[26]` << 26) | (`pop_data[25]` << 25) | (`pop_data[24]` << 24) | (`pop_data[23]` << 23) | (`pop_data[22]` << 22) | (`pop_data[21]` << 21) | (`pop_data[20]` << 20) | (`pop_data[19]` << 19) | (`pop_data[18]` << 18) | (`pop_data[17]` << 17) | (`pop_data[16]` << 16) | (`pop_data[15]` << 15) | (`pop_data[14]` << 14) | (`pop_data[13]` << 13) | (`pop_data[12]` << 12) | (`pop_data[11]` << 11) | (`pop_data[10]` << 10) | (`pop_data[9]` << 9) | (`pop_data[8]` << 8) | (`pop_data[7]` << 7) | (`pop_data[6]` << 6) | (`pop_data[5]` << 5) | (`pop_data[4]` << 4) | (`pop_data[3]` << 3) | (`pop_data[2]` << 2) | (`pop_data[1]` << 1) | `pop_data[0]`
+  credit_available_pop = (`credit_available_pop[5]` << 5) | (`credit_available_pop[4]` << 4) | (`credit_available_pop[3]` << 3) | (`credit_available_pop[2]` << 2) | (`credit_available_pop[1]` << 1) | `credit_available_pop[0]`
+  credit_count_pop = (`credit_count_pop[5]` << 5) | (`credit_count_pop[4]` << 4) | (`credit_count_pop[3]` << 3) | (`credit_count_pop[2]` << 2) | (`credit_count_pop[1]` << 1) | `credit_count_pop[0]`
+  fifo_ram_rd_addr_valid = (`fifo_ram_rd_addr_valid[1]` << 1) | `fifo_ram_rd_addr_valid[0]`
+  fifo_ram_rd_addr = (`fifo_ram_rd_addr[9]` << 9) | (`fifo_ram_rd_addr[8]` << 8) | (`fifo_ram_rd_addr[7]` << 7) | (`fifo_ram_rd_addr[6]` << 6) | (`fifo_ram_rd_addr[5]` << 5) | (`fifo_ram_rd_addr[4]` << 4) | (`fifo_ram_rd_addr[3]` << 3) | (`fifo_ram_rd_addr[2]` << 2) | (`fifo_ram_rd_addr[1]` << 1) | `fifo_ram_rd_addr[0]`
+  const t282 = `head_ready__bpo.e1`
+  head_ready__bpr.e1 = t282
+  head_ready.e1 = t282
+  const t283 = `head_ready__bpo.e0`
+  head_ready__bpr.e0 = t283
+  head_ready.e0 = t283
+  const t284 = `pop_valid__bpo.e1`
+  `pop_valid__bpr.e1` = t284
+  pop_valid.e1 = t284
+  const t285 = `pop_valid__bpo.e0`
+  `pop_valid__bpr.e0` = t285
+  pop_valid.e0 = t285
+  const t286 = gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out
+  `pop_fifo_id__bpr.e1` = t286
+  pop_fifo_id.e1 = t286
+  const t287 = gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out
+  `pop_fifo_id__bpr.e0` = t287
+  pop_fifo_id.e0 = t287
+  const t288 = `pop_empty__bpo.e1`
+  `pop_empty__bpr.e1` = t288
+  pop_empty.e1 = t288
+  const t289 = `pop_empty__bpo.e0`
+  `pop_empty__bpr.e0` = t289
+  pop_empty.e0 = t289
+  const t290 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e1
+  data_ram_rd_addr_valid__bpr.e1 = t290
+  data_ram_rd_addr_valid.e1 = t290
+  const t291 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e0
+  data_ram_rd_addr_valid__bpr.e0 = t291
+  data_ram_rd_addr_valid.e0 = t291
   pop_sender_in_reset = pop_sender_in_reset__w1
-  pop_data = pop_data__w2
-  credit_available_pop = credit_available_pop__w2
   data_ram_rd_addr = br_fifo_shared_read_xbar.pop_rd_addr
   arb_request = br_fifo_shared_read_xbar.arb_request
   arb_enable_priority_update = (br_fifo_shared_read_xbar.arb_enable_priority_update.e1 << 1) | br_fifo_shared_read_xbar.arb_enable_priority_update.e0

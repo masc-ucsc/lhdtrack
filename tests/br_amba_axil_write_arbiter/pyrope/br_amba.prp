@@ -1,0 +1,2 @@
+pub comptime const AxiProtWidth:U32 = 3
+pub comptime const AxiRespWidth:U32 = 2

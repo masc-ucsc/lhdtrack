@@ -1,1 +1,1 @@
-pub comptime const AxiRespSlverr:u2 = 2
+pub comptime const AxiRespSlverr:U2 = 2

@@ -1,15 +1,95 @@
-// One-hot to binary: the index of the set bit (OR of all set indices).
-// BIN_WIDTH is clog2(NUM_VALUES), passed in because Pyrope has no clog2.
-pub comb br_enc_onehot2bin<NUM_VALUES=2, BIN_WIDTH=1>(`in`:unsigned(bits=NUM_VALUES)) -> (
-  out_valid:bool,
-  out:unsigned(bits=BIN_WIDTH)
-) {
-  mut index:unsigned(bits=BIN_WIDTH) = 0
-  for i in 1..<NUM_VALUES {
-    if `in`#[i] == 1 {
-      index |= i
-    }
+pub mod br_enc_onehot2bin<NumValues=32, BinWidth=5>::[timecheck=false](clk:Clock, `in`:U32, rst:Reset) -> (out:U5@[], out_valid:U1@[]) {
+  out = 0sb?
+  out = if ((`in` >> 1) & 1) != 0 { 1 } else { 0 }
+  if ((`in` >> 2) & 1) != 0 {
+    out = out | 2
   }
-  out_valid = `in` != 0
-  out       = index
+  if ((`in` >> 3) & 1) != 0 {
+    out = out | 3
+  }
+  if ((`in` >> 4) & 1) != 0 {
+    out = out | 4
+  }
+  if ((`in` >> 5) & 1) != 0 {
+    out = out | 5
+  }
+  if ((`in` >> 6) & 1) != 0 {
+    out = out | 6
+  }
+  if ((`in` >> 7) & 1) != 0 {
+    out = out | 7
+  }
+  if ((`in` >> 8) & 1) != 0 {
+    out = out | 8
+  }
+  if ((`in` >> 9) & 1) != 0 {
+    out = out | 9
+  }
+  if ((`in` >> 10) & 1) != 0 {
+    out = out | 10
+  }
+  if ((`in` >> 11) & 1) != 0 {
+    out = out | 11
+  }
+  if ((`in` >> 12) & 1) != 0 {
+    out = out | 12
+  }
+  if ((`in` >> 13) & 1) != 0 {
+    out = out | 13
+  }
+  if ((`in` >> 14) & 1) != 0 {
+    out = out | 14
+  }
+  if ((`in` >> 15) & 1) != 0 {
+    out = out | 15
+  }
+  if ((`in` >> 16) & 1) != 0 {
+    out = out | 16
+  }
+  if ((`in` >> 17) & 1) != 0 {
+    out = out | 17
+  }
+  if ((`in` >> 18) & 1) != 0 {
+    out = out | 18
+  }
+  if ((`in` >> 19) & 1) != 0 {
+    out = out | 19
+  }
+  if ((`in` >> 20) & 1) != 0 {
+    out = out | 20
+  }
+  if ((`in` >> 21) & 1) != 0 {
+    out = out | 21
+  }
+  if ((`in` >> 22) & 1) != 0 {
+    out = out | 22
+  }
+  if ((`in` >> 23) & 1) != 0 {
+    out = out | 23
+  }
+  if ((`in` >> 24) & 1) != 0 {
+    out = out | 24
+  }
+  if ((`in` >> 25) & 1) != 0 {
+    out = out | 25
+  }
+  if ((`in` >> 26) & 1) != 0 {
+    out = out | 26
+  }
+  if ((`in` >> 27) & 1) != 0 {
+    out = out | 27
+  }
+  if ((`in` >> 28) & 1) != 0 {
+    out = out | 28
+  }
+  if ((`in` >> 29) & 1) != 0 {
+    out = out | 29
+  }
+  if ((`in` >> 30) & 1) != 0 {
+    out = out | 30
+  }
+  if ((`in` >> 31) & 1) != 0 {
+    out = out | 31
+  }
+  out_valid = U1(`in` != 0)
 }

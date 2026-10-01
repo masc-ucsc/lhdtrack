@@ -1,10 +1,11 @@
 const br_arb_pairwise_core_internal = import("br_arb_pairwise_core_internal.br_arb_pairwise_core_internal")
 const br_lru_state_internal = import("br_lru_state_internal.br_lru_state_internal")
 
-pub mod br_arb_lru_internal::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u2) -> (can_grant:u2@[], grant:u2@[]) {
-  wire grant:u2
-  mut gen_n_req_br_lru_state_internal = br_lru_state_internal::[name=gen_n_req_br_lru_state_internal](clk = clk, rst = rst, update_priority = unsigned((enable_priority_update != 0) and (request != 0)), `grant.e1` = (grant >> 1) & 1, `grant.e0` = grant & 1)
-  mut gen_n_req_br_arb_pairwise_core_internal = br_arb_pairwise_core_internal::[name=gen_n_req_br_arb_pairwise_core_internal](request = request, priority_matrix = gen_n_req_br_lru_state_internal)
+pub mod br_arb_lru_internal<NumRequesters=2>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U2, rst:Reset) -> (can_grant:U2@[], grant:U2@[]) {
+  wire grant:U2 = nil
+  mut _b2i_1 = if enable_priority_update != 0 and request != 0 { 1 } else { 0 }
+  mut gen_n_req_br_lru_state_internal = br_lru_state_internal::[name=gen_n_req_br_lru_state_internal](clk=clk, rst=rst, update_priority=_b2i_1, `grant.e1`=(grant >> 1) & 1, `grant.e0`=grant & 1)
+  mut gen_n_req_br_arb_pairwise_core_internal = br_arb_pairwise_core_internal::[name=gen_n_req_br_arb_pairwise_core_internal](request=request, priority_matrix=gen_n_req_br_lru_state_internal)
   grant = gen_n_req_br_arb_pairwise_core_internal.grant
   can_grant = gen_n_req_br_arb_pairwise_core_internal.can_grant
 }

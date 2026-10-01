@@ -49,3 +49,6 @@ marker = "LHDTRACK-DONE"
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
+
+# Pair the four loop-generated round-robin state registers with the RTL instances.
+match = "gen_arbiters_0_br_arb_rr_internal_inst_gen_n_req_rr_state_internal_last_grant=arb__li4_priority_mask_last_grant,gen_arbiters_1_br_arb_rr_internal_inst_gen_n_req_rr_state_internal_last_grant=arb__li5_priority_mask_last_grant,gen_arbiters_2_br_arb_rr_internal_inst_gen_n_req_rr_state_internal_last_grant=arb__li6_priority_mask_last_grant,gen_arbiters_3_br_arb_rr_internal_inst_gen_n_req_rr_state_internal_last_grant=arb__li7_priority_mask_last_grant"

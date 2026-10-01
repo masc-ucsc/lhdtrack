@@ -49,3 +49,6 @@ marker = "LHDTRACK-DONE"
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
+
+# State correspondence after removing the generated helper hierarchy.
+match = "br_flow_mux_core_stable.gen_flow_reg_fwd_br_flow_reg_fwd.pop_valid=valid,br_flow_mux_core_stable.gen_flow_reg_fwd_br_flow_reg_fwd.pop_data=data"

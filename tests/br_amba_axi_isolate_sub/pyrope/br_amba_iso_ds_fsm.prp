@@ -1,9 +1,9 @@
-pub mod br_amba_iso_ds_fsm::[timecheck=false](clk:u1, rst:u1, isolate_req:u1, align_and_hold_done:u1, resp_tracker_fifo_empty:u1) -> (isolate_done:u1@[], align_and_hold_req:u1@[], resp_tracker_isolate_req:u1@[]) {
-  mut _mux_1:u2 = 0
-  mut _mux_2:u2 = 0
-  mut _mux_3:u2 = 0
-  reg state:u2
-  mut state_next:u2 = 0
+pub mod br_amba_iso_ds_fsm::[timecheck=false](align_and_hold_done:U1, clk:Clock, isolate_req:U1, resp_tracker_fifo_empty:U1, rst:U1) -> (align_and_hold_req:U1@[], isolate_done:U1@[], resp_tracker_isolate_req:U1@[]) {
+  mut _mux_1:U2 = 0
+  mut _mux_2:U2 = 0
+  mut _mux_3:U2 = 0
+  reg state:U2:[async=false, initial=0, reset_pin=rst]
+  mut state_next:U2 = 0
   state_next = 0sb?
   isolate_done = 0ub?
   align_and_hold_req = 0ub?
@@ -24,7 +24,7 @@ pub mod br_amba_iso_ds_fsm::[timecheck=false](clk:u1, rst:u1, isolate_req:u1, al
       isolate_done = 1
     }
     == 2 {
-      _mux_3 = if (align_and_hold_done != 0) and (resp_tracker_fifo_empty != 0) { 0 } else { state }
+      _mux_3 = if align_and_hold_done != 0 and resp_tracker_fifo_empty != 0 { 0 } else { state }
       state_next = _mux_3
       align_and_hold_req = 1
       resp_tracker_isolate_req = 1
@@ -37,5 +37,7 @@ pub mod br_amba_iso_ds_fsm::[timecheck=false](clk:u1, rst:u1, isolate_req:u1, al
       isolate_done = 0
     }
   }
-  state = if rst != 0 { 0 } else { state_next }
+  if not (rst != 0) {
+    state = state_next
+  }
 }

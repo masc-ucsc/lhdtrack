@@ -1,7 +1,7 @@
-pub comb comparator::[timecheck=false](a:u8, b:u8) -> (eq:u1, lt:u1, gt:u1, lte:u1, gte:u1) {
-  eq = unsigned(a == b)
-  lt = unsigned(a < b)
-  gt = unsigned(a > b)
-  lte = unsigned(a <= b)
-  gte = unsigned(a >= b)
+pub comb comparator::[timecheck=false](a:U8, b:U8) -> (eq:U1, gt:U1, gte:U1, lt:U1, lte:U1) {
+  eq = U1(a == b)
+  lt = U1(a < b)
+  gt = U1(a > b)
+  lte = U1(a <= b)
+  gte = U1(a >= b)
 }

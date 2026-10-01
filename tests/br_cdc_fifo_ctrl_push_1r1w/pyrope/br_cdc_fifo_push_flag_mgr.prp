@@ -1,41 +1,35 @@
-const br_delay_nr     = import("br_delay_nr.br_delay_nr")
+const br_delay_nr = import("br_delay_nr.br_delay_nr")
 const br_enc_bin2gray = import("br_enc_bin2gray.br_enc_bin2gray")
 const br_enc_gray2bin = import("br_enc_gray2bin.br_enc_gray2bin")
 
 // Push-side occupancy of a CDC FIFO. Push and pop counts wrap at
 // 2^COUNT_WIDTH and cross domains Gray-coded; slots = DEPTH - items.
-pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
-  clk:u1,
-  rst:u1,
-  push_beat:bool,
-  pop_count_gray:unsigned(bits=COUNT_WIDTH),
-  reset_active_pop:bool
-) -> (push_count_gray:unsigned(bits=COUNT_WIDTH)@[], slots:unsigned(bits=COUNT_WIDTH)@[], full:bool@[], reset_active_push:bool@[]) {
+pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(clk:Clock, pop_count_gray:Unsigned(bits=COUNT_WIDTH), push_beat:Bool, reset_active_pop:Bool, rst:U1) -> (full:Bool@[], push_count_gray:Unsigned(bits=COUNT_WIDTH)@[], reset_active_push:Bool@[], slots:Unsigned(bits=COUNT_WIDTH)@[]) {
   cassert((1 << COUNT_WIDTH) > DEPTH)
 
-  reg push_count:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
-  wrap const push_count_next:unsigned(bits=COUNT_WIDTH) = push_count + u1(push_beat)
+  reg push_count:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst != 0] = 0
+  wrap const push_count_next:Unsigned(bits=COUNT_WIDTH) = push_count + U1(push_beat)
   if push_beat {
     push_count = push_count_next
   }
 
   // Publish the next count late enough that the pop side never sees an entry
   // before its RAM write lands.
-  const next_gray   = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=push_count_next)
-  push_count_gray   = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=PUSH_COUNT_DELAY>(clk=clk, `in`=next_gray)
-  reset_active_push = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst) == 1
+  const next_gray = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=push_count_next)
+  push_count_gray = br_delay_nr<NUM_STAGES=PUSH_COUNT_DELAY, WIDTH=COUNT_WIDTH>(clk=clk, `in`=next_gray)
+  reset_active_push = br_delay_nr<NUM_STAGES=1, WIDTH=1>(clk=clk, `in`=rst) == 1
 
   // While the pop side is in reset its count is meaningless: use the last one
   // seen before the reset.
   const pop_count = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=pop_count_gray)
-  reg pop_count_saved:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
+  reg pop_count_saved:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst != 0] = 0
   if not reset_active_pop {
     pop_count_saved = pop_count
   }
   const pop_count_visible = if reset_active_pop { pop_count_saved } else { pop_count }
 
-  wrap const items:unsigned(bits=COUNT_WIDTH) = push_count - pop_count_visible
-  wrap const free:unsigned(bits=COUNT_WIDTH) = DEPTH - items
+  wrap const items:Unsigned(bits=COUNT_WIDTH) = push_count - pop_count_visible
+  wrap const free:Unsigned(bits=COUNT_WIDTH) = DEPTH - items
   slots = free
   full = free == 0
 }

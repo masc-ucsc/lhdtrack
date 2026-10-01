@@ -1,24 +1,32 @@
-pub mod br_delay_valid_p1::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u1) -> (out_valid:u1@[], out:u1@[], out_valid_stages:u2@[], out_stages:u2@[]) {
-  reg stage_valid___q:u2
-  mut stage_valid:u2 = 0
-  reg stage___q:u2
-  mut `stage`:u2 = 0
-  stage_valid = stage_valid___q
-  `stage` = stage___q
-  mut stage_valid__w1 = stage_valid
-  stage_valid__w1#[0] = in_valid & 1
-  mut stage__w1 = `stage`
-  stage__w1#[0] = `in` & 1
+pub mod br_delay_valid_p1<Width=1, NumStages=1, FirstStageUngated=0, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, `in`:U1, in_valid:U1, rst:U1) -> (out:U1@[], out_stages:U2@[], out_valid:U1@[], out_valid_stages:U2@[]) {
+  reg stage_valid___q:U2
+  mut stage_valid__composite:U2 = 0
+  wire stage_valid:U2 = nil
+  reg stage___q:U2
+  mut stage__composite:U2 = 0
+  wire `stage`:U2 = nil
+  stage_valid__composite = stage_valid___q
+  stage__composite = stage___q
+  mut stage_valid__composite__w1 = stage_valid__composite
+  stage_valid__composite__w1#[0] = in_valid & 1
+  mut stage__composite__w1 = stage__composite
+  stage__composite__w1#[0] = `in` & 1
   if rst != 0 {
     stage_valid___q#[1] = 0
   } else {
-    stage_valid___q#[1] = stage_valid__w1 & 1
+    stage_valid___q#[1] = stage_valid & 1
   }
-  if (stage_valid__w1 & 1) != 0 {
-    stage___q#[1] = stage__w1 & 1
+  if (stage_valid & 1) != 0 {
+    stage___q#[1] = `stage` & 1
   }
-  out_valid = (stage_valid__w1 >> 1) & 1
-  out = (stage__w1 >> 1) & 1
-  out_valid_stages = stage_valid__w1
-  out_stages = stage__w1
+  const out_valid__w1 = (stage_valid >> NumStages) & 1
+  const out__w1 = (`stage` >> NumStages) & 1
+  const out_valid_stages__w1 = stage_valid
+  const out_stages__w1 = `stage`
+  stage_valid = stage_valid__composite__w1
+  `stage` = stage__composite__w1
+  out_valid = out_valid__w1
+  out = out__w1
+  out_valid_stages = out_valid_stages__w1
+  out_stages = out_stages__w1
 }

@@ -1,13 +1,16 @@
 const br_counter_incr = import("br_counter_incr.br_counter_incr")
 const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
 
-pub mod br_fifo_push_ctrl_core::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, bypass_ready:u1, addr_base:u5, addr_bound:u5, full:u1) -> (push_ready:u1@[], bypass_valid_unstable:u1@[], bypass_data_unstable:u32@[], ram_wr_valid:u1@[], ram_wr_addr_next:u5@[], ram_wr_addr:u5@[], ram_wr_data:u32@[], push_beat:u1@[]) {
-  wire ram_wr_addr:u5
-  const push_ready__w1 = unsigned(full == 0)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
-  const push_beat__w1 = unsigned((push_ready__w1 != 0) and (push_valid != 0))
-  const ram_wr_valid__w1 = unsigned((push_beat__w1 != 0) and (bypass_ready == 0))
-  mut gen_wr_addr_counter_br_counter_incr_wr_addr = br_counter_incr::[name=gen_wr_addr_counter_br_counter_incr_wr_addr](clk = clk, rst = rst, reinit = unsigned((ram_wr_valid__w1 != 0) and (ram_wr_addr == addr_bound)), initial_value = addr_base, incr_valid = ram_wr_valid__w1, incr = 1)
+pub mod br_fifo_push_ctrl_core<Depth=32, Width=32, EnableBypass=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](addr_base:U5, addr_bound:U5, bypass_ready:U1, clk:Clock, full:U1, push_data:U32, push_valid:U1, rst:Reset) -> (bypass_data_unstable:U32@[], bypass_valid_unstable:U1@[], push_beat:U1@[], push_ready:U1@[], ram_wr_addr:U5@[], ram_wr_addr_next:U5@[], ram_wr_data:U32@[], ram_wr_valid:U1@[]) {
+  wire ram_wr_addr:U5 = nil
+  const push_ready__w1 = U1(full == 0)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
+  mut _b2i_2 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
+  const push_beat__w1 = _b2i_2
+  mut _b2i_3 = if push_beat__w1 != 0 and bypass_ready == 0 { 1 } else { 0 }
+  const ram_wr_valid__w1 = _b2i_3
+  mut _b2i_4 = if ram_wr_valid__w1 != 0 and ram_wr_addr == addr_bound { 1 } else { 0 }
+  mut gen_wr_addr_counter_br_counter_incr_wr_addr = br_counter_incr::[name=gen_wr_addr_counter_br_counter_incr_wr_addr](clk=clk, rst=rst, reinit=_b2i_4, initial_value=addr_base, incr_valid=ram_wr_valid__w1, incr=1)
   ram_wr_addr = gen_wr_addr_counter_br_counter_incr_wr_addr.value
   push_ready = push_ready__w1
   bypass_valid_unstable = push_valid

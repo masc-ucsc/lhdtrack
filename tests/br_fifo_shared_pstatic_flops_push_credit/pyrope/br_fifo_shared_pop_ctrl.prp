@@ -1,104 +1,24 @@
-const br_arb_lru_internal       = import("br_arb_lru_internal.br_arb_lru_internal")
-const br_fifo_shared_read_xbar  = import("br_fifo_shared_read_xbar.br_fifo_shared_read_xbar")
-const br_fifo_staging_buffer    = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
+const br_arb_lru_internal = import("br_arb_lru_internal.br_arb_lru_internal")
+const br_fifo_shared_pop_ctrl_ext_arbiter_t = import("br_fifo_shared_pop_ctrl_ext_arbiter.br_fifo_shared_pop_ctrl_ext_arbiter")
 
-// Pop controller of a shared-RAM multi-FIFO. Each FIFO's staging buffer
-// requests RAM reads for the entry at its head pointer; the read crossbar
-// shares the RAM read ports among the FIFOs, each port arbitrated
-// least-recently-used, and returns the data. A consumed head entry is
-// deallocated in the same cycle.
-//
-// Per-FIFO buses are packed with FIFO 0 in the low bits. Supported
-// configuration: RAM read latency 1, 2-entry staging buffers with registered
-// pop outputs, unregistered deallocation, no bypass.
-pub mod br_fifo_shared_pop_ctrl<
-  NUM_FIFOS=2, NUM_READ_PORTS=1, FIFO_ID_WIDTH=1, PORT_ID_WIDTH=1, ADDR_WIDTH=1, COUNT_WIDTH=1, WIDTH=1
->(
-  clk:u1,
-  rst:u1,
-  head_valid:unsigned(bits=NUM_FIFOS),
-  head:unsigned(bits=NUM_FIFOS * ADDR_WIDTH),
-  ram_empty:unsigned(bits=NUM_FIFOS),
-  ram_items:unsigned(bits=NUM_FIFOS * COUNT_WIDTH),
-  pop_ready:unsigned(bits=NUM_FIFOS),
-  data_ram_rd_data_valid:unsigned(bits=NUM_READ_PORTS),
-  data_ram_rd_data:unsigned(bits=NUM_READ_PORTS * WIDTH)
-) -> (
-  head_ready:unsigned(bits=NUM_FIFOS)@[0],
-  pop_valid:unsigned(bits=NUM_FIFOS)@[0],
-  pop_data:unsigned(bits=NUM_FIFOS * WIDTH)@[0],
-  pop_empty:unsigned(bits=NUM_FIFOS)@[0],
-  dealloc_valid:unsigned(bits=NUM_FIFOS)@[0],
-  data_ram_rd_addr_valid:unsigned(bits=NUM_READ_PORTS)@[0],
-  data_ram_rd_addr:unsigned(bits=NUM_READ_PORTS * ADDR_WIDTH)@[0]
-) {
-  // Read crossbar results, used by the per-FIFO staging buffers below.
-  wire rd_addr_ready:unsigned(bits=NUM_FIFOS)          = nil
-  wire rd_data_valid:unsigned(bits=NUM_FIFOS)          = nil
-  wire rd_data:unsigned(bits=NUM_FIFOS * WIDTH)        = nil
-  wire arb_grant:unsigned(bits=NUM_READ_PORTS * NUM_FIFOS)     = nil
-  wire arb_can_grant:unsigned(bits=NUM_READ_PORTS * NUM_FIFOS) = nil
-
-  mut rd_addr_valid:unsigned(bits=NUM_FIFOS) = 0
-  mut ready:unsigned(bits=NUM_FIFOS)         = 0
-  mut valid:unsigned(bits=NUM_FIFOS)         = 0
-  mut data:unsigned(bits=NUM_FIFOS * WIDTH)  = 0
-  mut empty:unsigned(bits=NUM_FIFOS)         = 0
-  for f in 0..<NUM_FIFOS {
-    const stg = br_fifo_staging_buffer<WIDTH=WIDTH, COUNT_WIDTH=COUNT_WIDTH>(
-      clk=clk,
-      rst=rst,
-      total_items=ram_items#[(f*COUNT_WIDTH)..+COUNT_WIDTH],
-      ram_rd_addr_ready=rd_addr_ready#[f] == 1 and head_valid#[f] == 1,
-      ram_rd_data_valid=rd_data_valid#[f] == 1,
-      ram_rd_data=rd_data#[(f*WIDTH)..+WIDTH],
-      pop_ready=pop_ready#[f] == 1
-    )
-    // A RAM read needs both a head pointer and a staging-buffer request.
-    rd_addr_valid#[f]        = u1(head_valid#[f] == 1 and stg.ram_rd_addr_valid)
-    ready#[f]                = u1(rd_addr_ready#[f] == 1 and stg.ram_rd_addr_valid)
-    valid#[f]                = u1(stg.pop_valid)
-    data#[(f*WIDTH)..+WIDTH] = stg.pop_data
-    empty#[f]                = u1(ram_empty#[f] == 1 and stg.pop_empty)
-  }
-
-  const xbar = br_fifo_shared_read_xbar<
-    NUM_FIFOS=NUM_FIFOS, NUM_READ_PORTS=NUM_READ_PORTS, FIFO_ID_WIDTH=FIFO_ID_WIDTH, PORT_ID_WIDTH=PORT_ID_WIDTH,
-    ADDR_WIDTH=ADDR_WIDTH, WIDTH=WIDTH
-  >(
-    clk=clk,
-    rst=rst,
-    push_rd_addr_valid=rd_addr_valid,
-    push_rd_addr=head,
-    pop_rd_data_valid=data_ram_rd_data_valid,
-    pop_rd_data=data_ram_rd_data,
-    arb_can_grant=arb_can_grant,
-    arb_grant=arb_grant
-  )
-  rd_addr_ready = xbar.push_rd_addr_ready
-  rd_data_valid = xbar.push_rd_data_valid
-  rd_data       = xbar.push_rd_data
-
-  // One least-recently-used arbiter per read port.
-  mut grant:unsigned(bits=NUM_READ_PORTS * NUM_FIFOS)     = 0
-  mut can_grant:unsigned(bits=NUM_READ_PORTS * NUM_FIFOS) = 0
-  for p in 0..<NUM_READ_PORTS {
-    const arb = br_arb_lru_internal<NUM_REQUESTERS=NUM_FIFOS>(
-      rst=rst,
-      enable_priority_update=xbar.arb_enable_priority_update#[p] == 1,
-      request=xbar.arb_request#[(p*NUM_FIFOS)..+NUM_FIFOS]
-    )
-    grant#[(p*NUM_FIFOS)..+NUM_FIFOS]     = arb.grant
-    can_grant#[(p*NUM_FIFOS)..+NUM_FIFOS] = arb.can_grant
-  }
-  arb_grant     = grant
-  arb_can_grant = can_grant
-
-  head_ready             = ready
-  pop_valid              = valid
-  pop_data               = data
-  pop_empty              = empty
-  dealloc_valid          = head_valid & ready
-  data_ram_rd_addr_valid = xbar.pop_rd_addr_valid
-  data_ram_rd_addr       = xbar.pop_rd_addr
+pub mod br_fifo_shared_pop_ctrl<NumReadPorts=1, NumFifos=2, Depth=32, Width=32, StagingBufferDepth=2, RegisterPopOutputs=1, RegisterDeallocation=0, EnableBypass=0, EnableCoverSameCycleReadIssueAndReturn=1, EnableCoverBypassAndReadDataSameCycle=1, RamReadLatency=1, EnableAssertPushDataKnown=1>::[timecheck=false](bypass_data_unstable:U64, bypass_valid_unstable:U2, clk:Clock, data_ram_rd_data:U32, data_ram_rd_data_valid:U1, head:U10, head_valid:U2, pop_ready:U2, ram_empty:U2, ram_items:U12, rst:Reset) -> (bypass_ready:U2@[], data_ram_rd_addr:U5@[], data_ram_rd_addr_valid:U1@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:U2@[], pop_data:U64@[], pop_empty:U2@[], pop_valid:U2@[]) {
+  mut arb_grant__wtmp:U2 = 0sb?
+  wire arb_grant:U2 = nil
+  mut arb_can_grant__wtmp:U2 = 0sb?
+  wire arb_can_grant:U2 = nil
+  mut br_fifo_shared_pop_ctrl_ext_arbiter = br_fifo_shared_pop_ctrl_ext_arbiter_t::[name=br_fifo_shared_pop_ctrl_ext_arbiter](clk=clk, rst=rst, `head_valid.e1`=(head_valid >> 1) & 1, `head_valid.e0`=head_valid & 1, head=head, `ram_empty.e1`=(ram_empty >> 1) & 1, `ram_empty.e0`=ram_empty & 1, ram_items=ram_items, `bypass_valid_unstable.e1`=(bypass_valid_unstable >> 1) & 1, `bypass_valid_unstable.e0`=bypass_valid_unstable & 1, bypass_data_unstable=bypass_data_unstable, `pop_ready.e1`=(pop_ready >> 1) & 1, `pop_ready.e0`=pop_ready & 1, data_ram_rd_data_valid=data_ram_rd_data_valid, data_ram_rd_data=data_ram_rd_data, arb_grant=arb_grant, arb_can_grant=arb_can_grant)
+  mut gen_read_port_mux_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_read_port_mux_0_br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=br_fifo_shared_pop_ctrl_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_ext_arbiter.arb_request#[0..=1])
+  arb_can_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.can_grant#[0..=1]
+  arb_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.grant#[0..=1]
+  arb_grant = arb_grant__wtmp
+  arb_can_grant = arb_can_grant__wtmp
+  head_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e0
+  bypass_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e0
+  pop_valid = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e0
+  pop_data = br_fifo_shared_pop_ctrl_ext_arbiter.pop_data
+  pop_empty = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e0
+  dealloc_valid = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_valid
+  dealloc_entry_id = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_entry_id
+  data_ram_rd_addr_valid = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr_valid
+  data_ram_rd_addr = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr
 }

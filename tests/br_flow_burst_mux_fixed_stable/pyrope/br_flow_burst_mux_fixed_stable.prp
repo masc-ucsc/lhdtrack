@@ -1,10 +1,10 @@
 const br_arb_fixed_internal_t = import("br_arb_fixed_internal.br_arb_fixed_internal")
 const br_flow_burst_mux_core_stable_t = import("br_flow_burst_mux_core_stable.br_flow_burst_mux_core_stable")
 
-pub mod br_flow_burst_mux_fixed_stable::[timecheck=false](clk:u1, rst:u1, push_valid:u8, push_last:u8, push_data:u256, pop_ready:u1) -> (push_ready:u8@[], pop_valid:u1@[], pop_last:u1@[], pop_data:u32@[]) {
-  wire request:u8
-  mut br_arb_fixed_internal = br_arb_fixed_internal_t::[name=br_arb_fixed_internal](request = request)
-  mut br_flow_burst_mux_core_stable = br_flow_burst_mux_core_stable_t::[name=br_flow_burst_mux_core_stable](clk = clk, rst = rst, grant_from_arb = br_arb_fixed_internal.grant, push_valid = push_valid, push_last = push_last, push_data = push_data, pop_ready = pop_ready)
+pub mod br_flow_burst_mux_fixed_stable::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U256, push_last:U8, push_valid:U8, rst:Reset) -> (pop_data:U32@[], pop_last:U1@[], pop_valid:U1@[], push_ready:U8@[]) {
+  wire request:U8 = nil
+  mut br_arb_fixed_internal = br_arb_fixed_internal_t::[name=br_arb_fixed_internal](request=request)
+  mut br_flow_burst_mux_core_stable = br_flow_burst_mux_core_stable_t::[name=br_flow_burst_mux_core_stable](clk=clk, rst=rst, grant_from_arb=br_arb_fixed_internal.grant, push_valid=push_valid, push_last=push_last, push_data=push_data, pop_ready=pop_ready)
   request = br_flow_burst_mux_core_stable.request
   push_ready = br_flow_burst_mux_core_stable.push_ready
   pop_valid = br_flow_burst_mux_core_stable.pop_valid

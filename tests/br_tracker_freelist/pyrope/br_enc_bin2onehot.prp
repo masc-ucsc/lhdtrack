@@ -1,0 +1,36 @@
+pub mod br_enc_bin2onehot<NumValues=16, EnableInputRangeCheck=1, EnableAssertFinalNotValid=1, BinWidth=4>::[timecheck=false](clk:Clock, `in`:U4, in_valid:U1, rst:Reset) -> (out:U16@[]) {
+  out = 0sb?
+  mut out__w1 = out
+  out__w1#[0] = U1(in_valid != 0 and `in` == 0) & 1
+  mut out__w2 = out__w1
+  out__w2#[1] = U1(in_valid != 0 and `in` == 1) & 1
+  mut out__w3 = out__w2
+  out__w3#[2] = U1(in_valid != 0 and `in` == 2) & 1
+  mut out__w4 = out__w3
+  out__w4#[3] = U1(in_valid != 0 and `in` == 3) & 1
+  mut out__w5 = out__w4
+  out__w5#[4] = U1(in_valid != 0 and `in` == 4) & 1
+  mut out__w6 = out__w5
+  out__w6#[5] = U1(in_valid != 0 and `in` == 5) & 1
+  mut out__w7 = out__w6
+  out__w7#[6] = U1(in_valid != 0 and `in` == 6) & 1
+  mut out__w8 = out__w7
+  out__w8#[7] = U1(in_valid != 0 and `in` == 7) & 1
+  mut out__w9 = out__w8
+  out__w9#[8] = U1(in_valid != 0 and `in` == 8) & 1
+  mut out__w10 = out__w9
+  out__w10#[9] = U1(in_valid != 0 and `in` == 9) & 1
+  mut out__w11 = out__w10
+  out__w11#[10] = U1(in_valid != 0 and `in` == 10) & 1
+  mut out__w12 = out__w11
+  out__w12#[11] = U1(in_valid != 0 and `in` == 11) & 1
+  mut out__w13 = out__w12
+  out__w13#[12] = U1(in_valid != 0 and `in` == 12) & 1
+  mut out__w14 = out__w13
+  out__w14#[13] = U1(in_valid != 0 and `in` == 13) & 1
+  mut out__w15 = out__w14
+  out__w15#[14] = U1(in_valid != 0 and `in` == 14) & 1
+  mut out__w16 = out__w15
+  out__w16#[15] = U1(in_valid != 0 and `in` == 15) & 1
+  out = out__w16
+}

@@ -1,0 +1,5 @@
+const br_misc_unused_p5 = import("br_misc_unused_p5.br_misc_unused_p5")
+
+pub mod br_flow_checks_valid_data_impl_p3<NumFlows=3, Width=1, EnableCoverBackpressure=0, NumBackpressureCheckFlows=3, EnableAssertValidStability=0, EnableAssertDataStability=0, EnableAssertDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoBackpressure=0>::[timecheck=false](clk:Clock, data:U3, ready:U3, rst:U1, valid:U3) -> () {
+  br_misc_unused_p5::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 9) | (valid << 6) | (ready << 3) | data)
+}

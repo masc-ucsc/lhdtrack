@@ -1,11 +1,8 @@
-// Hand-written equivalent of the fixed NumStages=2, AddSourceFlop=0 configuration.
-pub mod br_cdc_bit_toggle::[timecheck=false](src_clk:u1, src_rst:u1, src_bit:u1, dst_clk:u1, dst_rst:u1) -> (dst_bit:u1@[]) {
-  reg sync:u2:[clock_pin=ref dst_clk] = nil
+const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
+const br_gate_cdc_sync_t = import("br_gate_cdc_sync.br_gate_cdc_sync")
 
-  dst_bit = sync#[1]
-
-  mut sync_next:u2 = 0
-  sync_next#[0] = src_bit
-  sync_next#[1] = sync#[0]
-  sync = sync_next
+pub mod br_cdc_bit_toggle::[timecheck=false](dst_clk:Clock, dst_rst:U1, src_bit:U1, src_clk:U1, src_rst:U1) -> (dst_bit:U1@[]) {
+  mut br_gate_cdc_maxdel_src_bit_internal_maxdel = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_bit_internal_maxdel](`in`=src_bit)
+  mut br_gate_cdc_sync = br_gate_cdc_sync_t::[name=br_gate_cdc_sync](clk=dst_clk, `in`=br_gate_cdc_maxdel_src_bit_internal_maxdel)
+  dst_bit = br_gate_cdc_sync
 }

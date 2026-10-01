@@ -2,12 +2,12 @@ const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.
 const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-pub mod br_flow_arb_core::[timecheck=false](clk:u1, rst:u1, can_grant:u1, grant:u1, push_valid:u1, pop_ready:u1) -> (request:u1@[], enable_priority_update:u1@[], push_ready:u1@[], pop_valid_unstable:u1@[]) {
+pub mod br_flow_arb_core<NumFlows=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertFinalNotValid=1, EnableCoverPopBackpressure=1, ArbiterAlwaysGrants=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](can_grant:U1, clk:Clock, grant:U1, pop_ready:U1, push_valid:U1, rst:Reset) -> (enable_priority_update:U1@[], pop_valid_unstable:U1@[], push_ready:U1@[], request:U1@[]) {
   const push_ready__w1 = (pop_ready & 1) & can_grant & 1
-  const pop_valid_unstable__w1 = unsigned(push_valid != 0)
-  br_misc_unused::[name=br_misc_unused_grant](`in` = grant)
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid_unstable__w1, ready = pop_ready, data = 0)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = 0)
+  const pop_valid_unstable__w1 = U1(push_valid != 0)
+  br_misc_unused::[name=br_misc_unused_grant](`in`=grant)
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid_unstable__w1, ready=pop_ready, data=0)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=0)
   request = push_valid
   enable_priority_update = pop_ready
   push_ready = push_ready__w1

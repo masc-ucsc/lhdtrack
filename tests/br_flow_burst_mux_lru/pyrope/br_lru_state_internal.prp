@@ -12,19 +12,16 @@ comb upper_triangle(size) -> (mask) {
   mask = m
 }
 
-pub mod br_lru_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, grant:unsigned(bits=NUM_REQUESTERS)) -> (
-  state:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)@[0]
-) {
+pub mod br_lru_state_internal<NUM_REQUESTERS=2>(grant:Unsigned(bits=NUM_REQUESTERS), rst:U1, update_priority:Bool) -> (state:Unsigned(bits=NUM_REQUESTERS*NUM_REQUESTERS)@[0]) {
   comptime const N = NUM_REQUESTERS
 
   // After reset every lower-numbered requester beats every higher one. Only
   // the upper-triangle bits are reset and updated; the others are never read.
-  comptime const STORED         = upper_triangle(size=N)
-  reg wins:unsigned(bits=N * N) = nil
+  comptime const STORED = upper_triangle(size=N)
+  reg wins:Unsigned(bits=N*N) = nil
   if rst == 1 {
     wins = wins | STORED
-  }
-  elif update_priority {
+  } elif update_priority {
     mut next_wins = wins
     for i in 0..<N {
       // The granted requester loses to everyone; everyone beats a granted one.
@@ -33,13 +30,12 @@ pub mod br_lru_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, gr
     wins = (next_wins & STORED) | (wins & ~STORED)
   }
 
-  mut matrix:unsigned(bits=N * N) = 0
+  mut matrix:Unsigned(bits=N*N) = 0
   for i in 0..<N {
     for j in 0..<N {
       if i < j {
         matrix#[i*N + j] = wins#[i*N + j]
-      }
-      elif i > j {
+      } elif i > j {
         matrix#[i*N + j] = ~wins#[j*N + i] & 1
       }
     }

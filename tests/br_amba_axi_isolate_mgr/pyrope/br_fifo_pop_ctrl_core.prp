@@ -2,17 +2,27 @@ const br_counter_incr_p1 = import("br_counter_incr_p1.br_counter_incr_p1")
 const br_misc_unused = import("br_misc_unused.br_misc_unused")
 const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
 
-pub mod br_fifo_pop_ctrl_core::[timecheck=false](clk:u1, rst:u1, pop_ready:u1, bypass_valid_unstable:u1, bypass_data_unstable:u1, ram_rd_data_valid:u1, ram_rd_data:u1, empty:u1, items:u2) -> (pop_valid:u1@[], pop_data:u1@[], bypass_ready:u1@[], ram_rd_addr_valid:u1@[], ram_rd_addr:u1@[], pop_beat:u1@[]) {
-  const pop_valid__w1 = unsigned((empty == 0) or (bypass_valid_unstable != 0))
-  mut _mux_3:u1 = if empty != 0 { bypass_data_unstable & 1 } else { ram_rd_data & 1 }
-  br_misc_unused::[name=gen_no_buffer_br_misc_unused_ram_rd_data_valid](`in` = ram_rd_data_valid)
-  br_misc_unused_p2::[name=gen_no_buffer_br_misc_unused_items](`in` = items)
-  const pop_beat__w1 = unsigned((pop_ready != 0) and (pop_valid__w1 != 0))
-  mut gen_ram_rd_addr_counter_br_counter_incr_rd_addr = br_counter_incr_p1::[name=gen_ram_rd_addr_counter_br_counter_incr_rd_addr](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned((pop_beat__w1 != 0) and (empty == 0)), incr = 1)
+pub mod br_fifo_pop_ctrl_core<Depth=2, Width=1, EnableBypass=1, RamReadLatency=0, RegisterPopOutputs=0, RamDepth=2, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](bypass_data_unstable:U1, bypass_valid_unstable:U1, clk:Clock, empty:U1, items:U2, pop_ready:U1, ram_rd_data:U1, ram_rd_data_valid:U1, rst:Reset) -> (bypass_ready:U1@[], pop_beat:U1@[], pop_data:U1@[], pop_valid:U1@[], ram_rd_addr:U1@[], ram_rd_addr_valid:U1@[]) {
+  mut _mux_1:S32 = 0
+  mut _mux_2:S32 = 0
+  _mux_1 = (RamReadLatency + 1)#[0..=31]#sext[0..=31]
+  _mux_1 = 0
+
+  _mux_2 = Depth#sext[0..=31]
+  _mux_2 = 2
+
+  const pop_valid__w1 = U1(empty == 0 or bypass_valid_unstable != 0)
+  mut _mux_5:U1 = if empty != 0 { bypass_data_unstable & 1 } else { ram_rd_data & 1 }
+  br_misc_unused::[name=gen_no_buffer_br_misc_unused_ram_rd_data_valid](`in`=ram_rd_data_valid)
+  br_misc_unused_p2::[name=gen_no_buffer_br_misc_unused_items](`in`=items)
+  mut _b2i_7 = if pop_ready != 0 and pop_valid__w1 != 0 { 1 } else { 0 }
+  const pop_beat__w1 = _b2i_7
+  mut _b2i_8 = if pop_beat__w1 != 0 and empty == 0 { 1 } else { 0 }
+  mut gen_ram_rd_addr_counter_br_counter_incr_rd_addr = br_counter_incr_p1::[name=gen_ram_rd_addr_counter_br_counter_incr_rd_addr](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_8, incr=1)
   pop_valid = pop_valid__w1
-  pop_data = _mux_3
-  bypass_ready = unsigned((empty != 0) and (pop_ready != 0))
-  ram_rd_addr_valid = unsigned(empty == 0)
+  pop_data = _mux_5
+  bypass_ready = U1(empty != 0 and pop_ready != 0)
+  ram_rd_addr_valid = U1(empty == 0)
   ram_rd_addr = gen_ram_rd_addr_counter_br_counter_incr_rd_addr.value
   pop_beat = pop_beat__w1
 }

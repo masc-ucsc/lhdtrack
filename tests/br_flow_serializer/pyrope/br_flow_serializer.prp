@@ -1,37 +1,30 @@
-// Serialize each 64-bit push word into eight 8-bit pop flits, least significant
-// flit first. A last word may end early: its final push_last_dont_care_count
-// flits are skipped. Metadata rides along with every flit. clk only fed the
-// upstream assertions.
-pub mod br_flow_serializer(
-  clk:u1,
-  rst:u1,
-  push_valid:u1,
-  push_data:u64,
-  push_last:u1,
-  push_last_dont_care_count:u3,
-  push_metadata:u8,
-  pop_ready:u1
-) -> (push_ready:u1@[0], pop_valid:u1@[0], pop_data:u8@[0], pop_last:u1@[0], pop_metadata:u8@[0]) {
-  comptime const FLIT_WIDTH = pop_data.[bits]
-  comptime const LAST_FLIT  = push_data.[bits]/FLIT_WIDTH - 1
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
+const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-  // Flit of the current push word being offered.
-  reg flit_id:u3:[reset_pin = ref rst] = 0
-
-  const skipped   = if push_last == 1 { push_last_dont_care_count } else { 0 }
-  mut position:u3 = 0
-  wrap position   = flit_id + skipped
-  const word_done = position == LAST_FLIT
-  const last_flit = push_last == 1 and word_done
-
-  pop_valid    = push_valid
-  pop_data     = push_data#[(flit_id*FLIT_WIDTH)..+FLIT_WIDTH]
-  pop_last     = u1(last_flit)
-  pop_metadata = push_metadata
-  // The push word is consumed with its final flit.
-  push_ready = u1(pop_ready == 1 and word_done)
-
-  if pop_ready == 1 and push_valid == 1 {
-    wrap flit_id = if last_flit { 0 } else { flit_id + 1 }
-  }
+pub mod br_flow_serializer::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U64, push_last:U1, push_last_dont_care_count:U3, push_metadata:U8, push_valid:U1, rst:Reset) -> (pop_data:U8@[], pop_last:U1@[], pop_metadata:U8@[], pop_valid:U1@[], push_ready:U1@[]) {
+  wire gen_sr_gt_1_pop_flit_id:U3 = nil
+  mut _mux_2:U3 = 0
+  _mux_2 = gen_sr_gt_1_pop_flit_id
+  mut gen_sr_gt_1_br_mux_bin = br_mux_bin::[name=gen_sr_gt_1_br_mux_bin](select=_mux_2, `in`=push_data)
+  const pop_valid__w1 = push_valid
+  mut _mux_3:U3 = if push_last != 0 { push_last_dont_care_count } else { 0 }
+  const gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 = (gen_sr_gt_1_pop_flit_id + _mux_3)#[0..=2]
+  mut _b2i_4 = if push_last != 0 and gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 == 7 { 1 } else { 0 }
+  const pop_last__w1 = _b2i_4
+  const pop_metadata__w1 = push_metadata
+  mut _b2i_5 = if pop_ready != 0 and gen_sr_gt_1_pop_flit_id_plus_dont_care_count__w1 == 7 { 1 } else { 0 }
+  const push_ready__w1 = _b2i_5
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid__w1, ready=pop_ready, data=(gen_sr_gt_1_br_mux_bin.out#[0..=7] << 9) | ((pop_last__w1 & 1) << 8) | pop_metadata__w1)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=(push_data << 12) | ((push_last & 1) << 11) | (push_last_dont_care_count << 8) | push_metadata)
+  mut _b2i_6 = if pop_ready != 0 and pop_valid__w1 != 0 and pop_last__w1 != 0 { 1 } else { 0 }
+  mut _b2i_7 = if pop_ready != 0 and pop_valid__w1 != 0 and pop_last__w1 == 0 { 1 } else { 0 }
+  mut gen_sr_gt_1_br_counter_incr_pop_flit_id = br_counter_incr::[name=gen_sr_gt_1_br_counter_incr_pop_flit_id](clk=clk, rst=rst, reinit=_b2i_6, initial_value=0, incr_valid=_b2i_7, incr=1)
+  gen_sr_gt_1_pop_flit_id = gen_sr_gt_1_br_counter_incr_pop_flit_id.value
+  push_ready = push_ready__w1
+  pop_valid = pop_valid__w1
+  pop_data = gen_sr_gt_1_br_mux_bin.out
+  pop_last = pop_last__w1
+  pop_metadata = pop_metadata__w1
 }

@@ -1,16 +1,4 @@
-// FmaShareSgn -- the Pyrope equivalent of verilog/FmaShareSgn.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 16),
-// so the generated harness and LEC bind the same external interface.
-//
-// Two signed FMAs sharing one product. Each result fits 32 bits, so no
-// `wrap`.
-pub comb FmaShareSgn(a:s16, b:s16, c:s16, d:s16) -> (res_c:s32, res_d:s32) {
-  const product = a*b
-  res_c         = product + c
-  res_d         = product + d
+pub comb FmaShareSgn::[timecheck=false](a:S16, b:S16, c:S16, d:S16) -> (res_c:S32, res_d:S32) {
+  res_c = ((a*b) + c)#[0..=31]#sext[0..=31]
+  res_d = ((a*b) + d)#[0..=31]#sext[0..=31]
 }

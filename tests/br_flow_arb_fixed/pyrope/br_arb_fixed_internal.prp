@@ -1,35 +1,68 @@
-pub comb br_arb_fixed_internal::[timecheck=false](request:u16) -> (can_grant:(e15:u1, e14:u1, e13:u1, e12:u1, e11:u1, e10:u1, e9:u1, e8:u1, e7:u1, e6:u1, e5:u1, e4:u1, e3:u1, e2:u1, e1:u1, e0:u1), grant:u16) {
-  mut `can_grant__bpo.e0` = 0
-  mut `can_grant__bpo.e1` = unsigned(not ((request & 1) != 0))
-  mut `can_grant__bpo.e2` = unsigned(not (request#[0..=1] != 0))
-  mut `can_grant__bpo.e3` = unsigned(not (request#[0..=2] != 0))
-  mut `can_grant__bpo.e4` = unsigned(not (request#[0..=3] != 0))
-  mut `can_grant__bpo.e5` = unsigned(not (request#[0..=4] != 0))
-  mut `can_grant__bpo.e6` = unsigned(not (request#[0..=5] != 0))
-  mut `can_grant__bpo.e7` = unsigned(not (request#[0..=6] != 0))
-  mut `can_grant__bpo.e8` = unsigned(not (request#[0..=7] != 0))
-  mut `can_grant__bpo.e9` = unsigned(not (request#[0..=8] != 0))
-  mut `can_grant__bpo.e10` = unsigned(not (request#[0..=9] != 0))
-  mut `can_grant__bpo.e11` = unsigned(not (request#[0..=10] != 0))
-  mut `can_grant__bpo.e12` = unsigned(not (request#[0..=11] != 0))
-  mut `can_grant__bpo.e13` = unsigned(not (request#[0..=12] != 0))
-  mut `can_grant__bpo.e14` = unsigned(not (request#[0..=13] != 0))
-  mut `can_grant__bpo.e15` = unsigned(not (request#[0..=14] != 0))
-  can_grant.e15 = `can_grant__bpo.e15`
-  can_grant.e14 = `can_grant__bpo.e14`
-  can_grant.e13 = `can_grant__bpo.e13`
-  can_grant.e12 = `can_grant__bpo.e12`
-  can_grant.e11 = `can_grant__bpo.e11`
-  can_grant.e10 = `can_grant__bpo.e10`
-  can_grant.e9 = `can_grant__bpo.e9`
-  can_grant.e8 = `can_grant__bpo.e8`
-  can_grant.e7 = `can_grant__bpo.e7`
-  can_grant.e6 = `can_grant__bpo.e6`
-  can_grant.e5 = `can_grant__bpo.e5`
-  can_grant.e4 = `can_grant__bpo.e4`
-  can_grant.e3 = `can_grant__bpo.e3`
-  can_grant.e2 = `can_grant__bpo.e2`
-  can_grant.e1 = `can_grant__bpo.e1`
+pub comb br_arb_fixed_internal<NumRequesters=16>::[timecheck=false](request:U16) -> (can_grant:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), grant:U16) {
+  wire can_grant__bpr:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1) = nil
+  mut `can_grant__bpo.e0` = 1
+  mut `can_grant__bpo.e1` = U1(not ((request & 1) != 0))
+  mut `can_grant__bpo.e2` = U1(not (request#[0..=1] != 0))
+  mut `can_grant__bpo.e3` = U1(not (request#[0..=2] != 0))
+  mut `can_grant__bpo.e4` = U1(not (request#[0..=3] != 0))
+  mut `can_grant__bpo.e5` = U1(not (request#[0..=4] != 0))
+  mut `can_grant__bpo.e6` = U1(not (request#[0..=5] != 0))
+  mut `can_grant__bpo.e7` = U1(not (request#[0..=6] != 0))
+  mut `can_grant__bpo.e8` = U1(not (request#[0..=7] != 0))
+  mut `can_grant__bpo.e9` = U1(not (request#[0..=8] != 0))
+  mut `can_grant__bpo.e10` = U1(not (request#[0..=9] != 0))
+  mut `can_grant__bpo.e11` = U1(not (request#[0..=10] != 0))
+  mut `can_grant__bpo.e12` = U1(not (request#[0..=11] != 0))
+  mut `can_grant__bpo.e13` = U1(not (request#[0..=12] != 0))
+  mut `can_grant__bpo.e14` = U1(not (request#[0..=13] != 0))
+  mut `can_grant__bpo.e15` = U1(not (request#[0..=14] != 0))
+  const grant__w1 = request & ((can_grant__bpr.e15 << 15) | (can_grant__bpr.e14 << 14) | (can_grant__bpr.e13 << 13) | (can_grant__bpr.e12 << 12) | (can_grant__bpr.e11 << 11) | (can_grant__bpr.e10 << 10) | (can_grant__bpr.e9 << 9) | (can_grant__bpr.e8 << 8) | (can_grant__bpr.e7 << 7) | (can_grant__bpr.e6 << 6) | (can_grant__bpr.e5 << 5) | (can_grant__bpr.e4 << 4) | (can_grant__bpr.e3 << 3) | (can_grant__bpr.e2 << 2) | (can_grant__bpr.e1 << 1) | can_grant__bpr.e0)
+  const t110 = `can_grant__bpo.e15`
+  can_grant__bpr.e15 = t110
+  can_grant.e15 = t110
+  const t111 = `can_grant__bpo.e14`
+  can_grant__bpr.e14 = t111
+  can_grant.e14 = t111
+  const t112 = `can_grant__bpo.e13`
+  can_grant__bpr.e13 = t112
+  can_grant.e13 = t112
+  const t113 = `can_grant__bpo.e12`
+  can_grant__bpr.e12 = t113
+  can_grant.e12 = t113
+  const t114 = `can_grant__bpo.e11`
+  can_grant__bpr.e11 = t114
+  can_grant.e11 = t114
+  const t115 = `can_grant__bpo.e10`
+  can_grant__bpr.e10 = t115
+  can_grant.e10 = t115
+  const t116 = `can_grant__bpo.e9`
+  can_grant__bpr.e9 = t116
+  can_grant.e9 = t116
+  const t117 = `can_grant__bpo.e8`
+  can_grant__bpr.e8 = t117
+  can_grant.e8 = t117
+  const t118 = `can_grant__bpo.e7`
+  can_grant__bpr.e7 = t118
+  can_grant.e7 = t118
+  const t119 = `can_grant__bpo.e6`
+  can_grant__bpr.e6 = t119
+  can_grant.e6 = t119
+  const t120 = `can_grant__bpo.e5`
+  can_grant__bpr.e5 = t120
+  can_grant.e5 = t120
+  const t121 = `can_grant__bpo.e4`
+  can_grant__bpr.e4 = t121
+  can_grant.e4 = t121
+  const t122 = `can_grant__bpo.e3`
+  can_grant__bpr.e3 = t122
+  can_grant.e3 = t122
+  const t123 = `can_grant__bpo.e2`
+  can_grant__bpr.e2 = t123
+  can_grant.e2 = t123
+  const t124 = `can_grant__bpo.e1`
+  can_grant__bpr.e1 = t124
+  can_grant.e1 = t124
+  can_grant__bpr.e0 = 1
   can_grant.e0 = 1
-  grant = request & ((`can_grant__bpo.e15` << 15) | (`can_grant__bpo.e14` << 14) | (`can_grant__bpo.e13` << 13) | (`can_grant__bpo.e12` << 12) | (`can_grant__bpo.e11` << 11) | (`can_grant__bpo.e10` << 10) | (`can_grant__bpo.e9` << 9) | (`can_grant__bpo.e8` << 8) | (`can_grant__bpo.e7` << 7) | (`can_grant__bpo.e6` << 6) | (`can_grant__bpo.e5` << 5) | (`can_grant__bpo.e4` << 4) | (`can_grant__bpo.e3` << 3) | (`can_grant__bpo.e2` << 2) | (`can_grant__bpo.e1` << 1) | 1)
+  grant = grant__w1
 }

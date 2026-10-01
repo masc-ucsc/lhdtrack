@@ -1,39 +1,26 @@
-const br_credit_counter = import("br_credit_counter.br_credit_counter")
+const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
 
-// Credit receiver: hands push credits to the sender from a credit counter that
-// the pop side replenishes, and passes push valids through outside reset (the
-// data needs no gating, so it bypasses this module). Configuration: two flows,
-// up to 2 push credits per cycle, registered push outputs.
-pub mod br_credit_receiver(
-  clk:u1,
-  rst:u1,
-  push_sender_in_reset:u1,
-  push_credit_stall:u1,
-  push_valid:u2,
-  pop_credit:u2,
-  credit_initial:u6,
-  credit_withhold:u6
-) -> (push_receiver_in_reset:u1@[1], push_credit:u2@[1], pop_valid:u2@[0], credit_count:u6@[0], credit_available:u6@[0]) {
-  comptime const PUSH_CREDIT_MAX_CHANGE = 2
-
-  const either_rst = rst == 1 or push_sender_in_reset == 1
-  const decr_valid = push_credit_stall == 0
-
-  wire credit_decr:u2 = nil
-  const counter       = br_credit_counter<VALUE_WIDTH=credit_initial.[bits],CHANGE_WIDTH=pop_credit.[bits]>(
-    rst=u1(either_rst), incr_valid=pop_credit != 0, incr=pop_credit, decr_valid=decr_valid, decr=credit_decr, initial_value=credit_initial,
-    withhold=credit_withhold
-  )
-  // Hand out every available credit, up to PUSH_CREDIT_MAX_CHANGE per cycle.
-  credit_decr = if counter.available < PUSH_CREDIT_MAX_CHANGE { counter.available#[0..<2] } else { PUSH_CREDIT_MAX_CHANGE }
-
-  // Registered push outputs: in reset until the cycle after rst drops.
-  reg push_receiver_in_reset:u1 = 1
-  push_receiver_in_reset        = 0
-  reg push_credit:u2            = 0
-  push_credit = if decr_valid and counter.decr_ready and not either_rst { credit_decr } else { 0 }
-
-  pop_valid        = if either_rst { 0 } else { push_valid }
-  credit_count     = counter.value
-  credit_available = counter.available
+pub mod br_credit_receiver<NumFlows=2, Width=33, MaxCredit=32, RegisterPushOutputs=1, PushCreditMaxChange=2, PopCreditMaxChange=2, EnableCoverCreditWithhold=1, EnableCoverPushSenderInReset=1, EnableCoverPushCreditStall=1, CoverMaxCredit=32, EnableAssertFinalNotValid=1, EnableAssertFinalMinValue=1>::[timecheck=false](clk:Clock, credit_initial:U6, credit_withhold:U6, pop_credit:U2, push_credit_stall:U1, push_data:U66, push_sender_in_reset:U1, push_valid:U2, rst:U1) -> (credit_available:U6@[], credit_count:U6@[], pop_data:U66@[], pop_valid:U2@[], push_credit:U2@[], push_receiver_in_reset:U1@[]) {
+  reg push_receiver_in_reset:U1:[async=false, initial=1, reset_pin=rst]
+  reg push_credit:U2:[async=false, initial=0, reset_pin=rst]
+  wire credit_decr:U2 = nil
+  mut _b2i_1 = if rst != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
+  const either_rst__w1 = _b2i_1
+  const credit_decr_valid__w1 = U1(push_credit_stall == 0)
+  mut _b2i_4 = if either_rst__w1 == 0 { 1 } else { 0 }
+  mut _rep_5:U2 = if (_b2i_4 & 1) != 0 { 3 } else { 0 }
+  if not (rst != 0) {
+    push_receiver_in_reset = 0
+  }
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk=clk, rst=either_rst__w1, incr_valid=U1(pop_credit != 0), incr=pop_credit, decr_valid=credit_decr_valid__w1, decr=credit_decr, initial_value=credit_initial, withhold=credit_withhold)
+  mut _mux_6:U2 = if br_credit_counter.available < PushCreditMaxChange { br_credit_counter.available#[0..=1] } else { PushCreditMaxChange#[0..=1] }
+  credit_decr = _mux_6
+  mut _mux_7:U2 = if credit_decr_valid__w1 != 0 and br_credit_counter.decr_ready != 0 and either_rst__w1 == 0 { credit_decr } else { 0 }
+  if not (rst != 0) {
+    push_credit = _mux_7
+  }
+  pop_valid = push_valid & _rep_5
+  pop_data = push_data
+  credit_count = br_credit_counter.value
+  credit_available = br_credit_counter.available
 }

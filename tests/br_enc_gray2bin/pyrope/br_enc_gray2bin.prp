@@ -1,6 +1,99 @@
-// Gray to binary: each binary bit is the XOR of the gray bits at and above it.
-pub comb br_enc_gray2bin(gray:u32) -> (bin:u32) {
-  for i in 0..<gray.[bits] {
-    bin#[i] = gray#^[i..]
-  }
+pub comb br_enc_gray2bin::[timecheck=false](gray:U32) -> (bin:U32) {
+  wire `bin[0]`:U1 = nil
+  wire `bin[1]`:U1 = nil
+  wire `bin[2]`:U1 = nil
+  wire `bin[3]`:U1 = nil
+  wire `bin[4]`:U1 = nil
+  wire `bin[5]`:U1 = nil
+  wire `bin[6]`:U1 = nil
+  wire `bin[7]`:U1 = nil
+  wire `bin[8]`:U1 = nil
+  wire `bin[9]`:U1 = nil
+  wire `bin[10]`:U1 = nil
+  wire `bin[11]`:U1 = nil
+  wire `bin[12]`:U1 = nil
+  wire `bin[13]`:U1 = nil
+  wire `bin[14]`:U1 = nil
+  wire `bin[15]`:U1 = nil
+  wire `bin[16]`:U1 = nil
+  wire `bin[17]`:U1 = nil
+  wire `bin[18]`:U1 = nil
+  wire `bin[19]`:U1 = nil
+  wire `bin[20]`:U1 = nil
+  wire `bin[21]`:U1 = nil
+  wire `bin[22]`:U1 = nil
+  wire `bin[23]`:U1 = nil
+  wire `bin[24]`:U1 = nil
+  wire `bin[25]`:U1 = nil
+  wire `bin[26]`:U1 = nil
+  wire `bin[27]`:U1 = nil
+  wire `bin[28]`:U1 = nil
+  wire `bin[29]`:U1 = nil
+  wire `bin[30]`:U1 = nil
+  wire `bin[31]`:U1 = nil
+  wire bin:U32 = nil
+  `bin[31]` = (gray >> 31) & 1
+  const t6 = gray#[30..=31]#^[..]
+  `bin[30]` = t6
+  const t9 = gray#[29..=31]#^[..]
+  `bin[29]` = t9
+  const t12 = gray#[28..=31]#^[..]
+  `bin[28]` = t12
+  const t15 = gray#[27..=31]#^[..]
+  `bin[27]` = t15
+  const t18 = gray#[26..=31]#^[..]
+  `bin[26]` = t18
+  const t21 = gray#[25..=31]#^[..]
+  `bin[25]` = t21
+  const t24 = gray#[24..=31]#^[..]
+  `bin[24]` = t24
+  const t27 = gray#[23..=31]#^[..]
+  `bin[23]` = t27
+  const t30 = gray#[22..=31]#^[..]
+  `bin[22]` = t30
+  const t33 = gray#[21..=31]#^[..]
+  `bin[21]` = t33
+  const t36 = gray#[20..=31]#^[..]
+  `bin[20]` = t36
+  const t39 = gray#[19..=31]#^[..]
+  `bin[19]` = t39
+  const t42 = gray#[18..=31]#^[..]
+  `bin[18]` = t42
+  const t45 = gray#[17..=31]#^[..]
+  `bin[17]` = t45
+  const t48 = gray#[16..=31]#^[..]
+  `bin[16]` = t48
+  const t51 = gray#[15..=31]#^[..]
+  `bin[15]` = t51
+  const t54 = gray#[14..=31]#^[..]
+  `bin[14]` = t54
+  const t57 = gray#[13..=31]#^[..]
+  `bin[13]` = t57
+  const t60 = gray#[12..=31]#^[..]
+  `bin[12]` = t60
+  const t63 = gray#[11..=31]#^[..]
+  `bin[11]` = t63
+  const t66 = gray#[10..=31]#^[..]
+  `bin[10]` = t66
+  const t69 = gray#[9..=31]#^[..]
+  `bin[9]` = t69
+  const t72 = gray#[8..=31]#^[..]
+  `bin[8]` = t72
+  const t75 = gray#[7..=31]#^[..]
+  `bin[7]` = t75
+  const t78 = gray#[6..=31]#^[..]
+  `bin[6]` = t78
+  const t81 = gray#[5..=31]#^[..]
+  `bin[5]` = t81
+  const t84 = gray#[4..=31]#^[..]
+  `bin[4]` = t84
+  const t87 = gray#[3..=31]#^[..]
+  `bin[3]` = t87
+  const t90 = gray#[2..=31]#^[..]
+  `bin[2]` = t90
+  const t93 = gray#[1..=31]#^[..]
+  `bin[1]` = t93
+  const t96 = gray#^[..]
+  `bin[0]` = t96
+  bin = (`bin[31]` << 31) | (`bin[30]` << 30) | (`bin[29]` << 29) | (`bin[28]` << 28) | (`bin[27]` << 27) | (`bin[26]` << 26) | (`bin[25]` << 25) | (`bin[24]` << 24) | (`bin[23]` << 23) | (`bin[22]` << 22) | (`bin[21]` << 21) | (`bin[20]` << 20) | (`bin[19]` << 19) | (`bin[18]` << 18) | (`bin[17]` << 17) | (`bin[16]` << 16) | (`bin[15]` << 15) | (`bin[14]` << 14) | (`bin[13]` << 13) | (`bin[12]` << 12) | (`bin[11]` << 11) | (`bin[10]` << 10) | (`bin[9]` << 9) | (`bin[8]` << 8) | (`bin[7]` << 7) | (`bin[6]` << 6) | (`bin[5]` << 5) | (`bin[4]` << 4) | (`bin[3]` << 3) | (`bin[2]` << 2) | (`bin[1]` << 1) | `bin[0]`
 }

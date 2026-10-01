@@ -1,12 +1,12 @@
 const br_arb_multi_rr = import("br_arb_multi_rr.br_arb_multi_rr")
 const br_multi_xfer_distributor_core = import("br_multi_xfer_distributor_core.br_multi_xfer_distributor_core")
 
-pub mod br_multi_xfer_distributor_rr::[timecheck=false](clk:u1, rst:u1, push_sendable:u2, push_data:u10, pop_ready:u2) -> (push_receivable:u2@[], pop_valid:u2@[], pop_data:u10@[]) {
-  wire grant:u2
-  wire grant_ordered:u4
-  wire grant_count:u2
-  mut br_multi_xfer_distributor_core_inst = br_multi_xfer_distributor_core::[name=br_multi_xfer_distributor_core_inst](clk = clk, rst = rst, push_sendable = push_sendable, push_data = push_data, pop_ready = pop_ready, grant = grant, grant_ordered = grant_ordered, grant_count = grant_count)
-  mut br_arb_multi_rr_inst = br_arb_multi_rr::[name=br_arb_multi_rr_inst](clk = clk, rst = rst, enable_priority_update = br_multi_xfer_distributor_core_inst.enable_priority_update, request = br_multi_xfer_distributor_core_inst.request, grant_allowed = br_multi_xfer_distributor_core_inst.grant_allowed)
+pub mod br_multi_xfer_distributor_rr<NumSymbols=2, SymbolWidth=5, NumFlows=2, EnableCoverPushBackpressure=1, EnableCoverMorePopReadyThanSendable=0, EnableAssertPushDataStability=1, EnableAssertFinalNotSendable=0, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U2, push_data:U10, push_sendable:U2, rst:Reset) -> (pop_data:U10@[], pop_valid:U2@[], push_receivable:U2@[]) {
+  wire grant:U2 = nil
+  wire grant_ordered:U4 = nil
+  wire grant_count:U2 = nil
+  mut br_multi_xfer_distributor_core_inst = br_multi_xfer_distributor_core::[name=br_multi_xfer_distributor_core_inst](clk=clk, rst=rst, push_sendable=push_sendable, push_data=push_data, pop_ready=pop_ready, grant=grant, grant_ordered=grant_ordered, grant_count=grant_count)
+  mut br_arb_multi_rr_inst = br_arb_multi_rr::[name=br_arb_multi_rr_inst](clk=clk, rst=rst, enable_priority_update=br_multi_xfer_distributor_core_inst.enable_priority_update, request=br_multi_xfer_distributor_core_inst.request, grant_allowed=br_multi_xfer_distributor_core_inst.grant_allowed)
   grant = br_arb_multi_rr_inst.grant
   grant_ordered = br_arb_multi_rr_inst.grant_ordered
   grant_count = br_arb_multi_rr_inst.grant_count

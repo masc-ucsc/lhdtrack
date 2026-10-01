@@ -1,13 +1,3 @@
-// AddMulSgn -- the Pyrope equivalent of verilog/AddMulSgn.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 12),
-// so the generated harness and LEC bind the same external interface.
-//
-// P = (XS + XC) * Y. XS + XC is a carry-save pair; the Verilog evaluates it
-// at the 24-bit product width, so wrapping the final product is the same
-// modulo-2^24 result.
-pub comb AddMulSgn(XS:s12, XC:s12, Y:s12) -> (P:s24) { wrap  P = (XS + XC)*Y }
+pub comb AddMulSgn::[timecheck=false](XC:S12, XS:S12, Y:S12) -> (P:S24) {
+  P = ((XS + XC)*Y)#[0..=23]#sext[0..=23]
+}

@@ -12,7 +12,7 @@ path     = "delay/rtl/br_delay.sv"
 license  = "Apache-2.0"
 
 [status]
-pyrope = "idiomatic"
+pyrope = "auto"
 lec    = "proven"
 
 [pyrope]

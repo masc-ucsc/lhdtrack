@@ -1,14 +1,18 @@
-pub mod br_delay::[timecheck=false](clk:u1, rst:u1, `in`:u2) -> (out:u2@[], out_stages:u4@[]) {
-  reg stages___q:u4
-  mut stages:u4 = 0
-  stages = stages___q
-  mut stages__w1 = stages
-  stages__w1#[0..=1] = `in`
+pub mod br_delay<Width=2, NumStages=1, InitValue=0>::[timecheck=false](clk:Clock, `in`:U2, rst:U1) -> (out:U2@[], out_stages:U4@[]) {
+  reg stages___q:U4
+  mut stages__composite:U4 = 0
+  wire stages:U4 = nil
+  stages__composite = stages___q
+  mut stages__composite__w1 = stages__composite
+  stages__composite__w1#[0..=1] = `in`
   if rst != 0 {
-    stages___q#[2..=3] = 0
+    stages___q#[2..=3] = InitValue
   } else {
-    stages___q#[2..=3] = stages__w1#[0..=1]
+    stages___q#[2..=3] = stages#[0..=1]
   }
-  out = stages__w1#[2..=3]
-  out_stages = stages__w1
+  const out__w1 = (stages >> (NumStages*2))#[0..=1]
+  const out_stages__w1 = stages
+  stages = stages__composite__w1
+  out = out__w1
+  out_stages = out_stages__w1
 }

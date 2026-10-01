@@ -1,11 +1,3 @@
-// DotProductSgn -- the Pyrope equivalent of verilog/DotProductSgn.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 10),
-// so the generated harness and LEC bind the same external interface.
-//
-// Two-term signed dot product, truncated to the 20-bit result.
-pub comb DotProductSgn(a:s10, b:s10, c:s10, d:s10) -> (res:s20) { wrap  res = (a*b) + (c*d) }
+pub comb DotProductSgn::[timecheck=false](a:S10, b:S10, c:S10, d:S10) -> (res:S20) {
+  res = ((a*b) + (c*d))#[0..=19]#sext[0..=19]
+}

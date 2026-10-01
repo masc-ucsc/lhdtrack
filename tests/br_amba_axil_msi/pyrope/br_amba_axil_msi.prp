@@ -4,45 +4,316 @@ const br_flow_reg_both_p1 = import("br_flow_reg_both_p1.br_flow_reg_both_p1")
 const br_flow_reg_both_p2 = import("br_flow_reg_both_p2.br_flow_reg_both_p2")
 const br_amba = import("br_amba")
 
-pub mod br_amba_axil_msi::[timecheck=false](clk:u1, rst:u1, irq:u4, msi_dest_addr:u32, msi_enable:u4, msi_dest_idx:u4, device_id_per_irq:u64, event_id_per_irq:u64, throttle_en:u1, throttle_cntr_threshold:u4, init_awready:u1, init_wready:u1, init_bresp:u2, init_bvalid:u1) -> (error:u1@[], init_awaddr:u32@[], init_awvalid:u1@[], init_wdata:u32@[], init_wstrb:u4@[], init_wvalid:u1@[], init_bready:u1@[]) {
-  reg error:u1
-  reg irq_d:u4
-  reg pending_irq:u4
-  wire pending_irq_next:u4
-  wire flow_reg_push_ready:u4
-  wire flow_reg_pop_ready:u1
-  wire throttle_cntr_value:u4
-  wire reinit_throttle_cntr:u1
-  wire write_addr_flow_reg_push_ready:u1
-  wire write_data_flow_reg_push_ready:u1
-  mut flow_reg_push_data:u132 = 0
-  flow_reg_push_data = 0sb?
-  irq_d = if rst != 0 { 0 } else { irq }
-  mut flow_reg_push_data__w1 = flow_reg_push_data
-  flow_reg_push_data__w1#[0..=32] = ((msi_dest_idx & 1) << 32) | (device_id_per_irq#[0..=15] << 16) | event_id_per_irq#[0..=15]
-  mut flow_reg_push_data__w2 = flow_reg_push_data__w1
-  flow_reg_push_data__w2#[33..=65] = (((msi_dest_idx >> 1) & 1) << 32) | (device_id_per_irq#[16..=31] << 16) | event_id_per_irq#[16..=31]
-  mut flow_reg_push_data__w3 = flow_reg_push_data__w2
-  flow_reg_push_data__w3#[66..=98] = (((msi_dest_idx >> 2) & 1) << 32) | (device_id_per_irq#[32..=47] << 16) | event_id_per_irq#[32..=47]
-  mut flow_reg_push_data__w4 = flow_reg_push_data__w3
-  flow_reg_push_data__w4#[99..=131] = (((msi_dest_idx >> 3) & 1) << 32) | (device_id_per_irq#[48..=63] << 16) | event_id_per_irq#[48..=63]
+pub mod br_amba_axil_msi::[timecheck=false](clk:Clock, device_id_per_irq:U64, event_id_per_irq:U64, init_awready:U1, init_bresp:U2, init_bvalid:U1, init_wready:U1, irq:U4, msi_dest_addr:U32, msi_dest_idx:U4, msi_enable:U4, rst:U1, throttle_cntr_threshold:U4, throttle_en:U1) -> (error:U1@[], init_awaddr:U32@[], init_awvalid:U1@[], init_bready:U1@[], init_wdata:U32@[], init_wstrb:U4@[], init_wvalid:U1@[]) {
+  reg error:U1:[async=false, initial=0, reset_pin=rst]
+  reg irq_d:U4:[async=false, initial=0, reset_pin=rst]
+  reg pending_irq:U4:[async=false, initial=0, reset_pin=rst]
+  wire `flow_reg_push_data[0]`:U1 = nil
+  wire `flow_reg_push_data[1]`:U1 = nil
+  wire `flow_reg_push_data[2]`:U1 = nil
+  wire `flow_reg_push_data[3]`:U1 = nil
+  wire `flow_reg_push_data[4]`:U1 = nil
+  wire `flow_reg_push_data[5]`:U1 = nil
+  wire `flow_reg_push_data[6]`:U1 = nil
+  wire `flow_reg_push_data[7]`:U1 = nil
+  wire `flow_reg_push_data[8]`:U1 = nil
+  wire `flow_reg_push_data[9]`:U1 = nil
+  wire `flow_reg_push_data[10]`:U1 = nil
+  wire `flow_reg_push_data[11]`:U1 = nil
+  wire `flow_reg_push_data[12]`:U1 = nil
+  wire `flow_reg_push_data[13]`:U1 = nil
+  wire `flow_reg_push_data[14]`:U1 = nil
+  wire `flow_reg_push_data[15]`:U1 = nil
+  wire `flow_reg_push_data[16]`:U1 = nil
+  wire `flow_reg_push_data[17]`:U1 = nil
+  wire `flow_reg_push_data[18]`:U1 = nil
+  wire `flow_reg_push_data[19]`:U1 = nil
+  wire `flow_reg_push_data[20]`:U1 = nil
+  wire `flow_reg_push_data[21]`:U1 = nil
+  wire `flow_reg_push_data[22]`:U1 = nil
+  wire `flow_reg_push_data[23]`:U1 = nil
+  wire `flow_reg_push_data[24]`:U1 = nil
+  wire `flow_reg_push_data[25]`:U1 = nil
+  wire `flow_reg_push_data[26]`:U1 = nil
+  wire `flow_reg_push_data[27]`:U1 = nil
+  wire `flow_reg_push_data[28]`:U1 = nil
+  wire `flow_reg_push_data[29]`:U1 = nil
+  wire `flow_reg_push_data[30]`:U1 = nil
+  wire `flow_reg_push_data[31]`:U1 = nil
+  wire `flow_reg_push_data[32]`:U1 = nil
+  wire `flow_reg_push_data[33]`:U1 = nil
+  wire `flow_reg_push_data[34]`:U1 = nil
+  wire `flow_reg_push_data[35]`:U1 = nil
+  wire `flow_reg_push_data[36]`:U1 = nil
+  wire `flow_reg_push_data[37]`:U1 = nil
+  wire `flow_reg_push_data[38]`:U1 = nil
+  wire `flow_reg_push_data[39]`:U1 = nil
+  wire `flow_reg_push_data[40]`:U1 = nil
+  wire `flow_reg_push_data[41]`:U1 = nil
+  wire `flow_reg_push_data[42]`:U1 = nil
+  wire `flow_reg_push_data[43]`:U1 = nil
+  wire `flow_reg_push_data[44]`:U1 = nil
+  wire `flow_reg_push_data[45]`:U1 = nil
+  wire `flow_reg_push_data[46]`:U1 = nil
+  wire `flow_reg_push_data[47]`:U1 = nil
+  wire `flow_reg_push_data[48]`:U1 = nil
+  wire `flow_reg_push_data[49]`:U1 = nil
+  wire `flow_reg_push_data[50]`:U1 = nil
+  wire `flow_reg_push_data[51]`:U1 = nil
+  wire `flow_reg_push_data[52]`:U1 = nil
+  wire `flow_reg_push_data[53]`:U1 = nil
+  wire `flow_reg_push_data[54]`:U1 = nil
+  wire `flow_reg_push_data[55]`:U1 = nil
+  wire `flow_reg_push_data[56]`:U1 = nil
+  wire `flow_reg_push_data[57]`:U1 = nil
+  wire `flow_reg_push_data[58]`:U1 = nil
+  wire `flow_reg_push_data[59]`:U1 = nil
+  wire `flow_reg_push_data[60]`:U1 = nil
+  wire `flow_reg_push_data[61]`:U1 = nil
+  wire `flow_reg_push_data[62]`:U1 = nil
+  wire `flow_reg_push_data[63]`:U1 = nil
+  wire `flow_reg_push_data[64]`:U1 = nil
+  wire `flow_reg_push_data[65]`:U1 = nil
+  wire `flow_reg_push_data[66]`:U1 = nil
+  wire `flow_reg_push_data[67]`:U1 = nil
+  wire `flow_reg_push_data[68]`:U1 = nil
+  wire `flow_reg_push_data[69]`:U1 = nil
+  wire `flow_reg_push_data[70]`:U1 = nil
+  wire `flow_reg_push_data[71]`:U1 = nil
+  wire `flow_reg_push_data[72]`:U1 = nil
+  wire `flow_reg_push_data[73]`:U1 = nil
+  wire `flow_reg_push_data[74]`:U1 = nil
+  wire `flow_reg_push_data[75]`:U1 = nil
+  wire `flow_reg_push_data[76]`:U1 = nil
+  wire `flow_reg_push_data[77]`:U1 = nil
+  wire `flow_reg_push_data[78]`:U1 = nil
+  wire `flow_reg_push_data[79]`:U1 = nil
+  wire `flow_reg_push_data[80]`:U1 = nil
+  wire `flow_reg_push_data[81]`:U1 = nil
+  wire `flow_reg_push_data[82]`:U1 = nil
+  wire `flow_reg_push_data[83]`:U1 = nil
+  wire `flow_reg_push_data[84]`:U1 = nil
+  wire `flow_reg_push_data[85]`:U1 = nil
+  wire `flow_reg_push_data[86]`:U1 = nil
+  wire `flow_reg_push_data[87]`:U1 = nil
+  wire `flow_reg_push_data[88]`:U1 = nil
+  wire `flow_reg_push_data[89]`:U1 = nil
+  wire `flow_reg_push_data[90]`:U1 = nil
+  wire `flow_reg_push_data[91]`:U1 = nil
+  wire `flow_reg_push_data[92]`:U1 = nil
+  wire `flow_reg_push_data[93]`:U1 = nil
+  wire `flow_reg_push_data[94]`:U1 = nil
+  wire `flow_reg_push_data[95]`:U1 = nil
+  wire `flow_reg_push_data[96]`:U1 = nil
+  wire `flow_reg_push_data[97]`:U1 = nil
+  wire `flow_reg_push_data[98]`:U1 = nil
+  wire `flow_reg_push_data[99]`:U1 = nil
+  wire `flow_reg_push_data[100]`:U1 = nil
+  wire `flow_reg_push_data[101]`:U1 = nil
+  wire `flow_reg_push_data[102]`:U1 = nil
+  wire `flow_reg_push_data[103]`:U1 = nil
+  wire `flow_reg_push_data[104]`:U1 = nil
+  wire `flow_reg_push_data[105]`:U1 = nil
+  wire `flow_reg_push_data[106]`:U1 = nil
+  wire `flow_reg_push_data[107]`:U1 = nil
+  wire `flow_reg_push_data[108]`:U1 = nil
+  wire `flow_reg_push_data[109]`:U1 = nil
+  wire `flow_reg_push_data[110]`:U1 = nil
+  wire `flow_reg_push_data[111]`:U1 = nil
+  wire `flow_reg_push_data[112]`:U1 = nil
+  wire `flow_reg_push_data[113]`:U1 = nil
+  wire `flow_reg_push_data[114]`:U1 = nil
+  wire `flow_reg_push_data[115]`:U1 = nil
+  wire `flow_reg_push_data[116]`:U1 = nil
+  wire `flow_reg_push_data[117]`:U1 = nil
+  wire `flow_reg_push_data[118]`:U1 = nil
+  wire `flow_reg_push_data[119]`:U1 = nil
+  wire `flow_reg_push_data[120]`:U1 = nil
+  wire `flow_reg_push_data[121]`:U1 = nil
+  wire `flow_reg_push_data[122]`:U1 = nil
+  wire `flow_reg_push_data[123]`:U1 = nil
+  wire `flow_reg_push_data[124]`:U1 = nil
+  wire `flow_reg_push_data[125]`:U1 = nil
+  wire `flow_reg_push_data[126]`:U1 = nil
+  wire `flow_reg_push_data[127]`:U1 = nil
+  wire `flow_reg_push_data[128]`:U1 = nil
+  wire `flow_reg_push_data[129]`:U1 = nil
+  wire `flow_reg_push_data[130]`:U1 = nil
+  wire `flow_reg_push_data[131]`:U1 = nil
+  wire flow_reg_push_data:U132 = nil
+  wire pending_irq_next:U4 = nil
+  wire flow_reg_push_ready:U4 = nil
+  wire flow_reg_pop_ready:U1 = nil
+  wire throttle_cntr_value:U4 = nil
+  wire reinit_throttle_cntr:U1 = nil
+  wire write_addr_flow_reg_push_ready:U1 = nil
+  wire write_data_flow_reg_push_ready:U1 = nil
+  if not (rst != 0) {
+    irq_d = irq
+  }
+  const t28 = ((msi_dest_idx & 1) << 32) | (device_id_per_irq#[0..=15] << 16) | event_id_per_irq#[0..=15]
+  `flow_reg_push_data[0]` = t28 & 1
+  `flow_reg_push_data[1]` = (t28 >> 1) & 1
+  `flow_reg_push_data[2]` = (t28 >> 2) & 1
+  `flow_reg_push_data[3]` = (t28 >> 3) & 1
+  `flow_reg_push_data[4]` = (t28 >> 4) & 1
+  `flow_reg_push_data[5]` = (t28 >> 5) & 1
+  `flow_reg_push_data[6]` = (t28 >> 6) & 1
+  `flow_reg_push_data[7]` = (t28 >> 7) & 1
+  `flow_reg_push_data[8]` = (t28 >> 8) & 1
+  `flow_reg_push_data[9]` = (t28 >> 9) & 1
+  `flow_reg_push_data[10]` = (t28 >> 10) & 1
+  `flow_reg_push_data[11]` = (t28 >> 11) & 1
+  `flow_reg_push_data[12]` = (t28 >> 12) & 1
+  `flow_reg_push_data[13]` = (t28 >> 13) & 1
+  `flow_reg_push_data[14]` = (t28 >> 14) & 1
+  `flow_reg_push_data[15]` = (t28 >> 15) & 1
+  `flow_reg_push_data[16]` = (t28 >> 16) & 1
+  `flow_reg_push_data[17]` = (t28 >> 17) & 1
+  `flow_reg_push_data[18]` = (t28 >> 18) & 1
+  `flow_reg_push_data[19]` = (t28 >> 19) & 1
+  `flow_reg_push_data[20]` = (t28 >> 20) & 1
+  `flow_reg_push_data[21]` = (t28 >> 21) & 1
+  `flow_reg_push_data[22]` = (t28 >> 22) & 1
+  `flow_reg_push_data[23]` = (t28 >> 23) & 1
+  `flow_reg_push_data[24]` = (t28 >> 24) & 1
+  `flow_reg_push_data[25]` = (t28 >> 25) & 1
+  `flow_reg_push_data[26]` = (t28 >> 26) & 1
+  `flow_reg_push_data[27]` = (t28 >> 27) & 1
+  `flow_reg_push_data[28]` = (t28 >> 28) & 1
+  `flow_reg_push_data[29]` = (t28 >> 29) & 1
+  `flow_reg_push_data[30]` = (t28 >> 30) & 1
+  `flow_reg_push_data[31]` = (t28 >> 31) & 1
+  `flow_reg_push_data[32]` = (t28 >> 32) & 1
+  const t98 = (((msi_dest_idx >> 1) & 1) << 32) | (device_id_per_irq#[16..=31] << 16) | event_id_per_irq#[16..=31]
+  `flow_reg_push_data[33]` = t98 & 1
+  `flow_reg_push_data[34]` = (t98 >> 1) & 1
+  `flow_reg_push_data[35]` = (t98 >> 2) & 1
+  `flow_reg_push_data[36]` = (t98 >> 3) & 1
+  `flow_reg_push_data[37]` = (t98 >> 4) & 1
+  `flow_reg_push_data[38]` = (t98 >> 5) & 1
+  `flow_reg_push_data[39]` = (t98 >> 6) & 1
+  `flow_reg_push_data[40]` = (t98 >> 7) & 1
+  `flow_reg_push_data[41]` = (t98 >> 8) & 1
+  `flow_reg_push_data[42]` = (t98 >> 9) & 1
+  `flow_reg_push_data[43]` = (t98 >> 10) & 1
+  `flow_reg_push_data[44]` = (t98 >> 11) & 1
+  `flow_reg_push_data[45]` = (t98 >> 12) & 1
+  `flow_reg_push_data[46]` = (t98 >> 13) & 1
+  `flow_reg_push_data[47]` = (t98 >> 14) & 1
+  `flow_reg_push_data[48]` = (t98 >> 15) & 1
+  `flow_reg_push_data[49]` = (t98 >> 16) & 1
+  `flow_reg_push_data[50]` = (t98 >> 17) & 1
+  `flow_reg_push_data[51]` = (t98 >> 18) & 1
+  `flow_reg_push_data[52]` = (t98 >> 19) & 1
+  `flow_reg_push_data[53]` = (t98 >> 20) & 1
+  `flow_reg_push_data[54]` = (t98 >> 21) & 1
+  `flow_reg_push_data[55]` = (t98 >> 22) & 1
+  `flow_reg_push_data[56]` = (t98 >> 23) & 1
+  `flow_reg_push_data[57]` = (t98 >> 24) & 1
+  `flow_reg_push_data[58]` = (t98 >> 25) & 1
+  `flow_reg_push_data[59]` = (t98 >> 26) & 1
+  `flow_reg_push_data[60]` = (t98 >> 27) & 1
+  `flow_reg_push_data[61]` = (t98 >> 28) & 1
+  `flow_reg_push_data[62]` = (t98 >> 29) & 1
+  `flow_reg_push_data[63]` = (t98 >> 30) & 1
+  `flow_reg_push_data[64]` = (t98 >> 31) & 1
+  `flow_reg_push_data[65]` = (t98 >> 32) & 1
+  const t168 = (((msi_dest_idx >> 2) & 1) << 32) | (device_id_per_irq#[32..=47] << 16) | event_id_per_irq#[32..=47]
+  `flow_reg_push_data[66]` = t168 & 1
+  `flow_reg_push_data[67]` = (t168 >> 1) & 1
+  `flow_reg_push_data[68]` = (t168 >> 2) & 1
+  `flow_reg_push_data[69]` = (t168 >> 3) & 1
+  `flow_reg_push_data[70]` = (t168 >> 4) & 1
+  `flow_reg_push_data[71]` = (t168 >> 5) & 1
+  `flow_reg_push_data[72]` = (t168 >> 6) & 1
+  `flow_reg_push_data[73]` = (t168 >> 7) & 1
+  `flow_reg_push_data[74]` = (t168 >> 8) & 1
+  `flow_reg_push_data[75]` = (t168 >> 9) & 1
+  `flow_reg_push_data[76]` = (t168 >> 10) & 1
+  `flow_reg_push_data[77]` = (t168 >> 11) & 1
+  `flow_reg_push_data[78]` = (t168 >> 12) & 1
+  `flow_reg_push_data[79]` = (t168 >> 13) & 1
+  `flow_reg_push_data[80]` = (t168 >> 14) & 1
+  `flow_reg_push_data[81]` = (t168 >> 15) & 1
+  `flow_reg_push_data[82]` = (t168 >> 16) & 1
+  `flow_reg_push_data[83]` = (t168 >> 17) & 1
+  `flow_reg_push_data[84]` = (t168 >> 18) & 1
+  `flow_reg_push_data[85]` = (t168 >> 19) & 1
+  `flow_reg_push_data[86]` = (t168 >> 20) & 1
+  `flow_reg_push_data[87]` = (t168 >> 21) & 1
+  `flow_reg_push_data[88]` = (t168 >> 22) & 1
+  `flow_reg_push_data[89]` = (t168 >> 23) & 1
+  `flow_reg_push_data[90]` = (t168 >> 24) & 1
+  `flow_reg_push_data[91]` = (t168 >> 25) & 1
+  `flow_reg_push_data[92]` = (t168 >> 26) & 1
+  `flow_reg_push_data[93]` = (t168 >> 27) & 1
+  `flow_reg_push_data[94]` = (t168 >> 28) & 1
+  `flow_reg_push_data[95]` = (t168 >> 29) & 1
+  `flow_reg_push_data[96]` = (t168 >> 30) & 1
+  `flow_reg_push_data[97]` = (t168 >> 31) & 1
+  `flow_reg_push_data[98]` = (t168 >> 32) & 1
+  const t238 = (((msi_dest_idx >> 3) & 1) << 32) | (device_id_per_irq#[48..=63] << 16) | event_id_per_irq#[48..=63]
+  `flow_reg_push_data[99]` = t238 & 1
+  `flow_reg_push_data[100]` = (t238 >> 1) & 1
+  `flow_reg_push_data[101]` = (t238 >> 2) & 1
+  `flow_reg_push_data[102]` = (t238 >> 3) & 1
+  `flow_reg_push_data[103]` = (t238 >> 4) & 1
+  `flow_reg_push_data[104]` = (t238 >> 5) & 1
+  `flow_reg_push_data[105]` = (t238 >> 6) & 1
+  `flow_reg_push_data[106]` = (t238 >> 7) & 1
+  `flow_reg_push_data[107]` = (t238 >> 8) & 1
+  `flow_reg_push_data[108]` = (t238 >> 9) & 1
+  `flow_reg_push_data[109]` = (t238 >> 10) & 1
+  `flow_reg_push_data[110]` = (t238 >> 11) & 1
+  `flow_reg_push_data[111]` = (t238 >> 12) & 1
+  `flow_reg_push_data[112]` = (t238 >> 13) & 1
+  `flow_reg_push_data[113]` = (t238 >> 14) & 1
+  `flow_reg_push_data[114]` = (t238 >> 15) & 1
+  `flow_reg_push_data[115]` = (t238 >> 16) & 1
+  `flow_reg_push_data[116]` = (t238 >> 17) & 1
+  `flow_reg_push_data[117]` = (t238 >> 18) & 1
+  `flow_reg_push_data[118]` = (t238 >> 19) & 1
+  `flow_reg_push_data[119]` = (t238 >> 20) & 1
+  `flow_reg_push_data[120]` = (t238 >> 21) & 1
+  `flow_reg_push_data[121]` = (t238 >> 22) & 1
+  `flow_reg_push_data[122]` = (t238 >> 23) & 1
+  `flow_reg_push_data[123]` = (t238 >> 24) & 1
+  `flow_reg_push_data[124]` = (t238 >> 25) & 1
+  `flow_reg_push_data[125]` = (t238 >> 26) & 1
+  `flow_reg_push_data[126]` = (t238 >> 27) & 1
+  `flow_reg_push_data[127]` = (t238 >> 28) & 1
+  `flow_reg_push_data[128]` = (t238 >> 29) & 1
+  `flow_reg_push_data[129]` = (t238 >> 30) & 1
+  `flow_reg_push_data[130]` = (t238 >> 31) & 1
+  `flow_reg_push_data[131]` = (t238 >> 32) & 1
   const flow_reg_push_valid__w1 = pending_irq
-  const clear_to_send__w1 = unsigned((((~throttle_en) & 1) != 0) or (unsigned(throttle_cntr_value == 0) != 0))
-  error = if rst != 0 { 0 } else { unsigned((init_bvalid != 0) and true and (init_bresp != br_amba.AxiRespOkay)) }
-  pending_irq = if rst != 0 { 0 } else { pending_irq_next }
-  pending_irq_next = (msi_enable & (pending_irq | (irq & (~irq_d)#[0..=3]))) & (~(flow_reg_push_ready & flow_reg_push_valid__w1))#[0..=3]
-  mut br_flow_mux_rr_stable = br_flow_mux_rr_stable_t::[name=br_flow_mux_rr_stable](clk = clk, rst = rst, push_valid = flow_reg_push_valid__w1, push_data = flow_reg_push_data__w4, pop_ready = flow_reg_pop_ready)
+  mut _b2i_4 = if (~throttle_en) != 0 or U1(throttle_cntr_value == 0) != 0 { 1 } else { 0 }
+  const clear_to_send__w1 = _b2i_4
+  if not (rst != 0) {
+    error = U1(init_bvalid != 0 and true and init_bresp != br_amba.AxiRespOkay)
+  }
+  if not (rst != 0) {
+    pending_irq = pending_irq_next
+  }
+  pending_irq_next = (msi_enable & (pending_irq | (irq & (~irq_d)))) & (~(flow_reg_push_ready & flow_reg_push_valid__w1)#[0..=3])
+  mut br_flow_mux_rr_stable = br_flow_mux_rr_stable_t::[name=br_flow_mux_rr_stable](clk=clk, rst=rst, push_valid=flow_reg_push_valid__w1, push_data=flow_reg_push_data, pop_ready=flow_reg_pop_ready)
   flow_reg_push_ready = br_flow_mux_rr_stable.push_ready
-  mut br_counter_decr_throttle = br_counter_decr::[name=br_counter_decr_throttle](clk = clk, rst = rst, reinit = reinit_throttle_cntr, initial_value = throttle_cntr_threshold, decr_valid = br_flow_mux_rr_stable.pop_valid, decr = 1)
+  mut br_counter_decr_throttle = br_counter_decr::[name=br_counter_decr_throttle](clk=clk, rst=rst, reinit=reinit_throttle_cntr, initial_value=throttle_cntr_threshold, decr_valid=br_flow_mux_rr_stable.pop_valid, decr=1)
   throttle_cntr_value = br_counter_decr_throttle.value
-  reinit_throttle_cntr = unsigned((((~br_flow_mux_rr_stable.pop_valid) & 1) != 0) or (flow_reg_pop_ready != 0))
-  const write_addr_flow_reg_push_valid__w1 = unsigned((br_flow_mux_rr_stable.pop_valid != 0) and (clear_to_send__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_ready != 0))
-  const write_data_flow_reg_push_valid__w1 = unsigned((br_flow_mux_rr_stable.pop_valid != 0) and (clear_to_send__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_ready != 0))
-  flow_reg_pop_ready = unsigned((write_addr_flow_reg_push_valid__w1 != 0) and (write_addr_flow_reg_push_ready != 0) and (write_data_flow_reg_push_valid__w1 != 0) and (write_data_flow_reg_push_ready != 0))
-  mut br_flow_reg_both_write_addr = br_flow_reg_both_p1::[name=br_flow_reg_both_write_addr](clk = clk, rst = rst, push_valid = write_addr_flow_reg_push_valid__w1, push_data = (((msi_dest_addr << 32) >> ((((br_flow_mux_rr_stable.pop_data >> 32) & 1) * 32) + 32))#[0..=31] + ((br_flow_mux_rr_stable.pop_data >> 16)#[0..=15] << 2))#[0..=31], pop_ready = init_awready)
+  mut _b2i_6 = if (~br_flow_mux_rr_stable.pop_valid#[0]) != 0 or flow_reg_pop_ready != 0 { 1 } else { 0 }
+  reinit_throttle_cntr = _b2i_6
+  mut _b2i_10 = if br_flow_mux_rr_stable.pop_valid != 0 and clear_to_send__w1 != 0 and write_addr_flow_reg_push_ready != 0 and write_data_flow_reg_push_ready != 0 { 1 } else { 0 }
+  const write_addr_flow_reg_push_valid__w1 = _b2i_10
+  mut _b2i_11 = if br_flow_mux_rr_stable.pop_valid != 0 and clear_to_send__w1 != 0 and write_addr_flow_reg_push_ready != 0 and write_data_flow_reg_push_ready != 0 { 1 } else { 0 }
+  const write_data_flow_reg_push_valid__w1 = _b2i_11
+  mut _b2i_12 = if write_addr_flow_reg_push_valid__w1 != 0 and write_addr_flow_reg_push_ready != 0 and write_data_flow_reg_push_valid__w1 != 0 and write_data_flow_reg_push_ready != 0 { 1 } else { 0 }
+  flow_reg_pop_ready = _b2i_12
+  mut br_flow_reg_both_write_addr = br_flow_reg_both_p1::[name=br_flow_reg_both_write_addr](clk=clk, rst=rst, push_valid=write_addr_flow_reg_push_valid__w1, push_data=(((msi_dest_addr << 32) >> ((((br_flow_mux_rr_stable.pop_data >> 32) & 1)*32) + 32))#[0..=31] + ((br_flow_mux_rr_stable.pop_data >> 16)#[0..=15] << 2))#[0..=31], pop_ready=init_awready)
   write_addr_flow_reg_push_ready = br_flow_reg_both_write_addr.push_ready
-  mut br_flow_reg_both_write_data = br_flow_reg_both_p2::[name=br_flow_reg_both_write_data](clk = clk, rst = rst, push_valid = write_data_flow_reg_push_valid__w1, push_data = (br_flow_mux_rr_stable.pop_data#[0..=15] << 4) | 15, pop_ready = init_wready)
+  mut br_flow_reg_both_write_data = br_flow_reg_both_p2::[name=br_flow_reg_both_write_data](clk=clk, rst=rst, push_valid=write_data_flow_reg_push_valid__w1, push_data=(br_flow_mux_rr_stable.pop_data#[0..=15] << 4) | 15, pop_ready=init_wready)
   write_data_flow_reg_push_ready = br_flow_reg_both_write_data.push_ready
+  flow_reg_push_data = (`flow_reg_push_data[131]` << 131) | (`flow_reg_push_data[130]` << 130) | (`flow_reg_push_data[129]` << 129) | (`flow_reg_push_data[128]` << 128) | (`flow_reg_push_data[127]` << 127) | (`flow_reg_push_data[126]` << 126) | (`flow_reg_push_data[125]` << 125) | (`flow_reg_push_data[124]` << 124) | (`flow_reg_push_data[123]` << 123) | (`flow_reg_push_data[122]` << 122) | (`flow_reg_push_data[121]` << 121) | (`flow_reg_push_data[120]` << 120) | (`flow_reg_push_data[119]` << 119) | (`flow_reg_push_data[118]` << 118) | (`flow_reg_push_data[117]` << 117) | (`flow_reg_push_data[116]` << 116) | (`flow_reg_push_data[115]` << 115) | (`flow_reg_push_data[114]` << 114) | (`flow_reg_push_data[113]` << 113) | (`flow_reg_push_data[112]` << 112) | (`flow_reg_push_data[111]` << 111) | (`flow_reg_push_data[110]` << 110) | (`flow_reg_push_data[109]` << 109) | (`flow_reg_push_data[108]` << 108) | (`flow_reg_push_data[107]` << 107) | (`flow_reg_push_data[106]` << 106) | (`flow_reg_push_data[105]` << 105) | (`flow_reg_push_data[104]` << 104) | (`flow_reg_push_data[103]` << 103) | (`flow_reg_push_data[102]` << 102) | (`flow_reg_push_data[101]` << 101) | (`flow_reg_push_data[100]` << 100) | (`flow_reg_push_data[99]` << 99) | (`flow_reg_push_data[98]` << 98) | (`flow_reg_push_data[97]` << 97) | (`flow_reg_push_data[96]` << 96) | (`flow_reg_push_data[95]` << 95) | (`flow_reg_push_data[94]` << 94) | (`flow_reg_push_data[93]` << 93) | (`flow_reg_push_data[92]` << 92) | (`flow_reg_push_data[91]` << 91) | (`flow_reg_push_data[90]` << 90) | (`flow_reg_push_data[89]` << 89) | (`flow_reg_push_data[88]` << 88) | (`flow_reg_push_data[87]` << 87) | (`flow_reg_push_data[86]` << 86) | (`flow_reg_push_data[85]` << 85) | (`flow_reg_push_data[84]` << 84) | (`flow_reg_push_data[83]` << 83) | (`flow_reg_push_data[82]` << 82) | (`flow_reg_push_data[81]` << 81) | (`flow_reg_push_data[80]` << 80) | (`flow_reg_push_data[79]` << 79) | (`flow_reg_push_data[78]` << 78) | (`flow_reg_push_data[77]` << 77) | (`flow_reg_push_data[76]` << 76) | (`flow_reg_push_data[75]` << 75) | (`flow_reg_push_data[74]` << 74) | (`flow_reg_push_data[73]` << 73) | (`flow_reg_push_data[72]` << 72) | (`flow_reg_push_data[71]` << 71) | (`flow_reg_push_data[70]` << 70) | (`flow_reg_push_data[69]` << 69) | (`flow_reg_push_data[68]` << 68) | (`flow_reg_push_data[67]` << 67) | (`flow_reg_push_data[66]` << 66) | (`flow_reg_push_data[65]` << 65) | (`flow_reg_push_data[64]` << 64) | (`flow_reg_push_data[63]` << 63) | (`flow_reg_push_data[62]` << 62) | (`flow_reg_push_data[61]` << 61) | (`flow_reg_push_data[60]` << 60) | (`flow_reg_push_data[59]` << 59) | (`flow_reg_push_data[58]` << 58) | (`flow_reg_push_data[57]` << 57) | (`flow_reg_push_data[56]` << 56) | (`flow_reg_push_data[55]` << 55) | (`flow_reg_push_data[54]` << 54) | (`flow_reg_push_data[53]` << 53) | (`flow_reg_push_data[52]` << 52) | (`flow_reg_push_data[51]` << 51) | (`flow_reg_push_data[50]` << 50) | (`flow_reg_push_data[49]` << 49) | (`flow_reg_push_data[48]` << 48) | (`flow_reg_push_data[47]` << 47) | (`flow_reg_push_data[46]` << 46) | (`flow_reg_push_data[45]` << 45) | (`flow_reg_push_data[44]` << 44) | (`flow_reg_push_data[43]` << 43) | (`flow_reg_push_data[42]` << 42) | (`flow_reg_push_data[41]` << 41) | (`flow_reg_push_data[40]` << 40) | (`flow_reg_push_data[39]` << 39) | (`flow_reg_push_data[38]` << 38) | (`flow_reg_push_data[37]` << 37) | (`flow_reg_push_data[36]` << 36) | (`flow_reg_push_data[35]` << 35) | (`flow_reg_push_data[34]` << 34) | (`flow_reg_push_data[33]` << 33) | (`flow_reg_push_data[32]` << 32) | (`flow_reg_push_data[31]` << 31) | (`flow_reg_push_data[30]` << 30) | (`flow_reg_push_data[29]` << 29) | (`flow_reg_push_data[28]` << 28) | (`flow_reg_push_data[27]` << 27) | (`flow_reg_push_data[26]` << 26) | (`flow_reg_push_data[25]` << 25) | (`flow_reg_push_data[24]` << 24) | (`flow_reg_push_data[23]` << 23) | (`flow_reg_push_data[22]` << 22) | (`flow_reg_push_data[21]` << 21) | (`flow_reg_push_data[20]` << 20) | (`flow_reg_push_data[19]` << 19) | (`flow_reg_push_data[18]` << 18) | (`flow_reg_push_data[17]` << 17) | (`flow_reg_push_data[16]` << 16) | (`flow_reg_push_data[15]` << 15) | (`flow_reg_push_data[14]` << 14) | (`flow_reg_push_data[13]` << 13) | (`flow_reg_push_data[12]` << 12) | (`flow_reg_push_data[11]` << 11) | (`flow_reg_push_data[10]` << 10) | (`flow_reg_push_data[9]` << 9) | (`flow_reg_push_data[8]` << 8) | (`flow_reg_push_data[7]` << 7) | (`flow_reg_push_data[6]` << 6) | (`flow_reg_push_data[5]` << 5) | (`flow_reg_push_data[4]` << 4) | (`flow_reg_push_data[3]` << 3) | (`flow_reg_push_data[2]` << 2) | (`flow_reg_push_data[1]` << 1) | `flow_reg_push_data[0]`
   init_awaddr = br_flow_reg_both_write_addr.pop_data
   init_awvalid = br_flow_reg_both_write_addr.pop_valid
   init_wdata = (br_flow_reg_both_write_data.pop_data >> 4)#[0..=31]

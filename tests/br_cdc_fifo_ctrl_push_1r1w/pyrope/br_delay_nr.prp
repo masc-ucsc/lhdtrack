@@ -1,10 +1,10 @@
 // Delay a WIDTH-bit value by NUM_STAGES cycles through flops without reset.
 // stages holds the pipeline, newest value in the low WIDTH bits; all flops
-// are clocked by clk (the implicit clock binds to an input named clk).
-pub mod br_delay_nr<WIDTH=1, NUM_STAGES=1>(clk:u1, `in`:unsigned(bits=WIDTH)) -> (out:unsigned(bits=WIDTH)@[]) {
+// are clocked by the typed Clock input, regardless of its name.
+pub mod br_delay_nr<WIDTH=1, NUM_STAGES=1>(clk:Clock, `in`:Unsigned(bits=WIDTH)) -> (out:Unsigned(bits=WIDTH)@[]) {
   cassert(NUM_STAGES >= 1)
 
-  reg stages:unsigned(bits=WIDTH * NUM_STAGES) = nil
+  reg stages:Unsigned(bits=WIDTH*NUM_STAGES) = nil
   wrap stages = (stages << WIDTH) | `in`
-  out    = stages#[(WIDTH*(NUM_STAGES - 1))..+WIDTH]
+  out = stages#[(WIDTH*(NUM_STAGES - 1))..+WIDTH]
 }

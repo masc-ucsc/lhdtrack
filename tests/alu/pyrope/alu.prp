@@ -1,5 +1,6 @@
-pub comb alu::[timecheck=false](a:u8, b:u8, op:u3) -> (result:u8, zero:u1) {
+pub comb alu::[timecheck=false](a:U8, b:U8, op:U3) -> (result:U8, zero:U1) {
   result = 0sb?
-  result = unique if op == 0 { (a + b)#[0..=7] } elif op == 1 { (a - b)#[0..=7] } elif op == 2 { a & b } elif op == 3 { a | b } elif op == 4 { a ^ b } elif op == 5 { (~a)#[0..=7] } elif op == 6 { (a << b#[0..=2])#[0..=7] } elif op == 7 { a >> b#[0..=2] } else { 0 }
-  zero = unsigned(result == 0)
+  result = unique if op == 0 { (a + b)#[0..=7] } elif op == 1 { (a - b)#[0..=7] } elif op == 2 { a & b } elif op == 3 { a | b } elif op == 4 { a ^ b } elif op == 5 { ~a } elif op == 6 { (a << b#[0..=2])#[0..=7] } elif op == 7 { a >> b#[0..=2] } else { 0 }
+  mut _b2i_1 = if result == 0 { 1 } else { 0 }
+  zero = _b2i_1
 }

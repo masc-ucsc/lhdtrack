@@ -1,11 +1,15 @@
-pub mod br_delay_nr_p1::[timecheck=false](clk:u1, `in`:u6) -> (out:u6@[], out_stages:u18@[]) {
-  reg stages___q:u18
-  mut stages:u18 = 0
-  stages = stages___q
-  mut stages__w1 = stages
-  stages__w1#[0..=5] = `in`
-  stages___q#[6..=11] = stages__w1#[0..=5]
-  stages___q#[12..=17] = stages__w1#[6..=11]
-  out = stages__w1#[12..=17]
-  out_stages = stages__w1
+pub mod br_delay_nr_p1<Width=6, NumStages=2>::[timecheck=false](clk:Clock, `in`:U6) -> (out:U6@[], out_stages:U18@[]) {
+  reg stages___q:U18
+  mut stages__composite:U18 = 0
+  wire stages:U18 = nil
+  stages__composite = stages___q
+  mut stages__composite__w1 = stages__composite
+  stages__composite__w1#[0..=5] = `in`
+  stages___q#[6..=11] = stages#[0..=5]
+  stages___q#[12..=17] = stages#[6..=11]
+  const out__w1 = (stages >> (NumStages*6))#[0..=5]
+  const out_stages__w1 = stages
+  stages = stages__composite__w1
+  out = out__w1
+  out_stages = out_stages__w1
 }

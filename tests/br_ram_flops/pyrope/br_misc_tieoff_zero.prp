@@ -1,0 +1,3 @@
+pub comb br_misc_tieoff_zero<Width=4>::[timecheck=false]() -> (out:U4) {
+  out = 0
+}

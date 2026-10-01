@@ -1,42 +1,18 @@
-const br_cdc_fifo_push_flag_mgr = import("br_cdc_fifo_push_flag_mgr.br_cdc_fifo_push_flag_mgr")
+const br_cdc_fifo_push_flag_mgr_t = import("br_cdc_fifo_push_flag_mgr.br_cdc_fifo_push_flag_mgr")
+const br_fifo_push_ctrl_core_t = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
 
-// Push side of a CDC FIFO controller: accepts data while not full and writes
-// it to consecutive RAM entries. Every flop is in the clk (push) domain.
-pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
-  clk:u1,
-  rst:u1,
-  push_valid:bool,
-  push_data:unsigned(bits=WIDTH),
-  pop_count_gray:unsigned(bits=COUNT_WIDTH),
-  reset_active_pop:bool
-) -> (
-  push_ready:bool@[],
-  full:bool@[],
-  slots:unsigned(bits=COUNT_WIDTH)@[],
-  ram_wr_valid:bool@[],
-  ram_wr_addr:unsigned(max=DEPTH - 1)@[],
-  ram_wr_data:unsigned(bits=WIDTH)@[],
-  push_count_gray:unsigned(bits=COUNT_WIDTH)@[],
-  reset_active_push:bool@[]
-) {
-  wire push_beat:bool = nil
-  const flags         = br_cdc_fifo_push_flag_mgr<DEPTH=DEPTH,COUNT_WIDTH=COUNT_WIDTH,PUSH_COUNT_DELAY=PUSH_COUNT_DELAY>(
-    clk=clk, rst=rst, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop
-  )
-  push_beat = push_valid and not flags.full
-
-  // Write address walks the RAM entries 0..DEPTH-1 and wraps.
-  reg wr_addr:unsigned(max=DEPTH - 1):[reset_pin = ref rst] = 0
-  if push_beat {
-    wrap wr_addr = if wr_addr == DEPTH - 1 { 0 } else { wr_addr + 1 }
-  }
-
-  push_ready        = not flags.full
-  full              = flags.full
-  slots             = flags.slots
-  ram_wr_valid      = push_beat
-  ram_wr_addr       = wr_addr
-  ram_wr_data       = push_data
-  push_count_gray   = flags.push_count_gray
-  reset_active_push = flags.reset_active_push
+pub mod br_cdc_fifo_push_ctrl<Depth=32, Width=0x40, RamWriteLatency=2, RegisterResetActive=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_count_gray:U6, push_data:U64, push_valid:U1, reset_active_pop:U1, rst:Reset) -> (full:U1@[], push_count_gray:U6@[], push_ready:U1@[], ram_wr_addr:U5@[], ram_wr_data:U64@[], ram_wr_valid:U1@[], reset_active_push:U1@[], slots:U6@[]) {
+  wire push_beat:U1 = nil
+  full = 0ub?
+  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk=clk, rst=rst, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, bypass_ready=0, addr_base=0, addr_bound=(Depth - 1)#[0..=4], full=br_cdc_fifo_push_flag_mgr.full)
+  push_beat = br_fifo_push_ctrl_core.push_beat
+  push_ready = br_fifo_push_ctrl_core.push_ready
+  full = br_cdc_fifo_push_flag_mgr.full
+  slots = br_cdc_fifo_push_flag_mgr.slots
+  ram_wr_valid = br_fifo_push_ctrl_core.ram_wr_valid
+  ram_wr_addr = br_fifo_push_ctrl_core.ram_wr_addr
+  ram_wr_data = br_fifo_push_ctrl_core.ram_wr_data
+  push_count_gray = br_cdc_fifo_push_flag_mgr.push_count_gray
+  reset_active_push = br_cdc_fifo_push_flag_mgr.reset_active_push
 }

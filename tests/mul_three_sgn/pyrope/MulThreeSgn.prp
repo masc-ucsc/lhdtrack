@@ -1,18 +1,3 @@
-// MulThreeSgn -- the Pyrope equivalent of verilog/MulThreeSgn.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 8),
-// so the generated harness and LEC bind the same external interface.
-//
-// Signed triple product in the 8-bit result width. Each partial product is
-// truncated as it is formed, which is what the Verilog's 8-bit context does
-// (the same value as truncating once, and far cheaper to prove). `d` is
-// declared but unused upstream; it stays in the interface so both sides bind
-// the same ports.
-pub comb MulThreeSgn(a:s8, b:s8, c:s8, d:s8) -> (product:s8) {
-  wrap const ab:s8 = a*b
-  wrap product = ab*c
+pub comb MulThreeSgn::[timecheck=false](a:S8, b:S8, c:S8, d:S8) -> (product:S8) {
+  product = ((a*b)#[0..=7]#sext[0..=7]*c)#[0..=7]#sext[0..=7]
 }

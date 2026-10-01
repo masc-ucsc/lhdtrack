@@ -2,21 +2,22 @@ const br_fifo_shared_dynamic_ctrl_push_credit_pop_credit = import("br_fifo_share
 const br_ram_flops = import("br_ram_flops.br_ram_flops")
 const br_ram_flops_p1 = import("br_ram_flops_p1.br_ram_flops_p1")
 
-pub mod br_fifo_shared_dynamic_flops_push_credit_pop_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u2, push_data:u64, push_fifo_id:u2, credit_initial_push:u6, credit_withhold_push:u6, pop_receiver_in_reset:u1, pop_credit:u2, credit_initial_pop:u6, credit_withhold_pop:u6) -> (push_receiver_in_reset:u1@[], push_credit:u2@[], push_full:u1@[], credit_available_push:u6@[], credit_count_push:u6@[], pop_sender_in_reset:u1@[], pop_valid:u2@[], pop_fifo_id:u2@[], pop_data:u64@[], pop_empty:u2@[], credit_available_pop:u6@[], credit_count_pop:u6@[]) {
-  wire data_ram_wr_valid:u2
-  wire data_ram_wr_addr:u10
-  wire data_ram_wr_data:u64
-  wire data_ram_rd_addr_valid:u2
-  wire data_ram_rd_addr:u10
-  wire ptr_ram_wr_valid:u2
-  wire ptr_ram_wr_addr:u10
-  wire ptr_ram_wr_data:u10
-  wire ptr_ram_rd_addr_valid:u2
-  wire ptr_ram_rd_addr:u10
-  const any_rst__w1 = unsigned((rst != 0) or (push_sender_in_reset != 0) or (pop_receiver_in_reset != 0))
-  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk = clk, wr_rst = any_rst__w1, `wr_valid.e1` = (data_ram_wr_valid >> 1) & 1, `wr_valid.e0` = data_ram_wr_valid & 1, wr_addr = data_ram_wr_addr, wr_data = data_ram_wr_data, `wr_word_en.e1` = 1, `wr_word_en.e0` = 1, rd_clk = clk, rd_rst = any_rst__w1, `rd_addr_valid.e1` = (data_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0` = data_ram_rd_addr_valid & 1, rd_addr = data_ram_rd_addr)
-  mut br_ram_flops_pointer = br_ram_flops_p1::[name=br_ram_flops_pointer](wr_clk = clk, wr_rst = any_rst__w1, `wr_valid.e1` = (ptr_ram_wr_valid >> 1) & 1, `wr_valid.e0` = ptr_ram_wr_valid & 1, wr_addr = ptr_ram_wr_addr, wr_data = ptr_ram_wr_data, `wr_word_en.e1` = 1, `wr_word_en.e0` = 1, rd_clk = clk, rd_rst = any_rst__w1, `rd_addr_valid.e1` = (ptr_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0` = ptr_ram_rd_addr_valid & 1, rd_addr = ptr_ram_rd_addr)
-  mut br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst = br_fifo_shared_dynamic_ctrl_push_credit_pop_credit::[name=br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, push_fifo_id = push_fifo_id, credit_initial_push = credit_initial_push, credit_withhold_push = credit_withhold_push, pop_receiver_in_reset = pop_receiver_in_reset, pop_credit = pop_credit, credit_initial_pop = credit_initial_pop, credit_withhold_pop = credit_withhold_pop, data_ram_rd_data_valid = (br_ram_flops_data.rd_data_valid.e1 << 1) | br_ram_flops_data.rd_data_valid.e0, data_ram_rd_data = br_ram_flops_data.rd_data, ptr_ram_rd_data_valid = (br_ram_flops_pointer.rd_data_valid.e1 << 1) | br_ram_flops_pointer.rd_data_valid.e0, ptr_ram_rd_data = br_ram_flops_pointer.rd_data)
+pub mod br_fifo_shared_dynamic_flops_push_credit_pop_credit::[timecheck=false](clk:Clock, credit_initial_pop:U6, credit_initial_push:U6, credit_withhold_pop:U6, credit_withhold_push:U6, pop_credit:U2, pop_receiver_in_reset:U1, push_credit_stall:U1, push_data:U64, push_fifo_id:U2, push_sender_in_reset:U1, push_valid:U2, rst:U1) -> (credit_available_pop:U6@[], credit_available_push:U6@[], credit_count_pop:U6@[], credit_count_push:U6@[], pop_data:U64@[], pop_empty:U2@[], pop_fifo_id:U2@[], pop_sender_in_reset:U1@[], pop_valid:U2@[], push_credit:U2@[], push_full:U1@[], push_receiver_in_reset:U1@[]) {
+  wire data_ram_wr_valid:U2 = nil
+  wire data_ram_wr_addr:U10 = nil
+  wire data_ram_wr_data:U64 = nil
+  wire data_ram_rd_addr_valid:U2 = nil
+  wire data_ram_rd_addr:U10 = nil
+  wire ptr_ram_wr_valid:U2 = nil
+  wire ptr_ram_wr_addr:U10 = nil
+  wire ptr_ram_wr_data:U10 = nil
+  wire ptr_ram_rd_addr_valid:U2 = nil
+  wire ptr_ram_rd_addr:U10 = nil
+  mut _b2i_1 = if rst != 0 or push_sender_in_reset != 0 or pop_receiver_in_reset != 0 { 1 } else { 0 }
+  const any_rst__w1 = _b2i_1
+  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk=clk, wr_rst=any_rst__w1, `wr_valid.e1`=(data_ram_wr_valid >> 1) & 1, `wr_valid.e0`=data_ram_wr_valid & 1, wr_addr=data_ram_wr_addr, wr_data=data_ram_wr_data, `wr_word_en.e1`=1, `wr_word_en.e0`=1, rd_clk=clk, rd_rst=any_rst__w1, `rd_addr_valid.e1`=(data_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0`=data_ram_rd_addr_valid & 1, rd_addr=data_ram_rd_addr)
+  mut br_ram_flops_pointer = br_ram_flops_p1::[name=br_ram_flops_pointer](wr_clk=clk, wr_rst=any_rst__w1, `wr_valid.e1`=(ptr_ram_wr_valid >> 1) & 1, `wr_valid.e0`=ptr_ram_wr_valid & 1, wr_addr=ptr_ram_wr_addr, wr_data=ptr_ram_wr_data, `wr_word_en.e1`=1, `wr_word_en.e0`=1, rd_clk=clk, rd_rst=any_rst__w1, `rd_addr_valid.e1`=(ptr_ram_rd_addr_valid >> 1) & 1, `rd_addr_valid.e0`=ptr_ram_rd_addr_valid & 1, rd_addr=ptr_ram_rd_addr)
+  mut br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst = br_fifo_shared_dynamic_ctrl_push_credit_pop_credit::[name=br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, push_fifo_id=push_fifo_id, credit_initial_push=credit_initial_push, credit_withhold_push=credit_withhold_push, pop_receiver_in_reset=pop_receiver_in_reset, pop_credit=pop_credit, credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, data_ram_rd_data_valid=(br_ram_flops_data.rd_data_valid.e1 << 1) | br_ram_flops_data.rd_data_valid.e0, data_ram_rd_data=br_ram_flops_data.rd_data, ptr_ram_rd_data_valid=(br_ram_flops_pointer.rd_data_valid.e1 << 1) | br_ram_flops_pointer.rd_data_valid.e0, ptr_ram_rd_data=br_ram_flops_pointer.rd_data)
   data_ram_wr_valid = br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst.data_ram_wr_valid
   data_ram_wr_addr = br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst.data_ram_wr_addr
   data_ram_wr_data = br_fifo_shared_dynamic_ctrl_push_credit_pop_credit_inst.data_ram_wr_data

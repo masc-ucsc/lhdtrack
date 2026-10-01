@@ -1,48 +1,2404 @@
-// Least-recently-granted state as a pairwise priority matrix, packed row-major:
-// bit i*N+j is 1 when requester i beats requester j. Only the upper triangle
-// (i < j) is stored; the lower triangle is its complement, the diagonal zero.
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
+const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
 
-// Every upper-triangle bit (column > row) of a packed size x size matrix.
-comb upper_triangle(size) -> (mask) {
-  mut m = 0
-  for row in 0..<size {
-    const above_diagonal = ((1 << size) - 1) & ~((1 << (row + 1)) - 1)
-    m |= above_diagonal << (row*size)
+pub mod br_lru_state_internal<NumRequesters=16>::[timecheck=false](clk:Clock, grant:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U256@[]) {
+  reg state_reg___q:U256
+  mut state_reg__composite:U256 = 0
+  wire state_reg:U256 = nil
+  wire `state[0]`:U1 = nil
+  wire `state[1]`:U1 = nil
+  wire `state[2]`:U1 = nil
+  wire `state[3]`:U1 = nil
+  wire `state[4]`:U1 = nil
+  wire `state[5]`:U1 = nil
+  wire `state[6]`:U1 = nil
+  wire `state[7]`:U1 = nil
+  wire `state[8]`:U1 = nil
+  wire `state[9]`:U1 = nil
+  wire `state[10]`:U1 = nil
+  wire `state[11]`:U1 = nil
+  wire `state[12]`:U1 = nil
+  wire `state[13]`:U1 = nil
+  wire `state[14]`:U1 = nil
+  wire `state[15]`:U1 = nil
+  wire `state[16]`:U1 = nil
+  wire `state[17]`:U1 = nil
+  wire `state[18]`:U1 = nil
+  wire `state[19]`:U1 = nil
+  wire `state[20]`:U1 = nil
+  wire `state[21]`:U1 = nil
+  wire `state[22]`:U1 = nil
+  wire `state[23]`:U1 = nil
+  wire `state[24]`:U1 = nil
+  wire `state[25]`:U1 = nil
+  wire `state[26]`:U1 = nil
+  wire `state[27]`:U1 = nil
+  wire `state[28]`:U1 = nil
+  wire `state[29]`:U1 = nil
+  wire `state[30]`:U1 = nil
+  wire `state[31]`:U1 = nil
+  wire `state[32]`:U1 = nil
+  wire `state[33]`:U1 = nil
+  wire `state[34]`:U1 = nil
+  wire `state[35]`:U1 = nil
+  wire `state[36]`:U1 = nil
+  wire `state[37]`:U1 = nil
+  wire `state[38]`:U1 = nil
+  wire `state[39]`:U1 = nil
+  wire `state[40]`:U1 = nil
+  wire `state[41]`:U1 = nil
+  wire `state[42]`:U1 = nil
+  wire `state[43]`:U1 = nil
+  wire `state[44]`:U1 = nil
+  wire `state[45]`:U1 = nil
+  wire `state[46]`:U1 = nil
+  wire `state[47]`:U1 = nil
+  wire `state[48]`:U1 = nil
+  wire `state[49]`:U1 = nil
+  wire `state[50]`:U1 = nil
+  wire `state[51]`:U1 = nil
+  wire `state[52]`:U1 = nil
+  wire `state[53]`:U1 = nil
+  wire `state[54]`:U1 = nil
+  wire `state[55]`:U1 = nil
+  wire `state[56]`:U1 = nil
+  wire `state[57]`:U1 = nil
+  wire `state[58]`:U1 = nil
+  wire `state[59]`:U1 = nil
+  wire `state[60]`:U1 = nil
+  wire `state[61]`:U1 = nil
+  wire `state[62]`:U1 = nil
+  wire `state[63]`:U1 = nil
+  wire `state[64]`:U1 = nil
+  wire `state[65]`:U1 = nil
+  wire `state[66]`:U1 = nil
+  wire `state[67]`:U1 = nil
+  wire `state[68]`:U1 = nil
+  wire `state[69]`:U1 = nil
+  wire `state[70]`:U1 = nil
+  wire `state[71]`:U1 = nil
+  wire `state[72]`:U1 = nil
+  wire `state[73]`:U1 = nil
+  wire `state[74]`:U1 = nil
+  wire `state[75]`:U1 = nil
+  wire `state[76]`:U1 = nil
+  wire `state[77]`:U1 = nil
+  wire `state[78]`:U1 = nil
+  wire `state[79]`:U1 = nil
+  wire `state[80]`:U1 = nil
+  wire `state[81]`:U1 = nil
+  wire `state[82]`:U1 = nil
+  wire `state[83]`:U1 = nil
+  wire `state[84]`:U1 = nil
+  wire `state[85]`:U1 = nil
+  wire `state[86]`:U1 = nil
+  wire `state[87]`:U1 = nil
+  wire `state[88]`:U1 = nil
+  wire `state[89]`:U1 = nil
+  wire `state[90]`:U1 = nil
+  wire `state[91]`:U1 = nil
+  wire `state[92]`:U1 = nil
+  wire `state[93]`:U1 = nil
+  wire `state[94]`:U1 = nil
+  wire `state[95]`:U1 = nil
+  wire `state[96]`:U1 = nil
+  wire `state[97]`:U1 = nil
+  wire `state[98]`:U1 = nil
+  wire `state[99]`:U1 = nil
+  wire `state[100]`:U1 = nil
+  wire `state[101]`:U1 = nil
+  wire `state[102]`:U1 = nil
+  wire `state[103]`:U1 = nil
+  wire `state[104]`:U1 = nil
+  wire `state[105]`:U1 = nil
+  wire `state[106]`:U1 = nil
+  wire `state[107]`:U1 = nil
+  wire `state[108]`:U1 = nil
+  wire `state[109]`:U1 = nil
+  wire `state[110]`:U1 = nil
+  wire `state[111]`:U1 = nil
+  wire `state[112]`:U1 = nil
+  wire `state[113]`:U1 = nil
+  wire `state[114]`:U1 = nil
+  wire `state[115]`:U1 = nil
+  wire `state[116]`:U1 = nil
+  wire `state[117]`:U1 = nil
+  wire `state[118]`:U1 = nil
+  wire `state[119]`:U1 = nil
+  wire `state[120]`:U1 = nil
+  wire `state[121]`:U1 = nil
+  wire `state[122]`:U1 = nil
+  wire `state[123]`:U1 = nil
+  wire `state[124]`:U1 = nil
+  wire `state[125]`:U1 = nil
+  wire `state[126]`:U1 = nil
+  wire `state[127]`:U1 = nil
+  wire `state[128]`:U1 = nil
+  wire `state[129]`:U1 = nil
+  wire `state[130]`:U1 = nil
+  wire `state[131]`:U1 = nil
+  wire `state[132]`:U1 = nil
+  wire `state[133]`:U1 = nil
+  wire `state[134]`:U1 = nil
+  wire `state[135]`:U1 = nil
+  wire `state[136]`:U1 = nil
+  wire `state[137]`:U1 = nil
+  wire `state[138]`:U1 = nil
+  wire `state[139]`:U1 = nil
+  wire `state[140]`:U1 = nil
+  wire `state[141]`:U1 = nil
+  wire `state[142]`:U1 = nil
+  wire `state[143]`:U1 = nil
+  wire `state[144]`:U1 = nil
+  wire `state[145]`:U1 = nil
+  wire `state[146]`:U1 = nil
+  wire `state[147]`:U1 = nil
+  wire `state[148]`:U1 = nil
+  wire `state[149]`:U1 = nil
+  wire `state[150]`:U1 = nil
+  wire `state[151]`:U1 = nil
+  wire `state[152]`:U1 = nil
+  wire `state[153]`:U1 = nil
+  wire `state[154]`:U1 = nil
+  wire `state[155]`:U1 = nil
+  wire `state[156]`:U1 = nil
+  wire `state[157]`:U1 = nil
+  wire `state[158]`:U1 = nil
+  wire `state[159]`:U1 = nil
+  wire `state[160]`:U1 = nil
+  wire `state[161]`:U1 = nil
+  wire `state[162]`:U1 = nil
+  wire `state[163]`:U1 = nil
+  wire `state[164]`:U1 = nil
+  wire `state[165]`:U1 = nil
+  wire `state[166]`:U1 = nil
+  wire `state[167]`:U1 = nil
+  wire `state[168]`:U1 = nil
+  wire `state[169]`:U1 = nil
+  wire `state[170]`:U1 = nil
+  wire `state[171]`:U1 = nil
+  wire `state[172]`:U1 = nil
+  wire `state[173]`:U1 = nil
+  wire `state[174]`:U1 = nil
+  wire `state[175]`:U1 = nil
+  wire `state[176]`:U1 = nil
+  wire `state[177]`:U1 = nil
+  wire `state[178]`:U1 = nil
+  wire `state[179]`:U1 = nil
+  wire `state[180]`:U1 = nil
+  wire `state[181]`:U1 = nil
+  wire `state[182]`:U1 = nil
+  wire `state[183]`:U1 = nil
+  wire `state[184]`:U1 = nil
+  wire `state[185]`:U1 = nil
+  wire `state[186]`:U1 = nil
+  wire `state[187]`:U1 = nil
+  wire `state[188]`:U1 = nil
+  wire `state[189]`:U1 = nil
+  wire `state[190]`:U1 = nil
+  wire `state[191]`:U1 = nil
+  wire `state[192]`:U1 = nil
+  wire `state[193]`:U1 = nil
+  wire `state[194]`:U1 = nil
+  wire `state[195]`:U1 = nil
+  wire `state[196]`:U1 = nil
+  wire `state[197]`:U1 = nil
+  wire `state[198]`:U1 = nil
+  wire `state[199]`:U1 = nil
+  wire `state[200]`:U1 = nil
+  wire `state[201]`:U1 = nil
+  wire `state[202]`:U1 = nil
+  wire `state[203]`:U1 = nil
+  wire `state[204]`:U1 = nil
+  wire `state[205]`:U1 = nil
+  wire `state[206]`:U1 = nil
+  wire `state[207]`:U1 = nil
+  wire `state[208]`:U1 = nil
+  wire `state[209]`:U1 = nil
+  wire `state[210]`:U1 = nil
+  wire `state[211]`:U1 = nil
+  wire `state[212]`:U1 = nil
+  wire `state[213]`:U1 = nil
+  wire `state[214]`:U1 = nil
+  wire `state[215]`:U1 = nil
+  wire `state[216]`:U1 = nil
+  wire `state[217]`:U1 = nil
+  wire `state[218]`:U1 = nil
+  wire `state[219]`:U1 = nil
+  wire `state[220]`:U1 = nil
+  wire `state[221]`:U1 = nil
+  wire `state[222]`:U1 = nil
+  wire `state[223]`:U1 = nil
+  wire `state[224]`:U1 = nil
+  wire `state[225]`:U1 = nil
+  wire `state[226]`:U1 = nil
+  wire `state[227]`:U1 = nil
+  wire `state[228]`:U1 = nil
+  wire `state[229]`:U1 = nil
+  wire `state[230]`:U1 = nil
+  wire `state[231]`:U1 = nil
+  wire `state[232]`:U1 = nil
+  wire `state[233]`:U1 = nil
+  wire `state[234]`:U1 = nil
+  wire `state[235]`:U1 = nil
+  wire `state[236]`:U1 = nil
+  wire `state[237]`:U1 = nil
+  wire `state[238]`:U1 = nil
+  wire `state[239]`:U1 = nil
+  wire `state[240]`:U1 = nil
+  wire `state[241]`:U1 = nil
+  wire `state[242]`:U1 = nil
+  wire `state[243]`:U1 = nil
+  wire `state[244]`:U1 = nil
+  wire `state[245]`:U1 = nil
+  wire `state[246]`:U1 = nil
+  wire `state[247]`:U1 = nil
+  wire `state[248]`:U1 = nil
+  wire `state[249]`:U1 = nil
+  wire `state[250]`:U1 = nil
+  wire `state[251]`:U1 = nil
+  wire `state[252]`:U1 = nil
+  wire `state[253]`:U1 = nil
+  wire `state[254]`:U1 = nil
+  wire `state[255]`:U1 = nil
+  wire state:U256 = nil
+  wire `state_reg_next[0]`:U1 = nil
+  wire `state_reg_next[1]`:U1 = nil
+  wire `state_reg_next[2]`:U1 = nil
+  wire `state_reg_next[3]`:U1 = nil
+  wire `state_reg_next[4]`:U1 = nil
+  wire `state_reg_next[5]`:U1 = nil
+  wire `state_reg_next[6]`:U1 = nil
+  wire `state_reg_next[7]`:U1 = nil
+  wire `state_reg_next[8]`:U1 = nil
+  wire `state_reg_next[9]`:U1 = nil
+  wire `state_reg_next[10]`:U1 = nil
+  wire `state_reg_next[11]`:U1 = nil
+  wire `state_reg_next[12]`:U1 = nil
+  wire `state_reg_next[13]`:U1 = nil
+  wire `state_reg_next[14]`:U1 = nil
+  wire `state_reg_next[15]`:U1 = nil
+  wire `state_reg_next[16]`:U1 = nil
+  wire `state_reg_next[17]`:U1 = nil
+  wire `state_reg_next[18]`:U1 = nil
+  wire `state_reg_next[19]`:U1 = nil
+  wire `state_reg_next[20]`:U1 = nil
+  wire `state_reg_next[21]`:U1 = nil
+  wire `state_reg_next[22]`:U1 = nil
+  wire `state_reg_next[23]`:U1 = nil
+  wire `state_reg_next[24]`:U1 = nil
+  wire `state_reg_next[25]`:U1 = nil
+  wire `state_reg_next[26]`:U1 = nil
+  wire `state_reg_next[27]`:U1 = nil
+  wire `state_reg_next[28]`:U1 = nil
+  wire `state_reg_next[29]`:U1 = nil
+  wire `state_reg_next[30]`:U1 = nil
+  wire `state_reg_next[31]`:U1 = nil
+  wire `state_reg_next[32]`:U1 = nil
+  wire `state_reg_next[33]`:U1 = nil
+  wire `state_reg_next[34]`:U1 = nil
+  wire `state_reg_next[35]`:U1 = nil
+  wire `state_reg_next[36]`:U1 = nil
+  wire `state_reg_next[37]`:U1 = nil
+  wire `state_reg_next[38]`:U1 = nil
+  wire `state_reg_next[39]`:U1 = nil
+  wire `state_reg_next[40]`:U1 = nil
+  wire `state_reg_next[41]`:U1 = nil
+  wire `state_reg_next[42]`:U1 = nil
+  wire `state_reg_next[43]`:U1 = nil
+  wire `state_reg_next[44]`:U1 = nil
+  wire `state_reg_next[45]`:U1 = nil
+  wire `state_reg_next[46]`:U1 = nil
+  wire `state_reg_next[47]`:U1 = nil
+  wire `state_reg_next[48]`:U1 = nil
+  wire `state_reg_next[49]`:U1 = nil
+  wire `state_reg_next[50]`:U1 = nil
+  wire `state_reg_next[51]`:U1 = nil
+  wire `state_reg_next[52]`:U1 = nil
+  wire `state_reg_next[53]`:U1 = nil
+  wire `state_reg_next[54]`:U1 = nil
+  wire `state_reg_next[55]`:U1 = nil
+  wire `state_reg_next[56]`:U1 = nil
+  wire `state_reg_next[57]`:U1 = nil
+  wire `state_reg_next[58]`:U1 = nil
+  wire `state_reg_next[59]`:U1 = nil
+  wire `state_reg_next[60]`:U1 = nil
+  wire `state_reg_next[61]`:U1 = nil
+  wire `state_reg_next[62]`:U1 = nil
+  wire `state_reg_next[63]`:U1 = nil
+  wire `state_reg_next[64]`:U1 = nil
+  wire `state_reg_next[65]`:U1 = nil
+  wire `state_reg_next[66]`:U1 = nil
+  wire `state_reg_next[67]`:U1 = nil
+  wire `state_reg_next[68]`:U1 = nil
+  wire `state_reg_next[69]`:U1 = nil
+  wire `state_reg_next[70]`:U1 = nil
+  wire `state_reg_next[71]`:U1 = nil
+  wire `state_reg_next[72]`:U1 = nil
+  wire `state_reg_next[73]`:U1 = nil
+  wire `state_reg_next[74]`:U1 = nil
+  wire `state_reg_next[75]`:U1 = nil
+  wire `state_reg_next[76]`:U1 = nil
+  wire `state_reg_next[77]`:U1 = nil
+  wire `state_reg_next[78]`:U1 = nil
+  wire `state_reg_next[79]`:U1 = nil
+  wire `state_reg_next[80]`:U1 = nil
+  wire `state_reg_next[81]`:U1 = nil
+  wire `state_reg_next[82]`:U1 = nil
+  wire `state_reg_next[83]`:U1 = nil
+  wire `state_reg_next[84]`:U1 = nil
+  wire `state_reg_next[85]`:U1 = nil
+  wire `state_reg_next[86]`:U1 = nil
+  wire `state_reg_next[87]`:U1 = nil
+  wire `state_reg_next[88]`:U1 = nil
+  wire `state_reg_next[89]`:U1 = nil
+  wire `state_reg_next[90]`:U1 = nil
+  wire `state_reg_next[91]`:U1 = nil
+  wire `state_reg_next[92]`:U1 = nil
+  wire `state_reg_next[93]`:U1 = nil
+  wire `state_reg_next[94]`:U1 = nil
+  wire `state_reg_next[95]`:U1 = nil
+  wire `state_reg_next[96]`:U1 = nil
+  wire `state_reg_next[97]`:U1 = nil
+  wire `state_reg_next[98]`:U1 = nil
+  wire `state_reg_next[99]`:U1 = nil
+  wire `state_reg_next[100]`:U1 = nil
+  wire `state_reg_next[101]`:U1 = nil
+  wire `state_reg_next[102]`:U1 = nil
+  wire `state_reg_next[103]`:U1 = nil
+  wire `state_reg_next[104]`:U1 = nil
+  wire `state_reg_next[105]`:U1 = nil
+  wire `state_reg_next[106]`:U1 = nil
+  wire `state_reg_next[107]`:U1 = nil
+  wire `state_reg_next[108]`:U1 = nil
+  wire `state_reg_next[109]`:U1 = nil
+  wire `state_reg_next[110]`:U1 = nil
+  wire `state_reg_next[111]`:U1 = nil
+  wire `state_reg_next[112]`:U1 = nil
+  wire `state_reg_next[113]`:U1 = nil
+  wire `state_reg_next[114]`:U1 = nil
+  wire `state_reg_next[115]`:U1 = nil
+  wire `state_reg_next[116]`:U1 = nil
+  wire `state_reg_next[117]`:U1 = nil
+  wire `state_reg_next[118]`:U1 = nil
+  wire `state_reg_next[119]`:U1 = nil
+  wire `state_reg_next[120]`:U1 = nil
+  wire `state_reg_next[121]`:U1 = nil
+  wire `state_reg_next[122]`:U1 = nil
+  wire `state_reg_next[123]`:U1 = nil
+  wire `state_reg_next[124]`:U1 = nil
+  wire `state_reg_next[125]`:U1 = nil
+  wire `state_reg_next[126]`:U1 = nil
+  wire `state_reg_next[127]`:U1 = nil
+  wire `state_reg_next[128]`:U1 = nil
+  wire `state_reg_next[129]`:U1 = nil
+  wire `state_reg_next[130]`:U1 = nil
+  wire `state_reg_next[131]`:U1 = nil
+  wire `state_reg_next[132]`:U1 = nil
+  wire `state_reg_next[133]`:U1 = nil
+  wire `state_reg_next[134]`:U1 = nil
+  wire `state_reg_next[135]`:U1 = nil
+  wire `state_reg_next[136]`:U1 = nil
+  wire `state_reg_next[137]`:U1 = nil
+  wire `state_reg_next[138]`:U1 = nil
+  wire `state_reg_next[139]`:U1 = nil
+  wire `state_reg_next[140]`:U1 = nil
+  wire `state_reg_next[141]`:U1 = nil
+  wire `state_reg_next[142]`:U1 = nil
+  wire `state_reg_next[143]`:U1 = nil
+  wire `state_reg_next[144]`:U1 = nil
+  wire `state_reg_next[145]`:U1 = nil
+  wire `state_reg_next[146]`:U1 = nil
+  wire `state_reg_next[147]`:U1 = nil
+  wire `state_reg_next[148]`:U1 = nil
+  wire `state_reg_next[149]`:U1 = nil
+  wire `state_reg_next[150]`:U1 = nil
+  wire `state_reg_next[151]`:U1 = nil
+  wire `state_reg_next[152]`:U1 = nil
+  wire `state_reg_next[153]`:U1 = nil
+  wire `state_reg_next[154]`:U1 = nil
+  wire `state_reg_next[155]`:U1 = nil
+  wire `state_reg_next[156]`:U1 = nil
+  wire `state_reg_next[157]`:U1 = nil
+  wire `state_reg_next[158]`:U1 = nil
+  wire `state_reg_next[159]`:U1 = nil
+  wire `state_reg_next[160]`:U1 = nil
+  wire `state_reg_next[161]`:U1 = nil
+  wire `state_reg_next[162]`:U1 = nil
+  wire `state_reg_next[163]`:U1 = nil
+  wire `state_reg_next[164]`:U1 = nil
+  wire `state_reg_next[165]`:U1 = nil
+  wire `state_reg_next[166]`:U1 = nil
+  wire `state_reg_next[167]`:U1 = nil
+  wire `state_reg_next[168]`:U1 = nil
+  wire `state_reg_next[169]`:U1 = nil
+  wire `state_reg_next[170]`:U1 = nil
+  wire `state_reg_next[171]`:U1 = nil
+  wire `state_reg_next[172]`:U1 = nil
+  wire `state_reg_next[173]`:U1 = nil
+  wire `state_reg_next[174]`:U1 = nil
+  wire `state_reg_next[175]`:U1 = nil
+  wire `state_reg_next[176]`:U1 = nil
+  wire `state_reg_next[177]`:U1 = nil
+  wire `state_reg_next[178]`:U1 = nil
+  wire `state_reg_next[179]`:U1 = nil
+  wire `state_reg_next[180]`:U1 = nil
+  wire `state_reg_next[181]`:U1 = nil
+  wire `state_reg_next[182]`:U1 = nil
+  wire `state_reg_next[183]`:U1 = nil
+  wire `state_reg_next[184]`:U1 = nil
+  wire `state_reg_next[185]`:U1 = nil
+  wire `state_reg_next[186]`:U1 = nil
+  wire `state_reg_next[187]`:U1 = nil
+  wire `state_reg_next[188]`:U1 = nil
+  wire `state_reg_next[189]`:U1 = nil
+  wire `state_reg_next[190]`:U1 = nil
+  wire `state_reg_next[191]`:U1 = nil
+  wire `state_reg_next[192]`:U1 = nil
+  wire `state_reg_next[193]`:U1 = nil
+  wire `state_reg_next[194]`:U1 = nil
+  wire `state_reg_next[195]`:U1 = nil
+  wire `state_reg_next[196]`:U1 = nil
+  wire `state_reg_next[197]`:U1 = nil
+  wire `state_reg_next[198]`:U1 = nil
+  wire `state_reg_next[199]`:U1 = nil
+  wire `state_reg_next[200]`:U1 = nil
+  wire `state_reg_next[201]`:U1 = nil
+  wire `state_reg_next[202]`:U1 = nil
+  wire `state_reg_next[203]`:U1 = nil
+  wire `state_reg_next[204]`:U1 = nil
+  wire `state_reg_next[205]`:U1 = nil
+  wire `state_reg_next[206]`:U1 = nil
+  wire `state_reg_next[207]`:U1 = nil
+  wire `state_reg_next[208]`:U1 = nil
+  wire `state_reg_next[209]`:U1 = nil
+  wire `state_reg_next[210]`:U1 = nil
+  wire `state_reg_next[211]`:U1 = nil
+  wire `state_reg_next[212]`:U1 = nil
+  wire `state_reg_next[213]`:U1 = nil
+  wire `state_reg_next[214]`:U1 = nil
+  wire `state_reg_next[215]`:U1 = nil
+  wire `state_reg_next[216]`:U1 = nil
+  wire `state_reg_next[217]`:U1 = nil
+  wire `state_reg_next[218]`:U1 = nil
+  wire `state_reg_next[219]`:U1 = nil
+  wire `state_reg_next[220]`:U1 = nil
+  wire `state_reg_next[221]`:U1 = nil
+  wire `state_reg_next[222]`:U1 = nil
+  wire `state_reg_next[223]`:U1 = nil
+  wire `state_reg_next[224]`:U1 = nil
+  wire `state_reg_next[225]`:U1 = nil
+  wire `state_reg_next[226]`:U1 = nil
+  wire `state_reg_next[227]`:U1 = nil
+  wire `state_reg_next[228]`:U1 = nil
+  wire `state_reg_next[229]`:U1 = nil
+  wire `state_reg_next[230]`:U1 = nil
+  wire `state_reg_next[231]`:U1 = nil
+  wire `state_reg_next[232]`:U1 = nil
+  wire `state_reg_next[233]`:U1 = nil
+  wire `state_reg_next[234]`:U1 = nil
+  wire `state_reg_next[235]`:U1 = nil
+  wire `state_reg_next[236]`:U1 = nil
+  wire `state_reg_next[237]`:U1 = nil
+  wire `state_reg_next[238]`:U1 = nil
+  wire `state_reg_next[239]`:U1 = nil
+  wire `state_reg_next[240]`:U1 = nil
+  wire `state_reg_next[241]`:U1 = nil
+  wire `state_reg_next[242]`:U1 = nil
+  wire `state_reg_next[243]`:U1 = nil
+  wire `state_reg_next[244]`:U1 = nil
+  wire `state_reg_next[245]`:U1 = nil
+  wire `state_reg_next[246]`:U1 = nil
+  wire `state_reg_next[247]`:U1 = nil
+  wire `state_reg_next[248]`:U1 = nil
+  wire `state_reg_next[249]`:U1 = nil
+  wire `state_reg_next[250]`:U1 = nil
+  wire `state_reg_next[251]`:U1 = nil
+  wire `state_reg_next[252]`:U1 = nil
+  wire `state_reg_next[253]`:U1 = nil
+  wire `state_reg_next[254]`:U1 = nil
+  wire `state_reg_next[255]`:U1 = nil
+  state_reg__composite = state_reg___q
+  `state[0]` = 0
+  mut state_reg__composite__w1 = state_reg__composite
+  state_reg__composite__w1#[0] = 0
+  `state_reg_next[0]` = 0
+  br_misc_unused::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[0]` & 1) << 2) | ((state_reg#[0..=15] & 1) << 1) | (`state[0]` & 1))
+  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { `state[1]` & 1 }
+  mut _mux_2:U1 = if grant.e0 != 0 { 0 } else { _mux_1 & 1 }
+  `state_reg_next[1]` = _mux_2 & 1
+  if rst != 0 {
+    state_reg___q#[1] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[1] = `state_reg_next[1]` & 1
   }
-  mask = m
-}
-
-pub mod br_lru_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, grant:unsigned(bits=NUM_REQUESTERS)) -> (
-  state:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)@[0]
-) {
-  comptime const N = NUM_REQUESTERS
-
-  // After reset every lower-numbered requester beats every higher one. Only
-  // the upper-triangle bits are reset and updated; the others are never read.
-  comptime const STORED         = upper_triangle(size=N)
-  reg wins:unsigned(bits=N * N) = nil
-  if rst == 1 {
-    wins = wins | STORED
+  `state[1]` = (state_reg#[0..=15] >> 1) & 1
+  mut _mux_3:U1 = if grant.e2 != 0 { 1 } else { `state[2]` & 1 }
+  mut _mux_4:U1 = if grant.e0 != 0 { 0 } else { _mux_3 & 1 }
+  `state_reg_next[2]` = _mux_4 & 1
+  if rst != 0 {
+    state_reg___q#[2] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[2] = `state_reg_next[2]` & 1
   }
-  elif update_priority {
-    mut next_wins = wins
-    for i in 0..<N {
-      // The granted requester loses to everyone; everyone beats a granted one.
-      next_wins#[(i*N)..+N] = if grant#[i] == 1 { 0 } else { wins#[(i*N)..+N] | grant }
-    }
-    wins = (next_wins & STORED) | (wins & ~STORED)
+  `state[2]` = (state_reg#[0..=15] >> 2) & 1
+  mut _mux_5:U1 = if grant.e3 != 0 { 1 } else { `state[3]` & 1 }
+  mut _mux_6:U1 = if grant.e0 != 0 { 0 } else { _mux_5 & 1 }
+  `state_reg_next[3]` = _mux_6 & 1
+  if rst != 0 {
+    state_reg___q#[3] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[3] = `state_reg_next[3]` & 1
   }
-
-  mut matrix:unsigned(bits=N * N) = 0
-  for i in 0..<N {
-    for j in 0..<N {
-      if i < j {
-        matrix#[i*N + j] = wins#[i*N + j]
-      }
-      elif i > j {
-        matrix#[i*N + j] = ~wins#[j*N + i] & 1
-      }
-    }
+  `state[3]` = (state_reg#[0..=15] >> 3) & 1
+  mut _mux_7:U1 = if grant.e4 != 0 { 1 } else { `state[4]` & 1 }
+  mut _mux_8:U1 = if grant.e0 != 0 { 0 } else { _mux_7 & 1 }
+  `state_reg_next[4]` = _mux_8 & 1
+  if rst != 0 {
+    state_reg___q#[4] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[4] = `state_reg_next[4]` & 1
   }
-  state = matrix
+  `state[4]` = (state_reg#[0..=15] >> 4) & 1
+  mut _mux_9:U1 = if grant.e5 != 0 { 1 } else { `state[5]` & 1 }
+  mut _mux_10:U1 = if grant.e0 != 0 { 0 } else { _mux_9 & 1 }
+  `state_reg_next[5]` = _mux_10 & 1
+  if rst != 0 {
+    state_reg___q#[5] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[5] = `state_reg_next[5]` & 1
+  }
+  `state[5]` = (state_reg#[0..=15] >> 5) & 1
+  mut _mux_11:U1 = if grant.e6 != 0 { 1 } else { `state[6]` & 1 }
+  mut _mux_12:U1 = if grant.e0 != 0 { 0 } else { _mux_11 & 1 }
+  `state_reg_next[6]` = _mux_12 & 1
+  if rst != 0 {
+    state_reg___q#[6] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[6] = `state_reg_next[6]` & 1
+  }
+  `state[6]` = (state_reg#[0..=15] >> 6) & 1
+  mut _mux_13:U1 = if grant.e7 != 0 { 1 } else { `state[7]` & 1 }
+  mut _mux_14:U1 = if grant.e0 != 0 { 0 } else { _mux_13 & 1 }
+  `state_reg_next[7]` = _mux_14 & 1
+  if rst != 0 {
+    state_reg___q#[7] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[7] = `state_reg_next[7]` & 1
+  }
+  `state[7]` = (state_reg#[0..=15] >> 7) & 1
+  mut _mux_15:U1 = if grant.e8 != 0 { 1 } else { `state[8]` & 1 }
+  mut _mux_16:U1 = if grant.e0 != 0 { 0 } else { _mux_15 & 1 }
+  `state_reg_next[8]` = _mux_16 & 1
+  if rst != 0 {
+    state_reg___q#[8] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[8] = `state_reg_next[8]` & 1
+  }
+  `state[8]` = (state_reg#[0..=15] >> 8) & 1
+  mut _mux_17:U1 = if grant.e9 != 0 { 1 } else { `state[9]` & 1 }
+  mut _mux_18:U1 = if grant.e0 != 0 { 0 } else { _mux_17 & 1 }
+  `state_reg_next[9]` = _mux_18 & 1
+  if rst != 0 {
+    state_reg___q#[9] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[9] = `state_reg_next[9]` & 1
+  }
+  `state[9]` = (state_reg#[0..=15] >> 9) & 1
+  mut _mux_19:U1 = if grant.e10 != 0 { 1 } else { `state[10]` & 1 }
+  mut _mux_20:U1 = if grant.e0 != 0 { 0 } else { _mux_19 & 1 }
+  `state_reg_next[10]` = _mux_20 & 1
+  if rst != 0 {
+    state_reg___q#[10] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[10] = `state_reg_next[10]` & 1
+  }
+  `state[10]` = (state_reg#[0..=15] >> 10) & 1
+  mut _mux_21:U1 = if grant.e11 != 0 { 1 } else { `state[11]` & 1 }
+  mut _mux_22:U1 = if grant.e0 != 0 { 0 } else { _mux_21 & 1 }
+  `state_reg_next[11]` = _mux_22 & 1
+  if rst != 0 {
+    state_reg___q#[11] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[11] = `state_reg_next[11]` & 1
+  }
+  `state[11]` = (state_reg#[0..=15] >> 11) & 1
+  mut _mux_23:U1 = if grant.e12 != 0 { 1 } else { `state[12]` & 1 }
+  mut _mux_24:U1 = if grant.e0 != 0 { 0 } else { _mux_23 & 1 }
+  `state_reg_next[12]` = _mux_24 & 1
+  if rst != 0 {
+    state_reg___q#[12] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[12] = `state_reg_next[12]` & 1
+  }
+  `state[12]` = (state_reg#[0..=15] >> 12) & 1
+  mut _mux_25:U1 = if grant.e13 != 0 { 1 } else { `state[13]` & 1 }
+  mut _mux_26:U1 = if grant.e0 != 0 { 0 } else { _mux_25 & 1 }
+  `state_reg_next[13]` = _mux_26 & 1
+  if rst != 0 {
+    state_reg___q#[13] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[13] = `state_reg_next[13]` & 1
+  }
+  `state[13]` = (state_reg#[0..=15] >> 13) & 1
+  mut _mux_27:U1 = if grant.e14 != 0 { 1 } else { `state[14]` & 1 }
+  mut _mux_28:U1 = if grant.e0 != 0 { 0 } else { _mux_27 & 1 }
+  `state_reg_next[14]` = _mux_28 & 1
+  if rst != 0 {
+    state_reg___q#[14] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[14] = `state_reg_next[14]` & 1
+  }
+  `state[14]` = (state_reg#[0..=15] >> 14) & 1
+  mut _mux_29:U1 = if grant.e15 != 0 { 1 } else { `state[15]` & 1 }
+  mut _mux_30:U1 = if grant.e0 != 0 { 0 } else { _mux_29 & 1 }
+  `state_reg_next[15]` = _mux_30 & 1
+  if rst != 0 {
+    state_reg___q#[15] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[15] = `state_reg_next[15]` & 1
+  }
+  `state[15]` = (state_reg#[0..=15] >> 15) & 1
+  mut _b2i_31 = if ((state_reg#[0..=15] >> 1) & 1) == 0 { 1 } else { 0 }
+  `state[16]` = _b2i_31 & 1
+  `state_reg_next[16]` = 0
+  mut state_reg__composite__w2 = state_reg__composite__w1
+  state_reg__composite__w2#[16] = 0
+  br_misc_unused_p1::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[16]` & 1) << 1) | (state_reg#[16..=31] & 1))
+  `state[17]` = 0
+  mut state_reg__composite__w3 = state_reg__composite__w2
+  state_reg__composite__w3#[17] = 0
+  `state_reg_next[17]` = 0
+  br_misc_unused::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[17]` & 1) << 2) | (((state_reg#[16..=31] >> 1) & 1) << 1) | (`state[17]` & 1))
+  mut _mux_32:U1 = if grant.e2 != 0 { 1 } else { `state[18]` & 1 }
+  mut _mux_33:U1 = if grant.e1 != 0 { 0 } else { _mux_32 & 1 }
+  `state_reg_next[18]` = _mux_33 & 1
+  if rst != 0 {
+    state_reg___q#[18] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[18] = `state_reg_next[18]` & 1
+  }
+  `state[18]` = (state_reg#[16..=31] >> 2) & 1
+  mut _mux_34:U1 = if grant.e3 != 0 { 1 } else { `state[19]` & 1 }
+  mut _mux_35:U1 = if grant.e1 != 0 { 0 } else { _mux_34 & 1 }
+  `state_reg_next[19]` = _mux_35 & 1
+  if rst != 0 {
+    state_reg___q#[19] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[19] = `state_reg_next[19]` & 1
+  }
+  `state[19]` = (state_reg#[16..=31] >> 3) & 1
+  mut _mux_36:U1 = if grant.e4 != 0 { 1 } else { `state[20]` & 1 }
+  mut _mux_37:U1 = if grant.e1 != 0 { 0 } else { _mux_36 & 1 }
+  `state_reg_next[20]` = _mux_37 & 1
+  if rst != 0 {
+    state_reg___q#[20] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[20] = `state_reg_next[20]` & 1
+  }
+  `state[20]` = (state_reg#[16..=31] >> 4) & 1
+  mut _mux_38:U1 = if grant.e5 != 0 { 1 } else { `state[21]` & 1 }
+  mut _mux_39:U1 = if grant.e1 != 0 { 0 } else { _mux_38 & 1 }
+  `state_reg_next[21]` = _mux_39 & 1
+  if rst != 0 {
+    state_reg___q#[21] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[21] = `state_reg_next[21]` & 1
+  }
+  `state[21]` = (state_reg#[16..=31] >> 5) & 1
+  mut _mux_40:U1 = if grant.e6 != 0 { 1 } else { `state[22]` & 1 }
+  mut _mux_41:U1 = if grant.e1 != 0 { 0 } else { _mux_40 & 1 }
+  `state_reg_next[22]` = _mux_41 & 1
+  if rst != 0 {
+    state_reg___q#[22] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[22] = `state_reg_next[22]` & 1
+  }
+  `state[22]` = (state_reg#[16..=31] >> 6) & 1
+  mut _mux_42:U1 = if grant.e7 != 0 { 1 } else { `state[23]` & 1 }
+  mut _mux_43:U1 = if grant.e1 != 0 { 0 } else { _mux_42 & 1 }
+  `state_reg_next[23]` = _mux_43 & 1
+  if rst != 0 {
+    state_reg___q#[23] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[23] = `state_reg_next[23]` & 1
+  }
+  `state[23]` = (state_reg#[16..=31] >> 7) & 1
+  mut _mux_44:U1 = if grant.e8 != 0 { 1 } else { `state[24]` & 1 }
+  mut _mux_45:U1 = if grant.e1 != 0 { 0 } else { _mux_44 & 1 }
+  `state_reg_next[24]` = _mux_45 & 1
+  if rst != 0 {
+    state_reg___q#[24] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[24] = `state_reg_next[24]` & 1
+  }
+  `state[24]` = (state_reg#[16..=31] >> 8) & 1
+  mut _mux_46:U1 = if grant.e9 != 0 { 1 } else { `state[25]` & 1 }
+  mut _mux_47:U1 = if grant.e1 != 0 { 0 } else { _mux_46 & 1 }
+  `state_reg_next[25]` = _mux_47 & 1
+  if rst != 0 {
+    state_reg___q#[25] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[25] = `state_reg_next[25]` & 1
+  }
+  `state[25]` = (state_reg#[16..=31] >> 9) & 1
+  mut _mux_48:U1 = if grant.e10 != 0 { 1 } else { `state[26]` & 1 }
+  mut _mux_49:U1 = if grant.e1 != 0 { 0 } else { _mux_48 & 1 }
+  `state_reg_next[26]` = _mux_49 & 1
+  if rst != 0 {
+    state_reg___q#[26] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[26] = `state_reg_next[26]` & 1
+  }
+  `state[26]` = (state_reg#[16..=31] >> 10) & 1
+  mut _mux_50:U1 = if grant.e11 != 0 { 1 } else { `state[27]` & 1 }
+  mut _mux_51:U1 = if grant.e1 != 0 { 0 } else { _mux_50 & 1 }
+  `state_reg_next[27]` = _mux_51 & 1
+  if rst != 0 {
+    state_reg___q#[27] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[27] = `state_reg_next[27]` & 1
+  }
+  `state[27]` = (state_reg#[16..=31] >> 11) & 1
+  mut _mux_52:U1 = if grant.e12 != 0 { 1 } else { `state[28]` & 1 }
+  mut _mux_53:U1 = if grant.e1 != 0 { 0 } else { _mux_52 & 1 }
+  `state_reg_next[28]` = _mux_53 & 1
+  if rst != 0 {
+    state_reg___q#[28] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[28] = `state_reg_next[28]` & 1
+  }
+  `state[28]` = (state_reg#[16..=31] >> 12) & 1
+  mut _mux_54:U1 = if grant.e13 != 0 { 1 } else { `state[29]` & 1 }
+  mut _mux_55:U1 = if grant.e1 != 0 { 0 } else { _mux_54 & 1 }
+  `state_reg_next[29]` = _mux_55 & 1
+  if rst != 0 {
+    state_reg___q#[29] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[29] = `state_reg_next[29]` & 1
+  }
+  `state[29]` = (state_reg#[16..=31] >> 13) & 1
+  mut _mux_56:U1 = if grant.e14 != 0 { 1 } else { `state[30]` & 1 }
+  mut _mux_57:U1 = if grant.e1 != 0 { 0 } else { _mux_56 & 1 }
+  `state_reg_next[30]` = _mux_57 & 1
+  if rst != 0 {
+    state_reg___q#[30] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[30] = `state_reg_next[30]` & 1
+  }
+  `state[30]` = (state_reg#[16..=31] >> 14) & 1
+  mut _mux_58:U1 = if grant.e15 != 0 { 1 } else { `state[31]` & 1 }
+  mut _mux_59:U1 = if grant.e1 != 0 { 0 } else { _mux_58 & 1 }
+  `state_reg_next[31]` = _mux_59 & 1
+  if rst != 0 {
+    state_reg___q#[31] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[31] = `state_reg_next[31]` & 1
+  }
+  `state[31]` = (state_reg#[16..=31] >> 15) & 1
+  mut _b2i_60 = if ((state_reg#[0..=15] >> 2) & 1) == 0 { 1 } else { 0 }
+  `state[32]` = _b2i_60 & 1
+  `state_reg_next[32]` = 0
+  mut state_reg__composite__w4 = state_reg__composite__w3
+  state_reg__composite__w4#[32] = 0
+  br_misc_unused_p1::[name=gen_state_row_2_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[32]` & 1) << 1) | (state_reg#[32..=47] & 1))
+  mut _b2i_61 = if ((state_reg#[16..=31] >> 2) & 1) == 0 { 1 } else { 0 }
+  `state[33]` = _b2i_61 & 1
+  `state_reg_next[33]` = 0
+  mut state_reg__composite__w5 = state_reg__composite__w4
+  state_reg__composite__w5#[33] = 0
+  br_misc_unused_p1::[name=gen_state_row_2_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[33]` & 1) << 1) | ((state_reg#[32..=47] >> 1) & 1))
+  `state[34]` = 0
+  mut state_reg__composite__w6 = state_reg__composite__w5
+  state_reg__composite__w6#[34] = 0
+  `state_reg_next[34]` = 0
+  br_misc_unused::[name=gen_state_row_2_gen_state_col_2_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[34]` & 1) << 2) | (((state_reg#[32..=47] >> 2) & 1) << 1) | (`state[34]` & 1))
+  mut _mux_62:U1 = if grant.e3 != 0 { 1 } else { `state[35]` & 1 }
+  mut _mux_63:U1 = if grant.e2 != 0 { 0 } else { _mux_62 & 1 }
+  `state_reg_next[35]` = _mux_63 & 1
+  if rst != 0 {
+    state_reg___q#[35] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[35] = `state_reg_next[35]` & 1
+  }
+  `state[35]` = (state_reg#[32..=47] >> 3) & 1
+  mut _mux_64:U1 = if grant.e4 != 0 { 1 } else { `state[36]` & 1 }
+  mut _mux_65:U1 = if grant.e2 != 0 { 0 } else { _mux_64 & 1 }
+  `state_reg_next[36]` = _mux_65 & 1
+  if rst != 0 {
+    state_reg___q#[36] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[36] = `state_reg_next[36]` & 1
+  }
+  `state[36]` = (state_reg#[32..=47] >> 4) & 1
+  mut _mux_66:U1 = if grant.e5 != 0 { 1 } else { `state[37]` & 1 }
+  mut _mux_67:U1 = if grant.e2 != 0 { 0 } else { _mux_66 & 1 }
+  `state_reg_next[37]` = _mux_67 & 1
+  if rst != 0 {
+    state_reg___q#[37] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[37] = `state_reg_next[37]` & 1
+  }
+  `state[37]` = (state_reg#[32..=47] >> 5) & 1
+  mut _mux_68:U1 = if grant.e6 != 0 { 1 } else { `state[38]` & 1 }
+  mut _mux_69:U1 = if grant.e2 != 0 { 0 } else { _mux_68 & 1 }
+  `state_reg_next[38]` = _mux_69 & 1
+  if rst != 0 {
+    state_reg___q#[38] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[38] = `state_reg_next[38]` & 1
+  }
+  `state[38]` = (state_reg#[32..=47] >> 6) & 1
+  mut _mux_70:U1 = if grant.e7 != 0 { 1 } else { `state[39]` & 1 }
+  mut _mux_71:U1 = if grant.e2 != 0 { 0 } else { _mux_70 & 1 }
+  `state_reg_next[39]` = _mux_71 & 1
+  if rst != 0 {
+    state_reg___q#[39] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[39] = `state_reg_next[39]` & 1
+  }
+  `state[39]` = (state_reg#[32..=47] >> 7) & 1
+  mut _mux_72:U1 = if grant.e8 != 0 { 1 } else { `state[40]` & 1 }
+  mut _mux_73:U1 = if grant.e2 != 0 { 0 } else { _mux_72 & 1 }
+  `state_reg_next[40]` = _mux_73 & 1
+  if rst != 0 {
+    state_reg___q#[40] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[40] = `state_reg_next[40]` & 1
+  }
+  `state[40]` = (state_reg#[32..=47] >> 8) & 1
+  mut _mux_74:U1 = if grant.e9 != 0 { 1 } else { `state[41]` & 1 }
+  mut _mux_75:U1 = if grant.e2 != 0 { 0 } else { _mux_74 & 1 }
+  `state_reg_next[41]` = _mux_75 & 1
+  if rst != 0 {
+    state_reg___q#[41] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[41] = `state_reg_next[41]` & 1
+  }
+  `state[41]` = (state_reg#[32..=47] >> 9) & 1
+  mut _mux_76:U1 = if grant.e10 != 0 { 1 } else { `state[42]` & 1 }
+  mut _mux_77:U1 = if grant.e2 != 0 { 0 } else { _mux_76 & 1 }
+  `state_reg_next[42]` = _mux_77 & 1
+  if rst != 0 {
+    state_reg___q#[42] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[42] = `state_reg_next[42]` & 1
+  }
+  `state[42]` = (state_reg#[32..=47] >> 10) & 1
+  mut _mux_78:U1 = if grant.e11 != 0 { 1 } else { `state[43]` & 1 }
+  mut _mux_79:U1 = if grant.e2 != 0 { 0 } else { _mux_78 & 1 }
+  `state_reg_next[43]` = _mux_79 & 1
+  if rst != 0 {
+    state_reg___q#[43] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[43] = `state_reg_next[43]` & 1
+  }
+  `state[43]` = (state_reg#[32..=47] >> 11) & 1
+  mut _mux_80:U1 = if grant.e12 != 0 { 1 } else { `state[44]` & 1 }
+  mut _mux_81:U1 = if grant.e2 != 0 { 0 } else { _mux_80 & 1 }
+  `state_reg_next[44]` = _mux_81 & 1
+  if rst != 0 {
+    state_reg___q#[44] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[44] = `state_reg_next[44]` & 1
+  }
+  `state[44]` = (state_reg#[32..=47] >> 12) & 1
+  mut _mux_82:U1 = if grant.e13 != 0 { 1 } else { `state[45]` & 1 }
+  mut _mux_83:U1 = if grant.e2 != 0 { 0 } else { _mux_82 & 1 }
+  `state_reg_next[45]` = _mux_83 & 1
+  if rst != 0 {
+    state_reg___q#[45] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[45] = `state_reg_next[45]` & 1
+  }
+  `state[45]` = (state_reg#[32..=47] >> 13) & 1
+  mut _mux_84:U1 = if grant.e14 != 0 { 1 } else { `state[46]` & 1 }
+  mut _mux_85:U1 = if grant.e2 != 0 { 0 } else { _mux_84 & 1 }
+  `state_reg_next[46]` = _mux_85 & 1
+  if rst != 0 {
+    state_reg___q#[46] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[46] = `state_reg_next[46]` & 1
+  }
+  `state[46]` = (state_reg#[32..=47] >> 14) & 1
+  mut _mux_86:U1 = if grant.e15 != 0 { 1 } else { `state[47]` & 1 }
+  mut _mux_87:U1 = if grant.e2 != 0 { 0 } else { _mux_86 & 1 }
+  `state_reg_next[47]` = _mux_87 & 1
+  if rst != 0 {
+    state_reg___q#[47] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[47] = `state_reg_next[47]` & 1
+  }
+  `state[47]` = (state_reg#[32..=47] >> 15) & 1
+  mut _b2i_88 = if ((state_reg#[0..=15] >> 3) & 1) == 0 { 1 } else { 0 }
+  `state[48]` = _b2i_88 & 1
+  `state_reg_next[48]` = 0
+  mut state_reg__composite__w7 = state_reg__composite__w6
+  state_reg__composite__w7#[48] = 0
+  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[48]` & 1) << 1) | (state_reg#[48..=63] & 1))
+  mut _b2i_89 = if ((state_reg#[16..=31] >> 3) & 1) == 0 { 1 } else { 0 }
+  `state[49]` = _b2i_89 & 1
+  `state_reg_next[49]` = 0
+  mut state_reg__composite__w8 = state_reg__composite__w7
+  state_reg__composite__w8#[49] = 0
+  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[49]` & 1) << 1) | ((state_reg#[48..=63] >> 1) & 1))
+  mut _b2i_90 = if ((state_reg#[32..=47] >> 3) & 1) == 0 { 1 } else { 0 }
+  `state[50]` = _b2i_90 & 1
+  `state_reg_next[50]` = 0
+  mut state_reg__composite__w9 = state_reg__composite__w8
+  state_reg__composite__w9#[50] = 0
+  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[50]` & 1) << 1) | ((state_reg#[48..=63] >> 2) & 1))
+  `state[51]` = 0
+  mut state_reg__composite__w10 = state_reg__composite__w9
+  state_reg__composite__w10#[51] = 0
+  `state_reg_next[51]` = 0
+  br_misc_unused::[name=gen_state_row_3_gen_state_col_3_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[51]` & 1) << 2) | (((state_reg#[48..=63] >> 3) & 1) << 1) | (`state[51]` & 1))
+  mut _mux_91:U1 = if grant.e4 != 0 { 1 } else { `state[52]` & 1 }
+  mut _mux_92:U1 = if grant.e3 != 0 { 0 } else { _mux_91 & 1 }
+  `state_reg_next[52]` = _mux_92 & 1
+  if rst != 0 {
+    state_reg___q#[52] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[52] = `state_reg_next[52]` & 1
+  }
+  `state[52]` = (state_reg#[48..=63] >> 4) & 1
+  mut _mux_93:U1 = if grant.e5 != 0 { 1 } else { `state[53]` & 1 }
+  mut _mux_94:U1 = if grant.e3 != 0 { 0 } else { _mux_93 & 1 }
+  `state_reg_next[53]` = _mux_94 & 1
+  if rst != 0 {
+    state_reg___q#[53] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[53] = `state_reg_next[53]` & 1
+  }
+  `state[53]` = (state_reg#[48..=63] >> 5) & 1
+  mut _mux_95:U1 = if grant.e6 != 0 { 1 } else { `state[54]` & 1 }
+  mut _mux_96:U1 = if grant.e3 != 0 { 0 } else { _mux_95 & 1 }
+  `state_reg_next[54]` = _mux_96 & 1
+  if rst != 0 {
+    state_reg___q#[54] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[54] = `state_reg_next[54]` & 1
+  }
+  `state[54]` = (state_reg#[48..=63] >> 6) & 1
+  mut _mux_97:U1 = if grant.e7 != 0 { 1 } else { `state[55]` & 1 }
+  mut _mux_98:U1 = if grant.e3 != 0 { 0 } else { _mux_97 & 1 }
+  `state_reg_next[55]` = _mux_98 & 1
+  if rst != 0 {
+    state_reg___q#[55] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[55] = `state_reg_next[55]` & 1
+  }
+  `state[55]` = (state_reg#[48..=63] >> 7) & 1
+  mut _mux_99:U1 = if grant.e8 != 0 { 1 } else { `state[56]` & 1 }
+  mut _mux_100:U1 = if grant.e3 != 0 { 0 } else { _mux_99 & 1 }
+  `state_reg_next[56]` = _mux_100 & 1
+  if rst != 0 {
+    state_reg___q#[56] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[56] = `state_reg_next[56]` & 1
+  }
+  `state[56]` = (state_reg#[48..=63] >> 8) & 1
+  mut _mux_101:U1 = if grant.e9 != 0 { 1 } else { `state[57]` & 1 }
+  mut _mux_102:U1 = if grant.e3 != 0 { 0 } else { _mux_101 & 1 }
+  `state_reg_next[57]` = _mux_102 & 1
+  if rst != 0 {
+    state_reg___q#[57] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[57] = `state_reg_next[57]` & 1
+  }
+  `state[57]` = (state_reg#[48..=63] >> 9) & 1
+  mut _mux_103:U1 = if grant.e10 != 0 { 1 } else { `state[58]` & 1 }
+  mut _mux_104:U1 = if grant.e3 != 0 { 0 } else { _mux_103 & 1 }
+  `state_reg_next[58]` = _mux_104 & 1
+  if rst != 0 {
+    state_reg___q#[58] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[58] = `state_reg_next[58]` & 1
+  }
+  `state[58]` = (state_reg#[48..=63] >> 10) & 1
+  mut _mux_105:U1 = if grant.e11 != 0 { 1 } else { `state[59]` & 1 }
+  mut _mux_106:U1 = if grant.e3 != 0 { 0 } else { _mux_105 & 1 }
+  `state_reg_next[59]` = _mux_106 & 1
+  if rst != 0 {
+    state_reg___q#[59] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[59] = `state_reg_next[59]` & 1
+  }
+  `state[59]` = (state_reg#[48..=63] >> 11) & 1
+  mut _mux_107:U1 = if grant.e12 != 0 { 1 } else { `state[60]` & 1 }
+  mut _mux_108:U1 = if grant.e3 != 0 { 0 } else { _mux_107 & 1 }
+  `state_reg_next[60]` = _mux_108 & 1
+  if rst != 0 {
+    state_reg___q#[60] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[60] = `state_reg_next[60]` & 1
+  }
+  `state[60]` = (state_reg#[48..=63] >> 12) & 1
+  mut _mux_109:U1 = if grant.e13 != 0 { 1 } else { `state[61]` & 1 }
+  mut _mux_110:U1 = if grant.e3 != 0 { 0 } else { _mux_109 & 1 }
+  `state_reg_next[61]` = _mux_110 & 1
+  if rst != 0 {
+    state_reg___q#[61] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[61] = `state_reg_next[61]` & 1
+  }
+  `state[61]` = (state_reg#[48..=63] >> 13) & 1
+  mut _mux_111:U1 = if grant.e14 != 0 { 1 } else { `state[62]` & 1 }
+  mut _mux_112:U1 = if grant.e3 != 0 { 0 } else { _mux_111 & 1 }
+  `state_reg_next[62]` = _mux_112 & 1
+  if rst != 0 {
+    state_reg___q#[62] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[62] = `state_reg_next[62]` & 1
+  }
+  `state[62]` = (state_reg#[48..=63] >> 14) & 1
+  mut _mux_113:U1 = if grant.e15 != 0 { 1 } else { `state[63]` & 1 }
+  mut _mux_114:U1 = if grant.e3 != 0 { 0 } else { _mux_113 & 1 }
+  `state_reg_next[63]` = _mux_114 & 1
+  if rst != 0 {
+    state_reg___q#[63] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[63] = `state_reg_next[63]` & 1
+  }
+  `state[63]` = (state_reg#[48..=63] >> 15) & 1
+  mut _b2i_115 = if ((state_reg#[0..=15] >> 4) & 1) == 0 { 1 } else { 0 }
+  `state[64]` = _b2i_115 & 1
+  `state_reg_next[64]` = 0
+  mut state_reg__composite__w11 = state_reg__composite__w10
+  state_reg__composite__w11#[64] = 0
+  br_misc_unused_p1::[name=gen_state_row_4_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[64]` & 1) << 1) | (state_reg#[64..=79] & 1))
+  mut _b2i_116 = if ((state_reg#[16..=31] >> 4) & 1) == 0 { 1 } else { 0 }
+  `state[65]` = _b2i_116 & 1
+  `state_reg_next[65]` = 0
+  mut state_reg__composite__w12 = state_reg__composite__w11
+  state_reg__composite__w12#[65] = 0
+  br_misc_unused_p1::[name=gen_state_row_4_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[65]` & 1) << 1) | ((state_reg#[64..=79] >> 1) & 1))
+  mut _b2i_117 = if ((state_reg#[32..=47] >> 4) & 1) == 0 { 1 } else { 0 }
+  `state[66]` = _b2i_117 & 1
+  `state_reg_next[66]` = 0
+  mut state_reg__composite__w13 = state_reg__composite__w12
+  state_reg__composite__w13#[66] = 0
+  br_misc_unused_p1::[name=gen_state_row_4_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[66]` & 1) << 1) | ((state_reg#[64..=79] >> 2) & 1))
+  mut _b2i_118 = if ((state_reg#[48..=63] >> 4) & 1) == 0 { 1 } else { 0 }
+  `state[67]` = _b2i_118 & 1
+  `state_reg_next[67]` = 0
+  mut state_reg__composite__w14 = state_reg__composite__w13
+  state_reg__composite__w14#[67] = 0
+  br_misc_unused_p1::[name=gen_state_row_4_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[67]` & 1) << 1) | ((state_reg#[64..=79] >> 3) & 1))
+  `state[68]` = 0
+  mut state_reg__composite__w15 = state_reg__composite__w14
+  state_reg__composite__w15#[68] = 0
+  `state_reg_next[68]` = 0
+  br_misc_unused::[name=gen_state_row_4_gen_state_col_4_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[68]` & 1) << 2) | (((state_reg#[64..=79] >> 4) & 1) << 1) | (`state[68]` & 1))
+  mut _mux_119:U1 = if grant.e5 != 0 { 1 } else { `state[69]` & 1 }
+  mut _mux_120:U1 = if grant.e4 != 0 { 0 } else { _mux_119 & 1 }
+  `state_reg_next[69]` = _mux_120 & 1
+  if rst != 0 {
+    state_reg___q#[69] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[69] = `state_reg_next[69]` & 1
+  }
+  `state[69]` = (state_reg#[64..=79] >> 5) & 1
+  mut _mux_121:U1 = if grant.e6 != 0 { 1 } else { `state[70]` & 1 }
+  mut _mux_122:U1 = if grant.e4 != 0 { 0 } else { _mux_121 & 1 }
+  `state_reg_next[70]` = _mux_122 & 1
+  if rst != 0 {
+    state_reg___q#[70] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[70] = `state_reg_next[70]` & 1
+  }
+  `state[70]` = (state_reg#[64..=79] >> 6) & 1
+  mut _mux_123:U1 = if grant.e7 != 0 { 1 } else { `state[71]` & 1 }
+  mut _mux_124:U1 = if grant.e4 != 0 { 0 } else { _mux_123 & 1 }
+  `state_reg_next[71]` = _mux_124 & 1
+  if rst != 0 {
+    state_reg___q#[71] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[71] = `state_reg_next[71]` & 1
+  }
+  `state[71]` = (state_reg#[64..=79] >> 7) & 1
+  mut _mux_125:U1 = if grant.e8 != 0 { 1 } else { `state[72]` & 1 }
+  mut _mux_126:U1 = if grant.e4 != 0 { 0 } else { _mux_125 & 1 }
+  `state_reg_next[72]` = _mux_126 & 1
+  if rst != 0 {
+    state_reg___q#[72] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[72] = `state_reg_next[72]` & 1
+  }
+  `state[72]` = (state_reg#[64..=79] >> 8) & 1
+  mut _mux_127:U1 = if grant.e9 != 0 { 1 } else { `state[73]` & 1 }
+  mut _mux_128:U1 = if grant.e4 != 0 { 0 } else { _mux_127 & 1 }
+  `state_reg_next[73]` = _mux_128 & 1
+  if rst != 0 {
+    state_reg___q#[73] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[73] = `state_reg_next[73]` & 1
+  }
+  `state[73]` = (state_reg#[64..=79] >> 9) & 1
+  mut _mux_129:U1 = if grant.e10 != 0 { 1 } else { `state[74]` & 1 }
+  mut _mux_130:U1 = if grant.e4 != 0 { 0 } else { _mux_129 & 1 }
+  `state_reg_next[74]` = _mux_130 & 1
+  if rst != 0 {
+    state_reg___q#[74] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[74] = `state_reg_next[74]` & 1
+  }
+  `state[74]` = (state_reg#[64..=79] >> 10) & 1
+  mut _mux_131:U1 = if grant.e11 != 0 { 1 } else { `state[75]` & 1 }
+  mut _mux_132:U1 = if grant.e4 != 0 { 0 } else { _mux_131 & 1 }
+  `state_reg_next[75]` = _mux_132 & 1
+  if rst != 0 {
+    state_reg___q#[75] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[75] = `state_reg_next[75]` & 1
+  }
+  `state[75]` = (state_reg#[64..=79] >> 11) & 1
+  mut _mux_133:U1 = if grant.e12 != 0 { 1 } else { `state[76]` & 1 }
+  mut _mux_134:U1 = if grant.e4 != 0 { 0 } else { _mux_133 & 1 }
+  `state_reg_next[76]` = _mux_134 & 1
+  if rst != 0 {
+    state_reg___q#[76] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[76] = `state_reg_next[76]` & 1
+  }
+  `state[76]` = (state_reg#[64..=79] >> 12) & 1
+  mut _mux_135:U1 = if grant.e13 != 0 { 1 } else { `state[77]` & 1 }
+  mut _mux_136:U1 = if grant.e4 != 0 { 0 } else { _mux_135 & 1 }
+  `state_reg_next[77]` = _mux_136 & 1
+  if rst != 0 {
+    state_reg___q#[77] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[77] = `state_reg_next[77]` & 1
+  }
+  `state[77]` = (state_reg#[64..=79] >> 13) & 1
+  mut _mux_137:U1 = if grant.e14 != 0 { 1 } else { `state[78]` & 1 }
+  mut _mux_138:U1 = if grant.e4 != 0 { 0 } else { _mux_137 & 1 }
+  `state_reg_next[78]` = _mux_138 & 1
+  if rst != 0 {
+    state_reg___q#[78] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[78] = `state_reg_next[78]` & 1
+  }
+  `state[78]` = (state_reg#[64..=79] >> 14) & 1
+  mut _mux_139:U1 = if grant.e15 != 0 { 1 } else { `state[79]` & 1 }
+  mut _mux_140:U1 = if grant.e4 != 0 { 0 } else { _mux_139 & 1 }
+  `state_reg_next[79]` = _mux_140 & 1
+  if rst != 0 {
+    state_reg___q#[79] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[79] = `state_reg_next[79]` & 1
+  }
+  `state[79]` = (state_reg#[64..=79] >> 15) & 1
+  mut _b2i_141 = if ((state_reg#[0..=15] >> 5) & 1) == 0 { 1 } else { 0 }
+  `state[80]` = _b2i_141 & 1
+  `state_reg_next[80]` = 0
+  mut state_reg__composite__w16 = state_reg__composite__w15
+  state_reg__composite__w16#[80] = 0
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[80]` & 1) << 1) | (state_reg#[80..=95] & 1))
+  mut _b2i_142 = if ((state_reg#[16..=31] >> 5) & 1) == 0 { 1 } else { 0 }
+  `state[81]` = _b2i_142 & 1
+  `state_reg_next[81]` = 0
+  mut state_reg__composite__w17 = state_reg__composite__w16
+  state_reg__composite__w17#[81] = 0
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[81]` & 1) << 1) | ((state_reg#[80..=95] >> 1) & 1))
+  mut _b2i_143 = if ((state_reg#[32..=47] >> 5) & 1) == 0 { 1 } else { 0 }
+  `state[82]` = _b2i_143 & 1
+  `state_reg_next[82]` = 0
+  mut state_reg__composite__w18 = state_reg__composite__w17
+  state_reg__composite__w18#[82] = 0
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[82]` & 1) << 1) | ((state_reg#[80..=95] >> 2) & 1))
+  mut _b2i_144 = if ((state_reg#[48..=63] >> 5) & 1) == 0 { 1 } else { 0 }
+  `state[83]` = _b2i_144 & 1
+  `state_reg_next[83]` = 0
+  mut state_reg__composite__w19 = state_reg__composite__w18
+  state_reg__composite__w19#[83] = 0
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[83]` & 1) << 1) | ((state_reg#[80..=95] >> 3) & 1))
+  mut _b2i_145 = if ((state_reg#[64..=79] >> 5) & 1) == 0 { 1 } else { 0 }
+  `state[84]` = _b2i_145 & 1
+  `state_reg_next[84]` = 0
+  mut state_reg__composite__w20 = state_reg__composite__w19
+  state_reg__composite__w20#[84] = 0
+  br_misc_unused_p1::[name=gen_state_row_5_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[84]` & 1) << 1) | ((state_reg#[80..=95] >> 4) & 1))
+  `state[85]` = 0
+  mut state_reg__composite__w21 = state_reg__composite__w20
+  state_reg__composite__w21#[85] = 0
+  `state_reg_next[85]` = 0
+  br_misc_unused::[name=gen_state_row_5_gen_state_col_5_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[85]` & 1) << 2) | (((state_reg#[80..=95] >> 5) & 1) << 1) | (`state[85]` & 1))
+  mut _mux_146:U1 = if grant.e6 != 0 { 1 } else { `state[86]` & 1 }
+  mut _mux_147:U1 = if grant.e5 != 0 { 0 } else { _mux_146 & 1 }
+  `state_reg_next[86]` = _mux_147 & 1
+  if rst != 0 {
+    state_reg___q#[86] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[86] = `state_reg_next[86]` & 1
+  }
+  `state[86]` = (state_reg#[80..=95] >> 6) & 1
+  mut _mux_148:U1 = if grant.e7 != 0 { 1 } else { `state[87]` & 1 }
+  mut _mux_149:U1 = if grant.e5 != 0 { 0 } else { _mux_148 & 1 }
+  `state_reg_next[87]` = _mux_149 & 1
+  if rst != 0 {
+    state_reg___q#[87] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[87] = `state_reg_next[87]` & 1
+  }
+  `state[87]` = (state_reg#[80..=95] >> 7) & 1
+  mut _mux_150:U1 = if grant.e8 != 0 { 1 } else { `state[88]` & 1 }
+  mut _mux_151:U1 = if grant.e5 != 0 { 0 } else { _mux_150 & 1 }
+  `state_reg_next[88]` = _mux_151 & 1
+  if rst != 0 {
+    state_reg___q#[88] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[88] = `state_reg_next[88]` & 1
+  }
+  `state[88]` = (state_reg#[80..=95] >> 8) & 1
+  mut _mux_152:U1 = if grant.e9 != 0 { 1 } else { `state[89]` & 1 }
+  mut _mux_153:U1 = if grant.e5 != 0 { 0 } else { _mux_152 & 1 }
+  `state_reg_next[89]` = _mux_153 & 1
+  if rst != 0 {
+    state_reg___q#[89] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[89] = `state_reg_next[89]` & 1
+  }
+  `state[89]` = (state_reg#[80..=95] >> 9) & 1
+  mut _mux_154:U1 = if grant.e10 != 0 { 1 } else { `state[90]` & 1 }
+  mut _mux_155:U1 = if grant.e5 != 0 { 0 } else { _mux_154 & 1 }
+  `state_reg_next[90]` = _mux_155 & 1
+  if rst != 0 {
+    state_reg___q#[90] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[90] = `state_reg_next[90]` & 1
+  }
+  `state[90]` = (state_reg#[80..=95] >> 10) & 1
+  mut _mux_156:U1 = if grant.e11 != 0 { 1 } else { `state[91]` & 1 }
+  mut _mux_157:U1 = if grant.e5 != 0 { 0 } else { _mux_156 & 1 }
+  `state_reg_next[91]` = _mux_157 & 1
+  if rst != 0 {
+    state_reg___q#[91] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[91] = `state_reg_next[91]` & 1
+  }
+  `state[91]` = (state_reg#[80..=95] >> 11) & 1
+  mut _mux_158:U1 = if grant.e12 != 0 { 1 } else { `state[92]` & 1 }
+  mut _mux_159:U1 = if grant.e5 != 0 { 0 } else { _mux_158 & 1 }
+  `state_reg_next[92]` = _mux_159 & 1
+  if rst != 0 {
+    state_reg___q#[92] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[92] = `state_reg_next[92]` & 1
+  }
+  `state[92]` = (state_reg#[80..=95] >> 12) & 1
+  mut _mux_160:U1 = if grant.e13 != 0 { 1 } else { `state[93]` & 1 }
+  mut _mux_161:U1 = if grant.e5 != 0 { 0 } else { _mux_160 & 1 }
+  `state_reg_next[93]` = _mux_161 & 1
+  if rst != 0 {
+    state_reg___q#[93] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[93] = `state_reg_next[93]` & 1
+  }
+  `state[93]` = (state_reg#[80..=95] >> 13) & 1
+  mut _mux_162:U1 = if grant.e14 != 0 { 1 } else { `state[94]` & 1 }
+  mut _mux_163:U1 = if grant.e5 != 0 { 0 } else { _mux_162 & 1 }
+  `state_reg_next[94]` = _mux_163 & 1
+  if rst != 0 {
+    state_reg___q#[94] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[94] = `state_reg_next[94]` & 1
+  }
+  `state[94]` = (state_reg#[80..=95] >> 14) & 1
+  mut _mux_164:U1 = if grant.e15 != 0 { 1 } else { `state[95]` & 1 }
+  mut _mux_165:U1 = if grant.e5 != 0 { 0 } else { _mux_164 & 1 }
+  `state_reg_next[95]` = _mux_165 & 1
+  if rst != 0 {
+    state_reg___q#[95] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[95] = `state_reg_next[95]` & 1
+  }
+  `state[95]` = (state_reg#[80..=95] >> 15) & 1
+  mut _b2i_166 = if ((state_reg#[0..=15] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[96]` = _b2i_166 & 1
+  `state_reg_next[96]` = 0
+  mut state_reg__composite__w22 = state_reg__composite__w21
+  state_reg__composite__w22#[96] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[96]` & 1) << 1) | (state_reg#[96..=111] & 1))
+  mut _b2i_167 = if ((state_reg#[16..=31] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[97]` = _b2i_167 & 1
+  `state_reg_next[97]` = 0
+  mut state_reg__composite__w23 = state_reg__composite__w22
+  state_reg__composite__w23#[97] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[97]` & 1) << 1) | ((state_reg#[96..=111] >> 1) & 1))
+  mut _b2i_168 = if ((state_reg#[32..=47] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[98]` = _b2i_168 & 1
+  `state_reg_next[98]` = 0
+  mut state_reg__composite__w24 = state_reg__composite__w23
+  state_reg__composite__w24#[98] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[98]` & 1) << 1) | ((state_reg#[96..=111] >> 2) & 1))
+  mut _b2i_169 = if ((state_reg#[48..=63] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[99]` = _b2i_169 & 1
+  `state_reg_next[99]` = 0
+  mut state_reg__composite__w25 = state_reg__composite__w24
+  state_reg__composite__w25#[99] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[99]` & 1) << 1) | ((state_reg#[96..=111] >> 3) & 1))
+  mut _b2i_170 = if ((state_reg#[64..=79] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[100]` = _b2i_170 & 1
+  `state_reg_next[100]` = 0
+  mut state_reg__composite__w26 = state_reg__composite__w25
+  state_reg__composite__w26#[100] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[100]` & 1) << 1) | ((state_reg#[96..=111] >> 4) & 1))
+  mut _b2i_171 = if ((state_reg#[80..=95] >> 6) & 1) == 0 { 1 } else { 0 }
+  `state[101]` = _b2i_171 & 1
+  `state_reg_next[101]` = 0
+  mut state_reg__composite__w27 = state_reg__composite__w26
+  state_reg__composite__w27#[101] = 0
+  br_misc_unused_p1::[name=gen_state_row_6_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[101]` & 1) << 1) | ((state_reg#[96..=111] >> 5) & 1))
+  `state[102]` = 0
+  mut state_reg__composite__w28 = state_reg__composite__w27
+  state_reg__composite__w28#[102] = 0
+  `state_reg_next[102]` = 0
+  br_misc_unused::[name=gen_state_row_6_gen_state_col_6_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[102]` & 1) << 2) | (((state_reg#[96..=111] >> 6) & 1) << 1) | (`state[102]` & 1))
+  mut _mux_172:U1 = if grant.e7 != 0 { 1 } else { `state[103]` & 1 }
+  mut _mux_173:U1 = if grant.e6 != 0 { 0 } else { _mux_172 & 1 }
+  `state_reg_next[103]` = _mux_173 & 1
+  if rst != 0 {
+    state_reg___q#[103] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[103] = `state_reg_next[103]` & 1
+  }
+  `state[103]` = (state_reg#[96..=111] >> 7) & 1
+  mut _mux_174:U1 = if grant.e8 != 0 { 1 } else { `state[104]` & 1 }
+  mut _mux_175:U1 = if grant.e6 != 0 { 0 } else { _mux_174 & 1 }
+  `state_reg_next[104]` = _mux_175 & 1
+  if rst != 0 {
+    state_reg___q#[104] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[104] = `state_reg_next[104]` & 1
+  }
+  `state[104]` = (state_reg#[96..=111] >> 8) & 1
+  mut _mux_176:U1 = if grant.e9 != 0 { 1 } else { `state[105]` & 1 }
+  mut _mux_177:U1 = if grant.e6 != 0 { 0 } else { _mux_176 & 1 }
+  `state_reg_next[105]` = _mux_177 & 1
+  if rst != 0 {
+    state_reg___q#[105] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[105] = `state_reg_next[105]` & 1
+  }
+  `state[105]` = (state_reg#[96..=111] >> 9) & 1
+  mut _mux_178:U1 = if grant.e10 != 0 { 1 } else { `state[106]` & 1 }
+  mut _mux_179:U1 = if grant.e6 != 0 { 0 } else { _mux_178 & 1 }
+  `state_reg_next[106]` = _mux_179 & 1
+  if rst != 0 {
+    state_reg___q#[106] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[106] = `state_reg_next[106]` & 1
+  }
+  `state[106]` = (state_reg#[96..=111] >> 10) & 1
+  mut _mux_180:U1 = if grant.e11 != 0 { 1 } else { `state[107]` & 1 }
+  mut _mux_181:U1 = if grant.e6 != 0 { 0 } else { _mux_180 & 1 }
+  `state_reg_next[107]` = _mux_181 & 1
+  if rst != 0 {
+    state_reg___q#[107] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[107] = `state_reg_next[107]` & 1
+  }
+  `state[107]` = (state_reg#[96..=111] >> 11) & 1
+  mut _mux_182:U1 = if grant.e12 != 0 { 1 } else { `state[108]` & 1 }
+  mut _mux_183:U1 = if grant.e6 != 0 { 0 } else { _mux_182 & 1 }
+  `state_reg_next[108]` = _mux_183 & 1
+  if rst != 0 {
+    state_reg___q#[108] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[108] = `state_reg_next[108]` & 1
+  }
+  `state[108]` = (state_reg#[96..=111] >> 12) & 1
+  mut _mux_184:U1 = if grant.e13 != 0 { 1 } else { `state[109]` & 1 }
+  mut _mux_185:U1 = if grant.e6 != 0 { 0 } else { _mux_184 & 1 }
+  `state_reg_next[109]` = _mux_185 & 1
+  if rst != 0 {
+    state_reg___q#[109] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[109] = `state_reg_next[109]` & 1
+  }
+  `state[109]` = (state_reg#[96..=111] >> 13) & 1
+  mut _mux_186:U1 = if grant.e14 != 0 { 1 } else { `state[110]` & 1 }
+  mut _mux_187:U1 = if grant.e6 != 0 { 0 } else { _mux_186 & 1 }
+  `state_reg_next[110]` = _mux_187 & 1
+  if rst != 0 {
+    state_reg___q#[110] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[110] = `state_reg_next[110]` & 1
+  }
+  `state[110]` = (state_reg#[96..=111] >> 14) & 1
+  mut _mux_188:U1 = if grant.e15 != 0 { 1 } else { `state[111]` & 1 }
+  mut _mux_189:U1 = if grant.e6 != 0 { 0 } else { _mux_188 & 1 }
+  `state_reg_next[111]` = _mux_189 & 1
+  if rst != 0 {
+    state_reg___q#[111] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[111] = `state_reg_next[111]` & 1
+  }
+  `state[111]` = (state_reg#[96..=111] >> 15) & 1
+  mut _b2i_190 = if ((state_reg#[0..=15] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[112]` = _b2i_190 & 1
+  `state_reg_next[112]` = 0
+  mut state_reg__composite__w29 = state_reg__composite__w28
+  state_reg__composite__w29#[112] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[112]` & 1) << 1) | (state_reg#[112..=127] & 1))
+  mut _b2i_191 = if ((state_reg#[16..=31] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[113]` = _b2i_191 & 1
+  `state_reg_next[113]` = 0
+  mut state_reg__composite__w30 = state_reg__composite__w29
+  state_reg__composite__w30#[113] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[113]` & 1) << 1) | ((state_reg#[112..=127] >> 1) & 1))
+  mut _b2i_192 = if ((state_reg#[32..=47] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[114]` = _b2i_192 & 1
+  `state_reg_next[114]` = 0
+  mut state_reg__composite__w31 = state_reg__composite__w30
+  state_reg__composite__w31#[114] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[114]` & 1) << 1) | ((state_reg#[112..=127] >> 2) & 1))
+  mut _b2i_193 = if ((state_reg#[48..=63] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[115]` = _b2i_193 & 1
+  `state_reg_next[115]` = 0
+  mut state_reg__composite__w32 = state_reg__composite__w31
+  state_reg__composite__w32#[115] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[115]` & 1) << 1) | ((state_reg#[112..=127] >> 3) & 1))
+  mut _b2i_194 = if ((state_reg#[64..=79] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[116]` = _b2i_194 & 1
+  `state_reg_next[116]` = 0
+  mut state_reg__composite__w33 = state_reg__composite__w32
+  state_reg__composite__w33#[116] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[116]` & 1) << 1) | ((state_reg#[112..=127] >> 4) & 1))
+  mut _b2i_195 = if ((state_reg#[80..=95] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[117]` = _b2i_195 & 1
+  `state_reg_next[117]` = 0
+  mut state_reg__composite__w34 = state_reg__composite__w33
+  state_reg__composite__w34#[117] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[117]` & 1) << 1) | ((state_reg#[112..=127] >> 5) & 1))
+  mut _b2i_196 = if ((state_reg#[96..=111] >> 7) & 1) == 0 { 1 } else { 0 }
+  `state[118]` = _b2i_196 & 1
+  `state_reg_next[118]` = 0
+  mut state_reg__composite__w35 = state_reg__composite__w34
+  state_reg__composite__w35#[118] = 0
+  br_misc_unused_p1::[name=gen_state_row_7_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[118]` & 1) << 1) | ((state_reg#[112..=127] >> 6) & 1))
+  `state[119]` = 0
+  mut state_reg__composite__w36 = state_reg__composite__w35
+  state_reg__composite__w36#[119] = 0
+  `state_reg_next[119]` = 0
+  br_misc_unused::[name=gen_state_row_7_gen_state_col_7_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[119]` & 1) << 2) | (((state_reg#[112..=127] >> 7) & 1) << 1) | (`state[119]` & 1))
+  mut _mux_197:U1 = if grant.e8 != 0 { 1 } else { `state[120]` & 1 }
+  mut _mux_198:U1 = if grant.e7 != 0 { 0 } else { _mux_197 & 1 }
+  `state_reg_next[120]` = _mux_198 & 1
+  if rst != 0 {
+    state_reg___q#[120] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[120] = `state_reg_next[120]` & 1
+  }
+  `state[120]` = (state_reg#[112..=127] >> 8) & 1
+  mut _mux_199:U1 = if grant.e9 != 0 { 1 } else { `state[121]` & 1 }
+  mut _mux_200:U1 = if grant.e7 != 0 { 0 } else { _mux_199 & 1 }
+  `state_reg_next[121]` = _mux_200 & 1
+  if rst != 0 {
+    state_reg___q#[121] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[121] = `state_reg_next[121]` & 1
+  }
+  `state[121]` = (state_reg#[112..=127] >> 9) & 1
+  mut _mux_201:U1 = if grant.e10 != 0 { 1 } else { `state[122]` & 1 }
+  mut _mux_202:U1 = if grant.e7 != 0 { 0 } else { _mux_201 & 1 }
+  `state_reg_next[122]` = _mux_202 & 1
+  if rst != 0 {
+    state_reg___q#[122] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[122] = `state_reg_next[122]` & 1
+  }
+  `state[122]` = (state_reg#[112..=127] >> 10) & 1
+  mut _mux_203:U1 = if grant.e11 != 0 { 1 } else { `state[123]` & 1 }
+  mut _mux_204:U1 = if grant.e7 != 0 { 0 } else { _mux_203 & 1 }
+  `state_reg_next[123]` = _mux_204 & 1
+  if rst != 0 {
+    state_reg___q#[123] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[123] = `state_reg_next[123]` & 1
+  }
+  `state[123]` = (state_reg#[112..=127] >> 11) & 1
+  mut _mux_205:U1 = if grant.e12 != 0 { 1 } else { `state[124]` & 1 }
+  mut _mux_206:U1 = if grant.e7 != 0 { 0 } else { _mux_205 & 1 }
+  `state_reg_next[124]` = _mux_206 & 1
+  if rst != 0 {
+    state_reg___q#[124] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[124] = `state_reg_next[124]` & 1
+  }
+  `state[124]` = (state_reg#[112..=127] >> 12) & 1
+  mut _mux_207:U1 = if grant.e13 != 0 { 1 } else { `state[125]` & 1 }
+  mut _mux_208:U1 = if grant.e7 != 0 { 0 } else { _mux_207 & 1 }
+  `state_reg_next[125]` = _mux_208 & 1
+  if rst != 0 {
+    state_reg___q#[125] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[125] = `state_reg_next[125]` & 1
+  }
+  `state[125]` = (state_reg#[112..=127] >> 13) & 1
+  mut _mux_209:U1 = if grant.e14 != 0 { 1 } else { `state[126]` & 1 }
+  mut _mux_210:U1 = if grant.e7 != 0 { 0 } else { _mux_209 & 1 }
+  `state_reg_next[126]` = _mux_210 & 1
+  if rst != 0 {
+    state_reg___q#[126] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[126] = `state_reg_next[126]` & 1
+  }
+  `state[126]` = (state_reg#[112..=127] >> 14) & 1
+  mut _mux_211:U1 = if grant.e15 != 0 { 1 } else { `state[127]` & 1 }
+  mut _mux_212:U1 = if grant.e7 != 0 { 0 } else { _mux_211 & 1 }
+  `state_reg_next[127]` = _mux_212 & 1
+  if rst != 0 {
+    state_reg___q#[127] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[127] = `state_reg_next[127]` & 1
+  }
+  `state[127]` = (state_reg#[112..=127] >> 15) & 1
+  mut _b2i_213 = if ((state_reg#[0..=15] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[128]` = _b2i_213 & 1
+  `state_reg_next[128]` = 0
+  mut state_reg__composite__w37 = state_reg__composite__w36
+  state_reg__composite__w37#[128] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[128]` & 1) << 1) | (state_reg#[128..=143] & 1))
+  mut _b2i_214 = if ((state_reg#[16..=31] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[129]` = _b2i_214 & 1
+  `state_reg_next[129]` = 0
+  mut state_reg__composite__w38 = state_reg__composite__w37
+  state_reg__composite__w38#[129] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[129]` & 1) << 1) | ((state_reg#[128..=143] >> 1) & 1))
+  mut _b2i_215 = if ((state_reg#[32..=47] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[130]` = _b2i_215 & 1
+  `state_reg_next[130]` = 0
+  mut state_reg__composite__w39 = state_reg__composite__w38
+  state_reg__composite__w39#[130] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[130]` & 1) << 1) | ((state_reg#[128..=143] >> 2) & 1))
+  mut _b2i_216 = if ((state_reg#[48..=63] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[131]` = _b2i_216 & 1
+  `state_reg_next[131]` = 0
+  mut state_reg__composite__w40 = state_reg__composite__w39
+  state_reg__composite__w40#[131] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[131]` & 1) << 1) | ((state_reg#[128..=143] >> 3) & 1))
+  mut _b2i_217 = if ((state_reg#[64..=79] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[132]` = _b2i_217 & 1
+  `state_reg_next[132]` = 0
+  mut state_reg__composite__w41 = state_reg__composite__w40
+  state_reg__composite__w41#[132] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[132]` & 1) << 1) | ((state_reg#[128..=143] >> 4) & 1))
+  mut _b2i_218 = if ((state_reg#[80..=95] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[133]` = _b2i_218 & 1
+  `state_reg_next[133]` = 0
+  mut state_reg__composite__w42 = state_reg__composite__w41
+  state_reg__composite__w42#[133] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[133]` & 1) << 1) | ((state_reg#[128..=143] >> 5) & 1))
+  mut _b2i_219 = if ((state_reg#[96..=111] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[134]` = _b2i_219 & 1
+  `state_reg_next[134]` = 0
+  mut state_reg__composite__w43 = state_reg__composite__w42
+  state_reg__composite__w43#[134] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[134]` & 1) << 1) | ((state_reg#[128..=143] >> 6) & 1))
+  mut _b2i_220 = if ((state_reg#[112..=127] >> 8) & 1) == 0 { 1 } else { 0 }
+  `state[135]` = _b2i_220 & 1
+  `state_reg_next[135]` = 0
+  mut state_reg__composite__w44 = state_reg__composite__w43
+  state_reg__composite__w44#[135] = 0
+  br_misc_unused_p1::[name=gen_state_row_8_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[135]` & 1) << 1) | ((state_reg#[128..=143] >> 7) & 1))
+  `state[136]` = 0
+  mut state_reg__composite__w45 = state_reg__composite__w44
+  state_reg__composite__w45#[136] = 0
+  `state_reg_next[136]` = 0
+  br_misc_unused::[name=gen_state_row_8_gen_state_col_8_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[136]` & 1) << 2) | (((state_reg#[128..=143] >> 8) & 1) << 1) | (`state[136]` & 1))
+  mut _mux_221:U1 = if grant.e9 != 0 { 1 } else { `state[137]` & 1 }
+  mut _mux_222:U1 = if grant.e8 != 0 { 0 } else { _mux_221 & 1 }
+  `state_reg_next[137]` = _mux_222 & 1
+  if rst != 0 {
+    state_reg___q#[137] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[137] = `state_reg_next[137]` & 1
+  }
+  `state[137]` = (state_reg#[128..=143] >> 9) & 1
+  mut _mux_223:U1 = if grant.e10 != 0 { 1 } else { `state[138]` & 1 }
+  mut _mux_224:U1 = if grant.e8 != 0 { 0 } else { _mux_223 & 1 }
+  `state_reg_next[138]` = _mux_224 & 1
+  if rst != 0 {
+    state_reg___q#[138] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[138] = `state_reg_next[138]` & 1
+  }
+  `state[138]` = (state_reg#[128..=143] >> 10) & 1
+  mut _mux_225:U1 = if grant.e11 != 0 { 1 } else { `state[139]` & 1 }
+  mut _mux_226:U1 = if grant.e8 != 0 { 0 } else { _mux_225 & 1 }
+  `state_reg_next[139]` = _mux_226 & 1
+  if rst != 0 {
+    state_reg___q#[139] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[139] = `state_reg_next[139]` & 1
+  }
+  `state[139]` = (state_reg#[128..=143] >> 11) & 1
+  mut _mux_227:U1 = if grant.e12 != 0 { 1 } else { `state[140]` & 1 }
+  mut _mux_228:U1 = if grant.e8 != 0 { 0 } else { _mux_227 & 1 }
+  `state_reg_next[140]` = _mux_228 & 1
+  if rst != 0 {
+    state_reg___q#[140] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[140] = `state_reg_next[140]` & 1
+  }
+  `state[140]` = (state_reg#[128..=143] >> 12) & 1
+  mut _mux_229:U1 = if grant.e13 != 0 { 1 } else { `state[141]` & 1 }
+  mut _mux_230:U1 = if grant.e8 != 0 { 0 } else { _mux_229 & 1 }
+  `state_reg_next[141]` = _mux_230 & 1
+  if rst != 0 {
+    state_reg___q#[141] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[141] = `state_reg_next[141]` & 1
+  }
+  `state[141]` = (state_reg#[128..=143] >> 13) & 1
+  mut _mux_231:U1 = if grant.e14 != 0 { 1 } else { `state[142]` & 1 }
+  mut _mux_232:U1 = if grant.e8 != 0 { 0 } else { _mux_231 & 1 }
+  `state_reg_next[142]` = _mux_232 & 1
+  if rst != 0 {
+    state_reg___q#[142] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[142] = `state_reg_next[142]` & 1
+  }
+  `state[142]` = (state_reg#[128..=143] >> 14) & 1
+  mut _mux_233:U1 = if grant.e15 != 0 { 1 } else { `state[143]` & 1 }
+  mut _mux_234:U1 = if grant.e8 != 0 { 0 } else { _mux_233 & 1 }
+  `state_reg_next[143]` = _mux_234 & 1
+  if rst != 0 {
+    state_reg___q#[143] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[143] = `state_reg_next[143]` & 1
+  }
+  `state[143]` = (state_reg#[128..=143] >> 15) & 1
+  mut _b2i_235 = if ((state_reg#[0..=15] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[144]` = _b2i_235 & 1
+  `state_reg_next[144]` = 0
+  mut state_reg__composite__w46 = state_reg__composite__w45
+  state_reg__composite__w46#[144] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[144]` & 1) << 1) | (state_reg#[144..=159] & 1))
+  mut _b2i_236 = if ((state_reg#[16..=31] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[145]` = _b2i_236 & 1
+  `state_reg_next[145]` = 0
+  mut state_reg__composite__w47 = state_reg__composite__w46
+  state_reg__composite__w47#[145] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[145]` & 1) << 1) | ((state_reg#[144..=159] >> 1) & 1))
+  mut _b2i_237 = if ((state_reg#[32..=47] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[146]` = _b2i_237 & 1
+  `state_reg_next[146]` = 0
+  mut state_reg__composite__w48 = state_reg__composite__w47
+  state_reg__composite__w48#[146] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[146]` & 1) << 1) | ((state_reg#[144..=159] >> 2) & 1))
+  mut _b2i_238 = if ((state_reg#[48..=63] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[147]` = _b2i_238 & 1
+  `state_reg_next[147]` = 0
+  mut state_reg__composite__w49 = state_reg__composite__w48
+  state_reg__composite__w49#[147] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[147]` & 1) << 1) | ((state_reg#[144..=159] >> 3) & 1))
+  mut _b2i_239 = if ((state_reg#[64..=79] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[148]` = _b2i_239 & 1
+  `state_reg_next[148]` = 0
+  mut state_reg__composite__w50 = state_reg__composite__w49
+  state_reg__composite__w50#[148] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[148]` & 1) << 1) | ((state_reg#[144..=159] >> 4) & 1))
+  mut _b2i_240 = if ((state_reg#[80..=95] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[149]` = _b2i_240 & 1
+  `state_reg_next[149]` = 0
+  mut state_reg__composite__w51 = state_reg__composite__w50
+  state_reg__composite__w51#[149] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[149]` & 1) << 1) | ((state_reg#[144..=159] >> 5) & 1))
+  mut _b2i_241 = if ((state_reg#[96..=111] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[150]` = _b2i_241 & 1
+  `state_reg_next[150]` = 0
+  mut state_reg__composite__w52 = state_reg__composite__w51
+  state_reg__composite__w52#[150] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[150]` & 1) << 1) | ((state_reg#[144..=159] >> 6) & 1))
+  mut _b2i_242 = if ((state_reg#[112..=127] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[151]` = _b2i_242 & 1
+  `state_reg_next[151]` = 0
+  mut state_reg__composite__w53 = state_reg__composite__w52
+  state_reg__composite__w53#[151] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[151]` & 1) << 1) | ((state_reg#[144..=159] >> 7) & 1))
+  mut _b2i_243 = if ((state_reg#[128..=143] >> 9) & 1) == 0 { 1 } else { 0 }
+  `state[152]` = _b2i_243 & 1
+  `state_reg_next[152]` = 0
+  mut state_reg__composite__w54 = state_reg__composite__w53
+  state_reg__composite__w54#[152] = 0
+  br_misc_unused_p1::[name=gen_state_row_9_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[152]` & 1) << 1) | ((state_reg#[144..=159] >> 8) & 1))
+  `state[153]` = 0
+  mut state_reg__composite__w55 = state_reg__composite__w54
+  state_reg__composite__w55#[153] = 0
+  `state_reg_next[153]` = 0
+  br_misc_unused::[name=gen_state_row_9_gen_state_col_9_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[153]` & 1) << 2) | (((state_reg#[144..=159] >> 9) & 1) << 1) | (`state[153]` & 1))
+  mut _mux_244:U1 = if grant.e10 != 0 { 1 } else { `state[154]` & 1 }
+  mut _mux_245:U1 = if grant.e9 != 0 { 0 } else { _mux_244 & 1 }
+  `state_reg_next[154]` = _mux_245 & 1
+  if rst != 0 {
+    state_reg___q#[154] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[154] = `state_reg_next[154]` & 1
+  }
+  `state[154]` = (state_reg#[144..=159] >> 10) & 1
+  mut _mux_246:U1 = if grant.e11 != 0 { 1 } else { `state[155]` & 1 }
+  mut _mux_247:U1 = if grant.e9 != 0 { 0 } else { _mux_246 & 1 }
+  `state_reg_next[155]` = _mux_247 & 1
+  if rst != 0 {
+    state_reg___q#[155] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[155] = `state_reg_next[155]` & 1
+  }
+  `state[155]` = (state_reg#[144..=159] >> 11) & 1
+  mut _mux_248:U1 = if grant.e12 != 0 { 1 } else { `state[156]` & 1 }
+  mut _mux_249:U1 = if grant.e9 != 0 { 0 } else { _mux_248 & 1 }
+  `state_reg_next[156]` = _mux_249 & 1
+  if rst != 0 {
+    state_reg___q#[156] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[156] = `state_reg_next[156]` & 1
+  }
+  `state[156]` = (state_reg#[144..=159] >> 12) & 1
+  mut _mux_250:U1 = if grant.e13 != 0 { 1 } else { `state[157]` & 1 }
+  mut _mux_251:U1 = if grant.e9 != 0 { 0 } else { _mux_250 & 1 }
+  `state_reg_next[157]` = _mux_251 & 1
+  if rst != 0 {
+    state_reg___q#[157] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[157] = `state_reg_next[157]` & 1
+  }
+  `state[157]` = (state_reg#[144..=159] >> 13) & 1
+  mut _mux_252:U1 = if grant.e14 != 0 { 1 } else { `state[158]` & 1 }
+  mut _mux_253:U1 = if grant.e9 != 0 { 0 } else { _mux_252 & 1 }
+  `state_reg_next[158]` = _mux_253 & 1
+  if rst != 0 {
+    state_reg___q#[158] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[158] = `state_reg_next[158]` & 1
+  }
+  `state[158]` = (state_reg#[144..=159] >> 14) & 1
+  mut _mux_254:U1 = if grant.e15 != 0 { 1 } else { `state[159]` & 1 }
+  mut _mux_255:U1 = if grant.e9 != 0 { 0 } else { _mux_254 & 1 }
+  `state_reg_next[159]` = _mux_255 & 1
+  if rst != 0 {
+    state_reg___q#[159] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[159] = `state_reg_next[159]` & 1
+  }
+  `state[159]` = (state_reg#[144..=159] >> 15) & 1
+  mut _b2i_256 = if ((state_reg#[0..=15] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[160]` = _b2i_256 & 1
+  `state_reg_next[160]` = 0
+  mut state_reg__composite__w56 = state_reg__composite__w55
+  state_reg__composite__w56#[160] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[160]` & 1) << 1) | (state_reg#[160..=175] & 1))
+  mut _b2i_257 = if ((state_reg#[16..=31] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[161]` = _b2i_257 & 1
+  `state_reg_next[161]` = 0
+  mut state_reg__composite__w57 = state_reg__composite__w56
+  state_reg__composite__w57#[161] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[161]` & 1) << 1) | ((state_reg#[160..=175] >> 1) & 1))
+  mut _b2i_258 = if ((state_reg#[32..=47] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[162]` = _b2i_258 & 1
+  `state_reg_next[162]` = 0
+  mut state_reg__composite__w58 = state_reg__composite__w57
+  state_reg__composite__w58#[162] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[162]` & 1) << 1) | ((state_reg#[160..=175] >> 2) & 1))
+  mut _b2i_259 = if ((state_reg#[48..=63] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[163]` = _b2i_259 & 1
+  `state_reg_next[163]` = 0
+  mut state_reg__composite__w59 = state_reg__composite__w58
+  state_reg__composite__w59#[163] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[163]` & 1) << 1) | ((state_reg#[160..=175] >> 3) & 1))
+  mut _b2i_260 = if ((state_reg#[64..=79] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[164]` = _b2i_260 & 1
+  `state_reg_next[164]` = 0
+  mut state_reg__composite__w60 = state_reg__composite__w59
+  state_reg__composite__w60#[164] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[164]` & 1) << 1) | ((state_reg#[160..=175] >> 4) & 1))
+  mut _b2i_261 = if ((state_reg#[80..=95] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[165]` = _b2i_261 & 1
+  `state_reg_next[165]` = 0
+  mut state_reg__composite__w61 = state_reg__composite__w60
+  state_reg__composite__w61#[165] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[165]` & 1) << 1) | ((state_reg#[160..=175] >> 5) & 1))
+  mut _b2i_262 = if ((state_reg#[96..=111] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[166]` = _b2i_262 & 1
+  `state_reg_next[166]` = 0
+  mut state_reg__composite__w62 = state_reg__composite__w61
+  state_reg__composite__w62#[166] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[166]` & 1) << 1) | ((state_reg#[160..=175] >> 6) & 1))
+  mut _b2i_263 = if ((state_reg#[112..=127] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[167]` = _b2i_263 & 1
+  `state_reg_next[167]` = 0
+  mut state_reg__composite__w63 = state_reg__composite__w62
+  state_reg__composite__w63#[167] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[167]` & 1) << 1) | ((state_reg#[160..=175] >> 7) & 1))
+  mut _b2i_264 = if ((state_reg#[128..=143] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[168]` = _b2i_264 & 1
+  `state_reg_next[168]` = 0
+  mut state_reg__composite__w64 = state_reg__composite__w63
+  state_reg__composite__w64#[168] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[168]` & 1) << 1) | ((state_reg#[160..=175] >> 8) & 1))
+  mut _b2i_265 = if ((state_reg#[144..=159] >> 10) & 1) == 0 { 1 } else { 0 }
+  `state[169]` = _b2i_265 & 1
+  `state_reg_next[169]` = 0
+  mut state_reg__composite__w65 = state_reg__composite__w64
+  state_reg__composite__w65#[169] = 0
+  br_misc_unused_p1::[name=gen_state_row_10_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[169]` & 1) << 1) | ((state_reg#[160..=175] >> 9) & 1))
+  `state[170]` = 0
+  mut state_reg__composite__w66 = state_reg__composite__w65
+  state_reg__composite__w66#[170] = 0
+  `state_reg_next[170]` = 0
+  br_misc_unused::[name=gen_state_row_10_gen_state_col_10_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[170]` & 1) << 2) | (((state_reg#[160..=175] >> 10) & 1) << 1) | (`state[170]` & 1))
+  mut _mux_266:U1 = if grant.e11 != 0 { 1 } else { `state[171]` & 1 }
+  mut _mux_267:U1 = if grant.e10 != 0 { 0 } else { _mux_266 & 1 }
+  `state_reg_next[171]` = _mux_267 & 1
+  if rst != 0 {
+    state_reg___q#[171] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[171] = `state_reg_next[171]` & 1
+  }
+  `state[171]` = (state_reg#[160..=175] >> 11) & 1
+  mut _mux_268:U1 = if grant.e12 != 0 { 1 } else { `state[172]` & 1 }
+  mut _mux_269:U1 = if grant.e10 != 0 { 0 } else { _mux_268 & 1 }
+  `state_reg_next[172]` = _mux_269 & 1
+  if rst != 0 {
+    state_reg___q#[172] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[172] = `state_reg_next[172]` & 1
+  }
+  `state[172]` = (state_reg#[160..=175] >> 12) & 1
+  mut _mux_270:U1 = if grant.e13 != 0 { 1 } else { `state[173]` & 1 }
+  mut _mux_271:U1 = if grant.e10 != 0 { 0 } else { _mux_270 & 1 }
+  `state_reg_next[173]` = _mux_271 & 1
+  if rst != 0 {
+    state_reg___q#[173] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[173] = `state_reg_next[173]` & 1
+  }
+  `state[173]` = (state_reg#[160..=175] >> 13) & 1
+  mut _mux_272:U1 = if grant.e14 != 0 { 1 } else { `state[174]` & 1 }
+  mut _mux_273:U1 = if grant.e10 != 0 { 0 } else { _mux_272 & 1 }
+  `state_reg_next[174]` = _mux_273 & 1
+  if rst != 0 {
+    state_reg___q#[174] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[174] = `state_reg_next[174]` & 1
+  }
+  `state[174]` = (state_reg#[160..=175] >> 14) & 1
+  mut _mux_274:U1 = if grant.e15 != 0 { 1 } else { `state[175]` & 1 }
+  mut _mux_275:U1 = if grant.e10 != 0 { 0 } else { _mux_274 & 1 }
+  `state_reg_next[175]` = _mux_275 & 1
+  if rst != 0 {
+    state_reg___q#[175] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[175] = `state_reg_next[175]` & 1
+  }
+  `state[175]` = (state_reg#[160..=175] >> 15) & 1
+  mut _b2i_276 = if ((state_reg#[0..=15] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[176]` = _b2i_276 & 1
+  `state_reg_next[176]` = 0
+  mut state_reg__composite__w67 = state_reg__composite__w66
+  state_reg__composite__w67#[176] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[176]` & 1) << 1) | (state_reg#[176..=191] & 1))
+  mut _b2i_277 = if ((state_reg#[16..=31] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[177]` = _b2i_277 & 1
+  `state_reg_next[177]` = 0
+  mut state_reg__composite__w68 = state_reg__composite__w67
+  state_reg__composite__w68#[177] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[177]` & 1) << 1) | ((state_reg#[176..=191] >> 1) & 1))
+  mut _b2i_278 = if ((state_reg#[32..=47] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[178]` = _b2i_278 & 1
+  `state_reg_next[178]` = 0
+  mut state_reg__composite__w69 = state_reg__composite__w68
+  state_reg__composite__w69#[178] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[178]` & 1) << 1) | ((state_reg#[176..=191] >> 2) & 1))
+  mut _b2i_279 = if ((state_reg#[48..=63] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[179]` = _b2i_279 & 1
+  `state_reg_next[179]` = 0
+  mut state_reg__composite__w70 = state_reg__composite__w69
+  state_reg__composite__w70#[179] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[179]` & 1) << 1) | ((state_reg#[176..=191] >> 3) & 1))
+  mut _b2i_280 = if ((state_reg#[64..=79] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[180]` = _b2i_280 & 1
+  `state_reg_next[180]` = 0
+  mut state_reg__composite__w71 = state_reg__composite__w70
+  state_reg__composite__w71#[180] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[180]` & 1) << 1) | ((state_reg#[176..=191] >> 4) & 1))
+  mut _b2i_281 = if ((state_reg#[80..=95] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[181]` = _b2i_281 & 1
+  `state_reg_next[181]` = 0
+  mut state_reg__composite__w72 = state_reg__composite__w71
+  state_reg__composite__w72#[181] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[181]` & 1) << 1) | ((state_reg#[176..=191] >> 5) & 1))
+  mut _b2i_282 = if ((state_reg#[96..=111] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[182]` = _b2i_282 & 1
+  `state_reg_next[182]` = 0
+  mut state_reg__composite__w73 = state_reg__composite__w72
+  state_reg__composite__w73#[182] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[182]` & 1) << 1) | ((state_reg#[176..=191] >> 6) & 1))
+  mut _b2i_283 = if ((state_reg#[112..=127] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[183]` = _b2i_283 & 1
+  `state_reg_next[183]` = 0
+  mut state_reg__composite__w74 = state_reg__composite__w73
+  state_reg__composite__w74#[183] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[183]` & 1) << 1) | ((state_reg#[176..=191] >> 7) & 1))
+  mut _b2i_284 = if ((state_reg#[128..=143] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[184]` = _b2i_284 & 1
+  `state_reg_next[184]` = 0
+  mut state_reg__composite__w75 = state_reg__composite__w74
+  state_reg__composite__w75#[184] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[184]` & 1) << 1) | ((state_reg#[176..=191] >> 8) & 1))
+  mut _b2i_285 = if ((state_reg#[144..=159] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[185]` = _b2i_285 & 1
+  `state_reg_next[185]` = 0
+  mut state_reg__composite__w76 = state_reg__composite__w75
+  state_reg__composite__w76#[185] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[185]` & 1) << 1) | ((state_reg#[176..=191] >> 9) & 1))
+  mut _b2i_286 = if ((state_reg#[160..=175] >> 11) & 1) == 0 { 1 } else { 0 }
+  `state[186]` = _b2i_286 & 1
+  `state_reg_next[186]` = 0
+  mut state_reg__composite__w77 = state_reg__composite__w76
+  state_reg__composite__w77#[186] = 0
+  br_misc_unused_p1::[name=gen_state_row_11_gen_state_col_10_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[186]` & 1) << 1) | ((state_reg#[176..=191] >> 10) & 1))
+  `state[187]` = 0
+  mut state_reg__composite__w78 = state_reg__composite__w77
+  state_reg__composite__w78#[187] = 0
+  `state_reg_next[187]` = 0
+  br_misc_unused::[name=gen_state_row_11_gen_state_col_11_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[187]` & 1) << 2) | (((state_reg#[176..=191] >> 11) & 1) << 1) | (`state[187]` & 1))
+  mut _mux_287:U1 = if grant.e12 != 0 { 1 } else { `state[188]` & 1 }
+  mut _mux_288:U1 = if grant.e11 != 0 { 0 } else { _mux_287 & 1 }
+  `state_reg_next[188]` = _mux_288 & 1
+  if rst != 0 {
+    state_reg___q#[188] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[188] = `state_reg_next[188]` & 1
+  }
+  `state[188]` = (state_reg#[176..=191] >> 12) & 1
+  mut _mux_289:U1 = if grant.e13 != 0 { 1 } else { `state[189]` & 1 }
+  mut _mux_290:U1 = if grant.e11 != 0 { 0 } else { _mux_289 & 1 }
+  `state_reg_next[189]` = _mux_290 & 1
+  if rst != 0 {
+    state_reg___q#[189] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[189] = `state_reg_next[189]` & 1
+  }
+  `state[189]` = (state_reg#[176..=191] >> 13) & 1
+  mut _mux_291:U1 = if grant.e14 != 0 { 1 } else { `state[190]` & 1 }
+  mut _mux_292:U1 = if grant.e11 != 0 { 0 } else { _mux_291 & 1 }
+  `state_reg_next[190]` = _mux_292 & 1
+  if rst != 0 {
+    state_reg___q#[190] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[190] = `state_reg_next[190]` & 1
+  }
+  `state[190]` = (state_reg#[176..=191] >> 14) & 1
+  mut _mux_293:U1 = if grant.e15 != 0 { 1 } else { `state[191]` & 1 }
+  mut _mux_294:U1 = if grant.e11 != 0 { 0 } else { _mux_293 & 1 }
+  `state_reg_next[191]` = _mux_294 & 1
+  if rst != 0 {
+    state_reg___q#[191] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[191] = `state_reg_next[191]` & 1
+  }
+  `state[191]` = (state_reg#[176..=191] >> 15) & 1
+  mut _b2i_295 = if ((state_reg#[0..=15] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[192]` = _b2i_295 & 1
+  `state_reg_next[192]` = 0
+  mut state_reg__composite__w79 = state_reg__composite__w78
+  state_reg__composite__w79#[192] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[192]` & 1) << 1) | (state_reg#[192..=207] & 1))
+  mut _b2i_296 = if ((state_reg#[16..=31] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[193]` = _b2i_296 & 1
+  `state_reg_next[193]` = 0
+  mut state_reg__composite__w80 = state_reg__composite__w79
+  state_reg__composite__w80#[193] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[193]` & 1) << 1) | ((state_reg#[192..=207] >> 1) & 1))
+  mut _b2i_297 = if ((state_reg#[32..=47] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[194]` = _b2i_297 & 1
+  `state_reg_next[194]` = 0
+  mut state_reg__composite__w81 = state_reg__composite__w80
+  state_reg__composite__w81#[194] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[194]` & 1) << 1) | ((state_reg#[192..=207] >> 2) & 1))
+  mut _b2i_298 = if ((state_reg#[48..=63] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[195]` = _b2i_298 & 1
+  `state_reg_next[195]` = 0
+  mut state_reg__composite__w82 = state_reg__composite__w81
+  state_reg__composite__w82#[195] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[195]` & 1) << 1) | ((state_reg#[192..=207] >> 3) & 1))
+  mut _b2i_299 = if ((state_reg#[64..=79] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[196]` = _b2i_299 & 1
+  `state_reg_next[196]` = 0
+  mut state_reg__composite__w83 = state_reg__composite__w82
+  state_reg__composite__w83#[196] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[196]` & 1) << 1) | ((state_reg#[192..=207] >> 4) & 1))
+  mut _b2i_300 = if ((state_reg#[80..=95] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[197]` = _b2i_300 & 1
+  `state_reg_next[197]` = 0
+  mut state_reg__composite__w84 = state_reg__composite__w83
+  state_reg__composite__w84#[197] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[197]` & 1) << 1) | ((state_reg#[192..=207] >> 5) & 1))
+  mut _b2i_301 = if ((state_reg#[96..=111] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[198]` = _b2i_301 & 1
+  `state_reg_next[198]` = 0
+  mut state_reg__composite__w85 = state_reg__composite__w84
+  state_reg__composite__w85#[198] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[198]` & 1) << 1) | ((state_reg#[192..=207] >> 6) & 1))
+  mut _b2i_302 = if ((state_reg#[112..=127] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[199]` = _b2i_302 & 1
+  `state_reg_next[199]` = 0
+  mut state_reg__composite__w86 = state_reg__composite__w85
+  state_reg__composite__w86#[199] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[199]` & 1) << 1) | ((state_reg#[192..=207] >> 7) & 1))
+  mut _b2i_303 = if ((state_reg#[128..=143] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[200]` = _b2i_303 & 1
+  `state_reg_next[200]` = 0
+  mut state_reg__composite__w87 = state_reg__composite__w86
+  state_reg__composite__w87#[200] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[200]` & 1) << 1) | ((state_reg#[192..=207] >> 8) & 1))
+  mut _b2i_304 = if ((state_reg#[144..=159] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[201]` = _b2i_304 & 1
+  `state_reg_next[201]` = 0
+  mut state_reg__composite__w88 = state_reg__composite__w87
+  state_reg__composite__w88#[201] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[201]` & 1) << 1) | ((state_reg#[192..=207] >> 9) & 1))
+  mut _b2i_305 = if ((state_reg#[160..=175] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[202]` = _b2i_305 & 1
+  `state_reg_next[202]` = 0
+  mut state_reg__composite__w89 = state_reg__composite__w88
+  state_reg__composite__w89#[202] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_10_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[202]` & 1) << 1) | ((state_reg#[192..=207] >> 10) & 1))
+  mut _b2i_306 = if ((state_reg#[176..=191] >> 12) & 1) == 0 { 1 } else { 0 }
+  `state[203]` = _b2i_306 & 1
+  `state_reg_next[203]` = 0
+  mut state_reg__composite__w90 = state_reg__composite__w89
+  state_reg__composite__w90#[203] = 0
+  br_misc_unused_p1::[name=gen_state_row_12_gen_state_col_11_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[203]` & 1) << 1) | ((state_reg#[192..=207] >> 11) & 1))
+  `state[204]` = 0
+  mut state_reg__composite__w91 = state_reg__composite__w90
+  state_reg__composite__w91#[204] = 0
+  `state_reg_next[204]` = 0
+  br_misc_unused::[name=gen_state_row_12_gen_state_col_12_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[204]` & 1) << 2) | (((state_reg#[192..=207] >> 12) & 1) << 1) | (`state[204]` & 1))
+  mut _mux_307:U1 = if grant.e13 != 0 { 1 } else { `state[205]` & 1 }
+  mut _mux_308:U1 = if grant.e12 != 0 { 0 } else { _mux_307 & 1 }
+  `state_reg_next[205]` = _mux_308 & 1
+  if rst != 0 {
+    state_reg___q#[205] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[205] = `state_reg_next[205]` & 1
+  }
+  `state[205]` = (state_reg#[192..=207] >> 13) & 1
+  mut _mux_309:U1 = if grant.e14 != 0 { 1 } else { `state[206]` & 1 }
+  mut _mux_310:U1 = if grant.e12 != 0 { 0 } else { _mux_309 & 1 }
+  `state_reg_next[206]` = _mux_310 & 1
+  if rst != 0 {
+    state_reg___q#[206] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[206] = `state_reg_next[206]` & 1
+  }
+  `state[206]` = (state_reg#[192..=207] >> 14) & 1
+  mut _mux_311:U1 = if grant.e15 != 0 { 1 } else { `state[207]` & 1 }
+  mut _mux_312:U1 = if grant.e12 != 0 { 0 } else { _mux_311 & 1 }
+  `state_reg_next[207]` = _mux_312 & 1
+  if rst != 0 {
+    state_reg___q#[207] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[207] = `state_reg_next[207]` & 1
+  }
+  `state[207]` = (state_reg#[192..=207] >> 15) & 1
+  mut _b2i_313 = if ((state_reg#[0..=15] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[208]` = _b2i_313 & 1
+  `state_reg_next[208]` = 0
+  mut state_reg__composite__w92 = state_reg__composite__w91
+  state_reg__composite__w92#[208] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[208]` & 1) << 1) | (state_reg#[208..=223] & 1))
+  mut _b2i_314 = if ((state_reg#[16..=31] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[209]` = _b2i_314 & 1
+  `state_reg_next[209]` = 0
+  mut state_reg__composite__w93 = state_reg__composite__w92
+  state_reg__composite__w93#[209] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[209]` & 1) << 1) | ((state_reg#[208..=223] >> 1) & 1))
+  mut _b2i_315 = if ((state_reg#[32..=47] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[210]` = _b2i_315 & 1
+  `state_reg_next[210]` = 0
+  mut state_reg__composite__w94 = state_reg__composite__w93
+  state_reg__composite__w94#[210] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[210]` & 1) << 1) | ((state_reg#[208..=223] >> 2) & 1))
+  mut _b2i_316 = if ((state_reg#[48..=63] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[211]` = _b2i_316 & 1
+  `state_reg_next[211]` = 0
+  mut state_reg__composite__w95 = state_reg__composite__w94
+  state_reg__composite__w95#[211] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[211]` & 1) << 1) | ((state_reg#[208..=223] >> 3) & 1))
+  mut _b2i_317 = if ((state_reg#[64..=79] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[212]` = _b2i_317 & 1
+  `state_reg_next[212]` = 0
+  mut state_reg__composite__w96 = state_reg__composite__w95
+  state_reg__composite__w96#[212] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[212]` & 1) << 1) | ((state_reg#[208..=223] >> 4) & 1))
+  mut _b2i_318 = if ((state_reg#[80..=95] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[213]` = _b2i_318 & 1
+  `state_reg_next[213]` = 0
+  mut state_reg__composite__w97 = state_reg__composite__w96
+  state_reg__composite__w97#[213] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[213]` & 1) << 1) | ((state_reg#[208..=223] >> 5) & 1))
+  mut _b2i_319 = if ((state_reg#[96..=111] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[214]` = _b2i_319 & 1
+  `state_reg_next[214]` = 0
+  mut state_reg__composite__w98 = state_reg__composite__w97
+  state_reg__composite__w98#[214] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[214]` & 1) << 1) | ((state_reg#[208..=223] >> 6) & 1))
+  mut _b2i_320 = if ((state_reg#[112..=127] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[215]` = _b2i_320 & 1
+  `state_reg_next[215]` = 0
+  mut state_reg__composite__w99 = state_reg__composite__w98
+  state_reg__composite__w99#[215] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[215]` & 1) << 1) | ((state_reg#[208..=223] >> 7) & 1))
+  mut _b2i_321 = if ((state_reg#[128..=143] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[216]` = _b2i_321 & 1
+  `state_reg_next[216]` = 0
+  mut state_reg__composite__w100 = state_reg__composite__w99
+  state_reg__composite__w100#[216] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[216]` & 1) << 1) | ((state_reg#[208..=223] >> 8) & 1))
+  mut _b2i_322 = if ((state_reg#[144..=159] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[217]` = _b2i_322 & 1
+  `state_reg_next[217]` = 0
+  mut state_reg__composite__w101 = state_reg__composite__w100
+  state_reg__composite__w101#[217] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[217]` & 1) << 1) | ((state_reg#[208..=223] >> 9) & 1))
+  mut _b2i_323 = if ((state_reg#[160..=175] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[218]` = _b2i_323 & 1
+  `state_reg_next[218]` = 0
+  mut state_reg__composite__w102 = state_reg__composite__w101
+  state_reg__composite__w102#[218] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_10_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[218]` & 1) << 1) | ((state_reg#[208..=223] >> 10) & 1))
+  mut _b2i_324 = if ((state_reg#[176..=191] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[219]` = _b2i_324 & 1
+  `state_reg_next[219]` = 0
+  mut state_reg__composite__w103 = state_reg__composite__w102
+  state_reg__composite__w103#[219] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_11_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[219]` & 1) << 1) | ((state_reg#[208..=223] >> 11) & 1))
+  mut _b2i_325 = if ((state_reg#[192..=207] >> 13) & 1) == 0 { 1 } else { 0 }
+  `state[220]` = _b2i_325 & 1
+  `state_reg_next[220]` = 0
+  mut state_reg__composite__w104 = state_reg__composite__w103
+  state_reg__composite__w104#[220] = 0
+  br_misc_unused_p1::[name=gen_state_row_13_gen_state_col_12_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[220]` & 1) << 1) | ((state_reg#[208..=223] >> 12) & 1))
+  `state[221]` = 0
+  mut state_reg__composite__w105 = state_reg__composite__w104
+  state_reg__composite__w105#[221] = 0
+  `state_reg_next[221]` = 0
+  br_misc_unused::[name=gen_state_row_13_gen_state_col_13_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[221]` & 1) << 2) | (((state_reg#[208..=223] >> 13) & 1) << 1) | (`state[221]` & 1))
+  mut _mux_326:U1 = if grant.e14 != 0 { 1 } else { `state[222]` & 1 }
+  mut _mux_327:U1 = if grant.e13 != 0 { 0 } else { _mux_326 & 1 }
+  `state_reg_next[222]` = _mux_327 & 1
+  if rst != 0 {
+    state_reg___q#[222] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[222] = `state_reg_next[222]` & 1
+  }
+  `state[222]` = (state_reg#[208..=223] >> 14) & 1
+  mut _mux_328:U1 = if grant.e15 != 0 { 1 } else { `state[223]` & 1 }
+  mut _mux_329:U1 = if grant.e13 != 0 { 0 } else { _mux_328 & 1 }
+  `state_reg_next[223]` = _mux_329 & 1
+  if rst != 0 {
+    state_reg___q#[223] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[223] = `state_reg_next[223]` & 1
+  }
+  `state[223]` = (state_reg#[208..=223] >> 15) & 1
+  mut _b2i_330 = if ((state_reg#[0..=15] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[224]` = _b2i_330 & 1
+  `state_reg_next[224]` = 0
+  mut state_reg__composite__w106 = state_reg__composite__w105
+  state_reg__composite__w106#[224] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[224]` & 1) << 1) | (state_reg#[224..=239] & 1))
+  mut _b2i_331 = if ((state_reg#[16..=31] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[225]` = _b2i_331 & 1
+  `state_reg_next[225]` = 0
+  mut state_reg__composite__w107 = state_reg__composite__w106
+  state_reg__composite__w107#[225] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[225]` & 1) << 1) | ((state_reg#[224..=239] >> 1) & 1))
+  mut _b2i_332 = if ((state_reg#[32..=47] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[226]` = _b2i_332 & 1
+  `state_reg_next[226]` = 0
+  mut state_reg__composite__w108 = state_reg__composite__w107
+  state_reg__composite__w108#[226] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[226]` & 1) << 1) | ((state_reg#[224..=239] >> 2) & 1))
+  mut _b2i_333 = if ((state_reg#[48..=63] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[227]` = _b2i_333 & 1
+  `state_reg_next[227]` = 0
+  mut state_reg__composite__w109 = state_reg__composite__w108
+  state_reg__composite__w109#[227] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[227]` & 1) << 1) | ((state_reg#[224..=239] >> 3) & 1))
+  mut _b2i_334 = if ((state_reg#[64..=79] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[228]` = _b2i_334 & 1
+  `state_reg_next[228]` = 0
+  mut state_reg__composite__w110 = state_reg__composite__w109
+  state_reg__composite__w110#[228] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[228]` & 1) << 1) | ((state_reg#[224..=239] >> 4) & 1))
+  mut _b2i_335 = if ((state_reg#[80..=95] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[229]` = _b2i_335 & 1
+  `state_reg_next[229]` = 0
+  mut state_reg__composite__w111 = state_reg__composite__w110
+  state_reg__composite__w111#[229] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[229]` & 1) << 1) | ((state_reg#[224..=239] >> 5) & 1))
+  mut _b2i_336 = if ((state_reg#[96..=111] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[230]` = _b2i_336 & 1
+  `state_reg_next[230]` = 0
+  mut state_reg__composite__w112 = state_reg__composite__w111
+  state_reg__composite__w112#[230] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[230]` & 1) << 1) | ((state_reg#[224..=239] >> 6) & 1))
+  mut _b2i_337 = if ((state_reg#[112..=127] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[231]` = _b2i_337 & 1
+  `state_reg_next[231]` = 0
+  mut state_reg__composite__w113 = state_reg__composite__w112
+  state_reg__composite__w113#[231] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[231]` & 1) << 1) | ((state_reg#[224..=239] >> 7) & 1))
+  mut _b2i_338 = if ((state_reg#[128..=143] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[232]` = _b2i_338 & 1
+  `state_reg_next[232]` = 0
+  mut state_reg__composite__w114 = state_reg__composite__w113
+  state_reg__composite__w114#[232] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[232]` & 1) << 1) | ((state_reg#[224..=239] >> 8) & 1))
+  mut _b2i_339 = if ((state_reg#[144..=159] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[233]` = _b2i_339 & 1
+  `state_reg_next[233]` = 0
+  mut state_reg__composite__w115 = state_reg__composite__w114
+  state_reg__composite__w115#[233] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[233]` & 1) << 1) | ((state_reg#[224..=239] >> 9) & 1))
+  mut _b2i_340 = if ((state_reg#[160..=175] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[234]` = _b2i_340 & 1
+  `state_reg_next[234]` = 0
+  mut state_reg__composite__w116 = state_reg__composite__w115
+  state_reg__composite__w116#[234] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_10_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[234]` & 1) << 1) | ((state_reg#[224..=239] >> 10) & 1))
+  mut _b2i_341 = if ((state_reg#[176..=191] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[235]` = _b2i_341 & 1
+  `state_reg_next[235]` = 0
+  mut state_reg__composite__w117 = state_reg__composite__w116
+  state_reg__composite__w117#[235] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_11_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[235]` & 1) << 1) | ((state_reg#[224..=239] >> 11) & 1))
+  mut _b2i_342 = if ((state_reg#[192..=207] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[236]` = _b2i_342 & 1
+  `state_reg_next[236]` = 0
+  mut state_reg__composite__w118 = state_reg__composite__w117
+  state_reg__composite__w118#[236] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_12_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[236]` & 1) << 1) | ((state_reg#[224..=239] >> 12) & 1))
+  mut _b2i_343 = if ((state_reg#[208..=223] >> 14) & 1) == 0 { 1 } else { 0 }
+  `state[237]` = _b2i_343 & 1
+  `state_reg_next[237]` = 0
+  mut state_reg__composite__w119 = state_reg__composite__w118
+  state_reg__composite__w119#[237] = 0
+  br_misc_unused_p1::[name=gen_state_row_14_gen_state_col_13_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[237]` & 1) << 1) | ((state_reg#[224..=239] >> 13) & 1))
+  `state[238]` = 0
+  mut state_reg__composite__w120 = state_reg__composite__w119
+  state_reg__composite__w120#[238] = 0
+  `state_reg_next[238]` = 0
+  br_misc_unused::[name=gen_state_row_14_gen_state_col_14_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[238]` & 1) << 2) | (((state_reg#[224..=239] >> 14) & 1) << 1) | (`state[238]` & 1))
+  mut _mux_344:U1 = if grant.e15 != 0 { 1 } else { `state[239]` & 1 }
+  mut _mux_345:U1 = if grant.e14 != 0 { 0 } else { _mux_344 & 1 }
+  `state_reg_next[239]` = _mux_345 & 1
+  if rst != 0 {
+    state_reg___q#[239] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[239] = `state_reg_next[239]` & 1
+  }
+  `state[239]` = (state_reg#[224..=239] >> 15) & 1
+  mut _b2i_346 = if ((state_reg#[0..=15] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[240]` = _b2i_346 & 1
+  `state_reg_next[240]` = 0
+  mut state_reg__composite__w121 = state_reg__composite__w120
+  state_reg__composite__w121#[240] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[240]` & 1) << 1) | (state_reg#[240..=255] & 1))
+  mut _b2i_347 = if ((state_reg#[16..=31] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[241]` = _b2i_347 & 1
+  `state_reg_next[241]` = 0
+  mut state_reg__composite__w122 = state_reg__composite__w121
+  state_reg__composite__w122#[241] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[241]` & 1) << 1) | ((state_reg#[240..=255] >> 1) & 1))
+  mut _b2i_348 = if ((state_reg#[32..=47] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[242]` = _b2i_348 & 1
+  `state_reg_next[242]` = 0
+  mut state_reg__composite__w123 = state_reg__composite__w122
+  state_reg__composite__w123#[242] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[242]` & 1) << 1) | ((state_reg#[240..=255] >> 2) & 1))
+  mut _b2i_349 = if ((state_reg#[48..=63] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[243]` = _b2i_349 & 1
+  `state_reg_next[243]` = 0
+  mut state_reg__composite__w124 = state_reg__composite__w123
+  state_reg__composite__w124#[243] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_3_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[243]` & 1) << 1) | ((state_reg#[240..=255] >> 3) & 1))
+  mut _b2i_350 = if ((state_reg#[64..=79] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[244]` = _b2i_350 & 1
+  `state_reg_next[244]` = 0
+  mut state_reg__composite__w125 = state_reg__composite__w124
+  state_reg__composite__w125#[244] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_4_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[244]` & 1) << 1) | ((state_reg#[240..=255] >> 4) & 1))
+  mut _b2i_351 = if ((state_reg#[80..=95] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[245]` = _b2i_351 & 1
+  `state_reg_next[245]` = 0
+  mut state_reg__composite__w126 = state_reg__composite__w125
+  state_reg__composite__w126#[245] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_5_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[245]` & 1) << 1) | ((state_reg#[240..=255] >> 5) & 1))
+  mut _b2i_352 = if ((state_reg#[96..=111] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[246]` = _b2i_352 & 1
+  `state_reg_next[246]` = 0
+  mut state_reg__composite__w127 = state_reg__composite__w126
+  state_reg__composite__w127#[246] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_6_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[246]` & 1) << 1) | ((state_reg#[240..=255] >> 6) & 1))
+  mut _b2i_353 = if ((state_reg#[112..=127] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[247]` = _b2i_353 & 1
+  `state_reg_next[247]` = 0
+  mut state_reg__composite__w128 = state_reg__composite__w127
+  state_reg__composite__w128#[247] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_7_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[247]` & 1) << 1) | ((state_reg#[240..=255] >> 7) & 1))
+  mut _b2i_354 = if ((state_reg#[128..=143] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[248]` = _b2i_354 & 1
+  `state_reg_next[248]` = 0
+  mut state_reg__composite__w129 = state_reg__composite__w128
+  state_reg__composite__w129#[248] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_8_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[248]` & 1) << 1) | ((state_reg#[240..=255] >> 8) & 1))
+  mut _b2i_355 = if ((state_reg#[144..=159] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[249]` = _b2i_355 & 1
+  `state_reg_next[249]` = 0
+  mut state_reg__composite__w130 = state_reg__composite__w129
+  state_reg__composite__w130#[249] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_9_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[249]` & 1) << 1) | ((state_reg#[240..=255] >> 9) & 1))
+  mut _b2i_356 = if ((state_reg#[160..=175] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[250]` = _b2i_356 & 1
+  `state_reg_next[250]` = 0
+  mut state_reg__composite__w131 = state_reg__composite__w130
+  state_reg__composite__w131#[250] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_10_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[250]` & 1) << 1) | ((state_reg#[240..=255] >> 10) & 1))
+  mut _b2i_357 = if ((state_reg#[176..=191] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[251]` = _b2i_357 & 1
+  `state_reg_next[251]` = 0
+  mut state_reg__composite__w132 = state_reg__composite__w131
+  state_reg__composite__w132#[251] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_11_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[251]` & 1) << 1) | ((state_reg#[240..=255] >> 11) & 1))
+  mut _b2i_358 = if ((state_reg#[192..=207] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[252]` = _b2i_358 & 1
+  `state_reg_next[252]` = 0
+  mut state_reg__composite__w133 = state_reg__composite__w132
+  state_reg__composite__w133#[252] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_12_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[252]` & 1) << 1) | ((state_reg#[240..=255] >> 12) & 1))
+  mut _b2i_359 = if ((state_reg#[208..=223] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[253]` = _b2i_359 & 1
+  `state_reg_next[253]` = 0
+  mut state_reg__composite__w134 = state_reg__composite__w133
+  state_reg__composite__w134#[253] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_13_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[253]` & 1) << 1) | ((state_reg#[240..=255] >> 13) & 1))
+  mut _b2i_360 = if ((state_reg#[224..=239] >> 15) & 1) == 0 { 1 } else { 0 }
+  `state[254]` = _b2i_360 & 1
+  `state_reg_next[254]` = 0
+  mut state_reg__composite__w135 = state_reg__composite__w134
+  state_reg__composite__w135#[254] = 0
+  br_misc_unused_p1::[name=gen_state_row_15_gen_state_col_14_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[254]` & 1) << 1) | ((state_reg#[240..=255] >> 14) & 1))
+  `state[255]` = 0
+  mut state_reg__composite__w136 = state_reg__composite__w135
+  state_reg__composite__w136#[255] = 0
+  `state_reg_next[255]` = 0
+  br_misc_unused::[name=gen_state_row_15_gen_state_col_15_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[255]` & 1) << 2) | (((state_reg#[240..=255] >> 15) & 1) << 1) | (`state[255]` & 1))
+  state = (`state[255]` << 255) | (`state[254]` << 254) | (`state[253]` << 253) | (`state[252]` << 252) | (`state[251]` << 251) | (`state[250]` << 250) | (`state[249]` << 249) | (`state[248]` << 248) | (`state[247]` << 247) | (`state[246]` << 246) | (`state[245]` << 245) | (`state[244]` << 244) | (`state[243]` << 243) | (`state[242]` << 242) | (`state[241]` << 241) | (`state[240]` << 240) | (`state[239]` << 239) | (`state[238]` << 238) | (`state[237]` << 237) | (`state[236]` << 236) | (`state[235]` << 235) | (`state[234]` << 234) | (`state[233]` << 233) | (`state[232]` << 232) | (`state[231]` << 231) | (`state[230]` << 230) | (`state[229]` << 229) | (`state[228]` << 228) | (`state[227]` << 227) | (`state[226]` << 226) | (`state[225]` << 225) | (`state[224]` << 224) | (`state[223]` << 223) | (`state[222]` << 222) | (`state[221]` << 221) | (`state[220]` << 220) | (`state[219]` << 219) | (`state[218]` << 218) | (`state[217]` << 217) | (`state[216]` << 216) | (`state[215]` << 215) | (`state[214]` << 214) | (`state[213]` << 213) | (`state[212]` << 212) | (`state[211]` << 211) | (`state[210]` << 210) | (`state[209]` << 209) | (`state[208]` << 208) | (`state[207]` << 207) | (`state[206]` << 206) | (`state[205]` << 205) | (`state[204]` << 204) | (`state[203]` << 203) | (`state[202]` << 202) | (`state[201]` << 201) | (`state[200]` << 200) | (`state[199]` << 199) | (`state[198]` << 198) | (`state[197]` << 197) | (`state[196]` << 196) | (`state[195]` << 195) | (`state[194]` << 194) | (`state[193]` << 193) | (`state[192]` << 192) | (`state[191]` << 191) | (`state[190]` << 190) | (`state[189]` << 189) | (`state[188]` << 188) | (`state[187]` << 187) | (`state[186]` << 186) | (`state[185]` << 185) | (`state[184]` << 184) | (`state[183]` << 183) | (`state[182]` << 182) | (`state[181]` << 181) | (`state[180]` << 180) | (`state[179]` << 179) | (`state[178]` << 178) | (`state[177]` << 177) | (`state[176]` << 176) | (`state[175]` << 175) | (`state[174]` << 174) | (`state[173]` << 173) | (`state[172]` << 172) | (`state[171]` << 171) | (`state[170]` << 170) | (`state[169]` << 169) | (`state[168]` << 168) | (`state[167]` << 167) | (`state[166]` << 166) | (`state[165]` << 165) | (`state[164]` << 164) | (`state[163]` << 163) | (`state[162]` << 162) | (`state[161]` << 161) | (`state[160]` << 160) | (`state[159]` << 159) | (`state[158]` << 158) | (`state[157]` << 157) | (`state[156]` << 156) | (`state[155]` << 155) | (`state[154]` << 154) | (`state[153]` << 153) | (`state[152]` << 152) | (`state[151]` << 151) | (`state[150]` << 150) | (`state[149]` << 149) | (`state[148]` << 148) | (`state[147]` << 147) | (`state[146]` << 146) | (`state[145]` << 145) | (`state[144]` << 144) | (`state[143]` << 143) | (`state[142]` << 142) | (`state[141]` << 141) | (`state[140]` << 140) | (`state[139]` << 139) | (`state[138]` << 138) | (`state[137]` << 137) | (`state[136]` << 136) | (`state[135]` << 135) | (`state[134]` << 134) | (`state[133]` << 133) | (`state[132]` << 132) | (`state[131]` << 131) | (`state[130]` << 130) | (`state[129]` << 129) | (`state[128]` << 128) | (`state[127]` << 127) | (`state[126]` << 126) | (`state[125]` << 125) | (`state[124]` << 124) | (`state[123]` << 123) | (`state[122]` << 122) | (`state[121]` << 121) | (`state[120]` << 120) | (`state[119]` << 119) | (`state[118]` << 118) | (`state[117]` << 117) | (`state[116]` << 116) | (`state[115]` << 115) | (`state[114]` << 114) | (`state[113]` << 113) | (`state[112]` << 112) | (`state[111]` << 111) | (`state[110]` << 110) | (`state[109]` << 109) | (`state[108]` << 108) | (`state[107]` << 107) | (`state[106]` << 106) | (`state[105]` << 105) | (`state[104]` << 104) | (`state[103]` << 103) | (`state[102]` << 102) | (`state[101]` << 101) | (`state[100]` << 100) | (`state[99]` << 99) | (`state[98]` << 98) | (`state[97]` << 97) | (`state[96]` << 96) | (`state[95]` << 95) | (`state[94]` << 94) | (`state[93]` << 93) | (`state[92]` << 92) | (`state[91]` << 91) | (`state[90]` << 90) | (`state[89]` << 89) | (`state[88]` << 88) | (`state[87]` << 87) | (`state[86]` << 86) | (`state[85]` << 85) | (`state[84]` << 84) | (`state[83]` << 83) | (`state[82]` << 82) | (`state[81]` << 81) | (`state[80]` << 80) | (`state[79]` << 79) | (`state[78]` << 78) | (`state[77]` << 77) | (`state[76]` << 76) | (`state[75]` << 75) | (`state[74]` << 74) | (`state[73]` << 73) | (`state[72]` << 72) | (`state[71]` << 71) | (`state[70]` << 70) | (`state[69]` << 69) | (`state[68]` << 68) | (`state[67]` << 67) | (`state[66]` << 66) | (`state[65]` << 65) | (`state[64]` << 64) | (`state[63]` << 63) | (`state[62]` << 62) | (`state[61]` << 61) | (`state[60]` << 60) | (`state[59]` << 59) | (`state[58]` << 58) | (`state[57]` << 57) | (`state[56]` << 56) | (`state[55]` << 55) | (`state[54]` << 54) | (`state[53]` << 53) | (`state[52]` << 52) | (`state[51]` << 51) | (`state[50]` << 50) | (`state[49]` << 49) | (`state[48]` << 48) | (`state[47]` << 47) | (`state[46]` << 46) | (`state[45]` << 45) | (`state[44]` << 44) | (`state[43]` << 43) | (`state[42]` << 42) | (`state[41]` << 41) | (`state[40]` << 40) | (`state[39]` << 39) | (`state[38]` << 38) | (`state[37]` << 37) | (`state[36]` << 36) | (`state[35]` << 35) | (`state[34]` << 34) | (`state[33]` << 33) | (`state[32]` << 32) | (`state[31]` << 31) | (`state[30]` << 30) | (`state[29]` << 29) | (`state[28]` << 28) | (`state[27]` << 27) | (`state[26]` << 26) | (`state[25]` << 25) | (`state[24]` << 24) | (`state[23]` << 23) | (`state[22]` << 22) | (`state[21]` << 21) | (`state[20]` << 20) | (`state[19]` << 19) | (`state[18]` << 18) | (`state[17]` << 17) | (`state[16]` << 16) | (`state[15]` << 15) | (`state[14]` << 14) | (`state[13]` << 13) | (`state[12]` << 12) | (`state[11]` << 11) | (`state[10]` << 10) | (`state[9]` << 9) | (`state[8]` << 8) | (`state[7]` << 7) | (`state[6]` << 6) | (`state[5]` << 5) | (`state[4]` << 4) | (`state[3]` << 3) | (`state[2]` << 2) | (`state[1]` << 1) | `state[0]`
+  state_reg = state_reg__composite__w136
 }

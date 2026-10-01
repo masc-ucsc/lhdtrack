@@ -1,48 +1,45 @@
-// Least-recently-granted state as a pairwise priority matrix, packed row-major:
-// bit i*N+j is 1 when requester i beats requester j. Only the upper triangle
-// (i < j) is stored; the lower triangle is its complement, the diagonal zero.
+const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
+const br_misc_unused_p8 = import("br_misc_unused_p8.br_misc_unused_p8")
 
-// Every upper-triangle bit (column > row) of a packed size x size matrix.
-comb upper_triangle(size) -> (mask) {
-  mut m = 0
-  for row in 0..<size {
-    const above_diagonal = ((1 << size) - 1) & ~((1 << (row + 1)) - 1)
-    m |= above_diagonal << (row*size)
+pub mod br_lru_state_internal<NumRequesters=2>::[timecheck=false](clk:Clock, grant:(e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U4@[]) {
+  reg state_reg___q:U4
+  mut state_reg__composite:U4 = 0
+  wire state_reg:U4 = nil
+  wire `state[0]`:U1 = nil
+  wire `state[1]`:U1 = nil
+  wire `state[2]`:U1 = nil
+  wire `state[3]`:U1 = nil
+  wire state:U4 = nil
+  wire `state_reg_next[0]`:U1 = nil
+  wire `state_reg_next[1]`:U1 = nil
+  wire `state_reg_next[2]`:U1 = nil
+  wire `state_reg_next[3]`:U1 = nil
+  state_reg__composite = state_reg___q
+  `state[0]` = 0
+  mut state_reg__composite__w1 = state_reg__composite
+  state_reg__composite__w1#[0] = 0
+  `state_reg_next[0]` = 0
+  br_misc_unused_p8::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[0]` & 1) << 2) | ((state_reg#[0..=1] & 1) << 1) | (`state[0]` & 1))
+  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { `state[1]` & 1 }
+  mut _mux_2:U1 = if grant.e0 != 0 { 0 } else { _mux_1 & 1 }
+  `state_reg_next[1]` = _mux_2 & 1
+  if rst != 0 {
+    state_reg___q#[1] = 1
+  } elif update_priority != 0 {
+    state_reg___q#[1] = `state_reg_next[1]` & 1
   }
-  mask = m
-}
-
-pub mod br_lru_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, grant:unsigned(bits=NUM_REQUESTERS)) -> (
-  state:unsigned(bits=NUM_REQUESTERS * NUM_REQUESTERS)@[0]
-) {
-  comptime const N = NUM_REQUESTERS
-
-  // After reset every lower-numbered requester beats every higher one. Only
-  // the upper-triangle bits are reset and updated; the others are never read.
-  comptime const STORED         = upper_triangle(size=N)
-  reg wins:unsigned(bits=N * N) = nil
-  if rst == 1 {
-    wins = wins | STORED
-  }
-  elif update_priority {
-    mut next_wins = wins
-    for i in 0..<N {
-      // The granted requester loses to everyone; everyone beats a granted one.
-      next_wins#[(i*N)..+N] = if grant#[i] == 1 { 0 } else { wins#[(i*N)..+N] | grant }
-    }
-    wins = (next_wins & STORED) | (wins & ~STORED)
-  }
-
-  mut matrix:unsigned(bits=N * N) = 0
-  for i in 0..<N {
-    for j in 0..<N {
-      if i < j {
-        matrix#[i*N + j] = wins#[i*N + j]
-      }
-      elif i > j {
-        matrix#[i*N + j] = ~wins#[j*N + i] & 1
-      }
-    }
-  }
-  state = matrix
+  `state[1]` = (state_reg#[0..=1] >> 1) & 1
+  mut _b2i_3 = if ((state_reg#[0..=1] >> 1) & 1) == 0 { 1 } else { 0 }
+  `state[2]` = _b2i_3 & 1
+  `state_reg_next[2]` = 0
+  mut state_reg__composite__w2 = state_reg__composite__w1
+  state_reg__composite__w2#[2] = 0
+  br_misc_unused_p2::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[2]` & 1) << 1) | (state_reg#[2..=3] & 1))
+  `state[3]` = 0
+  mut state_reg__composite__w3 = state_reg__composite__w2
+  state_reg__composite__w3#[3] = 0
+  `state_reg_next[3]` = 0
+  br_misc_unused_p8::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[3]` & 1) << 2) | (((state_reg#[2..=3] >> 1) & 1) << 1) | (`state[3]` & 1))
+  state = (`state[3]` << 3) | (`state[2]` << 2) | (`state[1]` << 1) | `state[0]`
+  state_reg = state_reg__composite__w3
 }

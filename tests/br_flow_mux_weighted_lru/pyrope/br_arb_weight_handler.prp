@@ -1,29 +1,70 @@
 const br_counter = import("br_counter.br_counter")
 
-pub mod br_arb_weight_handler::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u4, request_weight:u12, grant:u4) -> (request_priority:(e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
-  mut accumulated_weight__wtmp:u20 = 0sb?
-  wire accumulated_weight:u20
-  mut _mux_1:u4 = if enable_priority_update != 0 { grant } else { 0 }
+pub mod br_arb_weight_handler<NumRequesters=4, MaxWeight=4, MaxAccumulatedWeight=16>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant:U4, request:U4, request_weight:U12, rst:Reset) -> (request_priority:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
+  wire request_priority__bpr:(e3:U1, e2:U1, e1:U1, e0:U1) = nil
+  wire `accumulated_weight[0]`:U1 = nil
+  wire `accumulated_weight[1]`:U1 = nil
+  wire `accumulated_weight[2]`:U1 = nil
+  wire `accumulated_weight[3]`:U1 = nil
+  wire `accumulated_weight[4]`:U1 = nil
+  wire `accumulated_weight[5]`:U1 = nil
+  wire `accumulated_weight[6]`:U1 = nil
+  wire `accumulated_weight[7]`:U1 = nil
+  wire `accumulated_weight[8]`:U1 = nil
+  wire `accumulated_weight[9]`:U1 = nil
+  wire `accumulated_weight[10]`:U1 = nil
+  wire `accumulated_weight[11]`:U1 = nil
+  wire `accumulated_weight[12]`:U1 = nil
+  wire `accumulated_weight[13]`:U1 = nil
+  wire `accumulated_weight[14]`:U1 = nil
+  wire `accumulated_weight[15]`:U1 = nil
+  wire `accumulated_weight[16]`:U1 = nil
+  wire `accumulated_weight[17]`:U1 = nil
+  wire `accumulated_weight[18]`:U1 = nil
+  wire `accumulated_weight[19]`:U1 = nil
+  mut _mux_1:U4 = if enable_priority_update != 0 { grant } else { 0 }
   const decr_accumulated_weight__w1 = _mux_1
-  mut `request_priority__bpo.e0` = unsigned(accumulated_weight#[0..=4] != 0)
-  mut `request_priority__bpo.e1` = unsigned(accumulated_weight#[5..=9] != 0)
-  mut `request_priority__bpo.e2` = unsigned(accumulated_weight#[10..=14] != 0)
-  mut `request_priority__bpo.e3` = unsigned(accumulated_weight#[15..=19] != 0)
-  const incr_accumulated_weight__w1 = unsigned((enable_priority_update != 0) and (request != 0) and (unsigned((request & ((`request_priority__bpo.e3` << 3) | (`request_priority__bpo.e2` << 2) | (`request_priority__bpo.e1` << 1) | `request_priority__bpo.e0`)) != 0) == 0))
-  mut gen_accumulated_weight_0_br_counter = br_counter::[name=gen_accumulated_weight_0_br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[0..=2], decr_valid = decr_accumulated_weight__w1 & 1, decr = 1)
-  accumulated_weight__wtmp#[0..=4] = gen_accumulated_weight_0_br_counter.value#[0..=4]
-  mut gen_accumulated_weight_1_br_counter = br_counter::[name=gen_accumulated_weight_1_br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[3..=5], decr_valid = (decr_accumulated_weight__w1 >> 1) & 1, decr = 1)
-  mut accumulated_weight__wtmp__w1 = accumulated_weight__wtmp
-  accumulated_weight__wtmp__w1#[5..=9] = gen_accumulated_weight_1_br_counter.value#[0..=4]
-  mut gen_accumulated_weight_2_br_counter = br_counter::[name=gen_accumulated_weight_2_br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[6..=8], decr_valid = (decr_accumulated_weight__w1 >> 2) & 1, decr = 1)
-  mut accumulated_weight__wtmp__w2 = accumulated_weight__wtmp__w1
-  accumulated_weight__wtmp__w2#[10..=14] = gen_accumulated_weight_2_br_counter.value#[0..=4]
-  mut gen_accumulated_weight_3_br_counter = br_counter::[name=gen_accumulated_weight_3_br_counter](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = incr_accumulated_weight__w1, incr = request_weight#[9..=11], decr_valid = (decr_accumulated_weight__w1 >> 3) & 1, decr = 1)
-  mut accumulated_weight__wtmp__w3 = accumulated_weight__wtmp__w2
-  accumulated_weight__wtmp__w3#[15..=19] = gen_accumulated_weight_3_br_counter.value#[0..=4]
-  accumulated_weight = accumulated_weight__wtmp__w3
-  request_priority.e3 = `request_priority__bpo.e3`
-  request_priority.e2 = `request_priority__bpo.e2`
-  request_priority.e1 = `request_priority__bpo.e1`
-  request_priority.e0 = `request_priority__bpo.e0`
+  mut `request_priority__bpo.e0` = U1(((`accumulated_weight[4]` << 4) | (`accumulated_weight[3]` << 3) | (`accumulated_weight[2]` << 2) | (`accumulated_weight[1]` << 1) | `accumulated_weight[0]`) != 0)
+  mut `request_priority__bpo.e1` = U1(((`accumulated_weight[9]` << 4) | (`accumulated_weight[8]` << 3) | (`accumulated_weight[7]` << 2) | (`accumulated_weight[6]` << 1) | `accumulated_weight[5]`) != 0)
+  mut `request_priority__bpo.e2` = U1(((`accumulated_weight[14]` << 4) | (`accumulated_weight[13]` << 3) | (`accumulated_weight[12]` << 2) | (`accumulated_weight[11]` << 1) | `accumulated_weight[10]`) != 0)
+  mut `request_priority__bpo.e3` = U1(((`accumulated_weight[19]` << 4) | (`accumulated_weight[18]` << 3) | (`accumulated_weight[17]` << 2) | (`accumulated_weight[16]` << 1) | `accumulated_weight[15]`) != 0)
+  mut _b2i_6 = if (request & ((request_priority__bpr.e3 << 3) | (request_priority__bpr.e2 << 2) | (request_priority__bpr.e1 << 1) | request_priority__bpr.e0)) != 0 { 1 } else { 0 }
+  mut _b2i_7 = if enable_priority_update != 0 and request != 0 and _b2i_6 == 0 { 1 } else { 0 }
+  const incr_accumulated_weight__w1 = _b2i_7
+  mut gen_accumulated_weight_0_br_counter = br_counter::[name=gen_accumulated_weight_0_br_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=incr_accumulated_weight__w1, incr=request_weight#[0..=2], decr_valid=decr_accumulated_weight__w1 & 1, decr=1)
+  `accumulated_weight[0]` = gen_accumulated_weight_0_br_counter.value & 1
+  `accumulated_weight[1]` = (gen_accumulated_weight_0_br_counter.value >> 1) & 1
+  `accumulated_weight[2]` = (gen_accumulated_weight_0_br_counter.value >> 2) & 1
+  `accumulated_weight[3]` = (gen_accumulated_weight_0_br_counter.value >> 3) & 1
+  `accumulated_weight[4]` = (gen_accumulated_weight_0_br_counter.value >> 4) & 1
+  mut gen_accumulated_weight_1_br_counter = br_counter::[name=gen_accumulated_weight_1_br_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=incr_accumulated_weight__w1, incr=request_weight#[3..=5], decr_valid=(decr_accumulated_weight__w1 >> 1) & 1, decr=1)
+  `accumulated_weight[5]` = gen_accumulated_weight_1_br_counter.value & 1
+  `accumulated_weight[6]` = (gen_accumulated_weight_1_br_counter.value >> 1) & 1
+  `accumulated_weight[7]` = (gen_accumulated_weight_1_br_counter.value >> 2) & 1
+  `accumulated_weight[8]` = (gen_accumulated_weight_1_br_counter.value >> 3) & 1
+  `accumulated_weight[9]` = (gen_accumulated_weight_1_br_counter.value >> 4) & 1
+  mut gen_accumulated_weight_2_br_counter = br_counter::[name=gen_accumulated_weight_2_br_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=incr_accumulated_weight__w1, incr=request_weight#[6..=8], decr_valid=(decr_accumulated_weight__w1 >> 2) & 1, decr=1)
+  `accumulated_weight[10]` = gen_accumulated_weight_2_br_counter.value & 1
+  `accumulated_weight[11]` = (gen_accumulated_weight_2_br_counter.value >> 1) & 1
+  `accumulated_weight[12]` = (gen_accumulated_weight_2_br_counter.value >> 2) & 1
+  `accumulated_weight[13]` = (gen_accumulated_weight_2_br_counter.value >> 3) & 1
+  `accumulated_weight[14]` = (gen_accumulated_weight_2_br_counter.value >> 4) & 1
+  mut gen_accumulated_weight_3_br_counter = br_counter::[name=gen_accumulated_weight_3_br_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=incr_accumulated_weight__w1, incr=request_weight#[9..=11], decr_valid=(decr_accumulated_weight__w1 >> 3) & 1, decr=1)
+  `accumulated_weight[15]` = gen_accumulated_weight_3_br_counter.value & 1
+  `accumulated_weight[16]` = (gen_accumulated_weight_3_br_counter.value >> 1) & 1
+  `accumulated_weight[17]` = (gen_accumulated_weight_3_br_counter.value >> 2) & 1
+  `accumulated_weight[18]` = (gen_accumulated_weight_3_br_counter.value >> 3) & 1
+  `accumulated_weight[19]` = (gen_accumulated_weight_3_br_counter.value >> 4) & 1
+  const t89 = `request_priority__bpo.e3`
+  request_priority__bpr.e3 = t89
+  request_priority.e3 = t89
+  const t90 = `request_priority__bpo.e2`
+  request_priority__bpr.e2 = t90
+  request_priority.e2 = t90
+  const t91 = `request_priority__bpo.e1`
+  request_priority__bpr.e1 = t91
+  request_priority.e1 = t91
+  const t92 = `request_priority__bpo.e0`
+  request_priority__bpr.e0 = t92
+  request_priority.e0 = t92
 }

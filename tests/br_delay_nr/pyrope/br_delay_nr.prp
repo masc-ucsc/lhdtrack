@@ -1,10 +1,14 @@
-pub mod br_delay_nr::[timecheck=false](clk:u1, `in`:u64) -> (out:u64@[], out_stages:u128@[]) {
-  reg stages___q:u128
-  mut stages:u128 = 0
-  stages = stages___q
-  mut stages__w1 = stages
-  stages__w1#[0..=63] = `in`
-  stages___q#[64..=127] = stages__w1#[0..=63]
-  out = stages__w1#[64..=127]
-  out_stages = stages__w1
+pub mod br_delay_nr::[timecheck=false](clk:Clock, `in`:U64) -> (out:U64@[], out_stages:U128@[]) {
+  reg stages___q:U128
+  mut stages__composite:U128 = 0
+  wire stages:U128 = nil
+  stages__composite = stages___q
+  mut stages__composite__w1 = stages__composite
+  stages__composite__w1#[0..=63] = `in`
+  stages___q#[64..=127] = stages#[0..=63]
+  const out__w1 = (stages >> 0x40)#[0..=63]
+  const out_stages__w1 = stages
+  stages = stages__composite__w1
+  out = out__w1
+  out_stages = out_stages__w1
 }

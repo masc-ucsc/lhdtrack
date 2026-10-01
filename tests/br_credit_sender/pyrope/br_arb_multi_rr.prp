@@ -2,44 +2,66 @@ const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_priority_dynamic = import("br_enc_priority_dynamic.br_enc_priority_dynamic")
 const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-pub mod br_arb_multi_rr::[timecheck=false](clk:u1, rst:u1, enable_priority_update:u1, request:u4, grant_allowed:u3) -> (grant:u4@[], grant_ordered:u16@[], grant_count:u3@[]) {
-  reg lowest_prio:u4
-  mut grant_valid:u4 = 0
-  grant_valid = 0sb?
-  grant_ordered = 0sb?
-  mut grant_valid__w1 = grant_valid
-  grant_valid__w1#[0] = unsigned(grant_allowed > 0) & 1
-  mut grant_valid__w2 = grant_valid__w1
-  grant_valid__w2#[1] = unsigned(grant_allowed > 1) & 1
-  mut grant_valid__w3 = grant_valid__w2
-  grant_valid__w3#[2] = unsigned(grant_allowed > 2) & 1
-  mut grant_valid__w4 = grant_valid__w3
-  grant_valid__w4#[3] = unsigned(grant_allowed > 3) & 1
-  mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk = clk, rst = rst, `in` = request, lowest_prio = lowest_prio)
+pub mod br_arb_multi_rr<NumRequesters=4, MaxGrantPerCycle=4, EnableCoverBlockPriorityUpdate=0, EnableCoverMoreRequestThanAllowed=1>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant_allowed:U3, request:U4, rst:U1) -> (grant:U4@[], grant_count:U3@[], grant_ordered:U16@[]) {
+  reg lowest_prio:U4:[async=false, initial=8, reset_pin=rst]
+  wire `grant_ordered[0]`:U1 = nil
+  wire `grant_ordered[1]`:U1 = nil
+  wire `grant_ordered[2]`:U1 = nil
+  wire `grant_ordered[3]`:U1 = nil
+  wire `grant_ordered[4]`:U1 = nil
+  wire `grant_ordered[5]`:U1 = nil
+  wire `grant_ordered[6]`:U1 = nil
+  wire `grant_ordered[7]`:U1 = nil
+  wire `grant_ordered[8]`:U1 = nil
+  wire `grant_ordered[9]`:U1 = nil
+  wire `grant_ordered[10]`:U1 = nil
+  wire `grant_ordered[11]`:U1 = nil
+  wire `grant_ordered[12]`:U1 = nil
+  wire `grant_ordered[13]`:U1 = nil
+  wire `grant_ordered[14]`:U1 = nil
+  wire `grant_ordered[15]`:U1 = nil
+  wire grant_ordered:U16 = nil
+  wire `grant_valid[0]`:U1 = nil
+  wire `grant_valid[1]`:U1 = nil
+  wire `grant_valid[2]`:U1 = nil
+  wire `grant_valid[3]`:U1 = nil
+  `grant_valid[0]` = U1(grant_allowed > 0) & 1
+  `grant_valid[1]` = U1(grant_allowed > 1) & 1
+  `grant_valid[2]` = U1(grant_allowed > 2) & 1
+  `grant_valid[3]` = U1(grant_allowed > 3) & 1
+  mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
   const all_grants__w1 = u_enc_priority_dynamic
-  mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in` = request)
+  mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in`=request)
   const request_count__w1 = br_enc_countones_inst
-  mut _mux_6:u3 = if unsigned(request_count__w1 <= grant_allowed) != 0 { request_count__w1#[0..=2] } else { grant_allowed }
+  mut _mux_6:U3 = if U1(request_count__w1 <= grant_allowed) != 0 { request_count__w1#[0..=2] } else { grant_allowed }
   const grant_count__w1 = _mux_6
-  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select = (grant_count__w1 - 1)#[0..=2]#[0..=1], `in` = all_grants__w1)
-  if rst != 0 {
-    lowest_prio = 8
-  } elif unsigned((enable_priority_update != 0) and (request != 0) and (grant_allowed > 0)) != 0 {
-    lowest_prio = br_mux_bin_last_grant.out
+  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=2]#[0..=1], `in`=all_grants__w1)
+  if not (rst != 0) {
+    if U1(enable_priority_update != 0 and request != 0 and grant_allowed > 0) != 0 {
+      lowest_prio = br_mux_bin_last_grant.out
+    }
   }
-  mut _mux_8:u4 = if (grant_valid__w4 & 1) != 0 { all_grants__w1#[0..=3] } else { 0 }
-  mut grant_ordered__w1 = grant_ordered
-  grant_ordered__w1#[0..=3] = _mux_8
-  mut _mux_9:u4 = if ((grant_valid__w4 >> 1) & 1) != 0 { all_grants__w1#[4..=7] } else { 0 }
-  mut grant_ordered__w2 = grant_ordered__w1
-  grant_ordered__w2#[4..=7] = _mux_9
-  mut _mux_10:u4 = if ((grant_valid__w4 >> 2) & 1) != 0 { all_grants__w1#[8..=11] } else { 0 }
-  mut grant_ordered__w3 = grant_ordered__w2
-  grant_ordered__w3#[8..=11] = _mux_10
-  mut _mux_11:u4 = if ((grant_valid__w4 >> 3) & 1) != 0 { all_grants__w1#[12..=15] } else { 0 }
-  mut grant_ordered__w4 = grant_ordered__w3
-  grant_ordered__w4#[12..=15] = _mux_11
-  grant = (((0 | grant_ordered__w4#[0..=3]) | grant_ordered__w4#[4..=7]) | grant_ordered__w4#[8..=11]) | grant_ordered__w4#[12..=15]
-  grant_ordered = grant_ordered__w4
+  mut _mux_9:U4 = if (`grant_valid[0]` & 1) != 0 { all_grants__w1#[0..=3] } else { 0 }
+  `grant_ordered[0]` = _mux_9 & 1
+  `grant_ordered[1]` = (_mux_9 >> 1) & 1
+  `grant_ordered[2]` = (_mux_9 >> 2) & 1
+  `grant_ordered[3]` = (_mux_9 >> 3) & 1
+  mut _mux_10:U4 = if (`grant_valid[1]` & 1) != 0 { all_grants__w1#[4..=7] } else { 0 }
+  `grant_ordered[4]` = _mux_10 & 1
+  `grant_ordered[5]` = (_mux_10 >> 1) & 1
+  `grant_ordered[6]` = (_mux_10 >> 2) & 1
+  `grant_ordered[7]` = (_mux_10 >> 3) & 1
+  mut _mux_11:U4 = if (`grant_valid[2]` & 1) != 0 { all_grants__w1#[8..=11] } else { 0 }
+  `grant_ordered[8]` = _mux_11 & 1
+  `grant_ordered[9]` = (_mux_11 >> 1) & 1
+  `grant_ordered[10]` = (_mux_11 >> 2) & 1
+  `grant_ordered[11]` = (_mux_11 >> 3) & 1
+  mut _mux_12:U4 = if (`grant_valid[3]` & 1) != 0 { all_grants__w1#[12..=15] } else { 0 }
+  `grant_ordered[12]` = _mux_12 & 1
+  `grant_ordered[13]` = (_mux_12 >> 1) & 1
+  `grant_ordered[14]` = (_mux_12 >> 2) & 1
+  `grant_ordered[15]` = (_mux_12 >> 3) & 1
+  grant_ordered = (`grant_ordered[15]` << 15) | (`grant_ordered[14]` << 14) | (`grant_ordered[13]` << 13) | (`grant_ordered[12]` << 12) | (`grant_ordered[11]` << 11) | (`grant_ordered[10]` << 10) | (`grant_ordered[9]` << 9) | (`grant_ordered[8]` << 8) | (`grant_ordered[7]` << 7) | (`grant_ordered[6]` << 6) | (`grant_ordered[5]` << 5) | (`grant_ordered[4]` << 4) | (`grant_ordered[3]` << 3) | (`grant_ordered[2]` << 2) | (`grant_ordered[1]` << 1) | `grant_ordered[0]`
+  grant = (((0 | ((`grant_ordered[3]` << 3) | (`grant_ordered[2]` << 2) | (`grant_ordered[1]` << 1) | `grant_ordered[0]`)) | ((`grant_ordered[7]` << 3) | (`grant_ordered[6]` << 2) | (`grant_ordered[5]` << 1) | `grant_ordered[4]`)) | ((`grant_ordered[11]` << 3) | (`grant_ordered[10]` << 2) | (`grant_ordered[9]` << 1) | `grant_ordered[8]`)) | ((`grant_ordered[15]` << 3) | (`grant_ordered[14]` << 2) | (`grant_ordered[13]` << 1) | `grant_ordered[12]`)
   grant_count = grant_count__w1
 }

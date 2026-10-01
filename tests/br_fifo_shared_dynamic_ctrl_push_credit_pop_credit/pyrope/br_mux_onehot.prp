@@ -1,13 +1,5 @@
-// One-hot mux: OR together the WIDTH-bit symbols whose select bit is set.
-// `in` packs NUM_INPUTS symbols, symbol 0 in the low bits.
-pub comb br_mux_onehot<NUM_INPUTS=2, WIDTH=1>(select:unsigned(bits=NUM_INPUTS), `in`:unsigned(bits=NUM_INPUTS * WIDTH)) -> (
-  out:unsigned(bits=WIDTH)
-) {
-  mut o:unsigned(bits=WIDTH) = 0
-  for i in 0..<NUM_INPUTS {
-    if select#[i] == 1 {
-      o |= `in`#[(i*WIDTH)..+WIDTH]
-    }
-  }
-  out = o
+pub comb br_mux_onehot<NumSymbolsIn=2, SymbolWidth=5, EnableAssertSelectOnehot=1>::[timecheck=false](`in`:U10, select:U2) -> (out:U5) {
+  mut _rep_1:U5 = if (select & 1) != 0 { 31 } else { 0 }
+  mut _rep_2:U5 = if ((select >> 1) & 1) != 0 { 31 } else { 0 }
+  out = (0 | (_rep_1 & `in`#[0..=4])) | (_rep_2 & `in`#[5..=9])
 }

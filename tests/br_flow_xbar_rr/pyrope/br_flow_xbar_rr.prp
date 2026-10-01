@@ -1,28 +1,24 @@
 const br_arb_rr_internal = import("br_arb_rr_internal.br_arb_rr_internal")
-const br_flow_mux_core   = import("br_flow_mux_core.br_flow_mux_core")
+const br_flow_mux_core = import("br_flow_mux_core.br_flow_mux_core")
 
 // 4x4 valid/ready crossbar of 32-bit flows with a round-robin arbiter per pop
 // flow. Push flow i goes to pop flow push_dest_id[i]. All vectors are packed
-// with flow 0 in the low bits. clk only fed the upstream assertions.
+// with flow 0 in the low bits. clk owns every arbiter through the implicit Clock binding.
 
-pub mod br_flow_xbar_rr(clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest_id:u8, pop_ready:u4) -> (
-  push_ready:u4@[0],
-  pop_valid:u4@[0],
-  pop_data:u128@[0]
-) {
-  comptime const NUM_PUSH  = push_valid.[bits]
-  comptime const NUM_POP   = pop_ready.[bits]
-  comptime const WIDTH     = push_data.[bits]/NUM_PUSH
+pub mod br_flow_xbar_rr(clk:Clock, pop_ready:U4, push_data:U128, push_dest_id:U8, push_valid:U4, rst:U1) -> (pop_data:U128@[0], pop_valid:U4@[0], push_ready:U4@[0]) {
+  comptime const NUM_PUSH = push_valid.[bits]
+  comptime const NUM_POP = pop_ready.[bits]
+  comptime const WIDTH = push_data.[bits]/NUM_PUSH
   comptime const DEST_BITS = push_dest_id.[bits]/NUM_PUSH
 
   // Lane (j, i) connects push flow i to pop flow j; lane vectors are packed
   // with bit j*NUM_PUSH+i.
 
   // Push side: a valid push flow raises the lane to its destination only.
-  mut lane_valid:unsigned(bits=NUM_POP * NUM_PUSH) = 0
+  mut lane_valid:Unsigned(bits=NUM_POP*NUM_PUSH) = 0
   for i in 0..<NUM_PUSH {
     const dest = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
-    const steered:unsigned(bits=NUM_POP) = if push_valid#[i] == 1 { 1 << dest } else { 0 }
+    const steered:Unsigned(bits=NUM_POP) = if push_valid#[i] == 1 { 1 << dest } else { 0 }
     for j in 0..<NUM_POP {
       lane_valid#[j*NUM_PUSH + i] = steered#[j]
     }
@@ -32,21 +28,19 @@ pub mod br_flow_xbar_rr(clk:u1, rst:u1, push_valid:u4, push_data:u128, push_dest
   // priority advances when the pop side is ready and some lane requests. Every
   // lane carries its push flow's data unchanged, so the mux selects straight
   // from push_data.
-  mut lane_ready:unsigned(bits=NUM_POP * NUM_PUSH) = 0
+  mut lane_ready:Unsigned(bits=NUM_POP*NUM_PUSH) = 0
   for j in 0..<NUM_POP {
-    const lanes:unsigned(bits=NUM_PUSH) = lane_valid#[(j*NUM_PUSH)..+NUM_PUSH]
+    const lanes:Unsigned(bits=NUM_PUSH) = lane_valid#[(j*NUM_PUSH)..+NUM_PUSH]
     const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_PUSH>(rst=rst, enable_priority_update=pop_ready#[j] == 1, request=lanes)
-    const mux = br_flow_mux_core<NUM_FLOWS=NUM_PUSH,WIDTH=WIDTH>(
-      can_grant=arb.can_grant, grant=arb.grant, push_valid=lanes, push_data=push_data, pop_ready=pop_ready#[j] == 1
-    )
+    const mux = br_flow_mux_core<NUM_FLOWS=NUM_PUSH, WIDTH=WIDTH>(can_grant=arb.can_grant, grant=arb.grant, push_valid=lanes, push_data=push_data, pop_ready=pop_ready#[j] == 1)
     lane_ready#[(j*NUM_PUSH)..+NUM_PUSH] = mux.push_ready
-    pop_valid#[j] = u1(mux.pop_valid_unstable)
-    pop_data#[(j*WIDTH)..+WIDTH]         = mux.pop_data_unstable
+    pop_valid#[j] = U1(mux.pop_valid_unstable)
+    pop_data#[(j*WIDTH)..+WIDTH] = mux.pop_data_unstable
   }
 
   // A push flow is ready when the lane to its destination is.
   for i in 0..<NUM_PUSH {
-    const dest     = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
+    const dest = push_dest_id#[(i*DEST_BITS)..+DEST_BITS]
     push_ready#[i] = lane_ready#[dest*NUM_PUSH + i]
   }
 }

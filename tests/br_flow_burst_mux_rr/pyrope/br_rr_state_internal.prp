@@ -1,18 +1,42 @@
-pub mod br_rr_state_internal::[timecheck=false](clk:u1, rst:u1, update_priority:u1, grant:u4) -> (last_grant:u4@[], priority_mask:(e3:u1, e2:u1, e1:u1, e0:u1)@[]) {
-  reg last_grant:u4
-  mut last_grant_init:u4 = 0
-  last_grant_init = 0sb?
-  mut `priority_mask__bpo.e0` = unsigned(last_grant != 0)
-  mut `priority_mask__bpo.e1` = unsigned(last_grant#[1..=3] != 0)
-  mut `priority_mask__bpo.e2` = unsigned(last_grant#[2..=3] != 0)
-  mut `priority_mask__bpo.e3` = unsigned(((last_grant >> 3) & 1) != 0)
+pub mod br_rr_state_internal<NumRequesters=4>::[timecheck=false](clk:Clock, grant:U4, rst:U1, update_priority:U1) -> (last_grant:U4@[], priority_mask:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
+  reg last_grant:U4
+  wire `last_grant_init[0]`:U1 = nil
+  wire `last_grant_init[1]`:U1 = nil
+  wire `last_grant_init[2]`:U1 = nil
+  wire `last_grant_init[3]`:U1 = nil
+  wire last_grant_init:U4 = nil
+  wire `priority_mask__bpr.e3`:U1 = nil
+  wire `priority_mask__bpr.e2`:U1 = nil
+  wire `priority_mask__bpr.e1`:U1 = nil
+  wire `priority_mask__bpr.e0`:U1 = nil
+  mut _b2i_1 = if last_grant != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e0` = _b2i_1
+  mut _b2i_2 = if last_grant#[1..=3] != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e1` = _b2i_2
+  mut _b2i_3 = if last_grant#[2..=3] != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e2` = _b2i_3
+  mut _b2i_4 = if ((last_grant >> 3) & 1) != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e3` = _b2i_4
+  `last_grant_init[3]` = 1
+  `last_grant_init[0]` = 0
+  `last_grant_init[1]` = 0
+  `last_grant_init[2]` = 0
   if rst != 0 {
-    last_grant = 8
+    last_grant = last_grant_init
   } elif update_priority != 0 {
     last_grant = grant
   }
-  priority_mask.e3 = `priority_mask__bpo.e3`
-  priority_mask.e2 = `priority_mask__bpo.e2`
-  priority_mask.e1 = `priority_mask__bpo.e1`
-  priority_mask.e0 = `priority_mask__bpo.e0`
+  last_grant_init = (`last_grant_init[3]` << 3) | (`last_grant_init[2]` << 2) | (`last_grant_init[1]` << 1) | `last_grant_init[0]`
+  const t21 = `priority_mask__bpo.e3`
+  `priority_mask__bpr.e3` = t21
+  priority_mask.e3 = t21
+  const t22 = `priority_mask__bpo.e2`
+  `priority_mask__bpr.e2` = t22
+  priority_mask.e2 = t22
+  const t23 = `priority_mask__bpo.e1`
+  `priority_mask__bpr.e1` = t23
+  priority_mask.e1 = t23
+  const t24 = `priority_mask__bpo.e0`
+  `priority_mask__bpr.e0` = t24
+  priority_mask.e0 = t24
 }

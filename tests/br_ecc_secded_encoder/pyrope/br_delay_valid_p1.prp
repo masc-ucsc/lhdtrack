@@ -1,14 +1,14 @@
-pub comb br_delay_valid_p1::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u39) -> (out_valid:u1, out:u39, out_valid_stages:u1, out_stages:u39) {
-  mut stage_valid:u1 = 0
-  mut `stage`:u39 = 0
+pub mod br_delay_valid_p1<Width=39, NumStages=0, FirstStageUngated=0, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, `in`:U39, in_valid:U1, rst:Reset) -> (out:U39@[], out_stages:U39@[], out_valid:U1@[], out_valid_stages:U1@[]) {
+  mut stage_valid:U1 = 0
+  mut `stage`:U39 = 0
   stage_valid = 0ub?
   `stage` = 0sb?
   mut stage_valid__w1 = stage_valid
   stage_valid__w1#[0] = in_valid & 1
   mut stage__w1 = `stage`
   stage__w1#[0..=38] = `in`
-  out_valid = stage_valid__w1 & 1
-  out = stage__w1#[0..=38]
+  out_valid = (stage_valid__w1 >> NumStages) & 1
+  out = (stage__w1 >> (NumStages*39))#[0..=38]
   out_valid_stages = stage_valid__w1
   out_stages = stage__w1
 }

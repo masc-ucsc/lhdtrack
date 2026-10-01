@@ -11,29 +11,29 @@
 // "call to undefined function". The module inside it is br_flow_reg_rev.br_flow_reg_rev.
 const dut = import("br_flow_reg_rev.br_flow_reg_rev")
 
-pub mod br_flow_reg_rev_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_flow_reg_rev_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64:[reset_pin=rst != 0] = 2611923443488327891
+  reg sum:U64:[reset_pin=rst != 0] = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (push_ready, pop_valid, pop_data) = dut(push_valid=lfsr#[0], push_data=lfsr#[1..=32], pop_ready=lfsr#[33])
+  const (push_ready, pop_valid, pop_data) = dut(rst=rst, push_valid=lfsr#[0], push_data=lfsr#[1..=32], pop_ready=lfsr#[33])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
 
   if rst != 0 {
     lfsr = 2611923443488327891
-    sum  = 0
+    sum = 0
   } else {
     lfsr = nxt
-    sum  = acc
+    sum = acc
   }
 }

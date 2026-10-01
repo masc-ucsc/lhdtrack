@@ -1,41 +1,38 @@
-const br_delay_nr     = import("br_delay_nr.br_delay_nr")
+const br_cdc_fifo_reset_overlap_checks_t = import("br_cdc_fifo_reset_overlap_checks.br_cdc_fifo_reset_overlap_checks")
+const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const br_delay_nr = import("br_delay_nr.br_delay_nr")
+const br_delay_nr_p1 = import("br_delay_nr_p1.br_delay_nr_p1")
 const br_enc_bin2gray = import("br_enc_bin2gray.br_enc_bin2gray")
 const br_enc_gray2bin = import("br_enc_gray2bin.br_enc_gray2bin")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-// Push-side occupancy of a CDC FIFO. Push and pop counts wrap at
-// 2^COUNT_WIDTH and cross domains Gray-coded; slots = DEPTH - items.
-pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(
-  clk:u1,
-  rst:u1,
-  push_beat:bool,
-  pop_count_gray:unsigned(bits=COUNT_WIDTH),
-  reset_active_pop:bool
-) -> (push_count_gray:unsigned(bits=COUNT_WIDTH)@[], slots:unsigned(bits=COUNT_WIDTH)@[], full:bool@[], reset_active_push:bool@[]) {
-  cassert((1 << COUNT_WIDTH) > DEPTH)
-
-  reg push_count:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
-  wrap const push_count_next:unsigned(bits=COUNT_WIDTH) = push_count + u1(push_beat)
-  if push_beat {
-    push_count = push_count_next
+pub mod br_cdc_fifo_push_flag_mgr<Depth=32, RamWriteLatency=2, RegisterResetActive=1, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, pop_count_gray:U6, push_beat:U1, reset_active_pop:U1, rst:U1) -> (full:U1@[], pop_count_delta:U6@[], push_count_gray:U6@[], reset_active_push:U1@[], slots:U6@[]) {
+  reg pop_count_saved:U6:[async=false, initial=0, reset_pin=rst]
+  reset_active_push = 0ub?
+  mut br_counter_incr_push_count = br_counter_incr::[name=br_counter_incr_push_count](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=push_beat, incr=1)
+  mut br_enc_gray2bin_inst = br_enc_gray2bin::[name=br_enc_gray2bin_inst](gray=pop_count_gray)
+  const pop_count__w1 = (br_enc_gray2bin_inst.bin.e5 << 5) | (br_enc_gray2bin_inst.bin.e4 << 4) | (br_enc_gray2bin_inst.bin.e3 << 3) | (br_enc_gray2bin_inst.bin.e2 << 2) | (br_enc_gray2bin_inst.bin.e1 << 1) | br_enc_gray2bin_inst.bin.e0
+  mut br_enc_bin2gray_inst = br_enc_bin2gray::[name=br_enc_bin2gray_inst](bin=br_counter_incr_push_count.value_next)
+  mut br_delay_nr_reset_active_push = br_delay_nr::[name=br_delay_nr_reset_active_push](clk=clk, `in`=rst)
+  mut br_delay_nr_push_count_gray = br_delay_nr_p1::[name=br_delay_nr_push_count_gray](clk=clk, `in`=br_enc_bin2gray_inst)
+  mut _mux_1:U6 = if reset_active_pop != 0 { pop_count_saved } else { pop_count__w1#[0..=5] }
+  mut _mux_2:U6 = if reset_active_pop != 0 { 0 } else { (pop_count__w1 - pop_count_saved)#[0..=5] }
+  const push_count_ext__w1 = br_counter_incr_push_count.value#[0..=5]
+  const pop_count_visible_ext__w1 = _mux_1
+  mut _mux_3:U7 = if push_count_ext__w1 >= pop_count_visible_ext__w1 { (push_count_ext__w1 - pop_count_visible_ext__w1)#[0..=6] } else { ((push_count_ext__w1 + 0x40)#[0..=6] - pop_count_visible_ext__w1)#[0..=6] }
+  const items_ext__w1 = _mux_3
+  const slots__w1 = (Depth - items_ext__w1#[0..=5])#[0..=31]#[0..=5]
+  mut _b2i_4 = if slots__w1 == 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    if reset_active_pop == 0 {
+      pop_count_saved = pop_count__w1
+    }
   }
-
-  // Publish the next count late enough that the pop side never sees an entry
-  // before its RAM write lands.
-  const next_gray   = br_enc_bin2gray<WIDTH=COUNT_WIDTH>(bin=push_count_next)
-  push_count_gray   = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=PUSH_COUNT_DELAY>(clk=clk, `in`=next_gray)
-  reset_active_push = br_delay_nr<WIDTH=1,NUM_STAGES=1>(clk=clk, `in`=rst) == 1
-
-  // While the pop side is in reset its count is meaningless: use the last one
-  // seen before the reset.
-  const pop_count = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=pop_count_gray)
-  reg pop_count_saved:unsigned(bits=COUNT_WIDTH):[reset_pin = ref rst] = 0
-  if not reset_active_pop {
-    pop_count_saved = pop_count
-  }
-  const pop_count_visible = if reset_active_pop { pop_count_saved } else { pop_count }
-
-  wrap const items:unsigned(bits=COUNT_WIDTH) = push_count - pop_count_visible
-  wrap const free:unsigned(bits=COUNT_WIDTH) = DEPTH - items
-  slots = free
-  full = free == 0
+  br_misc_unused::[name=br_misc_unused_items_msb](`in`=(items_ext__w1 >> 6) & 1)
+  br_cdc_fifo_reset_overlap_checks_t::[name=br_cdc_fifo_reset_overlap_checks](clk=clk, reset_active_push=br_delay_nr_reset_active_push.out, reset_active_pop=reset_active_pop)
+  push_count_gray = br_delay_nr_push_count_gray.out
+  pop_count_delta = _mux_2
+  slots = slots__w1
+  full = _b2i_4
+  reset_active_push = br_delay_nr_reset_active_push.out
 }

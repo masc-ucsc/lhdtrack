@@ -1,69 +1,23 @@
-const br_apb_demux_select_onehot = import("br_apb_demux_select_onehot.br_apb_demux_select_onehot")
-const br_demux_addr_decode       = import("br_demux_addr_decode.br_demux_addr_decode")
+const br_apb_demux_select_onehot_t = import("br_apb_demux_select_onehot.br_apb_demux_select_onehot")
+const br_demux_addr_decode_t = import("br_demux_addr_decode.br_demux_addr_decode")
+const br_misc_unused = import("br_misc_unused.br_misc_unused")
 
-// APB demux: one upstream APB requester, four downstream completers, each
-// owning the 12-bit address window [base, base + size). Per-downstream buses
-// are packed with downstream 0 in the low bits. clk and rst only fed the
-// upstream assertions.
-pub mod br_apb_demux(
-  clk:u1,
-  rst:u1,
-  upstream_paddr:u12,
-  upstream_psel:u1,
-  upstream_penable:u1,
-  upstream_pprot:u3,
-  upstream_pstrb:u4,
-  upstream_pwrite:u1,
-  upstream_pwdata:u32,
-  downstream_addr_base:u48,
-  downstream_addr_size:u48,
-  downstream_prdata:u128,
-  downstream_pready:u4,
-  downstream_pslverr:u4
-) -> (
-  upstream_prdata:u32@[0],
-  upstream_pready:u1@[0],
-  upstream_pslverr:u1@[0],
-  downstream_paddr:u48@[0],
-  downstream_psel:u4@[0],
-  downstream_penable:u4@[0],
-  downstream_pprot:u12@[0],
-  downstream_pstrb:u16@[0],
-  downstream_pwrite:u4@[0],
-  downstream_pwdata:u128@[0]
-) {
-  comptime const ADDR_WIDTH      = upstream_paddr.[bits]
-  comptime const NUM_DOWNSTREAMS = downstream_psel.[bits]
-
-  const select_onehot = br_demux_addr_decode<ADDR_WIDTH=ADDR_WIDTH,NUM_DOWNSTREAMS=NUM_DOWNSTREAMS>(
-    upstream_addr=upstream_paddr
-    ,downstream_addr_base=downstream_addr_base
-    ,downstream_addr_size=downstream_addr_size
-  )
-  const demux = br_apb_demux_select_onehot<NUM_DOWNSTREAMS=NUM_DOWNSTREAMS>(
-    select_onehot=select_onehot
-    ,psel=upstream_psel == 1
-    ,penable=upstream_penable == 1
-    ,req=(
-      paddr   = upstream_paddr
-      ,pprot  = upstream_pprot
-      ,pstrb  = upstream_pstrb
-      ,pwrite = upstream_pwrite == 1
-      ,pwdata = upstream_pwdata
-    )
-    ,downstream_prdata=downstream_prdata
-    ,downstream_pready=downstream_pready
-    ,downstream_pslverr=downstream_pslverr
-  )
-
-  upstream_prdata    = demux.resp.rdata
-  upstream_pready    = u1(demux.resp.ready)
-  upstream_pslverr   = u1(demux.resp.slverr)
-  downstream_paddr   = demux.downstream_paddr
-  downstream_psel    = demux.downstream_psel
-  downstream_penable = demux.downstream_penable
-  downstream_pprot   = demux.downstream_pprot
-  downstream_pstrb   = demux.downstream_pstrb
-  downstream_pwrite  = demux.downstream_pwrite
-  downstream_pwdata  = demux.downstream_pwdata
+pub mod br_apb_demux::[timecheck=false](clk:U1, downstream_addr_base:U48, downstream_addr_size:U48, downstream_prdata:U128, downstream_pready:U4, downstream_pslverr:U4, rst:Reset, upstream_paddr:U12, upstream_penable:U1, upstream_pprot:U3, upstream_psel:U1, upstream_pstrb:U4, upstream_pwdata:U32, upstream_pwrite:U1) -> (downstream_paddr:U48@[], downstream_penable:U4@[], downstream_pprot:U12@[], downstream_psel:U4@[], downstream_pstrb:U16@[], downstream_pwdata:U128@[], downstream_pwrite:U4@[], upstream_prdata:U32@[], upstream_pready:U1@[], upstream_pslverr:U1@[]) {
+  wire downstream_paddr_unmasked:U48 = nil
+  wire upstream_pready:U1 = nil
+  mut _b2i_2 = if upstream_psel != 0 and (upstream_penable == 0 or upstream_pready == 0) { 1 } else { 0 }
+  br_misc_unused::[name=br_misc_unused_upstream_request_pending](`in`=_b2i_2)
+  mut br_demux_addr_decode = br_demux_addr_decode_t::[name=br_demux_addr_decode](clk=clk, rst=rst, addr_valid=upstream_psel, upstream_addr=upstream_paddr, downstream_addr_base=downstream_addr_base, downstream_addr_size=downstream_addr_size, downstream_addr_in=downstream_paddr_unmasked)
+  mut br_apb_demux_select_onehot = br_apb_demux_select_onehot_t::[name=br_apb_demux_select_onehot](clk=clk, rst=rst, select_onehot=br_demux_addr_decode.select_onehot, upstream_paddr=upstream_paddr, upstream_psel=upstream_psel, upstream_penable=upstream_penable, upstream_pprot=upstream_pprot, upstream_pstrb=upstream_pstrb, upstream_pwrite=upstream_pwrite, upstream_pwdata=upstream_pwdata, downstream_prdata=downstream_prdata, `downstream_pready.e3`=(downstream_pready >> 3) & 1, `downstream_pready.e2`=(downstream_pready >> 2) & 1, `downstream_pready.e1`=(downstream_pready >> 1) & 1, `downstream_pready.e0`=downstream_pready & 1, `downstream_pslverr.e3`=(downstream_pslverr >> 3) & 1, `downstream_pslverr.e2`=(downstream_pslverr >> 2) & 1, `downstream_pslverr.e1`=(downstream_pslverr >> 1) & 1, `downstream_pslverr.e0`=downstream_pslverr & 1)
+  upstream_pready = br_apb_demux_select_onehot.upstream_pready
+  downstream_paddr_unmasked = br_apb_demux_select_onehot.downstream_paddr
+  upstream_prdata = br_apb_demux_select_onehot.upstream_prdata
+  upstream_pslverr = br_apb_demux_select_onehot.upstream_pslverr
+  downstream_paddr = br_demux_addr_decode.downstream_addr_out
+  downstream_psel = (br_apb_demux_select_onehot.downstream_psel.e3 << 3) | (br_apb_demux_select_onehot.downstream_psel.e2 << 2) | (br_apb_demux_select_onehot.downstream_psel.e1 << 1) | br_apb_demux_select_onehot.downstream_psel.e0
+  downstream_penable = (br_apb_demux_select_onehot.downstream_penable.e3 << 3) | (br_apb_demux_select_onehot.downstream_penable.e2 << 2) | (br_apb_demux_select_onehot.downstream_penable.e1 << 1) | br_apb_demux_select_onehot.downstream_penable.e0
+  downstream_pprot = br_apb_demux_select_onehot.downstream_pprot
+  downstream_pstrb = br_apb_demux_select_onehot.downstream_pstrb
+  downstream_pwrite = (br_apb_demux_select_onehot.downstream_pwrite.e3 << 3) | (br_apb_demux_select_onehot.downstream_pwrite.e2 << 2) | (br_apb_demux_select_onehot.downstream_pwrite.e1 << 1) | br_apb_demux_select_onehot.downstream_pwrite.e0
+  downstream_pwdata = br_apb_demux_select_onehot.downstream_pwdata
 }

@@ -1,70 +1,42 @@
 const br_arb_lru_internal = import("br_arb_lru_internal.br_arb_lru_internal")
-const br_fifo_shared_pop_ctrl_credit_ext_arbiter = import("br_fifo_shared_pop_ctrl_credit_ext_arbiter.br_fifo_shared_pop_ctrl_credit_ext_arbiter")
+const br_fifo_shared_pop_ctrl_credit_ext_arbiter_t = import("br_fifo_shared_pop_ctrl_credit_ext_arbiter.br_fifo_shared_pop_ctrl_credit_ext_arbiter")
 
-// Pop control with credits: the external-arbiter pop control plus one
-// least-recently-used arbiter per data-RAM read port.
-pub mod br_fifo_shared_pop_ctrl_credit(
-  clk:u1,
-  rst:u1,
-  head_valid:u2,
-  head:u10,
-  ram_empty:u2,
-  pop_receiver_in_reset:u1,
-  pop_credit:u2,
-  credit_initial_pop:u6,
-  credit_withhold_pop:u6,
-  data_ram_rd_data_valid:u2,
-  data_ram_rd_data:u64
-) -> (
-  head_ready:u2@[0],
-  pop_sender_in_reset:u1@[0],
-  pop_valid:u2@[0],
-  pop_fifo_id:u2@[0],
-  pop_data:u64@[0],
-  pop_empty:u2@[0],
-  credit_available_pop:u6@[0],
-  credit_count_pop:u6@[0],
-  dealloc_valid:u2@[],
-  dealloc_entry_id:u10@[],
-  data_ram_rd_addr_valid:u2@[0],
-  data_ram_rd_addr:u10@[0]
-) {
-  comptime const NUM_FIFOS = head_valid.[bits]
-  comptime const NUM_PORTS = data_ram_rd_data_valid.[bits]
-
-  wire arb_grant:u4     = nil
-  wire arb_can_grant:u4 = nil
-  const pop             = br_fifo_shared_pop_ctrl_credit_ext_arbiter(
-    clk=clk, rst=rst, head_valid=head_valid, head=head, ram_empty=ram_empty, pop_receiver_in_reset=pop_receiver_in_reset, pop_credit=pop_credit,
-    credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, data_ram_rd_data_valid=data_ram_rd_data_valid, data_ram_rd_data=data_ram_rd_data,
-    arb_grant=arb_grant, arb_can_grant=arb_can_grant
-  )
-
-  // One LRU arbiter per read port, over the FIFOs requesting that port.
-  mut grants:u4     = 0
-  mut can_grants:u4 = 0
-  for p in 0..<NUM_PORTS {
-    const arb = br_arb_lru_internal<NUM_REQUESTERS=NUM_FIFOS>(
-      rst=u1(pop_receiver_in_reset == 1 or rst == 1), enable_priority_update=pop.arb_enable_priority_update#[p] == 1, request=pop.arb_request#[(p
-        * NUM_FIFOS)
-        ..+NUM_FIFOS]
-    )
-    grants#[(p*NUM_FIFOS)..+NUM_FIFOS]     = arb.grant
-    can_grants#[(p*NUM_FIFOS)..+NUM_FIFOS] = arb.can_grant
-  }
-  arb_grant     = grants
-  arb_can_grant = can_grants
-
-  head_ready             = pop.head_ready
-  pop_sender_in_reset    = pop.pop_sender_in_reset
-  pop_valid              = pop.pop_valid
-  pop_fifo_id            = pop.pop_fifo_id
-  pop_data               = pop.pop_data
-  pop_empty              = pop.pop_empty
-  credit_available_pop   = pop.credit_available_pop
-  credit_count_pop       = pop.credit_count_pop
-  dealloc_valid          = pop.dealloc_valid
-  dealloc_entry_id       = pop.dealloc_entry_id
-  data_ram_rd_addr_valid = pop.data_ram_rd_addr_valid
-  data_ram_rd_addr       = pop.data_ram_rd_addr
+pub mod br_fifo_shared_pop_ctrl_credit<NumReadPorts=2, NumFifos=2, Depth=32, Width=32, PopMaxCredits=4, RegisterDeallocation=1, RamReadLatency=1>::[timecheck=false](clk:Clock, credit_initial_pop:U6, credit_withhold_pop:U6, data_ram_rd_data:U64, data_ram_rd_data_valid:U2, head:U10, head_valid:U2, pop_credit:U2, pop_receiver_in_reset:U1, ram_empty:U2, rst:U1) -> (credit_available_pop:U6@[], credit_count_pop:U6@[], data_ram_rd_addr:U10@[], data_ram_rd_addr_valid:U2@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:U2@[], pop_data:U64@[], pop_empty:U2@[], pop_fifo_id:U2@[], pop_sender_in_reset:U1@[], pop_valid:U2@[]) {
+  wire `arb_grant[0]`:U1 = nil
+  wire `arb_grant[1]`:U1 = nil
+  wire `arb_grant[2]`:U1 = nil
+  wire `arb_grant[3]`:U1 = nil
+  wire arb_grant:U4 = nil
+  wire `arb_can_grant[0]`:U1 = nil
+  wire `arb_can_grant[1]`:U1 = nil
+  wire `arb_can_grant[2]`:U1 = nil
+  wire `arb_can_grant[3]`:U1 = nil
+  wire arb_can_grant:U4 = nil
+  mut _b2i_1 = if pop_receiver_in_reset != 0 or rst != 0 { 1 } else { 0 }
+  const either_rst__w1 = _b2i_1
+  mut br_fifo_shared_pop_ctrl_credit_ext_arbiter = br_fifo_shared_pop_ctrl_credit_ext_arbiter_t::[name=br_fifo_shared_pop_ctrl_credit_ext_arbiter](clk=clk, rst=rst, `head_valid.e1`=(head_valid >> 1) & 1, `head_valid.e0`=head_valid & 1, head=head, `ram_empty.e1`=(ram_empty >> 1) & 1, `ram_empty.e0`=ram_empty & 1, pop_receiver_in_reset=pop_receiver_in_reset, `pop_credit.e1`=(pop_credit >> 1) & 1, `pop_credit.e0`=pop_credit & 1, credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, `data_ram_rd_data_valid.e1`=(data_ram_rd_data_valid >> 1) & 1, `data_ram_rd_data_valid.e0`=data_ram_rd_data_valid & 1, data_ram_rd_data=data_ram_rd_data, arb_grant=arb_grant, arb_can_grant=arb_can_grant)
+  mut gen_arb_lru_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_0_br_arb_lru_internal](clk=clk, rst=either_rst__w1, enable_priority_update=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[0..=1])
+  `arb_can_grant[0]` = gen_arb_lru_0_br_arb_lru_internal.can_grant & 1
+  `arb_can_grant[1]` = (gen_arb_lru_0_br_arb_lru_internal.can_grant >> 1) & 1
+  `arb_grant[0]` = gen_arb_lru_0_br_arb_lru_internal.grant & 1
+  `arb_grant[1]` = (gen_arb_lru_0_br_arb_lru_internal.grant >> 1) & 1
+  mut gen_arb_lru_1_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_1_br_arb_lru_internal](clk=clk, rst=either_rst__w1, enable_priority_update=(br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update >> 1) & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[2..=3])
+  `arb_can_grant[2]` = gen_arb_lru_1_br_arb_lru_internal.can_grant & 1
+  `arb_can_grant[3]` = (gen_arb_lru_1_br_arb_lru_internal.can_grant >> 1) & 1
+  `arb_grant[2]` = gen_arb_lru_1_br_arb_lru_internal.grant & 1
+  `arb_grant[3]` = (gen_arb_lru_1_br_arb_lru_internal.grant >> 1) & 1
+  arb_grant = (`arb_grant[3]` << 3) | (`arb_grant[2]` << 2) | (`arb_grant[1]` << 1) | `arb_grant[0]`
+  arb_can_grant = (`arb_can_grant[3]` << 3) | (`arb_can_grant[2]` << 2) | (`arb_can_grant[1]` << 1) | `arb_can_grant[0]`
+  head_ready = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.head_ready.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.head_ready.e0
+  pop_sender_in_reset = br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_sender_in_reset
+  pop_valid = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_valid.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_valid.e0
+  pop_fifo_id = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_fifo_id.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_fifo_id.e0
+  pop_data = br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_data
+  pop_empty = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_empty.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_empty.e0
+  credit_available_pop = br_fifo_shared_pop_ctrl_credit_ext_arbiter.credit_available_pop
+  credit_count_pop = br_fifo_shared_pop_ctrl_credit_ext_arbiter.credit_count_pop
+  dealloc_valid = br_fifo_shared_pop_ctrl_credit_ext_arbiter.dealloc_valid
+  dealloc_entry_id = br_fifo_shared_pop_ctrl_credit_ext_arbiter.dealloc_entry_id
+  data_ram_rd_addr_valid = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.data_ram_rd_addr_valid.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.data_ram_rd_addr_valid.e0
+  data_ram_rd_addr = br_fifo_shared_pop_ctrl_credit_ext_arbiter.data_ram_rd_addr
 }

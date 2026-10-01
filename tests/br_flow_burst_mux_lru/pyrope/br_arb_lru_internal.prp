@@ -1,19 +1,14 @@
 const br_arb_pairwise_core_internal = import("br_arb_pairwise_core_internal.br_arb_pairwise_core_internal")
-const br_lru_state_internal         = import("br_lru_state_internal.br_lru_state_internal")
+const br_lru_state_internal = import("br_lru_state_internal.br_lru_state_internal")
 
 // Least-recently-used arbiter: the requester granted longest ago wins.
-pub mod br_arb_lru_internal<NUM_REQUESTERS=2>(rst:u1, enable_priority_update:bool, request:unsigned(bits=NUM_REQUESTERS)) -> (
-  can_grant:unsigned(bits=NUM_REQUESTERS)@[0],
-  grant:unsigned(bits=NUM_REQUESTERS)@[0]
-) {
+pub mod br_arb_lru_internal<NUM_REQUESTERS=2>(enable_priority_update:Bool, request:Unsigned(bits=NUM_REQUESTERS), rst:U1) -> (can_grant:Unsigned(bits=NUM_REQUESTERS)@[0], grant:Unsigned(bits=NUM_REQUESTERS)@[0]) {
   cassert(NUM_REQUESTERS >= 2, "a single requester needs no arbiter")
 
-  wire granted:unsigned(bits=NUM_REQUESTERS) = nil
-  const state = br_lru_state_internal<NUM_REQUESTERS=NUM_REQUESTERS>(
-    rst=rst, update_priority=enable_priority_update and request != 0, grant=granted
-  )
+  wire granted:Unsigned(bits=NUM_REQUESTERS) = nil
+  const state = br_lru_state_internal<NUM_REQUESTERS=NUM_REQUESTERS>(rst=rst, update_priority=enable_priority_update and request != 0, grant=granted)
   const core = br_arb_pairwise_core_internal<NUM_REQUESTERS=NUM_REQUESTERS>(request=request, priority_matrix=state)
-  granted    = core.grant
-  can_grant  = core.can_grant
-  grant      = core.grant
+  granted = core.grant
+  can_grant = core.can_grant
+  grant = core.grant
 }

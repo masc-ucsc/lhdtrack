@@ -1,101 +1,40 @@
-const br_fifo_shared_dynamic_ptr_mgr          = import("br_fifo_shared_dynamic_ptr_mgr.br_fifo_shared_dynamic_ptr_mgr")
+const br_fifo_shared_dynamic_ptr_mgr = import("br_fifo_shared_dynamic_ptr_mgr.br_fifo_shared_dynamic_ptr_mgr")
 const br_fifo_shared_dynamic_push_ctrl_credit = import("br_fifo_shared_dynamic_push_ctrl_credit.br_fifo_shared_dynamic_push_ctrl_credit")
-const br_fifo_shared_pop_ctrl_credit          = import("br_fifo_shared_pop_ctrl_credit.br_fifo_shared_pop_ctrl_credit")
+const br_fifo_shared_pop_ctrl_credit = import("br_fifo_shared_pop_ctrl_credit.br_fifo_shared_pop_ctrl_credit")
 
-// Shared dynamic multi-FIFO controller with credit flow control on both sides:
-// NUM_FIFOS FIFOs share one data RAM (32 entries of 32 bits) whose entries are
-// allocated dynamically and linked per FIFO through a pointer RAM. Both RAMs
-// are external (data_ram_*, ptr_ram_*). Configuration: 2 FIFOs, 2 write and
-// 2 read ports, RAM read latency 1, 4 pop credits per FIFO, registered push
-// outputs and deallocation. Multi-port buses are packed, port 0 lowest.
-pub mod br_fifo_shared_dynamic_ctrl_push_credit_pop_credit(
-  clk:u1,
-  rst:u1,
-  push_sender_in_reset:u1,
-  push_credit_stall:u1,
-  push_valid:u2,
-  push_data:u64,
-  push_fifo_id:u2,
-  credit_initial_push:u6,
-  credit_withhold_push:u6,
-  pop_receiver_in_reset:u1,
-  pop_credit:u2,
-  credit_initial_pop:u6,
-  credit_withhold_pop:u6,
-  data_ram_rd_data_valid:u2,
-  data_ram_rd_data:u64,
-  ptr_ram_rd_data_valid:u2,
-  ptr_ram_rd_data:u10
-) -> 
-(
-  // Registered outputs; `@[]` because the lhdtrack harness combines all outputs.
-  push_receiver_in_reset:u1@[],
-  push_credit:u2@[],
-  push_full:u1@[0],
-  credit_available_push:u6@[0],
-  credit_count_push:u6@[0],
-  pop_sender_in_reset:u1@[0],
-  pop_valid:u2@[0],
-  pop_fifo_id:u2@[0],
-  pop_data:u64@[0],
-  pop_empty:u2@[0],
-  credit_available_pop:u6@[0],
-  credit_count_pop:u6@[0],
-  data_ram_wr_valid:u2@[0],
-  data_ram_wr_addr:u10@[0],
-  data_ram_wr_data:u64@[0],
-  data_ram_rd_addr_valid:u2@[0],
-  data_ram_rd_addr:u10@[0],
-  ptr_ram_wr_valid:u2@[0],
-  ptr_ram_wr_addr:u10@[0],
-  ptr_ram_wr_data:u10@[0],
-  ptr_ram_rd_addr_valid:u2@[0],
-  ptr_ram_rd_addr:u10@[0]
-) {
-  // Entries freed by the pop side and heads consumed by it (driven below).
-  wire dealloc_valid:u2     = nil
-  wire dealloc_entry_id:u10 = nil
-  wire head_ready:u2        = nil
-
-  // Each side stays in reset while the other side's sender or receiver is.
-  const push = br_fifo_shared_dynamic_push_ctrl_credit(
-    clk=clk, rst=u1(rst == 1 or pop_receiver_in_reset == 1), push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall,
-    push_valid=push_valid, push_data=push_data, push_fifo_id=push_fifo_id, credit_initial_push=credit_initial_push, credit_withhold_push=credit_withhold_push,
-    dealloc_valid=dealloc_valid, dealloc_entry_id=dealloc_entry_id
-  )
-  const ptrs = br_fifo_shared_dynamic_ptr_mgr(
-    clk=clk, rst=u1(rst == 1 or pop_receiver_in_reset == 1 or push_sender_in_reset == 1), next_tail_valid=push.next_tail_valid, next_tail=push.next_tail,
-    ptr_ram_rd_data_valid=ptr_ram_rd_data_valid, ptr_ram_rd_data=ptr_ram_rd_data, head_ready=head_ready
-  )
-  const pop = br_fifo_shared_pop_ctrl_credit(
-    clk=clk, rst=u1(rst == 1 or push_sender_in_reset == 1), head_valid=ptrs.head_valid, head=ptrs.head, ram_empty=ptrs.empty, pop_receiver_in_reset=pop_receiver_in_reset,
-    pop_credit=pop_credit, credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, data_ram_rd_data_valid=data_ram_rd_data_valid,
-    data_ram_rd_data=data_ram_rd_data
-  )
-  head_ready       = pop.head_ready
-  dealloc_valid    = pop.dealloc_valid
-  dealloc_entry_id = pop.dealloc_entry_id
-
-  push_receiver_in_reset = push.push_receiver_in_reset
-  push_credit            = push.push_credit
-  push_full              = push.push_full
-  credit_available_push  = push.credit_available_push
-  credit_count_push      = push.credit_count_push
-  pop_sender_in_reset    = pop.pop_sender_in_reset
-  pop_valid              = pop.pop_valid
-  pop_fifo_id            = pop.pop_fifo_id
-  pop_data               = pop.pop_data
-  pop_empty              = pop.pop_empty
-  credit_available_pop   = pop.credit_available_pop
-  credit_count_pop       = pop.credit_count_pop
-  data_ram_wr_valid      = push.data_ram_wr_valid
-  data_ram_wr_addr       = push.data_ram_wr_addr
-  data_ram_wr_data       = push.data_ram_wr_data
-  data_ram_rd_addr_valid = pop.data_ram_rd_addr_valid
-  data_ram_rd_addr       = pop.data_ram_rd_addr
-  ptr_ram_wr_valid       = ptrs.ptr_ram_wr_valid
-  ptr_ram_wr_addr        = ptrs.ptr_ram_wr_addr
-  ptr_ram_wr_data        = ptrs.ptr_ram_wr_data
-  ptr_ram_rd_addr_valid  = ptrs.ptr_ram_rd_addr_valid
-  ptr_ram_rd_addr        = ptrs.ptr_ram_rd_addr
+pub mod br_fifo_shared_dynamic_ctrl_push_credit_pop_credit::[timecheck=false](clk:Clock, credit_initial_pop:U6, credit_initial_push:U6, credit_withhold_pop:U6, credit_withhold_push:U6, data_ram_rd_data:U64, data_ram_rd_data_valid:U2, pop_credit:U2, pop_receiver_in_reset:U1, ptr_ram_rd_data:U10, ptr_ram_rd_data_valid:U2, push_credit_stall:U1, push_data:U64, push_fifo_id:U2, push_sender_in_reset:U1, push_valid:U2, rst:U1) -> (credit_available_pop:U6@[], credit_available_push:U6@[], credit_count_pop:U6@[], credit_count_push:U6@[], data_ram_rd_addr:U10@[], data_ram_rd_addr_valid:U2@[], data_ram_wr_addr:U10@[], data_ram_wr_data:U64@[], data_ram_wr_valid:U2@[], pop_data:U64@[], pop_empty:U2@[], pop_fifo_id:U2@[], pop_sender_in_reset:U1@[], pop_valid:U2@[], ptr_ram_rd_addr:U10@[], ptr_ram_rd_addr_valid:U2@[], ptr_ram_wr_addr:U10@[], ptr_ram_wr_data:U10@[], ptr_ram_wr_valid:U2@[], push_credit:U2@[], push_full:U1@[], push_receiver_in_reset:U1@[]) {
+  wire dealloc_valid:U2 = nil
+  wire dealloc_entry_id:U10 = nil
+  wire head_ready:U2 = nil
+  mut _b2i_1 = if rst != 0 or pop_receiver_in_reset != 0 { 1 } else { 0 }
+  mut _b2i_2 = if rst != 0 or pop_receiver_in_reset != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
+  mut _b2i_3 = if rst != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
+  mut br_fifo_shared_dynamic_push_ctrl_credit_inst = br_fifo_shared_dynamic_push_ctrl_credit::[name=br_fifo_shared_dynamic_push_ctrl_credit_inst](clk=clk, rst=_b2i_1, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, `push_fifo_id.e1`=(push_fifo_id >> 1) & 1, `push_fifo_id.e0`=push_fifo_id & 1, credit_initial_push=credit_initial_push, credit_withhold_push=credit_withhold_push, dealloc_valid=dealloc_valid, dealloc_entry_id=dealloc_entry_id)
+  mut br_fifo_shared_dynamic_ptr_mgr_inst = br_fifo_shared_dynamic_ptr_mgr::[name=br_fifo_shared_dynamic_ptr_mgr_inst](clk=clk, rst=_b2i_2, next_tail_valid=br_fifo_shared_dynamic_push_ctrl_credit_inst.next_tail_valid, next_tail=br_fifo_shared_dynamic_push_ctrl_credit_inst.next_tail, `ptr_ram_rd_data_valid.e1`=(ptr_ram_rd_data_valid >> 1) & 1, `ptr_ram_rd_data_valid.e0`=ptr_ram_rd_data_valid & 1, ptr_ram_rd_data=ptr_ram_rd_data, `head_ready.e1`=(head_ready >> 1) & 1, `head_ready.e0`=head_ready & 1)
+  mut br_fifo_shared_pop_ctrl_credit_inst = br_fifo_shared_pop_ctrl_credit::[name=br_fifo_shared_pop_ctrl_credit_inst](clk=clk, rst=_b2i_3, head_valid=(br_fifo_shared_dynamic_ptr_mgr_inst.head_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.head_valid.e0, head=br_fifo_shared_dynamic_ptr_mgr_inst.head, ram_empty=(br_fifo_shared_dynamic_ptr_mgr_inst.empty.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.empty.e0, pop_receiver_in_reset=pop_receiver_in_reset, pop_credit=pop_credit, credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, data_ram_rd_data_valid=data_ram_rd_data_valid, data_ram_rd_data=data_ram_rd_data)
+  head_ready = br_fifo_shared_pop_ctrl_credit_inst.head_ready
+  dealloc_valid = br_fifo_shared_pop_ctrl_credit_inst.dealloc_valid
+  dealloc_entry_id = br_fifo_shared_pop_ctrl_credit_inst.dealloc_entry_id
+  push_receiver_in_reset = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_receiver_in_reset
+  push_credit = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_credit
+  push_full = br_fifo_shared_dynamic_push_ctrl_credit_inst.push_full
+  credit_available_push = br_fifo_shared_dynamic_push_ctrl_credit_inst.credit_available_push
+  credit_count_push = br_fifo_shared_dynamic_push_ctrl_credit_inst.credit_count_push
+  pop_sender_in_reset = br_fifo_shared_pop_ctrl_credit_inst.pop_sender_in_reset
+  pop_valid = br_fifo_shared_pop_ctrl_credit_inst.pop_valid
+  pop_fifo_id = br_fifo_shared_pop_ctrl_credit_inst.pop_fifo_id
+  pop_data = br_fifo_shared_pop_ctrl_credit_inst.pop_data
+  pop_empty = br_fifo_shared_pop_ctrl_credit_inst.pop_empty
+  credit_available_pop = br_fifo_shared_pop_ctrl_credit_inst.credit_available_pop
+  credit_count_pop = br_fifo_shared_pop_ctrl_credit_inst.credit_count_pop
+  data_ram_wr_valid = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_valid
+  data_ram_wr_addr = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_addr
+  data_ram_wr_data = br_fifo_shared_dynamic_push_ctrl_credit_inst.data_ram_wr_data
+  data_ram_rd_addr_valid = br_fifo_shared_pop_ctrl_credit_inst.data_ram_rd_addr_valid
+  data_ram_rd_addr = br_fifo_shared_pop_ctrl_credit_inst.data_ram_rd_addr
+  ptr_ram_wr_valid = (br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_valid.e0
+  ptr_ram_wr_addr = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_addr
+  ptr_ram_wr_data = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_wr_data
+  ptr_ram_rd_addr_valid = (br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr_valid.e1 << 1) | br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr_valid.e0
+  ptr_ram_rd_addr = br_fifo_shared_dynamic_ptr_mgr_inst.ptr_ram_rd_addr
 }

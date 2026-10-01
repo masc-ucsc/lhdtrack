@@ -1,5 +1,5 @@
 const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
 
-pub mod br_flow_checks_valid_data_intg_p1::[timecheck=false](clk:u1, rst:u1, valid:u1, ready:u1, data:u50) -> () {
-  br_misc_unused_p3::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 52) | ((valid & 1) << 51) | ((ready & 1) << 50) | data)
+pub mod br_flow_checks_valid_data_intg_p1<NumFlows=1, Width=50, EnableCoverBackpressure=1, EnableAssertValidStability=0, EnableAssertDataStability=0, EnableAssertDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoBackpressure=0>::[timecheck=false](clk:Clock, data:U50, ready:U1, rst:U1, valid:U1) -> () {
+  br_misc_unused_p3::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 52) | ((valid & 1) << 51) | ((ready & 1) << 50) | data)
 }

@@ -1,11 +1,5 @@
-// SqrSgn -- the Pyrope equivalent of verilog/SqrSgn.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 26),
-// so the generated harness and LEC bind the same external interface.
-//
-// Signed square; always fits the 52-bit result.
-pub comb SqrSgn(X:s26) -> (P:s52) { P = X*X }
+// Signed 26-bit square; retain the full 52-bit signed product.
+// External names and widths match the pinned Verilog and generated harness.
+pub comb SqrSgn(X:S26) -> (P:S52) {
+  P = X*X
+}

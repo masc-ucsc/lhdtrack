@@ -1,60 +1,33 @@
-// br_delay -- the Pyrope equivalent of verilog/br_delay.sv.
-//
-// Hand-written rather than emitted from the Verilog, so that the synthesis
-// comparison measures the two LANGUAGES and not the two front ends. The shape
-// is idiomatic Pyrope: the upstream `genvar` loop over `BR_REGI` macros becomes
-// four scalar reset-bearing registers, and the packed 2-D `out_stages` port
-// becomes explicit per-range bit assigns (Pyrope has no `{a,b}` form).
-//
-// EVERYTHING IS A LITERAL, deliberately. This lhd build rejects an array size
-// that is a named constant, let alone an expression over one ("a named
-// constant must fold before lowering"), and it has removed the
-// `int(min=,max=)` type in favour of sized `uN`. So the module is monomorphic
-// at Width = 8, NumStages = 4 -- and design.toml pins exactly that one config.
-// The numbers below are therefore load-bearing:
-//
-//   4  = NumStages           u8  = Width
-//   40 = (NumStages + 1) * Width, the flattened out_stages bus
-
-// `in` is Pyrope's membership operator, so the port name -- which must match
-// the Verilog for LEC to line the two sides up -- is backtick-escaped.
-//
-// clk and rst are DECLARED even though Pyrope would supply both implicitly: the
-// interface has to match verilog/br_delay.sv port for port, or lec pairs a
-// 3-port module against a 5-port one.
-//
-// An array register would lower as a memory. Since a memory cannot reset every
-// entry in parallel, its reset value is restored by a multi-cycle sweep. The
-// Verilog instead has four banks of flops with a one-edge synchronous reset.
-// Scalar registers with `reset_pin=ref rst` express those semantics directly
-// and let synthesis use the standard-cell reset pins instead of putting a reset
-// mux on every data bit. The flattened observation bus intentionally exposes
-// registers from several pipeline ages at once, so disable the logical-time
-// checker for this RTL-style module; this does not insert or remove hardware.
-pub mod br_delay::[timecheck=false](clk:u1, rst:u1, `in`:u8) -> (out:u8@[], out_stages:u40@[]) {
-  // The 4 pipeline registers, all synchronously reset to InitValue (0).
-  reg stage0:u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
-  reg stage1:u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
-  reg stage2:u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
-  reg stage3:u8:[clock_pin=ref clk, reset_pin=ref rst] = 0
-
-  out = stage3
-
-  // The flattened stage bus. Lane 0 is the input and lane i+1 is stage i,
-  // which is exactly the indexing upstream documents: out_stages[0] == in and
-  // out_stages[NumStages] == out.
-  mut packed:u40 = 0
-  packed#[0..=7] = `in`
-  packed#[8..=15]  = stage0
-  packed#[16..=23] = stage1
-  packed#[24..=31] = stage2
-  packed#[32..=39] = stage3
-  out_stages = packed
-
-  // Write high-to-low so each RHS is the old value of the preceding register,
-  // matching the non-blocking assignments in the SystemVerilog.
-  stage3 = stage2
-  stage2 = stage1
-  stage1 = stage0
-  stage0 = `in`
+pub mod br_delay::[timecheck=false](clk:Clock, `in`:U8, rst:U1) -> (out:U8@[], out_stages:U40@[]) {
+  reg stages___q:U40
+  mut stages__composite:U40 = 0
+  wire stages:U40 = nil
+  stages__composite = stages___q
+  mut stages__composite__w1 = stages__composite
+  stages__composite__w1#[0..=7] = `in`
+  if rst != 0 {
+    stages___q#[8..=15] = 0
+  } else {
+    stages___q#[8..=15] = stages#[0..=7]
+  }
+  if rst != 0 {
+    stages___q#[16..=23] = 0
+  } else {
+    stages___q#[16..=23] = stages#[8..=15]
+  }
+  if rst != 0 {
+    stages___q#[24..=31] = 0
+  } else {
+    stages___q#[24..=31] = stages#[16..=23]
+  }
+  if rst != 0 {
+    stages___q#[32..=39] = 0
+  } else {
+    stages___q#[32..=39] = stages#[24..=31]
+  }
+  const out__w1 = (stages >> 32)#[0..=7]
+  const out_stages__w1 = stages
+  stages = stages__composite__w1
+  out = out__w1
+  out_stages = out_stages__w1
 }

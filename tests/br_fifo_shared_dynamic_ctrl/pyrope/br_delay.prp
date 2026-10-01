@@ -1,6 +1,6 @@
-pub mod br_delay::[timecheck=false](clk:u1, rst:u1, `in`:u2) -> (out:u2@[], out_stages:u6@[]) {
-  reg stages___q:u6
-  mut stages:u6 = 0
+pub mod br_delay::[timecheck=false](clk:Clock, `in`:U2, rst:U1) -> (out:U2@[], out_stages:U6@[]) {
+  reg stages___q:U6 = nil
+  mut stages:U6 = 0
   stages = stages___q
   mut stages__w1 = stages
   stages__w1#[0..=1] = `in`

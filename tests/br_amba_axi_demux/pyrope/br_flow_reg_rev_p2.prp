@@ -1,22 +1,23 @@
-const br_flow_checks_valid_data_impl_p5 = import("br_flow_checks_valid_data_impl_p5.br_flow_checks_valid_data_impl_p5")
+const br_flow_checks_valid_data_impl_p6 = import("br_flow_checks_valid_data_impl_p6.br_flow_checks_valid_data_impl_p6")
 const br_flow_checks_valid_data_intg_p5 = import("br_flow_checks_valid_data_intg_p5.br_flow_checks_valid_data_intg_p5")
 
-pub mod br_flow_reg_rev_p2::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u5, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u5@[]) {
-  reg push_ready:u1
-  reg reg_data:u5
-  br_flow_checks_valid_data_intg_p5::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready, data = push_data)
-  const pop_valid__w1 = unsigned((push_ready == 0) or (push_valid != 0))
-  mut _mux_2:u5 = if push_ready != 0 { push_data } else { reg_data }
+pub mod br_flow_reg_rev_p2<Width=5, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U5, push_valid:U1, rst:U1) -> (pop_data:U5@[], pop_valid:U1@[], push_ready:U1@[]) {
+  mut _b2i_3 = 0
+  reg push_ready:U1:[async=false, initial=1, reset_pin=rst]
+  reg reg_data:U5
+  br_flow_checks_valid_data_intg_p5::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready, data=push_data)
+  mut _b2i_1 = if push_ready == 0 or push_valid != 0 { 1 } else { 0 }
+  const pop_valid__w1 = _b2i_1
+  mut _mux_2:U5 = if push_ready != 0 { push_data } else { reg_data }
   const pop_data__w1 = _mux_2
-  if rst != 0 {
-    push_ready = 1
-  } else {
-    push_ready = unsigned((pop_ready != 0) or ((push_ready != 0) and (push_valid == 0)))
+  if not (rst != 0) {
+    _b2i_3 = if pop_ready != 0 or (push_ready != 0 and push_valid == 0) { 1 } else { 0 }
+    push_ready = _b2i_3
   }
-  if (pop_ready == 0) and (push_ready != 0) and (push_valid != 0) {
+  if pop_ready == 0 and push_ready != 0 and push_valid != 0 {
     reg_data = push_data
   }
-  br_flow_checks_valid_data_impl_p5::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w1)
+  br_flow_checks_valid_data_impl_p6::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid__w1, ready=pop_ready, data=pop_data__w1)
   pop_valid = pop_valid__w1
   pop_data = pop_data__w1
 }

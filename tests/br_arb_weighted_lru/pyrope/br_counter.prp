@@ -1,19 +1,25 @@
-pub mod br_counter::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u5, incr_valid:u1, incr:u3, decr_valid:u1, decr:u3) -> (value:u5@[], value_next:u5@[]) {
-  reg value:u5
-  mut _mux_1:u3 = if incr_valid != 0 { incr } else { 0 }
-  const incr_qual__w1 = _mux_1
-  mut _mux_2:u3 = if decr_valid != 0 { decr } else { 0 }
-  const decr_qual__w1 = _mux_2
-  mut _mux_3:u5 = if reinit != 0 { initial_value } else { value }
-  const value_temp__w1 = ((_mux_3 + incr_qual__w1)#[0..=4] - decr_qual__w1)#[0..=4]
-  const gen_wrap_or_saturate_is_net_decr__w1 = unsigned(decr_qual__w1 > incr_qual__w1)
-  const gen_wrap_or_saturate_would_out_of_bounds__w1 = unsigned(value_temp__w1 > 16)
-  mut _mux_9:u5 = if unsigned((gen_wrap_or_saturate_would_out_of_bounds__w1 != 0) and (gen_wrap_or_saturate_is_net_decr__w1 == 0)) != 0 { 16 } else { value_temp__w1 }
-  mut _mux_10:u5 = if unsigned((gen_wrap_or_saturate_would_out_of_bounds__w1 != 0) and (gen_wrap_or_saturate_is_net_decr__w1 != 0)) != 0 { 0 } else { _mux_9 }
-  const value_next__w1 = _mux_10
+pub mod br_counter<MaxValueWidth=32, MaxChangeWidth=32, MaxValue=16, MaxChange=4, MaxIncrement=4, MaxDecrement=1, EnableWrap=0, EnableReinitAndChange=1, EnableSaturate=1, EnableAssertFinalNotValid=1, EnableCoverZeroChange=0, EnableCoverReinit=0, EnableCoverReinitAndChange=0, EnableCoverReinitNoChange=0, EnableCoverIncrementAndDecrement=1, EnableAssertFinalInitialValue=0>::[timecheck=false](clk:Clock, decr:U3, decr_valid:U1, incr:U3, incr_valid:U1, initial_value:U5, reinit:U1, rst:U1) -> (value:U5@[], value_next:U5@[]) {
+  reg value:U5
+  const MaxValueResized = MaxValue
+  const MaxValueWithOverflow = MaxValue
+  mut _mux_2:U3 = if incr_valid != 0 { incr } else { 0 }
+  const incr_qual__w1 = _mux_2
+  mut _mux_3:U3 = if decr_valid != 0 { decr } else { 0 }
+  const decr_qual__w1 = _mux_3
+  mut _mux_4:U5 = if reinit != 0 { initial_value } else { value }
+  const value_temp__w1 = ((_mux_4 + incr_qual__w1)#[0..=4] - decr_qual__w1)#[0..=4]
+  mut _b2i_6 = if decr_qual__w1 > incr_qual__w1 { 1 } else { 0 }
+  const gen_wrap_or_saturate_is_net_decr__w1 = _b2i_6
+  mut _b2i_7 = if value_temp__w1 > MaxValueWithOverflow { 1 } else { 0 }
+  const gen_wrap_or_saturate_would_out_of_bounds__w1 = _b2i_7
+  mut _b2i_8 = if gen_wrap_or_saturate_would_out_of_bounds__w1 != 0 and gen_wrap_or_saturate_is_net_decr__w1 != 0 { 1 } else { 0 }
+  mut _b2i_9 = if gen_wrap_or_saturate_would_out_of_bounds__w1 != 0 and gen_wrap_or_saturate_is_net_decr__w1 == 0 { 1 } else { 0 }
+  mut _mux_10:U5 = if _b2i_9 != 0 { MaxValueResized } else { value_temp__w1 }
+  mut _mux_11:U5 = if _b2i_8 != 0 { 0 } else { _mux_10 }
+  const value_next__w1 = _mux_11
   if rst != 0 {
     value = initial_value
-  } elif unsigned((reinit != 0) or (incr_valid != 0) or (decr_valid != 0)) != 0 {
+  } elif U1(reinit != 0 or incr_valid != 0 or decr_valid != 0) != 0 {
     value = value_next__w1
   }
   value_next = value_next__w1

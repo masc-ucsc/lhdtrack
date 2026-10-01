@@ -2,7 +2,7 @@ const br_arb_grant_hold = import("br_arb_grant_hold.br_arb_grant_hold")
 const br_arb_lru = import("br_arb_lru.br_arb_lru")
 const br_counter = import("br_counter.br_counter")
 const br_flow_checks_valid_data_impl_p3 = import("br_flow_checks_valid_data_impl_p3.br_flow_checks_valid_data_impl_p3")
-const br_flow_checks_valid_data_impl_p5 = import("br_flow_checks_valid_data_impl_p5.br_flow_checks_valid_data_impl_p5")
+const br_flow_checks_valid_data_impl_p6 = import("br_flow_checks_valid_data_impl_p6.br_flow_checks_valid_data_impl_p6")
 const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
 const br_flow_fork = import("br_flow_fork.br_flow_fork")
 const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
@@ -10,122 +10,360 @@ const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
 const br_flow_reg_rev = import("br_flow_reg_rev.br_flow_reg_rev")
 const br_flow_reg_rev_p2 = import("br_flow_reg_rev_p2.br_flow_reg_rev_p2")
 const br_mux_onehot_p1 = import("br_mux_onehot_p1.br_mux_onehot_p1")
-const br_amba = import("br_amba")
 
-pub mod br_amba_axi_demux_req_tracker_p1::[timecheck=false](clk:u1, rst:u1, upstream_axvalid:u1, upstream_axid:u1, upstream_ax_sub_select:u1, upstream_ax_payload:u53, downstream_axready:(e1:u1, e0:u1), upstream_xready:u1, downstream_xvalid:(e1:u1, e0:u1), downstream_xid:(e1:u1, e0:u1), downstream_xlast:(e1:u1, e0:u1), downstream_x_payload:u6, wdata_flow_ready:u1) -> (upstream_axready:u1@[], downstream_axvalid:(e1:u1, e0:u1)@[], downstream_axid:(e1:u1, e0:u1)@[], downstream_ax_payload:u106@[], upstream_xvalid:u1@[], upstream_xid:u1@[], upstream_xlast:u1@[], upstream_x_payload:u3@[], downstream_xready:(e1:u1, e0:u1)@[], wdata_flow_valid:u1@[], wdata_flow_sub_select:u1@[]) {
-  wire upstream_x_resp_payload_pre:(payload:u3, id:u1, last:u1) = nil
-  reg active_port_per_id:u1
-  wire upstream_axready_int:u1
-  wire upstream_axready_reg:u1
-  wire resp_tracker_push_ready:u1
-  wire resp_tracker_decr_per_id:u1
-  wire resp_tracker_push_valid_per_id:u1
-  wire downstream_xready_reg:u2
-  wire upstream_xready_pre:u1
-  wire ds_port_gnt:u2
-  wire ds_port_gnt_from_arb:u2
-  mut resp_tracker_push_ready_per_id:u1 = 0
-  mut downstream_xvalid_reg:u2 = 0
-  mut downstream_x_resp_payload_reg:u10 = 0
-  mut ds_port_gnt_hold:u2 = 0
-  mut outstanding_per_id__wtmp:u3 = 0sb?
-  wire outstanding_per_id:u3
-  mut downstream_axready_pre__wtmp:u2 = 0sb?
-  wire downstream_axready_pre:u2
+pub mod br_amba_axi_demux_req_tracker_p1<NumSubordinates=2, AxiIdWidth=1, MaxOutstandingPerId=4, ReqPayloadWidth=53, RespPayloadWidth=3, SingleIdOnly=1, RegisterDownstreamOutputs=1>::[timecheck=false](clk:Clock, downstream_axready:(e1:U1, e0:U1), downstream_x_payload:U6, downstream_xid:(e1:U1, e0:U1), downstream_xlast:(e1:U1, e0:U1), downstream_xvalid:(e1:U1, e0:U1), rst:U1, upstream_ax_payload:U53, upstream_ax_sub_select:U1, upstream_axid:U1, upstream_axvalid:U1, upstream_xready:U1, wdata_flow_ready:U1) -> (downstream_ax_payload:U106@[], downstream_axid:(e1:U1, e0:U1)@[], downstream_axvalid:(e1:U1, e0:U1)@[], downstream_xready:(e1:U1, e0:U1)@[], upstream_axready:U1@[], upstream_x_payload:U3@[], upstream_xid:U1@[], upstream_xlast:U1@[], upstream_xvalid:U1@[], wdata_flow_sub_select:U1@[], wdata_flow_valid:U1@[]) {
+  wire upstream_x_resp_payload_pre:(payload:U3, id:U1, last:U1) = nil
+  wire downstream_axvalid__bpr:(e1:U1, e0:U1) = nil
+  wire downstream_axid__bpr:(e1:U1, e0:U1) = nil
+  reg active_port_per_id:U1:[async=false, initial=0, reset_pin=rst]
+  wire `downstream_ax_payload[0]`:U1 = nil
+  wire `downstream_ax_payload[1]`:U1 = nil
+  wire `downstream_ax_payload[2]`:U1 = nil
+  wire `downstream_ax_payload[3]`:U1 = nil
+  wire `downstream_ax_payload[4]`:U1 = nil
+  wire `downstream_ax_payload[5]`:U1 = nil
+  wire `downstream_ax_payload[6]`:U1 = nil
+  wire `downstream_ax_payload[7]`:U1 = nil
+  wire `downstream_ax_payload[8]`:U1 = nil
+  wire `downstream_ax_payload[9]`:U1 = nil
+  wire `downstream_ax_payload[10]`:U1 = nil
+  wire `downstream_ax_payload[11]`:U1 = nil
+  wire `downstream_ax_payload[12]`:U1 = nil
+  wire `downstream_ax_payload[13]`:U1 = nil
+  wire `downstream_ax_payload[14]`:U1 = nil
+  wire `downstream_ax_payload[15]`:U1 = nil
+  wire `downstream_ax_payload[16]`:U1 = nil
+  wire `downstream_ax_payload[17]`:U1 = nil
+  wire `downstream_ax_payload[18]`:U1 = nil
+  wire `downstream_ax_payload[19]`:U1 = nil
+  wire `downstream_ax_payload[20]`:U1 = nil
+  wire `downstream_ax_payload[21]`:U1 = nil
+  wire `downstream_ax_payload[22]`:U1 = nil
+  wire `downstream_ax_payload[23]`:U1 = nil
+  wire `downstream_ax_payload[24]`:U1 = nil
+  wire `downstream_ax_payload[25]`:U1 = nil
+  wire `downstream_ax_payload[26]`:U1 = nil
+  wire `downstream_ax_payload[27]`:U1 = nil
+  wire `downstream_ax_payload[28]`:U1 = nil
+  wire `downstream_ax_payload[29]`:U1 = nil
+  wire `downstream_ax_payload[30]`:U1 = nil
+  wire `downstream_ax_payload[31]`:U1 = nil
+  wire `downstream_ax_payload[32]`:U1 = nil
+  wire `downstream_ax_payload[33]`:U1 = nil
+  wire `downstream_ax_payload[34]`:U1 = nil
+  wire `downstream_ax_payload[35]`:U1 = nil
+  wire `downstream_ax_payload[36]`:U1 = nil
+  wire `downstream_ax_payload[37]`:U1 = nil
+  wire `downstream_ax_payload[38]`:U1 = nil
+  wire `downstream_ax_payload[39]`:U1 = nil
+  wire `downstream_ax_payload[40]`:U1 = nil
+  wire `downstream_ax_payload[41]`:U1 = nil
+  wire `downstream_ax_payload[42]`:U1 = nil
+  wire `downstream_ax_payload[43]`:U1 = nil
+  wire `downstream_ax_payload[44]`:U1 = nil
+  wire `downstream_ax_payload[45]`:U1 = nil
+  wire `downstream_ax_payload[46]`:U1 = nil
+  wire `downstream_ax_payload[47]`:U1 = nil
+  wire `downstream_ax_payload[48]`:U1 = nil
+  wire `downstream_ax_payload[49]`:U1 = nil
+  wire `downstream_ax_payload[50]`:U1 = nil
+  wire `downstream_ax_payload[51]`:U1 = nil
+  wire `downstream_ax_payload[52]`:U1 = nil
+  wire `downstream_ax_payload[53]`:U1 = nil
+  wire `downstream_ax_payload[54]`:U1 = nil
+  wire `downstream_ax_payload[55]`:U1 = nil
+  wire `downstream_ax_payload[56]`:U1 = nil
+  wire `downstream_ax_payload[57]`:U1 = nil
+  wire `downstream_ax_payload[58]`:U1 = nil
+  wire `downstream_ax_payload[59]`:U1 = nil
+  wire `downstream_ax_payload[60]`:U1 = nil
+  wire `downstream_ax_payload[61]`:U1 = nil
+  wire `downstream_ax_payload[62]`:U1 = nil
+  wire `downstream_ax_payload[63]`:U1 = nil
+  wire `downstream_ax_payload[64]`:U1 = nil
+  wire `downstream_ax_payload[65]`:U1 = nil
+  wire `downstream_ax_payload[66]`:U1 = nil
+  wire `downstream_ax_payload[67]`:U1 = nil
+  wire `downstream_ax_payload[68]`:U1 = nil
+  wire `downstream_ax_payload[69]`:U1 = nil
+  wire `downstream_ax_payload[70]`:U1 = nil
+  wire `downstream_ax_payload[71]`:U1 = nil
+  wire `downstream_ax_payload[72]`:U1 = nil
+  wire `downstream_ax_payload[73]`:U1 = nil
+  wire `downstream_ax_payload[74]`:U1 = nil
+  wire `downstream_ax_payload[75]`:U1 = nil
+  wire `downstream_ax_payload[76]`:U1 = nil
+  wire `downstream_ax_payload[77]`:U1 = nil
+  wire `downstream_ax_payload[78]`:U1 = nil
+  wire `downstream_ax_payload[79]`:U1 = nil
+  wire `downstream_ax_payload[80]`:U1 = nil
+  wire `downstream_ax_payload[81]`:U1 = nil
+  wire `downstream_ax_payload[82]`:U1 = nil
+  wire `downstream_ax_payload[83]`:U1 = nil
+  wire `downstream_ax_payload[84]`:U1 = nil
+  wire `downstream_ax_payload[85]`:U1 = nil
+  wire `downstream_ax_payload[86]`:U1 = nil
+  wire `downstream_ax_payload[87]`:U1 = nil
+  wire `downstream_ax_payload[88]`:U1 = nil
+  wire `downstream_ax_payload[89]`:U1 = nil
+  wire `downstream_ax_payload[90]`:U1 = nil
+  wire `downstream_ax_payload[91]`:U1 = nil
+  wire `downstream_ax_payload[92]`:U1 = nil
+  wire `downstream_ax_payload[93]`:U1 = nil
+  wire `downstream_ax_payload[94]`:U1 = nil
+  wire `downstream_ax_payload[95]`:U1 = nil
+  wire `downstream_ax_payload[96]`:U1 = nil
+  wire `downstream_ax_payload[97]`:U1 = nil
+  wire `downstream_ax_payload[98]`:U1 = nil
+  wire `downstream_ax_payload[99]`:U1 = nil
+  wire `downstream_ax_payload[100]`:U1 = nil
+  wire `downstream_ax_payload[101]`:U1 = nil
+  wire `downstream_ax_payload[102]`:U1 = nil
+  wire `downstream_ax_payload[103]`:U1 = nil
+  wire `downstream_ax_payload[104]`:U1 = nil
+  wire `downstream_ax_payload[105]`:U1 = nil
+  wire downstream_ax_payload:U106 = nil
+  wire `downstream_axready_pre[0]`:U1 = nil
+  wire `downstream_axready_pre[1]`:U1 = nil
+  wire downstream_axready_pre:U2 = nil
+  wire `downstream_xvalid_reg[0]`:U1 = nil
+  wire `downstream_xvalid_reg[1]`:U1 = nil
+  wire downstream_xvalid_reg:U2 = nil
+  wire `downstream_x_resp_payload_reg[0]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[1]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[2]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[3]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[4]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[5]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[6]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[7]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[8]`:U1 = nil
+  wire `downstream_x_resp_payload_reg[9]`:U1 = nil
+  wire downstream_x_resp_payload_reg:U10 = nil
+  wire `ds_port_gnt_hold[0]`:U1 = nil
+  wire `ds_port_gnt_hold[1]`:U1 = nil
+  wire ds_port_gnt_hold:U2 = nil
+  wire upstream_axready_int:U1 = nil
+  wire upstream_axready_reg:U1 = nil
+  wire resp_tracker_push_ready:U1 = nil
+  wire resp_tracker_decr_per_id:U1 = nil
+  wire resp_tracker_push_valid_per_id:U1 = nil
+  wire downstream_xready_reg:U2 = nil
+  wire upstream_xready_pre:U1 = nil
+  wire ds_port_gnt:U2 = nil
+  wire ds_port_gnt_from_arb:U2 = nil
+  mut resp_tracker_push_ready_per_id:U1 = 0
+  wire `downstream_xready__bpr.e1`:U1 = nil
+  wire `downstream_xready__bpr.e0`:U1 = nil
+  mut outstanding_per_id__wtmp:U3 = 0sb?
+  wire outstanding_per_id:U3 = nil
   resp_tracker_push_ready_per_id = 0ub?
-  downstream_xvalid_reg = 0sb?
-  downstream_x_resp_payload_reg = 0sb?
-  ds_port_gnt_hold = 0sb?
-  downstream_ax_payload = 0sb?
-  const gen_track_port_outstanding_per_id_0_zero_outstanding__w1 = unsigned(outstanding_per_id == 0)
-  mut br_flow_reg_rev_upstream_req = br_flow_reg_rev::[name=br_flow_reg_rev_upstream_req](clk = clk, rst = rst, push_valid = upstream_axvalid, push_data = ((upstream_axid & 1) << 54) | ((upstream_ax_sub_select & 1) << 53) | upstream_ax_payload, pop_ready = upstream_axready_reg)
+  const gen_track_port_outstanding_per_id_0_zero_outstanding__w1 = U1(outstanding_per_id == 0)
+  mut br_flow_reg_rev_upstream_req = br_flow_reg_rev::[name=br_flow_reg_rev_upstream_req](clk=clk, rst=rst, push_valid=upstream_axvalid, push_data=((upstream_axid & 1) << 54) | ((upstream_ax_sub_select & 1) << 53) | upstream_ax_payload, pop_ready=upstream_axready_reg)
   const upstream_ax_sub_select_reg__w1 = (br_flow_reg_rev_upstream_req.pop_data >> 53) & 1
-  mut br_flow_fork_upstream_req = br_flow_fork::[name=br_flow_fork_upstream_req](clk = clk, rst = rst, push_valid = br_flow_reg_rev_upstream_req.pop_valid, pop_ready = ((wdata_flow_ready & 1) << 2) | ((resp_tracker_push_ready & 1) << 1) | (upstream_axready_int & 1))
+  mut br_flow_fork_upstream_req = br_flow_fork::[name=br_flow_fork_upstream_req](clk=clk, rst=rst, push_valid=br_flow_reg_rev_upstream_req.pop_valid, pop_ready=((wdata_flow_ready & 1) << 2) | ((resp_tracker_push_ready & 1) << 1) | (upstream_axready_int & 1))
   upstream_axready_reg = br_flow_fork_upstream_req.push_ready
   const upstream_axvalid_int__w1 = br_flow_fork_upstream_req.pop_valid_unstable & 1
   mut `upstream_ax_req_payload_int.id` = ((br_flow_reg_rev_upstream_req.pop_data >> 54) & 1) & 1
   mut `upstream_ax_req_payload_int.payload` = br_flow_reg_rev_upstream_req.pop_data#[0..=52]
+  mut _b2i_3 = if br_flow_reg_rev_upstream_req.pop_valid != 0 and outstanding_per_id < MaxOutstandingPerId and (upstream_ax_sub_select_reg__w1 == (active_port_per_id & 1) or gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0) { 1 } else { 0 }
   mut resp_tracker_push_ready_per_id__w1 = resp_tracker_push_ready_per_id
-  resp_tracker_push_ready_per_id__w1#[0] = unsigned((br_flow_reg_rev_upstream_req.pop_valid != 0) and (outstanding_per_id < 4) and ((upstream_ax_sub_select_reg__w1 == (active_port_per_id & 1)) or (gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0))) & 1
-  if rst != 0 {
-    active_port_per_id#[0] = 0
-  } elif unsigned(((resp_tracker_push_ready_per_id__w1 & 1) != 0) and (gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0)) != 0 {
-    active_port_per_id#[0] = upstream_ax_sub_select_reg__w1 & 1
+  resp_tracker_push_ready_per_id__w1#[0] = _b2i_3 & 1
+  mut _b2i_4 = if (resp_tracker_push_ready_per_id__w1 & 1) != 0 and gen_track_port_outstanding_per_id_0_zero_outstanding__w1 != 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    if _b2i_4 != 0 {
+      active_port_per_id#[0] = upstream_ax_sub_select_reg__w1 & 1
+    }
   }
-  mut gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id = br_counter::[name=gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id](clk = clk, rst = rst, reinit = 0, initial_value = 0, incr_valid = unsigned(((resp_tracker_push_ready_per_id__w1 & 1) != 0) and ((resp_tracker_push_valid_per_id & 1) != 0)), incr = 1, decr_valid = resp_tracker_decr_per_id & 1, decr = 1)
+  mut _b2i_5 = if (resp_tracker_push_ready_per_id__w1 & 1) != 0 and (resp_tracker_push_valid_per_id & 1) != 0 { 1 } else { 0 }
+  mut gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id = br_counter::[name=gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_5, incr=1, decr_valid=resp_tracker_decr_per_id & 1, decr=1)
   outstanding_per_id__wtmp#[0..=2] = gen_track_port_outstanding_per_id_0_br_counter_outstanding_per_id.value#[0..=2]
   resp_tracker_push_ready = resp_tracker_push_ready_per_id__w1
   resp_tracker_push_valid_per_id = (br_flow_fork_upstream_req.pop_valid_unstable >> 1) & 1
-  mut _mux_5:u1 = if upstream_axvalid_int__w1 != 0 { upstream_ax_sub_select_reg__w1 & 1 } else { 0 }
-  mut br_flow_demux_select_unstable_downstream_req = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_downstream_req](clk = clk, rst = rst, select = _mux_5, push_valid = upstream_axvalid_int__w1, push_data = (`upstream_ax_req_payload_int.payload` << 1) | `upstream_ax_req_payload_int.id`, pop_ready = downstream_axready_pre)
+  mut _mux_6:U1 = if upstream_axvalid_int__w1 != 0 { upstream_ax_sub_select_reg__w1 & 1 } else { 0 }
+  mut br_flow_demux_select_unstable_downstream_req = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_downstream_req](clk=clk, rst=rst, select=_mux_6, push_valid=upstream_axvalid_int__w1, push_data=(`upstream_ax_req_payload_int.payload` << 1) | `upstream_ax_req_payload_int.id`, pop_ready=downstream_axready_pre)
   upstream_axready_int = br_flow_demux_select_unstable_downstream_req.push_ready
-  mut gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk = clk, rst = rst, push_valid = br_flow_demux_select_unstable_downstream_req.pop_valid_unstable & 1, push_data = ((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53]#[1..=53], pop_ready = downstream_axready.e0)
-  downstream_axready_pre__wtmp#[0] = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
-  mut downstream_ax_payload__w1 = downstream_ax_payload
-  downstream_ax_payload__w1#[0..=52] = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52]
+  mut gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk=clk, rst=rst, push_valid=br_flow_demux_select_unstable_downstream_req.pop_valid_unstable & 1, push_data=((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[0..=53]#[1..=53], pop_ready=downstream_axready.e0)
+  `downstream_axready_pre[0]` = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
+  `downstream_ax_payload[0]` = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] & 1
+  `downstream_ax_payload[1]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 1) & 1
+  `downstream_ax_payload[2]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 2) & 1
+  `downstream_ax_payload[3]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 3) & 1
+  `downstream_ax_payload[4]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 4) & 1
+  `downstream_ax_payload[5]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 5) & 1
+  `downstream_ax_payload[6]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 6) & 1
+  `downstream_ax_payload[7]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 7) & 1
+  `downstream_ax_payload[8]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 8) & 1
+  `downstream_ax_payload[9]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 9) & 1
+  `downstream_ax_payload[10]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 10) & 1
+  `downstream_ax_payload[11]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 11) & 1
+  `downstream_ax_payload[12]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 12) & 1
+  `downstream_ax_payload[13]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 13) & 1
+  `downstream_ax_payload[14]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 14) & 1
+  `downstream_ax_payload[15]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 15) & 1
+  `downstream_ax_payload[16]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 16) & 1
+  `downstream_ax_payload[17]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 17) & 1
+  `downstream_ax_payload[18]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 18) & 1
+  `downstream_ax_payload[19]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 19) & 1
+  `downstream_ax_payload[20]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 20) & 1
+  `downstream_ax_payload[21]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 21) & 1
+  `downstream_ax_payload[22]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 22) & 1
+  `downstream_ax_payload[23]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 23) & 1
+  `downstream_ax_payload[24]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 24) & 1
+  `downstream_ax_payload[25]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 25) & 1
+  `downstream_ax_payload[26]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 26) & 1
+  `downstream_ax_payload[27]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 27) & 1
+  `downstream_ax_payload[28]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 28) & 1
+  `downstream_ax_payload[29]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 29) & 1
+  `downstream_ax_payload[30]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 30) & 1
+  `downstream_ax_payload[31]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 31) & 1
+  `downstream_ax_payload[32]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 32) & 1
+  `downstream_ax_payload[33]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 33) & 1
+  `downstream_ax_payload[34]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 34) & 1
+  `downstream_ax_payload[35]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 35) & 1
+  `downstream_ax_payload[36]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 36) & 1
+  `downstream_ax_payload[37]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 37) & 1
+  `downstream_ax_payload[38]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 38) & 1
+  `downstream_ax_payload[39]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 39) & 1
+  `downstream_ax_payload[40]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 40) & 1
+  `downstream_ax_payload[41]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 41) & 1
+  `downstream_ax_payload[42]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 42) & 1
+  `downstream_ax_payload[43]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 43) & 1
+  `downstream_ax_payload[44]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 44) & 1
+  `downstream_ax_payload[45]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 45) & 1
+  `downstream_ax_payload[46]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 46) & 1
+  `downstream_ax_payload[47]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 47) & 1
+  `downstream_ax_payload[48]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 48) & 1
+  `downstream_ax_payload[49]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 49) & 1
+  `downstream_ax_payload[50]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 50) & 1
+  `downstream_ax_payload[51]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 51) & 1
+  `downstream_ax_payload[52]` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 52) & 1
   mut `downstream_axid__bpo.e0` = (gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data >> 53) & 1
-  mut gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk = clk, rst = rst, push_valid = (br_flow_demux_select_unstable_downstream_req.pop_valid_unstable >> 1) & 1, push_data = ((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107]#[1..=53], pop_ready = downstream_axready.e1)
-  mut downstream_axready_pre__wtmp__w1 = downstream_axready_pre__wtmp
-  downstream_axready_pre__wtmp__w1#[1] = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
-  mut downstream_ax_payload__w2 = downstream_ax_payload__w1
-  downstream_ax_payload__w2#[53..=105] = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52]
+  mut gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req = br_flow_reg_fwd::[name=gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req](clk=clk, rst=rst, push_valid=(br_flow_demux_select_unstable_downstream_req.pop_valid_unstable >> 1) & 1, push_data=((br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107] & 1) << 53) | br_flow_demux_select_unstable_downstream_req.pop_data_unstable#[54..=107]#[1..=53], pop_ready=downstream_axready.e1)
+  `downstream_axready_pre[1]` = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.push_ready & 1
+  `downstream_ax_payload[53]` = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] & 1
+  `downstream_ax_payload[54]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 1) & 1
+  `downstream_ax_payload[55]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 2) & 1
+  `downstream_ax_payload[56]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 3) & 1
+  `downstream_ax_payload[57]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 4) & 1
+  `downstream_ax_payload[58]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 5) & 1
+  `downstream_ax_payload[59]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 6) & 1
+  `downstream_ax_payload[60]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 7) & 1
+  `downstream_ax_payload[61]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 8) & 1
+  `downstream_ax_payload[62]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 9) & 1
+  `downstream_ax_payload[63]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 10) & 1
+  `downstream_ax_payload[64]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 11) & 1
+  `downstream_ax_payload[65]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 12) & 1
+  `downstream_ax_payload[66]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 13) & 1
+  `downstream_ax_payload[67]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 14) & 1
+  `downstream_ax_payload[68]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 15) & 1
+  `downstream_ax_payload[69]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 16) & 1
+  `downstream_ax_payload[70]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 17) & 1
+  `downstream_ax_payload[71]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 18) & 1
+  `downstream_ax_payload[72]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 19) & 1
+  `downstream_ax_payload[73]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 20) & 1
+  `downstream_ax_payload[74]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 21) & 1
+  `downstream_ax_payload[75]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 22) & 1
+  `downstream_ax_payload[76]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 23) & 1
+  `downstream_ax_payload[77]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 24) & 1
+  `downstream_ax_payload[78]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 25) & 1
+  `downstream_ax_payload[79]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 26) & 1
+  `downstream_ax_payload[80]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 27) & 1
+  `downstream_ax_payload[81]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 28) & 1
+  `downstream_ax_payload[82]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 29) & 1
+  `downstream_ax_payload[83]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 30) & 1
+  `downstream_ax_payload[84]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 31) & 1
+  `downstream_ax_payload[85]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 32) & 1
+  `downstream_ax_payload[86]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 33) & 1
+  `downstream_ax_payload[87]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 34) & 1
+  `downstream_ax_payload[88]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 35) & 1
+  `downstream_ax_payload[89]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 36) & 1
+  `downstream_ax_payload[90]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 37) & 1
+  `downstream_ax_payload[91]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 38) & 1
+  `downstream_ax_payload[92]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 39) & 1
+  `downstream_ax_payload[93]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 40) & 1
+  `downstream_ax_payload[94]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 41) & 1
+  `downstream_ax_payload[95]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 42) & 1
+  `downstream_ax_payload[96]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 43) & 1
+  `downstream_ax_payload[97]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 44) & 1
+  `downstream_ax_payload[98]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 45) & 1
+  `downstream_ax_payload[99]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 46) & 1
+  `downstream_ax_payload[100]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 47) & 1
+  `downstream_ax_payload[101]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 48) & 1
+  `downstream_ax_payload[102]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 49) & 1
+  `downstream_ax_payload[103]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 50) & 1
+  `downstream_ax_payload[104]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 51) & 1
+  `downstream_ax_payload[105]` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data#[0..=52] >> 52) & 1
   mut `downstream_axid__bpo.e1` = (gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_data >> 53) & 1
-  mut gen_buffer_resp_0_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_0_br_flow_reg_rev_downstream_resp](clk = clk, rst = rst, push_valid = downstream_xvalid.e0, push_data = ((downstream_xid.e0 & 1) << 4) | (downstream_x_payload#[0..=2] << 1) | (downstream_xlast.e0 & 1), pop_ready = downstream_xready_reg & 1)
-  mut downstream_xvalid_reg__w1 = downstream_xvalid_reg
-  downstream_xvalid_reg__w1#[0] = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_valid & 1
-  mut downstream_x_resp_payload_reg__w1 = downstream_x_resp_payload_reg
-  downstream_x_resp_payload_reg__w1#[0] = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data & 1
-  mut downstream_x_resp_payload_reg__w2 = downstream_x_resp_payload_reg__w1
-  downstream_x_resp_payload_reg__w2#[2..=4] = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2]
-  mut downstream_x_resp_payload_reg__w3 = downstream_x_resp_payload_reg__w2
-  downstream_x_resp_payload_reg__w3#[1] = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
-  mut gen_buffer_resp_1_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_1_br_flow_reg_rev_downstream_resp](clk = clk, rst = rst, push_valid = downstream_xvalid.e1, push_data = ((downstream_xid.e1 & 1) << 4) | (downstream_x_payload#[3..=5] << 1) | (downstream_xlast.e1 & 1), pop_ready = (downstream_xready_reg >> 1) & 1)
-  mut downstream_xvalid_reg__w2 = downstream_xvalid_reg__w1
-  downstream_xvalid_reg__w2#[1] = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_valid & 1
-  mut downstream_x_resp_payload_reg__w4 = downstream_x_resp_payload_reg__w3
-  downstream_x_resp_payload_reg__w4#[5] = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data & 1
-  mut downstream_x_resp_payload_reg__w5 = downstream_x_resp_payload_reg__w4
-  downstream_x_resp_payload_reg__w5#[7..=9] = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2]
-  mut downstream_x_resp_payload_reg__w6 = downstream_x_resp_payload_reg__w5
-  downstream_x_resp_payload_reg__w6#[6] = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
-  mut _rep_6:u2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
-  const ds_port_req__w1 = downstream_xvalid_reg__w2 & _rep_6
-  mut _mux_8:u1 = if upstream_xready_pre != 0 { (~unsigned(((ds_port_req__w1 & 1) != 0) and ((downstream_x_resp_payload_reg__w6#[0..=4] & 1) != 0))) & 1 } else { ds_port_gnt & 1 }
-  mut ds_port_gnt_hold__w1 = ds_port_gnt_hold
-  ds_port_gnt_hold__w1#[0] = _mux_8 & 1
-  mut _mux_10:u1 = if upstream_xready_pre != 0 { (~unsigned((((ds_port_req__w1 >> 1) & 1) != 0) and ((downstream_x_resp_payload_reg__w6#[5..=9] & 1) != 0))) & 1 } else { (ds_port_gnt >> 1) & 1 }
-  mut ds_port_gnt_hold__w2 = ds_port_gnt_hold__w1
-  ds_port_gnt_hold__w2#[1] = _mux_10 & 1
-  mut br_arb_grant_hold_ds_port = br_arb_grant_hold::[name=br_arb_grant_hold_ds_port](clk = clk, rst = rst, grant_hold = ds_port_gnt_hold__w2, enable_grant_hold_update = 1, grant_from_arb = ds_port_gnt_from_arb)
+  mut gen_buffer_resp_0_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_0_br_flow_reg_rev_downstream_resp](clk=clk, rst=rst, push_valid=downstream_xvalid.e0, push_data=((downstream_xid.e0 & 1) << 4) | (downstream_x_payload#[0..=2] << 1) | (downstream_xlast.e0 & 1), pop_ready=downstream_xready_reg & 1)
+  `downstream_xvalid_reg[0]` = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_valid & 1
+  `downstream_x_resp_payload_reg[0]` = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data & 1
+  `downstream_x_resp_payload_reg[2]` = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] & 1
+  `downstream_x_resp_payload_reg[3]` = ((gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] >> 1) & 1
+  `downstream_x_resp_payload_reg[4]` = ((gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] >> 2) & 1
+  `downstream_x_resp_payload_reg[1]` = (gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
+  mut gen_buffer_resp_1_br_flow_reg_rev_downstream_resp = br_flow_reg_rev_p2::[name=gen_buffer_resp_1_br_flow_reg_rev_downstream_resp](clk=clk, rst=rst, push_valid=downstream_xvalid.e1, push_data=((downstream_xid.e1 & 1) << 4) | (downstream_x_payload#[3..=5] << 1) | (downstream_xlast.e1 & 1), pop_ready=(downstream_xready_reg >> 1) & 1)
+  `downstream_xvalid_reg[1]` = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_valid & 1
+  `downstream_x_resp_payload_reg[5]` = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data & 1
+  `downstream_x_resp_payload_reg[7]` = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] & 1
+  `downstream_x_resp_payload_reg[8]` = ((gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] >> 1) & 1
+  `downstream_x_resp_payload_reg[9]` = ((gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 1)#[0..=2] >> 2) & 1
+  `downstream_x_resp_payload_reg[6]` = (gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.pop_data >> 4) & 1
+  mut _rep_7:U2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
+  const ds_port_req__w1 = downstream_xvalid_reg & _rep_7
+  mut _b2i_8 = if (ds_port_req__w1 & 1) != 0 and (`downstream_x_resp_payload_reg[0]` & 1) != 0 { 1 } else { 0 }
+  mut _mux_9:U1 = if upstream_xready_pre != 0 { ~_b2i_8#[0] } else { ds_port_gnt & 1 }
+  `ds_port_gnt_hold[0]` = _mux_9 & 1
+  mut _b2i_10 = if ((ds_port_req__w1 >> 1) & 1) != 0 and (`downstream_x_resp_payload_reg[5]` & 1) != 0 { 1 } else { 0 }
+  mut _mux_11:U1 = if upstream_xready_pre != 0 { ~_b2i_10#[0] } else { (ds_port_gnt >> 1) & 1 }
+  `ds_port_gnt_hold[1]` = _mux_11 & 1
+  mut br_arb_grant_hold_ds_port = br_arb_grant_hold::[name=br_arb_grant_hold_ds_port](clk=clk, rst=rst, grant_hold=ds_port_gnt_hold, enable_grant_hold_update=1, grant_from_arb=ds_port_gnt_from_arb)
   ds_port_gnt = br_arb_grant_hold_ds_port.grant
-  mut br_arb_lru_ds_port = br_arb_lru::[name=br_arb_lru_ds_port](clk = clk, rst = rst, enable_priority_update = br_arb_grant_hold_ds_port.enable_priority_update_to_arb, request = ds_port_req__w1)
+  mut br_arb_lru_ds_port = br_arb_lru::[name=br_arb_lru_ds_port](clk=clk, rst=rst, enable_priority_update=br_arb_grant_hold_ds_port.enable_priority_update_to_arb, request=ds_port_req__w1)
   ds_port_gnt_from_arb = br_arb_lru_ds_port
-  mut _rep_11:u2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
-  downstream_xready_reg = ds_port_gnt & _rep_11
-  const upstream_xvalid_pre__w1 = unsigned((ds_port_req__w1 & ds_port_gnt) != 0)
-  resp_tracker_decr_per_id = unsigned((upstream_x_resp_payload_pre.last != 0) and (upstream_xvalid_pre__w1 != 0) and (upstream_xready_pre != 0))
-  mut br_mux_onehot_downstream_resp = br_mux_onehot_p1::[name=br_mux_onehot_downstream_resp](select = ds_port_gnt, `in` = downstream_x_resp_payload_reg__w6)
+  mut _rep_12:U2 = if (upstream_xready_pre & 1) != 0 { 3 } else { 0 }
+  downstream_xready_reg = ds_port_gnt & _rep_12
+  mut _b2i_13 = if (ds_port_req__w1 & ds_port_gnt) != 0 { 1 } else { 0 }
+  const upstream_xvalid_pre__w1 = _b2i_13
+  mut _b2i_14 = if upstream_x_resp_payload_pre.last != 0 and upstream_xvalid_pre__w1 != 0 and upstream_xready_pre != 0 { 1 } else { 0 }
+  resp_tracker_decr_per_id = _b2i_14
+  mut br_mux_onehot_downstream_resp = br_mux_onehot_p1::[name=br_mux_onehot_downstream_resp](select=ds_port_gnt, `in`=downstream_x_resp_payload_reg)
   upstream_x_resp_payload_pre.payload = br_mux_onehot_downstream_resp#[2..=4]
   upstream_x_resp_payload_pre.id = (br_mux_onehot_downstream_resp >> 1) & 1
   upstream_x_resp_payload_pre.last = br_mux_onehot_downstream_resp & 1
-  mut br_flow_reg_fwd_upstream_resp = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_upstream_resp](clk = clk, rst = rst, push_valid = upstream_xvalid_pre__w1, push_data = ((upstream_x_resp_payload_pre.id & 1) << 4) | (upstream_x_resp_payload_pre.payload#[0..=2] << 1) | (upstream_x_resp_payload_pre.last & 1), pop_ready = upstream_xready)
+  mut br_flow_reg_fwd_upstream_resp = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_upstream_resp](clk=clk, rst=rst, push_valid=upstream_xvalid_pre__w1, push_data=((upstream_x_resp_payload_pre.id & 1) << 4) | (upstream_x_resp_payload_pre.payload#[0..=2] << 1) | (upstream_x_resp_payload_pre.last & 1), pop_ready=upstream_xready)
   upstream_xready_pre = br_flow_reg_fwd_upstream_resp.push_ready
   const upstream_xlast__w1 = br_flow_reg_fwd_upstream_resp.pop_data & 1
   const upstream_x_payload__w1 = (br_flow_reg_fwd_upstream_resp.pop_data >> 1)#[0..=2]
   const upstream_xid__w1 = (br_flow_reg_fwd_upstream_resp.pop_data >> 4) & 1
-  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_0_br_flow_checks_valid_data_impl_downstream_resp](clk = clk, rst = rst, valid = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid, ready = downstream_axready.e0, data = ((`downstream_axid__bpo.e0` & 1) << 53) | downstream_ax_payload__w2#[0..=52])
-  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_1_br_flow_checks_valid_data_impl_downstream_resp](clk = clk, rst = rst, valid = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid, ready = downstream_axready.e1, data = ((`downstream_axid__bpo.e1` & 1) << 53) | downstream_ax_payload__w2#[53..=105])
-  br_flow_checks_valid_data_impl_p5::[name=br_flow_checks_valid_data_impl_upstream_req](clk = clk, rst = rst, valid = br_flow_reg_fwd_upstream_resp.pop_valid, ready = upstream_xready, data = ((upstream_xid__w1 & 1) << 4) | (upstream_x_payload__w1 << 1) | (upstream_xlast__w1 & 1))
+  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_0_br_flow_checks_valid_data_impl_downstream_resp](clk=clk, rst=rst, valid=downstream_axvalid__bpr.e0, ready=downstream_axready.e0, data=((downstream_axid__bpr.e0 & 1) << 53) | ((`downstream_ax_payload[52]` << 52) | (`downstream_ax_payload[51]` << 51) | (`downstream_ax_payload[50]` << 50) | (`downstream_ax_payload[49]` << 49) | (`downstream_ax_payload[48]` << 48) | (`downstream_ax_payload[47]` << 47) | (`downstream_ax_payload[46]` << 46) | (`downstream_ax_payload[45]` << 45) | (`downstream_ax_payload[44]` << 44) | (`downstream_ax_payload[43]` << 43) | (`downstream_ax_payload[42]` << 42) | (`downstream_ax_payload[41]` << 41) | (`downstream_ax_payload[40]` << 40) | (`downstream_ax_payload[39]` << 39) | (`downstream_ax_payload[38]` << 38) | (`downstream_ax_payload[37]` << 37) | (`downstream_ax_payload[36]` << 36) | (`downstream_ax_payload[35]` << 35) | (`downstream_ax_payload[34]` << 34) | (`downstream_ax_payload[33]` << 33) | (`downstream_ax_payload[32]` << 32) | (`downstream_ax_payload[31]` << 31) | (`downstream_ax_payload[30]` << 30) | (`downstream_ax_payload[29]` << 29) | (`downstream_ax_payload[28]` << 28) | (`downstream_ax_payload[27]` << 27) | (`downstream_ax_payload[26]` << 26) | (`downstream_ax_payload[25]` << 25) | (`downstream_ax_payload[24]` << 24) | (`downstream_ax_payload[23]` << 23) | (`downstream_ax_payload[22]` << 22) | (`downstream_ax_payload[21]` << 21) | (`downstream_ax_payload[20]` << 20) | (`downstream_ax_payload[19]` << 19) | (`downstream_ax_payload[18]` << 18) | (`downstream_ax_payload[17]` << 17) | (`downstream_ax_payload[16]` << 16) | (`downstream_ax_payload[15]` << 15) | (`downstream_ax_payload[14]` << 14) | (`downstream_ax_payload[13]` << 13) | (`downstream_ax_payload[12]` << 12) | (`downstream_ax_payload[11]` << 11) | (`downstream_ax_payload[10]` << 10) | (`downstream_ax_payload[9]` << 9) | (`downstream_ax_payload[8]` << 8) | (`downstream_ax_payload[7]` << 7) | (`downstream_ax_payload[6]` << 6) | (`downstream_ax_payload[5]` << 5) | (`downstream_ax_payload[4]` << 4) | (`downstream_ax_payload[3]` << 3) | (`downstream_ax_payload[2]` << 2) | (`downstream_ax_payload[1]` << 1) | `downstream_ax_payload[0]`))
+  br_flow_checks_valid_data_impl_p3::[name=gen_subordinate_checks_1_br_flow_checks_valid_data_impl_downstream_resp](clk=clk, rst=rst, valid=downstream_axvalid__bpr.e1, ready=downstream_axready.e1, data=((downstream_axid__bpr.e1 & 1) << 53) | ((`downstream_ax_payload[105]` << 52) | (`downstream_ax_payload[104]` << 51) | (`downstream_ax_payload[103]` << 50) | (`downstream_ax_payload[102]` << 49) | (`downstream_ax_payload[101]` << 48) | (`downstream_ax_payload[100]` << 47) | (`downstream_ax_payload[99]` << 46) | (`downstream_ax_payload[98]` << 45) | (`downstream_ax_payload[97]` << 44) | (`downstream_ax_payload[96]` << 43) | (`downstream_ax_payload[95]` << 42) | (`downstream_ax_payload[94]` << 41) | (`downstream_ax_payload[93]` << 40) | (`downstream_ax_payload[92]` << 39) | (`downstream_ax_payload[91]` << 38) | (`downstream_ax_payload[90]` << 37) | (`downstream_ax_payload[89]` << 36) | (`downstream_ax_payload[88]` << 35) | (`downstream_ax_payload[87]` << 34) | (`downstream_ax_payload[86]` << 33) | (`downstream_ax_payload[85]` << 32) | (`downstream_ax_payload[84]` << 31) | (`downstream_ax_payload[83]` << 30) | (`downstream_ax_payload[82]` << 29) | (`downstream_ax_payload[81]` << 28) | (`downstream_ax_payload[80]` << 27) | (`downstream_ax_payload[79]` << 26) | (`downstream_ax_payload[78]` << 25) | (`downstream_ax_payload[77]` << 24) | (`downstream_ax_payload[76]` << 23) | (`downstream_ax_payload[75]` << 22) | (`downstream_ax_payload[74]` << 21) | (`downstream_ax_payload[73]` << 20) | (`downstream_ax_payload[72]` << 19) | (`downstream_ax_payload[71]` << 18) | (`downstream_ax_payload[70]` << 17) | (`downstream_ax_payload[69]` << 16) | (`downstream_ax_payload[68]` << 15) | (`downstream_ax_payload[67]` << 14) | (`downstream_ax_payload[66]` << 13) | (`downstream_ax_payload[65]` << 12) | (`downstream_ax_payload[64]` << 11) | (`downstream_ax_payload[63]` << 10) | (`downstream_ax_payload[62]` << 9) | (`downstream_ax_payload[61]` << 8) | (`downstream_ax_payload[60]` << 7) | (`downstream_ax_payload[59]` << 6) | (`downstream_ax_payload[58]` << 5) | (`downstream_ax_payload[57]` << 4) | (`downstream_ax_payload[56]` << 3) | (`downstream_ax_payload[55]` << 2) | (`downstream_ax_payload[54]` << 1) | `downstream_ax_payload[53]`))
+  br_flow_checks_valid_data_impl_p6::[name=br_flow_checks_valid_data_impl_upstream_req](clk=clk, rst=rst, valid=br_flow_reg_fwd_upstream_resp.pop_valid, ready=upstream_xready, data=((upstream_xid__w1 & 1) << 4) | (upstream_x_payload__w1 << 1) | (upstream_xlast__w1 & 1))
+  downstream_ax_payload = (`downstream_ax_payload[105]` << 105) | (`downstream_ax_payload[104]` << 104) | (`downstream_ax_payload[103]` << 103) | (`downstream_ax_payload[102]` << 102) | (`downstream_ax_payload[101]` << 101) | (`downstream_ax_payload[100]` << 100) | (`downstream_ax_payload[99]` << 99) | (`downstream_ax_payload[98]` << 98) | (`downstream_ax_payload[97]` << 97) | (`downstream_ax_payload[96]` << 96) | (`downstream_ax_payload[95]` << 95) | (`downstream_ax_payload[94]` << 94) | (`downstream_ax_payload[93]` << 93) | (`downstream_ax_payload[92]` << 92) | (`downstream_ax_payload[91]` << 91) | (`downstream_ax_payload[90]` << 90) | (`downstream_ax_payload[89]` << 89) | (`downstream_ax_payload[88]` << 88) | (`downstream_ax_payload[87]` << 87) | (`downstream_ax_payload[86]` << 86) | (`downstream_ax_payload[85]` << 85) | (`downstream_ax_payload[84]` << 84) | (`downstream_ax_payload[83]` << 83) | (`downstream_ax_payload[82]` << 82) | (`downstream_ax_payload[81]` << 81) | (`downstream_ax_payload[80]` << 80) | (`downstream_ax_payload[79]` << 79) | (`downstream_ax_payload[78]` << 78) | (`downstream_ax_payload[77]` << 77) | (`downstream_ax_payload[76]` << 76) | (`downstream_ax_payload[75]` << 75) | (`downstream_ax_payload[74]` << 74) | (`downstream_ax_payload[73]` << 73) | (`downstream_ax_payload[72]` << 72) | (`downstream_ax_payload[71]` << 71) | (`downstream_ax_payload[70]` << 70) | (`downstream_ax_payload[69]` << 69) | (`downstream_ax_payload[68]` << 68) | (`downstream_ax_payload[67]` << 67) | (`downstream_ax_payload[66]` << 66) | (`downstream_ax_payload[65]` << 65) | (`downstream_ax_payload[64]` << 64) | (`downstream_ax_payload[63]` << 63) | (`downstream_ax_payload[62]` << 62) | (`downstream_ax_payload[61]` << 61) | (`downstream_ax_payload[60]` << 60) | (`downstream_ax_payload[59]` << 59) | (`downstream_ax_payload[58]` << 58) | (`downstream_ax_payload[57]` << 57) | (`downstream_ax_payload[56]` << 56) | (`downstream_ax_payload[55]` << 55) | (`downstream_ax_payload[54]` << 54) | (`downstream_ax_payload[53]` << 53) | (`downstream_ax_payload[52]` << 52) | (`downstream_ax_payload[51]` << 51) | (`downstream_ax_payload[50]` << 50) | (`downstream_ax_payload[49]` << 49) | (`downstream_ax_payload[48]` << 48) | (`downstream_ax_payload[47]` << 47) | (`downstream_ax_payload[46]` << 46) | (`downstream_ax_payload[45]` << 45) | (`downstream_ax_payload[44]` << 44) | (`downstream_ax_payload[43]` << 43) | (`downstream_ax_payload[42]` << 42) | (`downstream_ax_payload[41]` << 41) | (`downstream_ax_payload[40]` << 40) | (`downstream_ax_payload[39]` << 39) | (`downstream_ax_payload[38]` << 38) | (`downstream_ax_payload[37]` << 37) | (`downstream_ax_payload[36]` << 36) | (`downstream_ax_payload[35]` << 35) | (`downstream_ax_payload[34]` << 34) | (`downstream_ax_payload[33]` << 33) | (`downstream_ax_payload[32]` << 32) | (`downstream_ax_payload[31]` << 31) | (`downstream_ax_payload[30]` << 30) | (`downstream_ax_payload[29]` << 29) | (`downstream_ax_payload[28]` << 28) | (`downstream_ax_payload[27]` << 27) | (`downstream_ax_payload[26]` << 26) | (`downstream_ax_payload[25]` << 25) | (`downstream_ax_payload[24]` << 24) | (`downstream_ax_payload[23]` << 23) | (`downstream_ax_payload[22]` << 22) | (`downstream_ax_payload[21]` << 21) | (`downstream_ax_payload[20]` << 20) | (`downstream_ax_payload[19]` << 19) | (`downstream_ax_payload[18]` << 18) | (`downstream_ax_payload[17]` << 17) | (`downstream_ax_payload[16]` << 16) | (`downstream_ax_payload[15]` << 15) | (`downstream_ax_payload[14]` << 14) | (`downstream_ax_payload[13]` << 13) | (`downstream_ax_payload[12]` << 12) | (`downstream_ax_payload[11]` << 11) | (`downstream_ax_payload[10]` << 10) | (`downstream_ax_payload[9]` << 9) | (`downstream_ax_payload[8]` << 8) | (`downstream_ax_payload[7]` << 7) | (`downstream_ax_payload[6]` << 6) | (`downstream_ax_payload[5]` << 5) | (`downstream_ax_payload[4]` << 4) | (`downstream_ax_payload[3]` << 3) | (`downstream_ax_payload[2]` << 2) | (`downstream_ax_payload[1]` << 1) | `downstream_ax_payload[0]`
+  downstream_axready_pre = (`downstream_axready_pre[1]` << 1) | `downstream_axready_pre[0]`
+  downstream_xvalid_reg = (`downstream_xvalid_reg[1]` << 1) | `downstream_xvalid_reg[0]`
+  downstream_x_resp_payload_reg = (`downstream_x_resp_payload_reg[9]` << 9) | (`downstream_x_resp_payload_reg[8]` << 8) | (`downstream_x_resp_payload_reg[7]` << 7) | (`downstream_x_resp_payload_reg[6]` << 6) | (`downstream_x_resp_payload_reg[5]` << 5) | (`downstream_x_resp_payload_reg[4]` << 4) | (`downstream_x_resp_payload_reg[3]` << 3) | (`downstream_x_resp_payload_reg[2]` << 2) | (`downstream_x_resp_payload_reg[1]` << 1) | `downstream_x_resp_payload_reg[0]`
+  ds_port_gnt_hold = (`ds_port_gnt_hold[1]` << 1) | `ds_port_gnt_hold[0]`
   outstanding_per_id = outstanding_per_id__wtmp
-  downstream_axready_pre = downstream_axready_pre__wtmp__w1
-  downstream_axvalid.e1 = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
-  downstream_axvalid.e0 = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
-  downstream_axid.e1 = `downstream_axid__bpo.e1`
-  downstream_axid.e0 = `downstream_axid__bpo.e0`
-  downstream_xready.e1 = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.push_ready
-  downstream_xready.e0 = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.push_ready
+  const t439 = gen_downstream_ax_payload_1_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
+  downstream_axvalid__bpr.e1 = t439
+  downstream_axvalid.e1 = t439
+  const t440 = gen_downstream_ax_payload_0_gen_register_downstream_outputs_br_flow_reg_fwd_downstream_req.pop_valid
+  downstream_axvalid__bpr.e0 = t440
+  downstream_axvalid.e0 = t440
+  const t441 = `downstream_axid__bpo.e1`
+  downstream_axid__bpr.e1 = t441
+  downstream_axid.e1 = t441
+  const t442 = `downstream_axid__bpo.e0`
+  downstream_axid__bpr.e0 = t442
+  downstream_axid.e0 = t442
+  const t443 = gen_buffer_resp_1_br_flow_reg_rev_downstream_resp.push_ready
+  `downstream_xready__bpr.e1` = t443
+  downstream_xready.e1 = t443
+  const t444 = gen_buffer_resp_0_br_flow_reg_rev_downstream_resp.push_ready
+  `downstream_xready__bpr.e0` = t444
+  downstream_xready.e0 = t444
   upstream_axready = br_flow_reg_rev_upstream_req.push_ready
-  downstream_ax_payload = downstream_ax_payload__w2
   upstream_xvalid = br_flow_reg_fwd_upstream_resp.pop_valid
   upstream_xid = upstream_xid__w1
   upstream_xlast = upstream_xlast__w1

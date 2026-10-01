@@ -1,2 +1,2 @@
-pub comb br_misc_unused_p1::[timecheck=false](`in`:u67) -> () {
+pub comb br_misc_unused_p1<Width=0x43>::[timecheck=false](`in`:U67) -> () {
 }

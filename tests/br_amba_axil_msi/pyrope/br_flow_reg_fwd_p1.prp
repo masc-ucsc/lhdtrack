@@ -1,15 +1,20 @@
 const br_flow_checks_valid_data_impl_p3 = import("br_flow_checks_valid_data_impl_p3.br_flow_checks_valid_data_impl_p3")
 const br_flow_checks_valid_data_intg_p4 = import("br_flow_checks_valid_data_intg_p4.br_flow_checks_valid_data_intg_p4")
 
-pub mod br_flow_reg_fwd_p1::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
-  reg pop_valid:u1
-  reg pop_data:u32
-  const push_ready__w1 = unsigned((pop_ready != 0) or (pop_valid == 0))
-  pop_valid = if rst != 0 { 0 } else { unsigned((push_valid != 0) or (push_ready__w1 == 0)) }
-  if unsigned((push_ready__w1 != 0) and (push_valid != 0)) != 0 {
+pub mod br_flow_reg_fwd_p1<Width=32, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableCoverPopBackpressure=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
+  reg pop_valid:U1:[async=false, initial=0, reset_pin=rst]
+  reg pop_data:U32
+  mut _b2i_1 = if pop_ready != 0 or pop_valid == 0 { 1 } else { 0 }
+  const push_ready__w1 = _b2i_1
+  mut _b2i_2 = if push_valid != 0 or push_ready__w1 == 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    pop_valid = _b2i_2
+  }
+  mut _b2i_3 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
+  if _b2i_3 != 0 {
     pop_data = push_data
   }
-  br_flow_checks_valid_data_impl_p3::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid, ready = pop_ready, data = pop_data)
-  br_flow_checks_valid_data_intg_p4::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
+  br_flow_checks_valid_data_impl_p3::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid, ready=pop_ready, data=pop_data)
+  br_flow_checks_valid_data_intg_p4::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
   push_ready = push_ready__w1
 }

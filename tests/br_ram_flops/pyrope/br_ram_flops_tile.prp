@@ -1,35 +1,96 @@
-// One 16x32 tile of a flop RAM: one write port with 8-bit word enables, one
-// read port, and same-cycle write-to-read bypass. The storage has no reset and
-// is clocked by wr_clk; the read side is combinational.
-pub mod br_ram_flops_tile(
-  wr_clk:u1,
-  wr_valid:bool,
-  wr_addr:u4,
-  wr_data:u32,
-  wr_word_en:u4,
-  rd_addr_valid:bool,
-  rd_addr:u4
-) -> (rd_data_valid:bool@[0], rd_data:u32@[0]) {
-  comptime const WORD_WIDTH = wr_data.[bits] / wr_word_en.[bits]
-
-  reg mem:[16]u32:[ordering = "old", clock_pin = ref wr_clk] = nil
-
-  // Replace the enabled words of the addressed entry (whole-word write:
-  // per-lane writes to an ordering="old" memory drop lanes, see suggestions2.md).
-  mut written:u32 = mem[wr_addr]
-  // Words written this cycle to the address being read bypass the storage.
-  mut data:u32 = mem[rd_addr]
-  for w in 0..<wr_word_en.[bits] {
-    if wr_word_en#[w] == 1 {
-      written#[(w*WORD_WIDTH)..+WORD_WIDTH] = wr_data#[(w*WORD_WIDTH)..+WORD_WIDTH]
-      if wr_valid and wr_addr == rd_addr {
-        data#[(w*WORD_WIDTH)..+WORD_WIDTH] = wr_data#[(w*WORD_WIDTH)..+WORD_WIDTH]
-      }
+pub mod br_ram_flops_tile<Depth=16, Width=32, NumWritePorts=1, NumReadPorts=1, EnablePartialWrite=1, WordWidth=8, EnableBypass=1, EnableReset=0, UseStructuredGates=0, EnableStructuredGatesDataQualification=1, EnableAssertFinalNotValid=1>::[timecheck=false](rd_addr:U4, rd_addr_valid:U1, rd_clk:Clock, rd_rst:U1, wr_addr:U4, wr_clk:Clock, wr_data:U32, wr_rst:U1, wr_valid:U1, wr_word_en:U4) -> (rd_data:U32@[], rd_data_valid:U1@[]) {
+  reg mem:[16]U32:[__store_clock_pin=wr_clk, __store_posclk=true, ordering="old", wensize=4]
+  wire `rd_data[0]`:U1 = nil
+  wire `rd_data[1]`:U1 = nil
+  wire `rd_data[2]`:U1 = nil
+  wire `rd_data[3]`:U1 = nil
+  wire `rd_data[4]`:U1 = nil
+  wire `rd_data[5]`:U1 = nil
+  wire `rd_data[6]`:U1 = nil
+  wire `rd_data[7]`:U1 = nil
+  wire `rd_data[8]`:U1 = nil
+  wire `rd_data[9]`:U1 = nil
+  wire `rd_data[10]`:U1 = nil
+  wire `rd_data[11]`:U1 = nil
+  wire `rd_data[12]`:U1 = nil
+  wire `rd_data[13]`:U1 = nil
+  wire `rd_data[14]`:U1 = nil
+  wire `rd_data[15]`:U1 = nil
+  wire `rd_data[16]`:U1 = nil
+  wire `rd_data[17]`:U1 = nil
+  wire `rd_data[18]`:U1 = nil
+  wire `rd_data[19]`:U1 = nil
+  wire `rd_data[20]`:U1 = nil
+  wire `rd_data[21]`:U1 = nil
+  wire `rd_data[22]`:U1 = nil
+  wire `rd_data[23]`:U1 = nil
+  wire `rd_data[24]`:U1 = nil
+  wire `rd_data[25]`:U1 = nil
+  wire `rd_data[26]`:U1 = nil
+  wire `rd_data[27]`:U1 = nil
+  wire `rd_data[28]`:U1 = nil
+  wire `rd_data[29]`:U1 = nil
+  wire `rd_data[30]`:U1 = nil
+  wire `rd_data[31]`:U1 = nil
+  wire rd_data:U32 = nil
+  mut gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match:U1 = 0
+  gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match = 0ub?
+  const gen_multi_entry_gen_single_wr_port_gen_partial_write_wr_data_words__w1 = wr_data
+  if (wr_valid & 1) != 0 {
+    if (wr_word_en & 1) != 0 {
+      mem[wr_addr][gen_multi_entry_gen_single_wr_port_gen_partial_write_wr_data_words__w1#[0..=7]] = 0
+    }
+    if ((wr_word_en >> 1) & 1) != 0 {
+      mem[wr_addr][gen_multi_entry_gen_single_wr_port_gen_partial_write_wr_data_words__w1#[8..=15] << 8] = 1
+    }
+    if ((wr_word_en >> 2) & 1) != 0 {
+      mem[wr_addr][gen_multi_entry_gen_single_wr_port_gen_partial_write_wr_data_words__w1#[16..=23] << 16] = 2
+    }
+    if ((wr_word_en >> 3) & 1) != 0 {
+      mem[wr_addr][gen_multi_entry_gen_single_wr_port_gen_partial_write_wr_data_words__w1#[24..=31] << 24] = 3
     }
   }
-  if wr_valid {
-    mem[wr_addr] = written
-  }
+  const gen_multi_entry_gen_read_port_0_rd_data_mem__w1 = mem[rd_addr]
+  mut gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1 = gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match
+  gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1#[0] = U1((wr_valid & 1) != 0 and wr_addr == rd_addr) & 1
+  const gen_multi_entry_gen_read_port_0_gen_bypass_rd_data_bypass__w1 = wr_data
+  const gen_multi_entry_gen_read_port_0_gen_bypass_gen_partial_write_bypass_rd_data_bypass_word_en__w1 = wr_word_en
+  mut _mux_2:U8 = if gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1 != 0 and (gen_multi_entry_gen_read_port_0_gen_bypass_gen_partial_write_bypass_rd_data_bypass_word_en__w1 & 1) != 0 { gen_multi_entry_gen_read_port_0_gen_bypass_rd_data_bypass__w1#[0..=7] } else { gen_multi_entry_gen_read_port_0_rd_data_mem__w1#[0..=7] }
+  `rd_data[0]` = _mux_2 & 1
+  `rd_data[1]` = (_mux_2 >> 1) & 1
+  `rd_data[2]` = (_mux_2 >> 2) & 1
+  `rd_data[3]` = (_mux_2 >> 3) & 1
+  `rd_data[4]` = (_mux_2 >> 4) & 1
+  `rd_data[5]` = (_mux_2 >> 5) & 1
+  `rd_data[6]` = (_mux_2 >> 6) & 1
+  `rd_data[7]` = (_mux_2 >> 7) & 1
+  mut _mux_3:U8 = if gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1 != 0 and ((gen_multi_entry_gen_read_port_0_gen_bypass_gen_partial_write_bypass_rd_data_bypass_word_en__w1 >> 1) & 1) != 0 { gen_multi_entry_gen_read_port_0_gen_bypass_rd_data_bypass__w1#[8..=15] } else { gen_multi_entry_gen_read_port_0_rd_data_mem__w1#[8..=15] }
+  `rd_data[8]` = _mux_3 & 1
+  `rd_data[9]` = (_mux_3 >> 1) & 1
+  `rd_data[10]` = (_mux_3 >> 2) & 1
+  `rd_data[11]` = (_mux_3 >> 3) & 1
+  `rd_data[12]` = (_mux_3 >> 4) & 1
+  `rd_data[13]` = (_mux_3 >> 5) & 1
+  `rd_data[14]` = (_mux_3 >> 6) & 1
+  `rd_data[15]` = (_mux_3 >> 7) & 1
+  mut _mux_4:U8 = if gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1 != 0 and ((gen_multi_entry_gen_read_port_0_gen_bypass_gen_partial_write_bypass_rd_data_bypass_word_en__w1 >> 2) & 1) != 0 { gen_multi_entry_gen_read_port_0_gen_bypass_rd_data_bypass__w1#[16..=23] } else { gen_multi_entry_gen_read_port_0_rd_data_mem__w1#[16..=23] }
+  `rd_data[16]` = _mux_4 & 1
+  `rd_data[17]` = (_mux_4 >> 1) & 1
+  `rd_data[18]` = (_mux_4 >> 2) & 1
+  `rd_data[19]` = (_mux_4 >> 3) & 1
+  `rd_data[20]` = (_mux_4 >> 4) & 1
+  `rd_data[21]` = (_mux_4 >> 5) & 1
+  `rd_data[22]` = (_mux_4 >> 6) & 1
+  `rd_data[23]` = (_mux_4 >> 7) & 1
+  mut _mux_5:U8 = if gen_multi_entry_gen_read_port_0_gen_bypass_wr_addr_match__w1 != 0 and ((gen_multi_entry_gen_read_port_0_gen_bypass_gen_partial_write_bypass_rd_data_bypass_word_en__w1 >> 3) & 1) != 0 { gen_multi_entry_gen_read_port_0_gen_bypass_rd_data_bypass__w1#[24..=31] } else { gen_multi_entry_gen_read_port_0_rd_data_mem__w1#[24..=31] }
+  `rd_data[24]` = _mux_5 & 1
+  `rd_data[25]` = (_mux_5 >> 1) & 1
+  `rd_data[26]` = (_mux_5 >> 2) & 1
+  `rd_data[27]` = (_mux_5 >> 3) & 1
+  `rd_data[28]` = (_mux_5 >> 4) & 1
+  `rd_data[29]` = (_mux_5 >> 5) & 1
+  `rd_data[30]` = (_mux_5 >> 6) & 1
+  `rd_data[31]` = (_mux_5 >> 7) & 1
+  rd_data = (`rd_data[31]` << 31) | (`rd_data[30]` << 30) | (`rd_data[29]` << 29) | (`rd_data[28]` << 28) | (`rd_data[27]` << 27) | (`rd_data[26]` << 26) | (`rd_data[25]` << 25) | (`rd_data[24]` << 24) | (`rd_data[23]` << 23) | (`rd_data[22]` << 22) | (`rd_data[21]` << 21) | (`rd_data[20]` << 20) | (`rd_data[19]` << 19) | (`rd_data[18]` << 18) | (`rd_data[17]` << 17) | (`rd_data[16]` << 16) | (`rd_data[15]` << 15) | (`rd_data[14]` << 14) | (`rd_data[13]` << 13) | (`rd_data[12]` << 12) | (`rd_data[11]` << 11) | (`rd_data[10]` << 10) | (`rd_data[9]` << 9) | (`rd_data[8]` << 8) | (`rd_data[7]` << 7) | (`rd_data[6]` << 6) | (`rd_data[5]` << 5) | (`rd_data[4]` << 4) | (`rd_data[3]` << 3) | (`rd_data[2]` << 2) | (`rd_data[1]` << 1) | `rd_data[0]`
   rd_data_valid = rd_addr_valid
-  rd_data       = data
 }

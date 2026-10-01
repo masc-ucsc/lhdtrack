@@ -1,5 +1,5 @@
-pub comb br_enc_onehot2bin_p1::[timecheck=false](clk:u1, rst:u1, `in`:u2) -> (out_valid:u1, out:u1) {
+pub mod br_enc_onehot2bin_p1<NumValues=2, BinWidth=1>::[timecheck=false](clk:Clock, `in`:U2, rst:Reset) -> (out:U1@[], out_valid:U1@[]) {
   out = 0ub?
   out = if ((`in` >> 1) & 1) != 0 { 1 } else { 0 }
-  out_valid = unsigned(`in` != 0)
+  out_valid = U1(`in` != 0)
 }

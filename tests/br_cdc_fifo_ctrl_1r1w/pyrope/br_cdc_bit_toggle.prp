@@ -1,7 +1,8 @@
-const br_delay_nr = import("br_delay_nr.br_delay_nr")
+const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
+const br_gate_cdc_sync_t = import("br_gate_cdc_sync.br_gate_cdc_sync")
 
-// Carry a slowly toggling level into the dst_clk domain through a
-// NUM_STAGES-flop synchronizer. The source must already be flopped.
-pub mod br_cdc_bit_toggle<NUM_STAGES=3>(dst_clk:u1, src_bit:bool) -> (dst_bit:bool@[]) {
-  dst_bit = br_delay_nr<WIDTH=1,NUM_STAGES=NUM_STAGES>(clk=dst_clk, `in`=u1(src_bit)) == 1
+pub mod br_cdc_bit_toggle<NumStages=3, AddSourceFlop=0>::[timecheck=false](dst_clk:Clock, dst_rst:U1, src_bit:U1, src_clk:Clock, src_rst:U1) -> (dst_bit:U1@[]) {
+  mut br_gate_cdc_maxdel_src_bit_internal_maxdel = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_bit_internal_maxdel](`in`=src_bit)
+  mut br_gate_cdc_sync = br_gate_cdc_sync_t::[name=br_gate_cdc_sync](clk=dst_clk, `in`=br_gate_cdc_maxdel_src_bit_internal_maxdel)
+  dst_bit = br_gate_cdc_sync
 }

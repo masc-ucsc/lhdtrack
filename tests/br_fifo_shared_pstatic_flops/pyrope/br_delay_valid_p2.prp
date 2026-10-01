@@ -1,6 +1,6 @@
-pub comb br_delay_valid_p2::[timecheck=false](clk:u1, rst:u1, in_valid:u1, `in`:u32) -> (out_valid:u1, out:u32, out_valid_stages:u1, out_stages:u32) {
-  mut stage_valid:u1 = 0
-  mut `stage`:u32 = 0
+pub comb br_delay_valid_p2::[timecheck=false](clk:U1, `in`:U32, in_valid:U1, rst:U1) -> (out:U32, out_stages:U32, out_valid:U1, out_valid_stages:U1) {
+  mut stage_valid:U1 = 0
+  mut `stage`:U32 = 0
   stage_valid = 0ub?
   `stage` = 0sb?
   mut stage_valid__w1 = stage_valid

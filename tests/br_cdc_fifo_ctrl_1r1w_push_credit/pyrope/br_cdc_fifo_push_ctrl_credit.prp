@@ -3,16 +3,16 @@ const br_credit_receiver_t = import("br_credit_receiver.br_credit_receiver")
 const br_fifo_push_ctrl_core_t = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
 const br_gate_or2 = import("br_gate_or2.br_gate_or2")
 
-pub mod br_cdc_fifo_push_ctrl_credit::[timecheck=false](clk:u1, rst:u1, push_sender_in_reset:u1, push_credit_stall:u1, push_valid:u1, push_data:u64, credit_initial_push:u6, credit_withhold_push:u6, pop_count_gray:u6, reset_active_pop:u1) -> (push_receiver_in_reset:u1@[], push_credit:u1@[], full:u1@[], slots:u6@[], credit_count_push:u6@[], credit_available_push:u6@[], ram_wr_valid:u1@[], ram_wr_addr:u5@[], ram_wr_data:u64@[], push_count_gray:u6@[], reset_active_push:u1@[]) {
-  wire push_beat:u1
-  wire pop_count_delta:u6
+pub mod br_cdc_fifo_push_ctrl_credit<Depth=32, Width=0x40, RamWriteLatency=2, MaxCredit=32, RegisterPushOutputs=1, RegisterResetActive=1, EnableCoverCreditWithhold=1, EnableCoverPushSenderInReset=1, EnableCoverPushCreditStall=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, credit_initial_push:U6, credit_withhold_push:U6, pop_count_gray:U6, push_credit_stall:U1, push_data:U64, push_sender_in_reset:U1, push_valid:U1, reset_active_pop:U1, rst:Reset) -> (credit_available_push:U6@[], credit_count_push:U6@[], full:U1@[], push_count_gray:U6@[], push_credit:U1@[], push_receiver_in_reset:U1@[], ram_wr_addr:U5@[], ram_wr_data:U64@[], ram_wr_valid:U1@[], reset_active_push:U1@[], slots:U6@[]) {
+  wire push_beat:U1 = nil
+  wire pop_count_delta:U6 = nil
   full = 0ub?
-  mut br_gate_or2_either_rst = br_gate_or2::[name=br_gate_or2_either_rst](in0 = rst, in1 = push_sender_in_reset)
+  mut br_gate_or2_either_rst = br_gate_or2::[name=br_gate_or2_either_rst](in0=rst, in1=push_sender_in_reset)
   const either_rst__w1 = br_gate_or2_either_rst
-  mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk = clk, rst = rst, push_sender_in_reset = push_sender_in_reset, push_credit_stall = push_credit_stall, push_valid = push_valid, push_data = push_data, pop_credit = pop_count_delta, credit_initial = credit_initial_push, credit_withhold = credit_withhold_push)
-  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk = clk, rst = either_rst__w1, push_beat = push_beat, pop_count_gray = pop_count_gray, reset_active_pop = reset_active_pop)
+  mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, pop_credit=pop_count_delta, credit_initial=credit_initial_push, credit_withhold=credit_withhold_push)
+  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk=clk, rst=either_rst__w1, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
   pop_count_delta = br_cdc_fifo_push_flag_mgr.pop_count_delta
-  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk = clk, rst = either_rst__w1, push_valid = br_credit_receiver.pop_valid, push_data = br_credit_receiver.pop_data, bypass_ready = 0, addr_base = 0, addr_bound = 31, full = br_cdc_fifo_push_flag_mgr.full)
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk=clk, rst=either_rst__w1, push_valid=br_credit_receiver.pop_valid, push_data=br_credit_receiver.pop_data, bypass_ready=0, addr_base=0, addr_bound=(Depth - 1)#[0..=4], full=br_cdc_fifo_push_flag_mgr.full)
   push_beat = br_fifo_push_ctrl_core.push_beat
   push_receiver_in_reset = br_credit_receiver.push_receiver_in_reset
   push_credit = br_credit_receiver.push_credit

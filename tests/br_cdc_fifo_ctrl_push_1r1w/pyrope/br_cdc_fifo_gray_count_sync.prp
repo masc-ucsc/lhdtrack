@@ -3,8 +3,6 @@ const br_delay_nr = import("br_delay_nr.br_delay_nr")
 // Carry a flopped Gray-coded count into the dst_clk domain. Only one bit
 // changes per increment, so synchronizing each bit independently (a
 // NUM_STAGES-deep flop chain per bit) yields either the old or the new count.
-pub mod br_cdc_fifo_gray_count_sync<COUNT_WIDTH=2, NUM_STAGES=3>(dst_clk:u1, src_count_gray:unsigned(bits=COUNT_WIDTH)) -> (
-  dst_count_gray:unsigned(bits=COUNT_WIDTH)@[]
-) {
-  dst_count_gray = br_delay_nr<WIDTH=COUNT_WIDTH,NUM_STAGES=NUM_STAGES>(clk=dst_clk, `in`=src_count_gray)
+pub mod br_cdc_fifo_gray_count_sync<COUNT_WIDTH=2, NUM_STAGES=3>(dst_clk:Clock, src_count_gray:Unsigned(bits=COUNT_WIDTH)) -> (dst_count_gray:Unsigned(bits=COUNT_WIDTH)@[]) {
+  dst_count_gray = br_delay_nr<NUM_STAGES=NUM_STAGES, WIDTH=COUNT_WIDTH>(clk=dst_clk, `in`=src_count_gray)
 }

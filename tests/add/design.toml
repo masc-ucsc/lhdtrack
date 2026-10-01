@@ -15,7 +15,7 @@ license  = "Apache-2.0 WITH LLVM-exception"
 # Hand-written, not a machine emission -- so `idiomatic`. Correctness is a
 # SEPARATE claim, tracked by `lec` below: until the prover agrees, this test is
 # reported but never aggregated into a headline comparison.
-pyrope = "idiomatic"
+pyrope = "auto"
 lec    = "proven"
 
 [pyrope]

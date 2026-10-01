@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_fifo_shared_pstatic_flops.br_fifo_shared_pstatic_flops.
 const dut = import("br_fifo_shared_pstatic_flops.br_fifo_shared_pstatic_flops")
 
-pub mod br_fifo_shared_pstatic_flops_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_fifo_shared_pstatic_flops_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64:[reset_pin=rst != 0] = 2611923443488327891
+  reg sum:U64:[reset_pin=rst != 0] = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (config_error, push_ready, push_full, pop_valid, pop_data, pop_empty) = dut(config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_valid=lfsr#[20], push_data=lfsr#[21..=52], push_fifo_id=lfsr#[53], pop_ready=lfsr#[54..=55])
+  const (config_error, push_ready, push_full, pop_valid, pop_data, pop_empty) = dut(rst=rst, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_valid=lfsr#[20], push_data=lfsr#[21..=52], push_fifo_id=lfsr#[53], pop_ready=lfsr#[54..=55])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ config_error
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
   wrap acc = ((acc << 1) | acc#[63]) ^ push_full
@@ -34,9 +34,9 @@ pub mod br_fifo_shared_pstatic_flops_harness(rst:u1) -> (checksum:u64@[0]) {
 
   if rst != 0 {
     lfsr = 2611923443488327891
-    sum  = 0
+    sum = 0
   } else {
     lfsr = nxt
-    sum  = acc
+    sum = acc
   }
 }

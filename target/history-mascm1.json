@@ -161,5 +161,44 @@
       "syn_lhd_verilog": 0.8038807247135616,
       "syn_lhd_pyrope": 0.9034765604816472
     }
+  },
+  {
+    "run": "20260930T213704",
+    "date": "2026-09-30",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local sha256:77cffb843de6e98b54721409fa84ce42bb84fd397f895e7e9f53386f4ba02248,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.9750570427653099
+    }
+  },
+  {
+    "run": "20260930T231143",
+    "date": "2026-09-30",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local sha256:5f6ea0311cbad50f3931bc6a4f1a345c30da269c5672aaad9df8da9d511f3c28,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6391752515737836,
+      "syn_lhd_pyrope": 0.6391752515737836
+    }
+  },
+  {
+    "run": "20260930T235720",
+    "date": "2026-09-30",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local bundle sha256:58fa0c6f323fd0a0b96166b00a02b1ac5d52782ac9d937f14fa7c52265fbdb03,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6391752515737836,
+      "syn_lhd_pyrope": 0.6391752515737836
+    }
+  },
+  {
+    "run": "20261001T013620",
+    "date": "2026-10-01",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local bundle sha256:58fa0c6f323fd0a0b96166b00a02b1ac5d52782ac9d937f14fa7c52265fbdb03,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.6391752515737836,
+      "syn_lhd_pyrope": 0.6391752515737836
+    }
   }
 ]

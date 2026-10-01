@@ -1,10 +1,6 @@
-const br_arb_rr_internal = import("br_arb_rr_internal.br_arb_rr_internal")
+const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
 
-// 16-requester round-robin arbiter. clk only fed the upstream assertions.
-pub mod br_arb_rr(clk:u1, rst:u1, enable_priority_update:u1, request:u16) -> (grant:u16@[0]) {
-  comptime const NUM_REQUESTERS = request.[bits]
-  const arb = br_arb_rr_internal<NUM_REQUESTERS=NUM_REQUESTERS>(
-    rst=rst, enable_priority_update=enable_priority_update == 1, request=request
-  )
-  grant = arb.grant
+pub mod br_arb_rr::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
+  mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)
+  grant = br_arb_rr_internal.grant
 }

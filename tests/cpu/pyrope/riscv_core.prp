@@ -1,205 +1,377 @@
-// SPDX-License-Identifier: MIT
-// Five-stage Veryl CPU: forwarding, one-cycle load-use stalls, EX branch flush.
-const execute = import("alu.alu")
-
-type Control = (rd:u5, rs1:u5, rs2:u5, funct3:u3, imm:u32, alu_op:u4, alu_src:bool, mem_read:bool, mem_write:bool, reg_write:bool, wb_sel:u2, branch:bool, jump:bool, is_jalr:bool, imm_result:bool)
-
-pub mod riscv_core(i_clk:u1, i_rst:u1) -> (o_out:u32@[]) {
-  // Firmware loads once; periodic CPU resets preserve all memories.
-  reg imem:[256]u32:[clock_pin=ref i_clk, ordering="old"] = std.readmemh("../data/program.hex")
-  reg dmem:[256]u32:[clock_pin=ref i_clk, ordering="old"] = nil
-  reg regfile:[32]u32:[clock_pin=ref i_clk, ordering="old"] = nil
-
-  reg pc:u32:[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = 0
-  reg if_id:(pc:u32, instr:u32, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (instr=0, pc=0, valid=false)
-  reg id_ex:(pc:u32, rs1_data:u32, rs2_data:u32, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (pc=u32(0), rs1_data=u32(0), rs2_data=u32(0), valid=false)
-  reg id_control:Control:[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (rd=u5(0), rs1=u5(0), rs2=u5(0), funct3=u3(0), imm=u32(0), alu_op=u4(0), alu_src=false, mem_read=false, mem_write=false, reg_write=false, wb_sel=u2(0), branch=false, jump=false, is_jalr=false, imm_result=false)
-  reg ex_mem:(alu_result:u32, rs2_data:u32, rd:u5, pc_plus4:u32, mem_read:bool, mem_write:bool, reg_write:bool, wb_sel:u2, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (alu_result=0, mem_read=false, mem_write=false, pc_plus4=0, rd=0, reg_write=false, rs2_data=0, valid=false, wb_sel=0)
-  reg mem_wb:(result:u32, rd:u5, reg_write:bool, valid:bool):[clock_pin=ref i_clk, reset_pin=ref i_rst, negreset=true, async=true] = (rd=0, reg_write=false, result=0, valid=false)
-
-  // Instruction decode.
-  comptime const OP_REG = 0x33
-  comptime const OP_IMM = 0x13
-  comptime const LOAD = 0x03
-  comptime const STORE = 0x23
-  comptime const BRANCH = 0x63
-  comptime const LUI = 0x37
-  comptime const AUIPC = 0x17
-  comptime const JAL = 0x6f
-  comptime const JALR = 0x67
-
-  const funct3:u3 = if_id.instr#[12..=14]
-  mut imm_i:u32 = 0
-  mut imm_s:u32 = 0
-  mut imm_b:u32 = 0
-  mut imm_j:u32 = 0
-  wrap imm_i = if_id.instr#sext[20..=31]
-  const store_bits:u12 = (if_id.instr#[7..=11], if_id.instr#[25..=31])#[..]
-  wrap imm_s = store_bits#sext[..]
-  const branch_bits:u13 = (u1(0), if_id.instr#[8..=11], if_id.instr#[25..=30], if_id.instr#[7], if_id.instr#[31])#[..]
-  wrap imm_b = branch_bits#sext[..]
-  const jump_bits:u21 = (u1(0), if_id.instr#[21..=30], if_id.instr#[20], if_id.instr#[12..=19], if_id.instr#[31])#[..]
-  wrap imm_j = jump_bits#sext[..]
-  const imm_u:u32 = (u12(0), if_id.instr#[12..=31])#[..]
-
-  mut dec:Control = (rd=if_id.instr#[7..=11], rs1=if_id.instr#[15..=19], rs2=if_id.instr#[20..=24], funct3=funct3, imm=0, alu_op=0, alu_src=false, mem_read=false, mem_write=false, reg_write=false, wb_sel=0, branch=false, jump=false, is_jalr=false, imm_result=false)
-  if if_id.valid {
-    match if_id.instr#[0..=6] {
-      == OP_REG {
-        dec.alu_op = (funct3, if_id.instr#[30])#[..]
-        dec.reg_write = true
+pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
+  mut _b2i_37 = 0
+  mut _b2i_38 = 0
+  mut _b2i_39 = 0
+  mut _b2i_40 = 0
+  mut _b2i_41 = 0
+  mut _mux_3:U4 = 0
+  reg imem:[256]U32:[ordering="old"] = "@readmemh:1:data/program.hex"
+  reg dmem:[256]U32:[__store_clock_pin=i_clk, __store_posclk=true, ordering="old"]
+  reg regfile:[32]U32:[__store_clock_pin=i_clk, __store_posclk=true, ordering="old"]
+  reg pc:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg if_id_pc:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg if_id_instr:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg if_id_valid:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_pc:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_rs1_data:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_rs2_data:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_imm:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_rd:U5:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_rs1:U5:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_rs2:U5:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_alu_op:U4:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_alu_src:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_mem_read:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_mem_write:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_reg_write:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_wb_sel:U2:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_branch:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_funct3:U3:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_jump:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_is_jalr:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_imm_result:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg id_ex_valid:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_alu_result:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_rs2_data:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_rd:U5:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_pc_plus4:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_mem_read:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_mem_write:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_reg_write:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_wb_sel:U2:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg ex_mem_valid:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg mem_wb_result:U32:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg mem_wb_rd:U5:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg mem_wb_reg_write:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  reg mem_wb_valid:U1:[async=true, clock_pin=i_clk, initial=0, negreset=true, reset_pin=i_rst]
+  wire dec_opcode:U7 = nil
+  wire dec_funct3:U3 = nil
+  wire dec_rs1:U5 = nil
+  wire dec_rs2:U5 = nil
+  wire dec_funct7:U7 = nil
+  wire dec_imm_i:U32 = nil
+  wire dec_imm_s:U32 = nil
+  wire dec_imm_b:U32 = nil
+  wire dec_imm_u:U32 = nil
+  wire dec_imm_j:U32 = nil
+  wire ex_mem_fwd_data:U32 = nil
+  wire alu_in1:U32 = nil
+  wire alu_in2:U32 = nil
+  wire alu_add:U32 = nil
+  wire alu_sub:U32 = nil
+  wire alu_slt:U1 = nil
+  wire alu_sltu:U1 = nil
+  wire shamt:U5 = nil
+  wire sll_s0:U32 = nil
+  wire sll_s1:U32 = nil
+  wire sll_s2:U32 = nil
+  wire sll_s3:U32 = nil
+  wire sll_s4:U32 = nil
+  wire srl_s0:U32 = nil
+  wire srl_s1:U32 = nil
+  wire srl_s2:U32 = nil
+  wire srl_s3:U32 = nil
+  wire srl_s4:U32 = nil
+  wire sra_s0:U32 = nil
+  wire sra_s1:U32 = nil
+  wire sra_s2:U32 = nil
+  wire sra_s3:U32 = nil
+  wire sra_s4:U32 = nil
+  wire branch_sub:U32 = nil
+  mut dec_imm:U32 = 0
+  mut dec_alu_op:U4 = 0
+  mut dec_alu_src:U1 = 0
+  mut dec_mem_read:U1 = 0
+  mut dec_mem_write:U1 = 0
+  mut dec_reg_write:U1 = 0
+  mut dec_wb_sel:U2 = 0
+  mut dec_branch:U1 = 0
+  mut dec_jump:U1 = 0
+  mut dec_is_jalr:U1 = 0
+  mut dec_imm_result:U1 = 0
+  mut dec_rs1_addr:U5 = 0
+  mut dec_rs2_addr:U5 = 0
+  mut branch_taken:U1 = 0
+  dec_imm = 0sb?
+  dec_alu_op = 0sb?
+  dec_alu_src = 0ub?
+  dec_mem_read = 0ub?
+  dec_mem_write = 0ub?
+  dec_reg_write = 0ub?
+  dec_wb_sel = 0sb?
+  dec_branch = 0ub?
+  dec_jump = 0ub?
+  dec_is_jalr = 0ub?
+  dec_imm_result = 0ub?
+  dec_rs1_addr = 0sb?
+  dec_rs2_addr = 0sb?
+  mut alu_result:U32 = 0sb?
+  branch_taken = 0ub?
+  mut branch_target:U32 = 0sb?
+  mut wb_data:U32 = 0sb?
+  dec_opcode = if_id_instr#[0..=6]
+  const dec_rd__w1 = if_id_instr#[7..=11]
+  dec_funct3 = if_id_instr#[12..=14]
+  dec_rs1 = if_id_instr#[15..=19]
+  dec_rs2 = if_id_instr#[20..=24]
+  dec_funct7 = if_id_instr#[25..=31]
+  dec_imm_i = if_id_instr#[20..=31]#sext[0..=11]#[0..=31]
+  dec_imm_s = ((if_id_instr#[25..=31] << 5) | if_id_instr#[7..=11])#sext[0..=11]#[0..=31]
+  mut _rep_1:U20 = if ((if_id_instr >> 31) & 1) != 0 { 0xfffff } else { 0 }
+  dec_imm_b = (_rep_1 << 12) | (((if_id_instr >> 7) & 1) << 11) | (if_id_instr#[25..=30] << 5) | (if_id_instr#[8..=11] << 1)
+  dec_imm_u = if_id_instr#[12..=31] << 12
+  mut _rep_2:U12 = if ((if_id_instr >> 31) & 1) != 0 { 0xfff } else { 0 }
+  dec_imm_j = (_rep_2 << 20) | (if_id_instr#[12..=19] << 12) | (((if_id_instr >> 20) & 1) << 11) | (if_id_instr#[21..=30] << 1)
+  dec_rs2_addr = dec_rs2
+  dec_jump = 0
+  dec_alu_op = 0
+  dec_mem_write = 0
+  dec_mem_read = 0
+  dec_is_jalr = 0
+  dec_wb_sel = 0
+  dec_imm = 0
+  dec_branch = 0
+  dec_reg_write = 0
+  dec_rs1_addr = dec_rs1
+  dec_imm_result = 0
+  dec_alu_src = 0
+  if if_id_valid != 0 {
+    match dec_opcode {
+      == 51 {
+        dec_alu_op = (((dec_funct7 >> 5) & 1) << 3) | dec_funct3
+        dec_reg_write = 1
       }
-      == OP_IMM {
-        const high:u1 = u1(funct3==5 and if_id.instr#[30]!=0)
-        dec.alu_op = (funct3, high)#[..]
-        dec.alu_src = true
-        dec.reg_write = true
-        dec.imm = imm_i
+      == 19 {
+        _mux_3 = if dec_funct3 == 5 { (((dec_funct7 >> 5) & 1) << 3) | dec_funct3 } else { dec_funct3 }
+        dec_alu_op = _mux_3
+        dec_alu_src = 1
+        dec_reg_write = 1
+        dec_imm = dec_imm_i
       }
-      == LOAD {
-        dec.alu_src = true
-        dec.mem_read = true
-        dec.reg_write = true
-        dec.wb_sel = 1
-        dec.imm = imm_i
+      == 3 {
+        dec_alu_op = 0
+        dec_alu_src = 1
+        dec_mem_read = 1
+        dec_reg_write = 1
+        dec_wb_sel = 1
+        dec_imm = dec_imm_i
       }
-      == STORE {
-        dec.alu_src = true
-        dec.mem_write = true
-        dec.imm = imm_s
+      == 35 {
+        dec_alu_op = 0
+        dec_alu_src = 1
+        dec_mem_write = 1
+        dec_imm = dec_imm_s
       }
-      == BRANCH {
-        dec.branch = true
-        dec.imm = imm_b
+      == 0x63 {
+        dec_branch = 1
+        dec_imm = dec_imm_b
       }
-      == LUI {
-        dec.reg_write = true
-        dec.imm = imm_u
-        dec.imm_result = true
-        dec.rs1 = 0
-        dec.rs2 = 0
+      == 55 {
+        dec_reg_write = 1
+        dec_imm = dec_imm_u
+        dec_imm_result = 1
+        dec_rs1_addr = 0
+        dec_rs2_addr = 0
       }
-      == AUIPC {
-        dec.reg_write = true
-        wrap dec.imm = if_id.pc + imm_u
-        dec.imm_result = true
-        dec.rs1 = 0
-        dec.rs2 = 0
+      == 23 {
+        dec_reg_write = 1
+        dec_imm = (if_id_pc + dec_imm_u)#[0..=31]
+        dec_imm_result = 1
+        dec_rs1_addr = 0
+        dec_rs2_addr = 0
       }
-      == JAL {
-        dec.jump = true
-        dec.reg_write = true
-        dec.wb_sel = 2
-        dec.imm = imm_j
-        dec.rs1 = 0
-        dec.rs2 = 0
+      == 0x6f {
+        dec_jump = 1
+        dec_reg_write = 1
+        dec_wb_sel = 2
+        dec_imm = dec_imm_j
+        dec_rs1_addr = 0
+        dec_rs2_addr = 0
       }
-      == JALR {
-        dec.jump = true
-        dec.is_jalr = true
-        dec.reg_write = true
-        dec.wb_sel = 2
-        dec.alu_src = true
-        dec.imm = imm_i
+      == 0x67 {
+        dec_jump = 1
+        dec_is_jalr = 1
+        dec_reg_write = 1
+        dec_wb_sel = 2
+        dec_alu_src = 1
+        dec_imm = dec_imm_i
       }
       else {
       }
     }
   }
-
-  // Decode bypasses WB; execute gives the younger EX/MEM producer priority.
-  const wb_write = mem_wb.valid and mem_wb.reg_write
-  const ex_write = ex_mem.valid and ex_mem.reg_write
-  const ex_fwd = if ex_mem.wb_sel == 2 { ex_mem.pc_plus4 } else { ex_mem.alu_result }
-  const rs1_data:u32 = if dec.rs1 == 0 { 0 } elif wb_write and mem_wb.rd==dec.rs1 { mem_wb.result } else { regfile[dec.rs1] }
-  const rs2_data:u32 = if dec.rs2 == 0 { 0 } elif wb_write and mem_wb.rd==dec.rs2 { mem_wb.result } else { regfile[dec.rs2] }
-  const fwd_rs1:u32 = if id_control.rs1 == 0 { u32(0) } elif ex_write and ex_mem.rd==id_control.rs1 { ex_fwd } elif wb_write and mem_wb.rd==id_control.rs1 { mem_wb.result } else { id_ex.rs1_data }
-  const fwd_rs2:u32 = if id_control.rs2 == 0 { u32(0) } elif ex_write and ex_mem.rd==id_control.rs2 { ex_fwd } elif wb_write and mem_wb.rd==id_control.rs2 { mem_wb.result } else { id_ex.rs2_data }
-  const stall = id_ex.valid and id_control.mem_read and if_id.valid and id_control.rd!=0 and (dec.rs1==id_control.rd or dec.rs2==id_control.rd)
-
-  const alu_rhs = if id_control.alu_src { id_control.imm } else { fwd_rs2 }
-  const alu_value = execute(a=fwd_rs1, b=alu_rhs, op=id_control.alu_op)
-  const alu_result = if id_control.imm_result { id_control.imm } else { alu_value }
-  const branch_condition = match id_control.funct3 {
-                           == 0 {
-      fwd_rs1 == fwd_rs2
-    }
-                           == 1 {
-      fwd_rs1 != fwd_rs2
-    }
-                           == 4 {
-      fwd_rs1#sext[0..=31] < fwd_rs2#sext[0..=31]
-    }
-                           == 5 {
-      fwd_rs1#sext[0..=31] >= fwd_rs2#sext[0..=31]
-    }
-                           == 6 {
-      fwd_rs1 < fwd_rs2
-    }
-                           == 7 {
-      fwd_rs1 >= fwd_rs2
-    }
-                           else {
-      false
-    }
-                         }
-  const flush = id_ex.valid and (id_control.jump or (id_control.branch and branch_condition))
-  mut branch_target:u32 = 0
-  if id_control.jump and id_control.is_jalr {
-    wrap branch_target = fwd_rs1 + id_control.imm
-    branch_target#[0] = 0
+  mut _mux_4:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == dec_rs1_addr { mem_wb_result } else { regfile[dec_rs1_addr] }
+  mut _mux_5:U32 = if dec_rs1_addr == 0 { 0 } else { _mux_4 }
+  mut _mux_6:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == dec_rs2_addr { mem_wb_result } else { regfile[dec_rs2_addr] }
+  mut _mux_7:U32 = if dec_rs2_addr == 0 { 0 } else { _mux_6 }
+  mut _b2i_8 = if id_ex_valid != 0 and id_ex_mem_read != 0 and if_id_valid != 0 and ((dec_rs1_addr == id_ex_rd and id_ex_rd != 0) or (dec_rs2_addr == id_ex_rd and id_ex_rd != 0)) { 1 } else { 0 }
+  const stall__w1 = _b2i_8
+  mut _mux_9:U32 = if ex_mem_wb_sel == 2 { ex_mem_pc_plus4 } else { ex_mem_alu_result }
+  ex_mem_fwd_data = _mux_9
+  mut _mux_10:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == id_ex_rs1 { mem_wb_result } else { id_ex_rs1_data }
+  mut _mux_11:U32 = if ex_mem_valid != 0 and ex_mem_reg_write != 0 and ex_mem_rd == id_ex_rs1 { ex_mem_fwd_data } else { _mux_10 }
+  mut _mux_12:U32 = if id_ex_rs1 == 0 { 0 } else { _mux_11 }
+  const fwd_rs1__w1 = _mux_12
+  mut _mux_13:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == id_ex_rs2 { mem_wb_result } else { id_ex_rs2_data }
+  mut _mux_14:U32 = if ex_mem_valid != 0 and ex_mem_reg_write != 0 and ex_mem_rd == id_ex_rs2 { ex_mem_fwd_data } else { _mux_13 }
+  mut _mux_15:U32 = if id_ex_rs2 == 0 { 0 } else { _mux_14 }
+  const fwd_rs2__w1 = _mux_15
+  alu_in1 = fwd_rs1__w1
+  mut _mux_16:U32 = if id_ex_alu_src != 0 { id_ex_imm } else { fwd_rs2__w1 }
+  alu_in2 = _mux_16
+  alu_add = (alu_in1 + alu_in2)#[0..=31]
+  alu_sub = (alu_in1 - alu_in2)#[0..=31]
+  alu_slt = (((alu_in1 >> 31) & 1 & (~((alu_in2 >> 31) & 1)#[0]) & 1) | ((~((((alu_in1 >> 31) & 1) ^ ((alu_in2 >> 31) & 1)) & 1)#[0]) & (alu_sub >> 31) & 1 & 1)) & 1
+  mut _b2i_17 = if alu_in1 < alu_in2 { 1 } else { 0 }
+  alu_sltu = _b2i_17
+  shamt = alu_in2#[0..=4]
+  mut _mux_18:U32 = if (shamt & 1) != 0 { alu_in1#[0..=30] << 1 } else { alu_in1 }
+  sll_s0 = _mux_18
+  mut _mux_19:U32 = if ((shamt >> 1) & 1) != 0 { sll_s0#[0..=29] << 2 } else { sll_s0 }
+  sll_s1 = _mux_19
+  mut _mux_20:U32 = if ((shamt >> 2) & 1) != 0 { sll_s1#[0..=27] << 4 } else { sll_s1 }
+  sll_s2 = _mux_20
+  mut _mux_21:U32 = if ((shamt >> 3) & 1) != 0 { sll_s2#[0..=23] << 8 } else { sll_s2 }
+  sll_s3 = _mux_21
+  mut _mux_22:U32 = if ((shamt >> 4) & 1) != 0 { sll_s3#[0..=15] << 16 } else { sll_s3 }
+  sll_s4 = _mux_22
+  mut _mux_23:U32 = if (shamt & 1) != 0 { alu_in1#[1..=31] } else { alu_in1 }
+  srl_s0 = _mux_23
+  mut _mux_24:U32 = if ((shamt >> 1) & 1) != 0 { srl_s0#[2..=31] } else { srl_s0 }
+  srl_s1 = _mux_24
+  mut _mux_25:U32 = if ((shamt >> 2) & 1) != 0 { srl_s1#[4..=31] } else { srl_s1 }
+  srl_s2 = _mux_25
+  mut _mux_26:U32 = if ((shamt >> 3) & 1) != 0 { srl_s2#[8..=31] } else { srl_s2 }
+  srl_s3 = _mux_26
+  mut _mux_27:U32 = if ((shamt >> 4) & 1) != 0 { srl_s3#[16..=31] } else { srl_s3 }
+  srl_s4 = _mux_27
+  mut _mux_28:U32 = if (shamt & 1) != 0 { (((alu_in1 >> 31) & 1) << 31) | alu_in1#[1..=31] } else { alu_in1 }
+  sra_s0 = _mux_28
+  mut _rep_29:U2 = if ((alu_in1 >> 31) & 1) != 0 { 3 } else { 0 }
+  mut _mux_30:U32 = if ((shamt >> 1) & 1) != 0 { (_rep_29 << 30) | sra_s0#[2..=31] } else { sra_s0 }
+  sra_s1 = _mux_30
+  mut _rep_31:U4 = if ((alu_in1 >> 31) & 1) != 0 { 15 } else { 0 }
+  mut _mux_32:U32 = if ((shamt >> 2) & 1) != 0 { (_rep_31 << 28) | sra_s1#[4..=31] } else { sra_s1 }
+  sra_s2 = _mux_32
+  mut _rep_33:U8 = if ((alu_in1 >> 31) & 1) != 0 { 0xff } else { 0 }
+  mut _mux_34:U32 = if ((shamt >> 3) & 1) != 0 { (_rep_33 << 24) | sra_s2#[8..=31] } else { sra_s2 }
+  sra_s3 = _mux_34
+  mut _rep_35:U16 = if ((alu_in1 >> 31) & 1) != 0 { 0xffff } else { 0 }
+  mut _mux_36:U32 = if ((shamt >> 4) & 1) != 0 { (_rep_35 << 16) | sra_s3#[16..=31] } else { sra_s3 }
+  sra_s4 = _mux_36
+  if id_ex_imm_result != 0 {
+    alu_result = id_ex_imm
   } else {
-    wrap branch_target = id_ex.pc + id_control.imm
+    alu_result = unique if id_ex_alu_op == 0 { alu_add } elif id_ex_alu_op == 8 { alu_sub } elif id_ex_alu_op == 1 { sll_s4 } elif id_ex_alu_op == 2 { alu_slt & 1 } elif id_ex_alu_op == 3 { alu_sltu & 1 } elif id_ex_alu_op == 4 { alu_in1 ^ alu_in2 } elif id_ex_alu_op == 5 { srl_s4 } elif id_ex_alu_op == 13 { sra_s4 } elif id_ex_alu_op == 6 { alu_in1 | alu_in2 } elif id_ex_alu_op == 7 { alu_in1 & alu_in2 } else { alu_add }
   }
-
-  const mem_read_data:u32 = dmem[ex_mem.alu_result#[2..=9]]
-  const wb_data = match ex_mem.wb_sel {
-                  == 1 {
-      mem_read_data
+  branch_sub = (fwd_rs1__w1 - fwd_rs2__w1)#[0..=31]
+  branch_taken = 0
+  branch_target = 0
+  if id_ex_valid != 0 and id_ex_jump != 0 {
+    branch_taken = 1
+    branch_target = if id_ex_is_jalr != 0 { (fwd_rs1__w1 + id_ex_imm)#[0..=31] & 0xfffffffe } else { (id_ex_pc + id_ex_imm)#[0..=31] }
+  } elif id_ex_valid != 0 and id_ex_branch != 0 {
+    branch_target = (id_ex_pc + id_ex_imm)#[0..=31]
+    match id_ex_funct3 {
+      == 0 {
+        _b2i_37 = if branch_sub == 0 { 1 } else { 0 }
+        branch_taken = _b2i_37
+      }
+      == 1 {
+        _b2i_38 = if branch_sub != 0 { 1 } else { 0 }
+        branch_taken = _b2i_38
+      }
+      == 4 {
+        branch_taken = (((fwd_rs1__w1 >> 31) & 1 & (~((fwd_rs2__w1 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1__w1 >> 31) & 1) ^ ((fwd_rs2__w1 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1
+      }
+      == 5 {
+        branch_taken = ~((((fwd_rs1__w1 >> 31) & 1 & (~((fwd_rs2__w1 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1__w1 >> 31) & 1) ^ ((fwd_rs2__w1 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1)#[0]
+      }
+      == 6 {
+        _b2i_39 = if fwd_rs1__w1 < fwd_rs2__w1 { 1 } else { 0 }
+        branch_taken = _b2i_39
+      }
+      == 7 {
+        _b2i_40 = if fwd_rs1__w1 < fwd_rs2__w1 { 1 } else { 0 }
+        _b2i_41 = if branch_sub == 0 { 1 } else { 0 }
+        branch_taken = ((~_b2i_40#[0]) | _b2i_41) & 1
+      }
+      else {
+      }
     }
-                  == 2 {
-      ex_mem.pc_plus4
+  }
+  const flush__w1 = branch_taken
+  wb_data = unique if ex_mem_wb_sel == 1 { dmem[ex_mem_alu_result#[2..=9]] } elif ex_mem_wb_sel == 2 { ex_mem_pc_plus4 } else { ex_mem_alu_result }
+  if i_rst != 0 {
+    if flush__w1 != 0 {
+      pc = branch_target
+    } elif (~stall__w1#[0]) != 0 {
+      pc = (pc + 4)#[0..=31]
     }
-                  else {
-      ex_mem.alu_result
+  }
+  if i_rst != 0 {
+    if flush__w1 != 0 {
+      if_id_valid = 0
+      if_id_pc = 0
+      if_id_instr = 0
+    } elif (~stall__w1#[0]) != 0 {
+      if_id_valid = 1
+      if_id_pc = pc
+      if_id_instr = imem[pc#[2..=9]]
     }
-                }
-  o_out = mem_wb.result
-
-  // Writes use the current pipeline state, including during reset assertion.
-  if ex_mem.valid and ex_mem.mem_write {
-    dmem[ex_mem.alu_result#[2..=9]] = ex_mem.rs2_data
   }
-  if wb_write and mem_wb.rd!=0 {
-    regfile[mem_wb.rd] = mem_wb.result
+  if i_rst != 0 {
+    if flush__w1 != 0 or stall__w1 != 0 {
+      id_ex_valid = 0
+      id_ex_reg_write = 0
+      id_ex_mem_read = 0
+      id_ex_mem_write = 0
+      id_ex_branch = 0
+      id_ex_jump = 0
+    } else {
+      id_ex_valid = if_id_valid
+      id_ex_pc = if_id_pc
+      id_ex_rs1_data = _mux_5
+      id_ex_rs2_data = _mux_7
+      id_ex_imm = dec_imm
+      id_ex_rd = dec_rd__w1
+      id_ex_rs1 = dec_rs1_addr
+      id_ex_rs2 = dec_rs2_addr
+      id_ex_alu_op = dec_alu_op
+      id_ex_alu_src = dec_alu_src
+      id_ex_mem_read = dec_mem_read
+      id_ex_mem_write = dec_mem_write
+      id_ex_reg_write = dec_reg_write
+      id_ex_wb_sel = dec_wb_sel
+      id_ex_branch = dec_branch
+      id_ex_funct3 = dec_funct3
+      id_ex_jump = dec_jump
+      id_ex_is_jalr = dec_is_jalr
+      id_ex_imm_result = dec_imm_result
+    }
   }
-
-  mem_wb = (result=wb_data, rd=ex_mem.rd, reg_write=ex_mem.reg_write, valid=ex_mem.valid)
-  mut pc_plus4:u32 = 0
-  wrap pc_plus4 = id_ex.pc + 4
-  ex_mem = (alu_result=alu_result, rs2_data=fwd_rs2, rd=id_control.rd, pc_plus4=pc_plus4, mem_read=id_control.mem_read, mem_write=id_control.mem_write, reg_write=id_control.reg_write, wb_sel=id_control.wb_sel, valid=id_ex.valid)
-
-  // Bubbles clear only the control flags cleared by the upstream core.
-  // Retaining the other fields matters: the public output is ungated WB data.
-  if flush or stall {
-    id_ex.valid = false
-    id_control.reg_write = false
-    id_control.mem_read = false
-    id_control.mem_write = false
-    id_control.branch = false
-    id_control.jump = false
-  } else {
-    id_control = dec
-    id_ex = (pc=if_id.pc, rs1_data=rs1_data, rs2_data=rs2_data, valid=if_id.valid)
+  if i_rst != 0 {
+    ex_mem_valid = id_ex_valid
+    ex_mem_alu_result = alu_result
+    ex_mem_rs2_data = fwd_rs2__w1
+    ex_mem_rd = id_ex_rd
+    ex_mem_pc_plus4 = (id_ex_pc + 4)#[0..=31]
+    ex_mem_mem_read = id_ex_mem_read
+    ex_mem_mem_write = id_ex_mem_write
+    ex_mem_reg_write = id_ex_reg_write
+    ex_mem_wb_sel = id_ex_wb_sel
   }
-  if flush {
-    if_id = (pc=u32(0), instr=u32(0), valid=false)
-  } elif not stall {
-    if_id = (pc=pc, instr=imem[pc#[2..=9]], valid=true)
+  if i_rst != 0 {
+    mem_wb_valid = ex_mem_valid
+    mem_wb_result = wb_data
+    mem_wb_rd = ex_mem_rd
+    mem_wb_reg_write = ex_mem_reg_write
   }
-  if flush {
-    pc = branch_target
-  } elif not stall {
-    wrap pc += 4
+  if ex_mem_valid != 0 and ex_mem_mem_write != 0 {
+    dmem[ex_mem_alu_result#[2..=9]] = ex_mem_rs2_data
   }
+  if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd != 0 {
+    regfile[mem_wb_rd] = mem_wb_result
+  }
+  o_out = mem_wb_result
 }

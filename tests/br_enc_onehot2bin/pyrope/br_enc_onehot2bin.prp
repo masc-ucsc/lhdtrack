@@ -7,7 +7,7 @@
 // clk and rst are unused (upstream uses them only for assertions); they stay
 // so the ports line up with verilog/br_enc_onehot2bin.sv.
 
-pub comb br_enc_onehot2bin(clk:u1, rst:u1, `in`:u32) -> (out_valid:u1, out:u5) {
+pub comb br_enc_onehot2bin(clk:U1, `in`:U32, rst:U1) -> (out:U5, out_valid:U1) {
   out = 0
   for i in 1..<`in`.[bits] {
     if `in`#[i] != 0 {

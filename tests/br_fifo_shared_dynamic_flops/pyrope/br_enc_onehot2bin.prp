@@ -1,4 +1,4 @@
-pub comb br_enc_onehot2bin::[timecheck=false](clk:u1, rst:u1, `in`:u32) -> (out_valid:u1, out:u5) {
+pub mod br_enc_onehot2bin<NumValues=32, BinWidth=5>::[timecheck=false](clk:Clock, `in`:U32, rst:Reset) -> (out:U5@[], out_valid:U1@[]) {
   out = 0sb?
   out = if ((`in` >> 1) & 1) != 0 { 1 } else { 0 }
   if ((`in` >> 2) & 1) != 0 {
@@ -91,5 +91,5 @@ pub comb br_enc_onehot2bin::[timecheck=false](clk:u1, rst:u1, `in`:u32) -> (out_
   if ((`in` >> 31) & 1) != 0 {
     out = out | 31
   }
-  out_valid = unsigned(`in` != 0)
+  out_valid = U1(`in` != 0)
 }

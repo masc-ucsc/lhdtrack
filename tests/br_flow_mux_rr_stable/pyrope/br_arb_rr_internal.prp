@@ -1,28 +1,192 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-// Round-robin arbiter: the requester after the last grant has the highest
-// priority, wrapping around.
-pub mod br_arb_rr_internal<NUM_REQUESTERS=2>(rst:u1, enable_priority_update:bool, request:unsigned(bits=NUM_REQUESTERS)) -> (
-  can_grant:unsigned(bits=NUM_REQUESTERS)@[0],
-  grant:unsigned(bits=NUM_REQUESTERS)@[0]
-) {
-  cassert(NUM_REQUESTERS >= 2, "a single requester needs no arbiter")
-  comptime const ALL = (1 << NUM_REQUESTERS) - 1
-
-  wire granted:unsigned(bits=NUM_REQUESTERS) = nil
-  const priority_mask = br_rr_state_internal<NUM_REQUESTERS=NUM_REQUESTERS>(
-    rst=rst, update_priority=enable_priority_update and request != 0, grant=granted
-  )
-  // Requesters above the last grant come first.
-  const request_high = request & ~priority_mask & ALL
-
-  for i in 0..<NUM_REQUESTERS {
-    comptime const below = (1 << i) - 1
-    comptime const above = ALL & ~((1 << (i + 1)) - 1)
-    // Requesters that come before i in the round-robin order.
-    const ahead   = if i == 0 or priority_mask#[i] == 1 { (request & below) | (request_high & above) } else { request_high & below }
-    can_grant#[i] = u1(ahead == 0)
-  }
-  granted = request & can_grant
-  grant   = granted
+pub mod br_arb_rr_internal<NumRequesters=8>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U8, rst:Reset) -> (can_grant:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[], grant:U8@[]) {
+  wire can_grant__bpr:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1) = nil
+  wire `request_priority[0]`:U1 = nil
+  wire `request_priority[1]`:U1 = nil
+  wire `request_priority[2]`:U1 = nil
+  wire `request_priority[3]`:U1 = nil
+  wire `request_priority[4]`:U1 = nil
+  wire `request_priority[5]`:U1 = nil
+  wire `request_priority[6]`:U1 = nil
+  wire `request_priority[7]`:U1 = nil
+  wire `request_priority[8]`:U1 = nil
+  wire `request_priority[9]`:U1 = nil
+  wire `request_priority[10]`:U1 = nil
+  wire `request_priority[11]`:U1 = nil
+  wire `request_priority[12]`:U1 = nil
+  wire `request_priority[13]`:U1 = nil
+  wire `request_priority[14]`:U1 = nil
+  wire `request_priority[15]`:U1 = nil
+  wire `request_priority[16]`:U1 = nil
+  wire `request_priority[17]`:U1 = nil
+  wire `request_priority[18]`:U1 = nil
+  wire `request_priority[19]`:U1 = nil
+  wire `request_priority[20]`:U1 = nil
+  wire `request_priority[21]`:U1 = nil
+  wire `request_priority[22]`:U1 = nil
+  wire `request_priority[23]`:U1 = nil
+  wire `request_priority[24]`:U1 = nil
+  wire `request_priority[25]`:U1 = nil
+  wire `request_priority[26]`:U1 = nil
+  wire `request_priority[27]`:U1 = nil
+  wire `request_priority[28]`:U1 = nil
+  wire `request_priority[29]`:U1 = nil
+  wire `request_priority[30]`:U1 = nil
+  wire `request_priority[31]`:U1 = nil
+  wire `request_priority[32]`:U1 = nil
+  wire `request_priority[33]`:U1 = nil
+  wire `request_priority[34]`:U1 = nil
+  wire `request_priority[35]`:U1 = nil
+  wire `request_priority[36]`:U1 = nil
+  wire `request_priority[37]`:U1 = nil
+  wire `request_priority[38]`:U1 = nil
+  wire `request_priority[39]`:U1 = nil
+  wire `request_priority[40]`:U1 = nil
+  wire `request_priority[41]`:U1 = nil
+  wire `request_priority[42]`:U1 = nil
+  wire `request_priority[43]`:U1 = nil
+  wire `request_priority[44]`:U1 = nil
+  wire `request_priority[45]`:U1 = nil
+  wire `request_priority[46]`:U1 = nil
+  wire `request_priority[47]`:U1 = nil
+  wire `request_priority[48]`:U1 = nil
+  wire `request_priority[49]`:U1 = nil
+  wire `request_priority[50]`:U1 = nil
+  wire `request_priority[51]`:U1 = nil
+  wire `request_priority[52]`:U1 = nil
+  wire `request_priority[53]`:U1 = nil
+  wire `request_priority[54]`:U1 = nil
+  wire `request_priority[55]`:U1 = nil
+  wire `request_priority[56]`:U1 = nil
+  wire `request_priority[57]`:U1 = nil
+  wire `request_priority[58]`:U1 = nil
+  wire `request_priority[59]`:U1 = nil
+  wire `request_priority[60]`:U1 = nil
+  wire `request_priority[61]`:U1 = nil
+  wire `request_priority[62]`:U1 = nil
+  wire `request_priority[63]`:U1 = nil
+  grant = 0sb?
+  `request_priority[9]` = 0
+  `request_priority[18]` = 0
+  `request_priority[27]` = 0
+  `request_priority[36]` = 0
+  `request_priority[45]` = 0
+  `request_priority[54]` = 0
+  mut `can_grant__bpo.e0` = U1(not (((`request_priority[7]` << 7) | (`request_priority[6]` << 6) | (`request_priority[5]` << 5) | (`request_priority[4]` << 4) | (`request_priority[3]` << 3) | (`request_priority[2]` << 2) | (`request_priority[1]` << 1) | `request_priority[0]`) != 0))
+  mut _b2i_3 = if not (((`request_priority[15]` << 7) | (`request_priority[14]` << 6) | (`request_priority[13]` << 5) | (`request_priority[12]` << 4) | (`request_priority[11]` << 3) | (`request_priority[10]` << 2) | (`request_priority[9]` << 1) | `request_priority[8]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e1` = _b2i_3
+  mut _b2i_4 = if not (((`request_priority[23]` << 7) | (`request_priority[22]` << 6) | (`request_priority[21]` << 5) | (`request_priority[20]` << 4) | (`request_priority[19]` << 3) | (`request_priority[18]` << 2) | (`request_priority[17]` << 1) | `request_priority[16]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e2` = _b2i_4
+  mut _b2i_5 = if not (((`request_priority[31]` << 7) | (`request_priority[30]` << 6) | (`request_priority[29]` << 5) | (`request_priority[28]` << 4) | (`request_priority[27]` << 3) | (`request_priority[26]` << 2) | (`request_priority[25]` << 1) | `request_priority[24]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e3` = _b2i_5
+  mut _b2i_6 = if not (((`request_priority[39]` << 7) | (`request_priority[38]` << 6) | (`request_priority[37]` << 5) | (`request_priority[36]` << 4) | (`request_priority[35]` << 3) | (`request_priority[34]` << 2) | (`request_priority[33]` << 1) | `request_priority[32]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e4` = _b2i_6
+  mut _b2i_7 = if not (((`request_priority[47]` << 7) | (`request_priority[46]` << 6) | (`request_priority[45]` << 5) | (`request_priority[44]` << 4) | (`request_priority[43]` << 3) | (`request_priority[42]` << 2) | (`request_priority[41]` << 1) | `request_priority[40]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e5` = _b2i_7
+  mut _b2i_8 = if not (((`request_priority[55]` << 7) | (`request_priority[54]` << 6) | (`request_priority[53]` << 5) | (`request_priority[52]` << 4) | (`request_priority[51]` << 3) | (`request_priority[50]` << 2) | (`request_priority[49]` << 1) | `request_priority[48]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e6` = _b2i_8
+  mut _b2i_9 = if not (((`request_priority[63]` << 7) | (`request_priority[62]` << 6) | (`request_priority[61]` << 5) | (`request_priority[60]` << 4) | (`request_priority[59]` << 3) | (`request_priority[58]` << 2) | (`request_priority[57]` << 1) | `request_priority[56]`) != 0) { 1 } else { 0 }
+  mut `can_grant__bpo.e7` = _b2i_9
+  const grant__w1 = request & ((can_grant__bpr.e7 << 7) | (can_grant__bpr.e6 << 6) | (can_grant__bpr.e5 << 5) | (can_grant__bpr.e4 << 4) | (can_grant__bpr.e3 << 3) | (can_grant__bpr.e2 << 2) | (can_grant__bpr.e1 << 1) | can_grant__bpr.e0)
+  mut gen_n_req_rr_state_internal = br_rr_state_internal::[name=gen_n_req_rr_state_internal](clk=clk, rst=rst, update_priority=U1(enable_priority_update != 0 and request != 0), grant=grant__w1)
+  const gen_n_req_priority_mask__w1 = (gen_n_req_rr_state_internal.priority_mask.e7 << 7) | (gen_n_req_rr_state_internal.priority_mask.e6 << 6) | (gen_n_req_rr_state_internal.priority_mask.e5 << 5) | (gen_n_req_rr_state_internal.priority_mask.e4 << 4) | (gen_n_req_rr_state_internal.priority_mask.e3 << 3) | (gen_n_req_rr_state_internal.priority_mask.e2 << 2) | (gen_n_req_rr_state_internal.priority_mask.e1 << 1) | gen_n_req_rr_state_internal.priority_mask.e0
+  const gen_n_req_request_high__w1 = request & (~gen_n_req_priority_mask__w1#[0..=7])
+  const t86 = gen_n_req_request_high__w1#[1..=7] << 1
+  `request_priority[0]` = t86 & 1
+  `request_priority[1]` = (t86 >> 1) & 1
+  `request_priority[2]` = (t86 >> 2) & 1
+  `request_priority[3]` = (t86 >> 3) & 1
+  `request_priority[4]` = (t86 >> 4) & 1
+  `request_priority[5]` = (t86 >> 5) & 1
+  `request_priority[6]` = (t86 >> 6) & 1
+  `request_priority[7]` = (t86 >> 7) & 1
+  mut _mux_10:U8 = if ((gen_n_req_priority_mask__w1 >> (NumRequesters - 1)) & 1) != 0 { request#[0..=6] } else { gen_n_req_request_high__w1#[0..=6] }
+  `request_priority[56]` = _mux_10 & 1
+  `request_priority[57]` = (_mux_10 >> 1) & 1
+  `request_priority[58]` = (_mux_10 >> 2) & 1
+  `request_priority[59]` = (_mux_10 >> 3) & 1
+  `request_priority[60]` = (_mux_10 >> 4) & 1
+  `request_priority[61]` = (_mux_10 >> 5) & 1
+  `request_priority[62]` = (_mux_10 >> 6) & 1
+  `request_priority[63]` = (_mux_10 >> 7) & 1
+  mut _mux_11:U1 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { request & 1 } else { gen_n_req_request_high__w1 & 1 }
+  `request_priority[8]` = _mux_11 & 1
+  mut _mux_12:U6 = if ((gen_n_req_priority_mask__w1 >> 1) & 1) != 0 { gen_n_req_request_high__w1#[2..=7] } else { 0 }
+  `request_priority[10]` = _mux_12 & 1
+  `request_priority[11]` = (_mux_12 >> 1) & 1
+  `request_priority[12]` = (_mux_12 >> 2) & 1
+  `request_priority[13]` = (_mux_12 >> 3) & 1
+  `request_priority[14]` = (_mux_12 >> 4) & 1
+  `request_priority[15]` = (_mux_12 >> 5) & 1
+  mut _mux_13:U2 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { request#[0..=1] } else { gen_n_req_request_high__w1#[0..=1] }
+  `request_priority[16]` = _mux_13 & 1
+  `request_priority[17]` = (_mux_13 >> 1) & 1
+  mut _mux_14:U5 = if ((gen_n_req_priority_mask__w1 >> 2) & 1) != 0 { gen_n_req_request_high__w1#[3..=7] } else { 0 }
+  `request_priority[19]` = _mux_14 & 1
+  `request_priority[20]` = (_mux_14 >> 1) & 1
+  `request_priority[21]` = (_mux_14 >> 2) & 1
+  `request_priority[22]` = (_mux_14 >> 3) & 1
+  `request_priority[23]` = (_mux_14 >> 4) & 1
+  mut _mux_15:U3 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { request#[0..=2] } else { gen_n_req_request_high__w1#[0..=2] }
+  `request_priority[24]` = _mux_15 & 1
+  `request_priority[25]` = (_mux_15 >> 1) & 1
+  `request_priority[26]` = (_mux_15 >> 2) & 1
+  mut _mux_16:U4 = if ((gen_n_req_priority_mask__w1 >> 3) & 1) != 0 { gen_n_req_request_high__w1#[4..=7] } else { 0 }
+  `request_priority[28]` = _mux_16 & 1
+  `request_priority[29]` = (_mux_16 >> 1) & 1
+  `request_priority[30]` = (_mux_16 >> 2) & 1
+  `request_priority[31]` = (_mux_16 >> 3) & 1
+  mut _mux_17:U4 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { request#[0..=3] } else { gen_n_req_request_high__w1#[0..=3] }
+  `request_priority[32]` = _mux_17 & 1
+  `request_priority[33]` = (_mux_17 >> 1) & 1
+  `request_priority[34]` = (_mux_17 >> 2) & 1
+  `request_priority[35]` = (_mux_17 >> 3) & 1
+  mut _mux_18:U3 = if ((gen_n_req_priority_mask__w1 >> 4) & 1) != 0 { gen_n_req_request_high__w1#[5..=7] } else { 0 }
+  `request_priority[37]` = _mux_18 & 1
+  `request_priority[38]` = (_mux_18 >> 1) & 1
+  `request_priority[39]` = (_mux_18 >> 2) & 1
+  mut _mux_19:U5 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { request#[0..=4] } else { gen_n_req_request_high__w1#[0..=4] }
+  `request_priority[40]` = _mux_19 & 1
+  `request_priority[41]` = (_mux_19 >> 1) & 1
+  `request_priority[42]` = (_mux_19 >> 2) & 1
+  `request_priority[43]` = (_mux_19 >> 3) & 1
+  `request_priority[44]` = (_mux_19 >> 4) & 1
+  mut _mux_20:U2 = if ((gen_n_req_priority_mask__w1 >> 5) & 1) != 0 { gen_n_req_request_high__w1#[6..=7] } else { 0 }
+  `request_priority[46]` = _mux_20 & 1
+  `request_priority[47]` = (_mux_20 >> 1) & 1
+  mut _mux_21:U6 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { request#[0..=5] } else { gen_n_req_request_high__w1#[0..=5] }
+  `request_priority[48]` = _mux_21 & 1
+  `request_priority[49]` = (_mux_21 >> 1) & 1
+  `request_priority[50]` = (_mux_21 >> 2) & 1
+  `request_priority[51]` = (_mux_21 >> 3) & 1
+  `request_priority[52]` = (_mux_21 >> 4) & 1
+  `request_priority[53]` = (_mux_21 >> 5) & 1
+  mut _mux_22:U1 = if ((gen_n_req_priority_mask__w1 >> 6) & 1) != 0 { (gen_n_req_request_high__w1 >> 7) & 1 } else { 0 }
+  `request_priority[55]` = _mux_22 & 1
+  const t253 = `can_grant__bpo.e7`
+  can_grant__bpr.e7 = t253
+  can_grant.e7 = t253
+  const t254 = `can_grant__bpo.e6`
+  can_grant__bpr.e6 = t254
+  can_grant.e6 = t254
+  const t255 = `can_grant__bpo.e5`
+  can_grant__bpr.e5 = t255
+  can_grant.e5 = t255
+  const t256 = `can_grant__bpo.e4`
+  can_grant__bpr.e4 = t256
+  can_grant.e4 = t256
+  const t257 = `can_grant__bpo.e3`
+  can_grant__bpr.e3 = t257
+  can_grant.e3 = t257
+  const t258 = `can_grant__bpo.e2`
+  can_grant__bpr.e2 = t258
+  can_grant.e2 = t258
+  const t259 = `can_grant__bpo.e1`
+  can_grant__bpr.e1 = t259
+  can_grant.e1 = t259
+  const t260 = `can_grant__bpo.e0`
+  can_grant__bpr.e0 = t260
+  can_grant.e0 = t260
+  grant = grant__w1
 }

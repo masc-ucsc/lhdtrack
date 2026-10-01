@@ -1,17 +1,26 @@
-// Round-robin priority state: remembers the last grant and derives the mask of
-// requesters at or below it (the ones that lose priority next cycle).
-pub mod br_rr_state_internal<NUM_REQUESTERS=2>(rst:u1, update_priority:bool, grant:unsigned(bits=NUM_REQUESTERS)) -> (
-  priority_mask:unsigned(bits=NUM_REQUESTERS)@[0]
-) {
-  // After reset the top requester counts as last granted, so requester 0 leads.
-  reg last_grant:unsigned(bits=NUM_REQUESTERS):[reset_pin = ref rst] = 1 << (NUM_REQUESTERS - 1)
-  if update_priority {
+pub mod br_rr_state_internal<NumRequesters=2>::[timecheck=false](clk:Clock, grant:U2, rst:U1, update_priority:U1) -> (last_grant:U2@[], priority_mask:(e1:U1, e0:U1)@[]) {
+  reg last_grant:U2
+  wire `last_grant_init[0]`:U1 = nil
+  wire `last_grant_init[1]`:U1 = nil
+  wire last_grant_init:U2 = nil
+  wire `priority_mask__bpr.e1`:U1 = nil
+  wire `priority_mask__bpr.e0`:U1 = nil
+  mut _b2i_1 = if last_grant != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e0` = _b2i_1
+  mut _b2i_2 = if ((last_grant >> 1) & 1) != 0 { 1 } else { 0 }
+  mut `priority_mask__bpo.e1` = _b2i_2
+  `last_grant_init[1]` = 1
+  `last_grant_init[0]` = 0
+  if rst != 0 {
+    last_grant = last_grant_init
+  } elif update_priority != 0 {
     last_grant = grant
   }
-
-  mut mask:unsigned(bits=NUM_REQUESTERS) = 0
-  for i in 0..<NUM_REQUESTERS {
-    mask#[i] = last_grant#|[i..]
-  }
-  priority_mask = mask
+  last_grant_init = (`last_grant_init[1]` << 1) | `last_grant_init[0]`
+  const t11 = `priority_mask__bpo.e1`
+  `priority_mask__bpr.e1` = t11
+  priority_mask.e1 = t11
+  const t12 = `priority_mask__bpo.e0`
+  `priority_mask__bpr.e0` = t12
+  priority_mask.e0 = t12
 }

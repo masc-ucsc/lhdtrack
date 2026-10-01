@@ -1,21 +1,10 @@
-// AddMop -- the Pyrope equivalent of verilog/AddMop.sv (DatapathBench).
-//
-// Hand-written, not emitted from the Verilog: a machine emission would enter
-// the same LGraph the Verilog does and measure the two FRONT ENDS rather than
-// the two languages. See [status].pyrope in design.toml.
-//
-// Ports keep the Verilog names and the widths of the pinned point (BW = 64),
-// so the generated harness and LEC bind the same external interface.
-//
-// Sum of DEPTH packed WIDTH-bit operands, kept to WIDTH bits like the
-// Verilog's `S += A[BW*i +: BW]` accumulator.
-comptime const WIDTH = 64
-comptime const DEPTH = 4
-
-pub comb AddMop(A:u256) -> (S:u64) {
-  mut sum:u64 = 0
-  for i in 0 ..< DEPTH {
-    wrap sum += A#[(i*WIDTH) ..+ WIDTH]
+// Sum four packed lanes modulo the output width; lane zero is least significant.
+pub comb AddMop(A:U256) -> (S:U64) {
+  comptime const width = S.[bits]
+  comptime const depth = A.[bits]/width
+  mut sum:U64 = 0
+  for i in 0..<depth {
+    wrap sum += A#[(i*width)..+width]
   }
   S = sum
 }

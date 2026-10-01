@@ -1,5 +1,9 @@
-pub comb br_mux_onehot::[timecheck=false](select:u2, `in`:u10) -> (out:u5) {
-  mut _rep_1:u5 = if (select & 1) != 0 { 31 } else { 0 }
-  mut _rep_2:u5 = if ((select >> 1) & 1) != 0 { 31 } else { 0 }
-  out = (0 | (_rep_1 & `in`#[0..=4])) | (_rep_2 & `in`#[5..=9])
+// OR the selected packed lanes; lane zero occupies the least significant bits.
+pub comb br_mux_onehot<n=2, width=1>(`in`:Unsigned(bits=n*width), select:Unsigned(bits=n)) -> (out:Unsigned(bits=width)) {
+  out = 0
+  for lane in 0..<n {
+    if select#[lane] != 0 {
+      out |= `in`#[(lane*width)..+width]
+    }
+  }
 }

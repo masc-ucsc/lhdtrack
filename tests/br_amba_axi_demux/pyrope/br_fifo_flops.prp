@@ -1,11 +1,11 @@
 const br_fifo_ctrl_1r1w_t = import("br_fifo_ctrl_1r1w.br_fifo_ctrl_1r1w")
 const br_ram_flops_t = import("br_ram_flops.br_ram_flops")
 
-pub mod br_fifo_flops::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u38, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u38@[], full:u1@[], full_next:u1@[], slots:u2@[], slots_next:u2@[], empty:u1@[], empty_next:u1@[], items:u2@[], items_next:u2@[]) {
-  wire ram_rd_data_valid:u1
-  wire ram_rd_data:u38
-  mut br_fifo_ctrl_1r1w = br_fifo_ctrl_1r1w_t::[name=br_fifo_ctrl_1r1w](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, pop_ready = pop_ready, ram_rd_data_valid = ram_rd_data_valid, ram_rd_data = ram_rd_data)
-  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk = clk, wr_rst = rst, wr_valid = br_fifo_ctrl_1r1w.ram_wr_valid, wr_addr = br_fifo_ctrl_1r1w.ram_wr_addr, wr_data = br_fifo_ctrl_1r1w.ram_wr_data, wr_word_en = 1, rd_clk = clk, rd_rst = rst, rd_addr_valid = br_fifo_ctrl_1r1w.ram_rd_addr_valid, rd_addr = br_fifo_ctrl_1r1w.ram_rd_addr)
+pub mod br_fifo_flops<Depth=2, Width=38, EnableBypass=1, RegisterPopOutputs=0, FlopRamDepthTiles=1, FlopRamWidthTiles=1, FlopRamAddressDepthStages=0, FlopRamReadDataDepthStages=0, FlopRamReadDataWidthStages=0, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U38, push_valid:U1, rst:Reset) -> (empty:U1@[], empty_next:U1@[], full:U1@[], full_next:U1@[], items:U2@[], items_next:U2@[], pop_data:U38@[], pop_valid:U1@[], push_ready:U1@[], slots:U2@[], slots_next:U2@[]) {
+  wire ram_rd_data_valid:U1 = nil
+  wire ram_rd_data:U38 = nil
+  mut br_fifo_ctrl_1r1w = br_fifo_ctrl_1r1w_t::[name=br_fifo_ctrl_1r1w](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, pop_ready=pop_ready, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data)
+  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk=clk, wr_rst=rst, wr_valid=br_fifo_ctrl_1r1w.ram_wr_valid, wr_addr=br_fifo_ctrl_1r1w.ram_wr_addr, wr_data=br_fifo_ctrl_1r1w.ram_wr_data, wr_word_en=1, rd_clk=clk, rd_rst=rst, rd_addr_valid=br_fifo_ctrl_1r1w.ram_rd_addr_valid, rd_addr=br_fifo_ctrl_1r1w.ram_rd_addr)
   ram_rd_data_valid = br_ram_flops.rd_data_valid
   ram_rd_data = br_ram_flops.rd_data
   push_ready = br_fifo_ctrl_1r1w.push_ready

@@ -1,2 +1,4 @@
 // Binary to Gray code: adjacent values differ in exactly one bit.
-pub comb br_enc_bin2gray<WIDTH=2>(bin:unsigned(bits=WIDTH)) -> (gray:unsigned(bits=WIDTH)) { gray = bin ^ (bin >> 1) }
+pub comb br_enc_bin2gray<WIDTH=2>(bin:Unsigned(bits=WIDTH)) -> (gray:Unsigned(bits=WIDTH)) {
+  gray = bin ^ (bin >> 1)
+}

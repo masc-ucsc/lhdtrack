@@ -1,7 +1,7 @@
 const br_amba_axi_default_target = import("br_amba_axi_default_target.br_amba_axi_default_target")
 
-pub mod br_amba_axil_default_target::[timecheck=false](clk:u1, rst:u1, target_awvalid:u1, target_wvalid:u1, target_bready:u1, target_arvalid:u1, target_rready:u1) -> (target_awready:u1@[], target_wready:u1@[], target_bresp:u2@[], target_bvalid:u1@[], target_arready:u1@[], target_rdata:u32@[], target_rresp:u2@[], target_rvalid:u1@[]) {
-  mut br_amba_axi_default_target_inst = br_amba_axi_default_target::[name=br_amba_axi_default_target_inst](clk = clk, rst = rst, target_awvalid = target_awvalid, target_awid = 0, target_awlen = 0, target_wvalid = target_wvalid, target_wlast = 1, target_bready = target_bready, target_arvalid = target_arvalid, target_arid = 0, target_arlen = 0, target_rready = target_rready)
+pub mod br_amba_axil_default_target::[timecheck=false](clk:Clock, rst:Reset, target_arvalid:U1, target_awvalid:U1, target_bready:U1, target_rready:U1, target_wvalid:U1) -> (target_arready:U1@[], target_awready:U1@[], target_bresp:U2@[], target_bvalid:U1@[], target_rdata:U32@[], target_rresp:U2@[], target_rvalid:U1@[], target_wready:U1@[]) {
+  mut br_amba_axi_default_target_inst = br_amba_axi_default_target::[name=br_amba_axi_default_target_inst](clk=clk, rst=rst, target_awvalid=target_awvalid, target_awid=0, target_awlen=0, target_wvalid=target_wvalid, target_wlast=1, target_bready=target_bready, target_arvalid=target_arvalid, target_arid=0, target_arlen=0, target_rready=target_rready)
   target_awready = br_amba_axi_default_target_inst.target_awready
   target_wready = br_amba_axi_default_target_inst.target_wready
   target_bresp = br_amba_axi_default_target_inst.target_bresp

@@ -1,11 +1,11 @@
-pub comb br_shift_left::[timecheck=false](`in`:u10, shift:u1, fill:u5) -> (out_valid:u1, out:u10) {
-  mut stages:u20 = 0
+pub comb br_shift_left::[timecheck=false](fill:U5, `in`:U10, shift:U1) -> (out:U10, out_valid:U1) {
+  mut stages:U20 = 0
   stages = 0sb?
   mut stages__w1 = stages
   stages__w1#[0..=9] = `in`
-  mut _mux_1:u10 = if (shift & 1) != 0 { (stages__w1#[0..=9]#[0..=4] << 5) | fill } else { stages__w1#[0..=9] }
+  mut _mux_1:U10 = if (shift & 1) != 0 { (stages__w1#[0..=9]#[0..=4] << 5) | fill } else { stages__w1#[0..=9] }
   mut stages__w2 = stages__w1
   stages__w2#[10..=19] = _mux_1
-  out_valid = unsigned(shift <= 1)
+  out_valid = Unsigned(shift <= 1)
   out = stages__w2#[10..=19]
 }

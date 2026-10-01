@@ -1,5 +1,5 @@
 const br_misc_unused_p5 = import("br_misc_unused_p5.br_misc_unused_p5")
 
-pub mod br_flow_checks_valid_data_intg_p2::[timecheck=false](clk:u1, rst:u1, valid:u4, ready:u4, data:u256) -> () {
-  br_misc_unused_p5::[name=br_misc_unused_all_unused](`in` = ((rst & 1) << 264) | (valid << 260) | (ready << 256) | data)
+pub mod br_flow_checks_valid_data_intg_p2<NumFlows=1, Width=2, EnableCoverBackpressure=1, EnableAssertValidStability=1, EnableAssertDataStability=1, EnableAssertDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoBackpressure=0>::[timecheck=false](clk:Clock, data:U2, ready:U1, rst:U1, valid:U1) -> () {
+  br_misc_unused_p5::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 4) | ((valid & 1) << 3) | ((ready & 1) << 2) | data)
 }

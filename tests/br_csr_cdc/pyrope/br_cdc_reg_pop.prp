@@ -1,0 +1,199 @@
+const br_delay_nr = import("br_delay_nr.br_delay_nr")
+const br_delay_nr_p1 = import("br_delay_nr_p1.br_delay_nr_p1")
+const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
+const br_gate_and2 = import("br_gate_and2.br_gate_and2")
+
+pub mod br_cdc_reg_pop<Width=55, RegisterPopOutputs=0, RegisterResetActive=1, EnableCoverPopBackpressure=0, EnableAssertNoPopBackpressure=1>::[timecheck=false](clk:Clock, pop_ready:U1, push_flag:U1, push_reg_data:U55, reset_active_push:U1, rst:U1) -> (pop_data:U55@[], pop_flag:U1@[], pop_valid:U1@[], reset_active_pop:U1@[]) {
+  reg push_flag_saved:U1:[async=false, initial=0, reset_pin=rst]
+  reg pop_flag_int:U1:[async=false, initial=0, reset_pin=rst]
+  wire `internal_pop_data[0]`:U1 = nil
+  wire `internal_pop_data[1]`:U1 = nil
+  wire `internal_pop_data[2]`:U1 = nil
+  wire `internal_pop_data[3]`:U1 = nil
+  wire `internal_pop_data[4]`:U1 = nil
+  wire `internal_pop_data[5]`:U1 = nil
+  wire `internal_pop_data[6]`:U1 = nil
+  wire `internal_pop_data[7]`:U1 = nil
+  wire `internal_pop_data[8]`:U1 = nil
+  wire `internal_pop_data[9]`:U1 = nil
+  wire `internal_pop_data[10]`:U1 = nil
+  wire `internal_pop_data[11]`:U1 = nil
+  wire `internal_pop_data[12]`:U1 = nil
+  wire `internal_pop_data[13]`:U1 = nil
+  wire `internal_pop_data[14]`:U1 = nil
+  wire `internal_pop_data[15]`:U1 = nil
+  wire `internal_pop_data[16]`:U1 = nil
+  wire `internal_pop_data[17]`:U1 = nil
+  wire `internal_pop_data[18]`:U1 = nil
+  wire `internal_pop_data[19]`:U1 = nil
+  wire `internal_pop_data[20]`:U1 = nil
+  wire `internal_pop_data[21]`:U1 = nil
+  wire `internal_pop_data[22]`:U1 = nil
+  wire `internal_pop_data[23]`:U1 = nil
+  wire `internal_pop_data[24]`:U1 = nil
+  wire `internal_pop_data[25]`:U1 = nil
+  wire `internal_pop_data[26]`:U1 = nil
+  wire `internal_pop_data[27]`:U1 = nil
+  wire `internal_pop_data[28]`:U1 = nil
+  wire `internal_pop_data[29]`:U1 = nil
+  wire `internal_pop_data[30]`:U1 = nil
+  wire `internal_pop_data[31]`:U1 = nil
+  wire `internal_pop_data[32]`:U1 = nil
+  wire `internal_pop_data[33]`:U1 = nil
+  wire `internal_pop_data[34]`:U1 = nil
+  wire `internal_pop_data[35]`:U1 = nil
+  wire `internal_pop_data[36]`:U1 = nil
+  wire `internal_pop_data[37]`:U1 = nil
+  wire `internal_pop_data[38]`:U1 = nil
+  wire `internal_pop_data[39]`:U1 = nil
+  wire `internal_pop_data[40]`:U1 = nil
+  wire `internal_pop_data[41]`:U1 = nil
+  wire `internal_pop_data[42]`:U1 = nil
+  wire `internal_pop_data[43]`:U1 = nil
+  wire `internal_pop_data[44]`:U1 = nil
+  wire `internal_pop_data[45]`:U1 = nil
+  wire `internal_pop_data[46]`:U1 = nil
+  wire `internal_pop_data[47]`:U1 = nil
+  wire `internal_pop_data[48]`:U1 = nil
+  wire `internal_pop_data[49]`:U1 = nil
+  wire `internal_pop_data[50]`:U1 = nil
+  wire `internal_pop_data[51]`:U1 = nil
+  wire `internal_pop_data[52]`:U1 = nil
+  wire `internal_pop_data[53]`:U1 = nil
+  wire `internal_pop_data[54]`:U1 = nil
+  wire internal_pop_data:U55 = nil
+  mut _mux_2:U1 = if reset_active_push != 0 { push_flag_saved & 1 } else { push_flag & 1 }
+  mut _b2i_3 = if rst == 0 and _mux_2 != pop_flag_int { 1 } else { 0 }
+  const internal_pop_valid__w1 = _b2i_3
+  const _BR_CDC_PRESERVE_NET__pop_data_unqual__w1 = push_reg_data
+  mut gen_data_qualification_0_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_0_br_gate_and2_inst](in0=_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[0]` = gen_data_qualification_0_br_gate_and2_inst & 1
+  mut gen_data_qualification_1_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_1_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 1) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[1]` = gen_data_qualification_1_br_gate_and2_inst & 1
+  mut gen_data_qualification_2_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_2_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 2) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[2]` = gen_data_qualification_2_br_gate_and2_inst & 1
+  mut gen_data_qualification_3_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_3_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 3) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[3]` = gen_data_qualification_3_br_gate_and2_inst & 1
+  mut gen_data_qualification_4_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_4_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 4) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[4]` = gen_data_qualification_4_br_gate_and2_inst & 1
+  mut gen_data_qualification_5_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_5_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 5) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[5]` = gen_data_qualification_5_br_gate_and2_inst & 1
+  mut gen_data_qualification_6_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_6_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 6) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[6]` = gen_data_qualification_6_br_gate_and2_inst & 1
+  mut gen_data_qualification_7_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_7_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 7) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[7]` = gen_data_qualification_7_br_gate_and2_inst & 1
+  mut gen_data_qualification_8_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_8_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 8) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[8]` = gen_data_qualification_8_br_gate_and2_inst & 1
+  mut gen_data_qualification_9_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_9_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 9) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[9]` = gen_data_qualification_9_br_gate_and2_inst & 1
+  mut gen_data_qualification_10_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_10_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 10) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[10]` = gen_data_qualification_10_br_gate_and2_inst & 1
+  mut gen_data_qualification_11_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_11_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 11) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[11]` = gen_data_qualification_11_br_gate_and2_inst & 1
+  mut gen_data_qualification_12_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_12_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 12) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[12]` = gen_data_qualification_12_br_gate_and2_inst & 1
+  mut gen_data_qualification_13_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_13_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 13) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[13]` = gen_data_qualification_13_br_gate_and2_inst & 1
+  mut gen_data_qualification_14_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_14_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 14) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[14]` = gen_data_qualification_14_br_gate_and2_inst & 1
+  mut gen_data_qualification_15_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_15_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 15) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[15]` = gen_data_qualification_15_br_gate_and2_inst & 1
+  mut gen_data_qualification_16_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_16_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 16) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[16]` = gen_data_qualification_16_br_gate_and2_inst & 1
+  mut gen_data_qualification_17_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_17_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 17) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[17]` = gen_data_qualification_17_br_gate_and2_inst & 1
+  mut gen_data_qualification_18_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_18_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 18) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[18]` = gen_data_qualification_18_br_gate_and2_inst & 1
+  mut gen_data_qualification_19_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_19_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 19) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[19]` = gen_data_qualification_19_br_gate_and2_inst & 1
+  mut gen_data_qualification_20_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_20_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 20) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[20]` = gen_data_qualification_20_br_gate_and2_inst & 1
+  mut gen_data_qualification_21_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_21_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 21) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[21]` = gen_data_qualification_21_br_gate_and2_inst & 1
+  mut gen_data_qualification_22_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_22_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 22) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[22]` = gen_data_qualification_22_br_gate_and2_inst & 1
+  mut gen_data_qualification_23_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_23_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 23) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[23]` = gen_data_qualification_23_br_gate_and2_inst & 1
+  mut gen_data_qualification_24_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_24_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 24) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[24]` = gen_data_qualification_24_br_gate_and2_inst & 1
+  mut gen_data_qualification_25_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_25_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 25) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[25]` = gen_data_qualification_25_br_gate_and2_inst & 1
+  mut gen_data_qualification_26_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_26_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 26) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[26]` = gen_data_qualification_26_br_gate_and2_inst & 1
+  mut gen_data_qualification_27_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_27_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 27) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[27]` = gen_data_qualification_27_br_gate_and2_inst & 1
+  mut gen_data_qualification_28_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_28_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 28) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[28]` = gen_data_qualification_28_br_gate_and2_inst & 1
+  mut gen_data_qualification_29_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_29_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 29) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[29]` = gen_data_qualification_29_br_gate_and2_inst & 1
+  mut gen_data_qualification_30_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_30_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 30) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[30]` = gen_data_qualification_30_br_gate_and2_inst & 1
+  mut gen_data_qualification_31_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_31_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 31) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[31]` = gen_data_qualification_31_br_gate_and2_inst & 1
+  mut gen_data_qualification_32_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_32_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 32) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[32]` = gen_data_qualification_32_br_gate_and2_inst & 1
+  mut gen_data_qualification_33_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_33_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 33) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[33]` = gen_data_qualification_33_br_gate_and2_inst & 1
+  mut gen_data_qualification_34_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_34_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 34) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[34]` = gen_data_qualification_34_br_gate_and2_inst & 1
+  mut gen_data_qualification_35_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_35_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 35) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[35]` = gen_data_qualification_35_br_gate_and2_inst & 1
+  mut gen_data_qualification_36_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_36_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 36) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[36]` = gen_data_qualification_36_br_gate_and2_inst & 1
+  mut gen_data_qualification_37_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_37_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 37) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[37]` = gen_data_qualification_37_br_gate_and2_inst & 1
+  mut gen_data_qualification_38_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_38_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 38) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[38]` = gen_data_qualification_38_br_gate_and2_inst & 1
+  mut gen_data_qualification_39_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_39_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 39) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[39]` = gen_data_qualification_39_br_gate_and2_inst & 1
+  mut gen_data_qualification_40_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_40_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 40) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[40]` = gen_data_qualification_40_br_gate_and2_inst & 1
+  mut gen_data_qualification_41_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_41_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 41) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[41]` = gen_data_qualification_41_br_gate_and2_inst & 1
+  mut gen_data_qualification_42_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_42_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 42) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[42]` = gen_data_qualification_42_br_gate_and2_inst & 1
+  mut gen_data_qualification_43_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_43_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 43) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[43]` = gen_data_qualification_43_br_gate_and2_inst & 1
+  mut gen_data_qualification_44_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_44_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 44) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[44]` = gen_data_qualification_44_br_gate_and2_inst & 1
+  mut gen_data_qualification_45_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_45_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 45) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[45]` = gen_data_qualification_45_br_gate_and2_inst & 1
+  mut gen_data_qualification_46_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_46_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 46) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[46]` = gen_data_qualification_46_br_gate_and2_inst & 1
+  mut gen_data_qualification_47_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_47_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 47) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[47]` = gen_data_qualification_47_br_gate_and2_inst & 1
+  mut gen_data_qualification_48_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_48_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 48) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[48]` = gen_data_qualification_48_br_gate_and2_inst & 1
+  mut gen_data_qualification_49_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_49_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 49) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[49]` = gen_data_qualification_49_br_gate_and2_inst & 1
+  mut gen_data_qualification_50_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_50_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 50) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[50]` = gen_data_qualification_50_br_gate_and2_inst & 1
+  mut gen_data_qualification_51_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_51_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 51) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[51]` = gen_data_qualification_51_br_gate_and2_inst & 1
+  mut gen_data_qualification_52_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_52_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 52) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[52]` = gen_data_qualification_52_br_gate_and2_inst & 1
+  mut gen_data_qualification_53_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_53_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 53) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[53]` = gen_data_qualification_53_br_gate_and2_inst & 1
+  mut gen_data_qualification_54_br_gate_and2_inst = br_gate_and2::[name=gen_data_qualification_54_br_gate_and2_inst](in0=(_BR_CDC_PRESERVE_NET__pop_data_unqual__w1 >> 54) & 1, in1=internal_pop_valid__w1)
+  `internal_pop_data[54]` = gen_data_qualification_54_br_gate_and2_inst & 1
+  if not (rst != 0) {
+    if reset_active_push == 0 {
+      push_flag_saved = push_flag
+    }
+  }
+  mut br_delay_nr_reset_active_pop = br_delay_nr::[name=br_delay_nr_reset_active_pop](clk=clk, `in`=rst)
+  const pop_valid__w1 = internal_pop_valid__w1
+  const pop_data__w1 = internal_pop_data
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid__w1, ready=pop_ready, data=pop_data__w1)
+  mut _mux_4:U1 = if internal_pop_valid__w1 != 0 and pop_ready != 0 { ~pop_flag_int } else { pop_flag_int & 1 }
+  const pop_flag_int_next__w1 = _mux_4
+  if not (rst != 0) {
+    pop_flag_int = pop_flag_int_next__w1
+  }
+  mut br_delay_nr_pop_flag = br_delay_nr_p1::[name=br_delay_nr_pop_flag](clk=clk, `in`=pop_flag_int_next__w1)
+  internal_pop_data = (`internal_pop_data[54]` << 54) | (`internal_pop_data[53]` << 53) | (`internal_pop_data[52]` << 52) | (`internal_pop_data[51]` << 51) | (`internal_pop_data[50]` << 50) | (`internal_pop_data[49]` << 49) | (`internal_pop_data[48]` << 48) | (`internal_pop_data[47]` << 47) | (`internal_pop_data[46]` << 46) | (`internal_pop_data[45]` << 45) | (`internal_pop_data[44]` << 44) | (`internal_pop_data[43]` << 43) | (`internal_pop_data[42]` << 42) | (`internal_pop_data[41]` << 41) | (`internal_pop_data[40]` << 40) | (`internal_pop_data[39]` << 39) | (`internal_pop_data[38]` << 38) | (`internal_pop_data[37]` << 37) | (`internal_pop_data[36]` << 36) | (`internal_pop_data[35]` << 35) | (`internal_pop_data[34]` << 34) | (`internal_pop_data[33]` << 33) | (`internal_pop_data[32]` << 32) | (`internal_pop_data[31]` << 31) | (`internal_pop_data[30]` << 30) | (`internal_pop_data[29]` << 29) | (`internal_pop_data[28]` << 28) | (`internal_pop_data[27]` << 27) | (`internal_pop_data[26]` << 26) | (`internal_pop_data[25]` << 25) | (`internal_pop_data[24]` << 24) | (`internal_pop_data[23]` << 23) | (`internal_pop_data[22]` << 22) | (`internal_pop_data[21]` << 21) | (`internal_pop_data[20]` << 20) | (`internal_pop_data[19]` << 19) | (`internal_pop_data[18]` << 18) | (`internal_pop_data[17]` << 17) | (`internal_pop_data[16]` << 16) | (`internal_pop_data[15]` << 15) | (`internal_pop_data[14]` << 14) | (`internal_pop_data[13]` << 13) | (`internal_pop_data[12]` << 12) | (`internal_pop_data[11]` << 11) | (`internal_pop_data[10]` << 10) | (`internal_pop_data[9]` << 9) | (`internal_pop_data[8]` << 8) | (`internal_pop_data[7]` << 7) | (`internal_pop_data[6]` << 6) | (`internal_pop_data[5]` << 5) | (`internal_pop_data[4]` << 4) | (`internal_pop_data[3]` << 3) | (`internal_pop_data[2]` << 2) | (`internal_pop_data[1]` << 1) | `internal_pop_data[0]`
+  pop_valid = pop_valid__w1
+  pop_data = pop_data__w1
+  reset_active_pop = br_delay_nr_reset_active_pop.out
+  pop_flag = br_delay_nr_pop_flag.out
+}

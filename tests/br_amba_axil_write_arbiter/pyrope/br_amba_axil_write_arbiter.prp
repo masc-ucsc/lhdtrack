@@ -1,138 +1,563 @@
-const br_flow_arb_rr  = import("br_flow_arb_rr.br_flow_arb_rr")
+const br_flow_demux_select_unstable = import("br_flow_demux_select_unstable.br_flow_demux_select_unstable")
+const br_flow_fork_t = import("br_flow_fork.br_flow_fork")
+const br_flow_join = import("br_flow_join.br_flow_join")
+const br_flow_mux_rr_t = import("br_flow_mux_rr.br_flow_mux_rr")
 const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const br_flow_reg_fwd_p1 = import("br_flow_reg_fwd_p1.br_flow_reg_fwd_p1")
+const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
+const br_amba = import("br_amba")
 
-// Two-flow valid/ready join: the joined beat is valid when both sides are, and
-// each side is ready only when the other one is valid too.
-comb join2(a_valid:bool, b_valid:bool, pop_ready:bool) -> (a_ready:bool, b_ready:bool, pop_valid:bool) {
-  a_ready   = pop_ready and b_valid
-  b_ready   = pop_ready and a_valid
-  pop_valid = a_valid and b_valid
-}
-
-// AXI4-Lite write arbiter: two upstream initiators share one downstream
-// target. Each initiator's AW and W beats are joined into one write request, a
-// round-robin arbiter picks one, and the picked request forks into registered
-// AW and W channels plus an owner register. The owner routes the single
-// outstanding write response back to the initiator that issued the write.
-//
-// Per-initiator buses are packed with initiator 0 in the low bits. Supported
-// configuration: one outstanding write (the owner FIFO for more is not
-// implemented). clk only fed the upstream assertions.
-pub mod br_amba_axil_write_arbiter(
-  clk:u1,
-  rst:u1,
-  upstream_awaddr:u80,
-  upstream_awprot:u6,
-  upstream_awuser:u2,
-  upstream_awvalid:u2,
-  upstream_wdata:u128,
-  upstream_wstrb:u16,
-  upstream_wuser:u2,
-  upstream_wvalid:u2,
-  upstream_bready:u2,
-  downstream_awready:u1,
-  downstream_wready:u1,
-  downstream_bresp:u2,
-  downstream_buser:u1,
-  downstream_bvalid:u1
-) -> (
-  upstream_awready:u2@[0],
-  upstream_wready:u2@[0],
-  upstream_bresp:u4@[0],
-  upstream_buser:u2@[0],
-  upstream_bvalid:u2@[0],
-  downstream_awaddr:u40@[0],
-  downstream_awprot:u3@[0],
-  downstream_awuser:u1@[0],
-  downstream_awvalid:u1@[0],
-  downstream_wdata:u64@[0],
-  downstream_wstrb:u8@[0],
-  downstream_wuser:u1@[0],
-  downstream_wvalid:u1@[0],
-  downstream_bready:u1@[0]
-) {
-  comptime const NUM_INITIATORS = upstream_awvalid.[bits]
-  cassert(NUM_INITIATORS == 2, "the owner is one bit wide")
-
-  type Aw = (addr:u40, prot:u3, user:u1)
-  type W = (data:u64, strb:u8, user:u1)
-
-  // Request side: an initiator requests once both its AW and W beats are valid.
-  wire request_ready:u2 = nil
-  mut request_valid:u2  = 0
-  mut awready:u2        = 0
-  mut wready:u2         = 0
-  for i in 0..<NUM_INITIATORS {
-    const join        = join2(a_valid=upstream_awvalid#[i] == 1, b_valid=upstream_wvalid#[i] == 1, pop_ready=request_ready#[i] == 1)
-    request_valid#[i] = u1(join.pop_valid)
-    awready#[i]       = u1(join.a_ready)
-    wready#[i]        = u1(join.b_ready)
-  }
-  upstream_awready = awready
-  upstream_wready  = wready
-
-  wire request_pop_ready:bool = nil
-  const arb = br_flow_arb_rr<NUM_FLOWS=NUM_INITIATORS>(rst=rst, push_valid=request_valid, pop_ready=request_pop_ready)
-  request_ready               = arb.push_ready
-
-  // The granted initiator's request; its index is the owner of the write.
-  mut aw_request:Aw    = (addr=0, prot=0, user=0)
-  mut w_request:W      = (data=0, strb=0, user=0)
-  mut owner_request:u1 = 0
-  for i in 0..<NUM_INITIATORS {
-    if arb.grant#[i] == 1 {
-      aw_request    = (addr=upstream_awaddr#[(i*40)..+40], prot=upstream_awprot#[(i*3)..+3], user=upstream_awuser#[i])
-      w_request     = (data=upstream_wdata#[(i*64)..+64], strb=upstream_wstrb#[(i*8)..+8], user=upstream_wuser#[i])
-      owner_request = i
-    }
-  }
-
-  // Fork the request into the AW, W and owner stages: each stage takes it only
-  // when the other two can take it in the same cycle.
-  wire aw_ready:bool      = nil
-  wire w_ready:bool       = nil
-  wire owner_ready:bool   = nil
-  const request_valid_out = arb.pop_valid_unstable
-  request_pop_ready       = aw_ready and w_ready and owner_ready
-
-  const aw_stage = br_flow_reg_fwd<T=Aw>(
-    rst=rst, push_valid=request_valid_out and w_ready and owner_ready, push_data=aw_request, pop_ready=downstream_awready == 1
-  )
-  const w_stage = br_flow_reg_fwd<T=W>(
-    rst=rst, push_valid=request_valid_out and aw_ready and owner_ready, push_data=w_request, pop_ready=downstream_wready == 1
-  )
-  wire owner_pop_ready:bool = nil
-  const owner_stage         = br_flow_reg_fwd<T=u1>(
-    rst=rst, push_valid=request_valid_out and aw_ready and w_ready, push_data=owner_request, pop_ready=owner_pop_ready
-  )
-  aw_ready    = aw_stage.push_ready
-  w_ready     = w_stage.push_ready
-  owner_ready = owner_stage.push_ready
-
-  downstream_awaddr  = aw_stage.pop_data.addr
-  downstream_awprot  = aw_stage.pop_data.prot
-  downstream_awuser  = aw_stage.pop_data.user
-  downstream_awvalid = u1(aw_stage.pop_valid)
-  downstream_wdata   = w_stage.pop_data.data
-  downstream_wstrb   = w_stage.pop_data.strb
-  downstream_wuser   = w_stage.pop_data.user
-  downstream_wvalid  = u1(w_stage.pop_valid)
-
-  // Response side: a B beat is routed to the recorded owner. Every initiator
-  // sees the response payload; only the owner sees it valid.
-  const owner          = owner_stage.pop_data
-  const response_ready = upstream_bready#[owner] == 1
-  const response       = join2(a_valid=downstream_bvalid == 1, b_valid=owner_stage.pop_valid, pop_ready=response_ready)
-  downstream_bready    = u1(response.a_ready)
-  owner_pop_ready      = response.b_ready
-
-  upstream_bvalid = if response.pop_valid { 1 << owner } else { 0 }
-  mut bresp:u4    = 0
-  mut buser:u2    = 0
-  for i in 0..<NUM_INITIATORS {
-    bresp#[(i*2)..+2] = downstream_bresp
-    buser#[i]         = downstream_buser
-  }
-  upstream_bresp = bresp
-  upstream_buser = buser
+pub mod br_amba_axil_write_arbiter::[timecheck=false](clk:Clock, downstream_awready:U1, downstream_bresp:U2, downstream_buser:U1, downstream_bvalid:U1, downstream_wready:U1, rst:Reset, upstream_awaddr:U80, upstream_awprot:U6, upstream_awuser:U2, upstream_awvalid:U2, upstream_bready:U2, upstream_wdata:U128, upstream_wstrb:U16, upstream_wuser:U2, upstream_wvalid:U2) -> (downstream_awaddr:U40@[], downstream_awprot:U3@[], downstream_awuser:U1@[], downstream_awvalid:U1@[], downstream_bready:U1@[], downstream_wdata:U64@[], downstream_wstrb:U8@[], downstream_wuser:U1@[], downstream_wvalid:U1@[], upstream_awready:U2@[], upstream_bresp:U4@[], upstream_buser:U2@[], upstream_bvalid:U2@[], upstream_wready:U2@[]) {
+  wire `upstream_awready[0]`:U1 = nil
+  wire `upstream_awready[1]`:U1 = nil
+  wire upstream_awready:U2 = nil
+  wire `upstream_wready[0]`:U1 = nil
+  wire `upstream_wready[1]`:U1 = nil
+  wire upstream_wready:U2 = nil
+  wire `upstream_bresp[0]`:U1 = nil
+  wire `upstream_bresp[1]`:U1 = nil
+  wire `upstream_bresp[2]`:U1 = nil
+  wire `upstream_bresp[3]`:U1 = nil
+  wire upstream_bresp:U4 = nil
+  wire `upstream_buser[0]`:U1 = nil
+  wire `upstream_buser[1]`:U1 = nil
+  wire upstream_buser:U2 = nil
+  wire `request_push_valid[0]`:U1 = nil
+  wire `request_push_valid[1]`:U1 = nil
+  wire request_push_valid:U2 = nil
+  wire `request_push_data[0]`:U1 = nil
+  wire `request_push_data[1]`:U1 = nil
+  wire `request_push_data[2]`:U1 = nil
+  wire `request_push_data[3]`:U1 = nil
+  wire `request_push_data[4]`:U1 = nil
+  wire `request_push_data[5]`:U1 = nil
+  wire `request_push_data[6]`:U1 = nil
+  wire `request_push_data[7]`:U1 = nil
+  wire `request_push_data[8]`:U1 = nil
+  wire `request_push_data[9]`:U1 = nil
+  wire `request_push_data[10]`:U1 = nil
+  wire `request_push_data[11]`:U1 = nil
+  wire `request_push_data[12]`:U1 = nil
+  wire `request_push_data[13]`:U1 = nil
+  wire `request_push_data[14]`:U1 = nil
+  wire `request_push_data[15]`:U1 = nil
+  wire `request_push_data[16]`:U1 = nil
+  wire `request_push_data[17]`:U1 = nil
+  wire `request_push_data[18]`:U1 = nil
+  wire `request_push_data[19]`:U1 = nil
+  wire `request_push_data[20]`:U1 = nil
+  wire `request_push_data[21]`:U1 = nil
+  wire `request_push_data[22]`:U1 = nil
+  wire `request_push_data[23]`:U1 = nil
+  wire `request_push_data[24]`:U1 = nil
+  wire `request_push_data[25]`:U1 = nil
+  wire `request_push_data[26]`:U1 = nil
+  wire `request_push_data[27]`:U1 = nil
+  wire `request_push_data[28]`:U1 = nil
+  wire `request_push_data[29]`:U1 = nil
+  wire `request_push_data[30]`:U1 = nil
+  wire `request_push_data[31]`:U1 = nil
+  wire `request_push_data[32]`:U1 = nil
+  wire `request_push_data[33]`:U1 = nil
+  wire `request_push_data[34]`:U1 = nil
+  wire `request_push_data[35]`:U1 = nil
+  wire `request_push_data[36]`:U1 = nil
+  wire `request_push_data[37]`:U1 = nil
+  wire `request_push_data[38]`:U1 = nil
+  wire `request_push_data[39]`:U1 = nil
+  wire `request_push_data[40]`:U1 = nil
+  wire `request_push_data[41]`:U1 = nil
+  wire `request_push_data[42]`:U1 = nil
+  wire `request_push_data[43]`:U1 = nil
+  wire `request_push_data[44]`:U1 = nil
+  wire `request_push_data[45]`:U1 = nil
+  wire `request_push_data[46]`:U1 = nil
+  wire `request_push_data[47]`:U1 = nil
+  wire `request_push_data[48]`:U1 = nil
+  wire `request_push_data[49]`:U1 = nil
+  wire `request_push_data[50]`:U1 = nil
+  wire `request_push_data[51]`:U1 = nil
+  wire `request_push_data[52]`:U1 = nil
+  wire `request_push_data[53]`:U1 = nil
+  wire `request_push_data[54]`:U1 = nil
+  wire `request_push_data[55]`:U1 = nil
+  wire `request_push_data[56]`:U1 = nil
+  wire `request_push_data[57]`:U1 = nil
+  wire `request_push_data[58]`:U1 = nil
+  wire `request_push_data[59]`:U1 = nil
+  wire `request_push_data[60]`:U1 = nil
+  wire `request_push_data[61]`:U1 = nil
+  wire `request_push_data[62]`:U1 = nil
+  wire `request_push_data[63]`:U1 = nil
+  wire `request_push_data[64]`:U1 = nil
+  wire `request_push_data[65]`:U1 = nil
+  wire `request_push_data[66]`:U1 = nil
+  wire `request_push_data[67]`:U1 = nil
+  wire `request_push_data[68]`:U1 = nil
+  wire `request_push_data[69]`:U1 = nil
+  wire `request_push_data[70]`:U1 = nil
+  wire `request_push_data[71]`:U1 = nil
+  wire `request_push_data[72]`:U1 = nil
+  wire `request_push_data[73]`:U1 = nil
+  wire `request_push_data[74]`:U1 = nil
+  wire `request_push_data[75]`:U1 = nil
+  wire `request_push_data[76]`:U1 = nil
+  wire `request_push_data[77]`:U1 = nil
+  wire `request_push_data[78]`:U1 = nil
+  wire `request_push_data[79]`:U1 = nil
+  wire `request_push_data[80]`:U1 = nil
+  wire `request_push_data[81]`:U1 = nil
+  wire `request_push_data[82]`:U1 = nil
+  wire `request_push_data[83]`:U1 = nil
+  wire `request_push_data[84]`:U1 = nil
+  wire `request_push_data[85]`:U1 = nil
+  wire `request_push_data[86]`:U1 = nil
+  wire `request_push_data[87]`:U1 = nil
+  wire `request_push_data[88]`:U1 = nil
+  wire `request_push_data[89]`:U1 = nil
+  wire `request_push_data[90]`:U1 = nil
+  wire `request_push_data[91]`:U1 = nil
+  wire `request_push_data[92]`:U1 = nil
+  wire `request_push_data[93]`:U1 = nil
+  wire `request_push_data[94]`:U1 = nil
+  wire `request_push_data[95]`:U1 = nil
+  wire `request_push_data[96]`:U1 = nil
+  wire `request_push_data[97]`:U1 = nil
+  wire `request_push_data[98]`:U1 = nil
+  wire `request_push_data[99]`:U1 = nil
+  wire `request_push_data[100]`:U1 = nil
+  wire `request_push_data[101]`:U1 = nil
+  wire `request_push_data[102]`:U1 = nil
+  wire `request_push_data[103]`:U1 = nil
+  wire `request_push_data[104]`:U1 = nil
+  wire `request_push_data[105]`:U1 = nil
+  wire `request_push_data[106]`:U1 = nil
+  wire `request_push_data[107]`:U1 = nil
+  wire `request_push_data[108]`:U1 = nil
+  wire `request_push_data[109]`:U1 = nil
+  wire `request_push_data[110]`:U1 = nil
+  wire `request_push_data[111]`:U1 = nil
+  wire `request_push_data[112]`:U1 = nil
+  wire `request_push_data[113]`:U1 = nil
+  wire `request_push_data[114]`:U1 = nil
+  wire `request_push_data[115]`:U1 = nil
+  wire `request_push_data[116]`:U1 = nil
+  wire `request_push_data[117]`:U1 = nil
+  wire `request_push_data[118]`:U1 = nil
+  wire `request_push_data[119]`:U1 = nil
+  wire `request_push_data[120]`:U1 = nil
+  wire `request_push_data[121]`:U1 = nil
+  wire `request_push_data[122]`:U1 = nil
+  wire `request_push_data[123]`:U1 = nil
+  wire `request_push_data[124]`:U1 = nil
+  wire `request_push_data[125]`:U1 = nil
+  wire `request_push_data[126]`:U1 = nil
+  wire `request_push_data[127]`:U1 = nil
+  wire `request_push_data[128]`:U1 = nil
+  wire `request_push_data[129]`:U1 = nil
+  wire `request_push_data[130]`:U1 = nil
+  wire `request_push_data[131]`:U1 = nil
+  wire `request_push_data[132]`:U1 = nil
+  wire `request_push_data[133]`:U1 = nil
+  wire `request_push_data[134]`:U1 = nil
+  wire `request_push_data[135]`:U1 = nil
+  wire `request_push_data[136]`:U1 = nil
+  wire `request_push_data[137]`:U1 = nil
+  wire `request_push_data[138]`:U1 = nil
+  wire `request_push_data[139]`:U1 = nil
+  wire `request_push_data[140]`:U1 = nil
+  wire `request_push_data[141]`:U1 = nil
+  wire `request_push_data[142]`:U1 = nil
+  wire `request_push_data[143]`:U1 = nil
+  wire `request_push_data[144]`:U1 = nil
+  wire `request_push_data[145]`:U1 = nil
+  wire `request_push_data[146]`:U1 = nil
+  wire `request_push_data[147]`:U1 = nil
+  wire `request_push_data[148]`:U1 = nil
+  wire `request_push_data[149]`:U1 = nil
+  wire `request_push_data[150]`:U1 = nil
+  wire `request_push_data[151]`:U1 = nil
+  wire `request_push_data[152]`:U1 = nil
+  wire `request_push_data[153]`:U1 = nil
+  wire `request_push_data[154]`:U1 = nil
+  wire `request_push_data[155]`:U1 = nil
+  wire `request_push_data[156]`:U1 = nil
+  wire `request_push_data[157]`:U1 = nil
+  wire `request_push_data[158]`:U1 = nil
+  wire `request_push_data[159]`:U1 = nil
+  wire `request_push_data[160]`:U1 = nil
+  wire `request_push_data[161]`:U1 = nil
+  wire `request_push_data[162]`:U1 = nil
+  wire `request_push_data[163]`:U1 = nil
+  wire `request_push_data[164]`:U1 = nil
+  wire `request_push_data[165]`:U1 = nil
+  wire `request_push_data[166]`:U1 = nil
+  wire `request_push_data[167]`:U1 = nil
+  wire `request_push_data[168]`:U1 = nil
+  wire `request_push_data[169]`:U1 = nil
+  wire `request_push_data[170]`:U1 = nil
+  wire `request_push_data[171]`:U1 = nil
+  wire `request_push_data[172]`:U1 = nil
+  wire `request_push_data[173]`:U1 = nil
+  wire `request_push_data[174]`:U1 = nil
+  wire `request_push_data[175]`:U1 = nil
+  wire `request_push_data[176]`:U1 = nil
+  wire `request_push_data[177]`:U1 = nil
+  wire `request_push_data[178]`:U1 = nil
+  wire `request_push_data[179]`:U1 = nil
+  wire `request_push_data[180]`:U1 = nil
+  wire `request_push_data[181]`:U1 = nil
+  wire `request_push_data[182]`:U1 = nil
+  wire `request_push_data[183]`:U1 = nil
+  wire `request_push_data[184]`:U1 = nil
+  wire `request_push_data[185]`:U1 = nil
+  wire `request_push_data[186]`:U1 = nil
+  wire `request_push_data[187]`:U1 = nil
+  wire `request_push_data[188]`:U1 = nil
+  wire `request_push_data[189]`:U1 = nil
+  wire `request_push_data[190]`:U1 = nil
+  wire `request_push_data[191]`:U1 = nil
+  wire `request_push_data[192]`:U1 = nil
+  wire `request_push_data[193]`:U1 = nil
+  wire `request_push_data[194]`:U1 = nil
+  wire `request_push_data[195]`:U1 = nil
+  wire `request_push_data[196]`:U1 = nil
+  wire `request_push_data[197]`:U1 = nil
+  wire `request_push_data[198]`:U1 = nil
+  wire `request_push_data[199]`:U1 = nil
+  wire `request_push_data[200]`:U1 = nil
+  wire `request_push_data[201]`:U1 = nil
+  wire `request_push_data[202]`:U1 = nil
+  wire `request_push_data[203]`:U1 = nil
+  wire `request_push_data[204]`:U1 = nil
+  wire `request_push_data[205]`:U1 = nil
+  wire `request_push_data[206]`:U1 = nil
+  wire `request_push_data[207]`:U1 = nil
+  wire `request_push_data[208]`:U1 = nil
+  wire `request_push_data[209]`:U1 = nil
+  wire `request_push_data[210]`:U1 = nil
+  wire `request_push_data[211]`:U1 = nil
+  wire `request_push_data[212]`:U1 = nil
+  wire `request_push_data[213]`:U1 = nil
+  wire `request_push_data[214]`:U1 = nil
+  wire `request_push_data[215]`:U1 = nil
+  wire `request_push_data[216]`:U1 = nil
+  wire `request_push_data[217]`:U1 = nil
+  wire `request_push_data[218]`:U1 = nil
+  wire `request_push_data[219]`:U1 = nil
+  wire `request_push_data[220]`:U1 = nil
+  wire `request_push_data[221]`:U1 = nil
+  wire `request_push_data[222]`:U1 = nil
+  wire `request_push_data[223]`:U1 = nil
+  wire `request_push_data[224]`:U1 = nil
+  wire `request_push_data[225]`:U1 = nil
+  wire `request_push_data[226]`:U1 = nil
+  wire `request_push_data[227]`:U1 = nil
+  wire `request_push_data[228]`:U1 = nil
+  wire `request_push_data[229]`:U1 = nil
+  wire `request_push_data[230]`:U1 = nil
+  wire `request_push_data[231]`:U1 = nil
+  wire `request_push_data[232]`:U1 = nil
+  wire `request_push_data[233]`:U1 = nil
+  wire `request_push_data[234]`:U1 = nil
+  wire `request_push_data[235]`:U1 = nil
+  wire request_push_data:U236 = nil
+  wire `request_fork_ready[0]`:U1 = nil
+  wire `request_fork_ready[1]`:U1 = nil
+  wire `request_fork_ready[2]`:U1 = nil
+  wire request_fork_ready:U3 = nil
+  wire request_push_ready:U2 = nil
+  wire request_pop_ready:U1 = nil
+  wire owner_ready:U1 = nil
+  wire response_push_valid:U1 = nil
+  const t38 = 0 | ((upstream_wuser & 1) << 1) | (upstream_wstrb#[0..=7] << 2) | (upstream_wdata#[0..=63] << 10) | ((upstream_awuser & 1) << 0x4a) | (upstream_awprot#[0..=2] << 0x4b) | (upstream_awaddr#[0..=39] << 0x4e)
+  `request_push_data[0]` = t38 & 1
+  `request_push_data[1]` = (t38 >> 1) & 1
+  `request_push_data[2]` = (t38 >> 2) & 1
+  `request_push_data[3]` = (t38 >> 3) & 1
+  `request_push_data[4]` = (t38 >> 4) & 1
+  `request_push_data[5]` = (t38 >> 5) & 1
+  `request_push_data[6]` = (t38 >> 6) & 1
+  `request_push_data[7]` = (t38 >> 7) & 1
+  `request_push_data[8]` = (t38 >> 8) & 1
+  `request_push_data[9]` = (t38 >> 9) & 1
+  `request_push_data[10]` = (t38 >> 10) & 1
+  `request_push_data[11]` = (t38 >> 11) & 1
+  `request_push_data[12]` = (t38 >> 12) & 1
+  `request_push_data[13]` = (t38 >> 13) & 1
+  `request_push_data[14]` = (t38 >> 14) & 1
+  `request_push_data[15]` = (t38 >> 15) & 1
+  `request_push_data[16]` = (t38 >> 16) & 1
+  `request_push_data[17]` = (t38 >> 17) & 1
+  `request_push_data[18]` = (t38 >> 18) & 1
+  `request_push_data[19]` = (t38 >> 19) & 1
+  `request_push_data[20]` = (t38 >> 20) & 1
+  `request_push_data[21]` = (t38 >> 21) & 1
+  `request_push_data[22]` = (t38 >> 22) & 1
+  `request_push_data[23]` = (t38 >> 23) & 1
+  `request_push_data[24]` = (t38 >> 24) & 1
+  `request_push_data[25]` = (t38 >> 25) & 1
+  `request_push_data[26]` = (t38 >> 26) & 1
+  `request_push_data[27]` = (t38 >> 27) & 1
+  `request_push_data[28]` = (t38 >> 28) & 1
+  `request_push_data[29]` = (t38 >> 29) & 1
+  `request_push_data[30]` = (t38 >> 30) & 1
+  `request_push_data[31]` = (t38 >> 31) & 1
+  `request_push_data[32]` = (t38 >> 32) & 1
+  `request_push_data[33]` = (t38 >> 33) & 1
+  `request_push_data[34]` = (t38 >> 34) & 1
+  `request_push_data[35]` = (t38 >> 35) & 1
+  `request_push_data[36]` = (t38 >> 36) & 1
+  `request_push_data[37]` = (t38 >> 37) & 1
+  `request_push_data[38]` = (t38 >> 38) & 1
+  `request_push_data[39]` = (t38 >> 39) & 1
+  `request_push_data[40]` = (t38 >> 40) & 1
+  `request_push_data[41]` = (t38 >> 41) & 1
+  `request_push_data[42]` = (t38 >> 42) & 1
+  `request_push_data[43]` = (t38 >> 43) & 1
+  `request_push_data[44]` = (t38 >> 44) & 1
+  `request_push_data[45]` = (t38 >> 45) & 1
+  `request_push_data[46]` = (t38 >> 46) & 1
+  `request_push_data[47]` = (t38 >> 47) & 1
+  `request_push_data[48]` = (t38 >> 48) & 1
+  `request_push_data[49]` = (t38 >> 49) & 1
+  `request_push_data[50]` = (t38 >> 50) & 1
+  `request_push_data[51]` = (t38 >> 51) & 1
+  `request_push_data[52]` = (t38 >> 52) & 1
+  `request_push_data[53]` = (t38 >> 53) & 1
+  `request_push_data[54]` = (t38 >> 54) & 1
+  `request_push_data[55]` = (t38 >> 55) & 1
+  `request_push_data[56]` = (t38 >> 56) & 1
+  `request_push_data[57]` = (t38 >> 57) & 1
+  `request_push_data[58]` = (t38 >> 58) & 1
+  `request_push_data[59]` = (t38 >> 59) & 1
+  `request_push_data[60]` = (t38 >> 60) & 1
+  `request_push_data[61]` = (t38 >> 61) & 1
+  `request_push_data[62]` = (t38 >> 62) & 1
+  `request_push_data[63]` = (t38 >> 63) & 1
+  `request_push_data[64]` = (t38 >> 0x40) & 1
+  `request_push_data[65]` = (t38 >> 0x41) & 1
+  `request_push_data[66]` = (t38 >> 0x42) & 1
+  `request_push_data[67]` = (t38 >> 0x43) & 1
+  `request_push_data[68]` = (t38 >> 0x44) & 1
+  `request_push_data[69]` = (t38 >> 0x45) & 1
+  `request_push_data[70]` = (t38 >> 0x46) & 1
+  `request_push_data[71]` = (t38 >> 0x47) & 1
+  `request_push_data[72]` = (t38 >> 0x48) & 1
+  `request_push_data[73]` = (t38 >> 0x49) & 1
+  `request_push_data[74]` = (t38 >> 0x4a) & 1
+  `request_push_data[75]` = (t38 >> 0x4b) & 1
+  `request_push_data[76]` = (t38 >> 0x4c) & 1
+  `request_push_data[77]` = (t38 >> 0x4d) & 1
+  `request_push_data[78]` = (t38 >> 0x4e) & 1
+  `request_push_data[79]` = (t38 >> 0x4f) & 1
+  `request_push_data[80]` = (t38 >> 0x50) & 1
+  `request_push_data[81]` = (t38 >> 0x51) & 1
+  `request_push_data[82]` = (t38 >> 0x52) & 1
+  `request_push_data[83]` = (t38 >> 0x53) & 1
+  `request_push_data[84]` = (t38 >> 0x54) & 1
+  `request_push_data[85]` = (t38 >> 0x55) & 1
+  `request_push_data[86]` = (t38 >> 0x56) & 1
+  `request_push_data[87]` = (t38 >> 0x57) & 1
+  `request_push_data[88]` = (t38 >> 0x58) & 1
+  `request_push_data[89]` = (t38 >> 0x59) & 1
+  `request_push_data[90]` = (t38 >> 0x5a) & 1
+  `request_push_data[91]` = (t38 >> 0x5b) & 1
+  `request_push_data[92]` = (t38 >> 0x5c) & 1
+  `request_push_data[93]` = (t38 >> 0x5d) & 1
+  `request_push_data[94]` = (t38 >> 0x5e) & 1
+  `request_push_data[95]` = (t38 >> 0x5f) & 1
+  `request_push_data[96]` = (t38 >> 0x60) & 1
+  `request_push_data[97]` = (t38 >> 0x61) & 1
+  `request_push_data[98]` = (t38 >> 0x62) & 1
+  `request_push_data[99]` = (t38 >> 0x63) & 1
+  `request_push_data[100]` = (t38 >> 0x64) & 1
+  `request_push_data[101]` = (t38 >> 0x65) & 1
+  `request_push_data[102]` = (t38 >> 0x66) & 1
+  `request_push_data[103]` = (t38 >> 0x67) & 1
+  `request_push_data[104]` = (t38 >> 0x68) & 1
+  `request_push_data[105]` = (t38 >> 0x69) & 1
+  `request_push_data[106]` = (t38 >> 0x6a) & 1
+  `request_push_data[107]` = (t38 >> 0x6b) & 1
+  `request_push_data[108]` = (t38 >> 0x6c) & 1
+  `request_push_data[109]` = (t38 >> 0x6d) & 1
+  `request_push_data[110]` = (t38 >> 0x6e) & 1
+  `request_push_data[111]` = (t38 >> 0x6f) & 1
+  `request_push_data[112]` = (t38 >> 0x70) & 1
+  `request_push_data[113]` = (t38 >> 0x71) & 1
+  `request_push_data[114]` = (t38 >> 0x72) & 1
+  `request_push_data[115]` = (t38 >> 0x73) & 1
+  `request_push_data[116]` = (t38 >> 0x74) & 1
+  `request_push_data[117]` = (t38 >> 0x75) & 1
+  const t293 = 1 | (((upstream_wuser >> 1) & 1) << 1) | (upstream_wstrb#[8..=15] << 2) | (upstream_wdata#[64..=127] << 10) | (((upstream_awuser >> 1) & 1) << 0x4a) | (upstream_awprot#[3..=5] << 0x4b) | (upstream_awaddr#[40..=79] << 0x4e)
+  `request_push_data[118]` = t293 & 1
+  `request_push_data[119]` = (t293 >> 1) & 1
+  `request_push_data[120]` = (t293 >> 2) & 1
+  `request_push_data[121]` = (t293 >> 3) & 1
+  `request_push_data[122]` = (t293 >> 4) & 1
+  `request_push_data[123]` = (t293 >> 5) & 1
+  `request_push_data[124]` = (t293 >> 6) & 1
+  `request_push_data[125]` = (t293 >> 7) & 1
+  `request_push_data[126]` = (t293 >> 8) & 1
+  `request_push_data[127]` = (t293 >> 9) & 1
+  `request_push_data[128]` = (t293 >> 10) & 1
+  `request_push_data[129]` = (t293 >> 11) & 1
+  `request_push_data[130]` = (t293 >> 12) & 1
+  `request_push_data[131]` = (t293 >> 13) & 1
+  `request_push_data[132]` = (t293 >> 14) & 1
+  `request_push_data[133]` = (t293 >> 15) & 1
+  `request_push_data[134]` = (t293 >> 16) & 1
+  `request_push_data[135]` = (t293 >> 17) & 1
+  `request_push_data[136]` = (t293 >> 18) & 1
+  `request_push_data[137]` = (t293 >> 19) & 1
+  `request_push_data[138]` = (t293 >> 20) & 1
+  `request_push_data[139]` = (t293 >> 21) & 1
+  `request_push_data[140]` = (t293 >> 22) & 1
+  `request_push_data[141]` = (t293 >> 23) & 1
+  `request_push_data[142]` = (t293 >> 24) & 1
+  `request_push_data[143]` = (t293 >> 25) & 1
+  `request_push_data[144]` = (t293 >> 26) & 1
+  `request_push_data[145]` = (t293 >> 27) & 1
+  `request_push_data[146]` = (t293 >> 28) & 1
+  `request_push_data[147]` = (t293 >> 29) & 1
+  `request_push_data[148]` = (t293 >> 30) & 1
+  `request_push_data[149]` = (t293 >> 31) & 1
+  `request_push_data[150]` = (t293 >> 32) & 1
+  `request_push_data[151]` = (t293 >> 33) & 1
+  `request_push_data[152]` = (t293 >> 34) & 1
+  `request_push_data[153]` = (t293 >> 35) & 1
+  `request_push_data[154]` = (t293 >> 36) & 1
+  `request_push_data[155]` = (t293 >> 37) & 1
+  `request_push_data[156]` = (t293 >> 38) & 1
+  `request_push_data[157]` = (t293 >> 39) & 1
+  `request_push_data[158]` = (t293 >> 40) & 1
+  `request_push_data[159]` = (t293 >> 41) & 1
+  `request_push_data[160]` = (t293 >> 42) & 1
+  `request_push_data[161]` = (t293 >> 43) & 1
+  `request_push_data[162]` = (t293 >> 44) & 1
+  `request_push_data[163]` = (t293 >> 45) & 1
+  `request_push_data[164]` = (t293 >> 46) & 1
+  `request_push_data[165]` = (t293 >> 47) & 1
+  `request_push_data[166]` = (t293 >> 48) & 1
+  `request_push_data[167]` = (t293 >> 49) & 1
+  `request_push_data[168]` = (t293 >> 50) & 1
+  `request_push_data[169]` = (t293 >> 51) & 1
+  `request_push_data[170]` = (t293 >> 52) & 1
+  `request_push_data[171]` = (t293 >> 53) & 1
+  `request_push_data[172]` = (t293 >> 54) & 1
+  `request_push_data[173]` = (t293 >> 55) & 1
+  `request_push_data[174]` = (t293 >> 56) & 1
+  `request_push_data[175]` = (t293 >> 57) & 1
+  `request_push_data[176]` = (t293 >> 58) & 1
+  `request_push_data[177]` = (t293 >> 59) & 1
+  `request_push_data[178]` = (t293 >> 60) & 1
+  `request_push_data[179]` = (t293 >> 61) & 1
+  `request_push_data[180]` = (t293 >> 62) & 1
+  `request_push_data[181]` = (t293 >> 63) & 1
+  `request_push_data[182]` = (t293 >> 0x40) & 1
+  `request_push_data[183]` = (t293 >> 0x41) & 1
+  `request_push_data[184]` = (t293 >> 0x42) & 1
+  `request_push_data[185]` = (t293 >> 0x43) & 1
+  `request_push_data[186]` = (t293 >> 0x44) & 1
+  `request_push_data[187]` = (t293 >> 0x45) & 1
+  `request_push_data[188]` = (t293 >> 0x46) & 1
+  `request_push_data[189]` = (t293 >> 0x47) & 1
+  `request_push_data[190]` = (t293 >> 0x48) & 1
+  `request_push_data[191]` = (t293 >> 0x49) & 1
+  `request_push_data[192]` = (t293 >> 0x4a) & 1
+  `request_push_data[193]` = (t293 >> 0x4b) & 1
+  `request_push_data[194]` = (t293 >> 0x4c) & 1
+  `request_push_data[195]` = (t293 >> 0x4d) & 1
+  `request_push_data[196]` = (t293 >> 0x4e) & 1
+  `request_push_data[197]` = (t293 >> 0x4f) & 1
+  `request_push_data[198]` = (t293 >> 0x50) & 1
+  `request_push_data[199]` = (t293 >> 0x51) & 1
+  `request_push_data[200]` = (t293 >> 0x52) & 1
+  `request_push_data[201]` = (t293 >> 0x53) & 1
+  `request_push_data[202]` = (t293 >> 0x54) & 1
+  `request_push_data[203]` = (t293 >> 0x55) & 1
+  `request_push_data[204]` = (t293 >> 0x56) & 1
+  `request_push_data[205]` = (t293 >> 0x57) & 1
+  `request_push_data[206]` = (t293 >> 0x58) & 1
+  `request_push_data[207]` = (t293 >> 0x59) & 1
+  `request_push_data[208]` = (t293 >> 0x5a) & 1
+  `request_push_data[209]` = (t293 >> 0x5b) & 1
+  `request_push_data[210]` = (t293 >> 0x5c) & 1
+  `request_push_data[211]` = (t293 >> 0x5d) & 1
+  `request_push_data[212]` = (t293 >> 0x5e) & 1
+  `request_push_data[213]` = (t293 >> 0x5f) & 1
+  `request_push_data[214]` = (t293 >> 0x60) & 1
+  `request_push_data[215]` = (t293 >> 0x61) & 1
+  `request_push_data[216]` = (t293 >> 0x62) & 1
+  `request_push_data[217]` = (t293 >> 0x63) & 1
+  `request_push_data[218]` = (t293 >> 0x64) & 1
+  `request_push_data[219]` = (t293 >> 0x65) & 1
+  `request_push_data[220]` = (t293 >> 0x66) & 1
+  `request_push_data[221]` = (t293 >> 0x67) & 1
+  `request_push_data[222]` = (t293 >> 0x68) & 1
+  `request_push_data[223]` = (t293 >> 0x69) & 1
+  `request_push_data[224]` = (t293 >> 0x6a) & 1
+  `request_push_data[225]` = (t293 >> 0x6b) & 1
+  `request_push_data[226]` = (t293 >> 0x6c) & 1
+  `request_push_data[227]` = (t293 >> 0x6d) & 1
+  `request_push_data[228]` = (t293 >> 0x6e) & 1
+  `request_push_data[229]` = (t293 >> 0x6f) & 1
+  `request_push_data[230]` = (t293 >> 0x70) & 1
+  `request_push_data[231]` = (t293 >> 0x71) & 1
+  `request_push_data[232]` = (t293 >> 0x72) & 1
+  `request_push_data[233]` = (t293 >> 0x73) & 1
+  `request_push_data[234]` = (t293 >> 0x74) & 1
+  `request_push_data[235]` = (t293 >> 0x75) & 1
+  mut gen_request_0_br_flow_join_aw_w = br_flow_join::[name=gen_request_0_br_flow_join_aw_w](clk=clk, rst=rst, push_valid=((upstream_awvalid & 1) << 1) | (upstream_wvalid & 1), pop_ready=request_push_ready & 1)
+  `upstream_wready[0]` = gen_request_0_br_flow_join_aw_w.push_ready & 1
+  `upstream_awready[0]` = (gen_request_0_br_flow_join_aw_w.push_ready >> 1) & 1
+  `request_push_valid[0]` = gen_request_0_br_flow_join_aw_w.pop_valid & 1
+  mut gen_request_1_br_flow_join_aw_w = br_flow_join::[name=gen_request_1_br_flow_join_aw_w](clk=clk, rst=rst, push_valid=(((upstream_awvalid >> 1) & 1) << 1) | ((upstream_wvalid >> 1) & 1), pop_ready=(request_push_ready >> 1) & 1)
+  `upstream_wready[1]` = gen_request_1_br_flow_join_aw_w.push_ready & 1
+  `upstream_awready[1]` = (gen_request_1_br_flow_join_aw_w.push_ready >> 1) & 1
+  `request_push_valid[1]` = gen_request_1_br_flow_join_aw_w.pop_valid & 1
+  mut br_flow_mux_rr = br_flow_mux_rr_t::[name=br_flow_mux_rr](clk=clk, rst=rst, push_valid=request_push_valid, push_data=request_push_data, pop_ready=request_pop_ready)
+  request_push_ready = br_flow_mux_rr.push_ready
+  mut `request_pop_data.awaddr` = br_flow_mux_rr.pop_data_unstable#[78..=117]
+  mut `request_pop_data.awprot` = br_flow_mux_rr.pop_data_unstable#[75..=77]
+  mut `request_pop_data.awuser` = (br_flow_mux_rr.pop_data_unstable >> 0x4a) & 1
+  mut `request_pop_data.wdata` = br_flow_mux_rr.pop_data_unstable#[10..=73]
+  mut `request_pop_data.wstrb` = br_flow_mux_rr.pop_data_unstable#[2..=9]
+  mut `request_pop_data.wuser` = (br_flow_mux_rr.pop_data_unstable >> 1) & 1
+  mut `request_pop_data.owner` = br_flow_mux_rr.pop_data_unstable & 1
+  mut br_flow_fork = br_flow_fork_t::[name=br_flow_fork](clk=clk, rst=rst, push_valid=br_flow_mux_rr.pop_valid_unstable, pop_ready=request_fork_ready)
+  request_pop_ready = br_flow_fork.push_ready
+  mut br_flow_reg_fwd_aw = br_flow_reg_fwd::[name=br_flow_reg_fwd_aw](clk=clk, rst=rst, push_valid=(br_flow_fork.pop_valid_unstable >> 0) & 1, push_data=(`request_pop_data.awaddr`#[0..=39] << 4) | (`request_pop_data.awprot`#[0..=2] << 1) | (`request_pop_data.awuser` & 1), pop_ready=downstream_awready)
+  `request_fork_ready[0]` = br_flow_reg_fwd_aw.push_ready & 1
+  mut br_flow_reg_fwd_w = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_w](clk=clk, rst=rst, push_valid=(br_flow_fork.pop_valid_unstable >> 1) & 1, push_data=(`request_pop_data.wdata`#[0..=63] << 9) | (`request_pop_data.wstrb`#[0..=7] << 1) | (`request_pop_data.wuser` & 1), pop_ready=downstream_wready)
+  `request_fork_ready[1]` = br_flow_reg_fwd_w.push_ready & 1
+  mut gen_owner_reg_br_flow_reg_fwd_owner = br_flow_reg_fwd_p2::[name=gen_owner_reg_br_flow_reg_fwd_owner](clk=clk, rst=rst, push_valid=(br_flow_fork.pop_valid_unstable >> 2) & 1, push_data=`request_pop_data.owner`, pop_ready=owner_ready)
+  `request_fork_ready[2]` = gen_owner_reg_br_flow_reg_fwd_owner.push_ready & 1
+  mut br_flow_demux_select_unstable_b = br_flow_demux_select_unstable::[name=br_flow_demux_select_unstable_b](clk=clk, rst=rst, select=gen_owner_reg_br_flow_reg_fwd_owner.pop_data, push_valid=response_push_valid, push_data=(downstream_bresp << 1) | (downstream_buser & 1), pop_ready=upstream_bready)
+  `upstream_bresp[0]` = br_flow_demux_select_unstable_b.pop_data_unstable#[0..=2]#[1..=2] & 1
+  `upstream_bresp[1]` = (br_flow_demux_select_unstable_b.pop_data_unstable#[0..=2]#[1..=2] >> 1) & 1
+  `upstream_buser[0]` = br_flow_demux_select_unstable_b.pop_data_unstable#[0..=2] & 1
+  `upstream_bresp[2]` = br_flow_demux_select_unstable_b.pop_data_unstable#[3..=5]#[1..=2] & 1
+  `upstream_bresp[3]` = (br_flow_demux_select_unstable_b.pop_data_unstable#[3..=5]#[1..=2] >> 1) & 1
+  `upstream_buser[1]` = br_flow_demux_select_unstable_b.pop_data_unstable#[3..=5] & 1
+  mut br_flow_join_owner_b = br_flow_join::[name=br_flow_join_owner_b](clk=clk, rst=rst, push_valid=((downstream_bvalid & 1) << 1) | (gen_owner_reg_br_flow_reg_fwd_owner.pop_valid & 1), pop_ready=br_flow_demux_select_unstable_b.push_ready)
+  owner_ready = br_flow_join_owner_b.push_ready & 1
+  response_push_valid = br_flow_join_owner_b.pop_valid
+  upstream_awready = (`upstream_awready[1]` << 1) | `upstream_awready[0]`
+  upstream_wready = (`upstream_wready[1]` << 1) | `upstream_wready[0]`
+  upstream_bresp = (`upstream_bresp[3]` << 3) | (`upstream_bresp[2]` << 2) | (`upstream_bresp[1]` << 1) | `upstream_bresp[0]`
+  upstream_buser = (`upstream_buser[1]` << 1) | `upstream_buser[0]`
+  request_push_valid = (`request_push_valid[1]` << 1) | `request_push_valid[0]`
+  request_push_data = (`request_push_data[235]` << 235) | (`request_push_data[234]` << 234) | (`request_push_data[233]` << 233) | (`request_push_data[232]` << 232) | (`request_push_data[231]` << 231) | (`request_push_data[230]` << 230) | (`request_push_data[229]` << 229) | (`request_push_data[228]` << 228) | (`request_push_data[227]` << 227) | (`request_push_data[226]` << 226) | (`request_push_data[225]` << 225) | (`request_push_data[224]` << 224) | (`request_push_data[223]` << 223) | (`request_push_data[222]` << 222) | (`request_push_data[221]` << 221) | (`request_push_data[220]` << 220) | (`request_push_data[219]` << 219) | (`request_push_data[218]` << 218) | (`request_push_data[217]` << 217) | (`request_push_data[216]` << 216) | (`request_push_data[215]` << 215) | (`request_push_data[214]` << 214) | (`request_push_data[213]` << 213) | (`request_push_data[212]` << 212) | (`request_push_data[211]` << 211) | (`request_push_data[210]` << 210) | (`request_push_data[209]` << 209) | (`request_push_data[208]` << 208) | (`request_push_data[207]` << 207) | (`request_push_data[206]` << 206) | (`request_push_data[205]` << 205) | (`request_push_data[204]` << 204) | (`request_push_data[203]` << 203) | (`request_push_data[202]` << 202) | (`request_push_data[201]` << 201) | (`request_push_data[200]` << 200) | (`request_push_data[199]` << 199) | (`request_push_data[198]` << 198) | (`request_push_data[197]` << 197) | (`request_push_data[196]` << 196) | (`request_push_data[195]` << 195) | (`request_push_data[194]` << 194) | (`request_push_data[193]` << 193) | (`request_push_data[192]` << 192) | (`request_push_data[191]` << 191) | (`request_push_data[190]` << 190) | (`request_push_data[189]` << 189) | (`request_push_data[188]` << 188) | (`request_push_data[187]` << 187) | (`request_push_data[186]` << 186) | (`request_push_data[185]` << 185) | (`request_push_data[184]` << 184) | (`request_push_data[183]` << 183) | (`request_push_data[182]` << 182) | (`request_push_data[181]` << 181) | (`request_push_data[180]` << 180) | (`request_push_data[179]` << 179) | (`request_push_data[178]` << 178) | (`request_push_data[177]` << 177) | (`request_push_data[176]` << 176) | (`request_push_data[175]` << 175) | (`request_push_data[174]` << 174) | (`request_push_data[173]` << 173) | (`request_push_data[172]` << 172) | (`request_push_data[171]` << 171) | (`request_push_data[170]` << 170) | (`request_push_data[169]` << 169) | (`request_push_data[168]` << 168) | (`request_push_data[167]` << 167) | (`request_push_data[166]` << 166) | (`request_push_data[165]` << 165) | (`request_push_data[164]` << 164) | (`request_push_data[163]` << 163) | (`request_push_data[162]` << 162) | (`request_push_data[161]` << 161) | (`request_push_data[160]` << 160) | (`request_push_data[159]` << 159) | (`request_push_data[158]` << 158) | (`request_push_data[157]` << 157) | (`request_push_data[156]` << 156) | (`request_push_data[155]` << 155) | (`request_push_data[154]` << 154) | (`request_push_data[153]` << 153) | (`request_push_data[152]` << 152) | (`request_push_data[151]` << 151) | (`request_push_data[150]` << 150) | (`request_push_data[149]` << 149) | (`request_push_data[148]` << 148) | (`request_push_data[147]` << 147) | (`request_push_data[146]` << 146) | (`request_push_data[145]` << 145) | (`request_push_data[144]` << 144) | (`request_push_data[143]` << 143) | (`request_push_data[142]` << 142) | (`request_push_data[141]` << 141) | (`request_push_data[140]` << 140) | (`request_push_data[139]` << 139) | (`request_push_data[138]` << 138) | (`request_push_data[137]` << 137) | (`request_push_data[136]` << 136) | (`request_push_data[135]` << 135) | (`request_push_data[134]` << 134) | (`request_push_data[133]` << 133) | (`request_push_data[132]` << 132) | (`request_push_data[131]` << 131) | (`request_push_data[130]` << 130) | (`request_push_data[129]` << 129) | (`request_push_data[128]` << 128) | (`request_push_data[127]` << 127) | (`request_push_data[126]` << 126) | (`request_push_data[125]` << 125) | (`request_push_data[124]` << 124) | (`request_push_data[123]` << 123) | (`request_push_data[122]` << 122) | (`request_push_data[121]` << 121) | (`request_push_data[120]` << 120) | (`request_push_data[119]` << 119) | (`request_push_data[118]` << 118) | (`request_push_data[117]` << 117) | (`request_push_data[116]` << 116) | (`request_push_data[115]` << 115) | (`request_push_data[114]` << 114) | (`request_push_data[113]` << 113) | (`request_push_data[112]` << 112) | (`request_push_data[111]` << 111) | (`request_push_data[110]` << 110) | (`request_push_data[109]` << 109) | (`request_push_data[108]` << 108) | (`request_push_data[107]` << 107) | (`request_push_data[106]` << 106) | (`request_push_data[105]` << 105) | (`request_push_data[104]` << 104) | (`request_push_data[103]` << 103) | (`request_push_data[102]` << 102) | (`request_push_data[101]` << 101) | (`request_push_data[100]` << 100) | (`request_push_data[99]` << 99) | (`request_push_data[98]` << 98) | (`request_push_data[97]` << 97) | (`request_push_data[96]` << 96) | (`request_push_data[95]` << 95) | (`request_push_data[94]` << 94) | (`request_push_data[93]` << 93) | (`request_push_data[92]` << 92) | (`request_push_data[91]` << 91) | (`request_push_data[90]` << 90) | (`request_push_data[89]` << 89) | (`request_push_data[88]` << 88) | (`request_push_data[87]` << 87) | (`request_push_data[86]` << 86) | (`request_push_data[85]` << 85) | (`request_push_data[84]` << 84) | (`request_push_data[83]` << 83) | (`request_push_data[82]` << 82) | (`request_push_data[81]` << 81) | (`request_push_data[80]` << 80) | (`request_push_data[79]` << 79) | (`request_push_data[78]` << 78) | (`request_push_data[77]` << 77) | (`request_push_data[76]` << 76) | (`request_push_data[75]` << 75) | (`request_push_data[74]` << 74) | (`request_push_data[73]` << 73) | (`request_push_data[72]` << 72) | (`request_push_data[71]` << 71) | (`request_push_data[70]` << 70) | (`request_push_data[69]` << 69) | (`request_push_data[68]` << 68) | (`request_push_data[67]` << 67) | (`request_push_data[66]` << 66) | (`request_push_data[65]` << 65) | (`request_push_data[64]` << 64) | (`request_push_data[63]` << 63) | (`request_push_data[62]` << 62) | (`request_push_data[61]` << 61) | (`request_push_data[60]` << 60) | (`request_push_data[59]` << 59) | (`request_push_data[58]` << 58) | (`request_push_data[57]` << 57) | (`request_push_data[56]` << 56) | (`request_push_data[55]` << 55) | (`request_push_data[54]` << 54) | (`request_push_data[53]` << 53) | (`request_push_data[52]` << 52) | (`request_push_data[51]` << 51) | (`request_push_data[50]` << 50) | (`request_push_data[49]` << 49) | (`request_push_data[48]` << 48) | (`request_push_data[47]` << 47) | (`request_push_data[46]` << 46) | (`request_push_data[45]` << 45) | (`request_push_data[44]` << 44) | (`request_push_data[43]` << 43) | (`request_push_data[42]` << 42) | (`request_push_data[41]` << 41) | (`request_push_data[40]` << 40) | (`request_push_data[39]` << 39) | (`request_push_data[38]` << 38) | (`request_push_data[37]` << 37) | (`request_push_data[36]` << 36) | (`request_push_data[35]` << 35) | (`request_push_data[34]` << 34) | (`request_push_data[33]` << 33) | (`request_push_data[32]` << 32) | (`request_push_data[31]` << 31) | (`request_push_data[30]` << 30) | (`request_push_data[29]` << 29) | (`request_push_data[28]` << 28) | (`request_push_data[27]` << 27) | (`request_push_data[26]` << 26) | (`request_push_data[25]` << 25) | (`request_push_data[24]` << 24) | (`request_push_data[23]` << 23) | (`request_push_data[22]` << 22) | (`request_push_data[21]` << 21) | (`request_push_data[20]` << 20) | (`request_push_data[19]` << 19) | (`request_push_data[18]` << 18) | (`request_push_data[17]` << 17) | (`request_push_data[16]` << 16) | (`request_push_data[15]` << 15) | (`request_push_data[14]` << 14) | (`request_push_data[13]` << 13) | (`request_push_data[12]` << 12) | (`request_push_data[11]` << 11) | (`request_push_data[10]` << 10) | (`request_push_data[9]` << 9) | (`request_push_data[8]` << 8) | (`request_push_data[7]` << 7) | (`request_push_data[6]` << 6) | (`request_push_data[5]` << 5) | (`request_push_data[4]` << 4) | (`request_push_data[3]` << 3) | (`request_push_data[2]` << 2) | (`request_push_data[1]` << 1) | `request_push_data[0]`
+  request_fork_ready = (`request_fork_ready[2]` << 2) | (`request_fork_ready[1]` << 1) | `request_fork_ready[0]`
+  upstream_bvalid = br_flow_demux_select_unstable_b.pop_valid_unstable
+  downstream_awaddr = (br_flow_reg_fwd_aw.pop_data >> 4)#[0..=39]
+  downstream_awprot = (br_flow_reg_fwd_aw.pop_data >> 1)#[0..=2]
+  downstream_awuser = br_flow_reg_fwd_aw.pop_data & 1
+  downstream_awvalid = br_flow_reg_fwd_aw.pop_valid
+  downstream_wdata = (br_flow_reg_fwd_w.pop_data >> 9)#[0..=63]
+  downstream_wstrb = (br_flow_reg_fwd_w.pop_data >> 1)#[0..=7]
+  downstream_wuser = br_flow_reg_fwd_w.pop_data & 1
+  downstream_wvalid = br_flow_reg_fwd_w.pop_valid
+  downstream_bready = (br_flow_join_owner_b.push_ready >> 1) & 1
 }

@@ -1,14 +1,18 @@
-pub mod br_csr_request_reg::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_abort:u1, push_req:u41, pop_ready:u1) -> (pop_valid:u1@[], pop_req:u41@[]) {
-  reg buf_valid:u1
-  reg buf_req:u41
-  const pop_valid__w1 = unsigned((push_valid != 0) or (buf_valid != 0))
-  mut _mux_2:u41 = if buf_valid != 0 { buf_req } else { push_req }
-  if rst != 0 {
-    buf_req = 0
-  } elif (push_valid != 0) and (pop_ready == 0) {
-    buf_req = push_req
+pub mod br_csr_request_reg<RequestWidth=41, RegisterPopOutputs=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_abort:U1, push_req:U41, push_valid:U1, rst:U1) -> (pop_req:U41@[], pop_valid:U1@[]) {
+  reg buf_valid:U1:[async=false, initial=0, reset_pin=rst]
+  reg buf_req:U41:[async=false, initial=0, reset_pin=rst]
+  mut _b2i_1 = if push_valid != 0 or buf_valid != 0 { 1 } else { 0 }
+  const pop_valid__w1 = _b2i_1
+  mut _mux_2:U41 = if buf_valid != 0 { buf_req } else { push_req }
+  if not (rst != 0) {
+    if push_valid != 0 and pop_ready == 0 {
+      buf_req = push_req
+    }
   }
-  buf_valid = if rst != 0 { 0 } else { unsigned((pop_valid__w1 != 0) and (pop_ready == 0) and (push_abort == 0)) }
+  mut _b2i_3 = if pop_valid__w1 != 0 and pop_ready == 0 and push_abort == 0 { 1 } else { 0 }
+  if not (rst != 0) {
+    buf_valid = _b2i_3
+  }
   pop_valid = pop_valid__w1
   pop_req = _mux_2
 }

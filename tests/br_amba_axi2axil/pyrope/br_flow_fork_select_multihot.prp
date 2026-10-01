@@ -1,21 +1,20 @@
 const br_flow_checks_valid_data_impl_p1 = import("br_flow_checks_valid_data_impl_p1.br_flow_checks_valid_data_impl_p1")
 const br_flow_checks_valid_data_intg_p1 = import("br_flow_checks_valid_data_intg_p1.br_flow_checks_valid_data_intg_p1")
 
-pub mod br_flow_fork_select_multihot::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_select_multihot:(e1:u1, e0:u1), pop_ready:(e1:u1, e0:u1)) -> (push_ready:u1@[], pop_valid_unstable:(e1:u1, e0:u1)@[]) {
-  mut `pop_valid_unstable__bpo.e1` = 0
-  mut `pop_valid_unstable__bpo.e0` = 0
-  const push_ready__w3 = (1 & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1) & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
-  `pop_valid_unstable__bpo.e0` = unsigned((push_valid != 0) and (push_select_multihot.e0 != 0))
-  {
-    `pop_valid_unstable__bpo.e0` = `pop_valid_unstable__bpo.e0` & unsigned((push_select_multihot.e1 == 0) or (pop_ready.e1 != 0)) & 1
-  }
-  `pop_valid_unstable__bpo.e1` = unsigned((push_valid != 0) and (push_select_multihot.e1 != 0))
-  {
-    `pop_valid_unstable__bpo.e1` = `pop_valid_unstable__bpo.e1` & unsigned((push_select_multihot.e0 == 0) or (pop_ready.e0 != 0)) & 1
-  }
-  br_flow_checks_valid_data_impl_p1::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = (`pop_valid_unstable__bpo.e1` << 1) | `pop_valid_unstable__bpo.e0`, ready = (pop_ready.e1 << 1) | pop_ready.e0, data = 0)
-  br_flow_checks_valid_data_intg_p1::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w3, data = (push_select_multihot.e1 << 1) | push_select_multihot.e0)
-  pop_valid_unstable.e1 = `pop_valid_unstable__bpo.e1`
-  pop_valid_unstable.e0 = `pop_valid_unstable__bpo.e0`
+pub mod br_flow_fork_select_multihot<NumFlows=2, EnableCoverSelectMultihot=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertSelectMultihotStability=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:(e1:U1, e0:U1), push_select_multihot:(e1:U1, e0:U1), push_valid:U1, rst:Reset) -> (pop_valid_unstable:(e1:U1, e0:U1)@[], push_ready:U1@[]) {
+  wire pop_valid_unstable__bpr:(e1:U1, e0:U1) = nil
+  const push_ready__w3 = (1 & U1(push_select_multihot.e0 == 0 or pop_ready.e0 != 0) & 1) & U1(push_select_multihot.e1 == 0 or pop_ready.e1 != 0) & 1
+  mut `pop_valid_unstable__bpo.e0` = U1(push_valid != 0 and push_select_multihot.e0 != 0)
+  const `pop_valid_unstable__bpo.e0__w1` = `pop_valid_unstable__bpo.e0` & U1(push_select_multihot.e1 == 0 or pop_ready.e1 != 0) & 1
+  mut `pop_valid_unstable__bpo.e1` = U1(push_valid != 0 and push_select_multihot.e1 != 0)
+  const `pop_valid_unstable__bpo.e1__w1` = `pop_valid_unstable__bpo.e1` & U1(push_select_multihot.e0 == 0 or pop_ready.e0 != 0) & 1
+  br_flow_checks_valid_data_impl_p1::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=(pop_valid_unstable__bpr.e1 << 1) | pop_valid_unstable__bpr.e0, ready=(pop_ready.e1 << 1) | pop_ready.e0, data=0)
+  br_flow_checks_valid_data_intg_p1::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w3, data=(push_select_multihot.e1 << 1) | push_select_multihot.e0)
+  const t59 = `pop_valid_unstable__bpo.e1__w1`
+  pop_valid_unstable__bpr.e1 = t59
+  pop_valid_unstable.e1 = t59
+  const t60 = `pop_valid_unstable__bpo.e0__w1`
+  pop_valid_unstable__bpr.e0 = t60
+  pop_valid_unstable.e0 = t60
   push_ready = push_ready__w3
 }

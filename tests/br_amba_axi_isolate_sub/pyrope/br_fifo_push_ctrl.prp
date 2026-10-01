@@ -1,15 +1,15 @@
 const br_counter_p2 = import("br_counter_p2.br_counter_p2")
 const br_fifo_push_ctrl_core_t = import("br_fifo_push_ctrl_core.br_fifo_push_ctrl_core")
 
-pub mod br_fifo_push_ctrl::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u2, bypass_ready:u1, pop_beat:u1) -> (push_ready:u1@[], full:u1@[], full_next:u1@[], slots:u2@[], slots_next:u2@[], bypass_valid_unstable:u1@[], bypass_data_unstable:u2@[], ram_wr_valid:u1@[], ram_wr_addr:u1@[], ram_wr_data:u2@[], push_beat:u1@[]) {
-  reg full:u1
-  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk = clk, rst = rst, push_valid = push_valid, push_data = push_data, bypass_ready = bypass_ready, addr_base = 0, addr_bound = 1, full = full)
-  mut br_counter_slots = br_counter_p2::[name=br_counter_slots](clk = clk, rst = rst, reinit = 0, initial_value = 2, incr_valid = pop_beat, incr = 1, decr_valid = br_fifo_push_ctrl_core.push_beat, decr = 1)
-  const full_next__w1 = unsigned(br_counter_slots.value_next == 0)
-  if rst != 0 {
-    full = 0
-  } elif (br_fifo_push_ctrl_core.push_beat != 0) or (pop_beat != 0) {
-    full = full_next__w1
+pub mod br_fifo_push_ctrl<Depth=2, Width=2, EnableBypass=1, RamDepth=2, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=0, EnableAssertPushDataStability=0, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](bypass_ready:U1, clk:Clock, pop_beat:U1, push_data:U2, push_valid:U1, rst:U1) -> (bypass_data_unstable:U2@[], bypass_valid_unstable:U1@[], full:U1@[], full_next:U1@[], push_beat:U1@[], push_ready:U1@[], ram_wr_addr:U1@[], ram_wr_data:U2@[], ram_wr_valid:U1@[], slots:U2@[], slots_next:U2@[]) {
+  reg full:U1:[async=false, initial=0, reset_pin=rst]
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, bypass_ready=bypass_ready, addr_base=0, addr_bound=(RamDepth - 1) & 1, full=full)
+  mut br_counter_slots = br_counter_p2::[name=br_counter_slots](clk=clk, rst=rst, reinit=0, initial_value=Depth#[0..=1], incr_valid=pop_beat, incr=1, decr_valid=br_fifo_push_ctrl_core.push_beat, decr=1)
+  const full_next__w1 = U1(br_counter_slots.value_next == 0)
+  if not (rst != 0) {
+    if br_fifo_push_ctrl_core.push_beat != 0 or pop_beat != 0 {
+      full = full_next__w1
+    }
   }
   push_ready = br_fifo_push_ctrl_core.push_ready
   full_next = full_next__w1

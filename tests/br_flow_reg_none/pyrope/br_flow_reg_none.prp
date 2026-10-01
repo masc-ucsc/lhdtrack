@@ -1,17 +1,25 @@
 const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
 const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
 
-pub mod br_flow_reg_none::[timecheck=false](clk:u1, rst:u1, push_valid:u1, push_data:u32, pop_ready:u1) -> (push_ready:u1@[], pop_valid:u1@[], pop_data:u32@[]) {
-  reg buf_valid:u1
-  reg buf_data:u32
-  const push_ready__w1 = unsigned((pop_ready != 0) or (buf_valid == 0))
-  const pop_valid__w1 = unsigned((push_valid != 0) or (buf_valid != 0))
-  mut _mux_4:u32 = if buf_valid != 0 { buf_data } else { push_data }
+pub mod br_flow_reg_none::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
+  reg buf_valid:U1:[async=false, initial=0, reset_pin=rst]
+  reg buf_data:U32
+  mut _b2i_1 = if pop_ready != 0 and buf_valid != 0 { 1 } else { 0 }
+  mut _b2i_2 = if pop_ready != 0 or buf_valid == 0 { 1 } else { 0 }
+  const push_ready__w1 = _b2i_2
+  mut _b2i_3 = if push_valid != 0 or buf_valid != 0 { 1 } else { 0 }
+  const pop_valid__w1 = _b2i_3
+  mut _mux_4:U32 = if buf_valid != 0 { buf_data } else { push_data }
   const pop_data__w1 = _mux_4
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk = clk, rst = rst, valid = pop_valid__w1, ready = pop_ready, data = pop_data__w1)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk = clk, rst = rst, valid = push_valid, ready = push_ready__w1, data = push_data)
-  const buf_pushed__w1 = unsigned((unsigned((push_valid != 0) and (push_ready__w1 != 0)) != 0) and ((pop_ready == 0) or (buf_valid != 0)))
-  buf_valid = if rst != 0 { 0 } else { unsigned((buf_pushed__w1 != 0) or ((buf_valid != 0) and (unsigned((pop_ready != 0) and (buf_valid != 0)) == 0))) }
+  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid__w1, ready=pop_ready, data=pop_data__w1)
+  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
+  mut _b2i_5 = if push_valid != 0 and push_ready__w1 != 0 { 1 } else { 0 }
+  mut _b2i_6 = if _b2i_5 != 0 and (pop_ready == 0 or buf_valid != 0) { 1 } else { 0 }
+  const buf_pushed__w1 = _b2i_6
+  mut _b2i_7 = if buf_pushed__w1 != 0 or (buf_valid != 0 and _b2i_1 == 0) { 1 } else { 0 }
+  if not (rst != 0) {
+    buf_valid = _b2i_7
+  }
   if buf_pushed__w1 != 0 {
     buf_data = push_data
   }

@@ -1,11 +1,11 @@
-pub mod br_counter_incr_p2::[timecheck=false](clk:u1, rst:u1, reinit:u1, initial_value:u4, incr_valid:u1, incr:u1) -> (value:u4@[], value_next:u4@[]) {
-  reg value:u4
-  mut _mux_1:u4 = if incr_valid != 0 { incr } else { 0 }
-  mut _mux_2:u4 = if reinit != 0 { initial_value } else { (value + _mux_1)#[0..=3] }
-  const value_next__w1 = _mux_2
+pub mod br_counter_incr_p2<MaxValueWidth=32, MaxIncrementWidth=32, MaxValue=14, MaxIncrement=1, EnableReinitAndIncr=0, EnableSaturate=0, EnableWrap=0, EnableAssertFinalNotValid=1, EnableCoverZeroIncrement=0, EnableCoverReinit=1, EnableCoverReinitAndIncr=1, EnableCoverReinitNoIncr=0>::[timecheck=false](clk:Clock, incr:U1, incr_valid:U1, initial_value:U4, reinit:U1, rst:U1) -> (value:U4@[], value_next:U4@[]) {
+  reg value:U4
+  mut _mux_2:U4 = if incr_valid != 0 { incr } else { 0 }
+  mut _mux_3:U4 = if reinit != 0 { initial_value } else { (value + _mux_2)#[0..=3] }
+  const value_next__w1 = _mux_3
   if rst != 0 {
     value = initial_value
-  } elif (incr_valid != 0) or (reinit != 0) {
+  } elif incr_valid != 0 or reinit != 0 {
     value = value_next__w1
   }
   value_next = value_next__w1

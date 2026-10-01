@@ -2,6 +2,6 @@ const br_delay_nr = import("br_delay_nr.br_delay_nr")
 
 // Carry a slowly toggling level into the dst_clk domain through a
 // NUM_STAGES-flop synchronizer. The source must already be flopped.
-pub mod br_cdc_bit_toggle<NUM_STAGES=3>(dst_clk:u1, src_bit:bool) -> (dst_bit:bool@[]) {
-  dst_bit = br_delay_nr<WIDTH=1,NUM_STAGES=NUM_STAGES>(clk=dst_clk, `in`=u1(src_bit)) == 1
+pub mod br_cdc_bit_toggle<NUM_STAGES=3>(dst_clk:Clock, src_bit:Bool) -> (dst_bit:Bool@[]) {
+  dst_bit = br_delay_nr<NUM_STAGES=NUM_STAGES, WIDTH=1>(clk=dst_clk, `in`=U1(src_bit)) == 1
 }

@@ -1,32 +1,33 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 
-pub mod br_ram_data_rd_pipe::[timecheck=false](clk:u1, rst:u1, tile_valid:u1, tile_data:u1) -> (valid:u1@[], data:u1@[]) {
-  mut tile_valid_q:u1 = 0
-  mut tile_data_q:u1 = 0
-  mut row_valid:u1 = 0
-  mut row_data:u1 = 0
-  mut row_valid_q:u1 = 0
-  mut row_data_q:u1 = 0
-  tile_valid_q = 0ub?
-  tile_data_q = 0ub?
+pub mod br_ram_data_rd_pipe<Width=1, DepthTiles=1, WidthTiles=1, DepthStages=0, WidthStages=0, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, rst:Reset, tile_data:U1, tile_valid:U1) -> (data:U1@[], valid:U1@[]) {
+  mut row_valid:U1 = 0
+  mut row_data:U1 = 0
+  mut tile_valid_q__wtmp:U1 = 0sb?
+  wire tile_valid_q:U1 = nil
+  mut tile_data_q__wtmp:U1 = 0sb?
+  wire tile_data_q:U1 = nil
+  mut row_valid_q__wtmp:U1 = 0sb?
+  wire row_valid_q:U1 = nil
+  mut row_data_q__wtmp:U1 = 0sb?
+  wire row_data_q:U1 = nil
   row_valid = 0ub?
   row_data = 0ub?
-  row_valid_q = 0ub?
-  row_data_q = 0ub?
-  mut gen_d_0_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_0_gen_w_0_br_delay_valid_w](clk = clk, rst = rst, in_valid = tile_valid & 1, `in` = tile_data & 1)
-  mut tile_valid_q__w1 = tile_valid_q
-  tile_valid_q__w1#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out_valid & 1
-  mut tile_data_q__w1 = tile_data_q
-  tile_data_q__w1#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out & 1
+  mut gen_d_0_gen_w_0_br_delay_valid_w = br_delay_valid::[name=gen_d_0_gen_w_0_br_delay_valid_w](clk=clk, rst=rst, in_valid=tile_valid & 1, `in`=tile_data & 1)
+  tile_valid_q__wtmp#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out_valid & 1
+  tile_data_q__wtmp#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out & 1
   mut row_valid__w1 = row_valid
-  row_valid__w1#[0] = tile_valid_q__w1 & 1
+  row_valid__w1#[0] = tile_valid_q & 1
   mut row_data__w1 = row_data
-  row_data__w1#[0] = tile_data_q__w1 & 1
-  mut gen_d_0_br_delay_valid_d = br_delay_valid::[name=gen_d_0_br_delay_valid_d](clk = clk, rst = rst, in_valid = row_valid__w1 & 1, `in` = row_data__w1 & 1)
-  mut row_valid_q__w1 = row_valid_q
-  row_valid_q__w1#[0] = gen_d_0_br_delay_valid_d.out_valid & 1
-  mut row_data_q__w1 = row_data_q
-  row_data_q__w1#[0] = gen_d_0_br_delay_valid_d.out & 1
-  valid = unsigned(row_valid_q__w1 != 0)
-  data = row_data_q__w1 & 1
+  row_data__w1#[0] = tile_data_q & 1
+  mut gen_d_0_br_delay_valid_d = br_delay_valid::[name=gen_d_0_br_delay_valid_d](clk=clk, rst=rst, in_valid=row_valid__w1 & 1, `in`=row_data__w1 & 1)
+  row_valid_q__wtmp#[0] = gen_d_0_br_delay_valid_d.out_valid & 1
+  row_data_q__wtmp#[0] = gen_d_0_br_delay_valid_d.out & 1
+  const data__w1 = row_data_q & 1
+  tile_valid_q = tile_valid_q__wtmp
+  tile_data_q = tile_data_q__wtmp
+  row_valid_q = row_valid_q__wtmp
+  row_data_q = row_data_q__wtmp
+  valid = U1(row_valid_q != 0)
+  data = data__w1
 }

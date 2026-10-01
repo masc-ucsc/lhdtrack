@@ -1,13 +1,38 @@
-const br_amba = import("br_amba")
-
-pub comb br_shift_left::[timecheck=false](`in`:u8, shift:u1, fill:u1) -> (out_valid:u1, out:u8) {
-  mut stages:u16 = 0
-  stages = 0sb?
-  mut stages__w1 = stages
-  stages__w1#[0..=7] = `in`
-  mut _mux_1:u8 = if (shift & 1) != 0 { (stages__w1#[0..=7]#[0..=6] << 1) | (fill & 1) } else { stages__w1#[0..=7] }
-  mut stages__w2 = stages__w1
-  stages__w2#[8..=15] = _mux_1
-  out_valid = unsigned(shift <= 1)
-  out = stages__w2#[8..=15]
+pub comb br_shift_left<NumSymbols=8, SymbolWidth=1, MaxShift=1>::[timecheck=false](fill:U1, `in`:U8, shift:U1) -> (out:U8, out_valid:U1) {
+  wire `stages[0]`:U1 = nil
+  wire `stages[1]`:U1 = nil
+  wire `stages[2]`:U1 = nil
+  wire `stages[3]`:U1 = nil
+  wire `stages[4]`:U1 = nil
+  wire `stages[5]`:U1 = nil
+  wire `stages[6]`:U1 = nil
+  wire `stages[7]`:U1 = nil
+  wire `stages[8]`:U1 = nil
+  wire `stages[9]`:U1 = nil
+  wire `stages[10]`:U1 = nil
+  wire `stages[11]`:U1 = nil
+  wire `stages[12]`:U1 = nil
+  wire `stages[13]`:U1 = nil
+  wire `stages[14]`:U1 = nil
+  wire `stages[15]`:U1 = nil
+  `stages[0]` = `in` & 1
+  `stages[1]` = (`in` >> 1) & 1
+  `stages[2]` = (`in` >> 2) & 1
+  `stages[3]` = (`in` >> 3) & 1
+  `stages[4]` = (`in` >> 4) & 1
+  `stages[5]` = (`in` >> 5) & 1
+  `stages[6]` = (`in` >> 6) & 1
+  `stages[7]` = (`in` >> 7) & 1
+  const out__w1 = (`stages[15]` << 7) | (`stages[14]` << 6) | (`stages[13]` << 5) | (`stages[12]` << 4) | (`stages[11]` << 3) | (`stages[10]` << 2) | (`stages[9]` << 1) | `stages[8]`
+  mut _mux_1:U8 = if (shift & 1) != 0 { (((`stages[6]` << 6) | (`stages[5]` << 5) | (`stages[4]` << 4) | (`stages[3]` << 3) | (`stages[2]` << 2) | (`stages[1]` << 1) | `stages[0]`) << 1) | (fill & 1) } else { (`stages[7]` << 7) | (`stages[6]` << 6) | (`stages[5]` << 5) | (`stages[4]` << 4) | (`stages[3]` << 3) | (`stages[2]` << 2) | (`stages[1]` << 1) | `stages[0]` }
+  `stages[8]` = _mux_1 & 1
+  `stages[9]` = (_mux_1 >> 1) & 1
+  `stages[10]` = (_mux_1 >> 2) & 1
+  `stages[11]` = (_mux_1 >> 3) & 1
+  `stages[12]` = (_mux_1 >> 4) & 1
+  `stages[13]` = (_mux_1 >> 5) & 1
+  `stages[14]` = (_mux_1 >> 6) & 1
+  `stages[15]` = (_mux_1 >> 7) & 1
+  out_valid = U1(shift <= MaxShift)
+  out = out__w1
 }

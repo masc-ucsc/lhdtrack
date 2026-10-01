@@ -3,156 +3,1081 @@ const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_csr_demux_select_onehot::[timecheck=false](clk:u1, rst:u1, select_onehot:u4, upstream_req_valid:u1, upstream_req_write:u1, upstream_req_addr:u16, upstream_req_wdata:u32, upstream_req_wstrb:u4, upstream_req_privileged:u1, upstream_req_secure:u1, upstream_req_abort:u1, downstream_resp_valid:u4, downstream_resp_rdata:u128, downstream_resp_decerr:u4, downstream_resp_slverr:u4) -> (upstream_resp_valid:u1@[], upstream_resp_rdata:u32@[], upstream_resp_decerr:u1@[], upstream_resp_slverr:u1@[], downstream_req_valid:u4@[], downstream_req_write:u4@[], downstream_req_addr:u64@[], downstream_req_wdata:u128@[], downstream_req_wstrb:u16@[], downstream_req_privileged:u4@[], downstream_req_secure:u4@[], downstream_req_abort:u4@[]) {
-  reg decerr_resp_valid:u1
-  mut `decerr_resp.rdata` = 0
-  mut `decerr_resp.decerr` = 0
-  mut `decerr_resp.slverr` = 0
-  mut downstream_resp:u136 = 0
-  mut downstream_resp_valid_int:u4 = 0
-  mut downstream_resp_int:u136 = 0
-  downstream_resp = 0sb?
-  downstream_resp_valid_int = 0sb?
-  downstream_resp_int = 0sb?
-  downstream_req_valid = 0sb?
-  downstream_req_write = 0sb?
-  downstream_req_addr = 0sb?
-  downstream_req_wdata = 0sb?
-  downstream_req_wstrb = 0sb?
-  downstream_req_privileged = 0sb?
-  downstream_req_secure = 0sb?
-  downstream_req_abort = 0sb?
-  mut _rep_1:u4 = if (upstream_req_valid & 1) != 0 { 15 } else { 0 }
+pub mod br_csr_demux_select_onehot::[timecheck=false](clk:Clock, downstream_resp_decerr:U4, downstream_resp_rdata:U128, downstream_resp_slverr:U4, downstream_resp_valid:U4, rst:U1, select_onehot:U4, upstream_req_abort:U1, upstream_req_addr:U16, upstream_req_privileged:U1, upstream_req_secure:U1, upstream_req_valid:U1, upstream_req_wdata:U32, upstream_req_write:U1, upstream_req_wstrb:U4) -> (downstream_req_abort:U4@[], downstream_req_addr:U64@[], downstream_req_privileged:U4@[], downstream_req_secure:U4@[], downstream_req_valid:U4@[], downstream_req_wdata:U128@[], downstream_req_write:U4@[], downstream_req_wstrb:U16@[], upstream_resp_decerr:U1@[], upstream_resp_rdata:U32@[], upstream_resp_slverr:U1@[], upstream_resp_valid:U1@[]) {
+  reg decerr_resp_valid:U1:[async=false, initial=0, reset_pin=rst]
+  wire `downstream_req_valid[0]`:U1 = nil
+  wire `downstream_req_valid[1]`:U1 = nil
+  wire `downstream_req_valid[2]`:U1 = nil
+  wire `downstream_req_valid[3]`:U1 = nil
+  wire downstream_req_valid:U4 = nil
+  wire `downstream_req_write[0]`:U1 = nil
+  wire `downstream_req_write[1]`:U1 = nil
+  wire `downstream_req_write[2]`:U1 = nil
+  wire `downstream_req_write[3]`:U1 = nil
+  wire downstream_req_write:U4 = nil
+  wire `downstream_req_addr[0]`:U1 = nil
+  wire `downstream_req_addr[1]`:U1 = nil
+  wire `downstream_req_addr[2]`:U1 = nil
+  wire `downstream_req_addr[3]`:U1 = nil
+  wire `downstream_req_addr[4]`:U1 = nil
+  wire `downstream_req_addr[5]`:U1 = nil
+  wire `downstream_req_addr[6]`:U1 = nil
+  wire `downstream_req_addr[7]`:U1 = nil
+  wire `downstream_req_addr[8]`:U1 = nil
+  wire `downstream_req_addr[9]`:U1 = nil
+  wire `downstream_req_addr[10]`:U1 = nil
+  wire `downstream_req_addr[11]`:U1 = nil
+  wire `downstream_req_addr[12]`:U1 = nil
+  wire `downstream_req_addr[13]`:U1 = nil
+  wire `downstream_req_addr[14]`:U1 = nil
+  wire `downstream_req_addr[15]`:U1 = nil
+  wire `downstream_req_addr[16]`:U1 = nil
+  wire `downstream_req_addr[17]`:U1 = nil
+  wire `downstream_req_addr[18]`:U1 = nil
+  wire `downstream_req_addr[19]`:U1 = nil
+  wire `downstream_req_addr[20]`:U1 = nil
+  wire `downstream_req_addr[21]`:U1 = nil
+  wire `downstream_req_addr[22]`:U1 = nil
+  wire `downstream_req_addr[23]`:U1 = nil
+  wire `downstream_req_addr[24]`:U1 = nil
+  wire `downstream_req_addr[25]`:U1 = nil
+  wire `downstream_req_addr[26]`:U1 = nil
+  wire `downstream_req_addr[27]`:U1 = nil
+  wire `downstream_req_addr[28]`:U1 = nil
+  wire `downstream_req_addr[29]`:U1 = nil
+  wire `downstream_req_addr[30]`:U1 = nil
+  wire `downstream_req_addr[31]`:U1 = nil
+  wire `downstream_req_addr[32]`:U1 = nil
+  wire `downstream_req_addr[33]`:U1 = nil
+  wire `downstream_req_addr[34]`:U1 = nil
+  wire `downstream_req_addr[35]`:U1 = nil
+  wire `downstream_req_addr[36]`:U1 = nil
+  wire `downstream_req_addr[37]`:U1 = nil
+  wire `downstream_req_addr[38]`:U1 = nil
+  wire `downstream_req_addr[39]`:U1 = nil
+  wire `downstream_req_addr[40]`:U1 = nil
+  wire `downstream_req_addr[41]`:U1 = nil
+  wire `downstream_req_addr[42]`:U1 = nil
+  wire `downstream_req_addr[43]`:U1 = nil
+  wire `downstream_req_addr[44]`:U1 = nil
+  wire `downstream_req_addr[45]`:U1 = nil
+  wire `downstream_req_addr[46]`:U1 = nil
+  wire `downstream_req_addr[47]`:U1 = nil
+  wire `downstream_req_addr[48]`:U1 = nil
+  wire `downstream_req_addr[49]`:U1 = nil
+  wire `downstream_req_addr[50]`:U1 = nil
+  wire `downstream_req_addr[51]`:U1 = nil
+  wire `downstream_req_addr[52]`:U1 = nil
+  wire `downstream_req_addr[53]`:U1 = nil
+  wire `downstream_req_addr[54]`:U1 = nil
+  wire `downstream_req_addr[55]`:U1 = nil
+  wire `downstream_req_addr[56]`:U1 = nil
+  wire `downstream_req_addr[57]`:U1 = nil
+  wire `downstream_req_addr[58]`:U1 = nil
+  wire `downstream_req_addr[59]`:U1 = nil
+  wire `downstream_req_addr[60]`:U1 = nil
+  wire `downstream_req_addr[61]`:U1 = nil
+  wire `downstream_req_addr[62]`:U1 = nil
+  wire `downstream_req_addr[63]`:U1 = nil
+  wire downstream_req_addr:U64 = nil
+  wire `downstream_req_wdata[0]`:U1 = nil
+  wire `downstream_req_wdata[1]`:U1 = nil
+  wire `downstream_req_wdata[2]`:U1 = nil
+  wire `downstream_req_wdata[3]`:U1 = nil
+  wire `downstream_req_wdata[4]`:U1 = nil
+  wire `downstream_req_wdata[5]`:U1 = nil
+  wire `downstream_req_wdata[6]`:U1 = nil
+  wire `downstream_req_wdata[7]`:U1 = nil
+  wire `downstream_req_wdata[8]`:U1 = nil
+  wire `downstream_req_wdata[9]`:U1 = nil
+  wire `downstream_req_wdata[10]`:U1 = nil
+  wire `downstream_req_wdata[11]`:U1 = nil
+  wire `downstream_req_wdata[12]`:U1 = nil
+  wire `downstream_req_wdata[13]`:U1 = nil
+  wire `downstream_req_wdata[14]`:U1 = nil
+  wire `downstream_req_wdata[15]`:U1 = nil
+  wire `downstream_req_wdata[16]`:U1 = nil
+  wire `downstream_req_wdata[17]`:U1 = nil
+  wire `downstream_req_wdata[18]`:U1 = nil
+  wire `downstream_req_wdata[19]`:U1 = nil
+  wire `downstream_req_wdata[20]`:U1 = nil
+  wire `downstream_req_wdata[21]`:U1 = nil
+  wire `downstream_req_wdata[22]`:U1 = nil
+  wire `downstream_req_wdata[23]`:U1 = nil
+  wire `downstream_req_wdata[24]`:U1 = nil
+  wire `downstream_req_wdata[25]`:U1 = nil
+  wire `downstream_req_wdata[26]`:U1 = nil
+  wire `downstream_req_wdata[27]`:U1 = nil
+  wire `downstream_req_wdata[28]`:U1 = nil
+  wire `downstream_req_wdata[29]`:U1 = nil
+  wire `downstream_req_wdata[30]`:U1 = nil
+  wire `downstream_req_wdata[31]`:U1 = nil
+  wire `downstream_req_wdata[32]`:U1 = nil
+  wire `downstream_req_wdata[33]`:U1 = nil
+  wire `downstream_req_wdata[34]`:U1 = nil
+  wire `downstream_req_wdata[35]`:U1 = nil
+  wire `downstream_req_wdata[36]`:U1 = nil
+  wire `downstream_req_wdata[37]`:U1 = nil
+  wire `downstream_req_wdata[38]`:U1 = nil
+  wire `downstream_req_wdata[39]`:U1 = nil
+  wire `downstream_req_wdata[40]`:U1 = nil
+  wire `downstream_req_wdata[41]`:U1 = nil
+  wire `downstream_req_wdata[42]`:U1 = nil
+  wire `downstream_req_wdata[43]`:U1 = nil
+  wire `downstream_req_wdata[44]`:U1 = nil
+  wire `downstream_req_wdata[45]`:U1 = nil
+  wire `downstream_req_wdata[46]`:U1 = nil
+  wire `downstream_req_wdata[47]`:U1 = nil
+  wire `downstream_req_wdata[48]`:U1 = nil
+  wire `downstream_req_wdata[49]`:U1 = nil
+  wire `downstream_req_wdata[50]`:U1 = nil
+  wire `downstream_req_wdata[51]`:U1 = nil
+  wire `downstream_req_wdata[52]`:U1 = nil
+  wire `downstream_req_wdata[53]`:U1 = nil
+  wire `downstream_req_wdata[54]`:U1 = nil
+  wire `downstream_req_wdata[55]`:U1 = nil
+  wire `downstream_req_wdata[56]`:U1 = nil
+  wire `downstream_req_wdata[57]`:U1 = nil
+  wire `downstream_req_wdata[58]`:U1 = nil
+  wire `downstream_req_wdata[59]`:U1 = nil
+  wire `downstream_req_wdata[60]`:U1 = nil
+  wire `downstream_req_wdata[61]`:U1 = nil
+  wire `downstream_req_wdata[62]`:U1 = nil
+  wire `downstream_req_wdata[63]`:U1 = nil
+  wire `downstream_req_wdata[64]`:U1 = nil
+  wire `downstream_req_wdata[65]`:U1 = nil
+  wire `downstream_req_wdata[66]`:U1 = nil
+  wire `downstream_req_wdata[67]`:U1 = nil
+  wire `downstream_req_wdata[68]`:U1 = nil
+  wire `downstream_req_wdata[69]`:U1 = nil
+  wire `downstream_req_wdata[70]`:U1 = nil
+  wire `downstream_req_wdata[71]`:U1 = nil
+  wire `downstream_req_wdata[72]`:U1 = nil
+  wire `downstream_req_wdata[73]`:U1 = nil
+  wire `downstream_req_wdata[74]`:U1 = nil
+  wire `downstream_req_wdata[75]`:U1 = nil
+  wire `downstream_req_wdata[76]`:U1 = nil
+  wire `downstream_req_wdata[77]`:U1 = nil
+  wire `downstream_req_wdata[78]`:U1 = nil
+  wire `downstream_req_wdata[79]`:U1 = nil
+  wire `downstream_req_wdata[80]`:U1 = nil
+  wire `downstream_req_wdata[81]`:U1 = nil
+  wire `downstream_req_wdata[82]`:U1 = nil
+  wire `downstream_req_wdata[83]`:U1 = nil
+  wire `downstream_req_wdata[84]`:U1 = nil
+  wire `downstream_req_wdata[85]`:U1 = nil
+  wire `downstream_req_wdata[86]`:U1 = nil
+  wire `downstream_req_wdata[87]`:U1 = nil
+  wire `downstream_req_wdata[88]`:U1 = nil
+  wire `downstream_req_wdata[89]`:U1 = nil
+  wire `downstream_req_wdata[90]`:U1 = nil
+  wire `downstream_req_wdata[91]`:U1 = nil
+  wire `downstream_req_wdata[92]`:U1 = nil
+  wire `downstream_req_wdata[93]`:U1 = nil
+  wire `downstream_req_wdata[94]`:U1 = nil
+  wire `downstream_req_wdata[95]`:U1 = nil
+  wire `downstream_req_wdata[96]`:U1 = nil
+  wire `downstream_req_wdata[97]`:U1 = nil
+  wire `downstream_req_wdata[98]`:U1 = nil
+  wire `downstream_req_wdata[99]`:U1 = nil
+  wire `downstream_req_wdata[100]`:U1 = nil
+  wire `downstream_req_wdata[101]`:U1 = nil
+  wire `downstream_req_wdata[102]`:U1 = nil
+  wire `downstream_req_wdata[103]`:U1 = nil
+  wire `downstream_req_wdata[104]`:U1 = nil
+  wire `downstream_req_wdata[105]`:U1 = nil
+  wire `downstream_req_wdata[106]`:U1 = nil
+  wire `downstream_req_wdata[107]`:U1 = nil
+  wire `downstream_req_wdata[108]`:U1 = nil
+  wire `downstream_req_wdata[109]`:U1 = nil
+  wire `downstream_req_wdata[110]`:U1 = nil
+  wire `downstream_req_wdata[111]`:U1 = nil
+  wire `downstream_req_wdata[112]`:U1 = nil
+  wire `downstream_req_wdata[113]`:U1 = nil
+  wire `downstream_req_wdata[114]`:U1 = nil
+  wire `downstream_req_wdata[115]`:U1 = nil
+  wire `downstream_req_wdata[116]`:U1 = nil
+  wire `downstream_req_wdata[117]`:U1 = nil
+  wire `downstream_req_wdata[118]`:U1 = nil
+  wire `downstream_req_wdata[119]`:U1 = nil
+  wire `downstream_req_wdata[120]`:U1 = nil
+  wire `downstream_req_wdata[121]`:U1 = nil
+  wire `downstream_req_wdata[122]`:U1 = nil
+  wire `downstream_req_wdata[123]`:U1 = nil
+  wire `downstream_req_wdata[124]`:U1 = nil
+  wire `downstream_req_wdata[125]`:U1 = nil
+  wire `downstream_req_wdata[126]`:U1 = nil
+  wire `downstream_req_wdata[127]`:U1 = nil
+  wire downstream_req_wdata:U128 = nil
+  wire `downstream_req_wstrb[0]`:U1 = nil
+  wire `downstream_req_wstrb[1]`:U1 = nil
+  wire `downstream_req_wstrb[2]`:U1 = nil
+  wire `downstream_req_wstrb[3]`:U1 = nil
+  wire `downstream_req_wstrb[4]`:U1 = nil
+  wire `downstream_req_wstrb[5]`:U1 = nil
+  wire `downstream_req_wstrb[6]`:U1 = nil
+  wire `downstream_req_wstrb[7]`:U1 = nil
+  wire `downstream_req_wstrb[8]`:U1 = nil
+  wire `downstream_req_wstrb[9]`:U1 = nil
+  wire `downstream_req_wstrb[10]`:U1 = nil
+  wire `downstream_req_wstrb[11]`:U1 = nil
+  wire `downstream_req_wstrb[12]`:U1 = nil
+  wire `downstream_req_wstrb[13]`:U1 = nil
+  wire `downstream_req_wstrb[14]`:U1 = nil
+  wire `downstream_req_wstrb[15]`:U1 = nil
+  wire downstream_req_wstrb:U16 = nil
+  wire `downstream_req_privileged[0]`:U1 = nil
+  wire `downstream_req_privileged[1]`:U1 = nil
+  wire `downstream_req_privileged[2]`:U1 = nil
+  wire `downstream_req_privileged[3]`:U1 = nil
+  wire downstream_req_privileged:U4 = nil
+  wire `downstream_req_secure[0]`:U1 = nil
+  wire `downstream_req_secure[1]`:U1 = nil
+  wire `downstream_req_secure[2]`:U1 = nil
+  wire `downstream_req_secure[3]`:U1 = nil
+  wire downstream_req_secure:U4 = nil
+  wire `downstream_req_abort[0]`:U1 = nil
+  wire `downstream_req_abort[1]`:U1 = nil
+  wire `downstream_req_abort[2]`:U1 = nil
+  wire `downstream_req_abort[3]`:U1 = nil
+  wire downstream_req_abort:U4 = nil
+  wire `downstream_resp[0]`:U1 = nil
+  wire `downstream_resp[1]`:U1 = nil
+  wire `downstream_resp[2]`:U1 = nil
+  wire `downstream_resp[3]`:U1 = nil
+  wire `downstream_resp[4]`:U1 = nil
+  wire `downstream_resp[5]`:U1 = nil
+  wire `downstream_resp[6]`:U1 = nil
+  wire `downstream_resp[7]`:U1 = nil
+  wire `downstream_resp[8]`:U1 = nil
+  wire `downstream_resp[9]`:U1 = nil
+  wire `downstream_resp[10]`:U1 = nil
+  wire `downstream_resp[11]`:U1 = nil
+  wire `downstream_resp[12]`:U1 = nil
+  wire `downstream_resp[13]`:U1 = nil
+  wire `downstream_resp[14]`:U1 = nil
+  wire `downstream_resp[15]`:U1 = nil
+  wire `downstream_resp[16]`:U1 = nil
+  wire `downstream_resp[17]`:U1 = nil
+  wire `downstream_resp[18]`:U1 = nil
+  wire `downstream_resp[19]`:U1 = nil
+  wire `downstream_resp[20]`:U1 = nil
+  wire `downstream_resp[21]`:U1 = nil
+  wire `downstream_resp[22]`:U1 = nil
+  wire `downstream_resp[23]`:U1 = nil
+  wire `downstream_resp[24]`:U1 = nil
+  wire `downstream_resp[25]`:U1 = nil
+  wire `downstream_resp[26]`:U1 = nil
+  wire `downstream_resp[27]`:U1 = nil
+  wire `downstream_resp[28]`:U1 = nil
+  wire `downstream_resp[29]`:U1 = nil
+  wire `downstream_resp[30]`:U1 = nil
+  wire `downstream_resp[31]`:U1 = nil
+  wire `downstream_resp[32]`:U1 = nil
+  wire `downstream_resp[33]`:U1 = nil
+  wire `downstream_resp[34]`:U1 = nil
+  wire `downstream_resp[35]`:U1 = nil
+  wire `downstream_resp[36]`:U1 = nil
+  wire `downstream_resp[37]`:U1 = nil
+  wire `downstream_resp[38]`:U1 = nil
+  wire `downstream_resp[39]`:U1 = nil
+  wire `downstream_resp[40]`:U1 = nil
+  wire `downstream_resp[41]`:U1 = nil
+  wire `downstream_resp[42]`:U1 = nil
+  wire `downstream_resp[43]`:U1 = nil
+  wire `downstream_resp[44]`:U1 = nil
+  wire `downstream_resp[45]`:U1 = nil
+  wire `downstream_resp[46]`:U1 = nil
+  wire `downstream_resp[47]`:U1 = nil
+  wire `downstream_resp[48]`:U1 = nil
+  wire `downstream_resp[49]`:U1 = nil
+  wire `downstream_resp[50]`:U1 = nil
+  wire `downstream_resp[51]`:U1 = nil
+  wire `downstream_resp[52]`:U1 = nil
+  wire `downstream_resp[53]`:U1 = nil
+  wire `downstream_resp[54]`:U1 = nil
+  wire `downstream_resp[55]`:U1 = nil
+  wire `downstream_resp[56]`:U1 = nil
+  wire `downstream_resp[57]`:U1 = nil
+  wire `downstream_resp[58]`:U1 = nil
+  wire `downstream_resp[59]`:U1 = nil
+  wire `downstream_resp[60]`:U1 = nil
+  wire `downstream_resp[61]`:U1 = nil
+  wire `downstream_resp[62]`:U1 = nil
+  wire `downstream_resp[63]`:U1 = nil
+  wire `downstream_resp[64]`:U1 = nil
+  wire `downstream_resp[65]`:U1 = nil
+  wire `downstream_resp[66]`:U1 = nil
+  wire `downstream_resp[67]`:U1 = nil
+  wire `downstream_resp[68]`:U1 = nil
+  wire `downstream_resp[69]`:U1 = nil
+  wire `downstream_resp[70]`:U1 = nil
+  wire `downstream_resp[71]`:U1 = nil
+  wire `downstream_resp[72]`:U1 = nil
+  wire `downstream_resp[73]`:U1 = nil
+  wire `downstream_resp[74]`:U1 = nil
+  wire `downstream_resp[75]`:U1 = nil
+  wire `downstream_resp[76]`:U1 = nil
+  wire `downstream_resp[77]`:U1 = nil
+  wire `downstream_resp[78]`:U1 = nil
+  wire `downstream_resp[79]`:U1 = nil
+  wire `downstream_resp[80]`:U1 = nil
+  wire `downstream_resp[81]`:U1 = nil
+  wire `downstream_resp[82]`:U1 = nil
+  wire `downstream_resp[83]`:U1 = nil
+  wire `downstream_resp[84]`:U1 = nil
+  wire `downstream_resp[85]`:U1 = nil
+  wire `downstream_resp[86]`:U1 = nil
+  wire `downstream_resp[87]`:U1 = nil
+  wire `downstream_resp[88]`:U1 = nil
+  wire `downstream_resp[89]`:U1 = nil
+  wire `downstream_resp[90]`:U1 = nil
+  wire `downstream_resp[91]`:U1 = nil
+  wire `downstream_resp[92]`:U1 = nil
+  wire `downstream_resp[93]`:U1 = nil
+  wire `downstream_resp[94]`:U1 = nil
+  wire `downstream_resp[95]`:U1 = nil
+  wire `downstream_resp[96]`:U1 = nil
+  wire `downstream_resp[97]`:U1 = nil
+  wire `downstream_resp[98]`:U1 = nil
+  wire `downstream_resp[99]`:U1 = nil
+  wire `downstream_resp[100]`:U1 = nil
+  wire `downstream_resp[101]`:U1 = nil
+  wire `downstream_resp[102]`:U1 = nil
+  wire `downstream_resp[103]`:U1 = nil
+  wire `downstream_resp[104]`:U1 = nil
+  wire `downstream_resp[105]`:U1 = nil
+  wire `downstream_resp[106]`:U1 = nil
+  wire `downstream_resp[107]`:U1 = nil
+  wire `downstream_resp[108]`:U1 = nil
+  wire `downstream_resp[109]`:U1 = nil
+  wire `downstream_resp[110]`:U1 = nil
+  wire `downstream_resp[111]`:U1 = nil
+  wire `downstream_resp[112]`:U1 = nil
+  wire `downstream_resp[113]`:U1 = nil
+  wire `downstream_resp[114]`:U1 = nil
+  wire `downstream_resp[115]`:U1 = nil
+  wire `downstream_resp[116]`:U1 = nil
+  wire `downstream_resp[117]`:U1 = nil
+  wire `downstream_resp[118]`:U1 = nil
+  wire `downstream_resp[119]`:U1 = nil
+  wire `downstream_resp[120]`:U1 = nil
+  wire `downstream_resp[121]`:U1 = nil
+  wire `downstream_resp[122]`:U1 = nil
+  wire `downstream_resp[123]`:U1 = nil
+  wire `downstream_resp[124]`:U1 = nil
+  wire `downstream_resp[125]`:U1 = nil
+  wire `downstream_resp[126]`:U1 = nil
+  wire `downstream_resp[127]`:U1 = nil
+  wire `downstream_resp[128]`:U1 = nil
+  wire `downstream_resp[129]`:U1 = nil
+  wire `downstream_resp[130]`:U1 = nil
+  wire `downstream_resp[131]`:U1 = nil
+  wire `downstream_resp[132]`:U1 = nil
+  wire `downstream_resp[133]`:U1 = nil
+  wire `downstream_resp[134]`:U1 = nil
+  wire `downstream_resp[135]`:U1 = nil
+  wire `downstream_resp_valid_int[0]`:U1 = nil
+  wire `downstream_resp_valid_int[1]`:U1 = nil
+  wire `downstream_resp_valid_int[2]`:U1 = nil
+  wire `downstream_resp_valid_int[3]`:U1 = nil
+  wire downstream_resp_valid_int:U4 = nil
+  wire `downstream_resp_int[0]`:U1 = nil
+  wire `downstream_resp_int[1]`:U1 = nil
+  wire `downstream_resp_int[2]`:U1 = nil
+  wire `downstream_resp_int[3]`:U1 = nil
+  wire `downstream_resp_int[4]`:U1 = nil
+  wire `downstream_resp_int[5]`:U1 = nil
+  wire `downstream_resp_int[6]`:U1 = nil
+  wire `downstream_resp_int[7]`:U1 = nil
+  wire `downstream_resp_int[8]`:U1 = nil
+  wire `downstream_resp_int[9]`:U1 = nil
+  wire `downstream_resp_int[10]`:U1 = nil
+  wire `downstream_resp_int[11]`:U1 = nil
+  wire `downstream_resp_int[12]`:U1 = nil
+  wire `downstream_resp_int[13]`:U1 = nil
+  wire `downstream_resp_int[14]`:U1 = nil
+  wire `downstream_resp_int[15]`:U1 = nil
+  wire `downstream_resp_int[16]`:U1 = nil
+  wire `downstream_resp_int[17]`:U1 = nil
+  wire `downstream_resp_int[18]`:U1 = nil
+  wire `downstream_resp_int[19]`:U1 = nil
+  wire `downstream_resp_int[20]`:U1 = nil
+  wire `downstream_resp_int[21]`:U1 = nil
+  wire `downstream_resp_int[22]`:U1 = nil
+  wire `downstream_resp_int[23]`:U1 = nil
+  wire `downstream_resp_int[24]`:U1 = nil
+  wire `downstream_resp_int[25]`:U1 = nil
+  wire `downstream_resp_int[26]`:U1 = nil
+  wire `downstream_resp_int[27]`:U1 = nil
+  wire `downstream_resp_int[28]`:U1 = nil
+  wire `downstream_resp_int[29]`:U1 = nil
+  wire `downstream_resp_int[30]`:U1 = nil
+  wire `downstream_resp_int[31]`:U1 = nil
+  wire `downstream_resp_int[32]`:U1 = nil
+  wire `downstream_resp_int[33]`:U1 = nil
+  wire `downstream_resp_int[34]`:U1 = nil
+  wire `downstream_resp_int[35]`:U1 = nil
+  wire `downstream_resp_int[36]`:U1 = nil
+  wire `downstream_resp_int[37]`:U1 = nil
+  wire `downstream_resp_int[38]`:U1 = nil
+  wire `downstream_resp_int[39]`:U1 = nil
+  wire `downstream_resp_int[40]`:U1 = nil
+  wire `downstream_resp_int[41]`:U1 = nil
+  wire `downstream_resp_int[42]`:U1 = nil
+  wire `downstream_resp_int[43]`:U1 = nil
+  wire `downstream_resp_int[44]`:U1 = nil
+  wire `downstream_resp_int[45]`:U1 = nil
+  wire `downstream_resp_int[46]`:U1 = nil
+  wire `downstream_resp_int[47]`:U1 = nil
+  wire `downstream_resp_int[48]`:U1 = nil
+  wire `downstream_resp_int[49]`:U1 = nil
+  wire `downstream_resp_int[50]`:U1 = nil
+  wire `downstream_resp_int[51]`:U1 = nil
+  wire `downstream_resp_int[52]`:U1 = nil
+  wire `downstream_resp_int[53]`:U1 = nil
+  wire `downstream_resp_int[54]`:U1 = nil
+  wire `downstream_resp_int[55]`:U1 = nil
+  wire `downstream_resp_int[56]`:U1 = nil
+  wire `downstream_resp_int[57]`:U1 = nil
+  wire `downstream_resp_int[58]`:U1 = nil
+  wire `downstream_resp_int[59]`:U1 = nil
+  wire `downstream_resp_int[60]`:U1 = nil
+  wire `downstream_resp_int[61]`:U1 = nil
+  wire `downstream_resp_int[62]`:U1 = nil
+  wire `downstream_resp_int[63]`:U1 = nil
+  wire `downstream_resp_int[64]`:U1 = nil
+  wire `downstream_resp_int[65]`:U1 = nil
+  wire `downstream_resp_int[66]`:U1 = nil
+  wire `downstream_resp_int[67]`:U1 = nil
+  wire `downstream_resp_int[68]`:U1 = nil
+  wire `downstream_resp_int[69]`:U1 = nil
+  wire `downstream_resp_int[70]`:U1 = nil
+  wire `downstream_resp_int[71]`:U1 = nil
+  wire `downstream_resp_int[72]`:U1 = nil
+  wire `downstream_resp_int[73]`:U1 = nil
+  wire `downstream_resp_int[74]`:U1 = nil
+  wire `downstream_resp_int[75]`:U1 = nil
+  wire `downstream_resp_int[76]`:U1 = nil
+  wire `downstream_resp_int[77]`:U1 = nil
+  wire `downstream_resp_int[78]`:U1 = nil
+  wire `downstream_resp_int[79]`:U1 = nil
+  wire `downstream_resp_int[80]`:U1 = nil
+  wire `downstream_resp_int[81]`:U1 = nil
+  wire `downstream_resp_int[82]`:U1 = nil
+  wire `downstream_resp_int[83]`:U1 = nil
+  wire `downstream_resp_int[84]`:U1 = nil
+  wire `downstream_resp_int[85]`:U1 = nil
+  wire `downstream_resp_int[86]`:U1 = nil
+  wire `downstream_resp_int[87]`:U1 = nil
+  wire `downstream_resp_int[88]`:U1 = nil
+  wire `downstream_resp_int[89]`:U1 = nil
+  wire `downstream_resp_int[90]`:U1 = nil
+  wire `downstream_resp_int[91]`:U1 = nil
+  wire `downstream_resp_int[92]`:U1 = nil
+  wire `downstream_resp_int[93]`:U1 = nil
+  wire `downstream_resp_int[94]`:U1 = nil
+  wire `downstream_resp_int[95]`:U1 = nil
+  wire `downstream_resp_int[96]`:U1 = nil
+  wire `downstream_resp_int[97]`:U1 = nil
+  wire `downstream_resp_int[98]`:U1 = nil
+  wire `downstream_resp_int[99]`:U1 = nil
+  wire `downstream_resp_int[100]`:U1 = nil
+  wire `downstream_resp_int[101]`:U1 = nil
+  wire `downstream_resp_int[102]`:U1 = nil
+  wire `downstream_resp_int[103]`:U1 = nil
+  wire `downstream_resp_int[104]`:U1 = nil
+  wire `downstream_resp_int[105]`:U1 = nil
+  wire `downstream_resp_int[106]`:U1 = nil
+  wire `downstream_resp_int[107]`:U1 = nil
+  wire `downstream_resp_int[108]`:U1 = nil
+  wire `downstream_resp_int[109]`:U1 = nil
+  wire `downstream_resp_int[110]`:U1 = nil
+  wire `downstream_resp_int[111]`:U1 = nil
+  wire `downstream_resp_int[112]`:U1 = nil
+  wire `downstream_resp_int[113]`:U1 = nil
+  wire `downstream_resp_int[114]`:U1 = nil
+  wire `downstream_resp_int[115]`:U1 = nil
+  wire `downstream_resp_int[116]`:U1 = nil
+  wire `downstream_resp_int[117]`:U1 = nil
+  wire `downstream_resp_int[118]`:U1 = nil
+  wire `downstream_resp_int[119]`:U1 = nil
+  wire `downstream_resp_int[120]`:U1 = nil
+  wire `downstream_resp_int[121]`:U1 = nil
+  wire `downstream_resp_int[122]`:U1 = nil
+  wire `downstream_resp_int[123]`:U1 = nil
+  wire `downstream_resp_int[124]`:U1 = nil
+  wire `downstream_resp_int[125]`:U1 = nil
+  wire `downstream_resp_int[126]`:U1 = nil
+  wire `downstream_resp_int[127]`:U1 = nil
+  wire `downstream_resp_int[128]`:U1 = nil
+  wire `downstream_resp_int[129]`:U1 = nil
+  wire `downstream_resp_int[130]`:U1 = nil
+  wire `downstream_resp_int[131]`:U1 = nil
+  wire `downstream_resp_int[132]`:U1 = nil
+  wire `downstream_resp_int[133]`:U1 = nil
+  wire `downstream_resp_int[134]`:U1 = nil
+  wire `downstream_resp_int[135]`:U1 = nil
+  wire downstream_resp_int:U136 = nil
+  mut _rep_1:U4 = if (upstream_req_valid & 1) != 0 { 15 } else { 0 }
   const downstream_req_valid_int__w1 = select_onehot & _rep_1
-  mut _rep_2:u4 = if (upstream_req_write & 1) != 0 { 15 } else { 0 }
+  mut _rep_2:U4 = if (upstream_req_write & 1) != 0 { 15 } else { 0 }
   const downstream_req_write_int__w1 = _rep_2
-  const t16 = upstream_req_addr
-  const downstream_req_addr_int__w1 = t16 | (t16 << 16) | (t16 << 32) | (t16 << 48)
-  const t24 = upstream_req_wdata
-  const downstream_req_wdata_int__w1 = t24 | (t24 << 32) | (t24 << 0x40) | (t24 << 0x60)
-  const t32 = upstream_req_wstrb
-  const downstream_req_wstrb_int__w1 = t32 | (t32 << 4) | (t32 << 8) | (t32 << 12)
-  mut _rep_3:u4 = if (upstream_req_privileged & 1) != 0 { 15 } else { 0 }
+  const t19 = upstream_req_addr
+  const downstream_req_addr_int__w1 = t19 | (t19 << 16) | (t19 << 32) | (t19 << 48)
+  const t27 = upstream_req_wdata
+  const downstream_req_wdata_int__w1 = t27 | (t27 << 32) | (t27 << 0x40) | (t27 << 0x60)
+  const t35 = upstream_req_wstrb
+  const downstream_req_wstrb_int__w1 = t35 | (t35 << 4) | (t35 << 8) | (t35 << 12)
+  mut _rep_3:U4 = if (upstream_req_privileged & 1) != 0 { 15 } else { 0 }
   const downstream_req_privileged_int__w1 = _rep_3
-  mut _rep_4:u4 = if (upstream_req_secure & 1) != 0 { 15 } else { 0 }
+  mut _rep_4:U4 = if (upstream_req_secure & 1) != 0 { 15 } else { 0 }
   const downstream_req_secure_int__w1 = _rep_4
-  mut _rep_5:u4 = if (upstream_req_abort & 1) != 0 { 15 } else { 0 }
+  mut _rep_5:U4 = if (upstream_req_abort & 1) != 0 { 15 } else { 0 }
   const downstream_req_abort_int__w1 = _rep_5
-  mut gen_downstream_req_retime_0_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_0_br_delay_valid_req](clk = clk, rst = rst, in_valid = downstream_req_valid_int__w1 & 1, `in` = ((downstream_req_write_int__w1 & 1) << 54) | (downstream_req_addr_int__w1#[0..=15] << 38) | (downstream_req_wdata_int__w1#[0..=31] << 6) | (downstream_req_wstrb_int__w1#[0..=3] << 2) | ((downstream_req_privileged_int__w1 & 1) << 1) | (downstream_req_secure_int__w1 & 1))
-  mut downstream_req_valid__w1 = downstream_req_valid
-  downstream_req_valid__w1#[0] = gen_downstream_req_retime_0_br_delay_valid_req.out_valid & 1
-  mut downstream_req_secure__w1 = downstream_req_secure
-  downstream_req_secure__w1#[0] = gen_downstream_req_retime_0_br_delay_valid_req.out & 1
-  mut downstream_req_privileged__w1 = downstream_req_privileged
-  downstream_req_privileged__w1#[0] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 1) & 1
-  mut downstream_req_wstrb__w1 = downstream_req_wstrb
-  downstream_req_wstrb__w1#[0..=3] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3]
-  mut downstream_req_wdata__w1 = downstream_req_wdata
-  downstream_req_wdata__w1#[0..=31] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31]
-  mut downstream_req_addr__w1 = downstream_req_addr
-  downstream_req_addr__w1#[0..=15] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15]
-  mut downstream_req_write__w1 = downstream_req_write
-  downstream_req_write__w1#[0] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_0_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_0_br_delay_req_abort](clk = clk, rst = rst, `in` = downstream_req_abort_int__w1 & 1)
-  mut downstream_req_abort__w1 = downstream_req_abort
-  downstream_req_abort__w1#[0] = gen_downstream_req_retime_0_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_1_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_1_br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 1) & 1, `in` = (((downstream_req_write_int__w1 >> 1) & 1) << 54) | (downstream_req_addr_int__w1#[16..=31] << 38) | (downstream_req_wdata_int__w1#[32..=63] << 6) | (downstream_req_wstrb_int__w1#[4..=7] << 2) | (((downstream_req_privileged_int__w1 >> 1) & 1) << 1) | ((downstream_req_secure_int__w1 >> 1) & 1))
-  mut downstream_req_valid__w2 = downstream_req_valid__w1
-  downstream_req_valid__w2#[1] = gen_downstream_req_retime_1_br_delay_valid_req.out_valid & 1
-  mut downstream_req_secure__w2 = downstream_req_secure__w1
-  downstream_req_secure__w2#[1] = gen_downstream_req_retime_1_br_delay_valid_req.out & 1
-  mut downstream_req_privileged__w2 = downstream_req_privileged__w1
-  downstream_req_privileged__w2#[1] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 1) & 1
-  mut downstream_req_wstrb__w2 = downstream_req_wstrb__w1
-  downstream_req_wstrb__w2#[4..=7] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3]
-  mut downstream_req_wdata__w2 = downstream_req_wdata__w1
-  downstream_req_wdata__w2#[32..=63] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31]
-  mut downstream_req_addr__w2 = downstream_req_addr__w1
-  downstream_req_addr__w2#[16..=31] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15]
-  mut downstream_req_write__w2 = downstream_req_write__w1
-  downstream_req_write__w2#[1] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_1_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_1_br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 1) & 1)
-  mut downstream_req_abort__w2 = downstream_req_abort__w1
-  downstream_req_abort__w2#[1] = gen_downstream_req_retime_1_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_2_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_2_br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 2) & 1, `in` = (((downstream_req_write_int__w1 >> 2) & 1) << 54) | (downstream_req_addr_int__w1#[32..=47] << 38) | (downstream_req_wdata_int__w1#[64..=95] << 6) | (downstream_req_wstrb_int__w1#[8..=11] << 2) | (((downstream_req_privileged_int__w1 >> 2) & 1) << 1) | ((downstream_req_secure_int__w1 >> 2) & 1))
-  mut downstream_req_valid__w3 = downstream_req_valid__w2
-  downstream_req_valid__w3#[2] = gen_downstream_req_retime_2_br_delay_valid_req.out_valid & 1
-  mut downstream_req_secure__w3 = downstream_req_secure__w2
-  downstream_req_secure__w3#[2] = gen_downstream_req_retime_2_br_delay_valid_req.out & 1
-  mut downstream_req_privileged__w3 = downstream_req_privileged__w2
-  downstream_req_privileged__w3#[2] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 1) & 1
-  mut downstream_req_wstrb__w3 = downstream_req_wstrb__w2
-  downstream_req_wstrb__w3#[8..=11] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3]
-  mut downstream_req_wdata__w3 = downstream_req_wdata__w2
-  downstream_req_wdata__w3#[64..=95] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31]
-  mut downstream_req_addr__w3 = downstream_req_addr__w2
-  downstream_req_addr__w3#[32..=47] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15]
-  mut downstream_req_write__w3 = downstream_req_write__w2
-  downstream_req_write__w3#[2] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_2_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_2_br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 2) & 1)
-  mut downstream_req_abort__w3 = downstream_req_abort__w2
-  downstream_req_abort__w3#[2] = gen_downstream_req_retime_2_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_3_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_3_br_delay_valid_req](clk = clk, rst = rst, in_valid = (downstream_req_valid_int__w1 >> 3) & 1, `in` = (((downstream_req_write_int__w1 >> 3) & 1) << 54) | (downstream_req_addr_int__w1#[48..=63] << 38) | (downstream_req_wdata_int__w1#[96..=127] << 6) | (downstream_req_wstrb_int__w1#[12..=15] << 2) | (((downstream_req_privileged_int__w1 >> 3) & 1) << 1) | ((downstream_req_secure_int__w1 >> 3) & 1))
-  mut downstream_req_valid__w4 = downstream_req_valid__w3
-  downstream_req_valid__w4#[3] = gen_downstream_req_retime_3_br_delay_valid_req.out_valid & 1
-  mut downstream_req_secure__w4 = downstream_req_secure__w3
-  downstream_req_secure__w4#[3] = gen_downstream_req_retime_3_br_delay_valid_req.out & 1
-  mut downstream_req_privileged__w4 = downstream_req_privileged__w3
-  downstream_req_privileged__w4#[3] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 1) & 1
-  mut downstream_req_wstrb__w4 = downstream_req_wstrb__w3
-  downstream_req_wstrb__w4#[12..=15] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3]
-  mut downstream_req_wdata__w4 = downstream_req_wdata__w3
-  downstream_req_wdata__w4#[96..=127] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31]
-  mut downstream_req_addr__w4 = downstream_req_addr__w3
-  downstream_req_addr__w4#[48..=63] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15]
-  mut downstream_req_write__w4 = downstream_req_write__w3
-  downstream_req_write__w4#[3] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_3_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_3_br_delay_req_abort](clk = clk, rst = rst, `in` = (downstream_req_abort_int__w1 >> 3) & 1)
-  mut downstream_req_abort__w4 = downstream_req_abort__w3
-  downstream_req_abort__w4#[3] = gen_downstream_req_retime_3_br_delay_req_abort.out & 1
-  decerr_resp_valid = if rst != 0 { 0 } else { unsigned((upstream_req_valid != 0) and (not (select_onehot != 0))) }
-  mut downstream_resp__w1 = downstream_resp
-  downstream_resp__w1#[0..=33] = (downstream_resp_slverr & 1) | ((downstream_resp_decerr & 1) << 1) | (downstream_resp_rdata#[0..=31] << 2)
-  mut gen_downstream_resp_retime_0_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_0_br_delay_valid_resp](clk = clk, rst = rst, in_valid = downstream_resp_valid & 1, `in` = downstream_resp__w1#[0..=33])
-  mut downstream_resp_valid_int__w1 = downstream_resp_valid_int
-  downstream_resp_valid_int__w1#[0] = gen_downstream_resp_retime_0_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w1 = downstream_resp_int
-  downstream_resp_int__w1#[0..=33] = gen_downstream_resp_retime_0_br_delay_valid_resp.out#[0..=33]
-  mut downstream_resp__w2 = downstream_resp__w1
-  downstream_resp__w2#[34..=67] = ((downstream_resp_slverr >> 1) & 1) | (((downstream_resp_decerr >> 1) & 1) << 1) | (downstream_resp_rdata#[32..=63] << 2)
-  mut gen_downstream_resp_retime_1_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_1_br_delay_valid_resp](clk = clk, rst = rst, in_valid = (downstream_resp_valid >> 1) & 1, `in` = downstream_resp__w2#[34..=67])
-  mut downstream_resp_valid_int__w2 = downstream_resp_valid_int__w1
-  downstream_resp_valid_int__w2#[1] = gen_downstream_resp_retime_1_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w2 = downstream_resp_int__w1
-  downstream_resp_int__w2#[34..=67] = gen_downstream_resp_retime_1_br_delay_valid_resp.out#[0..=33]
-  mut downstream_resp__w3 = downstream_resp__w2
-  downstream_resp__w3#[68..=101] = ((downstream_resp_slverr >> 2) & 1) | (((downstream_resp_decerr >> 2) & 1) << 1) | (downstream_resp_rdata#[64..=95] << 2)
-  mut gen_downstream_resp_retime_2_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_2_br_delay_valid_resp](clk = clk, rst = rst, in_valid = (downstream_resp_valid >> 2) & 1, `in` = downstream_resp__w3#[68..=101])
-  mut downstream_resp_valid_int__w3 = downstream_resp_valid_int__w2
-  downstream_resp_valid_int__w3#[2] = gen_downstream_resp_retime_2_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w3 = downstream_resp_int__w2
-  downstream_resp_int__w3#[68..=101] = gen_downstream_resp_retime_2_br_delay_valid_resp.out#[0..=33]
-  mut downstream_resp__w4 = downstream_resp__w3
-  downstream_resp__w4#[102..=135] = ((downstream_resp_slverr >> 3) & 1) | (((downstream_resp_decerr >> 3) & 1) << 1) | (downstream_resp_rdata#[96..=127] << 2)
-  mut gen_downstream_resp_retime_3_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_3_br_delay_valid_resp](clk = clk, rst = rst, in_valid = (downstream_resp_valid >> 3) & 1, `in` = downstream_resp__w4#[102..=135])
-  mut downstream_resp_valid_int__w4 = downstream_resp_valid_int__w3
-  downstream_resp_valid_int__w4#[3] = gen_downstream_resp_retime_3_br_delay_valid_resp.out_valid & 1
-  mut downstream_resp_int__w4 = downstream_resp_int__w3
-  downstream_resp_int__w4#[102..=135] = gen_downstream_resp_retime_3_br_delay_valid_resp.out#[0..=33]
-  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select = ((decerr_resp_valid & 1) << 4) | downstream_resp_valid_int__w4#[0..=3], `in` = (2 << 136) | downstream_resp_int__w4#[0..=135])
+  mut gen_downstream_req_retime_0_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_0_br_delay_valid_req](clk=clk, rst=rst, in_valid=downstream_req_valid_int__w1 & 1, `in`=((downstream_req_write_int__w1 & 1) << 54) | (downstream_req_addr_int__w1#[0..=15] << 38) | (downstream_req_wdata_int__w1#[0..=31] << 6) | (downstream_req_wstrb_int__w1#[0..=3] << 2) | ((downstream_req_privileged_int__w1 & 1) << 1) | (downstream_req_secure_int__w1 & 1))
+  `downstream_req_valid[0]` = gen_downstream_req_retime_0_br_delay_valid_req.out_valid & 1
+  `downstream_req_secure[0]` = gen_downstream_req_retime_0_br_delay_valid_req.out & 1
+  `downstream_req_privileged[0]` = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 1) & 1
+  `downstream_req_wstrb[0]` = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3] & 1
+  `downstream_req_wstrb[1]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3] >> 1) & 1
+  `downstream_req_wstrb[2]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3] >> 2) & 1
+  `downstream_req_wstrb[3]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3] >> 3) & 1
+  `downstream_req_wdata[0]` = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] & 1
+  `downstream_req_wdata[1]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 1) & 1
+  `downstream_req_wdata[2]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 2) & 1
+  `downstream_req_wdata[3]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 3) & 1
+  `downstream_req_wdata[4]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 4) & 1
+  `downstream_req_wdata[5]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 5) & 1
+  `downstream_req_wdata[6]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 6) & 1
+  `downstream_req_wdata[7]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 7) & 1
+  `downstream_req_wdata[8]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 8) & 1
+  `downstream_req_wdata[9]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 9) & 1
+  `downstream_req_wdata[10]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 10) & 1
+  `downstream_req_wdata[11]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 11) & 1
+  `downstream_req_wdata[12]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 12) & 1
+  `downstream_req_wdata[13]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 13) & 1
+  `downstream_req_wdata[14]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 14) & 1
+  `downstream_req_wdata[15]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 15) & 1
+  `downstream_req_wdata[16]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 16) & 1
+  `downstream_req_wdata[17]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 17) & 1
+  `downstream_req_wdata[18]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 18) & 1
+  `downstream_req_wdata[19]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 19) & 1
+  `downstream_req_wdata[20]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 20) & 1
+  `downstream_req_wdata[21]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 21) & 1
+  `downstream_req_wdata[22]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 22) & 1
+  `downstream_req_wdata[23]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 23) & 1
+  `downstream_req_wdata[24]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 24) & 1
+  `downstream_req_wdata[25]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 25) & 1
+  `downstream_req_wdata[26]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 26) & 1
+  `downstream_req_wdata[27]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 27) & 1
+  `downstream_req_wdata[28]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 28) & 1
+  `downstream_req_wdata[29]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 29) & 1
+  `downstream_req_wdata[30]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 30) & 1
+  `downstream_req_wdata[31]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31] >> 31) & 1
+  `downstream_req_addr[0]` = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] & 1
+  `downstream_req_addr[1]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 1) & 1
+  `downstream_req_addr[2]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 2) & 1
+  `downstream_req_addr[3]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 3) & 1
+  `downstream_req_addr[4]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 4) & 1
+  `downstream_req_addr[5]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 5) & 1
+  `downstream_req_addr[6]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 6) & 1
+  `downstream_req_addr[7]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 7) & 1
+  `downstream_req_addr[8]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 8) & 1
+  `downstream_req_addr[9]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 9) & 1
+  `downstream_req_addr[10]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 10) & 1
+  `downstream_req_addr[11]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 11) & 1
+  `downstream_req_addr[12]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 12) & 1
+  `downstream_req_addr[13]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 13) & 1
+  `downstream_req_addr[14]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 14) & 1
+  `downstream_req_addr[15]` = ((gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15] >> 15) & 1
+  `downstream_req_write[0]` = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 54) & 1
+  mut gen_downstream_req_retime_0_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_0_br_delay_req_abort](clk=clk, rst=rst, `in`=downstream_req_abort_int__w1 & 1)
+  `downstream_req_abort[0]` = gen_downstream_req_retime_0_br_delay_req_abort.out & 1
+  mut gen_downstream_req_retime_1_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_1_br_delay_valid_req](clk=clk, rst=rst, in_valid=(downstream_req_valid_int__w1 >> 1) & 1, `in`=(((downstream_req_write_int__w1 >> 1) & 1) << 54) | (downstream_req_addr_int__w1#[16..=31] << 38) | (downstream_req_wdata_int__w1#[32..=63] << 6) | (downstream_req_wstrb_int__w1#[4..=7] << 2) | (((downstream_req_privileged_int__w1 >> 1) & 1) << 1) | ((downstream_req_secure_int__w1 >> 1) & 1))
+  `downstream_req_valid[1]` = gen_downstream_req_retime_1_br_delay_valid_req.out_valid & 1
+  `downstream_req_secure[1]` = gen_downstream_req_retime_1_br_delay_valid_req.out & 1
+  `downstream_req_privileged[1]` = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 1) & 1
+  `downstream_req_wstrb[4]` = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3] & 1
+  `downstream_req_wstrb[5]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3] >> 1) & 1
+  `downstream_req_wstrb[6]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3] >> 2) & 1
+  `downstream_req_wstrb[7]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3] >> 3) & 1
+  `downstream_req_wdata[32]` = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] & 1
+  `downstream_req_wdata[33]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 1) & 1
+  `downstream_req_wdata[34]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 2) & 1
+  `downstream_req_wdata[35]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 3) & 1
+  `downstream_req_wdata[36]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 4) & 1
+  `downstream_req_wdata[37]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 5) & 1
+  `downstream_req_wdata[38]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 6) & 1
+  `downstream_req_wdata[39]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 7) & 1
+  `downstream_req_wdata[40]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 8) & 1
+  `downstream_req_wdata[41]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 9) & 1
+  `downstream_req_wdata[42]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 10) & 1
+  `downstream_req_wdata[43]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 11) & 1
+  `downstream_req_wdata[44]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 12) & 1
+  `downstream_req_wdata[45]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 13) & 1
+  `downstream_req_wdata[46]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 14) & 1
+  `downstream_req_wdata[47]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 15) & 1
+  `downstream_req_wdata[48]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 16) & 1
+  `downstream_req_wdata[49]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 17) & 1
+  `downstream_req_wdata[50]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 18) & 1
+  `downstream_req_wdata[51]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 19) & 1
+  `downstream_req_wdata[52]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 20) & 1
+  `downstream_req_wdata[53]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 21) & 1
+  `downstream_req_wdata[54]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 22) & 1
+  `downstream_req_wdata[55]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 23) & 1
+  `downstream_req_wdata[56]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 24) & 1
+  `downstream_req_wdata[57]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 25) & 1
+  `downstream_req_wdata[58]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 26) & 1
+  `downstream_req_wdata[59]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 27) & 1
+  `downstream_req_wdata[60]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 28) & 1
+  `downstream_req_wdata[61]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 29) & 1
+  `downstream_req_wdata[62]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 30) & 1
+  `downstream_req_wdata[63]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31] >> 31) & 1
+  `downstream_req_addr[16]` = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] & 1
+  `downstream_req_addr[17]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 1) & 1
+  `downstream_req_addr[18]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 2) & 1
+  `downstream_req_addr[19]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 3) & 1
+  `downstream_req_addr[20]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 4) & 1
+  `downstream_req_addr[21]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 5) & 1
+  `downstream_req_addr[22]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 6) & 1
+  `downstream_req_addr[23]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 7) & 1
+  `downstream_req_addr[24]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 8) & 1
+  `downstream_req_addr[25]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 9) & 1
+  `downstream_req_addr[26]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 10) & 1
+  `downstream_req_addr[27]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 11) & 1
+  `downstream_req_addr[28]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 12) & 1
+  `downstream_req_addr[29]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 13) & 1
+  `downstream_req_addr[30]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 14) & 1
+  `downstream_req_addr[31]` = ((gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15] >> 15) & 1
+  `downstream_req_write[1]` = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 54) & 1
+  mut gen_downstream_req_retime_1_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_1_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int__w1 >> 1) & 1)
+  `downstream_req_abort[1]` = gen_downstream_req_retime_1_br_delay_req_abort.out & 1
+  mut gen_downstream_req_retime_2_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_2_br_delay_valid_req](clk=clk, rst=rst, in_valid=(downstream_req_valid_int__w1 >> 2) & 1, `in`=(((downstream_req_write_int__w1 >> 2) & 1) << 54) | (downstream_req_addr_int__w1#[32..=47] << 38) | (downstream_req_wdata_int__w1#[64..=95] << 6) | (downstream_req_wstrb_int__w1#[8..=11] << 2) | (((downstream_req_privileged_int__w1 >> 2) & 1) << 1) | ((downstream_req_secure_int__w1 >> 2) & 1))
+  `downstream_req_valid[2]` = gen_downstream_req_retime_2_br_delay_valid_req.out_valid & 1
+  `downstream_req_secure[2]` = gen_downstream_req_retime_2_br_delay_valid_req.out & 1
+  `downstream_req_privileged[2]` = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 1) & 1
+  `downstream_req_wstrb[8]` = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3] & 1
+  `downstream_req_wstrb[9]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3] >> 1) & 1
+  `downstream_req_wstrb[10]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3] >> 2) & 1
+  `downstream_req_wstrb[11]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3] >> 3) & 1
+  `downstream_req_wdata[64]` = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] & 1
+  `downstream_req_wdata[65]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 1) & 1
+  `downstream_req_wdata[66]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 2) & 1
+  `downstream_req_wdata[67]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 3) & 1
+  `downstream_req_wdata[68]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 4) & 1
+  `downstream_req_wdata[69]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 5) & 1
+  `downstream_req_wdata[70]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 6) & 1
+  `downstream_req_wdata[71]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 7) & 1
+  `downstream_req_wdata[72]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 8) & 1
+  `downstream_req_wdata[73]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 9) & 1
+  `downstream_req_wdata[74]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 10) & 1
+  `downstream_req_wdata[75]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 11) & 1
+  `downstream_req_wdata[76]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 12) & 1
+  `downstream_req_wdata[77]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 13) & 1
+  `downstream_req_wdata[78]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 14) & 1
+  `downstream_req_wdata[79]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 15) & 1
+  `downstream_req_wdata[80]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 16) & 1
+  `downstream_req_wdata[81]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 17) & 1
+  `downstream_req_wdata[82]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 18) & 1
+  `downstream_req_wdata[83]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 19) & 1
+  `downstream_req_wdata[84]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 20) & 1
+  `downstream_req_wdata[85]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 21) & 1
+  `downstream_req_wdata[86]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 22) & 1
+  `downstream_req_wdata[87]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 23) & 1
+  `downstream_req_wdata[88]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 24) & 1
+  `downstream_req_wdata[89]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 25) & 1
+  `downstream_req_wdata[90]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 26) & 1
+  `downstream_req_wdata[91]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 27) & 1
+  `downstream_req_wdata[92]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 28) & 1
+  `downstream_req_wdata[93]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 29) & 1
+  `downstream_req_wdata[94]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 30) & 1
+  `downstream_req_wdata[95]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31] >> 31) & 1
+  `downstream_req_addr[32]` = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] & 1
+  `downstream_req_addr[33]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 1) & 1
+  `downstream_req_addr[34]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 2) & 1
+  `downstream_req_addr[35]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 3) & 1
+  `downstream_req_addr[36]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 4) & 1
+  `downstream_req_addr[37]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 5) & 1
+  `downstream_req_addr[38]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 6) & 1
+  `downstream_req_addr[39]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 7) & 1
+  `downstream_req_addr[40]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 8) & 1
+  `downstream_req_addr[41]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 9) & 1
+  `downstream_req_addr[42]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 10) & 1
+  `downstream_req_addr[43]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 11) & 1
+  `downstream_req_addr[44]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 12) & 1
+  `downstream_req_addr[45]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 13) & 1
+  `downstream_req_addr[46]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 14) & 1
+  `downstream_req_addr[47]` = ((gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15] >> 15) & 1
+  `downstream_req_write[2]` = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 54) & 1
+  mut gen_downstream_req_retime_2_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_2_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int__w1 >> 2) & 1)
+  `downstream_req_abort[2]` = gen_downstream_req_retime_2_br_delay_req_abort.out & 1
+  mut gen_downstream_req_retime_3_br_delay_valid_req = br_delay_valid::[name=gen_downstream_req_retime_3_br_delay_valid_req](clk=clk, rst=rst, in_valid=(downstream_req_valid_int__w1 >> 3) & 1, `in`=(((downstream_req_write_int__w1 >> 3) & 1) << 54) | (downstream_req_addr_int__w1#[48..=63] << 38) | (downstream_req_wdata_int__w1#[96..=127] << 6) | (downstream_req_wstrb_int__w1#[12..=15] << 2) | (((downstream_req_privileged_int__w1 >> 3) & 1) << 1) | ((downstream_req_secure_int__w1 >> 3) & 1))
+  `downstream_req_valid[3]` = gen_downstream_req_retime_3_br_delay_valid_req.out_valid & 1
+  `downstream_req_secure[3]` = gen_downstream_req_retime_3_br_delay_valid_req.out & 1
+  `downstream_req_privileged[3]` = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 1) & 1
+  `downstream_req_wstrb[12]` = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3] & 1
+  `downstream_req_wstrb[13]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3] >> 1) & 1
+  `downstream_req_wstrb[14]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3] >> 2) & 1
+  `downstream_req_wstrb[15]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3] >> 3) & 1
+  `downstream_req_wdata[96]` = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] & 1
+  `downstream_req_wdata[97]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 1) & 1
+  `downstream_req_wdata[98]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 2) & 1
+  `downstream_req_wdata[99]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 3) & 1
+  `downstream_req_wdata[100]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 4) & 1
+  `downstream_req_wdata[101]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 5) & 1
+  `downstream_req_wdata[102]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 6) & 1
+  `downstream_req_wdata[103]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 7) & 1
+  `downstream_req_wdata[104]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 8) & 1
+  `downstream_req_wdata[105]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 9) & 1
+  `downstream_req_wdata[106]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 10) & 1
+  `downstream_req_wdata[107]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 11) & 1
+  `downstream_req_wdata[108]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 12) & 1
+  `downstream_req_wdata[109]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 13) & 1
+  `downstream_req_wdata[110]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 14) & 1
+  `downstream_req_wdata[111]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 15) & 1
+  `downstream_req_wdata[112]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 16) & 1
+  `downstream_req_wdata[113]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 17) & 1
+  `downstream_req_wdata[114]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 18) & 1
+  `downstream_req_wdata[115]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 19) & 1
+  `downstream_req_wdata[116]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 20) & 1
+  `downstream_req_wdata[117]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 21) & 1
+  `downstream_req_wdata[118]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 22) & 1
+  `downstream_req_wdata[119]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 23) & 1
+  `downstream_req_wdata[120]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 24) & 1
+  `downstream_req_wdata[121]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 25) & 1
+  `downstream_req_wdata[122]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 26) & 1
+  `downstream_req_wdata[123]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 27) & 1
+  `downstream_req_wdata[124]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 28) & 1
+  `downstream_req_wdata[125]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 29) & 1
+  `downstream_req_wdata[126]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 30) & 1
+  `downstream_req_wdata[127]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31] >> 31) & 1
+  `downstream_req_addr[48]` = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] & 1
+  `downstream_req_addr[49]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 1) & 1
+  `downstream_req_addr[50]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 2) & 1
+  `downstream_req_addr[51]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 3) & 1
+  `downstream_req_addr[52]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 4) & 1
+  `downstream_req_addr[53]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 5) & 1
+  `downstream_req_addr[54]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 6) & 1
+  `downstream_req_addr[55]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 7) & 1
+  `downstream_req_addr[56]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 8) & 1
+  `downstream_req_addr[57]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 9) & 1
+  `downstream_req_addr[58]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 10) & 1
+  `downstream_req_addr[59]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 11) & 1
+  `downstream_req_addr[60]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 12) & 1
+  `downstream_req_addr[61]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 13) & 1
+  `downstream_req_addr[62]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 14) & 1
+  `downstream_req_addr[63]` = ((gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15] >> 15) & 1
+  `downstream_req_write[3]` = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 54) & 1
+  mut gen_downstream_req_retime_3_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_3_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int__w1 >> 3) & 1)
+  `downstream_req_abort[3]` = gen_downstream_req_retime_3_br_delay_req_abort.out & 1
+  mut `decerr_resp.rdata` = 0
+  mut `decerr_resp.decerr` = 1
+  mut `decerr_resp.slverr` = 0
+  if not (rst != 0) {
+    decerr_resp_valid = U1(upstream_req_valid != 0 and (not (select_onehot != 0)))
+  }
+  const t582 = (downstream_resp_slverr & 1) | ((downstream_resp_decerr & 1) << 1) | (downstream_resp_rdata#[0..=31] << 2)
+  `downstream_resp[0]` = t582 & 1
+  `downstream_resp[1]` = (t582 >> 1) & 1
+  `downstream_resp[2]` = (t582 >> 2) & 1
+  `downstream_resp[3]` = (t582 >> 3) & 1
+  `downstream_resp[4]` = (t582 >> 4) & 1
+  `downstream_resp[5]` = (t582 >> 5) & 1
+  `downstream_resp[6]` = (t582 >> 6) & 1
+  `downstream_resp[7]` = (t582 >> 7) & 1
+  `downstream_resp[8]` = (t582 >> 8) & 1
+  `downstream_resp[9]` = (t582 >> 9) & 1
+  `downstream_resp[10]` = (t582 >> 10) & 1
+  `downstream_resp[11]` = (t582 >> 11) & 1
+  `downstream_resp[12]` = (t582 >> 12) & 1
+  `downstream_resp[13]` = (t582 >> 13) & 1
+  `downstream_resp[14]` = (t582 >> 14) & 1
+  `downstream_resp[15]` = (t582 >> 15) & 1
+  `downstream_resp[16]` = (t582 >> 16) & 1
+  `downstream_resp[17]` = (t582 >> 17) & 1
+  `downstream_resp[18]` = (t582 >> 18) & 1
+  `downstream_resp[19]` = (t582 >> 19) & 1
+  `downstream_resp[20]` = (t582 >> 20) & 1
+  `downstream_resp[21]` = (t582 >> 21) & 1
+  `downstream_resp[22]` = (t582 >> 22) & 1
+  `downstream_resp[23]` = (t582 >> 23) & 1
+  `downstream_resp[24]` = (t582 >> 24) & 1
+  `downstream_resp[25]` = (t582 >> 25) & 1
+  `downstream_resp[26]` = (t582 >> 26) & 1
+  `downstream_resp[27]` = (t582 >> 27) & 1
+  `downstream_resp[28]` = (t582 >> 28) & 1
+  `downstream_resp[29]` = (t582 >> 29) & 1
+  `downstream_resp[30]` = (t582 >> 30) & 1
+  `downstream_resp[31]` = (t582 >> 31) & 1
+  `downstream_resp[32]` = (t582 >> 32) & 1
+  `downstream_resp[33]` = (t582 >> 33) & 1
+  mut gen_downstream_resp_retime_0_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_0_br_delay_valid_resp](clk=clk, rst=rst, in_valid=downstream_resp_valid & 1, `in`=(`downstream_resp[33]` << 33) | (`downstream_resp[32]` << 32) | (`downstream_resp[31]` << 31) | (`downstream_resp[30]` << 30) | (`downstream_resp[29]` << 29) | (`downstream_resp[28]` << 28) | (`downstream_resp[27]` << 27) | (`downstream_resp[26]` << 26) | (`downstream_resp[25]` << 25) | (`downstream_resp[24]` << 24) | (`downstream_resp[23]` << 23) | (`downstream_resp[22]` << 22) | (`downstream_resp[21]` << 21) | (`downstream_resp[20]` << 20) | (`downstream_resp[19]` << 19) | (`downstream_resp[18]` << 18) | (`downstream_resp[17]` << 17) | (`downstream_resp[16]` << 16) | (`downstream_resp[15]` << 15) | (`downstream_resp[14]` << 14) | (`downstream_resp[13]` << 13) | (`downstream_resp[12]` << 12) | (`downstream_resp[11]` << 11) | (`downstream_resp[10]` << 10) | (`downstream_resp[9]` << 9) | (`downstream_resp[8]` << 8) | (`downstream_resp[7]` << 7) | (`downstream_resp[6]` << 6) | (`downstream_resp[5]` << 5) | (`downstream_resp[4]` << 4) | (`downstream_resp[3]` << 3) | (`downstream_resp[2]` << 2) | (`downstream_resp[1]` << 1) | `downstream_resp[0]`)
+  `downstream_resp_valid_int[0]` = gen_downstream_resp_retime_0_br_delay_valid_resp.out_valid & 1
+  `downstream_resp_int[0]` = gen_downstream_resp_retime_0_br_delay_valid_resp.out & 1
+  `downstream_resp_int[1]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 1) & 1
+  `downstream_resp_int[2]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 2) & 1
+  `downstream_resp_int[3]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 3) & 1
+  `downstream_resp_int[4]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 4) & 1
+  `downstream_resp_int[5]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 5) & 1
+  `downstream_resp_int[6]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 6) & 1
+  `downstream_resp_int[7]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 7) & 1
+  `downstream_resp_int[8]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 8) & 1
+  `downstream_resp_int[9]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 9) & 1
+  `downstream_resp_int[10]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 10) & 1
+  `downstream_resp_int[11]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 11) & 1
+  `downstream_resp_int[12]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 12) & 1
+  `downstream_resp_int[13]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 13) & 1
+  `downstream_resp_int[14]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 14) & 1
+  `downstream_resp_int[15]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 15) & 1
+  `downstream_resp_int[16]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 16) & 1
+  `downstream_resp_int[17]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 17) & 1
+  `downstream_resp_int[18]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 18) & 1
+  `downstream_resp_int[19]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 19) & 1
+  `downstream_resp_int[20]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 20) & 1
+  `downstream_resp_int[21]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 21) & 1
+  `downstream_resp_int[22]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 22) & 1
+  `downstream_resp_int[23]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 23) & 1
+  `downstream_resp_int[24]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 24) & 1
+  `downstream_resp_int[25]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 25) & 1
+  `downstream_resp_int[26]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 26) & 1
+  `downstream_resp_int[27]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 27) & 1
+  `downstream_resp_int[28]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 28) & 1
+  `downstream_resp_int[29]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 29) & 1
+  `downstream_resp_int[30]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 30) & 1
+  `downstream_resp_int[31]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 31) & 1
+  `downstream_resp_int[32]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 32) & 1
+  `downstream_resp_int[33]` = (gen_downstream_resp_retime_0_br_delay_valid_resp.out >> 33) & 1
+  const t730 = ((downstream_resp_slverr >> 1) & 1) | (((downstream_resp_decerr >> 1) & 1) << 1) | (downstream_resp_rdata#[32..=63] << 2)
+  `downstream_resp[34]` = t730 & 1
+  `downstream_resp[35]` = (t730 >> 1) & 1
+  `downstream_resp[36]` = (t730 >> 2) & 1
+  `downstream_resp[37]` = (t730 >> 3) & 1
+  `downstream_resp[38]` = (t730 >> 4) & 1
+  `downstream_resp[39]` = (t730 >> 5) & 1
+  `downstream_resp[40]` = (t730 >> 6) & 1
+  `downstream_resp[41]` = (t730 >> 7) & 1
+  `downstream_resp[42]` = (t730 >> 8) & 1
+  `downstream_resp[43]` = (t730 >> 9) & 1
+  `downstream_resp[44]` = (t730 >> 10) & 1
+  `downstream_resp[45]` = (t730 >> 11) & 1
+  `downstream_resp[46]` = (t730 >> 12) & 1
+  `downstream_resp[47]` = (t730 >> 13) & 1
+  `downstream_resp[48]` = (t730 >> 14) & 1
+  `downstream_resp[49]` = (t730 >> 15) & 1
+  `downstream_resp[50]` = (t730 >> 16) & 1
+  `downstream_resp[51]` = (t730 >> 17) & 1
+  `downstream_resp[52]` = (t730 >> 18) & 1
+  `downstream_resp[53]` = (t730 >> 19) & 1
+  `downstream_resp[54]` = (t730 >> 20) & 1
+  `downstream_resp[55]` = (t730 >> 21) & 1
+  `downstream_resp[56]` = (t730 >> 22) & 1
+  `downstream_resp[57]` = (t730 >> 23) & 1
+  `downstream_resp[58]` = (t730 >> 24) & 1
+  `downstream_resp[59]` = (t730 >> 25) & 1
+  `downstream_resp[60]` = (t730 >> 26) & 1
+  `downstream_resp[61]` = (t730 >> 27) & 1
+  `downstream_resp[62]` = (t730 >> 28) & 1
+  `downstream_resp[63]` = (t730 >> 29) & 1
+  `downstream_resp[64]` = (t730 >> 30) & 1
+  `downstream_resp[65]` = (t730 >> 31) & 1
+  `downstream_resp[66]` = (t730 >> 32) & 1
+  `downstream_resp[67]` = (t730 >> 33) & 1
+  mut gen_downstream_resp_retime_1_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_1_br_delay_valid_resp](clk=clk, rst=rst, in_valid=(downstream_resp_valid >> 1) & 1, `in`=(`downstream_resp[67]` << 33) | (`downstream_resp[66]` << 32) | (`downstream_resp[65]` << 31) | (`downstream_resp[64]` << 30) | (`downstream_resp[63]` << 29) | (`downstream_resp[62]` << 28) | (`downstream_resp[61]` << 27) | (`downstream_resp[60]` << 26) | (`downstream_resp[59]` << 25) | (`downstream_resp[58]` << 24) | (`downstream_resp[57]` << 23) | (`downstream_resp[56]` << 22) | (`downstream_resp[55]` << 21) | (`downstream_resp[54]` << 20) | (`downstream_resp[53]` << 19) | (`downstream_resp[52]` << 18) | (`downstream_resp[51]` << 17) | (`downstream_resp[50]` << 16) | (`downstream_resp[49]` << 15) | (`downstream_resp[48]` << 14) | (`downstream_resp[47]` << 13) | (`downstream_resp[46]` << 12) | (`downstream_resp[45]` << 11) | (`downstream_resp[44]` << 10) | (`downstream_resp[43]` << 9) | (`downstream_resp[42]` << 8) | (`downstream_resp[41]` << 7) | (`downstream_resp[40]` << 6) | (`downstream_resp[39]` << 5) | (`downstream_resp[38]` << 4) | (`downstream_resp[37]` << 3) | (`downstream_resp[36]` << 2) | (`downstream_resp[35]` << 1) | `downstream_resp[34]`)
+  `downstream_resp_valid_int[1]` = gen_downstream_resp_retime_1_br_delay_valid_resp.out_valid & 1
+  `downstream_resp_int[34]` = gen_downstream_resp_retime_1_br_delay_valid_resp.out & 1
+  `downstream_resp_int[35]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 1) & 1
+  `downstream_resp_int[36]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 2) & 1
+  `downstream_resp_int[37]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 3) & 1
+  `downstream_resp_int[38]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 4) & 1
+  `downstream_resp_int[39]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 5) & 1
+  `downstream_resp_int[40]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 6) & 1
+  `downstream_resp_int[41]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 7) & 1
+  `downstream_resp_int[42]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 8) & 1
+  `downstream_resp_int[43]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 9) & 1
+  `downstream_resp_int[44]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 10) & 1
+  `downstream_resp_int[45]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 11) & 1
+  `downstream_resp_int[46]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 12) & 1
+  `downstream_resp_int[47]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 13) & 1
+  `downstream_resp_int[48]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 14) & 1
+  `downstream_resp_int[49]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 15) & 1
+  `downstream_resp_int[50]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 16) & 1
+  `downstream_resp_int[51]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 17) & 1
+  `downstream_resp_int[52]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 18) & 1
+  `downstream_resp_int[53]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 19) & 1
+  `downstream_resp_int[54]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 20) & 1
+  `downstream_resp_int[55]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 21) & 1
+  `downstream_resp_int[56]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 22) & 1
+  `downstream_resp_int[57]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 23) & 1
+  `downstream_resp_int[58]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 24) & 1
+  `downstream_resp_int[59]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 25) & 1
+  `downstream_resp_int[60]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 26) & 1
+  `downstream_resp_int[61]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 27) & 1
+  `downstream_resp_int[62]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 28) & 1
+  `downstream_resp_int[63]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 29) & 1
+  `downstream_resp_int[64]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 30) & 1
+  `downstream_resp_int[65]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 31) & 1
+  `downstream_resp_int[66]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 32) & 1
+  `downstream_resp_int[67]` = (gen_downstream_resp_retime_1_br_delay_valid_resp.out >> 33) & 1
+  const t879 = ((downstream_resp_slverr >> 2) & 1) | (((downstream_resp_decerr >> 2) & 1) << 1) | (downstream_resp_rdata#[64..=95] << 2)
+  `downstream_resp[68]` = t879 & 1
+  `downstream_resp[69]` = (t879 >> 1) & 1
+  `downstream_resp[70]` = (t879 >> 2) & 1
+  `downstream_resp[71]` = (t879 >> 3) & 1
+  `downstream_resp[72]` = (t879 >> 4) & 1
+  `downstream_resp[73]` = (t879 >> 5) & 1
+  `downstream_resp[74]` = (t879 >> 6) & 1
+  `downstream_resp[75]` = (t879 >> 7) & 1
+  `downstream_resp[76]` = (t879 >> 8) & 1
+  `downstream_resp[77]` = (t879 >> 9) & 1
+  `downstream_resp[78]` = (t879 >> 10) & 1
+  `downstream_resp[79]` = (t879 >> 11) & 1
+  `downstream_resp[80]` = (t879 >> 12) & 1
+  `downstream_resp[81]` = (t879 >> 13) & 1
+  `downstream_resp[82]` = (t879 >> 14) & 1
+  `downstream_resp[83]` = (t879 >> 15) & 1
+  `downstream_resp[84]` = (t879 >> 16) & 1
+  `downstream_resp[85]` = (t879 >> 17) & 1
+  `downstream_resp[86]` = (t879 >> 18) & 1
+  `downstream_resp[87]` = (t879 >> 19) & 1
+  `downstream_resp[88]` = (t879 >> 20) & 1
+  `downstream_resp[89]` = (t879 >> 21) & 1
+  `downstream_resp[90]` = (t879 >> 22) & 1
+  `downstream_resp[91]` = (t879 >> 23) & 1
+  `downstream_resp[92]` = (t879 >> 24) & 1
+  `downstream_resp[93]` = (t879 >> 25) & 1
+  `downstream_resp[94]` = (t879 >> 26) & 1
+  `downstream_resp[95]` = (t879 >> 27) & 1
+  `downstream_resp[96]` = (t879 >> 28) & 1
+  `downstream_resp[97]` = (t879 >> 29) & 1
+  `downstream_resp[98]` = (t879 >> 30) & 1
+  `downstream_resp[99]` = (t879 >> 31) & 1
+  `downstream_resp[100]` = (t879 >> 32) & 1
+  `downstream_resp[101]` = (t879 >> 33) & 1
+  mut gen_downstream_resp_retime_2_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_2_br_delay_valid_resp](clk=clk, rst=rst, in_valid=(downstream_resp_valid >> 2) & 1, `in`=(`downstream_resp[101]` << 33) | (`downstream_resp[100]` << 32) | (`downstream_resp[99]` << 31) | (`downstream_resp[98]` << 30) | (`downstream_resp[97]` << 29) | (`downstream_resp[96]` << 28) | (`downstream_resp[95]` << 27) | (`downstream_resp[94]` << 26) | (`downstream_resp[93]` << 25) | (`downstream_resp[92]` << 24) | (`downstream_resp[91]` << 23) | (`downstream_resp[90]` << 22) | (`downstream_resp[89]` << 21) | (`downstream_resp[88]` << 20) | (`downstream_resp[87]` << 19) | (`downstream_resp[86]` << 18) | (`downstream_resp[85]` << 17) | (`downstream_resp[84]` << 16) | (`downstream_resp[83]` << 15) | (`downstream_resp[82]` << 14) | (`downstream_resp[81]` << 13) | (`downstream_resp[80]` << 12) | (`downstream_resp[79]` << 11) | (`downstream_resp[78]` << 10) | (`downstream_resp[77]` << 9) | (`downstream_resp[76]` << 8) | (`downstream_resp[75]` << 7) | (`downstream_resp[74]` << 6) | (`downstream_resp[73]` << 5) | (`downstream_resp[72]` << 4) | (`downstream_resp[71]` << 3) | (`downstream_resp[70]` << 2) | (`downstream_resp[69]` << 1) | `downstream_resp[68]`)
+  `downstream_resp_valid_int[2]` = gen_downstream_resp_retime_2_br_delay_valid_resp.out_valid & 1
+  `downstream_resp_int[68]` = gen_downstream_resp_retime_2_br_delay_valid_resp.out & 1
+  `downstream_resp_int[69]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 1) & 1
+  `downstream_resp_int[70]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 2) & 1
+  `downstream_resp_int[71]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 3) & 1
+  `downstream_resp_int[72]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 4) & 1
+  `downstream_resp_int[73]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 5) & 1
+  `downstream_resp_int[74]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 6) & 1
+  `downstream_resp_int[75]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 7) & 1
+  `downstream_resp_int[76]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 8) & 1
+  `downstream_resp_int[77]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 9) & 1
+  `downstream_resp_int[78]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 10) & 1
+  `downstream_resp_int[79]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 11) & 1
+  `downstream_resp_int[80]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 12) & 1
+  `downstream_resp_int[81]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 13) & 1
+  `downstream_resp_int[82]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 14) & 1
+  `downstream_resp_int[83]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 15) & 1
+  `downstream_resp_int[84]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 16) & 1
+  `downstream_resp_int[85]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 17) & 1
+  `downstream_resp_int[86]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 18) & 1
+  `downstream_resp_int[87]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 19) & 1
+  `downstream_resp_int[88]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 20) & 1
+  `downstream_resp_int[89]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 21) & 1
+  `downstream_resp_int[90]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 22) & 1
+  `downstream_resp_int[91]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 23) & 1
+  `downstream_resp_int[92]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 24) & 1
+  `downstream_resp_int[93]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 25) & 1
+  `downstream_resp_int[94]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 26) & 1
+  `downstream_resp_int[95]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 27) & 1
+  `downstream_resp_int[96]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 28) & 1
+  `downstream_resp_int[97]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 29) & 1
+  `downstream_resp_int[98]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 30) & 1
+  `downstream_resp_int[99]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 31) & 1
+  `downstream_resp_int[100]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 32) & 1
+  `downstream_resp_int[101]` = (gen_downstream_resp_retime_2_br_delay_valid_resp.out >> 33) & 1
+  const t1028 = ((downstream_resp_slverr >> 3) & 1) | (((downstream_resp_decerr >> 3) & 1) << 1) | (downstream_resp_rdata#[96..=127] << 2)
+  `downstream_resp[102]` = t1028 & 1
+  `downstream_resp[103]` = (t1028 >> 1) & 1
+  `downstream_resp[104]` = (t1028 >> 2) & 1
+  `downstream_resp[105]` = (t1028 >> 3) & 1
+  `downstream_resp[106]` = (t1028 >> 4) & 1
+  `downstream_resp[107]` = (t1028 >> 5) & 1
+  `downstream_resp[108]` = (t1028 >> 6) & 1
+  `downstream_resp[109]` = (t1028 >> 7) & 1
+  `downstream_resp[110]` = (t1028 >> 8) & 1
+  `downstream_resp[111]` = (t1028 >> 9) & 1
+  `downstream_resp[112]` = (t1028 >> 10) & 1
+  `downstream_resp[113]` = (t1028 >> 11) & 1
+  `downstream_resp[114]` = (t1028 >> 12) & 1
+  `downstream_resp[115]` = (t1028 >> 13) & 1
+  `downstream_resp[116]` = (t1028 >> 14) & 1
+  `downstream_resp[117]` = (t1028 >> 15) & 1
+  `downstream_resp[118]` = (t1028 >> 16) & 1
+  `downstream_resp[119]` = (t1028 >> 17) & 1
+  `downstream_resp[120]` = (t1028 >> 18) & 1
+  `downstream_resp[121]` = (t1028 >> 19) & 1
+  `downstream_resp[122]` = (t1028 >> 20) & 1
+  `downstream_resp[123]` = (t1028 >> 21) & 1
+  `downstream_resp[124]` = (t1028 >> 22) & 1
+  `downstream_resp[125]` = (t1028 >> 23) & 1
+  `downstream_resp[126]` = (t1028 >> 24) & 1
+  `downstream_resp[127]` = (t1028 >> 25) & 1
+  `downstream_resp[128]` = (t1028 >> 26) & 1
+  `downstream_resp[129]` = (t1028 >> 27) & 1
+  `downstream_resp[130]` = (t1028 >> 28) & 1
+  `downstream_resp[131]` = (t1028 >> 29) & 1
+  `downstream_resp[132]` = (t1028 >> 30) & 1
+  `downstream_resp[133]` = (t1028 >> 31) & 1
+  `downstream_resp[134]` = (t1028 >> 32) & 1
+  `downstream_resp[135]` = (t1028 >> 33) & 1
+  mut gen_downstream_resp_retime_3_br_delay_valid_resp = br_delay_valid_p1::[name=gen_downstream_resp_retime_3_br_delay_valid_resp](clk=clk, rst=rst, in_valid=(downstream_resp_valid >> 3) & 1, `in`=(`downstream_resp[135]` << 33) | (`downstream_resp[134]` << 32) | (`downstream_resp[133]` << 31) | (`downstream_resp[132]` << 30) | (`downstream_resp[131]` << 29) | (`downstream_resp[130]` << 28) | (`downstream_resp[129]` << 27) | (`downstream_resp[128]` << 26) | (`downstream_resp[127]` << 25) | (`downstream_resp[126]` << 24) | (`downstream_resp[125]` << 23) | (`downstream_resp[124]` << 22) | (`downstream_resp[123]` << 21) | (`downstream_resp[122]` << 20) | (`downstream_resp[121]` << 19) | (`downstream_resp[120]` << 18) | (`downstream_resp[119]` << 17) | (`downstream_resp[118]` << 16) | (`downstream_resp[117]` << 15) | (`downstream_resp[116]` << 14) | (`downstream_resp[115]` << 13) | (`downstream_resp[114]` << 12) | (`downstream_resp[113]` << 11) | (`downstream_resp[112]` << 10) | (`downstream_resp[111]` << 9) | (`downstream_resp[110]` << 8) | (`downstream_resp[109]` << 7) | (`downstream_resp[108]` << 6) | (`downstream_resp[107]` << 5) | (`downstream_resp[106]` << 4) | (`downstream_resp[105]` << 3) | (`downstream_resp[104]` << 2) | (`downstream_resp[103]` << 1) | `downstream_resp[102]`)
+  `downstream_resp_valid_int[3]` = gen_downstream_resp_retime_3_br_delay_valid_resp.out_valid & 1
+  `downstream_resp_int[102]` = gen_downstream_resp_retime_3_br_delay_valid_resp.out & 1
+  `downstream_resp_int[103]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 1) & 1
+  `downstream_resp_int[104]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 2) & 1
+  `downstream_resp_int[105]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 3) & 1
+  `downstream_resp_int[106]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 4) & 1
+  `downstream_resp_int[107]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 5) & 1
+  `downstream_resp_int[108]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 6) & 1
+  `downstream_resp_int[109]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 7) & 1
+  `downstream_resp_int[110]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 8) & 1
+  `downstream_resp_int[111]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 9) & 1
+  `downstream_resp_int[112]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 10) & 1
+  `downstream_resp_int[113]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 11) & 1
+  `downstream_resp_int[114]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 12) & 1
+  `downstream_resp_int[115]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 13) & 1
+  `downstream_resp_int[116]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 14) & 1
+  `downstream_resp_int[117]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 15) & 1
+  `downstream_resp_int[118]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 16) & 1
+  `downstream_resp_int[119]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 17) & 1
+  `downstream_resp_int[120]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 18) & 1
+  `downstream_resp_int[121]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 19) & 1
+  `downstream_resp_int[122]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 20) & 1
+  `downstream_resp_int[123]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 21) & 1
+  `downstream_resp_int[124]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 22) & 1
+  `downstream_resp_int[125]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 23) & 1
+  `downstream_resp_int[126]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 24) & 1
+  `downstream_resp_int[127]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 25) & 1
+  `downstream_resp_int[128]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 26) & 1
+  `downstream_resp_int[129]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 27) & 1
+  `downstream_resp_int[130]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 28) & 1
+  `downstream_resp_int[131]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 29) & 1
+  `downstream_resp_int[132]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 30) & 1
+  `downstream_resp_int[133]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 31) & 1
+  `downstream_resp_int[134]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 32) & 1
+  `downstream_resp_int[135]` = (gen_downstream_resp_retime_3_br_delay_valid_resp.out >> 33) & 1
+  mut br_mux_onehot_resp = br_mux_onehot::[name=br_mux_onehot_resp](select=((decerr_resp_valid & 1) << 4) | downstream_resp_valid_int, `in`=(2 << 136) | downstream_resp_int)
   mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
   mut `upstream_resp.decerr` = (br_mux_onehot_resp >> 1) & 1
   mut `upstream_resp.slverr` = br_mux_onehot_resp & 1
-  upstream_resp_valid = unsigned((decerr_resp_valid != 0) or (downstream_resp_valid_int__w4 != 0))
+  mut _b2i_7 = if decerr_resp_valid != 0 or downstream_resp_valid_int != 0 { 1 } else { 0 }
+  downstream_req_valid = (`downstream_req_valid[3]` << 3) | (`downstream_req_valid[2]` << 2) | (`downstream_req_valid[1]` << 1) | `downstream_req_valid[0]`
+  downstream_req_write = (`downstream_req_write[3]` << 3) | (`downstream_req_write[2]` << 2) | (`downstream_req_write[1]` << 1) | `downstream_req_write[0]`
+  downstream_req_addr = (`downstream_req_addr[63]` << 63) | (`downstream_req_addr[62]` << 62) | (`downstream_req_addr[61]` << 61) | (`downstream_req_addr[60]` << 60) | (`downstream_req_addr[59]` << 59) | (`downstream_req_addr[58]` << 58) | (`downstream_req_addr[57]` << 57) | (`downstream_req_addr[56]` << 56) | (`downstream_req_addr[55]` << 55) | (`downstream_req_addr[54]` << 54) | (`downstream_req_addr[53]` << 53) | (`downstream_req_addr[52]` << 52) | (`downstream_req_addr[51]` << 51) | (`downstream_req_addr[50]` << 50) | (`downstream_req_addr[49]` << 49) | (`downstream_req_addr[48]` << 48) | (`downstream_req_addr[47]` << 47) | (`downstream_req_addr[46]` << 46) | (`downstream_req_addr[45]` << 45) | (`downstream_req_addr[44]` << 44) | (`downstream_req_addr[43]` << 43) | (`downstream_req_addr[42]` << 42) | (`downstream_req_addr[41]` << 41) | (`downstream_req_addr[40]` << 40) | (`downstream_req_addr[39]` << 39) | (`downstream_req_addr[38]` << 38) | (`downstream_req_addr[37]` << 37) | (`downstream_req_addr[36]` << 36) | (`downstream_req_addr[35]` << 35) | (`downstream_req_addr[34]` << 34) | (`downstream_req_addr[33]` << 33) | (`downstream_req_addr[32]` << 32) | (`downstream_req_addr[31]` << 31) | (`downstream_req_addr[30]` << 30) | (`downstream_req_addr[29]` << 29) | (`downstream_req_addr[28]` << 28) | (`downstream_req_addr[27]` << 27) | (`downstream_req_addr[26]` << 26) | (`downstream_req_addr[25]` << 25) | (`downstream_req_addr[24]` << 24) | (`downstream_req_addr[23]` << 23) | (`downstream_req_addr[22]` << 22) | (`downstream_req_addr[21]` << 21) | (`downstream_req_addr[20]` << 20) | (`downstream_req_addr[19]` << 19) | (`downstream_req_addr[18]` << 18) | (`downstream_req_addr[17]` << 17) | (`downstream_req_addr[16]` << 16) | (`downstream_req_addr[15]` << 15) | (`downstream_req_addr[14]` << 14) | (`downstream_req_addr[13]` << 13) | (`downstream_req_addr[12]` << 12) | (`downstream_req_addr[11]` << 11) | (`downstream_req_addr[10]` << 10) | (`downstream_req_addr[9]` << 9) | (`downstream_req_addr[8]` << 8) | (`downstream_req_addr[7]` << 7) | (`downstream_req_addr[6]` << 6) | (`downstream_req_addr[5]` << 5) | (`downstream_req_addr[4]` << 4) | (`downstream_req_addr[3]` << 3) | (`downstream_req_addr[2]` << 2) | (`downstream_req_addr[1]` << 1) | `downstream_req_addr[0]`
+  downstream_req_wdata = (`downstream_req_wdata[127]` << 127) | (`downstream_req_wdata[126]` << 126) | (`downstream_req_wdata[125]` << 125) | (`downstream_req_wdata[124]` << 124) | (`downstream_req_wdata[123]` << 123) | (`downstream_req_wdata[122]` << 122) | (`downstream_req_wdata[121]` << 121) | (`downstream_req_wdata[120]` << 120) | (`downstream_req_wdata[119]` << 119) | (`downstream_req_wdata[118]` << 118) | (`downstream_req_wdata[117]` << 117) | (`downstream_req_wdata[116]` << 116) | (`downstream_req_wdata[115]` << 115) | (`downstream_req_wdata[114]` << 114) | (`downstream_req_wdata[113]` << 113) | (`downstream_req_wdata[112]` << 112) | (`downstream_req_wdata[111]` << 111) | (`downstream_req_wdata[110]` << 110) | (`downstream_req_wdata[109]` << 109) | (`downstream_req_wdata[108]` << 108) | (`downstream_req_wdata[107]` << 107) | (`downstream_req_wdata[106]` << 106) | (`downstream_req_wdata[105]` << 105) | (`downstream_req_wdata[104]` << 104) | (`downstream_req_wdata[103]` << 103) | (`downstream_req_wdata[102]` << 102) | (`downstream_req_wdata[101]` << 101) | (`downstream_req_wdata[100]` << 100) | (`downstream_req_wdata[99]` << 99) | (`downstream_req_wdata[98]` << 98) | (`downstream_req_wdata[97]` << 97) | (`downstream_req_wdata[96]` << 96) | (`downstream_req_wdata[95]` << 95) | (`downstream_req_wdata[94]` << 94) | (`downstream_req_wdata[93]` << 93) | (`downstream_req_wdata[92]` << 92) | (`downstream_req_wdata[91]` << 91) | (`downstream_req_wdata[90]` << 90) | (`downstream_req_wdata[89]` << 89) | (`downstream_req_wdata[88]` << 88) | (`downstream_req_wdata[87]` << 87) | (`downstream_req_wdata[86]` << 86) | (`downstream_req_wdata[85]` << 85) | (`downstream_req_wdata[84]` << 84) | (`downstream_req_wdata[83]` << 83) | (`downstream_req_wdata[82]` << 82) | (`downstream_req_wdata[81]` << 81) | (`downstream_req_wdata[80]` << 80) | (`downstream_req_wdata[79]` << 79) | (`downstream_req_wdata[78]` << 78) | (`downstream_req_wdata[77]` << 77) | (`downstream_req_wdata[76]` << 76) | (`downstream_req_wdata[75]` << 75) | (`downstream_req_wdata[74]` << 74) | (`downstream_req_wdata[73]` << 73) | (`downstream_req_wdata[72]` << 72) | (`downstream_req_wdata[71]` << 71) | (`downstream_req_wdata[70]` << 70) | (`downstream_req_wdata[69]` << 69) | (`downstream_req_wdata[68]` << 68) | (`downstream_req_wdata[67]` << 67) | (`downstream_req_wdata[66]` << 66) | (`downstream_req_wdata[65]` << 65) | (`downstream_req_wdata[64]` << 64) | (`downstream_req_wdata[63]` << 63) | (`downstream_req_wdata[62]` << 62) | (`downstream_req_wdata[61]` << 61) | (`downstream_req_wdata[60]` << 60) | (`downstream_req_wdata[59]` << 59) | (`downstream_req_wdata[58]` << 58) | (`downstream_req_wdata[57]` << 57) | (`downstream_req_wdata[56]` << 56) | (`downstream_req_wdata[55]` << 55) | (`downstream_req_wdata[54]` << 54) | (`downstream_req_wdata[53]` << 53) | (`downstream_req_wdata[52]` << 52) | (`downstream_req_wdata[51]` << 51) | (`downstream_req_wdata[50]` << 50) | (`downstream_req_wdata[49]` << 49) | (`downstream_req_wdata[48]` << 48) | (`downstream_req_wdata[47]` << 47) | (`downstream_req_wdata[46]` << 46) | (`downstream_req_wdata[45]` << 45) | (`downstream_req_wdata[44]` << 44) | (`downstream_req_wdata[43]` << 43) | (`downstream_req_wdata[42]` << 42) | (`downstream_req_wdata[41]` << 41) | (`downstream_req_wdata[40]` << 40) | (`downstream_req_wdata[39]` << 39) | (`downstream_req_wdata[38]` << 38) | (`downstream_req_wdata[37]` << 37) | (`downstream_req_wdata[36]` << 36) | (`downstream_req_wdata[35]` << 35) | (`downstream_req_wdata[34]` << 34) | (`downstream_req_wdata[33]` << 33) | (`downstream_req_wdata[32]` << 32) | (`downstream_req_wdata[31]` << 31) | (`downstream_req_wdata[30]` << 30) | (`downstream_req_wdata[29]` << 29) | (`downstream_req_wdata[28]` << 28) | (`downstream_req_wdata[27]` << 27) | (`downstream_req_wdata[26]` << 26) | (`downstream_req_wdata[25]` << 25) | (`downstream_req_wdata[24]` << 24) | (`downstream_req_wdata[23]` << 23) | (`downstream_req_wdata[22]` << 22) | (`downstream_req_wdata[21]` << 21) | (`downstream_req_wdata[20]` << 20) | (`downstream_req_wdata[19]` << 19) | (`downstream_req_wdata[18]` << 18) | (`downstream_req_wdata[17]` << 17) | (`downstream_req_wdata[16]` << 16) | (`downstream_req_wdata[15]` << 15) | (`downstream_req_wdata[14]` << 14) | (`downstream_req_wdata[13]` << 13) | (`downstream_req_wdata[12]` << 12) | (`downstream_req_wdata[11]` << 11) | (`downstream_req_wdata[10]` << 10) | (`downstream_req_wdata[9]` << 9) | (`downstream_req_wdata[8]` << 8) | (`downstream_req_wdata[7]` << 7) | (`downstream_req_wdata[6]` << 6) | (`downstream_req_wdata[5]` << 5) | (`downstream_req_wdata[4]` << 4) | (`downstream_req_wdata[3]` << 3) | (`downstream_req_wdata[2]` << 2) | (`downstream_req_wdata[1]` << 1) | `downstream_req_wdata[0]`
+  downstream_req_wstrb = (`downstream_req_wstrb[15]` << 15) | (`downstream_req_wstrb[14]` << 14) | (`downstream_req_wstrb[13]` << 13) | (`downstream_req_wstrb[12]` << 12) | (`downstream_req_wstrb[11]` << 11) | (`downstream_req_wstrb[10]` << 10) | (`downstream_req_wstrb[9]` << 9) | (`downstream_req_wstrb[8]` << 8) | (`downstream_req_wstrb[7]` << 7) | (`downstream_req_wstrb[6]` << 6) | (`downstream_req_wstrb[5]` << 5) | (`downstream_req_wstrb[4]` << 4) | (`downstream_req_wstrb[3]` << 3) | (`downstream_req_wstrb[2]` << 2) | (`downstream_req_wstrb[1]` << 1) | `downstream_req_wstrb[0]`
+  downstream_req_privileged = (`downstream_req_privileged[3]` << 3) | (`downstream_req_privileged[2]` << 2) | (`downstream_req_privileged[1]` << 1) | `downstream_req_privileged[0]`
+  downstream_req_secure = (`downstream_req_secure[3]` << 3) | (`downstream_req_secure[2]` << 2) | (`downstream_req_secure[1]` << 1) | `downstream_req_secure[0]`
+  downstream_req_abort = (`downstream_req_abort[3]` << 3) | (`downstream_req_abort[2]` << 2) | (`downstream_req_abort[1]` << 1) | `downstream_req_abort[0]`
+  downstream_resp_valid_int = (`downstream_resp_valid_int[3]` << 3) | (`downstream_resp_valid_int[2]` << 2) | (`downstream_resp_valid_int[1]` << 1) | `downstream_resp_valid_int[0]`
+  downstream_resp_int = (`downstream_resp_int[135]` << 135) | (`downstream_resp_int[134]` << 134) | (`downstream_resp_int[133]` << 133) | (`downstream_resp_int[132]` << 132) | (`downstream_resp_int[131]` << 131) | (`downstream_resp_int[130]` << 130) | (`downstream_resp_int[129]` << 129) | (`downstream_resp_int[128]` << 128) | (`downstream_resp_int[127]` << 127) | (`downstream_resp_int[126]` << 126) | (`downstream_resp_int[125]` << 125) | (`downstream_resp_int[124]` << 124) | (`downstream_resp_int[123]` << 123) | (`downstream_resp_int[122]` << 122) | (`downstream_resp_int[121]` << 121) | (`downstream_resp_int[120]` << 120) | (`downstream_resp_int[119]` << 119) | (`downstream_resp_int[118]` << 118) | (`downstream_resp_int[117]` << 117) | (`downstream_resp_int[116]` << 116) | (`downstream_resp_int[115]` << 115) | (`downstream_resp_int[114]` << 114) | (`downstream_resp_int[113]` << 113) | (`downstream_resp_int[112]` << 112) | (`downstream_resp_int[111]` << 111) | (`downstream_resp_int[110]` << 110) | (`downstream_resp_int[109]` << 109) | (`downstream_resp_int[108]` << 108) | (`downstream_resp_int[107]` << 107) | (`downstream_resp_int[106]` << 106) | (`downstream_resp_int[105]` << 105) | (`downstream_resp_int[104]` << 104) | (`downstream_resp_int[103]` << 103) | (`downstream_resp_int[102]` << 102) | (`downstream_resp_int[101]` << 101) | (`downstream_resp_int[100]` << 100) | (`downstream_resp_int[99]` << 99) | (`downstream_resp_int[98]` << 98) | (`downstream_resp_int[97]` << 97) | (`downstream_resp_int[96]` << 96) | (`downstream_resp_int[95]` << 95) | (`downstream_resp_int[94]` << 94) | (`downstream_resp_int[93]` << 93) | (`downstream_resp_int[92]` << 92) | (`downstream_resp_int[91]` << 91) | (`downstream_resp_int[90]` << 90) | (`downstream_resp_int[89]` << 89) | (`downstream_resp_int[88]` << 88) | (`downstream_resp_int[87]` << 87) | (`downstream_resp_int[86]` << 86) | (`downstream_resp_int[85]` << 85) | (`downstream_resp_int[84]` << 84) | (`downstream_resp_int[83]` << 83) | (`downstream_resp_int[82]` << 82) | (`downstream_resp_int[81]` << 81) | (`downstream_resp_int[80]` << 80) | (`downstream_resp_int[79]` << 79) | (`downstream_resp_int[78]` << 78) | (`downstream_resp_int[77]` << 77) | (`downstream_resp_int[76]` << 76) | (`downstream_resp_int[75]` << 75) | (`downstream_resp_int[74]` << 74) | (`downstream_resp_int[73]` << 73) | (`downstream_resp_int[72]` << 72) | (`downstream_resp_int[71]` << 71) | (`downstream_resp_int[70]` << 70) | (`downstream_resp_int[69]` << 69) | (`downstream_resp_int[68]` << 68) | (`downstream_resp_int[67]` << 67) | (`downstream_resp_int[66]` << 66) | (`downstream_resp_int[65]` << 65) | (`downstream_resp_int[64]` << 64) | (`downstream_resp_int[63]` << 63) | (`downstream_resp_int[62]` << 62) | (`downstream_resp_int[61]` << 61) | (`downstream_resp_int[60]` << 60) | (`downstream_resp_int[59]` << 59) | (`downstream_resp_int[58]` << 58) | (`downstream_resp_int[57]` << 57) | (`downstream_resp_int[56]` << 56) | (`downstream_resp_int[55]` << 55) | (`downstream_resp_int[54]` << 54) | (`downstream_resp_int[53]` << 53) | (`downstream_resp_int[52]` << 52) | (`downstream_resp_int[51]` << 51) | (`downstream_resp_int[50]` << 50) | (`downstream_resp_int[49]` << 49) | (`downstream_resp_int[48]` << 48) | (`downstream_resp_int[47]` << 47) | (`downstream_resp_int[46]` << 46) | (`downstream_resp_int[45]` << 45) | (`downstream_resp_int[44]` << 44) | (`downstream_resp_int[43]` << 43) | (`downstream_resp_int[42]` << 42) | (`downstream_resp_int[41]` << 41) | (`downstream_resp_int[40]` << 40) | (`downstream_resp_int[39]` << 39) | (`downstream_resp_int[38]` << 38) | (`downstream_resp_int[37]` << 37) | (`downstream_resp_int[36]` << 36) | (`downstream_resp_int[35]` << 35) | (`downstream_resp_int[34]` << 34) | (`downstream_resp_int[33]` << 33) | (`downstream_resp_int[32]` << 32) | (`downstream_resp_int[31]` << 31) | (`downstream_resp_int[30]` << 30) | (`downstream_resp_int[29]` << 29) | (`downstream_resp_int[28]` << 28) | (`downstream_resp_int[27]` << 27) | (`downstream_resp_int[26]` << 26) | (`downstream_resp_int[25]` << 25) | (`downstream_resp_int[24]` << 24) | (`downstream_resp_int[23]` << 23) | (`downstream_resp_int[22]` << 22) | (`downstream_resp_int[21]` << 21) | (`downstream_resp_int[20]` << 20) | (`downstream_resp_int[19]` << 19) | (`downstream_resp_int[18]` << 18) | (`downstream_resp_int[17]` << 17) | (`downstream_resp_int[16]` << 16) | (`downstream_resp_int[15]` << 15) | (`downstream_resp_int[14]` << 14) | (`downstream_resp_int[13]` << 13) | (`downstream_resp_int[12]` << 12) | (`downstream_resp_int[11]` << 11) | (`downstream_resp_int[10]` << 10) | (`downstream_resp_int[9]` << 9) | (`downstream_resp_int[8]` << 8) | (`downstream_resp_int[7]` << 7) | (`downstream_resp_int[6]` << 6) | (`downstream_resp_int[5]` << 5) | (`downstream_resp_int[4]` << 4) | (`downstream_resp_int[3]` << 3) | (`downstream_resp_int[2]` << 2) | (`downstream_resp_int[1]` << 1) | `downstream_resp_int[0]`
+  upstream_resp_valid = _b2i_7
   upstream_resp_rdata = `upstream_resp.rdata`
   upstream_resp_decerr = `upstream_resp.decerr`
   upstream_resp_slverr = `upstream_resp.slverr`
-  downstream_req_valid = downstream_req_valid__w4
-  downstream_req_write = downstream_req_write__w4
-  downstream_req_addr = downstream_req_addr__w4
-  downstream_req_wdata = downstream_req_wdata__w4
-  downstream_req_wstrb = downstream_req_wstrb__w4
-  downstream_req_privileged = downstream_req_privileged__w4
-  downstream_req_secure = downstream_req_secure__w4
-  downstream_req_abort = downstream_req_abort__w4
 }

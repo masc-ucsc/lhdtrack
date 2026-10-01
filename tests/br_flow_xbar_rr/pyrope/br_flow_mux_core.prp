@@ -3,14 +3,8 @@ const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 // Merge NUM_FLOWS valid/ready flows into one using an external arbiter's
 // grant. The arbiter always grants some valid request, so the pop side is
 // valid whenever any push flow is.
-pub mod br_flow_mux_core<NUM_FLOWS=1, WIDTH=1>(
-  can_grant:unsigned(bits=NUM_FLOWS),
-  grant:unsigned(bits=NUM_FLOWS),
-  push_valid:unsigned(bits=NUM_FLOWS),
-  push_data:unsigned(bits=NUM_FLOWS * WIDTH),
-  pop_ready:bool
-) -> (push_ready:unsigned(bits=NUM_FLOWS)@[0], pop_valid_unstable:bool@[0], pop_data_unstable:unsigned(bits=WIDTH)@[0]) {
-  push_ready         = if pop_ready { can_grant } else { 0 }
+pub mod br_flow_mux_core<NUM_FLOWS=1, WIDTH=1>(can_grant:Unsigned(bits=NUM_FLOWS), grant:Unsigned(bits=NUM_FLOWS), pop_ready:Bool, push_data:Unsigned(bits=NUM_FLOWS*WIDTH), push_valid:Unsigned(bits=NUM_FLOWS)) -> (pop_data_unstable:Unsigned(bits=WIDTH)@[0], pop_valid_unstable:Bool@[0], push_ready:Unsigned(bits=NUM_FLOWS)@[0]) {
+  push_ready = if pop_ready { can_grant } else { 0 }
   pop_valid_unstable = push_valid != 0
-  pop_data_unstable  = br_mux_onehot<NUM_SYMBOLS=NUM_FLOWS,SYMBOL_WIDTH=WIDTH>(select=grant, `in`=push_data)
+  pop_data_unstable = br_mux_onehot<NUM_SYMBOLS=NUM_FLOWS, SYMBOL_WIDTH=WIDTH>(select=grant, `in`=push_data)
 }
