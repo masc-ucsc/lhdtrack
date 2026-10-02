@@ -48,6 +48,44 @@ lhdtrack run --refresh yosys_abc                  # force a baseline re-measure
 lhdtrack run --no-cache                           # ignore the baseline cache entirely
 ```
 
+### Native USYN on ASAP7
+
+```bash
+make usyn RUN_ARGS="--test add --jobs 1"  # end-to-end smoke
+make usyn                                # entire corpus: ABC and native USYN
+```
+
+This target uses the staged toolchain manifest, the same merged Liberty and each
+case's SDC, OpenSTA on the emitted netlist, and both native and independent Yosys
+LEC of that exact emission. USYN performs Boolean optimization itself; ABC is
+used only for its optional cell mapping. Compiler SAT optimization is explicitly
+off in this default comparison. The evaluation driver's `--satopt-profiles enabled`
+explicitly enables `pass.satopt=true`; this is a recipe change from older runs
+which incorrectly relied on an enabled compiler default. The separate standard
+ABC SAT experiment still uses `LHDTRACK_ABC_SATOPT=false`.
+
+Run the native residual ablation with the same staged compiler:
+
+```bash
+for stage in selection residual feedback; do
+  python3 tools/run_verilog_eval.py --tech asap7 --satopt-profiles disabled \
+    --mapper usyn --usyn-stage "$stage"
+done
+```
+
+Each run retains all failed, skipped and undecided rows and records the stage's
+actual settings. `--resume RUN_ID` restores those settings. `--lec-from RUN_ID`
+checks each retained SAT profile's own measured netlist. Synthesis rows include
+source, SDC, Liberty and emitted-netlist digests; native work is counted under the
+map phase. Mapped cell totals are read from both ABC and USYN technology-map reports.
+
+To combine the stages with a retained ABC run, use
+`tools/report_usyn_ablation.py --abc RUN_ID --selection RUN_ID --residual RUN_ID
+--feedback RUN_ID --output data/usyn-asap7.json`. It writes the full matrix and a
+page under `target/`. Frequency ratios require equal source/SDC digests, complete
+constrained timing and an unbounded proof of each exact netlist. Headline geomeans
+retain the idiomatic, LEC-proven Pyrope population; the full table shows every case.
+
 ### Manual ASAP7 synthesis example
 
 After `make toolchain` has staged the single merged ASAP7 Liberty, these two commands

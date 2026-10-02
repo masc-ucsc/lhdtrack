@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from lhdtrack.corpus import discover
 from lhdtrack.ledger import Ledger
 from lhdtrack.metrics import measure
-from lhdtrack.report.verilog_eval import bounded_yosys_evidence, select_rows, write_evaluation
+from lhdtrack.report.verilog_eval import bounded_yosys_evidence, select_rows, synth_flow, write_evaluation
 
 
 def read(path):
@@ -47,7 +47,8 @@ def needs_oracle(row):
 
 def execute(row, toolchain):
     work = workdir(row)
-    mapper = "syn_lhd_verilog_usyn" if "_usyn" in row["flow"] else "syn_lhd_verilog"
+    mapper = synth_flow("usyn" if "_usyn" in row["flow"] else "abc",
+                        satopt=not row["flow"].endswith("_no_satopt"))
     artifact = json.loads((work.parent / mapper / "synth-artifacts.json").read_text())
     netlist = Path(artifact["netlist"]).read_bytes()
     if hashlib.sha256(netlist).hexdigest() != row["lec_aux_result"]["netlist_sha256"]:

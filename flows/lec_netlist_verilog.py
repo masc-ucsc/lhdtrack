@@ -7,7 +7,7 @@ from pathlib import Path
 from lhdtrack.context import FlowError, FlowSkip
 from lec_netlist import _check
 from lhdtrack.metrics import measure
-from lhdtrack.report.verilog_eval import bounded_yosys_evidence
+from lhdtrack.report.verilog_eval import bounded_yosys_evidence, synth_flow
 
 NAME = "lec_netlist_verilog"
 KIND = "lec"
@@ -22,7 +22,7 @@ def run(ctx):
 
 def run_mapper(ctx, mapper, *, satopt=True):
     ctx.require_sdc()
-    flow = "syn_lhd_verilog" + ("_usyn" if mapper == "usyn" else "")
+    flow = synth_flow(mapper, satopt)
     artifacts = ctx.work.parent / flow / "synth-artifacts.json"
     if not artifacts.exists():
         raise FlowSkip(f"{mapper} synthesis produced no retained netlist in this run")

@@ -35,7 +35,7 @@ ASAP7    ?= $(HOME)/projs/lambdapdk/lambdapdk/asap7/libs/asap7sc7p5t_rvt/nldm/*R
 RUN_ARGS ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help run check report show seed toolchain toolchain-local \
+.PHONY: help run usyn check report show seed toolchain toolchain-local \
         cache clean-cache clean-work clean distclean lint
 
 help: ## Show this help
@@ -63,6 +63,9 @@ run: ## THE CRON TARGET: lint the corpus, run the regression, render this machin
 	 echo "history: $(TARGET)/timeseries-$(HOST).html"; \
 	 if [ $$rc -ne 0 ]; then echo "STATUS:  $$rc (a test failed -- see the report's failures section)"; fi; \
 	 exit $$rc
+
+usyn: ## Compare native USYN against ABC on ASAP7, including exact-netlist LEC
+	@python3 $(ROOT)/tools/run_verilog_eval.py --tech asap7 --satopt-profiles disabled $(RUN_ARGS)
 
 check: ## Lint the corpus (every test has both languages, a testbench, an SDC, a licence)
 	@$(LHDTRACK) check

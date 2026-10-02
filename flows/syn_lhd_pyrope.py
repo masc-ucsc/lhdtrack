@@ -143,7 +143,7 @@ def _phases(ctx: FlowContext) -> dict[str, int]:
         low = name.lower()
         if "color" in low:
             out["color"] += ms
-        elif "abc" in low or "map" in low:
+        elif "abc" in low or "usyn" in low or "map" in low:
             out["map"] += ms
         elif "opentimer" in low or "sta" in low:
             continue  # qor_endpoint times STA itself, on both engines

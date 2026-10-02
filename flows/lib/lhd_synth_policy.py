@@ -44,6 +44,7 @@ def recorded_settings(commands: list[str]) -> dict[str, str]:
             key, value = argv[i + 1].split("=", 1)
             if key.startswith("abc."):
                 key = "pass." + key
-            if key in selected:
+            if (key in selected or key.startswith("pass.usyn.")
+                    or key in {"pass.abc.delay", "synth.mapper"}):
                 settings[key] = value
     return settings

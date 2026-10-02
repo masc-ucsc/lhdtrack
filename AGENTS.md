@@ -41,8 +41,10 @@ constants. Test names are flat, unique, and match their manifest. A flow exposes
   `qor_endpoint.evaluate()`.
 - Synthesis flows use LiveHD defaults, including native memory preservation.
   `lec_netlist` must use the same synthesis profile and SDC-derived `delay` as the
-  synth flows, so its proof covers the measured mapping policy. The SAT comparison
-  profile changes only `pass.abc.satopt=false`.
+  synth flows, so its proof covers the measured mapping policy. The standard ABC
+  SAT comparison changes only `pass.abc.satopt=false`; the dedicated Verilog
+  evaluation's named compile SAT profiles explicitly set `pass.satopt=true|false`.
+  `make usyn` uses the compiler default profile (`pass.satopt=false`).
 - Never compare across `host_class` or Liberty hashes. Report `baseline / measured` ratios,
   so higher is always better.
 - Limit headline geomeans to idiomatic, LEC-proven Pyrope tests. Do not weaken coverage or

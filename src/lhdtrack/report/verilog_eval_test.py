@@ -1,7 +1,10 @@
 """A fresh evaluation must not inherit old LiveHD measurements or proofs."""
 import unittest
 
-from lhdtrack.report.verilog_eval import verify_transparent_instance_renaming, proof_covers_digest, bounded_yosys_evidence, geomean_ratios, lec_time_geomean, proof_ok, satopt_lec_effect, select_rows
+from lhdtrack.report.verilog_eval import (
+    bounded_yosys_evidence, geomean_ratios, lec_time_geomean, proof_covers_digest,
+    proof_ok, satopt_lec_effect, select_rows, synth_proof, verify_transparent_instance_renaming,
+)
 
 
 class VerilogEvaluation(unittest.TestCase):
@@ -150,6 +153,17 @@ class VerilogEvaluation(unittest.TestCase):
         ratio, count = geomean_ratios(rows, slots, "abc", True, baseline="syn_lhd_verilog_no_satopt")[1]
         self.assertAlmostEqual(ratio, 2.0)
         self.assertEqual(count, 1)
+
+    def test_disabled_profile_uses_its_own_proof(self):
+        rows = {
+            ("add", "one", "lec_netlist_verilog_usyn"):
+                {"lec_verilog_result": {"verdict": "proven", "netlist_sha256": "enabled"}},
+            ("add", "one", "lec_netlist_verilog_usyn_no_satopt"):
+                {"lec_verilog_result": {"verdict": "refuted", "netlist_sha256": "disabled"}},
+        }
+        proof = synth_proof(rows, ("add", "one"), "usyn", False)
+        self.assertEqual(proof["lec_verilog_result"]["netlist_sha256"], "disabled")
+        self.assertEqual(proof["lec_verilog_result"]["verdict"], "refuted")
 
     def test_satopt_lec_effect_pairs_only_double_proofs(self):
         slots = [dict(test=t, config="one") for t in ("a", "b")]

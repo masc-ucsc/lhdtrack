@@ -10,6 +10,7 @@ from collections import Counter
 import datetime as dt
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 import subprocess
@@ -37,7 +38,17 @@ def main():
     parser.add_argument("--lec-from", help="recheck exact retained netlists from this synthesis run")
     parser.add_argument("--reemit", action="store_true", help="re-emit retained graphs; accept instance-name changes only")
     parser.add_argument("--satopt-profiles", choices=("both", "enabled", "disabled"), default="both")
+    parser.add_argument("--mapper", choices=("both", "abc", "usyn"), default="both")
+    parser.add_argument("--usyn-stage", choices=("default", "selection", "residual", "feedback"),
+                        default="default", help="native residual/feedback ablation")
     args = parser.parse_args()
+    if args.usyn_stage != "default":
+        residual = args.usyn_stage != "selection"
+        feedback = args.usyn_stage == "feedback"
+        settings = (f"pass.usyn.residual={str(residual).lower()} "
+                    f"pass.usyn.feedback={str(feedback).lower()}")
+        os.environ["LHDTRACK_LHD_SET"] = (os.environ.get("LHDTRACK_LHD_SET", "")
+                                       + " " + settings).strip()
     if args.reemit and not args.lec_from:
         parser.error("--reemit requires --lec-from")
     if args.resume and args.lec_from:
@@ -53,7 +64,8 @@ def main():
     run_dir.mkdir(parents=True, exist_ok=True)
     spec_path = run_dir / "evaluation.json"
     public_spec = ROOT / "data" / f"verilog-eval-{host}.json"
-    out = ROOT / "target" / (f"eval-{run}.html" if args.test else f"report-{host}.html")
+    isolated_report = bool(args.test or args.usyn_stage != "default" or args.mapper != "both")
+    out = ROOT / "target" / (f"eval-{run}.html" if isolated_report else f"report-{host}.html")
     ledger = Ledger(ROOT)
     if args.resume:
         spec = json.loads(spec_path.read_text())
@@ -81,22 +93,33 @@ def main():
             timing_scope="prepared-verilog-inputs",
             satopt_profiles=([True, False] if args.satopt_profiles == "both" else
                              [args.satopt_profiles == "enabled"]),
-            phase="starting", jobs=args.jobs, lec_jobs=args.lec_jobs or args.jobs, usyn_abc="tmap",
+            phase="starting", jobs=args.jobs, lec_jobs=args.lec_jobs or args.jobs, usyn_tmap="abc",
+            mappers=(["abc", "usyn"] if args.mapper == "both" else [args.mapper]),
+            usyn_stage=args.usyn_stage, lhd_settings=os.environ.get("LHDTRACK_LHD_SET", ""),
         )
         (run_dir / "toolchain.json").write_text((ROOT / "var/toolchain/toolchain.json").read_text())
+
+    if args.resume:
+        os.environ["LHDTRACK_LHD_SET"] = spec.get("lhd_settings", "")
+        isolated_report = bool(args.test or spec.get("usyn_stage", "default") != "default"
+                               or spec.get("mappers", ["abc", "usyn"]) != ["abc", "usyn"])
+        out = ROOT / "target" / (f"eval-{run}.html" if isolated_report else f"report-{host}.html")
 
     if args.lec_from:
         source = json.loads((ROOT / "var/runs" / args.lec_from / "evaluation.json").read_text())
         if (source["tech"], source["liberty_sha256"]) != (args.tech, spec["liberty_sha256"]):
             raise SystemExit("source netlists use a different technology or library")
         # Netlist bytes can travel between machines; timing measurements cannot.
+        spec["satopt_profiles"] = source.get("satopt_profiles", [True])
+        spec["mappers"] = source.get("mappers", ["abc", "usyn"])
         spec["synth_host"] = source.get("synth_host", source["host"])
         spec["reemit_logical_hierarchy"] = args.reemit
         spec["synth_run_id"] = source.get("synth_run_id", source["run_id"])
         spec["synth_versions"] = source.get("synth_versions", source["versions"])
         if source["host"] == host:
             spec["baselines"] = source["baselines"]
-        spec["usyn_abc"] = source["usyn_abc"]
+        spec["usyn_tmap"] = source.get(
+            "usyn_tmap", "abc" if source.get("usyn_abc") == "tmap" else "unknown")
         source_slots = {(s["test"], s["config"]) for s in source["slots"]}
         if any((s["test"], s["config"]) not in source_slots for s in spec["slots"]):
             raise SystemExit("requested slot was not part of the source synthesis run")
@@ -107,10 +130,12 @@ def main():
             if args.reemit:
                 (target / "reemit-logical-hierarchy.json").write_text(json.dumps({"source_run": spec["synth_run_id"]}) + "\n")
             for mapper in ("abc", "usyn"):
-                link = target / synth_flow(mapper)
-                previous = ROOT / "var/work" / spec["synth_run_id"] / relative / synth_flow(mapper)
-                if previous.exists():
-                    link.symlink_to(previous, target_is_directory=True)
+                for satopt in spec.get("satopt_profiles", [True]):
+                    flow = synth_flow(mapper, satopt)
+                    link = target / flow
+                    previous = ROOT / "var/work" / spec["synth_run_id"] / relative / flow
+                    if previous.exists():
+                        link.symlink_to(previous, target_is_directory=True)
 
     runner = Runner(ROOT, tc, Cache(ROOT, enabled=False), run, cfg, keep_work=True)
     identity = runner.identity()
@@ -123,15 +148,17 @@ def main():
     def render():
         nonlocal last_render
         spec_path.write_text(json.dumps(spec, indent=2) + "\n")
-        if not args.test:
+        if not isolated_report:
             public_spec.write_text(spec_path.read_text())
         write_evaluation(ROOT, spec_path, out=out)
         last_render = time.monotonic()
 
     done = len(completed)
     profiles = spec.get("satopt_profiles", [True])
-    synth_jobs = 0 if spec.get("synth_run_id") else 2 * len(profiles)
-    total_jobs = len(spec["slots"]) * (2 * len(profiles) + synth_jobs)
+    mappers = spec.get("mappers", ["abc", "usyn"])
+    mapper_jobs = len(mappers) * len(profiles)
+    synth_jobs = 0 if spec.get("synth_run_id") else mapper_jobs
+    total_jobs = len(spec["slots"]) * (mapper_jobs + synth_jobs)
 
     def finished(row):
         nonlocal done
@@ -161,7 +188,7 @@ def main():
         jobs = []
         for test in tests:
             for config in test.configs:
-                for mapper in ("abc", "usyn"):
+                for mapper in mappers:
                     for satopt in profiles:
                         name = naming(mapper, satopt)
                         if (test.name, config.id, name) in completed:

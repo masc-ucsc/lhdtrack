@@ -133,8 +133,8 @@ def metric_values(row):
 
 
 def synth_proof(rows, key, mapper, satopt):
-    """The LEC flows check the satopt=true emission; a satopt=false netlist has no proof."""
-    return rows.get((*key, lec_flow(mapper)), {}) if satopt else {}
+    """Use the proof of this profile's exact emitted netlist."""
+    return rows.get((*key, lec_flow(mapper, satopt)), {})
 
 
 def geomean_ratios(rows, slots, mapper, satopt=True, baseline=None):
@@ -285,7 +285,7 @@ def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
             '<th colspan="6" rowspan="2">yosys+slang+abc (retained)</th>'
             '<th class="g" colspan="12">lhd-verilog</th></tr>'
             '<tr><th class="g" colspan="6">abc</th>'
-            f'<th class="g" colspan="6">usyn · {_e(spec.get("usyn_abc", "opt"))}</th></tr><tr>')
+            f'<th class="g" colspan="6">usyn · {_e(spec.get("usyn_tmap", spec.get("usyn_abc", "unknown")))}</th></tr><tr>')
     metrics = (f'delay {_e(spec["time_unit"])}', 'area µm²', 'cells', 'depth',
                'time s', 'mem MiB')
     head += ''.join('<th>' + m + '</th>' for _ in range(3) for m in metrics) + '</tr>'

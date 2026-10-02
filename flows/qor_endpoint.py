@@ -223,9 +223,16 @@ def _lhd_qor(path: Path) -> dict:
     """
     try:
         doc = json.loads(path.read_text())
-        total = doc.get("total", {})
+        total = doc.get("total")
+        if doc.get("kind") == "technology-map":
+            regions = doc.get("regions", [])
+            total = dict(gates=sum(r["gates"] for r in regions),
+                         area=sum(r["area"] for r in regions), regions=len(regions),
+                         max_delay=max((r["delay"] for r in regions), default=0))
+        if not isinstance(total, dict):
+            return {"lhd_qor_note": "report has no mapped cell totals"}
     except (OSError, json.JSONDecodeError):
-        return {"cells": 0, "area_um2": 0.0, "area_source": "lhd-qor(unreadable)"}
+        return {"lhd_qor_note": "mapping report unavailable or unreadable"}
     return {
         "lhd_cells": int(total.get("gates", 0)),
         "lhd_area_um2": round(float(total.get("area", 0.0)), 3),

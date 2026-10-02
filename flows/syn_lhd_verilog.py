@@ -53,11 +53,11 @@ def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
     settings = [
         "--set", f"synth.mapper={mapper}",
         "--set", f"synth.liberty={ctx.liberty[0]}",
-        "--set", f"pass.abc.delay={ctx.abc_delay_ps()}",
+        "--set", f"pass.{mapper}.delay={ctx.abc_delay_ps()}",
         *abc_settings(ctx.tech.name),
-        # `lhd synth` from source runs compile SAT optimization by default; the
-        # comparison profile switches off only that pass.
-        *([] if satopt else ["--set", "pass.satopt=false"]),
+        # SAT optimization is an explicit experiment; the compiler defaults
+        # it off. Keep each profile's recorded name consistent with its argv.
+        "--set", f"pass.satopt={str(satopt).lower()}",
     ]
     lhd = ctx.tool("lhd")
     top = f"{ctx.top}.{ctx.top}"
@@ -108,21 +108,30 @@ def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
 
     # The proof consumes this exact emission, including when QoR collection fails.
     digest = hashlib.sha256(netlist.read_bytes()).hexdigest()
+    sdc_digest = hashlib.sha256(ctx.sdc.read_bytes()).hexdigest()
+    source_digests = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                      for p in ctx.test.source_files() if p.is_file()}
     ctx.write("synth-artifacts.json", json.dumps({
         "mapper": mapper, "netlist": str(netlist), "sha256": digest,
         "reference": str(ctx.work / "W/synth/lg"),
+        "sdc_sha256": sdc_digest, "source_sha256": source_digests,
     }, indent=2))
     result = evaluate(ctx, netlist, lgraph=ctx.work / "netlist",
                       qor_json=ctx.work / "W" / "synth" / "qor.json")
     result["qor"].update(mapper=mapper, netlist_sha256=digest,
-                         liberty_sha256=ctx.tech.sha256)
+                         liberty_sha256=ctx.tech.sha256, sdc_sha256=sdc_digest,
+                         source_sha256=source_digests)
     policy = result["qor"].setdefault("synth_policy", {})
     policy["synth.mapper"] = mapper
     policy["pass.satopt"] = str(satopt).lower()
     if mapper == "usyn":
         usyn = json.loads((ctx.work / "W/synth/qor.json.usyn.json").read_text())
-        if usyn["abc"] != "tmap":
-            raise FlowError(f"USYN evaluation requires abc=tmap, got {usyn['abc']}")
-        result["qor"]["usyn_abc"] = usyn["abc"]
-        result["qor"]["synth_policy"]["pass.usyn.abc"] = usyn["abc"]
+        if usyn.get("tmap") != "abc" or usyn.get("output") != "mapped-cmos":
+            raise FlowError(
+                "USYN evaluation requires tmap=abc and output=mapped-cmos, "
+                f"got tmap={usyn.get('tmap')} output={usyn.get('output')}"
+            )
+        result["qor"].update(usyn_tmap=usyn["tmap"], usyn_output=usyn["output"])
+        policy.update({"pass.usyn.tmap": usyn["tmap"],
+                       "pass.usyn.delay": str(ctx.abc_delay_ps())})
     return {"netlist": netlist, **result}
