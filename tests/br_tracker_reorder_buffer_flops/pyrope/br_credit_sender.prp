@@ -1,16 +1,12 @@
 const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
-const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
-
 pub mod br_credit_sender<NumFlows=1, Width=4, MaxCredit=2, PopCreditMaxChange=1, RegisterPopOutputs=0, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableCoverCreditWithhold=0, EnableCoverPopReceiverInReset=1, EnableAssertFinalNotValid=1, EnableAssertFinalMaxValue=1, CoverMaxCredit=2, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, credit_initial:U2, credit_withhold:U2, pop_credit:U1, pop_receiver_in_reset:U1, push_data:U4, push_valid:U1, rst:U1) -> (credit_available:U2@[], credit_count:U2@[], pop_data:U4@[], pop_sender_in_reset:U1@[], pop_valid:U1@[], push_ready:U1@[]) {
   mut _b2i_1 = if rst != 0 or pop_receiver_in_reset != 0 { 1 } else { 0 }
-  const either_rst__w1 = _b2i_1
-  const pop_sender_in_reset__w1 = rst
-  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk=clk, rst=either_rst__w1, incr_valid=U1(pop_credit != 0), incr=pop_credit, decr_valid=push_valid, decr=1, initial_value=credit_initial, withhold=credit_withhold)
-  mut _b2i_3 = if br_credit_counter.decr_ready != 0 and either_rst__w1 == 0 { 1 } else { 0 }
+  const either_rst = _b2i_1
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk=clk, rst=either_rst, incr_valid=U1(pop_credit != 0), incr=pop_credit, decr_valid=push_valid, decr=1, initial_value=credit_initial, withhold=credit_withhold)
+  mut _b2i_3 = if br_credit_counter.decr_ready != 0 and either_rst == 0 { 1 } else { 0 }
   const push_ready__w1 = _b2i_3
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
   push_ready = push_ready__w1
-  pop_sender_in_reset = pop_sender_in_reset__w1
+  pop_sender_in_reset = rst
   pop_valid = push_ready__w1 & push_valid & 1
   pop_data = push_data
   credit_count = br_credit_counter.value

@@ -22,6 +22,8 @@ USES_TECH = False
 
 
 def run(ctx: FlowContext) -> dict:
+    if reason := ctx.test.raw.get("sim", {}).get("skip_reason"):
+        raise FlowSkip(reason)
     from lib.simgate import run_lhd_sim
 
     tb = ctx.test.sim_dir / f"{ctx.top}_tb.prp"
@@ -41,7 +43,7 @@ def run(ctx: FlowContext) -> dict:
         f"-G{k}={v}" for k, v in sorted(ctx.chparams().items())
     ]
     sources = [
-        "-F", str(ctx.test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", *params
+        "-F", str(ctx.test.filelist), *ctx.test.sim_verilog_args(), *params
     ]
     if harness.exists():
         sources.append(str(harness))

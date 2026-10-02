@@ -1,28 +1,20 @@
-const br_delay_valid = import("br_delay_valid.br_delay_valid")
-const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+// SECDED (39,32) Hamming encoder: 32 data bits plus 7 check bits, no padding and
+// no register stages (RegisterInputs = RegisterOutputs = 0), so every output is
+// combinational. clk and rst are unused and kept for the external interface.
+//
+// PARITY_MASKS[k] selects the data bits XORed into check bit k.
+comptime const PARITY_MASKS = (0x00003fff, 0x007fc01f, 0xd883c1e1, 0xb51c4e22, 0x6e64b244, 0x1fc92488, 0xe3b21910)
 
-pub mod br_ecc_secded_encoder::[timecheck=false](clk:Clock, data:U32, data_valid:U1, rst:Reset) -> (enc_codeword:U39@[], enc_data:U32@[], enc_parity:U7@[], enc_valid:U1@[]) {
-  wire `parity[0]`:U1 = nil
-  wire `parity[1]`:U1 = nil
-  wire `parity[2]`:U1 = nil
-  wire `parity[3]`:U1 = nil
-  wire `parity[4]`:U1 = nil
-  wire `parity[5]`:U1 = nil
-  wire `parity[6]`:U1 = nil
-  wire parity:U7 = nil
-  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk=clk, rst=rst, in_valid=data_valid, `in`=data)
-  const m__w1 = br_delay_valid_inputs.out
-  `parity[0]` = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 1) & 1)) & 1) ^ ((m__w1 >> 2) & 1)) & 1) ^ ((m__w1 >> 3) & 1)) & 1) ^ ((m__w1 >> 4) & 1)) & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1
-  `parity[1]` = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 1) & 1)) & 1) ^ ((m__w1 >> 2) & 1)) & 1) ^ ((m__w1 >> 3) & 1)) & 1) ^ ((m__w1 >> 4) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1
-  `parity[2]` = ((((((((((((((((((((((((((m__w1 & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
-  `parity[3]` = (((((((((((((((((((((((((((m__w1 >> 1) & 1) ^ ((m__w1 >> 5) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 14) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
-  `parity[4]` = (((((((((((((((((((((((((((m__w1 >> 2) & 1) ^ ((m__w1 >> 6) & 1)) & 1) ^ ((m__w1 >> 9) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1) ^ ((m__w1 >> 15) & 1)) & 1) ^ ((m__w1 >> 18) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1
-  `parity[5]` = (((((((((((((((((((((((((m__w1 >> 3) & 1) ^ ((m__w1 >> 7) & 1)) & 1) ^ ((m__w1 >> 10) & 1)) & 1) ^ ((m__w1 >> 13) & 1)) & 1) ^ ((m__w1 >> 16) & 1)) & 1) ^ ((m__w1 >> 19) & 1)) & 1) ^ ((m__w1 >> 22) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 26) & 1)) & 1) ^ ((m__w1 >> 27) & 1)) & 1) ^ ((m__w1 >> 28) & 1)) & 1
-  `parity[6]` = (((((((((((((((((((((((((m__w1 >> 4) & 1) ^ ((m__w1 >> 8) & 1)) & 1) ^ ((m__w1 >> 11) & 1)) & 1) ^ ((m__w1 >> 12) & 1)) & 1) ^ ((m__w1 >> 17) & 1)) & 1) ^ ((m__w1 >> 20) & 1)) & 1) ^ ((m__w1 >> 21) & 1)) & 1) ^ ((m__w1 >> 23) & 1)) & 1) ^ ((m__w1 >> 24) & 1)) & 1) ^ ((m__w1 >> 25) & 1)) & 1) ^ ((m__w1 >> 29) & 1)) & 1) ^ ((m__w1 >> 30) & 1)) & 1) ^ ((m__w1 >> 31) & 1)) & 1
-  mut br_delay_valid_outputs = br_delay_valid_p1::[name=br_delay_valid_outputs](clk=clk, rst=rst, in_valid=br_delay_valid_inputs.out_valid, `in`=(parity << 32) | m__w1#[0..=31])
-  parity = (`parity[6]` << 6) | (`parity[5]` << 5) | (`parity[4]` << 4) | (`parity[3]` << 3) | (`parity[2]` << 2) | (`parity[1]` << 1) | `parity[0]`
-  enc_valid = br_delay_valid_outputs.out_valid
-  enc_data = br_delay_valid_outputs.out#[0..=31]
-  enc_parity = br_delay_valid_outputs.out#[32..=38]
-  enc_codeword = br_delay_valid_outputs.out
+pub mod br_ecc_secded_encoder(clk:Clock, data:U32, data_valid:U1, rst:Reset) -> (enc_codeword:U39@[0], enc_data:U32@[0], enc_parity:U7@[0], enc_valid:U1@[0]) {
+  comptime const P = enc_parity.[bits]
+
+  mut parity:U7 = 0
+  for k in 0..<P {
+    parity#[k] = (data & PARITY_MASKS[k])#^[..]
+  }
+
+  enc_valid = data_valid
+  enc_data = data
+  enc_parity = parity
+  enc_codeword = (data, parity)#[..]
 }

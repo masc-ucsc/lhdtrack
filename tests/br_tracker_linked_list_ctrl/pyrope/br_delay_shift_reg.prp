@@ -1,8 +1,8 @@
 pub mod br_delay_shift_reg<Width=1, NumStages=4, EnableCoverReinit=0>::[timecheck=false](clk:Clock, initial_value:U4, reinit:U1, rst:U1, shift_en:U1, shift_in:U1) -> (shift_out:U1@[], value:U4@[]) {
   reg stages:U4
   mut _mux_1:U4 = if reinit != 0 { initial_value } else { stages }
-  const stages_temp__w1 = _mux_1
-  mut _mux_2:U4 = if shift_en != 0 { (stages_temp__w1#[0..=2] << 1) | (shift_in & 1) } else { stages_temp__w1 }
+  const stages_temp = _mux_1
+  mut _mux_2:U4 = if shift_en != 0 { (stages_temp#[0..=2] << 1) | (shift_in & 1) } else { stages_temp }
   if rst != 0 {
     stages = initial_value
   } elif shift_en != 0 or reinit != 0 {

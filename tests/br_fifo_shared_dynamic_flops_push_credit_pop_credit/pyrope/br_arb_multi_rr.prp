@@ -4,34 +4,31 @@ const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
 pub mod br_arb_multi_rr<NumRequesters=2, MaxGrantPerCycle=2, EnableCoverBlockPriorityUpdate=0, EnableCoverMoreRequestThanAllowed=0>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant_allowed:U2, request:U2, rst:U1) -> (grant:U2@[], grant_count:U2@[], grant_ordered:U4@[]) {
   reg lowest_prio:U2:[async=false, initial=2, reset_pin=rst]
-  wire `grant_ordered[0]`:U1 = nil
-  wire `grant_ordered[1]`:U1 = nil
-  wire `grant_ordered[2]`:U1 = nil
-  wire `grant_ordered[3]`:U1 = nil
+  wire grant_ordered_bits:U4 = nil
   wire grant_ordered:U4 = nil
   wire `grant_valid[0]`:U1 = nil
   wire `grant_valid[1]`:U1 = nil
   `grant_valid[0]` = U1(grant_allowed > 0) & 1
   `grant_valid[1]` = U1(grant_allowed > 1) & 1
   mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
-  const all_grants__w1 = u_enc_priority_dynamic
+  const all_grants = u_enc_priority_dynamic
   mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in`=request)
-  const request_count__w1 = br_enc_countones_inst
-  mut _mux_4:U2 = if U1(request_count__w1 <= grant_allowed) != 0 { request_count__w1#[0..=1] } else { grant_allowed }
+  const request_count = br_enc_countones_inst
+  mut _mux_4:U2 = if U1(request_count <= grant_allowed) != 0 { request_count#[0..=1] } else { grant_allowed }
   const grant_count__w1 = _mux_4
-  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=1] & 1, `in`=all_grants__w1)
+  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=1] & 1, `in`=all_grants)
   if not (rst != 0) {
     if U1(enable_priority_update != 0 and request != 0 and grant_allowed > 0) != 0 {
       lowest_prio = br_mux_bin_last_grant.out
     }
   }
-  mut _mux_6:U2 = if (`grant_valid[0]` & 1) != 0 { all_grants__w1#[0..=1] } else { 0 }
-  `grant_ordered[0]` = _mux_6 & 1
-  `grant_ordered[1]` = (_mux_6 >> 1) & 1
-  mut _mux_7:U2 = if (`grant_valid[1]` & 1) != 0 { all_grants__w1#[2..=3] } else { 0 }
-  `grant_ordered[2]` = _mux_7 & 1
-  `grant_ordered[3]` = (_mux_7 >> 1) & 1
-  grant_ordered = (`grant_ordered[3]` << 3) | (`grant_ordered[2]` << 2) | (`grant_ordered[1]` << 1) | `grant_ordered[0]`
-  grant = (0 | ((`grant_ordered[1]` << 1) | `grant_ordered[0]`)) | ((`grant_ordered[3]` << 1) | `grant_ordered[2]`)
+  mut _mux_6:U2 = if (`grant_valid[0]` & 1) != 0 { all_grants#[0..=1] } else { 0 }
+  grant_ordered_bits#[0] = _mux_6 & 1
+  grant_ordered_bits#[1] = (_mux_6 >> 1) & 1
+  mut _mux_7:U2 = if (`grant_valid[1]` & 1) != 0 { all_grants#[2..=3] } else { 0 }
+  grant_ordered_bits#[2] = _mux_7 & 1
+  grant_ordered_bits#[3] = (_mux_7 >> 1) & 1
+  grant_ordered = grant_ordered_bits
+  grant = (0 | ((grant_ordered_bits#[1] << 1) | grant_ordered_bits#[0])) | ((grant_ordered_bits#[3] << 1) | grant_ordered_bits#[2])
   grant_count = grant_count__w1
 }

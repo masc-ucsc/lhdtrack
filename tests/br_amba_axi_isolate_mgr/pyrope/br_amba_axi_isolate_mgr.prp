@@ -15,30 +15,30 @@ pub mod br_amba_axi_isolate_mgr::[timecheck=false](clk:Clock, downstream_arready
   wire upstream_arready_iso:U1 = nil
   wire align_and_hold_done_r:U1 = nil
   wire req_tracker_isolate_done_r:U1 = nil
-  const downstream_awlen_int__w1 = upstream_awlen
   mut br_amba_iso_us_fsm_w = br_amba_iso_us_fsm::[name=br_amba_iso_us_fsm_w](clk=clk, rst=rst, isolate_req=isolate_req, align_and_hold_done=align_and_hold_done_w, req_tracker_isolate_done=req_tracker_isolate_done_w)
   mut br_amba_iso_wdata_align_w = br_amba_iso_wdata_align::[name=br_amba_iso_wdata_align_w](clk=clk, rst=rst, upstream_awvalid=upstream_awvalid, upstream_awlen=upstream_awlen, upstream_wvalid=upstream_wvalid, upstream_wlast=upstream_wlast, downstream_awready=upstream_awready_iso, downstream_wready=downstream_wready_int, align_and_hold_req=br_amba_iso_us_fsm_w.align_and_hold_req)
   align_and_hold_done_w = br_amba_iso_wdata_align_w.align_and_hold_done
   mut br_amba_iso_req_tracker_w = br_amba_iso_req_tracker::[name=br_amba_iso_req_tracker_w](clk=clk, rst=rst, upstream_axvalid=br_amba_iso_wdata_align_w.downstream_awvalid, upstream_xready=upstream_bready, downstream_axready=downstream_awready_int, downstream_xvalid=downstream_bvalid, downstream_xlast=1, isolate_req=br_amba_iso_us_fsm_w.req_tracker_isolate_req)
   upstream_awready_iso = br_amba_iso_req_tracker_w.upstream_axready
   req_tracker_isolate_done_w = br_amba_iso_req_tracker_w.isolate_done
-  const use_fake_w_data__w1 = br_amba_iso_us_fsm_w.align_and_hold_req
-  mut _mux_1:U1 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wuser & 1 }
-  mut _mux_2:U32 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wdata }
-  mut _mux_3:U4 = if use_fake_w_data__w1 != 0 { 0 } else { upstream_wstrb }
+  const use_fake_w_data = br_amba_iso_us_fsm_w.align_and_hold_req
+  mut _mux_1:U1 = if use_fake_w_data != 0 { 0 } else { upstream_wuser & 1 }
+  mut _mux_2:U32 = if use_fake_w_data != 0 { 0 } else { upstream_wdata }
+  mut _mux_3:U4 = if use_fake_w_data != 0 { 0 } else { upstream_wstrb }
   mut br_amba_iso_us_fsm_r = br_amba_iso_us_fsm::[name=br_amba_iso_us_fsm_r](clk=clk, rst=rst, isolate_req=isolate_req, align_and_hold_done=align_and_hold_done_r, req_tracker_isolate_done=req_tracker_isolate_done_r)
-  const upstream_blocked_r__w1 = U1(br_amba_iso_us_fsm_r.align_and_hold_req != 0 or align_and_hold_done_r != 0)
+  const upstream_blocked_r = U1(br_amba_iso_us_fsm_r.align_and_hold_req != 0 or align_and_hold_done_r != 0)
   align_and_hold_done_r = br_amba_iso_us_fsm_r.align_and_hold_req
-  mut _b2i_5 = if upstream_arvalid != 0 and upstream_blocked_r__w1 == 0 { 1 } else { 0 }
-  mut _b2i_6 = if upstream_arready_iso != 0 and upstream_blocked_r__w1 == 0 { 1 } else { 0 }
+  mut _b2i_5 = if upstream_arvalid != 0 and upstream_blocked_r == 0 { 1 } else { 0 }
+  mut _b2i_6 = if upstream_arready_iso != 0 and upstream_blocked_r == 0 { 1 } else { 0 }
   mut br_amba_iso_req_tracker_r = br_amba_iso_req_tracker::[name=br_amba_iso_req_tracker_r](clk=clk, rst=rst, upstream_axvalid=_b2i_5, upstream_xready=upstream_rready, downstream_axready=downstream_arready_int, downstream_xvalid=downstream_rvalid, downstream_xlast=downstream_rlast, isolate_req=br_amba_iso_us_fsm_r.req_tracker_isolate_req)
   upstream_arready_iso = br_amba_iso_req_tracker_r.upstream_axready
   req_tracker_isolate_done_r = br_amba_iso_req_tracker_r.isolate_done
-  mut _mux_9:U1 = if isolate_done != 0 { U1(br_amba_iso_us_fsm_w.isolate_done != 0 or br_amba_iso_us_fsm_r.isolate_done != 0) & 1 } else { U1(br_amba_iso_us_fsm_w.isolate_done != 0 and br_amba_iso_us_fsm_r.isolate_done != 0) & 1 }
+  mut _mux_9:U1 = if isolate_done != 0 { U1(br_amba_iso_us_fsm_w.isolate_done != 0 or br_amba_iso_us_fsm_r.isolate_done != 0) & 1 }
+    else { U1(br_amba_iso_us_fsm_w.isolate_done != 0 and br_amba_iso_us_fsm_r.isolate_done != 0) & 1 }
   if not (rst != 0) {
     isolate_done = _mux_9
   }
-  mut br_flow_reg_fwd_ds_aw = br_flow_reg_fwd::[name=br_flow_reg_fwd_ds_aw](clk=clk, rst=rst, push_valid=br_amba_iso_req_tracker_w.downstream_axvalid, push_data=(upstream_awaddr << 18) | (upstream_awid << 14) | (upstream_awsize << 11) | (upstream_awburst << 9) | (upstream_awcache << 5) | ((downstream_awlen_int__w1 & 1) << 4) | (upstream_awprot << 1) | (upstream_awuser & 1), pop_ready=downstream_awready)
+  mut br_flow_reg_fwd_ds_aw = br_flow_reg_fwd::[name=br_flow_reg_fwd_ds_aw](clk=clk, rst=rst, push_valid=br_amba_iso_req_tracker_w.downstream_axvalid, push_data=(upstream_awaddr << 18) | (upstream_awid << 14) | (upstream_awsize << 11) | (upstream_awburst << 9) | (upstream_awcache << 5) | ((upstream_awlen & 1) << 4) | (upstream_awprot << 1) | (upstream_awuser & 1), pop_ready=downstream_awready)
   downstream_awready_int = br_flow_reg_fwd_ds_aw.push_ready
   mut br_flow_reg_fwd_ds_w = br_flow_reg_fwd_p1::[name=br_flow_reg_fwd_ds_w](clk=clk, rst=rst, push_valid=br_amba_iso_wdata_align_w.downstream_wvalid, push_data=(_mux_2 << 6) | (_mux_3 << 2) | ((_mux_1 & 1) << 1) | (br_amba_iso_wdata_align_w.downstream_wlast & 1), pop_ready=downstream_wready)
   downstream_wready_int = br_flow_reg_fwd_ds_w.push_ready

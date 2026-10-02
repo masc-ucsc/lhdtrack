@@ -5,9 +5,9 @@ pub mod br_fifo_flops_push_credit<Depth=2, Width=32, EnableBypass=1, MaxCredit=2
   wire ram_rd_data_valid:U1 = nil
   wire ram_rd_data:U32 = nil
   mut _b2i_1 = if rst != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
-  const either_rst__w1 = _b2i_1
+  const either_rst = _b2i_1
   mut br_fifo_ctrl_1r1w_push_credit = br_fifo_ctrl_1r1w_push_credit_t::[name=br_fifo_ctrl_1r1w_push_credit](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, pop_ready=pop_ready, credit_initial_push=credit_initial_push, credit_withhold_push=credit_withhold_push, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data)
-  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk=clk, wr_rst=either_rst__w1, wr_valid=br_fifo_ctrl_1r1w_push_credit.ram_wr_valid, wr_addr=br_fifo_ctrl_1r1w_push_credit.ram_wr_addr, wr_data=br_fifo_ctrl_1r1w_push_credit.ram_wr_data, wr_word_en=1, rd_clk=clk, rd_rst=either_rst__w1, rd_addr_valid=br_fifo_ctrl_1r1w_push_credit.ram_rd_addr_valid, rd_addr=br_fifo_ctrl_1r1w_push_credit.ram_rd_addr)
+  mut br_ram_flops = br_ram_flops_t::[name=br_ram_flops](wr_clk=clk, wr_rst=either_rst, wr_valid=br_fifo_ctrl_1r1w_push_credit.ram_wr_valid, wr_addr=br_fifo_ctrl_1r1w_push_credit.ram_wr_addr, wr_data=br_fifo_ctrl_1r1w_push_credit.ram_wr_data, wr_word_en=1, rd_clk=clk, rd_rst=either_rst, rd_addr_valid=br_fifo_ctrl_1r1w_push_credit.ram_rd_addr_valid, rd_addr=br_fifo_ctrl_1r1w_push_credit.ram_rd_addr)
   ram_rd_data_valid = br_ram_flops.rd_data_valid
   ram_rd_data = br_ram_flops.rd_data
   push_receiver_in_reset = br_fifo_ctrl_1r1w_push_credit.push_receiver_in_reset

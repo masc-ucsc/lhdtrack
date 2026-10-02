@@ -3,7 +3,7 @@
 // The Pyrope twin of br_cdc_fifo_flops_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,24 @@
 // "call to undefined function". The module inside it is br_cdc_fifo_flops.br_cdc_fifo_flops.
 const dut = import("br_cdc_fifo_flops.br_cdc_fifo_flops")
 
-pub mod br_cdc_fifo_flops_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_cdc_fifo_flops_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
   const (push_ready, pop_valid, pop_data, push_full, push_slots, pop_empty, pop_items) = dut(push_clk=clk, pop_clk=clk, push_rst=rst, pop_rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], pop_ready=lfsr#[1])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_data

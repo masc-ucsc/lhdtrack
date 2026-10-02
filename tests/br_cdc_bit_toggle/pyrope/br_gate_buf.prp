@@ -1,3 +1,0 @@
-pub comb br_gate_buf::[timecheck=false](`in`:U1) -> (out:U1) {
-  out = `in`
-}

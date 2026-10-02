@@ -1,8 +1,15 @@
-const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
-const br_gate_cdc_sync_t = import("br_gate_cdc_sync.br_gate_cdc_sync")
+// Two-flop clock-domain-crossing synchronizer (NumStages = 2, no source flop).
+// src_bit is sampled directly by dst_clk; there is no reset on the flops
+// (dst_rst is unused). src_clk and src_rst exist only for the Verilog
+// interface: without the optional source flop nothing runs in the source domain.
+//
+// dst_bit is declared @[] because it is two stages behind src_bit and the
+// generated harnesses mix it with same-cycle values.
+comptime const NUM_STAGES = 2
 
-pub mod br_cdc_bit_toggle::[timecheck=false](dst_clk:Clock, dst_rst:U1, src_bit:U1, src_clk:U1, src_rst:U1) -> (dst_bit:U1@[]) {
-  mut br_gate_cdc_maxdel_src_bit_internal_maxdel = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_src_bit_internal_maxdel](`in`=src_bit)
-  mut br_gate_cdc_sync = br_gate_cdc_sync_t::[name=br_gate_cdc_sync](clk=dst_clk, `in`=br_gate_cdc_maxdel_src_bit_internal_maxdel)
-  dst_bit = br_gate_cdc_sync
+pub mod br_cdc_bit_toggle(dst_clk:Clock, dst_rst:U1, src_bit:U1, src_clk:Clock, src_rst:U1) -> (dst_bit:U1@[]) {
+  // sync#[0] is the first synchronizer flop, sync#[NUM_STAGES-1] the last.
+  reg sync:Unsigned(bits=NUM_STAGES):[clock_pin=dst_clk] = nil
+  wrap sync = (sync << 1) | src_bit
+  dst_bit = sync#[NUM_STAGES - 1]
 }

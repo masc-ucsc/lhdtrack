@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_counter.br_counter.
 const dut = import("br_counter.br_counter")
 
-pub mod br_counter_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_counter_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (value, value_next) = dut(reinit=lfsr#[0], initial_value=lfsr#[1..=8], incr_valid=lfsr#[9], incr=lfsr#[10], decr_valid=lfsr#[11], decr=lfsr#[12])
+  const (value, value_next) = dut(clk=clk, rst=rst, reinit=lfsr#[0], initial_value=lfsr#[1..=8], incr_valid=lfsr#[9], incr=lfsr#[10], decr_valid=lfsr#[11], decr=lfsr#[12])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ value
   wrap acc = ((acc << 1) | acc#[63]) ^ value_next
 

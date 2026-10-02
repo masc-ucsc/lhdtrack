@@ -1,1071 +1,916 @@
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
-const br_misc_unused_p4 = import("br_misc_unused_p4.br_misc_unused_p4")
-
 pub mod br_enc_priority_encoder<NumRequesters=31, NumResults=4, MsbHighestPriority=0, MaxInHot=16>::[timecheck=false](clk:Clock, `in`:(e30:U1, e29:U1, e28:U1, e27:U1, e26:U1, e25:U1, e24:U1, e23:U1, e22:U1, e21:U1, e20:U1, e19:U1, e18:U1, e17:U1, e16:U1, e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), rst:Reset) -> (out:U124@[]) {
-  wire `out_internal[0]`:U1 = nil
-  wire `out_internal[1]`:U1 = nil
-  wire `out_internal[2]`:U1 = nil
-  wire `out_internal[3]`:U1 = nil
-  wire `out_internal[4]`:U1 = nil
-  wire `out_internal[5]`:U1 = nil
-  wire `out_internal[6]`:U1 = nil
-  wire `out_internal[7]`:U1 = nil
-  wire `out_internal[8]`:U1 = nil
-  wire `out_internal[9]`:U1 = nil
-  wire `out_internal[10]`:U1 = nil
-  wire `out_internal[11]`:U1 = nil
-  wire `out_internal[12]`:U1 = nil
-  wire `out_internal[13]`:U1 = nil
-  wire `out_internal[14]`:U1 = nil
-  wire `out_internal[15]`:U1 = nil
-  wire `out_internal[16]`:U1 = nil
-  wire `out_internal[17]`:U1 = nil
-  wire `out_internal[18]`:U1 = nil
-  wire `out_internal[19]`:U1 = nil
-  wire `out_internal[20]`:U1 = nil
-  wire `out_internal[21]`:U1 = nil
-  wire `out_internal[22]`:U1 = nil
-  wire `out_internal[23]`:U1 = nil
-  wire `out_internal[24]`:U1 = nil
-  wire `out_internal[25]`:U1 = nil
-  wire `out_internal[26]`:U1 = nil
-  wire `out_internal[27]`:U1 = nil
-  wire `out_internal[28]`:U1 = nil
-  wire `out_internal[29]`:U1 = nil
-  wire `out_internal[30]`:U1 = nil
-  wire `out_internal[31]`:U1 = nil
-  wire `out_internal[32]`:U1 = nil
-  wire `out_internal[33]`:U1 = nil
-  wire `out_internal[34]`:U1 = nil
-  wire `out_internal[35]`:U1 = nil
-  wire `out_internal[36]`:U1 = nil
-  wire `out_internal[37]`:U1 = nil
-  wire `out_internal[38]`:U1 = nil
-  wire `out_internal[39]`:U1 = nil
-  wire `out_internal[40]`:U1 = nil
-  wire `out_internal[41]`:U1 = nil
-  wire `out_internal[42]`:U1 = nil
-  wire `out_internal[43]`:U1 = nil
-  wire `out_internal[44]`:U1 = nil
-  wire `out_internal[45]`:U1 = nil
-  wire `out_internal[46]`:U1 = nil
-  wire `out_internal[47]`:U1 = nil
-  wire `out_internal[48]`:U1 = nil
-  wire `out_internal[49]`:U1 = nil
-  wire `out_internal[50]`:U1 = nil
-  wire `out_internal[51]`:U1 = nil
-  wire `out_internal[52]`:U1 = nil
-  wire `out_internal[53]`:U1 = nil
-  wire `out_internal[54]`:U1 = nil
-  wire `out_internal[55]`:U1 = nil
-  wire `out_internal[56]`:U1 = nil
-  wire `out_internal[57]`:U1 = nil
-  wire `out_internal[58]`:U1 = nil
-  wire `out_internal[59]`:U1 = nil
-  wire `out_internal[60]`:U1 = nil
-  wire `out_internal[61]`:U1 = nil
-  wire `out_internal[62]`:U1 = nil
-  wire `out_internal[63]`:U1 = nil
-  wire `out_internal[64]`:U1 = nil
-  wire `out_internal[65]`:U1 = nil
-  wire `out_internal[66]`:U1 = nil
-  wire `out_internal[67]`:U1 = nil
-  wire `out_internal[68]`:U1 = nil
-  wire `out_internal[69]`:U1 = nil
-  wire `out_internal[70]`:U1 = nil
-  wire `out_internal[71]`:U1 = nil
-  wire `out_internal[72]`:U1 = nil
-  wire `out_internal[73]`:U1 = nil
-  wire `out_internal[74]`:U1 = nil
-  wire `out_internal[75]`:U1 = nil
-  wire `out_internal[76]`:U1 = nil
-  wire `out_internal[77]`:U1 = nil
-  wire `out_internal[78]`:U1 = nil
-  wire `out_internal[79]`:U1 = nil
-  wire `out_internal[80]`:U1 = nil
-  wire `out_internal[81]`:U1 = nil
-  wire `out_internal[82]`:U1 = nil
-  wire `out_internal[83]`:U1 = nil
-  wire `out_internal[84]`:U1 = nil
-  wire `out_internal[85]`:U1 = nil
-  wire `out_internal[86]`:U1 = nil
-  wire `out_internal[87]`:U1 = nil
-  wire `out_internal[88]`:U1 = nil
-  wire `out_internal[89]`:U1 = nil
-  wire `out_internal[90]`:U1 = nil
-  wire `out_internal[91]`:U1 = nil
-  wire `out_internal[92]`:U1 = nil
-  wire `out_internal[93]`:U1 = nil
-  wire `out_internal[94]`:U1 = nil
-  wire `out_internal[95]`:U1 = nil
-  wire `out_internal[96]`:U1 = nil
-  wire `out_internal[97]`:U1 = nil
-  wire `out_internal[98]`:U1 = nil
-  wire `out_internal[99]`:U1 = nil
-  wire `out_internal[100]`:U1 = nil
-  wire `out_internal[101]`:U1 = nil
-  wire `out_internal[102]`:U1 = nil
-  wire `out_internal[103]`:U1 = nil
-  wire `out_internal[104]`:U1 = nil
-  wire `out_internal[105]`:U1 = nil
-  wire `out_internal[106]`:U1 = nil
-  wire `out_internal[107]`:U1 = nil
-  wire `out_internal[108]`:U1 = nil
-  wire `out_internal[109]`:U1 = nil
-  wire `out_internal[110]`:U1 = nil
-  wire `out_internal[111]`:U1 = nil
-  wire `out_internal[112]`:U1 = nil
-  wire `out_internal[113]`:U1 = nil
-  wire `out_internal[114]`:U1 = nil
-  wire `out_internal[115]`:U1 = nil
-  wire `out_internal[116]`:U1 = nil
-  wire `out_internal[117]`:U1 = nil
-  wire `out_internal[118]`:U1 = nil
-  wire `out_internal[119]`:U1 = nil
-  wire `out_internal[120]`:U1 = nil
-  wire `out_internal[121]`:U1 = nil
-  wire `out_internal[122]`:U1 = nil
-  wire `out_internal[123]`:U1 = nil
+  wire out_internal_bits:U124 = nil
   wire out_internal:U124 = nil
-  const in_internal__w1 = (`in`.e30 << 30) | (`in`.e29 << 29) | (`in`.e28 << 28) | (`in`.e27 << 27) | (`in`.e26 << 26) | (`in`.e25 << 25) | (`in`.e24 << 24) | (`in`.e23 << 23) | (`in`.e22 << 22) | (`in`.e21 << 21) | (`in`.e20 << 20) | (`in`.e19 << 19) | (`in`.e18 << 18) | (`in`.e17 << 17) | (`in`.e16 << 16) | (`in`.e15 << 15) | (`in`.e14 << 14) | (`in`.e13 << 13) | (`in`.e12 << 12) | (`in`.e11 << 11) | (`in`.e10 << 10) | (`in`.e9 << 9) | (`in`.e8 << 8) | (`in`.e7 << 7) | (`in`.e6 << 6) | (`in`.e5 << 5) | (`in`.e4 << 4) | (`in`.e3 << 3) | (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
-  const gen_out_internal_0_in_masked__w1 = in_internal__w1
-  const t92 = gen_out_internal_0_in_masked__w1 & 1
-  `out_internal[0]` = t92
-  const t93 = gen_out_internal_0_in_masked__w1 >> 1
+  const in_internal = (`in`.e30 << 30) | (`in`.e29 << 29) | (`in`.e28 << 28) | (`in`.e27 << 27) | (`in`.e26 << 26) | (`in`.e25 << 25) | (`in`.e24 << 24) | (`in`.e23 << 23) | (`in`.e22 << 22) | (`in`.e21 << 21) | (`in`.e20 << 20) | (`in`.e19 << 19) | (`in`.e18 << 18) | (`in`.e17 << 17) | (`in`.e16 << 16) | (`in`.e15 << 15) | (`in`.e14 << 14) | (`in`.e13 << 13) | (`in`.e12 << 12) | (`in`.e11 << 11) | (`in`.e10 << 10) | (`in`.e9 << 9) | (`in`.e8 << 8) | (`in`.e7 << 7) | (`in`.e6 << 6) | (`in`.e5 << 5) | (`in`.e4 << 4) | (`in`.e3 << 3) | (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
+  const t92 = in_internal & 1
+  out_internal_bits#[0] = t92
+  const t93 = in_internal >> 1
   const t94 = t93 & 1
   const t95 = t94 != 0
-  const t96 = gen_out_internal_0_in_masked__w1 & 1
+  const t96 = in_internal & 1
   const t97 = t96 == 0
   const t98 = t95 and t97
-  `out_internal[1]` = U1(t98) & 1
-  const t100 = gen_out_internal_0_in_masked__w1 >> 2
+  out_internal_bits#[1] = U1(t98) & 1
+  const t100 = in_internal >> 2
   const t101 = t100 & 1
   const t102 = t101 != 0
-  const t103 = gen_out_internal_0_in_masked__w1#[0..=1]
+  const t103 = in_internal#[0..=1]
   const t104 = t103 == 0
   const t105 = t102 and t104
-  `out_internal[2]` = U1(t105) & 1
-  const t107 = gen_out_internal_0_in_masked__w1 >> 3
+  out_internal_bits#[2] = U1(t105) & 1
+  const t107 = in_internal >> 3
   const t108 = t107 & 1
   const t109 = t108 != 0
-  const t110 = gen_out_internal_0_in_masked__w1#[0..=2]
+  const t110 = in_internal#[0..=2]
   const t111 = t110 == 0
   const t112 = t109 and t111
-  `out_internal[3]` = U1(t112) & 1
-  const t114 = gen_out_internal_0_in_masked__w1 >> 4
+  out_internal_bits#[3] = U1(t112) & 1
+  const t114 = in_internal >> 4
   const t115 = t114 & 1
   const t116 = t115 != 0
-  const t117 = gen_out_internal_0_in_masked__w1#[0..=3]
+  const t117 = in_internal#[0..=3]
   const t118 = t117 == 0
   const t119 = t116 and t118
-  `out_internal[4]` = U1(t119) & 1
-  const t121 = gen_out_internal_0_in_masked__w1 >> 5
+  out_internal_bits#[4] = U1(t119) & 1
+  const t121 = in_internal >> 5
   const t122 = t121 & 1
   const t123 = t122 != 0
-  const t124 = gen_out_internal_0_in_masked__w1#[0..=4]
+  const t124 = in_internal#[0..=4]
   const t125 = t124 == 0
   const t126 = t123 and t125
-  `out_internal[5]` = U1(t126) & 1
-  const t128 = gen_out_internal_0_in_masked__w1 >> 6
+  out_internal_bits#[5] = U1(t126) & 1
+  const t128 = in_internal >> 6
   const t129 = t128 & 1
   const t130 = t129 != 0
-  const t131 = gen_out_internal_0_in_masked__w1#[0..=5]
+  const t131 = in_internal#[0..=5]
   const t132 = t131 == 0
   const t133 = t130 and t132
-  `out_internal[6]` = U1(t133) & 1
-  const t135 = gen_out_internal_0_in_masked__w1 >> 7
+  out_internal_bits#[6] = U1(t133) & 1
+  const t135 = in_internal >> 7
   const t136 = t135 & 1
   const t137 = t136 != 0
-  const t138 = gen_out_internal_0_in_masked__w1#[0..=6]
+  const t138 = in_internal#[0..=6]
   const t139 = t138 == 0
   const t140 = t137 and t139
-  `out_internal[7]` = U1(t140) & 1
-  const t142 = gen_out_internal_0_in_masked__w1 >> 8
+  out_internal_bits#[7] = U1(t140) & 1
+  const t142 = in_internal >> 8
   const t143 = t142 & 1
   const t144 = t143 != 0
-  const t145 = gen_out_internal_0_in_masked__w1#[0..=7]
+  const t145 = in_internal#[0..=7]
   const t146 = t145 == 0
   const t147 = t144 and t146
-  `out_internal[8]` = U1(t147) & 1
-  const t149 = gen_out_internal_0_in_masked__w1 >> 9
+  out_internal_bits#[8] = U1(t147) & 1
+  const t149 = in_internal >> 9
   const t150 = t149 & 1
   const t151 = t150 != 0
-  const t152 = gen_out_internal_0_in_masked__w1#[0..=8]
+  const t152 = in_internal#[0..=8]
   const t153 = t152 == 0
   const t154 = t151 and t153
-  `out_internal[9]` = U1(t154) & 1
-  const t156 = gen_out_internal_0_in_masked__w1 >> 10
+  out_internal_bits#[9] = U1(t154) & 1
+  const t156 = in_internal >> 10
   const t157 = t156 & 1
   const t158 = t157 != 0
-  const t159 = gen_out_internal_0_in_masked__w1#[0..=9]
+  const t159 = in_internal#[0..=9]
   const t160 = t159 == 0
   const t161 = t158 and t160
-  `out_internal[10]` = U1(t161) & 1
-  const t163 = gen_out_internal_0_in_masked__w1 >> 11
+  out_internal_bits#[10] = U1(t161) & 1
+  const t163 = in_internal >> 11
   const t164 = t163 & 1
   const t165 = t164 != 0
-  const t166 = gen_out_internal_0_in_masked__w1#[0..=10]
+  const t166 = in_internal#[0..=10]
   const t167 = t166 == 0
   const t168 = t165 and t167
-  `out_internal[11]` = U1(t168) & 1
-  const t170 = gen_out_internal_0_in_masked__w1 >> 12
+  out_internal_bits#[11] = U1(t168) & 1
+  const t170 = in_internal >> 12
   const t171 = t170 & 1
   const t172 = t171 != 0
-  const t173 = gen_out_internal_0_in_masked__w1#[0..=11]
+  const t173 = in_internal#[0..=11]
   const t174 = t173 == 0
   const t175 = t172 and t174
-  `out_internal[12]` = U1(t175) & 1
-  const t177 = gen_out_internal_0_in_masked__w1 >> 13
+  out_internal_bits#[12] = U1(t175) & 1
+  const t177 = in_internal >> 13
   const t178 = t177 & 1
   const t179 = t178 != 0
-  const t180 = gen_out_internal_0_in_masked__w1#[0..=12]
+  const t180 = in_internal#[0..=12]
   const t181 = t180 == 0
   const t182 = t179 and t181
-  `out_internal[13]` = U1(t182) & 1
-  const t184 = gen_out_internal_0_in_masked__w1 >> 14
+  out_internal_bits#[13] = U1(t182) & 1
+  const t184 = in_internal >> 14
   const t185 = t184 & 1
   const t186 = t185 != 0
-  const t187 = gen_out_internal_0_in_masked__w1#[0..=13]
+  const t187 = in_internal#[0..=13]
   const t188 = t187 == 0
   const t189 = t186 and t188
-  `out_internal[14]` = U1(t189) & 1
-  const t191 = gen_out_internal_0_in_masked__w1 >> 15
+  out_internal_bits#[14] = U1(t189) & 1
+  const t191 = in_internal >> 15
   const t192 = t191 & 1
   const t193 = t192 != 0
-  const t194 = gen_out_internal_0_in_masked__w1#[0..=14]
+  const t194 = in_internal#[0..=14]
   const t195 = t194 == 0
   const t196 = t193 and t195
-  `out_internal[15]` = U1(t196) & 1
-  const t198 = gen_out_internal_0_in_masked__w1 >> 16
+  out_internal_bits#[15] = U1(t196) & 1
+  const t198 = in_internal >> 16
   const t199 = t198 & 1
   const t200 = t199 != 0
-  const t201 = gen_out_internal_0_in_masked__w1#[0..=15]
+  const t201 = in_internal#[0..=15]
   const t202 = t201 == 0
   const t203 = t200 and t202
-  `out_internal[16]` = U1(t203) & 1
-  const t205 = gen_out_internal_0_in_masked__w1 >> 17
+  out_internal_bits#[16] = U1(t203) & 1
+  const t205 = in_internal >> 17
   const t206 = t205 & 1
   const t207 = t206 != 0
-  const t208 = gen_out_internal_0_in_masked__w1#[0..=16]
+  const t208 = in_internal#[0..=16]
   const t209 = t208 == 0
   const t210 = t207 and t209
-  `out_internal[17]` = U1(t210) & 1
-  const t212 = gen_out_internal_0_in_masked__w1 >> 18
+  out_internal_bits#[17] = U1(t210) & 1
+  const t212 = in_internal >> 18
   const t213 = t212 & 1
   const t214 = t213 != 0
-  const t215 = gen_out_internal_0_in_masked__w1#[0..=17]
+  const t215 = in_internal#[0..=17]
   const t216 = t215 == 0
   const t217 = t214 and t216
-  `out_internal[18]` = U1(t217) & 1
-  const t219 = gen_out_internal_0_in_masked__w1 >> 19
+  out_internal_bits#[18] = U1(t217) & 1
+  const t219 = in_internal >> 19
   const t220 = t219 & 1
   const t221 = t220 != 0
-  const t222 = gen_out_internal_0_in_masked__w1#[0..=18]
+  const t222 = in_internal#[0..=18]
   const t223 = t222 == 0
   const t224 = t221 and t223
-  `out_internal[19]` = U1(t224) & 1
-  const t226 = gen_out_internal_0_in_masked__w1 >> 20
+  out_internal_bits#[19] = U1(t224) & 1
+  const t226 = in_internal >> 20
   const t227 = t226 & 1
   const t228 = t227 != 0
-  const t229 = gen_out_internal_0_in_masked__w1#[0..=19]
+  const t229 = in_internal#[0..=19]
   const t230 = t229 == 0
   const t231 = t228 and t230
-  `out_internal[20]` = U1(t231) & 1
-  const t233 = gen_out_internal_0_in_masked__w1 >> 21
+  out_internal_bits#[20] = U1(t231) & 1
+  const t233 = in_internal >> 21
   const t234 = t233 & 1
   const t235 = t234 != 0
-  const t236 = gen_out_internal_0_in_masked__w1#[0..=20]
+  const t236 = in_internal#[0..=20]
   const t237 = t236 == 0
   const t238 = t235 and t237
-  `out_internal[21]` = U1(t238) & 1
-  const t240 = gen_out_internal_0_in_masked__w1 >> 22
+  out_internal_bits#[21] = U1(t238) & 1
+  const t240 = in_internal >> 22
   const t241 = t240 & 1
   const t242 = t241 != 0
-  const t243 = gen_out_internal_0_in_masked__w1#[0..=21]
+  const t243 = in_internal#[0..=21]
   const t244 = t243 == 0
   const t245 = t242 and t244
-  `out_internal[22]` = U1(t245) & 1
-  const t247 = gen_out_internal_0_in_masked__w1 >> 23
+  out_internal_bits#[22] = U1(t245) & 1
+  const t247 = in_internal >> 23
   const t248 = t247 & 1
   const t249 = t248 != 0
-  const t250 = gen_out_internal_0_in_masked__w1#[0..=22]
+  const t250 = in_internal#[0..=22]
   const t251 = t250 == 0
   const t252 = t249 and t251
-  `out_internal[23]` = U1(t252) & 1
-  const t254 = gen_out_internal_0_in_masked__w1 >> 24
+  out_internal_bits#[23] = U1(t252) & 1
+  const t254 = in_internal >> 24
   const t255 = t254 & 1
   const t256 = t255 != 0
-  const t257 = gen_out_internal_0_in_masked__w1#[0..=23]
+  const t257 = in_internal#[0..=23]
   const t258 = t257 == 0
   const t259 = t256 and t258
-  `out_internal[24]` = U1(t259) & 1
-  const t261 = gen_out_internal_0_in_masked__w1 >> 25
+  out_internal_bits#[24] = U1(t259) & 1
+  const t261 = in_internal >> 25
   const t262 = t261 & 1
   const t263 = t262 != 0
-  const t264 = gen_out_internal_0_in_masked__w1#[0..=24]
+  const t264 = in_internal#[0..=24]
   const t265 = t264 == 0
   const t266 = t263 and t265
-  `out_internal[25]` = U1(t266) & 1
-  const t268 = gen_out_internal_0_in_masked__w1 >> 26
+  out_internal_bits#[25] = U1(t266) & 1
+  const t268 = in_internal >> 26
   const t269 = t268 & 1
   const t270 = t269 != 0
-  const t271 = gen_out_internal_0_in_masked__w1#[0..=25]
+  const t271 = in_internal#[0..=25]
   const t272 = t271 == 0
   const t273 = t270 and t272
-  `out_internal[26]` = U1(t273) & 1
-  const t275 = gen_out_internal_0_in_masked__w1 >> 27
+  out_internal_bits#[26] = U1(t273) & 1
+  const t275 = in_internal >> 27
   const t276 = t275 & 1
   const t277 = t276 != 0
-  const t278 = gen_out_internal_0_in_masked__w1#[0..=26]
+  const t278 = in_internal#[0..=26]
   const t279 = t278 == 0
   const t280 = t277 and t279
-  `out_internal[27]` = U1(t280) & 1
-  const t282 = gen_out_internal_0_in_masked__w1 >> 28
+  out_internal_bits#[27] = U1(t280) & 1
+  const t282 = in_internal >> 28
   const t283 = t282 & 1
   const t284 = t283 != 0
-  const t285 = gen_out_internal_0_in_masked__w1#[0..=27]
+  const t285 = in_internal#[0..=27]
   const t286 = t285 == 0
   const t287 = t284 and t286
-  `out_internal[28]` = U1(t287) & 1
-  const t289 = gen_out_internal_0_in_masked__w1 >> 29
+  out_internal_bits#[28] = U1(t287) & 1
+  const t289 = in_internal >> 29
   const t290 = t289 & 1
   const t291 = t290 != 0
-  const t292 = gen_out_internal_0_in_masked__w1#[0..=28]
+  const t292 = in_internal#[0..=28]
   const t293 = t292 == 0
   const t294 = t291 and t293
-  `out_internal[29]` = U1(t294) & 1
-  const t296 = gen_out_internal_0_in_masked__w1 >> 30
+  out_internal_bits#[29] = U1(t294) & 1
+  const t296 = in_internal >> 30
   const t297 = t296 & 1
   const t298 = t297 != 0
-  const t299 = gen_out_internal_0_in_masked__w1#[0..=29]
+  const t299 = in_internal#[0..=29]
   const t300 = t299 == 0
   const t301 = t298 and t300
-  `out_internal[30]` = U1(t301) & 1
-  const gen_out_internal_1_in_masked__w1 = in_internal__w1
-  const t305 = gen_out_internal_1_in_masked__w1 & (~((`out_internal[30]` << 30) | (`out_internal[29]` << 29) | (`out_internal[28]` << 28) | (`out_internal[27]` << 27) | (`out_internal[26]` << 26) | (`out_internal[25]` << 25) | (`out_internal[24]` << 24) | (`out_internal[23]` << 23) | (`out_internal[22]` << 22) | (`out_internal[21]` << 21) | (`out_internal[20]` << 20) | (`out_internal[19]` << 19) | (`out_internal[18]` << 18) | (`out_internal[17]` << 17) | (`out_internal[16]` << 16) | (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=30])
-  const t306 = t305
-  const gen_out_internal_1_in_masked__w2 = t306
-  `out_internal[31]` = 0
-  const t307 = gen_out_internal_1_in_masked__w2 & 1
-  br_misc_unused_p2::[name=gen_out_internal_1_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=t307)
-  const t308 = gen_out_internal_1_in_masked__w2 >> 1
+  out_internal_bits#[30] = U1(t301) & 1
+  const t305 = in_internal & (~((out_internal_bits#[30] << 30) | (out_internal_bits#[29] << 29) | (out_internal_bits#[28] << 28) | (out_internal_bits#[27] << 27) | (out_internal_bits#[26] << 26) | (out_internal_bits#[25] << 25) | (out_internal_bits#[24] << 24) | (out_internal_bits#[23] << 23) | (out_internal_bits#[22] << 22) | (out_internal_bits#[21] << 21) | (out_internal_bits#[20] << 20) | (out_internal_bits#[19] << 19) | (out_internal_bits#[18] << 18) | (out_internal_bits#[17] << 17) | (out_internal_bits#[16] << 16) | (out_internal_bits#[15] << 15) | (out_internal_bits#[14] << 14) | (out_internal_bits#[13] << 13) | (out_internal_bits#[12] << 12) | (out_internal_bits#[11] << 11) | (out_internal_bits#[10] << 10) | (out_internal_bits#[9] << 9) | (out_internal_bits#[8] << 8) | (out_internal_bits#[7] << 7) | (out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=30])
+  out_internal_bits#[31] = 0
+  const t308 = t305 >> 1
   const t309 = t308 & 1
-  `out_internal[32]` = t309
-  const t310 = gen_out_internal_1_in_masked__w2 >> 2
+  out_internal_bits#[32] = t309
+  const t310 = t305 >> 2
   const t311 = t310 & 1
   const t312 = t311 != 0
-  const t313 = gen_out_internal_1_in_masked__w2 >> 1
+  const t313 = t305 >> 1
   const t314 = t313 & 1
   const t315 = t314 == 0
   const t316 = t312 and t315
   mut _b2i_31 = if t316 { 1 } else { 0 }
-  `out_internal[33]` = _b2i_31 & 1
-  const t318 = gen_out_internal_1_in_masked__w2 >> 3
+  out_internal_bits#[33] = _b2i_31 & 1
+  const t318 = t305 >> 3
   const t319 = t318 & 1
   const t320 = t319 != 0
-  const t321 = gen_out_internal_1_in_masked__w2#[1..=2]
+  const t321 = t305#[1..=2]
   const t322 = t321 == 0
   const t323 = t320 and t322
   mut _b2i_32 = if t323 { 1 } else { 0 }
-  `out_internal[34]` = _b2i_32 & 1
-  const t325 = gen_out_internal_1_in_masked__w2 >> 4
+  out_internal_bits#[34] = _b2i_32 & 1
+  const t325 = t305 >> 4
   const t326 = t325 & 1
   const t327 = t326 != 0
-  const t328 = gen_out_internal_1_in_masked__w2#[1..=3]
+  const t328 = t305#[1..=3]
   const t329 = t328 == 0
   const t330 = t327 and t329
   mut _b2i_33 = if t330 { 1 } else { 0 }
-  `out_internal[35]` = _b2i_33 & 1
-  const t332 = gen_out_internal_1_in_masked__w2 >> 5
+  out_internal_bits#[35] = _b2i_33 & 1
+  const t332 = t305 >> 5
   const t333 = t332 & 1
   const t334 = t333 != 0
-  const t335 = gen_out_internal_1_in_masked__w2#[1..=4]
+  const t335 = t305#[1..=4]
   const t336 = t335 == 0
   const t337 = t334 and t336
   mut _b2i_34 = if t337 { 1 } else { 0 }
-  `out_internal[36]` = _b2i_34 & 1
-  const t339 = gen_out_internal_1_in_masked__w2 >> 6
+  out_internal_bits#[36] = _b2i_34 & 1
+  const t339 = t305 >> 6
   const t340 = t339 & 1
   const t341 = t340 != 0
-  const t342 = gen_out_internal_1_in_masked__w2#[1..=5]
+  const t342 = t305#[1..=5]
   const t343 = t342 == 0
   const t344 = t341 and t343
   mut _b2i_35 = if t344 { 1 } else { 0 }
-  `out_internal[37]` = _b2i_35 & 1
-  const t346 = gen_out_internal_1_in_masked__w2 >> 7
+  out_internal_bits#[37] = _b2i_35 & 1
+  const t346 = t305 >> 7
   const t347 = t346 & 1
   const t348 = t347 != 0
-  const t349 = gen_out_internal_1_in_masked__w2#[1..=6]
+  const t349 = t305#[1..=6]
   const t350 = t349 == 0
   const t351 = t348 and t350
   mut _b2i_36 = if t351 { 1 } else { 0 }
-  `out_internal[38]` = _b2i_36 & 1
-  const t353 = gen_out_internal_1_in_masked__w2 >> 8
+  out_internal_bits#[38] = _b2i_36 & 1
+  const t353 = t305 >> 8
   const t354 = t353 & 1
   const t355 = t354 != 0
-  const t356 = gen_out_internal_1_in_masked__w2#[1..=7]
+  const t356 = t305#[1..=7]
   const t357 = t356 == 0
   const t358 = t355 and t357
   mut _b2i_37 = if t358 { 1 } else { 0 }
-  `out_internal[39]` = _b2i_37 & 1
-  const t360 = gen_out_internal_1_in_masked__w2 >> 9
+  out_internal_bits#[39] = _b2i_37 & 1
+  const t360 = t305 >> 9
   const t361 = t360 & 1
   const t362 = t361 != 0
-  const t363 = gen_out_internal_1_in_masked__w2#[1..=8]
+  const t363 = t305#[1..=8]
   const t364 = t363 == 0
   const t365 = t362 and t364
   mut _b2i_38 = if t365 { 1 } else { 0 }
-  `out_internal[40]` = _b2i_38 & 1
-  const t367 = gen_out_internal_1_in_masked__w2 >> 10
+  out_internal_bits#[40] = _b2i_38 & 1
+  const t367 = t305 >> 10
   const t368 = t367 & 1
   const t369 = t368 != 0
-  const t370 = gen_out_internal_1_in_masked__w2#[1..=9]
+  const t370 = t305#[1..=9]
   const t371 = t370 == 0
   const t372 = t369 and t371
   mut _b2i_39 = if t372 { 1 } else { 0 }
-  `out_internal[41]` = _b2i_39 & 1
-  const t374 = gen_out_internal_1_in_masked__w2 >> 11
+  out_internal_bits#[41] = _b2i_39 & 1
+  const t374 = t305 >> 11
   const t375 = t374 & 1
   const t376 = t375 != 0
-  const t377 = gen_out_internal_1_in_masked__w2#[1..=10]
+  const t377 = t305#[1..=10]
   const t378 = t377 == 0
   const t379 = t376 and t378
   mut _b2i_40 = if t379 { 1 } else { 0 }
-  `out_internal[42]` = _b2i_40 & 1
-  const t381 = gen_out_internal_1_in_masked__w2 >> 12
+  out_internal_bits#[42] = _b2i_40 & 1
+  const t381 = t305 >> 12
   const t382 = t381 & 1
   const t383 = t382 != 0
-  const t384 = gen_out_internal_1_in_masked__w2#[1..=11]
+  const t384 = t305#[1..=11]
   const t385 = t384 == 0
   const t386 = t383 and t385
   mut _b2i_41 = if t386 { 1 } else { 0 }
-  `out_internal[43]` = _b2i_41 & 1
-  const t388 = gen_out_internal_1_in_masked__w2 >> 13
+  out_internal_bits#[43] = _b2i_41 & 1
+  const t388 = t305 >> 13
   const t389 = t388 & 1
   const t390 = t389 != 0
-  const t391 = gen_out_internal_1_in_masked__w2#[1..=12]
+  const t391 = t305#[1..=12]
   const t392 = t391 == 0
   const t393 = t390 and t392
   mut _b2i_42 = if t393 { 1 } else { 0 }
-  `out_internal[44]` = _b2i_42 & 1
-  const t395 = gen_out_internal_1_in_masked__w2 >> 14
+  out_internal_bits#[44] = _b2i_42 & 1
+  const t395 = t305 >> 14
   const t396 = t395 & 1
   const t397 = t396 != 0
-  const t398 = gen_out_internal_1_in_masked__w2#[1..=13]
+  const t398 = t305#[1..=13]
   const t399 = t398 == 0
   const t400 = t397 and t399
   mut _b2i_43 = if t400 { 1 } else { 0 }
-  `out_internal[45]` = _b2i_43 & 1
-  const t402 = gen_out_internal_1_in_masked__w2 >> 15
+  out_internal_bits#[45] = _b2i_43 & 1
+  const t402 = t305 >> 15
   const t403 = t402 & 1
   const t404 = t403 != 0
-  const t405 = gen_out_internal_1_in_masked__w2#[1..=14]
+  const t405 = t305#[1..=14]
   const t406 = t405 == 0
   const t407 = t404 and t406
   mut _b2i_44 = if t407 { 1 } else { 0 }
-  `out_internal[46]` = _b2i_44 & 1
-  const t409 = gen_out_internal_1_in_masked__w2 >> 16
+  out_internal_bits#[46] = _b2i_44 & 1
+  const t409 = t305 >> 16
   const t410 = t409 & 1
   const t411 = t410 != 0
-  const t412 = gen_out_internal_1_in_masked__w2#[1..=15]
+  const t412 = t305#[1..=15]
   const t413 = t412 == 0
   const t414 = t411 and t413
   mut _b2i_45 = if t414 { 1 } else { 0 }
-  `out_internal[47]` = _b2i_45 & 1
-  const t416 = gen_out_internal_1_in_masked__w2 >> 17
+  out_internal_bits#[47] = _b2i_45 & 1
+  const t416 = t305 >> 17
   const t417 = t416 & 1
   const t418 = t417 != 0
-  const t419 = gen_out_internal_1_in_masked__w2#[1..=16]
+  const t419 = t305#[1..=16]
   const t420 = t419 == 0
   const t421 = t418 and t420
   mut _b2i_46 = if t421 { 1 } else { 0 }
-  `out_internal[48]` = _b2i_46 & 1
-  const t423 = gen_out_internal_1_in_masked__w2 >> 18
+  out_internal_bits#[48] = _b2i_46 & 1
+  const t423 = t305 >> 18
   const t424 = t423 & 1
   const t425 = t424 != 0
-  const t426 = gen_out_internal_1_in_masked__w2#[1..=17]
+  const t426 = t305#[1..=17]
   const t427 = t426 == 0
   const t428 = t425 and t427
   mut _b2i_47 = if t428 { 1 } else { 0 }
-  `out_internal[49]` = _b2i_47 & 1
-  const t430 = gen_out_internal_1_in_masked__w2 >> 19
+  out_internal_bits#[49] = _b2i_47 & 1
+  const t430 = t305 >> 19
   const t431 = t430 & 1
   const t432 = t431 != 0
-  const t433 = gen_out_internal_1_in_masked__w2#[1..=18]
+  const t433 = t305#[1..=18]
   const t434 = t433 == 0
   const t435 = t432 and t434
   mut _b2i_48 = if t435 { 1 } else { 0 }
-  `out_internal[50]` = _b2i_48 & 1
-  const t437 = gen_out_internal_1_in_masked__w2 >> 20
+  out_internal_bits#[50] = _b2i_48 & 1
+  const t437 = t305 >> 20
   const t438 = t437 & 1
   const t439 = t438 != 0
-  const t440 = gen_out_internal_1_in_masked__w2#[1..=19]
+  const t440 = t305#[1..=19]
   const t441 = t440 == 0
   const t442 = t439 and t441
   mut _b2i_49 = if t442 { 1 } else { 0 }
-  `out_internal[51]` = _b2i_49 & 1
-  const t444 = gen_out_internal_1_in_masked__w2 >> 21
+  out_internal_bits#[51] = _b2i_49 & 1
+  const t444 = t305 >> 21
   const t445 = t444 & 1
   const t446 = t445 != 0
-  const t447 = gen_out_internal_1_in_masked__w2#[1..=20]
+  const t447 = t305#[1..=20]
   const t448 = t447 == 0
   const t449 = t446 and t448
   mut _b2i_50 = if t449 { 1 } else { 0 }
-  `out_internal[52]` = _b2i_50 & 1
-  const t451 = gen_out_internal_1_in_masked__w2 >> 22
+  out_internal_bits#[52] = _b2i_50 & 1
+  const t451 = t305 >> 22
   const t452 = t451 & 1
   const t453 = t452 != 0
-  const t454 = gen_out_internal_1_in_masked__w2#[1..=21]
+  const t454 = t305#[1..=21]
   const t455 = t454 == 0
   const t456 = t453 and t455
   mut _b2i_51 = if t456 { 1 } else { 0 }
-  `out_internal[53]` = _b2i_51 & 1
-  const t458 = gen_out_internal_1_in_masked__w2 >> 23
+  out_internal_bits#[53] = _b2i_51 & 1
+  const t458 = t305 >> 23
   const t459 = t458 & 1
   const t460 = t459 != 0
-  const t461 = gen_out_internal_1_in_masked__w2#[1..=22]
+  const t461 = t305#[1..=22]
   const t462 = t461 == 0
   const t463 = t460 and t462
   mut _b2i_52 = if t463 { 1 } else { 0 }
-  `out_internal[54]` = _b2i_52 & 1
-  const t465 = gen_out_internal_1_in_masked__w2 >> 24
+  out_internal_bits#[54] = _b2i_52 & 1
+  const t465 = t305 >> 24
   const t466 = t465 & 1
   const t467 = t466 != 0
-  const t468 = gen_out_internal_1_in_masked__w2#[1..=23]
+  const t468 = t305#[1..=23]
   const t469 = t468 == 0
   const t470 = t467 and t469
   mut _b2i_53 = if t470 { 1 } else { 0 }
-  `out_internal[55]` = _b2i_53 & 1
-  const t472 = gen_out_internal_1_in_masked__w2 >> 25
+  out_internal_bits#[55] = _b2i_53 & 1
+  const t472 = t305 >> 25
   const t473 = t472 & 1
   const t474 = t473 != 0
-  const t475 = gen_out_internal_1_in_masked__w2#[1..=24]
+  const t475 = t305#[1..=24]
   const t476 = t475 == 0
   const t477 = t474 and t476
   mut _b2i_54 = if t477 { 1 } else { 0 }
-  `out_internal[56]` = _b2i_54 & 1
-  const t479 = gen_out_internal_1_in_masked__w2 >> 26
+  out_internal_bits#[56] = _b2i_54 & 1
+  const t479 = t305 >> 26
   const t480 = t479 & 1
   const t481 = t480 != 0
-  const t482 = gen_out_internal_1_in_masked__w2#[1..=25]
+  const t482 = t305#[1..=25]
   const t483 = t482 == 0
   const t484 = t481 and t483
   mut _b2i_55 = if t484 { 1 } else { 0 }
-  `out_internal[57]` = _b2i_55 & 1
-  const t486 = gen_out_internal_1_in_masked__w2 >> 27
+  out_internal_bits#[57] = _b2i_55 & 1
+  const t486 = t305 >> 27
   const t487 = t486 & 1
   const t488 = t487 != 0
-  const t489 = gen_out_internal_1_in_masked__w2#[1..=26]
+  const t489 = t305#[1..=26]
   const t490 = t489 == 0
   const t491 = t488 and t490
   mut _b2i_56 = if t491 { 1 } else { 0 }
-  `out_internal[58]` = _b2i_56 & 1
-  const t493 = gen_out_internal_1_in_masked__w2 >> 28
+  out_internal_bits#[58] = _b2i_56 & 1
+  const t493 = t305 >> 28
   const t494 = t493 & 1
   const t495 = t494 != 0
-  const t496 = gen_out_internal_1_in_masked__w2#[1..=27]
+  const t496 = t305#[1..=27]
   const t497 = t496 == 0
   const t498 = t495 and t497
   mut _b2i_57 = if t498 { 1 } else { 0 }
-  `out_internal[59]` = _b2i_57 & 1
-  const t500 = gen_out_internal_1_in_masked__w2 >> 29
+  out_internal_bits#[59] = _b2i_57 & 1
+  const t500 = t305 >> 29
   const t501 = t500 & 1
   const t502 = t501 != 0
-  const t503 = gen_out_internal_1_in_masked__w2#[1..=28]
+  const t503 = t305#[1..=28]
   const t504 = t503 == 0
   const t505 = t502 and t504
   mut _b2i_58 = if t505 { 1 } else { 0 }
-  `out_internal[60]` = _b2i_58 & 1
-  const t507 = gen_out_internal_1_in_masked__w2 >> 30
+  out_internal_bits#[60] = _b2i_58 & 1
+  const t507 = t305 >> 30
   const t508 = t507 & 1
   const t509 = t508 != 0
-  const t510 = gen_out_internal_1_in_masked__w2#[1..=29]
+  const t510 = t305#[1..=29]
   const t511 = t510 == 0
   const t512 = t509 and t511
   mut _b2i_59 = if t512 { 1 } else { 0 }
-  `out_internal[61]` = _b2i_59 & 1
-  const gen_out_internal_2_in_masked__w1 = in_internal__w1
-  const t516 = gen_out_internal_2_in_masked__w1 & (~((`out_internal[30]` << 30) | (`out_internal[29]` << 29) | (`out_internal[28]` << 28) | (`out_internal[27]` << 27) | (`out_internal[26]` << 26) | (`out_internal[25]` << 25) | (`out_internal[24]` << 24) | (`out_internal[23]` << 23) | (`out_internal[22]` << 22) | (`out_internal[21]` << 21) | (`out_internal[20]` << 20) | (`out_internal[19]` << 19) | (`out_internal[18]` << 18) | (`out_internal[17]` << 17) | (`out_internal[16]` << 16) | (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=30])
-  const t517 = t516
-  const gen_out_internal_2_in_masked__w2 = t517
-  const t520 = gen_out_internal_2_in_masked__w2 & (~((`out_internal[61]` << 30) | (`out_internal[60]` << 29) | (`out_internal[59]` << 28) | (`out_internal[58]` << 27) | (`out_internal[57]` << 26) | (`out_internal[56]` << 25) | (`out_internal[55]` << 24) | (`out_internal[54]` << 23) | (`out_internal[53]` << 22) | (`out_internal[52]` << 21) | (`out_internal[51]` << 20) | (`out_internal[50]` << 19) | (`out_internal[49]` << 18) | (`out_internal[48]` << 17) | (`out_internal[47]` << 16) | (`out_internal[46]` << 15) | (`out_internal[45]` << 14) | (`out_internal[44]` << 13) | (`out_internal[43]` << 12) | (`out_internal[42]` << 11) | (`out_internal[41]` << 10) | (`out_internal[40]` << 9) | (`out_internal[39]` << 8) | (`out_internal[38]` << 7) | (`out_internal[37]` << 6) | (`out_internal[36]` << 5) | (`out_internal[35]` << 4) | (`out_internal[34]` << 3) | (`out_internal[33]` << 2) | (`out_internal[32]` << 1) | `out_internal[31]`)#[0..=30])
-  const t521 = t520
-  const gen_out_internal_2_in_masked__w3 = t521
-  `out_internal[62]` = 0
-  `out_internal[63]` = 0
-  const t524 = gen_out_internal_2_in_masked__w3#[0..=1]
-  br_misc_unused_p3::[name=gen_out_internal_2_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=t524)
-  const t525 = gen_out_internal_2_in_masked__w3#[0..=1]
-  br_misc_unused_p3::[name=gen_out_internal_2_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_1](`in`=t525)
-  const t526 = gen_out_internal_2_in_masked__w3 >> 2
+  out_internal_bits#[61] = _b2i_59 & 1
+  const t516 = in_internal & (~((out_internal_bits#[30] << 30) | (out_internal_bits#[29] << 29) | (out_internal_bits#[28] << 28) | (out_internal_bits#[27] << 27) | (out_internal_bits#[26] << 26) | (out_internal_bits#[25] << 25) | (out_internal_bits#[24] << 24) | (out_internal_bits#[23] << 23) | (out_internal_bits#[22] << 22) | (out_internal_bits#[21] << 21) | (out_internal_bits#[20] << 20) | (out_internal_bits#[19] << 19) | (out_internal_bits#[18] << 18) | (out_internal_bits#[17] << 17) | (out_internal_bits#[16] << 16) | (out_internal_bits#[15] << 15) | (out_internal_bits#[14] << 14) | (out_internal_bits#[13] << 13) | (out_internal_bits#[12] << 12) | (out_internal_bits#[11] << 11) | (out_internal_bits#[10] << 10) | (out_internal_bits#[9] << 9) | (out_internal_bits#[8] << 8) | (out_internal_bits#[7] << 7) | (out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=30])
+  const t520 = t516 & (~((out_internal_bits#[61] << 30) | (out_internal_bits#[60] << 29) | (out_internal_bits#[59] << 28) | (out_internal_bits#[58] << 27) | (out_internal_bits#[57] << 26) | (out_internal_bits#[56] << 25) | (out_internal_bits#[55] << 24) | (out_internal_bits#[54] << 23) | (out_internal_bits#[53] << 22) | (out_internal_bits#[52] << 21) | (out_internal_bits#[51] << 20) | (out_internal_bits#[50] << 19) | (out_internal_bits#[49] << 18) | (out_internal_bits#[48] << 17) | (out_internal_bits#[47] << 16) | (out_internal_bits#[46] << 15) | (out_internal_bits#[45] << 14) | (out_internal_bits#[44] << 13) | (out_internal_bits#[43] << 12) | (out_internal_bits#[42] << 11) | (out_internal_bits#[41] << 10) | (out_internal_bits#[40] << 9) | (out_internal_bits#[39] << 8) | (out_internal_bits#[38] << 7) | (out_internal_bits#[37] << 6) | (out_internal_bits#[36] << 5) | (out_internal_bits#[35] << 4) | (out_internal_bits#[34] << 3) | (out_internal_bits#[33] << 2) | (out_internal_bits#[32] << 1) | out_internal_bits#[31])#[0..=30])
+  out_internal_bits#[62] = 0
+  out_internal_bits#[63] = 0
+  const t526 = t520 >> 2
   const t527 = t526 & 1
-  `out_internal[64]` = t527
-  const t528 = gen_out_internal_2_in_masked__w3 >> 3
+  out_internal_bits#[64] = t527
+  const t528 = t520 >> 3
   const t529 = t528 & 1
   const t530 = t529 != 0
-  const t531 = gen_out_internal_2_in_masked__w3 >> 2
+  const t531 = t520 >> 2
   const t532 = t531 & 1
   const t533 = t532 == 0
   const t534 = t530 and t533
   mut _b2i_60 = if t534 { 1 } else { 0 }
-  `out_internal[65]` = _b2i_60 & 1
-  const t536 = gen_out_internal_2_in_masked__w3 >> 4
+  out_internal_bits#[65] = _b2i_60 & 1
+  const t536 = t520 >> 4
   const t537 = t536 & 1
   const t538 = t537 != 0
-  const t539 = gen_out_internal_2_in_masked__w3#[2..=3]
+  const t539 = t520#[2..=3]
   const t540 = t539 == 0
   const t541 = t538 and t540
   mut _b2i_61 = if t541 { 1 } else { 0 }
-  `out_internal[66]` = _b2i_61 & 1
-  const t543 = gen_out_internal_2_in_masked__w3 >> 5
+  out_internal_bits#[66] = _b2i_61 & 1
+  const t543 = t520 >> 5
   const t544 = t543 & 1
   const t545 = t544 != 0
-  const t546 = gen_out_internal_2_in_masked__w3#[2..=4]
+  const t546 = t520#[2..=4]
   const t547 = t546 == 0
   const t548 = t545 and t547
   mut _b2i_62 = if t548 { 1 } else { 0 }
-  `out_internal[67]` = _b2i_62 & 1
-  const t550 = gen_out_internal_2_in_masked__w3 >> 6
+  out_internal_bits#[67] = _b2i_62 & 1
+  const t550 = t520 >> 6
   const t551 = t550 & 1
   const t552 = t551 != 0
-  const t553 = gen_out_internal_2_in_masked__w3#[2..=5]
+  const t553 = t520#[2..=5]
   const t554 = t553 == 0
   const t555 = t552 and t554
   mut _b2i_63 = if t555 { 1 } else { 0 }
-  `out_internal[68]` = _b2i_63 & 1
-  const t557 = gen_out_internal_2_in_masked__w3 >> 7
+  out_internal_bits#[68] = _b2i_63 & 1
+  const t557 = t520 >> 7
   const t558 = t557 & 1
   const t559 = t558 != 0
-  const t560 = gen_out_internal_2_in_masked__w3#[2..=6]
+  const t560 = t520#[2..=6]
   const t561 = t560 == 0
   const t562 = t559 and t561
   mut _b2i_64 = if t562 { 1 } else { 0 }
-  `out_internal[69]` = _b2i_64 & 1
-  const t564 = gen_out_internal_2_in_masked__w3 >> 8
+  out_internal_bits#[69] = _b2i_64 & 1
+  const t564 = t520 >> 8
   const t565 = t564 & 1
   const t566 = t565 != 0
-  const t567 = gen_out_internal_2_in_masked__w3#[2..=7]
+  const t567 = t520#[2..=7]
   const t568 = t567 == 0
   const t569 = t566 and t568
   mut _b2i_65 = if t569 { 1 } else { 0 }
-  `out_internal[70]` = _b2i_65 & 1
-  const t571 = gen_out_internal_2_in_masked__w3 >> 9
+  out_internal_bits#[70] = _b2i_65 & 1
+  const t571 = t520 >> 9
   const t572 = t571 & 1
   const t573 = t572 != 0
-  const t574 = gen_out_internal_2_in_masked__w3#[2..=8]
+  const t574 = t520#[2..=8]
   const t575 = t574 == 0
   const t576 = t573 and t575
   mut _b2i_66 = if t576 { 1 } else { 0 }
-  `out_internal[71]` = _b2i_66 & 1
-  const t578 = gen_out_internal_2_in_masked__w3 >> 10
+  out_internal_bits#[71] = _b2i_66 & 1
+  const t578 = t520 >> 10
   const t579 = t578 & 1
   const t580 = t579 != 0
-  const t581 = gen_out_internal_2_in_masked__w3#[2..=9]
+  const t581 = t520#[2..=9]
   const t582 = t581 == 0
   const t583 = t580 and t582
   mut _b2i_67 = if t583 { 1 } else { 0 }
-  `out_internal[72]` = _b2i_67 & 1
-  const t585 = gen_out_internal_2_in_masked__w3 >> 11
+  out_internal_bits#[72] = _b2i_67 & 1
+  const t585 = t520 >> 11
   const t586 = t585 & 1
   const t587 = t586 != 0
-  const t588 = gen_out_internal_2_in_masked__w3#[2..=10]
+  const t588 = t520#[2..=10]
   const t589 = t588 == 0
   const t590 = t587 and t589
   mut _b2i_68 = if t590 { 1 } else { 0 }
-  `out_internal[73]` = _b2i_68 & 1
-  const t592 = gen_out_internal_2_in_masked__w3 >> 12
+  out_internal_bits#[73] = _b2i_68 & 1
+  const t592 = t520 >> 12
   const t593 = t592 & 1
   const t594 = t593 != 0
-  const t595 = gen_out_internal_2_in_masked__w3#[2..=11]
+  const t595 = t520#[2..=11]
   const t596 = t595 == 0
   const t597 = t594 and t596
   mut _b2i_69 = if t597 { 1 } else { 0 }
-  `out_internal[74]` = _b2i_69 & 1
-  const t599 = gen_out_internal_2_in_masked__w3 >> 13
+  out_internal_bits#[74] = _b2i_69 & 1
+  const t599 = t520 >> 13
   const t600 = t599 & 1
   const t601 = t600 != 0
-  const t602 = gen_out_internal_2_in_masked__w3#[2..=12]
+  const t602 = t520#[2..=12]
   const t603 = t602 == 0
   const t604 = t601 and t603
   mut _b2i_70 = if t604 { 1 } else { 0 }
-  `out_internal[75]` = _b2i_70 & 1
-  const t606 = gen_out_internal_2_in_masked__w3 >> 14
+  out_internal_bits#[75] = _b2i_70 & 1
+  const t606 = t520 >> 14
   const t607 = t606 & 1
   const t608 = t607 != 0
-  const t609 = gen_out_internal_2_in_masked__w3#[2..=13]
+  const t609 = t520#[2..=13]
   const t610 = t609 == 0
   const t611 = t608 and t610
   mut _b2i_71 = if t611 { 1 } else { 0 }
-  `out_internal[76]` = _b2i_71 & 1
-  const t613 = gen_out_internal_2_in_masked__w3 >> 15
+  out_internal_bits#[76] = _b2i_71 & 1
+  const t613 = t520 >> 15
   const t614 = t613 & 1
   const t615 = t614 != 0
-  const t616 = gen_out_internal_2_in_masked__w3#[2..=14]
+  const t616 = t520#[2..=14]
   const t617 = t616 == 0
   const t618 = t615 and t617
   mut _b2i_72 = if t618 { 1 } else { 0 }
-  `out_internal[77]` = _b2i_72 & 1
-  const t620 = gen_out_internal_2_in_masked__w3 >> 16
+  out_internal_bits#[77] = _b2i_72 & 1
+  const t620 = t520 >> 16
   const t621 = t620 & 1
   const t622 = t621 != 0
-  const t623 = gen_out_internal_2_in_masked__w3#[2..=15]
+  const t623 = t520#[2..=15]
   const t624 = t623 == 0
   const t625 = t622 and t624
   mut _b2i_73 = if t625 { 1 } else { 0 }
-  `out_internal[78]` = _b2i_73 & 1
-  const t627 = gen_out_internal_2_in_masked__w3 >> 17
+  out_internal_bits#[78] = _b2i_73 & 1
+  const t627 = t520 >> 17
   const t628 = t627 & 1
   const t629 = t628 != 0
-  const t630 = gen_out_internal_2_in_masked__w3#[2..=16]
+  const t630 = t520#[2..=16]
   const t631 = t630 == 0
   const t632 = t629 and t631
   mut _b2i_74 = if t632 { 1 } else { 0 }
-  `out_internal[79]` = _b2i_74 & 1
-  const t634 = gen_out_internal_2_in_masked__w3 >> 18
+  out_internal_bits#[79] = _b2i_74 & 1
+  const t634 = t520 >> 18
   const t635 = t634 & 1
   const t636 = t635 != 0
-  const t637 = gen_out_internal_2_in_masked__w3#[2..=17]
+  const t637 = t520#[2..=17]
   const t638 = t637 == 0
   const t639 = t636 and t638
   mut _b2i_75 = if t639 { 1 } else { 0 }
-  `out_internal[80]` = _b2i_75 & 1
-  const t641 = gen_out_internal_2_in_masked__w3 >> 19
+  out_internal_bits#[80] = _b2i_75 & 1
+  const t641 = t520 >> 19
   const t642 = t641 & 1
   const t643 = t642 != 0
-  const t644 = gen_out_internal_2_in_masked__w3#[2..=18]
+  const t644 = t520#[2..=18]
   const t645 = t644 == 0
   const t646 = t643 and t645
   mut _b2i_76 = if t646 { 1 } else { 0 }
-  `out_internal[81]` = _b2i_76 & 1
-  const t648 = gen_out_internal_2_in_masked__w3 >> 20
+  out_internal_bits#[81] = _b2i_76 & 1
+  const t648 = t520 >> 20
   const t649 = t648 & 1
   const t650 = t649 != 0
-  const t651 = gen_out_internal_2_in_masked__w3#[2..=19]
+  const t651 = t520#[2..=19]
   const t652 = t651 == 0
   const t653 = t650 and t652
   mut _b2i_77 = if t653 { 1 } else { 0 }
-  `out_internal[82]` = _b2i_77 & 1
-  const t655 = gen_out_internal_2_in_masked__w3 >> 21
+  out_internal_bits#[82] = _b2i_77 & 1
+  const t655 = t520 >> 21
   const t656 = t655 & 1
   const t657 = t656 != 0
-  const t658 = gen_out_internal_2_in_masked__w3#[2..=20]
+  const t658 = t520#[2..=20]
   const t659 = t658 == 0
   const t660 = t657 and t659
   mut _b2i_78 = if t660 { 1 } else { 0 }
-  `out_internal[83]` = _b2i_78 & 1
-  const t662 = gen_out_internal_2_in_masked__w3 >> 22
+  out_internal_bits#[83] = _b2i_78 & 1
+  const t662 = t520 >> 22
   const t663 = t662 & 1
   const t664 = t663 != 0
-  const t665 = gen_out_internal_2_in_masked__w3#[2..=21]
+  const t665 = t520#[2..=21]
   const t666 = t665 == 0
   const t667 = t664 and t666
   mut _b2i_79 = if t667 { 1 } else { 0 }
-  `out_internal[84]` = _b2i_79 & 1
-  const t669 = gen_out_internal_2_in_masked__w3 >> 23
+  out_internal_bits#[84] = _b2i_79 & 1
+  const t669 = t520 >> 23
   const t670 = t669 & 1
   const t671 = t670 != 0
-  const t672 = gen_out_internal_2_in_masked__w3#[2..=22]
+  const t672 = t520#[2..=22]
   const t673 = t672 == 0
   const t674 = t671 and t673
   mut _b2i_80 = if t674 { 1 } else { 0 }
-  `out_internal[85]` = _b2i_80 & 1
-  const t676 = gen_out_internal_2_in_masked__w3 >> 24
+  out_internal_bits#[85] = _b2i_80 & 1
+  const t676 = t520 >> 24
   const t677 = t676 & 1
   const t678 = t677 != 0
-  const t679 = gen_out_internal_2_in_masked__w3#[2..=23]
+  const t679 = t520#[2..=23]
   const t680 = t679 == 0
   const t681 = t678 and t680
   mut _b2i_81 = if t681 { 1 } else { 0 }
-  `out_internal[86]` = _b2i_81 & 1
-  const t683 = gen_out_internal_2_in_masked__w3 >> 25
+  out_internal_bits#[86] = _b2i_81 & 1
+  const t683 = t520 >> 25
   const t684 = t683 & 1
   const t685 = t684 != 0
-  const t686 = gen_out_internal_2_in_masked__w3#[2..=24]
+  const t686 = t520#[2..=24]
   const t687 = t686 == 0
   const t688 = t685 and t687
   mut _b2i_82 = if t688 { 1 } else { 0 }
-  `out_internal[87]` = _b2i_82 & 1
-  const t690 = gen_out_internal_2_in_masked__w3 >> 26
+  out_internal_bits#[87] = _b2i_82 & 1
+  const t690 = t520 >> 26
   const t691 = t690 & 1
   const t692 = t691 != 0
-  const t693 = gen_out_internal_2_in_masked__w3#[2..=25]
+  const t693 = t520#[2..=25]
   const t694 = t693 == 0
   const t695 = t692 and t694
   mut _b2i_83 = if t695 { 1 } else { 0 }
-  `out_internal[88]` = _b2i_83 & 1
-  const t697 = gen_out_internal_2_in_masked__w3 >> 27
+  out_internal_bits#[88] = _b2i_83 & 1
+  const t697 = t520 >> 27
   const t698 = t697 & 1
   const t699 = t698 != 0
-  const t700 = gen_out_internal_2_in_masked__w3#[2..=26]
+  const t700 = t520#[2..=26]
   const t701 = t700 == 0
   const t702 = t699 and t701
   mut _b2i_84 = if t702 { 1 } else { 0 }
-  `out_internal[89]` = _b2i_84 & 1
-  const t704 = gen_out_internal_2_in_masked__w3 >> 28
+  out_internal_bits#[89] = _b2i_84 & 1
+  const t704 = t520 >> 28
   const t705 = t704 & 1
   const t706 = t705 != 0
-  const t707 = gen_out_internal_2_in_masked__w3#[2..=27]
+  const t707 = t520#[2..=27]
   const t708 = t707 == 0
   const t709 = t706 and t708
   mut _b2i_85 = if t709 { 1 } else { 0 }
-  `out_internal[90]` = _b2i_85 & 1
-  const t711 = gen_out_internal_2_in_masked__w3 >> 29
+  out_internal_bits#[90] = _b2i_85 & 1
+  const t711 = t520 >> 29
   const t712 = t711 & 1
   const t713 = t712 != 0
-  const t714 = gen_out_internal_2_in_masked__w3#[2..=28]
+  const t714 = t520#[2..=28]
   const t715 = t714 == 0
   const t716 = t713 and t715
   mut _b2i_86 = if t716 { 1 } else { 0 }
-  `out_internal[91]` = _b2i_86 & 1
-  const t718 = gen_out_internal_2_in_masked__w3 >> 30
+  out_internal_bits#[91] = _b2i_86 & 1
+  const t718 = t520 >> 30
   const t719 = t718 & 1
   const t720 = t719 != 0
-  const t721 = gen_out_internal_2_in_masked__w3#[2..=29]
+  const t721 = t520#[2..=29]
   const t722 = t721 == 0
   const t723 = t720 and t722
   mut _b2i_87 = if t723 { 1 } else { 0 }
-  `out_internal[92]` = _b2i_87 & 1
-  const gen_out_internal_3_in_masked__w1 = in_internal__w1
-  const t727 = gen_out_internal_3_in_masked__w1 & (~((`out_internal[30]` << 30) | (`out_internal[29]` << 29) | (`out_internal[28]` << 28) | (`out_internal[27]` << 27) | (`out_internal[26]` << 26) | (`out_internal[25]` << 25) | (`out_internal[24]` << 24) | (`out_internal[23]` << 23) | (`out_internal[22]` << 22) | (`out_internal[21]` << 21) | (`out_internal[20]` << 20) | (`out_internal[19]` << 19) | (`out_internal[18]` << 18) | (`out_internal[17]` << 17) | (`out_internal[16]` << 16) | (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=30])
-  const t728 = t727
-  const gen_out_internal_3_in_masked__w2 = t728
-  const t731 = gen_out_internal_3_in_masked__w2 & (~((`out_internal[61]` << 30) | (`out_internal[60]` << 29) | (`out_internal[59]` << 28) | (`out_internal[58]` << 27) | (`out_internal[57]` << 26) | (`out_internal[56]` << 25) | (`out_internal[55]` << 24) | (`out_internal[54]` << 23) | (`out_internal[53]` << 22) | (`out_internal[52]` << 21) | (`out_internal[51]` << 20) | (`out_internal[50]` << 19) | (`out_internal[49]` << 18) | (`out_internal[48]` << 17) | (`out_internal[47]` << 16) | (`out_internal[46]` << 15) | (`out_internal[45]` << 14) | (`out_internal[44]` << 13) | (`out_internal[43]` << 12) | (`out_internal[42]` << 11) | (`out_internal[41]` << 10) | (`out_internal[40]` << 9) | (`out_internal[39]` << 8) | (`out_internal[38]` << 7) | (`out_internal[37]` << 6) | (`out_internal[36]` << 5) | (`out_internal[35]` << 4) | (`out_internal[34]` << 3) | (`out_internal[33]` << 2) | (`out_internal[32]` << 1) | `out_internal[31]`)#[0..=30])
-  const t732 = t731
-  const gen_out_internal_3_in_masked__w3 = t732
-  const t735 = gen_out_internal_3_in_masked__w3 & (~((`out_internal[92]` << 30) | (`out_internal[91]` << 29) | (`out_internal[90]` << 28) | (`out_internal[89]` << 27) | (`out_internal[88]` << 26) | (`out_internal[87]` << 25) | (`out_internal[86]` << 24) | (`out_internal[85]` << 23) | (`out_internal[84]` << 22) | (`out_internal[83]` << 21) | (`out_internal[82]` << 20) | (`out_internal[81]` << 19) | (`out_internal[80]` << 18) | (`out_internal[79]` << 17) | (`out_internal[78]` << 16) | (`out_internal[77]` << 15) | (`out_internal[76]` << 14) | (`out_internal[75]` << 13) | (`out_internal[74]` << 12) | (`out_internal[73]` << 11) | (`out_internal[72]` << 10) | (`out_internal[71]` << 9) | (`out_internal[70]` << 8) | (`out_internal[69]` << 7) | (`out_internal[68]` << 6) | (`out_internal[67]` << 5) | (`out_internal[66]` << 4) | (`out_internal[65]` << 3) | (`out_internal[64]` << 2) | (`out_internal[63]` << 1) | `out_internal[62]`)#[0..=30])
-  const t736 = t735
-  const gen_out_internal_3_in_masked__w4 = t736
-  `out_internal[93]` = 0
-  `out_internal[94]` = 0
-  `out_internal[95]` = 0
-  const t741 = gen_out_internal_3_in_masked__w4#[0..=2]
-  br_misc_unused_p4::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=t741)
-  const t742 = gen_out_internal_3_in_masked__w4#[0..=2]
-  br_misc_unused_p4::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_1](`in`=t742)
-  const t743 = gen_out_internal_3_in_masked__w4#[0..=2]
-  br_misc_unused_p4::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_2](`in`=t743)
-  const t744 = gen_out_internal_3_in_masked__w4 >> 3
+  out_internal_bits#[92] = _b2i_87 & 1
+  const t727 = in_internal & (~((out_internal_bits#[30] << 30) | (out_internal_bits#[29] << 29) | (out_internal_bits#[28] << 28) | (out_internal_bits#[27] << 27) | (out_internal_bits#[26] << 26) | (out_internal_bits#[25] << 25) | (out_internal_bits#[24] << 24) | (out_internal_bits#[23] << 23) | (out_internal_bits#[22] << 22) | (out_internal_bits#[21] << 21) | (out_internal_bits#[20] << 20) | (out_internal_bits#[19] << 19) | (out_internal_bits#[18] << 18) | (out_internal_bits#[17] << 17) | (out_internal_bits#[16] << 16) | (out_internal_bits#[15] << 15) | (out_internal_bits#[14] << 14) | (out_internal_bits#[13] << 13) | (out_internal_bits#[12] << 12) | (out_internal_bits#[11] << 11) | (out_internal_bits#[10] << 10) | (out_internal_bits#[9] << 9) | (out_internal_bits#[8] << 8) | (out_internal_bits#[7] << 7) | (out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=30])
+  const t731 = t727 & (~((out_internal_bits#[61] << 30) | (out_internal_bits#[60] << 29) | (out_internal_bits#[59] << 28) | (out_internal_bits#[58] << 27) | (out_internal_bits#[57] << 26) | (out_internal_bits#[56] << 25) | (out_internal_bits#[55] << 24) | (out_internal_bits#[54] << 23) | (out_internal_bits#[53] << 22) | (out_internal_bits#[52] << 21) | (out_internal_bits#[51] << 20) | (out_internal_bits#[50] << 19) | (out_internal_bits#[49] << 18) | (out_internal_bits#[48] << 17) | (out_internal_bits#[47] << 16) | (out_internal_bits#[46] << 15) | (out_internal_bits#[45] << 14) | (out_internal_bits#[44] << 13) | (out_internal_bits#[43] << 12) | (out_internal_bits#[42] << 11) | (out_internal_bits#[41] << 10) | (out_internal_bits#[40] << 9) | (out_internal_bits#[39] << 8) | (out_internal_bits#[38] << 7) | (out_internal_bits#[37] << 6) | (out_internal_bits#[36] << 5) | (out_internal_bits#[35] << 4) | (out_internal_bits#[34] << 3) | (out_internal_bits#[33] << 2) | (out_internal_bits#[32] << 1) | out_internal_bits#[31])#[0..=30])
+  const t735 = t731 & (~((out_internal_bits#[92] << 30) | (out_internal_bits#[91] << 29) | (out_internal_bits#[90] << 28) | (out_internal_bits#[89] << 27) | (out_internal_bits#[88] << 26) | (out_internal_bits#[87] << 25) | (out_internal_bits#[86] << 24) | (out_internal_bits#[85] << 23) | (out_internal_bits#[84] << 22) | (out_internal_bits#[83] << 21) | (out_internal_bits#[82] << 20) | (out_internal_bits#[81] << 19) | (out_internal_bits#[80] << 18) | (out_internal_bits#[79] << 17) | (out_internal_bits#[78] << 16) | (out_internal_bits#[77] << 15) | (out_internal_bits#[76] << 14) | (out_internal_bits#[75] << 13) | (out_internal_bits#[74] << 12) | (out_internal_bits#[73] << 11) | (out_internal_bits#[72] << 10) | (out_internal_bits#[71] << 9) | (out_internal_bits#[70] << 8) | (out_internal_bits#[69] << 7) | (out_internal_bits#[68] << 6) | (out_internal_bits#[67] << 5) | (out_internal_bits#[66] << 4) | (out_internal_bits#[65] << 3) | (out_internal_bits#[64] << 2) | (out_internal_bits#[63] << 1) | out_internal_bits#[62])#[0..=30])
+  out_internal_bits#[93] = 0
+  out_internal_bits#[94] = 0
+  out_internal_bits#[95] = 0
+  const t744 = t735 >> 3
   const t745 = t744 & 1
-  `out_internal[96]` = t745
-  const t746 = gen_out_internal_3_in_masked__w4 >> 4
+  out_internal_bits#[96] = t745
+  const t746 = t735 >> 4
   const t747 = t746 & 1
   const t748 = t747 != 0
-  const t749 = gen_out_internal_3_in_masked__w4 >> 3
+  const t749 = t735 >> 3
   const t750 = t749 & 1
   const t751 = t750 == 0
   const t752 = t748 and t751
   mut _b2i_88 = if t752 { 1 } else { 0 }
-  `out_internal[97]` = _b2i_88 & 1
-  const t754 = gen_out_internal_3_in_masked__w4 >> 5
+  out_internal_bits#[97] = _b2i_88 & 1
+  const t754 = t735 >> 5
   const t755 = t754 & 1
   const t756 = t755 != 0
-  const t757 = gen_out_internal_3_in_masked__w4#[3..=4]
+  const t757 = t735#[3..=4]
   const t758 = t757 == 0
   const t759 = t756 and t758
   mut _b2i_89 = if t759 { 1 } else { 0 }
-  `out_internal[98]` = _b2i_89 & 1
-  const t761 = gen_out_internal_3_in_masked__w4 >> 6
+  out_internal_bits#[98] = _b2i_89 & 1
+  const t761 = t735 >> 6
   const t762 = t761 & 1
   const t763 = t762 != 0
-  const t764 = gen_out_internal_3_in_masked__w4#[3..=5]
+  const t764 = t735#[3..=5]
   const t765 = t764 == 0
   const t766 = t763 and t765
   mut _b2i_90 = if t766 { 1 } else { 0 }
-  `out_internal[99]` = _b2i_90 & 1
-  const t768 = gen_out_internal_3_in_masked__w4 >> 7
+  out_internal_bits#[99] = _b2i_90 & 1
+  const t768 = t735 >> 7
   const t769 = t768 & 1
   const t770 = t769 != 0
-  const t771 = gen_out_internal_3_in_masked__w4#[3..=6]
+  const t771 = t735#[3..=6]
   const t772 = t771 == 0
   const t773 = t770 and t772
   mut _b2i_91 = if t773 { 1 } else { 0 }
-  `out_internal[100]` = _b2i_91 & 1
-  const t775 = gen_out_internal_3_in_masked__w4 >> 8
+  out_internal_bits#[100] = _b2i_91 & 1
+  const t775 = t735 >> 8
   const t776 = t775 & 1
   const t777 = t776 != 0
-  const t778 = gen_out_internal_3_in_masked__w4#[3..=7]
+  const t778 = t735#[3..=7]
   const t779 = t778 == 0
   const t780 = t777 and t779
   mut _b2i_92 = if t780 { 1 } else { 0 }
-  `out_internal[101]` = _b2i_92 & 1
-  const t782 = gen_out_internal_3_in_masked__w4 >> 9
+  out_internal_bits#[101] = _b2i_92 & 1
+  const t782 = t735 >> 9
   const t783 = t782 & 1
   const t784 = t783 != 0
-  const t785 = gen_out_internal_3_in_masked__w4#[3..=8]
+  const t785 = t735#[3..=8]
   const t786 = t785 == 0
   const t787 = t784 and t786
   mut _b2i_93 = if t787 { 1 } else { 0 }
-  `out_internal[102]` = _b2i_93 & 1
-  const t789 = gen_out_internal_3_in_masked__w4 >> 10
+  out_internal_bits#[102] = _b2i_93 & 1
+  const t789 = t735 >> 10
   const t790 = t789 & 1
   const t791 = t790 != 0
-  const t792 = gen_out_internal_3_in_masked__w4#[3..=9]
+  const t792 = t735#[3..=9]
   const t793 = t792 == 0
   const t794 = t791 and t793
   mut _b2i_94 = if t794 { 1 } else { 0 }
-  `out_internal[103]` = _b2i_94 & 1
-  const t796 = gen_out_internal_3_in_masked__w4 >> 11
+  out_internal_bits#[103] = _b2i_94 & 1
+  const t796 = t735 >> 11
   const t797 = t796 & 1
   const t798 = t797 != 0
-  const t799 = gen_out_internal_3_in_masked__w4#[3..=10]
+  const t799 = t735#[3..=10]
   const t800 = t799 == 0
   const t801 = t798 and t800
   mut _b2i_95 = if t801 { 1 } else { 0 }
-  `out_internal[104]` = _b2i_95 & 1
-  const t803 = gen_out_internal_3_in_masked__w4 >> 12
+  out_internal_bits#[104] = _b2i_95 & 1
+  const t803 = t735 >> 12
   const t804 = t803 & 1
   const t805 = t804 != 0
-  const t806 = gen_out_internal_3_in_masked__w4#[3..=11]
+  const t806 = t735#[3..=11]
   const t807 = t806 == 0
   const t808 = t805 and t807
   mut _b2i_96 = if t808 { 1 } else { 0 }
-  `out_internal[105]` = _b2i_96 & 1
-  const t810 = gen_out_internal_3_in_masked__w4 >> 13
+  out_internal_bits#[105] = _b2i_96 & 1
+  const t810 = t735 >> 13
   const t811 = t810 & 1
   const t812 = t811 != 0
-  const t813 = gen_out_internal_3_in_masked__w4#[3..=12]
+  const t813 = t735#[3..=12]
   const t814 = t813 == 0
   const t815 = t812 and t814
   mut _b2i_97 = if t815 { 1 } else { 0 }
-  `out_internal[106]` = _b2i_97 & 1
-  const t817 = gen_out_internal_3_in_masked__w4 >> 14
+  out_internal_bits#[106] = _b2i_97 & 1
+  const t817 = t735 >> 14
   const t818 = t817 & 1
   const t819 = t818 != 0
-  const t820 = gen_out_internal_3_in_masked__w4#[3..=13]
+  const t820 = t735#[3..=13]
   const t821 = t820 == 0
   const t822 = t819 and t821
   mut _b2i_98 = if t822 { 1 } else { 0 }
-  `out_internal[107]` = _b2i_98 & 1
-  const t824 = gen_out_internal_3_in_masked__w4 >> 15
+  out_internal_bits#[107] = _b2i_98 & 1
+  const t824 = t735 >> 15
   const t825 = t824 & 1
   const t826 = t825 != 0
-  const t827 = gen_out_internal_3_in_masked__w4#[3..=14]
+  const t827 = t735#[3..=14]
   const t828 = t827 == 0
   const t829 = t826 and t828
   mut _b2i_99 = if t829 { 1 } else { 0 }
-  `out_internal[108]` = _b2i_99 & 1
-  const t831 = gen_out_internal_3_in_masked__w4 >> 16
+  out_internal_bits#[108] = _b2i_99 & 1
+  const t831 = t735 >> 16
   const t832 = t831 & 1
   const t833 = t832 != 0
-  const t834 = gen_out_internal_3_in_masked__w4#[3..=15]
+  const t834 = t735#[3..=15]
   const t835 = t834 == 0
   const t836 = t833 and t835
   mut _b2i_100 = if t836 { 1 } else { 0 }
-  `out_internal[109]` = _b2i_100 & 1
-  const t838 = gen_out_internal_3_in_masked__w4 >> 17
+  out_internal_bits#[109] = _b2i_100 & 1
+  const t838 = t735 >> 17
   const t839 = t838 & 1
   const t840 = t839 != 0
-  const t841 = gen_out_internal_3_in_masked__w4#[3..=16]
+  const t841 = t735#[3..=16]
   const t842 = t841 == 0
   const t843 = t840 and t842
   mut _b2i_101 = if t843 { 1 } else { 0 }
-  `out_internal[110]` = _b2i_101 & 1
-  const t845 = gen_out_internal_3_in_masked__w4 >> 18
+  out_internal_bits#[110] = _b2i_101 & 1
+  const t845 = t735 >> 18
   const t846 = t845 & 1
   const t847 = t846 != 0
-  const t848 = gen_out_internal_3_in_masked__w4#[3..=17]
+  const t848 = t735#[3..=17]
   const t849 = t848 == 0
   const t850 = t847 and t849
   mut _b2i_102 = if t850 { 1 } else { 0 }
-  `out_internal[111]` = _b2i_102 & 1
-  const t852 = gen_out_internal_3_in_masked__w4 >> 19
+  out_internal_bits#[111] = _b2i_102 & 1
+  const t852 = t735 >> 19
   const t853 = t852 & 1
   const t854 = t853 != 0
-  const t855 = gen_out_internal_3_in_masked__w4#[3..=18]
+  const t855 = t735#[3..=18]
   const t856 = t855 == 0
   const t857 = t854 and t856
   mut _b2i_103 = if t857 { 1 } else { 0 }
-  `out_internal[112]` = _b2i_103 & 1
-  const t859 = gen_out_internal_3_in_masked__w4 >> 20
+  out_internal_bits#[112] = _b2i_103 & 1
+  const t859 = t735 >> 20
   const t860 = t859 & 1
   const t861 = t860 != 0
-  const t862 = gen_out_internal_3_in_masked__w4#[3..=19]
+  const t862 = t735#[3..=19]
   const t863 = t862 == 0
   const t864 = t861 and t863
   mut _b2i_104 = if t864 { 1 } else { 0 }
-  `out_internal[113]` = _b2i_104 & 1
-  const t866 = gen_out_internal_3_in_masked__w4 >> 21
+  out_internal_bits#[113] = _b2i_104 & 1
+  const t866 = t735 >> 21
   const t867 = t866 & 1
   const t868 = t867 != 0
-  const t869 = gen_out_internal_3_in_masked__w4#[3..=20]
+  const t869 = t735#[3..=20]
   const t870 = t869 == 0
   const t871 = t868 and t870
   mut _b2i_105 = if t871 { 1 } else { 0 }
-  `out_internal[114]` = _b2i_105 & 1
-  const t873 = gen_out_internal_3_in_masked__w4 >> 22
+  out_internal_bits#[114] = _b2i_105 & 1
+  const t873 = t735 >> 22
   const t874 = t873 & 1
   const t875 = t874 != 0
-  const t876 = gen_out_internal_3_in_masked__w4#[3..=21]
+  const t876 = t735#[3..=21]
   const t877 = t876 == 0
   const t878 = t875 and t877
   mut _b2i_106 = if t878 { 1 } else { 0 }
-  `out_internal[115]` = _b2i_106 & 1
-  const t880 = gen_out_internal_3_in_masked__w4 >> 23
+  out_internal_bits#[115] = _b2i_106 & 1
+  const t880 = t735 >> 23
   const t881 = t880 & 1
   const t882 = t881 != 0
-  const t883 = gen_out_internal_3_in_masked__w4#[3..=22]
+  const t883 = t735#[3..=22]
   const t884 = t883 == 0
   const t885 = t882 and t884
   mut _b2i_107 = if t885 { 1 } else { 0 }
-  `out_internal[116]` = _b2i_107 & 1
-  const t887 = gen_out_internal_3_in_masked__w4 >> 24
+  out_internal_bits#[116] = _b2i_107 & 1
+  const t887 = t735 >> 24
   const t888 = t887 & 1
   const t889 = t888 != 0
-  const t890 = gen_out_internal_3_in_masked__w4#[3..=23]
+  const t890 = t735#[3..=23]
   const t891 = t890 == 0
   const t892 = t889 and t891
   mut _b2i_108 = if t892 { 1 } else { 0 }
-  `out_internal[117]` = _b2i_108 & 1
-  const t894 = gen_out_internal_3_in_masked__w4 >> 25
+  out_internal_bits#[117] = _b2i_108 & 1
+  const t894 = t735 >> 25
   const t895 = t894 & 1
   const t896 = t895 != 0
-  const t897 = gen_out_internal_3_in_masked__w4#[3..=24]
+  const t897 = t735#[3..=24]
   const t898 = t897 == 0
   const t899 = t896 and t898
   mut _b2i_109 = if t899 { 1 } else { 0 }
-  `out_internal[118]` = _b2i_109 & 1
-  const t901 = gen_out_internal_3_in_masked__w4 >> 26
+  out_internal_bits#[118] = _b2i_109 & 1
+  const t901 = t735 >> 26
   const t902 = t901 & 1
   const t903 = t902 != 0
-  const t904 = gen_out_internal_3_in_masked__w4#[3..=25]
+  const t904 = t735#[3..=25]
   const t905 = t904 == 0
   const t906 = t903 and t905
   mut _b2i_110 = if t906 { 1 } else { 0 }
-  `out_internal[119]` = _b2i_110 & 1
-  const t908 = gen_out_internal_3_in_masked__w4 >> 27
+  out_internal_bits#[119] = _b2i_110 & 1
+  const t908 = t735 >> 27
   const t909 = t908 & 1
   const t910 = t909 != 0
-  const t911 = gen_out_internal_3_in_masked__w4#[3..=26]
+  const t911 = t735#[3..=26]
   const t912 = t911 == 0
   const t913 = t910 and t912
   mut _b2i_111 = if t913 { 1 } else { 0 }
-  `out_internal[120]` = _b2i_111 & 1
-  const t915 = gen_out_internal_3_in_masked__w4 >> 28
+  out_internal_bits#[120] = _b2i_111 & 1
+  const t915 = t735 >> 28
   const t916 = t915 & 1
   const t917 = t916 != 0
-  const t918 = gen_out_internal_3_in_masked__w4#[3..=27]
+  const t918 = t735#[3..=27]
   const t919 = t918 == 0
   const t920 = t917 and t919
   mut _b2i_112 = if t920 { 1 } else { 0 }
-  `out_internal[121]` = _b2i_112 & 1
-  const t922 = gen_out_internal_3_in_masked__w4 >> 29
+  out_internal_bits#[121] = _b2i_112 & 1
+  const t922 = t735 >> 29
   const t923 = t922 & 1
   const t924 = t923 != 0
-  const t925 = gen_out_internal_3_in_masked__w4#[3..=28]
+  const t925 = t735#[3..=28]
   const t926 = t925 == 0
   const t927 = t924 and t926
   mut _b2i_113 = if t927 { 1 } else { 0 }
-  `out_internal[122]` = _b2i_113 & 1
-  const t929 = gen_out_internal_3_in_masked__w4 >> 30
+  out_internal_bits#[122] = _b2i_113 & 1
+  const t929 = t735 >> 30
   const t930 = t929 & 1
   const t931 = t930 != 0
-  const t932 = gen_out_internal_3_in_masked__w4#[3..=29]
+  const t932 = t735#[3..=29]
   const t933 = t932 == 0
   const t934 = t931 and t933
   mut _b2i_114 = if t934 { 1 } else { 0 }
-  `out_internal[123]` = _b2i_114 & 1
+  out_internal_bits#[123] = _b2i_114 & 1
   const out__w1 = out_internal
-  out_internal = (`out_internal[123]` << 123) | (`out_internal[122]` << 122) | (`out_internal[121]` << 121) | (`out_internal[120]` << 120) | (`out_internal[119]` << 119) | (`out_internal[118]` << 118) | (`out_internal[117]` << 117) | (`out_internal[116]` << 116) | (`out_internal[115]` << 115) | (`out_internal[114]` << 114) | (`out_internal[113]` << 113) | (`out_internal[112]` << 112) | (`out_internal[111]` << 111) | (`out_internal[110]` << 110) | (`out_internal[109]` << 109) | (`out_internal[108]` << 108) | (`out_internal[107]` << 107) | (`out_internal[106]` << 106) | (`out_internal[105]` << 105) | (`out_internal[104]` << 104) | (`out_internal[103]` << 103) | (`out_internal[102]` << 102) | (`out_internal[101]` << 101) | (`out_internal[100]` << 100) | (`out_internal[99]` << 99) | (`out_internal[98]` << 98) | (`out_internal[97]` << 97) | (`out_internal[96]` << 96) | (`out_internal[95]` << 95) | (`out_internal[94]` << 94) | (`out_internal[93]` << 93) | (`out_internal[92]` << 92) | (`out_internal[91]` << 91) | (`out_internal[90]` << 90) | (`out_internal[89]` << 89) | (`out_internal[88]` << 88) | (`out_internal[87]` << 87) | (`out_internal[86]` << 86) | (`out_internal[85]` << 85) | (`out_internal[84]` << 84) | (`out_internal[83]` << 83) | (`out_internal[82]` << 82) | (`out_internal[81]` << 81) | (`out_internal[80]` << 80) | (`out_internal[79]` << 79) | (`out_internal[78]` << 78) | (`out_internal[77]` << 77) | (`out_internal[76]` << 76) | (`out_internal[75]` << 75) | (`out_internal[74]` << 74) | (`out_internal[73]` << 73) | (`out_internal[72]` << 72) | (`out_internal[71]` << 71) | (`out_internal[70]` << 70) | (`out_internal[69]` << 69) | (`out_internal[68]` << 68) | (`out_internal[67]` << 67) | (`out_internal[66]` << 66) | (`out_internal[65]` << 65) | (`out_internal[64]` << 64) | (`out_internal[63]` << 63) | (`out_internal[62]` << 62) | (`out_internal[61]` << 61) | (`out_internal[60]` << 60) | (`out_internal[59]` << 59) | (`out_internal[58]` << 58) | (`out_internal[57]` << 57) | (`out_internal[56]` << 56) | (`out_internal[55]` << 55) | (`out_internal[54]` << 54) | (`out_internal[53]` << 53) | (`out_internal[52]` << 52) | (`out_internal[51]` << 51) | (`out_internal[50]` << 50) | (`out_internal[49]` << 49) | (`out_internal[48]` << 48) | (`out_internal[47]` << 47) | (`out_internal[46]` << 46) | (`out_internal[45]` << 45) | (`out_internal[44]` << 44) | (`out_internal[43]` << 43) | (`out_internal[42]` << 42) | (`out_internal[41]` << 41) | (`out_internal[40]` << 40) | (`out_internal[39]` << 39) | (`out_internal[38]` << 38) | (`out_internal[37]` << 37) | (`out_internal[36]` << 36) | (`out_internal[35]` << 35) | (`out_internal[34]` << 34) | (`out_internal[33]` << 33) | (`out_internal[32]` << 32) | (`out_internal[31]` << 31) | (`out_internal[30]` << 30) | (`out_internal[29]` << 29) | (`out_internal[28]` << 28) | (`out_internal[27]` << 27) | (`out_internal[26]` << 26) | (`out_internal[25]` << 25) | (`out_internal[24]` << 24) | (`out_internal[23]` << 23) | (`out_internal[22]` << 22) | (`out_internal[21]` << 21) | (`out_internal[20]` << 20) | (`out_internal[19]` << 19) | (`out_internal[18]` << 18) | (`out_internal[17]` << 17) | (`out_internal[16]` << 16) | (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`
+  out_internal = out_internal_bits
   out = out__w1
 }

@@ -1,20 +1,18 @@
-pub mod br_credit_counter::[timecheck=false](clk:Clock, decr:U1, decr_valid:U1, incr:U1, incr_valid:U1, initial_value:U4, rst:U1, withhold:U4) -> (available:U4@[], decr_ready:U1@[], value:U4@[]) {
-  reg value:U4
-  mut _mux_2:U1 = if incr_valid != 0 { incr & 1 } else { 0 }
-  mut _mux_3:U1 = if decr_valid != 0 { decr & 1 } else { 0 }
-  const value_plus_incr__w1 = (value + _mux_2)#[0..=3]
-  mut _mux_4:U4 = if value_plus_incr__w1 > withhold { (value_plus_incr__w1 - withhold)#[0..=3] } else { 0 }
-  const available__w1 = _mux_4
-  mut _b2i_5 = if available__w1 > 0 { 1 } else { 0 }
-  const decr_ready__w1 = _b2i_5
-  mut _mux_6:U4 = if decr_ready__w1 != 0 { _mux_3 } else { 0 }
-  const value_next__w1 = (value_plus_incr__w1 - _mux_6)#[0..=3]
-  mut _b2i_7 = if incr_valid != 0 or (decr_valid != 0 and decr_ready__w1 != 0) { 1 } else { 0 }
+// Credit counter (bedrock br_credit_counter, MaxValue=8, MaxChange=1).
+// `value` holds the credits in use; credits can be returned (incr) and consumed (decr).
+// `withhold` credits are kept back from `available`, and a decrement is only accepted
+// (decr_ready) while some credit is available. Reset loads a runtime input.
+pub mod br_credit_counter(clk:Clock, decr:U1, decr_valid:U1, incr:U1, incr_valid:U1, initial_value:U4, rst:U1, withhold:U4) -> (reg value:U4@[0]=nil, available:U4@[0], decr_ready:U1@[0]) {
+  mut with_incr:U4 = 0
+  wrap with_incr = value + if incr_valid != 0 { incr } else { 0 }
+
+  wrap available = if with_incr > withhold { with_incr - withhold } else { 0 }
+  decr_ready = U1(available > 0)
+
+  const take = decr_valid != 0 and decr_ready != 0
   if rst != 0 {
     value = initial_value
-  } elif _b2i_7 != 0 {
-    value = value_next__w1
+  } elif incr_valid != 0 or take {
+    wrap value = with_incr - if take { decr } else { 0 }
   }
-  decr_ready = decr_ready__w1
-  available = available__w1
 }

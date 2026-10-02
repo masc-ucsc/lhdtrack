@@ -7,8 +7,6 @@ const br_flow_reg_fwd_p1 = import("br_flow_reg_fwd_p1.br_flow_reg_fwd_p1")
 const br_flow_reg_fwd_p2 = import("br_flow_reg_fwd_p2.br_flow_reg_fwd_p2")
 const br_flow_reg_fwd_p3 = import("br_flow_reg_fwd_p3.br_flow_reg_fwd_p3")
 const br_flow_reg_fwd_p4 = import("br_flow_reg_fwd_p4.br_flow_reg_fwd_p4")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
 const br_mux_bin = import("br_mux_bin.br_mux_bin")
 const br_mux_bin_p1 = import("br_mux_bin_p1.br_mux_bin_p1")
 const br_mux_bin_p2 = import("br_mux_bin_p2.br_mux_bin_p2")
@@ -29,550 +27,11 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
   reg wide_rdata_saved_s1:U64:[async=false, initial=0, reset_pin=rst]
   reg wide_rdata_saved_s2:U64:[async=false, initial=0, reset_pin=rst]
   reg wide_rdata_saved_s3:U64:[async=false, initial=0, reset_pin=rst]
-  wire `r_beat_last_per_req[0]`:U1 = nil
-  wire `r_beat_last_per_req[1]`:U1 = nil
-  wire `r_beat_last_per_req[2]`:U1 = nil
-  wire `r_beat_last_per_req[3]`:U1 = nil
-  wire `r_data_shift_per_req[0]`:U1 = nil
-  wire `r_data_shift_per_req[1]`:U1 = nil
-  wire `r_data_shift_per_req[2]`:U1 = nil
-  wire `r_data_shift_per_req[3]`:U1 = nil
-  wire `wide_rresp_int_per_req[0]`:U1 = nil
-  wire `wide_rresp_int_per_req[1]`:U1 = nil
-  wire `wide_rresp_int_per_req[2]`:U1 = nil
-  wire `wide_rresp_int_per_req[3]`:U1 = nil
-  wire `wide_rresp_int_per_req[4]`:U1 = nil
-  wire `wide_rresp_int_per_req[5]`:U1 = nil
-  wire `wide_rresp_int_per_req[6]`:U1 = nil
-  wire `wide_rresp_int_per_req[7]`:U1 = nil
-  wire `wide_rdata_int_per_req[0]`:U1 = nil
-  wire `wide_rdata_int_per_req[1]`:U1 = nil
-  wire `wide_rdata_int_per_req[2]`:U1 = nil
-  wire `wide_rdata_int_per_req[3]`:U1 = nil
-  wire `wide_rdata_int_per_req[4]`:U1 = nil
-  wire `wide_rdata_int_per_req[5]`:U1 = nil
-  wire `wide_rdata_int_per_req[6]`:U1 = nil
-  wire `wide_rdata_int_per_req[7]`:U1 = nil
-  wire `wide_rdata_int_per_req[8]`:U1 = nil
-  wire `wide_rdata_int_per_req[9]`:U1 = nil
-  wire `wide_rdata_int_per_req[10]`:U1 = nil
-  wire `wide_rdata_int_per_req[11]`:U1 = nil
-  wire `wide_rdata_int_per_req[12]`:U1 = nil
-  wire `wide_rdata_int_per_req[13]`:U1 = nil
-  wire `wide_rdata_int_per_req[14]`:U1 = nil
-  wire `wide_rdata_int_per_req[15]`:U1 = nil
-  wire `wide_rdata_int_per_req[16]`:U1 = nil
-  wire `wide_rdata_int_per_req[17]`:U1 = nil
-  wire `wide_rdata_int_per_req[18]`:U1 = nil
-  wire `wide_rdata_int_per_req[19]`:U1 = nil
-  wire `wide_rdata_int_per_req[20]`:U1 = nil
-  wire `wide_rdata_int_per_req[21]`:U1 = nil
-  wire `wide_rdata_int_per_req[22]`:U1 = nil
-  wire `wide_rdata_int_per_req[23]`:U1 = nil
-  wire `wide_rdata_int_per_req[24]`:U1 = nil
-  wire `wide_rdata_int_per_req[25]`:U1 = nil
-  wire `wide_rdata_int_per_req[26]`:U1 = nil
-  wire `wide_rdata_int_per_req[27]`:U1 = nil
-  wire `wide_rdata_int_per_req[28]`:U1 = nil
-  wire `wide_rdata_int_per_req[29]`:U1 = nil
-  wire `wide_rdata_int_per_req[30]`:U1 = nil
-  wire `wide_rdata_int_per_req[31]`:U1 = nil
-  wire `wide_rdata_int_per_req[32]`:U1 = nil
-  wire `wide_rdata_int_per_req[33]`:U1 = nil
-  wire `wide_rdata_int_per_req[34]`:U1 = nil
-  wire `wide_rdata_int_per_req[35]`:U1 = nil
-  wire `wide_rdata_int_per_req[36]`:U1 = nil
-  wire `wide_rdata_int_per_req[37]`:U1 = nil
-  wire `wide_rdata_int_per_req[38]`:U1 = nil
-  wire `wide_rdata_int_per_req[39]`:U1 = nil
-  wire `wide_rdata_int_per_req[40]`:U1 = nil
-  wire `wide_rdata_int_per_req[41]`:U1 = nil
-  wire `wide_rdata_int_per_req[42]`:U1 = nil
-  wire `wide_rdata_int_per_req[43]`:U1 = nil
-  wire `wide_rdata_int_per_req[44]`:U1 = nil
-  wire `wide_rdata_int_per_req[45]`:U1 = nil
-  wire `wide_rdata_int_per_req[46]`:U1 = nil
-  wire `wide_rdata_int_per_req[47]`:U1 = nil
-  wire `wide_rdata_int_per_req[48]`:U1 = nil
-  wire `wide_rdata_int_per_req[49]`:U1 = nil
-  wire `wide_rdata_int_per_req[50]`:U1 = nil
-  wire `wide_rdata_int_per_req[51]`:U1 = nil
-  wire `wide_rdata_int_per_req[52]`:U1 = nil
-  wire `wide_rdata_int_per_req[53]`:U1 = nil
-  wire `wide_rdata_int_per_req[54]`:U1 = nil
-  wire `wide_rdata_int_per_req[55]`:U1 = nil
-  wire `wide_rdata_int_per_req[56]`:U1 = nil
-  wire `wide_rdata_int_per_req[57]`:U1 = nil
-  wire `wide_rdata_int_per_req[58]`:U1 = nil
-  wire `wide_rdata_int_per_req[59]`:U1 = nil
-  wire `wide_rdata_int_per_req[60]`:U1 = nil
-  wire `wide_rdata_int_per_req[61]`:U1 = nil
-  wire `wide_rdata_int_per_req[62]`:U1 = nil
-  wire `wide_rdata_int_per_req[63]`:U1 = nil
-  wire `wide_rdata_int_per_req[64]`:U1 = nil
-  wire `wide_rdata_int_per_req[65]`:U1 = nil
-  wire `wide_rdata_int_per_req[66]`:U1 = nil
-  wire `wide_rdata_int_per_req[67]`:U1 = nil
-  wire `wide_rdata_int_per_req[68]`:U1 = nil
-  wire `wide_rdata_int_per_req[69]`:U1 = nil
-  wire `wide_rdata_int_per_req[70]`:U1 = nil
-  wire `wide_rdata_int_per_req[71]`:U1 = nil
-  wire `wide_rdata_int_per_req[72]`:U1 = nil
-  wire `wide_rdata_int_per_req[73]`:U1 = nil
-  wire `wide_rdata_int_per_req[74]`:U1 = nil
-  wire `wide_rdata_int_per_req[75]`:U1 = nil
-  wire `wide_rdata_int_per_req[76]`:U1 = nil
-  wire `wide_rdata_int_per_req[77]`:U1 = nil
-  wire `wide_rdata_int_per_req[78]`:U1 = nil
-  wire `wide_rdata_int_per_req[79]`:U1 = nil
-  wire `wide_rdata_int_per_req[80]`:U1 = nil
-  wire `wide_rdata_int_per_req[81]`:U1 = nil
-  wire `wide_rdata_int_per_req[82]`:U1 = nil
-  wire `wide_rdata_int_per_req[83]`:U1 = nil
-  wire `wide_rdata_int_per_req[84]`:U1 = nil
-  wire `wide_rdata_int_per_req[85]`:U1 = nil
-  wire `wide_rdata_int_per_req[86]`:U1 = nil
-  wire `wide_rdata_int_per_req[87]`:U1 = nil
-  wire `wide_rdata_int_per_req[88]`:U1 = nil
-  wire `wide_rdata_int_per_req[89]`:U1 = nil
-  wire `wide_rdata_int_per_req[90]`:U1 = nil
-  wire `wide_rdata_int_per_req[91]`:U1 = nil
-  wire `wide_rdata_int_per_req[92]`:U1 = nil
-  wire `wide_rdata_int_per_req[93]`:U1 = nil
-  wire `wide_rdata_int_per_req[94]`:U1 = nil
-  wire `wide_rdata_int_per_req[95]`:U1 = nil
-  wire `wide_rdata_int_per_req[96]`:U1 = nil
-  wire `wide_rdata_int_per_req[97]`:U1 = nil
-  wire `wide_rdata_int_per_req[98]`:U1 = nil
-  wire `wide_rdata_int_per_req[99]`:U1 = nil
-  wire `wide_rdata_int_per_req[100]`:U1 = nil
-  wire `wide_rdata_int_per_req[101]`:U1 = nil
-  wire `wide_rdata_int_per_req[102]`:U1 = nil
-  wire `wide_rdata_int_per_req[103]`:U1 = nil
-  wire `wide_rdata_int_per_req[104]`:U1 = nil
-  wire `wide_rdata_int_per_req[105]`:U1 = nil
-  wire `wide_rdata_int_per_req[106]`:U1 = nil
-  wire `wide_rdata_int_per_req[107]`:U1 = nil
-  wire `wide_rdata_int_per_req[108]`:U1 = nil
-  wire `wide_rdata_int_per_req[109]`:U1 = nil
-  wire `wide_rdata_int_per_req[110]`:U1 = nil
-  wire `wide_rdata_int_per_req[111]`:U1 = nil
-  wire `wide_rdata_int_per_req[112]`:U1 = nil
-  wire `wide_rdata_int_per_req[113]`:U1 = nil
-  wire `wide_rdata_int_per_req[114]`:U1 = nil
-  wire `wide_rdata_int_per_req[115]`:U1 = nil
-  wire `wide_rdata_int_per_req[116]`:U1 = nil
-  wire `wide_rdata_int_per_req[117]`:U1 = nil
-  wire `wide_rdata_int_per_req[118]`:U1 = nil
-  wire `wide_rdata_int_per_req[119]`:U1 = nil
-  wire `wide_rdata_int_per_req[120]`:U1 = nil
-  wire `wide_rdata_int_per_req[121]`:U1 = nil
-  wire `wide_rdata_int_per_req[122]`:U1 = nil
-  wire `wide_rdata_int_per_req[123]`:U1 = nil
-  wire `wide_rdata_int_per_req[124]`:U1 = nil
-  wire `wide_rdata_int_per_req[125]`:U1 = nil
-  wire `wide_rdata_int_per_req[126]`:U1 = nil
-  wire `wide_rdata_int_per_req[127]`:U1 = nil
-  wire `wide_rdata_int_per_req[128]`:U1 = nil
-  wire `wide_rdata_int_per_req[129]`:U1 = nil
-  wire `wide_rdata_int_per_req[130]`:U1 = nil
-  wire `wide_rdata_int_per_req[131]`:U1 = nil
-  wire `wide_rdata_int_per_req[132]`:U1 = nil
-  wire `wide_rdata_int_per_req[133]`:U1 = nil
-  wire `wide_rdata_int_per_req[134]`:U1 = nil
-  wire `wide_rdata_int_per_req[135]`:U1 = nil
-  wire `wide_rdata_int_per_req[136]`:U1 = nil
-  wire `wide_rdata_int_per_req[137]`:U1 = nil
-  wire `wide_rdata_int_per_req[138]`:U1 = nil
-  wire `wide_rdata_int_per_req[139]`:U1 = nil
-  wire `wide_rdata_int_per_req[140]`:U1 = nil
-  wire `wide_rdata_int_per_req[141]`:U1 = nil
-  wire `wide_rdata_int_per_req[142]`:U1 = nil
-  wire `wide_rdata_int_per_req[143]`:U1 = nil
-  wire `wide_rdata_int_per_req[144]`:U1 = nil
-  wire `wide_rdata_int_per_req[145]`:U1 = nil
-  wire `wide_rdata_int_per_req[146]`:U1 = nil
-  wire `wide_rdata_int_per_req[147]`:U1 = nil
-  wire `wide_rdata_int_per_req[148]`:U1 = nil
-  wire `wide_rdata_int_per_req[149]`:U1 = nil
-  wire `wide_rdata_int_per_req[150]`:U1 = nil
-  wire `wide_rdata_int_per_req[151]`:U1 = nil
-  wire `wide_rdata_int_per_req[152]`:U1 = nil
-  wire `wide_rdata_int_per_req[153]`:U1 = nil
-  wire `wide_rdata_int_per_req[154]`:U1 = nil
-  wire `wide_rdata_int_per_req[155]`:U1 = nil
-  wire `wide_rdata_int_per_req[156]`:U1 = nil
-  wire `wide_rdata_int_per_req[157]`:U1 = nil
-  wire `wide_rdata_int_per_req[158]`:U1 = nil
-  wire `wide_rdata_int_per_req[159]`:U1 = nil
-  wire `wide_rdata_int_per_req[160]`:U1 = nil
-  wire `wide_rdata_int_per_req[161]`:U1 = nil
-  wire `wide_rdata_int_per_req[162]`:U1 = nil
-  wire `wide_rdata_int_per_req[163]`:U1 = nil
-  wire `wide_rdata_int_per_req[164]`:U1 = nil
-  wire `wide_rdata_int_per_req[165]`:U1 = nil
-  wire `wide_rdata_int_per_req[166]`:U1 = nil
-  wire `wide_rdata_int_per_req[167]`:U1 = nil
-  wire `wide_rdata_int_per_req[168]`:U1 = nil
-  wire `wide_rdata_int_per_req[169]`:U1 = nil
-  wire `wide_rdata_int_per_req[170]`:U1 = nil
-  wire `wide_rdata_int_per_req[171]`:U1 = nil
-  wire `wide_rdata_int_per_req[172]`:U1 = nil
-  wire `wide_rdata_int_per_req[173]`:U1 = nil
-  wire `wide_rdata_int_per_req[174]`:U1 = nil
-  wire `wide_rdata_int_per_req[175]`:U1 = nil
-  wire `wide_rdata_int_per_req[176]`:U1 = nil
-  wire `wide_rdata_int_per_req[177]`:U1 = nil
-  wire `wide_rdata_int_per_req[178]`:U1 = nil
-  wire `wide_rdata_int_per_req[179]`:U1 = nil
-  wire `wide_rdata_int_per_req[180]`:U1 = nil
-  wire `wide_rdata_int_per_req[181]`:U1 = nil
-  wire `wide_rdata_int_per_req[182]`:U1 = nil
-  wire `wide_rdata_int_per_req[183]`:U1 = nil
-  wire `wide_rdata_int_per_req[184]`:U1 = nil
-  wire `wide_rdata_int_per_req[185]`:U1 = nil
-  wire `wide_rdata_int_per_req[186]`:U1 = nil
-  wire `wide_rdata_int_per_req[187]`:U1 = nil
-  wire `wide_rdata_int_per_req[188]`:U1 = nil
-  wire `wide_rdata_int_per_req[189]`:U1 = nil
-  wire `wide_rdata_int_per_req[190]`:U1 = nil
-  wire `wide_rdata_int_per_req[191]`:U1 = nil
-  wire `wide_rdata_int_per_req[192]`:U1 = nil
-  wire `wide_rdata_int_per_req[193]`:U1 = nil
-  wire `wide_rdata_int_per_req[194]`:U1 = nil
-  wire `wide_rdata_int_per_req[195]`:U1 = nil
-  wire `wide_rdata_int_per_req[196]`:U1 = nil
-  wire `wide_rdata_int_per_req[197]`:U1 = nil
-  wire `wide_rdata_int_per_req[198]`:U1 = nil
-  wire `wide_rdata_int_per_req[199]`:U1 = nil
-  wire `wide_rdata_int_per_req[200]`:U1 = nil
-  wire `wide_rdata_int_per_req[201]`:U1 = nil
-  wire `wide_rdata_int_per_req[202]`:U1 = nil
-  wire `wide_rdata_int_per_req[203]`:U1 = nil
-  wire `wide_rdata_int_per_req[204]`:U1 = nil
-  wire `wide_rdata_int_per_req[205]`:U1 = nil
-  wire `wide_rdata_int_per_req[206]`:U1 = nil
-  wire `wide_rdata_int_per_req[207]`:U1 = nil
-  wire `wide_rdata_int_per_req[208]`:U1 = nil
-  wire `wide_rdata_int_per_req[209]`:U1 = nil
-  wire `wide_rdata_int_per_req[210]`:U1 = nil
-  wire `wide_rdata_int_per_req[211]`:U1 = nil
-  wire `wide_rdata_int_per_req[212]`:U1 = nil
-  wire `wide_rdata_int_per_req[213]`:U1 = nil
-  wire `wide_rdata_int_per_req[214]`:U1 = nil
-  wire `wide_rdata_int_per_req[215]`:U1 = nil
-  wire `wide_rdata_int_per_req[216]`:U1 = nil
-  wire `wide_rdata_int_per_req[217]`:U1 = nil
-  wire `wide_rdata_int_per_req[218]`:U1 = nil
-  wire `wide_rdata_int_per_req[219]`:U1 = nil
-  wire `wide_rdata_int_per_req[220]`:U1 = nil
-  wire `wide_rdata_int_per_req[221]`:U1 = nil
-  wire `wide_rdata_int_per_req[222]`:U1 = nil
-  wire `wide_rdata_int_per_req[223]`:U1 = nil
-  wire `wide_rdata_int_per_req[224]`:U1 = nil
-  wire `wide_rdata_int_per_req[225]`:U1 = nil
-  wire `wide_rdata_int_per_req[226]`:U1 = nil
-  wire `wide_rdata_int_per_req[227]`:U1 = nil
-  wire `wide_rdata_int_per_req[228]`:U1 = nil
-  wire `wide_rdata_int_per_req[229]`:U1 = nil
-  wire `wide_rdata_int_per_req[230]`:U1 = nil
-  wire `wide_rdata_int_per_req[231]`:U1 = nil
-  wire `wide_rdata_int_per_req[232]`:U1 = nil
-  wire `wide_rdata_int_per_req[233]`:U1 = nil
-  wire `wide_rdata_int_per_req[234]`:U1 = nil
-  wire `wide_rdata_int_per_req[235]`:U1 = nil
-  wire `wide_rdata_int_per_req[236]`:U1 = nil
-  wire `wide_rdata_int_per_req[237]`:U1 = nil
-  wire `wide_rdata_int_per_req[238]`:U1 = nil
-  wire `wide_rdata_int_per_req[239]`:U1 = nil
-  wire `wide_rdata_int_per_req[240]`:U1 = nil
-  wire `wide_rdata_int_per_req[241]`:U1 = nil
-  wire `wide_rdata_int_per_req[242]`:U1 = nil
-  wire `wide_rdata_int_per_req[243]`:U1 = nil
-  wire `wide_rdata_int_per_req[244]`:U1 = nil
-  wire `wide_rdata_int_per_req[245]`:U1 = nil
-  wire `wide_rdata_int_per_req[246]`:U1 = nil
-  wire `wide_rdata_int_per_req[247]`:U1 = nil
-  wire `wide_rdata_int_per_req[248]`:U1 = nil
-  wire `wide_rdata_int_per_req[249]`:U1 = nil
-  wire `wide_rdata_int_per_req[250]`:U1 = nil
-  wire `wide_rdata_int_per_req[251]`:U1 = nil
-  wire `wide_rdata_int_per_req[252]`:U1 = nil
-  wire `wide_rdata_int_per_req[253]`:U1 = nil
-  wire `wide_rdata_int_per_req[254]`:U1 = nil
-  wire `wide_rdata_int_per_req[255]`:U1 = nil
-  wire `rtracker_mux_in[0]`:U1 = nil
-  wire `rtracker_mux_in[1]`:U1 = nil
-  wire `rtracker_mux_in[2]`:U1 = nil
-  wire `rtracker_mux_in[3]`:U1 = nil
-  wire `rtracker_mux_in[4]`:U1 = nil
-  wire `rtracker_mux_in[5]`:U1 = nil
-  wire `rtracker_mux_in[6]`:U1 = nil
-  wire `rtracker_mux_in[7]`:U1 = nil
-  wire `rtracker_mux_in[8]`:U1 = nil
-  wire `rtracker_mux_in[9]`:U1 = nil
-  wire `rtracker_mux_in[10]`:U1 = nil
-  wire `rtracker_mux_in[11]`:U1 = nil
-  wire `rtracker_mux_in[12]`:U1 = nil
-  wire `rtracker_mux_in[13]`:U1 = nil
-  wire `rtracker_mux_in[14]`:U1 = nil
-  wire `rtracker_mux_in[15]`:U1 = nil
-  wire `rtracker_mux_in[16]`:U1 = nil
-  wire `rtracker_mux_in[17]`:U1 = nil
-  wire `rtracker_mux_in[18]`:U1 = nil
-  wire `rtracker_mux_in[19]`:U1 = nil
-  wire `rtracker_mux_in[20]`:U1 = nil
-  wire `rtracker_mux_in[21]`:U1 = nil
-  wire `rtracker_mux_in[22]`:U1 = nil
-  wire `rtracker_mux_in[23]`:U1 = nil
-  wire `rtracker_mux_in[24]`:U1 = nil
-  wire `rtracker_mux_in[25]`:U1 = nil
-  wire `rtracker_mux_in[26]`:U1 = nil
-  wire `rtracker_mux_in[27]`:U1 = nil
-  wire `rtracker_mux_in[28]`:U1 = nil
-  wire `rtracker_mux_in[29]`:U1 = nil
-  wire `rtracker_mux_in[30]`:U1 = nil
-  wire `rtracker_mux_in[31]`:U1 = nil
-  wire `rtracker_mux_in[32]`:U1 = nil
-  wire `rtracker_mux_in[33]`:U1 = nil
-  wire `rtracker_mux_in[34]`:U1 = nil
-  wire `rtracker_mux_in[35]`:U1 = nil
-  wire `rtracker_mux_in[36]`:U1 = nil
-  wire `rtracker_mux_in[37]`:U1 = nil
-  wire `rtracker_mux_in[38]`:U1 = nil
-  wire `rtracker_mux_in[39]`:U1 = nil
-  wire `rtracker_mux_in[40]`:U1 = nil
-  wire `rtracker_mux_in[41]`:U1 = nil
-  wire `rtracker_mux_in[42]`:U1 = nil
-  wire `rtracker_mux_in[43]`:U1 = nil
-  wire `rtracker_mux_in[44]`:U1 = nil
-  wire `rtracker_mux_in[45]`:U1 = nil
-  wire `rtracker_mux_in[46]`:U1 = nil
-  wire `rtracker_mux_in[47]`:U1 = nil
-  wire `rtracker_mux_in[48]`:U1 = nil
-  wire `rtracker_mux_in[49]`:U1 = nil
-  wire `rtracker_mux_in[50]`:U1 = nil
-  wire `rtracker_mux_in[51]`:U1 = nil
-  wire `rtracker_mux_in[52]`:U1 = nil
-  wire `rtracker_mux_in[53]`:U1 = nil
-  wire `rtracker_mux_in[54]`:U1 = nil
-  wire `rtracker_mux_in[55]`:U1 = nil
-  wire `rtracker_mux_in[56]`:U1 = nil
-  wire `rtracker_mux_in[57]`:U1 = nil
-  wire `rtracker_mux_in[58]`:U1 = nil
-  wire `rtracker_mux_in[59]`:U1 = nil
-  wire `rtracker_mux_in[60]`:U1 = nil
-  wire `rtracker_mux_in[61]`:U1 = nil
-  wire `rtracker_mux_in[62]`:U1 = nil
-  wire `rtracker_mux_in[63]`:U1 = nil
-  wire `rtracker_mux_in[64]`:U1 = nil
-  wire `rtracker_mux_in[65]`:U1 = nil
-  wire `rtracker_mux_in[66]`:U1 = nil
-  wire `rtracker_mux_in[67]`:U1 = nil
-  wire `rtracker_mux_in[68]`:U1 = nil
-  wire `rtracker_mux_in[69]`:U1 = nil
-  wire `rtracker_mux_in[70]`:U1 = nil
-  wire `rtracker_mux_in[71]`:U1 = nil
-  wire `rtracker_mux_in[72]`:U1 = nil
-  wire `rtracker_mux_in[73]`:U1 = nil
-  wire `rtracker_mux_in[74]`:U1 = nil
-  wire `rtracker_mux_in[75]`:U1 = nil
-  wire `rtracker_mux_in[76]`:U1 = nil
-  wire `rtracker_mux_in[77]`:U1 = nil
-  wire `rtracker_mux_in[78]`:U1 = nil
-  wire `rtracker_mux_in[79]`:U1 = nil
-  wire `rtracker_mux_in[80]`:U1 = nil
-  wire `rtracker_mux_in[81]`:U1 = nil
-  wire `rtracker_mux_in[82]`:U1 = nil
-  wire `rtracker_mux_in[83]`:U1 = nil
-  wire `rtracker_mux_in[84]`:U1 = nil
-  wire `rtracker_mux_in[85]`:U1 = nil
-  wire `rtracker_mux_in[86]`:U1 = nil
-  wire `rtracker_mux_in[87]`:U1 = nil
-  wire `rtracker_mux_in[88]`:U1 = nil
-  wire `rtracker_mux_in[89]`:U1 = nil
-  wire `rtracker_mux_in[90]`:U1 = nil
-  wire `rtracker_mux_in[91]`:U1 = nil
-  wire `rtracker_mux_in[92]`:U1 = nil
-  wire `rtracker_mux_in[93]`:U1 = nil
-  wire `rtracker_mux_in[94]`:U1 = nil
-  wire `rtracker_mux_in[95]`:U1 = nil
-  wire `rtracker_mux_in[96]`:U1 = nil
-  wire `rtracker_mux_in[97]`:U1 = nil
-  wire `rtracker_mux_in[98]`:U1 = nil
-  wire `rtracker_mux_in[99]`:U1 = nil
-  wire `rtracker_mux_in[100]`:U1 = nil
-  wire `rtracker_mux_in[101]`:U1 = nil
-  wire `rtracker_mux_in[102]`:U1 = nil
-  wire `rtracker_mux_in[103]`:U1 = nil
-  wire `rtracker_mux_in[104]`:U1 = nil
-  wire `rtracker_mux_in[105]`:U1 = nil
-  wire `rtracker_mux_in[106]`:U1 = nil
-  wire `rtracker_mux_in[107]`:U1 = nil
-  wire `rtracker_mux_in[108]`:U1 = nil
-  wire `rtracker_mux_in[109]`:U1 = nil
-  wire `rtracker_mux_in[110]`:U1 = nil
-  wire `rtracker_mux_in[111]`:U1 = nil
-  wire `rtracker_mux_in[112]`:U1 = nil
-  wire `rtracker_mux_in[113]`:U1 = nil
-  wire `rtracker_mux_in[114]`:U1 = nil
-  wire `rtracker_mux_in[115]`:U1 = nil
-  wire `rtracker_mux_in[116]`:U1 = nil
-  wire `rtracker_mux_in[117]`:U1 = nil
-  wire `rtracker_mux_in[118]`:U1 = nil
-  wire `rtracker_mux_in[119]`:U1 = nil
-  wire `rtracker_mux_in[120]`:U1 = nil
-  wire `rtracker_mux_in[121]`:U1 = nil
-  wire `rtracker_mux_in[122]`:U1 = nil
-  wire `rtracker_mux_in[123]`:U1 = nil
-  wire `rtracker_mux_in[124]`:U1 = nil
-  wire `rtracker_mux_in[125]`:U1 = nil
-  wire `rtracker_mux_in[126]`:U1 = nil
-  wire `rtracker_mux_in[127]`:U1 = nil
-  wire `rtracker_mux_in[128]`:U1 = nil
-  wire `rtracker_mux_in[129]`:U1 = nil
-  wire `rtracker_mux_in[130]`:U1 = nil
-  wire `rtracker_mux_in[131]`:U1 = nil
-  wire `rtracker_mux_in[132]`:U1 = nil
-  wire `rtracker_mux_in[133]`:U1 = nil
-  wire `rtracker_mux_in[134]`:U1 = nil
-  wire `rtracker_mux_in[135]`:U1 = nil
-  wire `rtracker_mux_in[136]`:U1 = nil
-  wire `rtracker_mux_in[137]`:U1 = nil
-  wire `rtracker_mux_in[138]`:U1 = nil
-  wire `rtracker_mux_in[139]`:U1 = nil
-  wire `rtracker_mux_in[140]`:U1 = nil
-  wire `rtracker_mux_in[141]`:U1 = nil
-  wire `rtracker_mux_in[142]`:U1 = nil
-  wire `rtracker_mux_in[143]`:U1 = nil
-  wire `rtracker_mux_in[144]`:U1 = nil
-  wire `rtracker_mux_in[145]`:U1 = nil
-  wire `rtracker_mux_in[146]`:U1 = nil
-  wire `rtracker_mux_in[147]`:U1 = nil
-  wire `rtracker_mux_in[148]`:U1 = nil
-  wire `rtracker_mux_in[149]`:U1 = nil
-  wire `rtracker_mux_in[150]`:U1 = nil
-  wire `rtracker_mux_in[151]`:U1 = nil
-  wire `rtracker_mux_in[152]`:U1 = nil
-  wire `rtracker_mux_in[153]`:U1 = nil
-  wire `rtracker_mux_in[154]`:U1 = nil
-  wire `rtracker_mux_in[155]`:U1 = nil
-  wire `rtracker_mux_in[156]`:U1 = nil
-  wire `rtracker_mux_in[157]`:U1 = nil
-  wire `rtracker_mux_in[158]`:U1 = nil
-  wire `rtracker_mux_in[159]`:U1 = nil
-  wire `rtracker_mux_in[160]`:U1 = nil
-  wire `rtracker_mux_in[161]`:U1 = nil
-  wire `rtracker_mux_in[162]`:U1 = nil
-  wire `rtracker_mux_in[163]`:U1 = nil
-  wire `rtracker_mux_in[164]`:U1 = nil
-  wire `rtracker_mux_in[165]`:U1 = nil
-  wire `rtracker_mux_in[166]`:U1 = nil
-  wire `rtracker_mux_in[167]`:U1 = nil
-  wire `rtracker_mux_in[168]`:U1 = nil
-  wire `rtracker_mux_in[169]`:U1 = nil
-  wire `rtracker_mux_in[170]`:U1 = nil
-  wire `rtracker_mux_in[171]`:U1 = nil
-  wire `rtracker_mux_in[172]`:U1 = nil
-  wire `rtracker_mux_in[173]`:U1 = nil
-  wire `rtracker_mux_in[174]`:U1 = nil
-  wire `rtracker_mux_in[175]`:U1 = nil
-  wire `rtracker_mux_in[176]`:U1 = nil
-  wire `rtracker_mux_in[177]`:U1 = nil
-  wire `rtracker_mux_in[178]`:U1 = nil
-  wire `rtracker_mux_in[179]`:U1 = nil
-  wire `rtracker_mux_in[180]`:U1 = nil
-  wire `rtracker_mux_in[181]`:U1 = nil
-  wire `rtracker_mux_in[182]`:U1 = nil
-  wire `rtracker_mux_in[183]`:U1 = nil
-  wire `rtracker_mux_in[184]`:U1 = nil
-  wire `rtracker_mux_in[185]`:U1 = nil
-  wire `rtracker_mux_in[186]`:U1 = nil
-  wire `rtracker_mux_in[187]`:U1 = nil
-  wire `rtracker_mux_in[188]`:U1 = nil
-  wire `rtracker_mux_in[189]`:U1 = nil
-  wire `rtracker_mux_in[190]`:U1 = nil
-  wire `rtracker_mux_in[191]`:U1 = nil
-  wire `rtracker_mux_in[192]`:U1 = nil
-  wire `rtracker_mux_in[193]`:U1 = nil
-  wire `rtracker_mux_in[194]`:U1 = nil
-  wire `rtracker_mux_in[195]`:U1 = nil
-  wire `rtracker_mux_in[196]`:U1 = nil
-  wire `rtracker_mux_in[197]`:U1 = nil
-  wire `rtracker_mux_in[198]`:U1 = nil
-  wire `rtracker_mux_in[199]`:U1 = nil
-  wire `rtracker_mux_in[200]`:U1 = nil
-  wire `rtracker_mux_in[201]`:U1 = nil
-  wire `rtracker_mux_in[202]`:U1 = nil
-  wire `rtracker_mux_in[203]`:U1 = nil
-  wire `rtracker_mux_in[204]`:U1 = nil
-  wire `rtracker_mux_in[205]`:U1 = nil
-  wire `rtracker_mux_in[206]`:U1 = nil
-  wire `rtracker_mux_in[207]`:U1 = nil
-  wire `rtracker_mux_in[208]`:U1 = nil
-  wire `rtracker_mux_in[209]`:U1 = nil
-  wire `rtracker_mux_in[210]`:U1 = nil
-  wire `rtracker_mux_in[211]`:U1 = nil
-  wire `rtracker_mux_in[212]`:U1 = nil
-  wire `rtracker_mux_in[213]`:U1 = nil
-  wire `rtracker_mux_in[214]`:U1 = nil
-  wire `rtracker_mux_in[215]`:U1 = nil
-  wire `rtracker_mux_in[216]`:U1 = nil
-  wire `rtracker_mux_in[217]`:U1 = nil
-  wire `rtracker_mux_in[218]`:U1 = nil
-  wire `rtracker_mux_in[219]`:U1 = nil
-  wire `rtracker_mux_in[220]`:U1 = nil
-  wire `rtracker_mux_in[221]`:U1 = nil
-  wire `rtracker_mux_in[222]`:U1 = nil
-  wire `rtracker_mux_in[223]`:U1 = nil
-  wire `rtracker_mux_in[224]`:U1 = nil
-  wire `rtracker_mux_in[225]`:U1 = nil
-  wire `rtracker_mux_in[226]`:U1 = nil
-  wire `rtracker_mux_in[227]`:U1 = nil
-  wire `rtracker_mux_in[228]`:U1 = nil
-  wire `rtracker_mux_in[229]`:U1 = nil
-  wire `rtracker_mux_in[230]`:U1 = nil
-  wire `rtracker_mux_in[231]`:U1 = nil
-  wire `rtracker_mux_in[232]`:U1 = nil
-  wire `rtracker_mux_in[233]`:U1 = nil
-  wire `rtracker_mux_in[234]`:U1 = nil
-  wire `rtracker_mux_in[235]`:U1 = nil
-  wire `rtracker_mux_in[236]`:U1 = nil
-  wire `rtracker_mux_in[237]`:U1 = nil
-  wire `rtracker_mux_in[238]`:U1 = nil
-  wire `rtracker_mux_in[239]`:U1 = nil
-  wire `rtracker_mux_in[240]`:U1 = nil
-  wire `rtracker_mux_in[241]`:U1 = nil
-  wire `rtracker_mux_in[242]`:U1 = nil
-  wire `rtracker_mux_in[243]`:U1 = nil
-  wire `rtracker_mux_in[244]`:U1 = nil
-  wire `rtracker_mux_in[245]`:U1 = nil
-  wire `rtracker_mux_in[246]`:U1 = nil
-  wire `rtracker_mux_in[247]`:U1 = nil
-  wire `rtracker_mux_in[248]`:U1 = nil
-  wire `rtracker_mux_in[249]`:U1 = nil
-  wire `rtracker_mux_in[250]`:U1 = nil
-  wire `rtracker_mux_in[251]`:U1 = nil
-  wire `rtracker_mux_in[252]`:U1 = nil
-  wire `rtracker_mux_in[253]`:U1 = nil
-  wire `rtracker_mux_in[254]`:U1 = nil
-  wire `rtracker_mux_in[255]`:U1 = nil
-  wire `rtracker_mux_in[256]`:U1 = nil
-  wire `rtracker_mux_in[257]`:U1 = nil
-  wire `rtracker_mux_in[258]`:U1 = nil
-  wire `rtracker_mux_in[259]`:U1 = nil
-  wire `rtracker_mux_in[260]`:U1 = nil
-  wire `rtracker_mux_in[261]`:U1 = nil
-  wire `rtracker_mux_in[262]`:U1 = nil
-  wire `rtracker_mux_in[263]`:U1 = nil
-  wire `rtracker_mux_in[264]`:U1 = nil
-  wire `rtracker_mux_in[265]`:U1 = nil
-  wire `rtracker_mux_in[266]`:U1 = nil
-  wire `rtracker_mux_in[267]`:U1 = nil
-  wire `rtracker_mux_in[268]`:U1 = nil
-  wire `rtracker_mux_in[269]`:U1 = nil
-  wire `rtracker_mux_in[270]`:U1 = nil
-  wire `rtracker_mux_in[271]`:U1 = nil
+  wire r_beat_last_per_req_bits:U4 = nil
+  wire r_data_shift_per_req_bits:U4 = nil
+  wire wide_rresp_int_per_req_bits:U8 = nil
+  wire wide_rdata_int_per_req_bits:U256 = nil
+  wire rtracker_mux_in_bits:U272 = nil
   wire rtracker_mux_in:U272 = nil
   wire narrow_awready_int:U1 = nil
   wire narrow_wlast_int:U1 = nil
@@ -589,335 +48,76 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
   mut gen_r_data_tracking_1_wide_rresp_comb:U2 = 0sb?
   mut gen_r_data_tracking_2_wide_rresp_comb:U2 = 0sb?
   mut gen_r_data_tracking_3_wide_rresp_comb:U2 = 0sb?
-  const narrow_awaddr_int__w1 = wide_awaddr
-  const narrow_awburst_int__w1 = wide_awburst
-  const narrow_araddr_int__w1 = wide_araddr
-  const narrow_arburst_int__w1 = wide_arburst
-  const aw_large_size__w1 = U1(wide_awsize > 2)
-  const ar_large_size__w1 = U1(wide_arsize > 2)
-  mut _mux_3:U32 = if aw_large_size__w1 != 0 { 2 } else { wide_awsize }
-  const narrow_awsize_int__w1 = _mux_3#[0..=2]
-  mut _mux_4:U32 = if ar_large_size__w1 != 0 { 2 } else { wide_arsize }
-  const narrow_arsize_int__w1 = _mux_4#[0..=2]
-  mut _mux_5:U32 = if aw_large_size__w1 != 0 { (wide_awsize - 2)#[0..=31] } else { 0 }
-  const awsize_diff_ext__w1 = _mux_5#[0..=2]
-  mut _mux_6:U32 = if ar_large_size__w1 != 0 { (wide_arsize - 2)#[0..=31] } else { 0 }
-  const arsize_diff_ext__w1 = _mux_6#[0..=2]
-  const awsize_diff__w1 = awsize_diff_ext__w1 & 1
-  const arsize_diff__w1 = arsize_diff_ext__w1 & 1
-  mut br_shift_left_awlen = br_shift_left::[name=br_shift_left_awlen](`in`=wide_awlen, shift=awsize_diff__w1, fill=1)
-  mut br_shift_left_arlen = br_shift_left::[name=br_shift_left_arlen](`in`=wide_arlen, shift=arsize_diff__w1, fill=1)
-  br_misc_unused::[name=gen_unused_size_diff_msbs_br_misc_unused_awsize_diff_ext](`in`=awsize_diff_ext__w1#[1..=2])
-  br_misc_unused::[name=gen_unused_size_diff_msbs_br_misc_unused_arsize_diff_ext](`in`=arsize_diff_ext__w1#[1..=2])
-  mut `write_fifo_push_info.offset` = narrow_awaddr_int__w1#[0..=2]
-  mut `write_fifo_push_info.size` = narrow_awsize_int__w1
-  mut `write_fifo_push_info.burst` = narrow_awburst_int__w1
-  mut `write_fifo_push_info.shift` = awsize_diff__w1 & 1
+  const aw_large_size = U1(wide_awsize > 2)
+  const ar_large_size = U1(wide_arsize > 2)
+  mut _mux_3:U32 = if aw_large_size != 0 { 2 } else { wide_awsize }
+  const narrow_awsize_int = _mux_3#[0..=2]
+  mut _mux_4:U32 = if ar_large_size != 0 { 2 } else { wide_arsize }
+  const narrow_arsize_int = _mux_4#[0..=2]
+  mut _mux_5:U32 = if aw_large_size != 0 { (wide_awsize - 2)#[0..=31] } else { 0 }
+  const awsize_diff_ext = _mux_5#[0..=2]
+  mut _mux_6:U32 = if ar_large_size != 0 { (wide_arsize - 2)#[0..=31] } else { 0 }
+  const arsize_diff_ext = _mux_6#[0..=2]
+  const awsize_diff = awsize_diff_ext & 1
+  const arsize_diff = arsize_diff_ext & 1
+  mut br_shift_left_awlen = br_shift_left::[name=br_shift_left_awlen](`in`=wide_awlen, shift=awsize_diff, fill=1)
+  mut br_shift_left_arlen = br_shift_left::[name=br_shift_left_arlen](`in`=wide_arlen, shift=arsize_diff, fill=1)
+  mut `write_fifo_push_info.offset` = wide_awaddr#[0..=2]
+  mut `write_fifo_push_info.size` = narrow_awsize_int
+  mut `write_fifo_push_info.burst` = wide_awburst
+  mut `write_fifo_push_info.shift` = awsize_diff & 1
   mut _b2i_7 = if w_sending != 0 and wide_wvalid != 0 { 1 } else { 0 }
-  const narrow_wvalid_int__w1 = _b2i_7
-  const read_index__w1 = wide_arid#[0..=1]
-  const resp_index__w1 = narrow_rid#[0..=1]
-  mut br_enc_bin2onehot_read_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_read_index](clk=clk, rst=rst, `in`=read_index__w1, in_valid=wide_arvalid)
-  const read_index_onehot__w1 = br_enc_bin2onehot_read_index
-  mut br_enc_bin2onehot_resp_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_resp_index](clk=clk, rst=rst, `in`=resp_index__w1, in_valid=narrow_rvalid)
-  const resp_index_onehot__w1 = br_enc_bin2onehot_resp_index
-  mut _b2i_8 = if not ((read_active & read_index_onehot__w1) != 0) { 1 } else { 0 }
-  const read_index_available__w1 = _b2i_8
-  mut _b2i_9 = if wide_arvalid != 0 and read_index_available__w1 != 0 { 1 } else { 0 }
-  mut `read_table_wr_data.offset` = narrow_araddr_int__w1#[0..=2]
-  mut `read_table_wr_data.size` = narrow_arsize_int__w1
-  mut `read_table_wr_data.burst` = narrow_arburst_int__w1
-  mut `read_table_wr_data.shift` = arsize_diff__w1 & 1
-  mut _mux_10:U4 = if narrow_rlast != 0 { (r_first | resp_index_onehot__w1)#[0..=3] } else { r_first & (~resp_index_onehot__w1#[0..=3]) }
-  const t90 = (`r_beat_last_per_req[0]` & 1) | (((`wide_rdata_int_per_req[63]` << 63) | (`wide_rdata_int_per_req[62]` << 62) | (`wide_rdata_int_per_req[61]` << 61) | (`wide_rdata_int_per_req[60]` << 60) | (`wide_rdata_int_per_req[59]` << 59) | (`wide_rdata_int_per_req[58]` << 58) | (`wide_rdata_int_per_req[57]` << 57) | (`wide_rdata_int_per_req[56]` << 56) | (`wide_rdata_int_per_req[55]` << 55) | (`wide_rdata_int_per_req[54]` << 54) | (`wide_rdata_int_per_req[53]` << 53) | (`wide_rdata_int_per_req[52]` << 52) | (`wide_rdata_int_per_req[51]` << 51) | (`wide_rdata_int_per_req[50]` << 50) | (`wide_rdata_int_per_req[49]` << 49) | (`wide_rdata_int_per_req[48]` << 48) | (`wide_rdata_int_per_req[47]` << 47) | (`wide_rdata_int_per_req[46]` << 46) | (`wide_rdata_int_per_req[45]` << 45) | (`wide_rdata_int_per_req[44]` << 44) | (`wide_rdata_int_per_req[43]` << 43) | (`wide_rdata_int_per_req[42]` << 42) | (`wide_rdata_int_per_req[41]` << 41) | (`wide_rdata_int_per_req[40]` << 40) | (`wide_rdata_int_per_req[39]` << 39) | (`wide_rdata_int_per_req[38]` << 38) | (`wide_rdata_int_per_req[37]` << 37) | (`wide_rdata_int_per_req[36]` << 36) | (`wide_rdata_int_per_req[35]` << 35) | (`wide_rdata_int_per_req[34]` << 34) | (`wide_rdata_int_per_req[33]` << 33) | (`wide_rdata_int_per_req[32]` << 32) | (`wide_rdata_int_per_req[31]` << 31) | (`wide_rdata_int_per_req[30]` << 30) | (`wide_rdata_int_per_req[29]` << 29) | (`wide_rdata_int_per_req[28]` << 28) | (`wide_rdata_int_per_req[27]` << 27) | (`wide_rdata_int_per_req[26]` << 26) | (`wide_rdata_int_per_req[25]` << 25) | (`wide_rdata_int_per_req[24]` << 24) | (`wide_rdata_int_per_req[23]` << 23) | (`wide_rdata_int_per_req[22]` << 22) | (`wide_rdata_int_per_req[21]` << 21) | (`wide_rdata_int_per_req[20]` << 20) | (`wide_rdata_int_per_req[19]` << 19) | (`wide_rdata_int_per_req[18]` << 18) | (`wide_rdata_int_per_req[17]` << 17) | (`wide_rdata_int_per_req[16]` << 16) | (`wide_rdata_int_per_req[15]` << 15) | (`wide_rdata_int_per_req[14]` << 14) | (`wide_rdata_int_per_req[13]` << 13) | (`wide_rdata_int_per_req[12]` << 12) | (`wide_rdata_int_per_req[11]` << 11) | (`wide_rdata_int_per_req[10]` << 10) | (`wide_rdata_int_per_req[9]` << 9) | (`wide_rdata_int_per_req[8]` << 8) | (`wide_rdata_int_per_req[7]` << 7) | (`wide_rdata_int_per_req[6]` << 6) | (`wide_rdata_int_per_req[5]` << 5) | (`wide_rdata_int_per_req[4]` << 4) | (`wide_rdata_int_per_req[3]` << 3) | (`wide_rdata_int_per_req[2]` << 2) | (`wide_rdata_int_per_req[1]` << 1) | `wide_rdata_int_per_req[0]`) << 1) | (((`wide_rresp_int_per_req[1]` << 1) | `wide_rresp_int_per_req[0]`) << 0x41) | ((`r_data_shift_per_req[0]` & 1) << 0x43)
-  `rtracker_mux_in[0]` = t90 & 1
-  `rtracker_mux_in[1]` = (t90 >> 1) & 1
-  `rtracker_mux_in[2]` = (t90 >> 2) & 1
-  `rtracker_mux_in[3]` = (t90 >> 3) & 1
-  `rtracker_mux_in[4]` = (t90 >> 4) & 1
-  `rtracker_mux_in[5]` = (t90 >> 5) & 1
-  `rtracker_mux_in[6]` = (t90 >> 6) & 1
-  `rtracker_mux_in[7]` = (t90 >> 7) & 1
-  `rtracker_mux_in[8]` = (t90 >> 8) & 1
-  `rtracker_mux_in[9]` = (t90 >> 9) & 1
-  `rtracker_mux_in[10]` = (t90 >> 10) & 1
-  `rtracker_mux_in[11]` = (t90 >> 11) & 1
-  `rtracker_mux_in[12]` = (t90 >> 12) & 1
-  `rtracker_mux_in[13]` = (t90 >> 13) & 1
-  `rtracker_mux_in[14]` = (t90 >> 14) & 1
-  `rtracker_mux_in[15]` = (t90 >> 15) & 1
-  `rtracker_mux_in[16]` = (t90 >> 16) & 1
-  `rtracker_mux_in[17]` = (t90 >> 17) & 1
-  `rtracker_mux_in[18]` = (t90 >> 18) & 1
-  `rtracker_mux_in[19]` = (t90 >> 19) & 1
-  `rtracker_mux_in[20]` = (t90 >> 20) & 1
-  `rtracker_mux_in[21]` = (t90 >> 21) & 1
-  `rtracker_mux_in[22]` = (t90 >> 22) & 1
-  `rtracker_mux_in[23]` = (t90 >> 23) & 1
-  `rtracker_mux_in[24]` = (t90 >> 24) & 1
-  `rtracker_mux_in[25]` = (t90 >> 25) & 1
-  `rtracker_mux_in[26]` = (t90 >> 26) & 1
-  `rtracker_mux_in[27]` = (t90 >> 27) & 1
-  `rtracker_mux_in[28]` = (t90 >> 28) & 1
-  `rtracker_mux_in[29]` = (t90 >> 29) & 1
-  `rtracker_mux_in[30]` = (t90 >> 30) & 1
-  `rtracker_mux_in[31]` = (t90 >> 31) & 1
-  `rtracker_mux_in[32]` = (t90 >> 32) & 1
-  `rtracker_mux_in[33]` = (t90 >> 33) & 1
-  `rtracker_mux_in[34]` = (t90 >> 34) & 1
-  `rtracker_mux_in[35]` = (t90 >> 35) & 1
-  `rtracker_mux_in[36]` = (t90 >> 36) & 1
-  `rtracker_mux_in[37]` = (t90 >> 37) & 1
-  `rtracker_mux_in[38]` = (t90 >> 38) & 1
-  `rtracker_mux_in[39]` = (t90 >> 39) & 1
-  `rtracker_mux_in[40]` = (t90 >> 40) & 1
-  `rtracker_mux_in[41]` = (t90 >> 41) & 1
-  `rtracker_mux_in[42]` = (t90 >> 42) & 1
-  `rtracker_mux_in[43]` = (t90 >> 43) & 1
-  `rtracker_mux_in[44]` = (t90 >> 44) & 1
-  `rtracker_mux_in[45]` = (t90 >> 45) & 1
-  `rtracker_mux_in[46]` = (t90 >> 46) & 1
-  `rtracker_mux_in[47]` = (t90 >> 47) & 1
-  `rtracker_mux_in[48]` = (t90 >> 48) & 1
-  `rtracker_mux_in[49]` = (t90 >> 49) & 1
-  `rtracker_mux_in[50]` = (t90 >> 50) & 1
-  `rtracker_mux_in[51]` = (t90 >> 51) & 1
-  `rtracker_mux_in[52]` = (t90 >> 52) & 1
-  `rtracker_mux_in[53]` = (t90 >> 53) & 1
-  `rtracker_mux_in[54]` = (t90 >> 54) & 1
-  `rtracker_mux_in[55]` = (t90 >> 55) & 1
-  `rtracker_mux_in[56]` = (t90 >> 56) & 1
-  `rtracker_mux_in[57]` = (t90 >> 57) & 1
-  `rtracker_mux_in[58]` = (t90 >> 58) & 1
-  `rtracker_mux_in[59]` = (t90 >> 59) & 1
-  `rtracker_mux_in[60]` = (t90 >> 60) & 1
-  `rtracker_mux_in[61]` = (t90 >> 61) & 1
-  `rtracker_mux_in[62]` = (t90 >> 62) & 1
-  `rtracker_mux_in[63]` = (t90 >> 63) & 1
-  `rtracker_mux_in[64]` = (t90 >> 0x40) & 1
-  `rtracker_mux_in[65]` = (t90 >> 0x41) & 1
-  `rtracker_mux_in[66]` = (t90 >> 0x42) & 1
-  `rtracker_mux_in[67]` = (t90 >> 0x43) & 1
-  const t235 = (`r_beat_last_per_req[1]` & 1) | (((`wide_rdata_int_per_req[127]` << 63) | (`wide_rdata_int_per_req[126]` << 62) | (`wide_rdata_int_per_req[125]` << 61) | (`wide_rdata_int_per_req[124]` << 60) | (`wide_rdata_int_per_req[123]` << 59) | (`wide_rdata_int_per_req[122]` << 58) | (`wide_rdata_int_per_req[121]` << 57) | (`wide_rdata_int_per_req[120]` << 56) | (`wide_rdata_int_per_req[119]` << 55) | (`wide_rdata_int_per_req[118]` << 54) | (`wide_rdata_int_per_req[117]` << 53) | (`wide_rdata_int_per_req[116]` << 52) | (`wide_rdata_int_per_req[115]` << 51) | (`wide_rdata_int_per_req[114]` << 50) | (`wide_rdata_int_per_req[113]` << 49) | (`wide_rdata_int_per_req[112]` << 48) | (`wide_rdata_int_per_req[111]` << 47) | (`wide_rdata_int_per_req[110]` << 46) | (`wide_rdata_int_per_req[109]` << 45) | (`wide_rdata_int_per_req[108]` << 44) | (`wide_rdata_int_per_req[107]` << 43) | (`wide_rdata_int_per_req[106]` << 42) | (`wide_rdata_int_per_req[105]` << 41) | (`wide_rdata_int_per_req[104]` << 40) | (`wide_rdata_int_per_req[103]` << 39) | (`wide_rdata_int_per_req[102]` << 38) | (`wide_rdata_int_per_req[101]` << 37) | (`wide_rdata_int_per_req[100]` << 36) | (`wide_rdata_int_per_req[99]` << 35) | (`wide_rdata_int_per_req[98]` << 34) | (`wide_rdata_int_per_req[97]` << 33) | (`wide_rdata_int_per_req[96]` << 32) | (`wide_rdata_int_per_req[95]` << 31) | (`wide_rdata_int_per_req[94]` << 30) | (`wide_rdata_int_per_req[93]` << 29) | (`wide_rdata_int_per_req[92]` << 28) | (`wide_rdata_int_per_req[91]` << 27) | (`wide_rdata_int_per_req[90]` << 26) | (`wide_rdata_int_per_req[89]` << 25) | (`wide_rdata_int_per_req[88]` << 24) | (`wide_rdata_int_per_req[87]` << 23) | (`wide_rdata_int_per_req[86]` << 22) | (`wide_rdata_int_per_req[85]` << 21) | (`wide_rdata_int_per_req[84]` << 20) | (`wide_rdata_int_per_req[83]` << 19) | (`wide_rdata_int_per_req[82]` << 18) | (`wide_rdata_int_per_req[81]` << 17) | (`wide_rdata_int_per_req[80]` << 16) | (`wide_rdata_int_per_req[79]` << 15) | (`wide_rdata_int_per_req[78]` << 14) | (`wide_rdata_int_per_req[77]` << 13) | (`wide_rdata_int_per_req[76]` << 12) | (`wide_rdata_int_per_req[75]` << 11) | (`wide_rdata_int_per_req[74]` << 10) | (`wide_rdata_int_per_req[73]` << 9) | (`wide_rdata_int_per_req[72]` << 8) | (`wide_rdata_int_per_req[71]` << 7) | (`wide_rdata_int_per_req[70]` << 6) | (`wide_rdata_int_per_req[69]` << 5) | (`wide_rdata_int_per_req[68]` << 4) | (`wide_rdata_int_per_req[67]` << 3) | (`wide_rdata_int_per_req[66]` << 2) | (`wide_rdata_int_per_req[65]` << 1) | `wide_rdata_int_per_req[64]`) << 1) | (((`wide_rresp_int_per_req[3]` << 1) | `wide_rresp_int_per_req[2]`) << 0x41) | ((`r_data_shift_per_req[1]` & 1) << 0x43)
-  `rtracker_mux_in[68]` = t235 & 1
-  `rtracker_mux_in[69]` = (t235 >> 1) & 1
-  `rtracker_mux_in[70]` = (t235 >> 2) & 1
-  `rtracker_mux_in[71]` = (t235 >> 3) & 1
-  `rtracker_mux_in[72]` = (t235 >> 4) & 1
-  `rtracker_mux_in[73]` = (t235 >> 5) & 1
-  `rtracker_mux_in[74]` = (t235 >> 6) & 1
-  `rtracker_mux_in[75]` = (t235 >> 7) & 1
-  `rtracker_mux_in[76]` = (t235 >> 8) & 1
-  `rtracker_mux_in[77]` = (t235 >> 9) & 1
-  `rtracker_mux_in[78]` = (t235 >> 10) & 1
-  `rtracker_mux_in[79]` = (t235 >> 11) & 1
-  `rtracker_mux_in[80]` = (t235 >> 12) & 1
-  `rtracker_mux_in[81]` = (t235 >> 13) & 1
-  `rtracker_mux_in[82]` = (t235 >> 14) & 1
-  `rtracker_mux_in[83]` = (t235 >> 15) & 1
-  `rtracker_mux_in[84]` = (t235 >> 16) & 1
-  `rtracker_mux_in[85]` = (t235 >> 17) & 1
-  `rtracker_mux_in[86]` = (t235 >> 18) & 1
-  `rtracker_mux_in[87]` = (t235 >> 19) & 1
-  `rtracker_mux_in[88]` = (t235 >> 20) & 1
-  `rtracker_mux_in[89]` = (t235 >> 21) & 1
-  `rtracker_mux_in[90]` = (t235 >> 22) & 1
-  `rtracker_mux_in[91]` = (t235 >> 23) & 1
-  `rtracker_mux_in[92]` = (t235 >> 24) & 1
-  `rtracker_mux_in[93]` = (t235 >> 25) & 1
-  `rtracker_mux_in[94]` = (t235 >> 26) & 1
-  `rtracker_mux_in[95]` = (t235 >> 27) & 1
-  `rtracker_mux_in[96]` = (t235 >> 28) & 1
-  `rtracker_mux_in[97]` = (t235 >> 29) & 1
-  `rtracker_mux_in[98]` = (t235 >> 30) & 1
-  `rtracker_mux_in[99]` = (t235 >> 31) & 1
-  `rtracker_mux_in[100]` = (t235 >> 32) & 1
-  `rtracker_mux_in[101]` = (t235 >> 33) & 1
-  `rtracker_mux_in[102]` = (t235 >> 34) & 1
-  `rtracker_mux_in[103]` = (t235 >> 35) & 1
-  `rtracker_mux_in[104]` = (t235 >> 36) & 1
-  `rtracker_mux_in[105]` = (t235 >> 37) & 1
-  `rtracker_mux_in[106]` = (t235 >> 38) & 1
-  `rtracker_mux_in[107]` = (t235 >> 39) & 1
-  `rtracker_mux_in[108]` = (t235 >> 40) & 1
-  `rtracker_mux_in[109]` = (t235 >> 41) & 1
-  `rtracker_mux_in[110]` = (t235 >> 42) & 1
-  `rtracker_mux_in[111]` = (t235 >> 43) & 1
-  `rtracker_mux_in[112]` = (t235 >> 44) & 1
-  `rtracker_mux_in[113]` = (t235 >> 45) & 1
-  `rtracker_mux_in[114]` = (t235 >> 46) & 1
-  `rtracker_mux_in[115]` = (t235 >> 47) & 1
-  `rtracker_mux_in[116]` = (t235 >> 48) & 1
-  `rtracker_mux_in[117]` = (t235 >> 49) & 1
-  `rtracker_mux_in[118]` = (t235 >> 50) & 1
-  `rtracker_mux_in[119]` = (t235 >> 51) & 1
-  `rtracker_mux_in[120]` = (t235 >> 52) & 1
-  `rtracker_mux_in[121]` = (t235 >> 53) & 1
-  `rtracker_mux_in[122]` = (t235 >> 54) & 1
-  `rtracker_mux_in[123]` = (t235 >> 55) & 1
-  `rtracker_mux_in[124]` = (t235 >> 56) & 1
-  `rtracker_mux_in[125]` = (t235 >> 57) & 1
-  `rtracker_mux_in[126]` = (t235 >> 58) & 1
-  `rtracker_mux_in[127]` = (t235 >> 59) & 1
-  `rtracker_mux_in[128]` = (t235 >> 60) & 1
-  `rtracker_mux_in[129]` = (t235 >> 61) & 1
-  `rtracker_mux_in[130]` = (t235 >> 62) & 1
-  `rtracker_mux_in[131]` = (t235 >> 63) & 1
-  `rtracker_mux_in[132]` = (t235 >> 0x40) & 1
-  `rtracker_mux_in[133]` = (t235 >> 0x41) & 1
-  `rtracker_mux_in[134]` = (t235 >> 0x42) & 1
-  `rtracker_mux_in[135]` = (t235 >> 0x43) & 1
-  const t380 = (`r_beat_last_per_req[2]` & 1) | (((`wide_rdata_int_per_req[191]` << 63) | (`wide_rdata_int_per_req[190]` << 62) | (`wide_rdata_int_per_req[189]` << 61) | (`wide_rdata_int_per_req[188]` << 60) | (`wide_rdata_int_per_req[187]` << 59) | (`wide_rdata_int_per_req[186]` << 58) | (`wide_rdata_int_per_req[185]` << 57) | (`wide_rdata_int_per_req[184]` << 56) | (`wide_rdata_int_per_req[183]` << 55) | (`wide_rdata_int_per_req[182]` << 54) | (`wide_rdata_int_per_req[181]` << 53) | (`wide_rdata_int_per_req[180]` << 52) | (`wide_rdata_int_per_req[179]` << 51) | (`wide_rdata_int_per_req[178]` << 50) | (`wide_rdata_int_per_req[177]` << 49) | (`wide_rdata_int_per_req[176]` << 48) | (`wide_rdata_int_per_req[175]` << 47) | (`wide_rdata_int_per_req[174]` << 46) | (`wide_rdata_int_per_req[173]` << 45) | (`wide_rdata_int_per_req[172]` << 44) | (`wide_rdata_int_per_req[171]` << 43) | (`wide_rdata_int_per_req[170]` << 42) | (`wide_rdata_int_per_req[169]` << 41) | (`wide_rdata_int_per_req[168]` << 40) | (`wide_rdata_int_per_req[167]` << 39) | (`wide_rdata_int_per_req[166]` << 38) | (`wide_rdata_int_per_req[165]` << 37) | (`wide_rdata_int_per_req[164]` << 36) | (`wide_rdata_int_per_req[163]` << 35) | (`wide_rdata_int_per_req[162]` << 34) | (`wide_rdata_int_per_req[161]` << 33) | (`wide_rdata_int_per_req[160]` << 32) | (`wide_rdata_int_per_req[159]` << 31) | (`wide_rdata_int_per_req[158]` << 30) | (`wide_rdata_int_per_req[157]` << 29) | (`wide_rdata_int_per_req[156]` << 28) | (`wide_rdata_int_per_req[155]` << 27) | (`wide_rdata_int_per_req[154]` << 26) | (`wide_rdata_int_per_req[153]` << 25) | (`wide_rdata_int_per_req[152]` << 24) | (`wide_rdata_int_per_req[151]` << 23) | (`wide_rdata_int_per_req[150]` << 22) | (`wide_rdata_int_per_req[149]` << 21) | (`wide_rdata_int_per_req[148]` << 20) | (`wide_rdata_int_per_req[147]` << 19) | (`wide_rdata_int_per_req[146]` << 18) | (`wide_rdata_int_per_req[145]` << 17) | (`wide_rdata_int_per_req[144]` << 16) | (`wide_rdata_int_per_req[143]` << 15) | (`wide_rdata_int_per_req[142]` << 14) | (`wide_rdata_int_per_req[141]` << 13) | (`wide_rdata_int_per_req[140]` << 12) | (`wide_rdata_int_per_req[139]` << 11) | (`wide_rdata_int_per_req[138]` << 10) | (`wide_rdata_int_per_req[137]` << 9) | (`wide_rdata_int_per_req[136]` << 8) | (`wide_rdata_int_per_req[135]` << 7) | (`wide_rdata_int_per_req[134]` << 6) | (`wide_rdata_int_per_req[133]` << 5) | (`wide_rdata_int_per_req[132]` << 4) | (`wide_rdata_int_per_req[131]` << 3) | (`wide_rdata_int_per_req[130]` << 2) | (`wide_rdata_int_per_req[129]` << 1) | `wide_rdata_int_per_req[128]`) << 1) | (((`wide_rresp_int_per_req[5]` << 1) | `wide_rresp_int_per_req[4]`) << 0x41) | ((`r_data_shift_per_req[2]` & 1) << 0x43)
-  `rtracker_mux_in[136]` = t380 & 1
-  `rtracker_mux_in[137]` = (t380 >> 1) & 1
-  `rtracker_mux_in[138]` = (t380 >> 2) & 1
-  `rtracker_mux_in[139]` = (t380 >> 3) & 1
-  `rtracker_mux_in[140]` = (t380 >> 4) & 1
-  `rtracker_mux_in[141]` = (t380 >> 5) & 1
-  `rtracker_mux_in[142]` = (t380 >> 6) & 1
-  `rtracker_mux_in[143]` = (t380 >> 7) & 1
-  `rtracker_mux_in[144]` = (t380 >> 8) & 1
-  `rtracker_mux_in[145]` = (t380 >> 9) & 1
-  `rtracker_mux_in[146]` = (t380 >> 10) & 1
-  `rtracker_mux_in[147]` = (t380 >> 11) & 1
-  `rtracker_mux_in[148]` = (t380 >> 12) & 1
-  `rtracker_mux_in[149]` = (t380 >> 13) & 1
-  `rtracker_mux_in[150]` = (t380 >> 14) & 1
-  `rtracker_mux_in[151]` = (t380 >> 15) & 1
-  `rtracker_mux_in[152]` = (t380 >> 16) & 1
-  `rtracker_mux_in[153]` = (t380 >> 17) & 1
-  `rtracker_mux_in[154]` = (t380 >> 18) & 1
-  `rtracker_mux_in[155]` = (t380 >> 19) & 1
-  `rtracker_mux_in[156]` = (t380 >> 20) & 1
-  `rtracker_mux_in[157]` = (t380 >> 21) & 1
-  `rtracker_mux_in[158]` = (t380 >> 22) & 1
-  `rtracker_mux_in[159]` = (t380 >> 23) & 1
-  `rtracker_mux_in[160]` = (t380 >> 24) & 1
-  `rtracker_mux_in[161]` = (t380 >> 25) & 1
-  `rtracker_mux_in[162]` = (t380 >> 26) & 1
-  `rtracker_mux_in[163]` = (t380 >> 27) & 1
-  `rtracker_mux_in[164]` = (t380 >> 28) & 1
-  `rtracker_mux_in[165]` = (t380 >> 29) & 1
-  `rtracker_mux_in[166]` = (t380 >> 30) & 1
-  `rtracker_mux_in[167]` = (t380 >> 31) & 1
-  `rtracker_mux_in[168]` = (t380 >> 32) & 1
-  `rtracker_mux_in[169]` = (t380 >> 33) & 1
-  `rtracker_mux_in[170]` = (t380 >> 34) & 1
-  `rtracker_mux_in[171]` = (t380 >> 35) & 1
-  `rtracker_mux_in[172]` = (t380 >> 36) & 1
-  `rtracker_mux_in[173]` = (t380 >> 37) & 1
-  `rtracker_mux_in[174]` = (t380 >> 38) & 1
-  `rtracker_mux_in[175]` = (t380 >> 39) & 1
-  `rtracker_mux_in[176]` = (t380 >> 40) & 1
-  `rtracker_mux_in[177]` = (t380 >> 41) & 1
-  `rtracker_mux_in[178]` = (t380 >> 42) & 1
-  `rtracker_mux_in[179]` = (t380 >> 43) & 1
-  `rtracker_mux_in[180]` = (t380 >> 44) & 1
-  `rtracker_mux_in[181]` = (t380 >> 45) & 1
-  `rtracker_mux_in[182]` = (t380 >> 46) & 1
-  `rtracker_mux_in[183]` = (t380 >> 47) & 1
-  `rtracker_mux_in[184]` = (t380 >> 48) & 1
-  `rtracker_mux_in[185]` = (t380 >> 49) & 1
-  `rtracker_mux_in[186]` = (t380 >> 50) & 1
-  `rtracker_mux_in[187]` = (t380 >> 51) & 1
-  `rtracker_mux_in[188]` = (t380 >> 52) & 1
-  `rtracker_mux_in[189]` = (t380 >> 53) & 1
-  `rtracker_mux_in[190]` = (t380 >> 54) & 1
-  `rtracker_mux_in[191]` = (t380 >> 55) & 1
-  `rtracker_mux_in[192]` = (t380 >> 56) & 1
-  `rtracker_mux_in[193]` = (t380 >> 57) & 1
-  `rtracker_mux_in[194]` = (t380 >> 58) & 1
-  `rtracker_mux_in[195]` = (t380 >> 59) & 1
-  `rtracker_mux_in[196]` = (t380 >> 60) & 1
-  `rtracker_mux_in[197]` = (t380 >> 61) & 1
-  `rtracker_mux_in[198]` = (t380 >> 62) & 1
-  `rtracker_mux_in[199]` = (t380 >> 63) & 1
-  `rtracker_mux_in[200]` = (t380 >> 0x40) & 1
-  `rtracker_mux_in[201]` = (t380 >> 0x41) & 1
-  `rtracker_mux_in[202]` = (t380 >> 0x42) & 1
-  `rtracker_mux_in[203]` = (t380 >> 0x43) & 1
-  const t525 = (`r_beat_last_per_req[3]` & 1) | (((`wide_rdata_int_per_req[255]` << 63) | (`wide_rdata_int_per_req[254]` << 62) | (`wide_rdata_int_per_req[253]` << 61) | (`wide_rdata_int_per_req[252]` << 60) | (`wide_rdata_int_per_req[251]` << 59) | (`wide_rdata_int_per_req[250]` << 58) | (`wide_rdata_int_per_req[249]` << 57) | (`wide_rdata_int_per_req[248]` << 56) | (`wide_rdata_int_per_req[247]` << 55) | (`wide_rdata_int_per_req[246]` << 54) | (`wide_rdata_int_per_req[245]` << 53) | (`wide_rdata_int_per_req[244]` << 52) | (`wide_rdata_int_per_req[243]` << 51) | (`wide_rdata_int_per_req[242]` << 50) | (`wide_rdata_int_per_req[241]` << 49) | (`wide_rdata_int_per_req[240]` << 48) | (`wide_rdata_int_per_req[239]` << 47) | (`wide_rdata_int_per_req[238]` << 46) | (`wide_rdata_int_per_req[237]` << 45) | (`wide_rdata_int_per_req[236]` << 44) | (`wide_rdata_int_per_req[235]` << 43) | (`wide_rdata_int_per_req[234]` << 42) | (`wide_rdata_int_per_req[233]` << 41) | (`wide_rdata_int_per_req[232]` << 40) | (`wide_rdata_int_per_req[231]` << 39) | (`wide_rdata_int_per_req[230]` << 38) | (`wide_rdata_int_per_req[229]` << 37) | (`wide_rdata_int_per_req[228]` << 36) | (`wide_rdata_int_per_req[227]` << 35) | (`wide_rdata_int_per_req[226]` << 34) | (`wide_rdata_int_per_req[225]` << 33) | (`wide_rdata_int_per_req[224]` << 32) | (`wide_rdata_int_per_req[223]` << 31) | (`wide_rdata_int_per_req[222]` << 30) | (`wide_rdata_int_per_req[221]` << 29) | (`wide_rdata_int_per_req[220]` << 28) | (`wide_rdata_int_per_req[219]` << 27) | (`wide_rdata_int_per_req[218]` << 26) | (`wide_rdata_int_per_req[217]` << 25) | (`wide_rdata_int_per_req[216]` << 24) | (`wide_rdata_int_per_req[215]` << 23) | (`wide_rdata_int_per_req[214]` << 22) | (`wide_rdata_int_per_req[213]` << 21) | (`wide_rdata_int_per_req[212]` << 20) | (`wide_rdata_int_per_req[211]` << 19) | (`wide_rdata_int_per_req[210]` << 18) | (`wide_rdata_int_per_req[209]` << 17) | (`wide_rdata_int_per_req[208]` << 16) | (`wide_rdata_int_per_req[207]` << 15) | (`wide_rdata_int_per_req[206]` << 14) | (`wide_rdata_int_per_req[205]` << 13) | (`wide_rdata_int_per_req[204]` << 12) | (`wide_rdata_int_per_req[203]` << 11) | (`wide_rdata_int_per_req[202]` << 10) | (`wide_rdata_int_per_req[201]` << 9) | (`wide_rdata_int_per_req[200]` << 8) | (`wide_rdata_int_per_req[199]` << 7) | (`wide_rdata_int_per_req[198]` << 6) | (`wide_rdata_int_per_req[197]` << 5) | (`wide_rdata_int_per_req[196]` << 4) | (`wide_rdata_int_per_req[195]` << 3) | (`wide_rdata_int_per_req[194]` << 2) | (`wide_rdata_int_per_req[193]` << 1) | `wide_rdata_int_per_req[192]`) << 1) | (((`wide_rresp_int_per_req[7]` << 1) | `wide_rresp_int_per_req[6]`) << 0x41) | ((`r_data_shift_per_req[3]` & 1) << 0x43)
-  `rtracker_mux_in[204]` = t525 & 1
-  `rtracker_mux_in[205]` = (t525 >> 1) & 1
-  `rtracker_mux_in[206]` = (t525 >> 2) & 1
-  `rtracker_mux_in[207]` = (t525 >> 3) & 1
-  `rtracker_mux_in[208]` = (t525 >> 4) & 1
-  `rtracker_mux_in[209]` = (t525 >> 5) & 1
-  `rtracker_mux_in[210]` = (t525 >> 6) & 1
-  `rtracker_mux_in[211]` = (t525 >> 7) & 1
-  `rtracker_mux_in[212]` = (t525 >> 8) & 1
-  `rtracker_mux_in[213]` = (t525 >> 9) & 1
-  `rtracker_mux_in[214]` = (t525 >> 10) & 1
-  `rtracker_mux_in[215]` = (t525 >> 11) & 1
-  `rtracker_mux_in[216]` = (t525 >> 12) & 1
-  `rtracker_mux_in[217]` = (t525 >> 13) & 1
-  `rtracker_mux_in[218]` = (t525 >> 14) & 1
-  `rtracker_mux_in[219]` = (t525 >> 15) & 1
-  `rtracker_mux_in[220]` = (t525 >> 16) & 1
-  `rtracker_mux_in[221]` = (t525 >> 17) & 1
-  `rtracker_mux_in[222]` = (t525 >> 18) & 1
-  `rtracker_mux_in[223]` = (t525 >> 19) & 1
-  `rtracker_mux_in[224]` = (t525 >> 20) & 1
-  `rtracker_mux_in[225]` = (t525 >> 21) & 1
-  `rtracker_mux_in[226]` = (t525 >> 22) & 1
-  `rtracker_mux_in[227]` = (t525 >> 23) & 1
-  `rtracker_mux_in[228]` = (t525 >> 24) & 1
-  `rtracker_mux_in[229]` = (t525 >> 25) & 1
-  `rtracker_mux_in[230]` = (t525 >> 26) & 1
-  `rtracker_mux_in[231]` = (t525 >> 27) & 1
-  `rtracker_mux_in[232]` = (t525 >> 28) & 1
-  `rtracker_mux_in[233]` = (t525 >> 29) & 1
-  `rtracker_mux_in[234]` = (t525 >> 30) & 1
-  `rtracker_mux_in[235]` = (t525 >> 31) & 1
-  `rtracker_mux_in[236]` = (t525 >> 32) & 1
-  `rtracker_mux_in[237]` = (t525 >> 33) & 1
-  `rtracker_mux_in[238]` = (t525 >> 34) & 1
-  `rtracker_mux_in[239]` = (t525 >> 35) & 1
-  `rtracker_mux_in[240]` = (t525 >> 36) & 1
-  `rtracker_mux_in[241]` = (t525 >> 37) & 1
-  `rtracker_mux_in[242]` = (t525 >> 38) & 1
-  `rtracker_mux_in[243]` = (t525 >> 39) & 1
-  `rtracker_mux_in[244]` = (t525 >> 40) & 1
-  `rtracker_mux_in[245]` = (t525 >> 41) & 1
-  `rtracker_mux_in[246]` = (t525 >> 42) & 1
-  `rtracker_mux_in[247]` = (t525 >> 43) & 1
-  `rtracker_mux_in[248]` = (t525 >> 44) & 1
-  `rtracker_mux_in[249]` = (t525 >> 45) & 1
-  `rtracker_mux_in[250]` = (t525 >> 46) & 1
-  `rtracker_mux_in[251]` = (t525 >> 47) & 1
-  `rtracker_mux_in[252]` = (t525 >> 48) & 1
-  `rtracker_mux_in[253]` = (t525 >> 49) & 1
-  `rtracker_mux_in[254]` = (t525 >> 50) & 1
-  `rtracker_mux_in[255]` = (t525 >> 51) & 1
-  `rtracker_mux_in[256]` = (t525 >> 52) & 1
-  `rtracker_mux_in[257]` = (t525 >> 53) & 1
-  `rtracker_mux_in[258]` = (t525 >> 54) & 1
-  `rtracker_mux_in[259]` = (t525 >> 55) & 1
-  `rtracker_mux_in[260]` = (t525 >> 56) & 1
-  `rtracker_mux_in[261]` = (t525 >> 57) & 1
-  `rtracker_mux_in[262]` = (t525 >> 58) & 1
-  `rtracker_mux_in[263]` = (t525 >> 59) & 1
-  `rtracker_mux_in[264]` = (t525 >> 60) & 1
-  `rtracker_mux_in[265]` = (t525 >> 61) & 1
-  `rtracker_mux_in[266]` = (t525 >> 62) & 1
-  `rtracker_mux_in[267]` = (t525 >> 63) & 1
-  `rtracker_mux_in[268]` = (t525 >> 0x40) & 1
-  `rtracker_mux_in[269]` = (t525 >> 0x41) & 1
-  `rtracker_mux_in[270]` = (t525 >> 0x42) & 1
-  `rtracker_mux_in[271]` = (t525 >> 0x43) & 1
-  mut gen_narrow_reg_br_flow_reg_fwd_narrow_ar = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_ar](clk=clk, rst=rst, push_valid=_b2i_9, push_data=(wide_arid << 49) | (narrow_araddr_int__w1 << 17) | (br_shift_left_arlen.out#[0..=7] << 9) | (narrow_arsize_int__w1 << 6) | (narrow_arburst_int__w1 << 4) | (wide_arprot << 1) | (wide_aruser & 1), pop_ready=narrow_arready)
+  const narrow_wvalid_int = _b2i_7
+  const read_index = wide_arid#[0..=1]
+  const resp_index = narrow_rid#[0..=1]
+  mut br_enc_bin2onehot_read_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_read_index](clk=clk, rst=rst, `in`=read_index, in_valid=wide_arvalid)
+  const read_index_onehot = br_enc_bin2onehot_read_index
+  mut br_enc_bin2onehot_resp_index = br_enc_bin2onehot::[name=br_enc_bin2onehot_resp_index](clk=clk, rst=rst, `in`=resp_index, in_valid=narrow_rvalid)
+  const resp_index_onehot = br_enc_bin2onehot_resp_index
+  mut _b2i_8 = if not ((read_active & read_index_onehot) != 0) { 1 } else { 0 }
+  const read_index_available = _b2i_8
+  mut _b2i_9 = if wide_arvalid != 0 and read_index_available != 0 { 1 } else { 0 }
+  mut `read_table_wr_data.offset` = wide_araddr#[0..=2]
+  mut `read_table_wr_data.size` = narrow_arsize_int
+  mut `read_table_wr_data.burst` = wide_arburst
+  mut `read_table_wr_data.shift` = arsize_diff & 1
+  mut _mux_10:U4 = if narrow_rlast != 0 { (r_first | resp_index_onehot)#[0..=3] } else { r_first & (~resp_index_onehot#[0..=3]) }
+  const t90 = (r_beat_last_per_req_bits#[0] & 1) | (((wide_rdata_int_per_req_bits#[63] << 63) | (wide_rdata_int_per_req_bits#[62] << 62) | (wide_rdata_int_per_req_bits#[61] << 61) | (wide_rdata_int_per_req_bits#[60] << 60) | (wide_rdata_int_per_req_bits#[59] << 59) | (wide_rdata_int_per_req_bits#[58] << 58) | (wide_rdata_int_per_req_bits#[57] << 57) | (wide_rdata_int_per_req_bits#[56] << 56) | (wide_rdata_int_per_req_bits#[55] << 55) | (wide_rdata_int_per_req_bits#[54] << 54) | (wide_rdata_int_per_req_bits#[53] << 53) | (wide_rdata_int_per_req_bits#[52] << 52) | (wide_rdata_int_per_req_bits#[51] << 51) | (wide_rdata_int_per_req_bits#[50] << 50) | (wide_rdata_int_per_req_bits#[49] << 49) | (wide_rdata_int_per_req_bits#[48] << 48) | (wide_rdata_int_per_req_bits#[47] << 47) | (wide_rdata_int_per_req_bits#[46] << 46) | (wide_rdata_int_per_req_bits#[45] << 45) | (wide_rdata_int_per_req_bits#[44] << 44) | (wide_rdata_int_per_req_bits#[43] << 43) | (wide_rdata_int_per_req_bits#[42] << 42) | (wide_rdata_int_per_req_bits#[41] << 41) | (wide_rdata_int_per_req_bits#[40] << 40) | (wide_rdata_int_per_req_bits#[39] << 39) | (wide_rdata_int_per_req_bits#[38] << 38) | (wide_rdata_int_per_req_bits#[37] << 37) | (wide_rdata_int_per_req_bits#[36] << 36) | (wide_rdata_int_per_req_bits#[35] << 35) | (wide_rdata_int_per_req_bits#[34] << 34) | (wide_rdata_int_per_req_bits#[33] << 33) | (wide_rdata_int_per_req_bits#[32] << 32) | (wide_rdata_int_per_req_bits#[31] << 31) | (wide_rdata_int_per_req_bits#[30] << 30) | (wide_rdata_int_per_req_bits#[29] << 29) | (wide_rdata_int_per_req_bits#[28] << 28) | (wide_rdata_int_per_req_bits#[27] << 27) | (wide_rdata_int_per_req_bits#[26] << 26) | (wide_rdata_int_per_req_bits#[25] << 25) | (wide_rdata_int_per_req_bits#[24] << 24) | (wide_rdata_int_per_req_bits#[23] << 23) | (wide_rdata_int_per_req_bits#[22] << 22) | (wide_rdata_int_per_req_bits#[21] << 21) | (wide_rdata_int_per_req_bits#[20] << 20) | (wide_rdata_int_per_req_bits#[19] << 19) | (wide_rdata_int_per_req_bits#[18] << 18) | (wide_rdata_int_per_req_bits#[17] << 17) | (wide_rdata_int_per_req_bits#[16] << 16) | (wide_rdata_int_per_req_bits#[15] << 15) | (wide_rdata_int_per_req_bits#[14] << 14) | (wide_rdata_int_per_req_bits#[13] << 13) | (wide_rdata_int_per_req_bits#[12] << 12) | (wide_rdata_int_per_req_bits#[11] << 11) | (wide_rdata_int_per_req_bits#[10] << 10) | (wide_rdata_int_per_req_bits#[9] << 9) | (wide_rdata_int_per_req_bits#[8] << 8) | (wide_rdata_int_per_req_bits#[7] << 7) | (wide_rdata_int_per_req_bits#[6] << 6) | (wide_rdata_int_per_req_bits#[5] << 5) | (wide_rdata_int_per_req_bits#[4] << 4) | (wide_rdata_int_per_req_bits#[3] << 3) | (wide_rdata_int_per_req_bits#[2] << 2) | (wide_rdata_int_per_req_bits#[1] << 1) | wide_rdata_int_per_req_bits#[0]) << 1) | (((wide_rresp_int_per_req_bits#[1] << 1) | wide_rresp_int_per_req_bits#[0]) << 0x41) | ((r_data_shift_per_req_bits#[0] & 1) << 0x43)
+  rtracker_mux_in_bits#[0..<64] = t90#[0..<64]
+  rtracker_mux_in_bits#[64] = (t90 >> 0x40) & 1
+  rtracker_mux_in_bits#[65] = (t90 >> 0x41) & 1
+  rtracker_mux_in_bits#[66] = (t90 >> 0x42) & 1
+  rtracker_mux_in_bits#[67] = (t90 >> 0x43) & 1
+  const t235 = (r_beat_last_per_req_bits#[1] & 1) | (((wide_rdata_int_per_req_bits#[127] << 63) | (wide_rdata_int_per_req_bits#[126] << 62) | (wide_rdata_int_per_req_bits#[125] << 61) | (wide_rdata_int_per_req_bits#[124] << 60) | (wide_rdata_int_per_req_bits#[123] << 59) | (wide_rdata_int_per_req_bits#[122] << 58) | (wide_rdata_int_per_req_bits#[121] << 57) | (wide_rdata_int_per_req_bits#[120] << 56) | (wide_rdata_int_per_req_bits#[119] << 55) | (wide_rdata_int_per_req_bits#[118] << 54) | (wide_rdata_int_per_req_bits#[117] << 53) | (wide_rdata_int_per_req_bits#[116] << 52) | (wide_rdata_int_per_req_bits#[115] << 51) | (wide_rdata_int_per_req_bits#[114] << 50) | (wide_rdata_int_per_req_bits#[113] << 49) | (wide_rdata_int_per_req_bits#[112] << 48) | (wide_rdata_int_per_req_bits#[111] << 47) | (wide_rdata_int_per_req_bits#[110] << 46) | (wide_rdata_int_per_req_bits#[109] << 45) | (wide_rdata_int_per_req_bits#[108] << 44) | (wide_rdata_int_per_req_bits#[107] << 43) | (wide_rdata_int_per_req_bits#[106] << 42) | (wide_rdata_int_per_req_bits#[105] << 41) | (wide_rdata_int_per_req_bits#[104] << 40) | (wide_rdata_int_per_req_bits#[103] << 39) | (wide_rdata_int_per_req_bits#[102] << 38) | (wide_rdata_int_per_req_bits#[101] << 37) | (wide_rdata_int_per_req_bits#[100] << 36) | (wide_rdata_int_per_req_bits#[99] << 35) | (wide_rdata_int_per_req_bits#[98] << 34) | (wide_rdata_int_per_req_bits#[97] << 33) | (wide_rdata_int_per_req_bits#[96] << 32) | (wide_rdata_int_per_req_bits#[95] << 31) | (wide_rdata_int_per_req_bits#[94] << 30) | (wide_rdata_int_per_req_bits#[93] << 29) | (wide_rdata_int_per_req_bits#[92] << 28) | (wide_rdata_int_per_req_bits#[91] << 27) | (wide_rdata_int_per_req_bits#[90] << 26) | (wide_rdata_int_per_req_bits#[89] << 25) | (wide_rdata_int_per_req_bits#[88] << 24) | (wide_rdata_int_per_req_bits#[87] << 23) | (wide_rdata_int_per_req_bits#[86] << 22) | (wide_rdata_int_per_req_bits#[85] << 21) | (wide_rdata_int_per_req_bits#[84] << 20) | (wide_rdata_int_per_req_bits#[83] << 19) | (wide_rdata_int_per_req_bits#[82] << 18) | (wide_rdata_int_per_req_bits#[81] << 17) | (wide_rdata_int_per_req_bits#[80] << 16) | (wide_rdata_int_per_req_bits#[79] << 15) | (wide_rdata_int_per_req_bits#[78] << 14) | (wide_rdata_int_per_req_bits#[77] << 13) | (wide_rdata_int_per_req_bits#[76] << 12) | (wide_rdata_int_per_req_bits#[75] << 11) | (wide_rdata_int_per_req_bits#[74] << 10) | (wide_rdata_int_per_req_bits#[73] << 9) | (wide_rdata_int_per_req_bits#[72] << 8) | (wide_rdata_int_per_req_bits#[71] << 7) | (wide_rdata_int_per_req_bits#[70] << 6) | (wide_rdata_int_per_req_bits#[69] << 5) | (wide_rdata_int_per_req_bits#[68] << 4) | (wide_rdata_int_per_req_bits#[67] << 3) | (wide_rdata_int_per_req_bits#[66] << 2) | (wide_rdata_int_per_req_bits#[65] << 1) | wide_rdata_int_per_req_bits#[64]) << 1) | (((wide_rresp_int_per_req_bits#[3] << 1) | wide_rresp_int_per_req_bits#[2]) << 0x41) | ((r_data_shift_per_req_bits#[1] & 1) << 0x43)
+  rtracker_mux_in_bits#[68..<132] = t235#[0..<64]
+  rtracker_mux_in_bits#[132] = (t235 >> 0x40) & 1
+  rtracker_mux_in_bits#[133] = (t235 >> 0x41) & 1
+  rtracker_mux_in_bits#[134] = (t235 >> 0x42) & 1
+  rtracker_mux_in_bits#[135] = (t235 >> 0x43) & 1
+  const t380 = (r_beat_last_per_req_bits#[2] & 1) | (((wide_rdata_int_per_req_bits#[191] << 63) | (wide_rdata_int_per_req_bits#[190] << 62) | (wide_rdata_int_per_req_bits#[189] << 61) | (wide_rdata_int_per_req_bits#[188] << 60) | (wide_rdata_int_per_req_bits#[187] << 59) | (wide_rdata_int_per_req_bits#[186] << 58) | (wide_rdata_int_per_req_bits#[185] << 57) | (wide_rdata_int_per_req_bits#[184] << 56) | (wide_rdata_int_per_req_bits#[183] << 55) | (wide_rdata_int_per_req_bits#[182] << 54) | (wide_rdata_int_per_req_bits#[181] << 53) | (wide_rdata_int_per_req_bits#[180] << 52) | (wide_rdata_int_per_req_bits#[179] << 51) | (wide_rdata_int_per_req_bits#[178] << 50) | (wide_rdata_int_per_req_bits#[177] << 49) | (wide_rdata_int_per_req_bits#[176] << 48) | (wide_rdata_int_per_req_bits#[175] << 47) | (wide_rdata_int_per_req_bits#[174] << 46) | (wide_rdata_int_per_req_bits#[173] << 45) | (wide_rdata_int_per_req_bits#[172] << 44) | (wide_rdata_int_per_req_bits#[171] << 43) | (wide_rdata_int_per_req_bits#[170] << 42) | (wide_rdata_int_per_req_bits#[169] << 41) | (wide_rdata_int_per_req_bits#[168] << 40) | (wide_rdata_int_per_req_bits#[167] << 39) | (wide_rdata_int_per_req_bits#[166] << 38) | (wide_rdata_int_per_req_bits#[165] << 37) | (wide_rdata_int_per_req_bits#[164] << 36) | (wide_rdata_int_per_req_bits#[163] << 35) | (wide_rdata_int_per_req_bits#[162] << 34) | (wide_rdata_int_per_req_bits#[161] << 33) | (wide_rdata_int_per_req_bits#[160] << 32) | (wide_rdata_int_per_req_bits#[159] << 31) | (wide_rdata_int_per_req_bits#[158] << 30) | (wide_rdata_int_per_req_bits#[157] << 29) | (wide_rdata_int_per_req_bits#[156] << 28) | (wide_rdata_int_per_req_bits#[155] << 27) | (wide_rdata_int_per_req_bits#[154] << 26) | (wide_rdata_int_per_req_bits#[153] << 25) | (wide_rdata_int_per_req_bits#[152] << 24) | (wide_rdata_int_per_req_bits#[151] << 23) | (wide_rdata_int_per_req_bits#[150] << 22) | (wide_rdata_int_per_req_bits#[149] << 21) | (wide_rdata_int_per_req_bits#[148] << 20) | (wide_rdata_int_per_req_bits#[147] << 19) | (wide_rdata_int_per_req_bits#[146] << 18) | (wide_rdata_int_per_req_bits#[145] << 17) | (wide_rdata_int_per_req_bits#[144] << 16) | (wide_rdata_int_per_req_bits#[143] << 15) | (wide_rdata_int_per_req_bits#[142] << 14) | (wide_rdata_int_per_req_bits#[141] << 13) | (wide_rdata_int_per_req_bits#[140] << 12) | (wide_rdata_int_per_req_bits#[139] << 11) | (wide_rdata_int_per_req_bits#[138] << 10) | (wide_rdata_int_per_req_bits#[137] << 9) | (wide_rdata_int_per_req_bits#[136] << 8) | (wide_rdata_int_per_req_bits#[135] << 7) | (wide_rdata_int_per_req_bits#[134] << 6) | (wide_rdata_int_per_req_bits#[133] << 5) | (wide_rdata_int_per_req_bits#[132] << 4) | (wide_rdata_int_per_req_bits#[131] << 3) | (wide_rdata_int_per_req_bits#[130] << 2) | (wide_rdata_int_per_req_bits#[129] << 1) | wide_rdata_int_per_req_bits#[128]) << 1) | (((wide_rresp_int_per_req_bits#[5] << 1) | wide_rresp_int_per_req_bits#[4]) << 0x41) | ((r_data_shift_per_req_bits#[2] & 1) << 0x43)
+  rtracker_mux_in_bits#[136..<200] = t380#[0..<64]
+  rtracker_mux_in_bits#[200] = (t380 >> 0x40) & 1
+  rtracker_mux_in_bits#[201] = (t380 >> 0x41) & 1
+  rtracker_mux_in_bits#[202] = (t380 >> 0x42) & 1
+  rtracker_mux_in_bits#[203] = (t380 >> 0x43) & 1
+  const t525 = (r_beat_last_per_req_bits#[3] & 1) | (((wide_rdata_int_per_req_bits#[255] << 63) | (wide_rdata_int_per_req_bits#[254] << 62) | (wide_rdata_int_per_req_bits#[253] << 61) | (wide_rdata_int_per_req_bits#[252] << 60) | (wide_rdata_int_per_req_bits#[251] << 59) | (wide_rdata_int_per_req_bits#[250] << 58) | (wide_rdata_int_per_req_bits#[249] << 57) | (wide_rdata_int_per_req_bits#[248] << 56) | (wide_rdata_int_per_req_bits#[247] << 55) | (wide_rdata_int_per_req_bits#[246] << 54) | (wide_rdata_int_per_req_bits#[245] << 53) | (wide_rdata_int_per_req_bits#[244] << 52) | (wide_rdata_int_per_req_bits#[243] << 51) | (wide_rdata_int_per_req_bits#[242] << 50) | (wide_rdata_int_per_req_bits#[241] << 49) | (wide_rdata_int_per_req_bits#[240] << 48) | (wide_rdata_int_per_req_bits#[239] << 47) | (wide_rdata_int_per_req_bits#[238] << 46) | (wide_rdata_int_per_req_bits#[237] << 45) | (wide_rdata_int_per_req_bits#[236] << 44) | (wide_rdata_int_per_req_bits#[235] << 43) | (wide_rdata_int_per_req_bits#[234] << 42) | (wide_rdata_int_per_req_bits#[233] << 41) | (wide_rdata_int_per_req_bits#[232] << 40) | (wide_rdata_int_per_req_bits#[231] << 39) | (wide_rdata_int_per_req_bits#[230] << 38) | (wide_rdata_int_per_req_bits#[229] << 37) | (wide_rdata_int_per_req_bits#[228] << 36) | (wide_rdata_int_per_req_bits#[227] << 35) | (wide_rdata_int_per_req_bits#[226] << 34) | (wide_rdata_int_per_req_bits#[225] << 33) | (wide_rdata_int_per_req_bits#[224] << 32) | (wide_rdata_int_per_req_bits#[223] << 31) | (wide_rdata_int_per_req_bits#[222] << 30) | (wide_rdata_int_per_req_bits#[221] << 29) | (wide_rdata_int_per_req_bits#[220] << 28) | (wide_rdata_int_per_req_bits#[219] << 27) | (wide_rdata_int_per_req_bits#[218] << 26) | (wide_rdata_int_per_req_bits#[217] << 25) | (wide_rdata_int_per_req_bits#[216] << 24) | (wide_rdata_int_per_req_bits#[215] << 23) | (wide_rdata_int_per_req_bits#[214] << 22) | (wide_rdata_int_per_req_bits#[213] << 21) | (wide_rdata_int_per_req_bits#[212] << 20) | (wide_rdata_int_per_req_bits#[211] << 19) | (wide_rdata_int_per_req_bits#[210] << 18) | (wide_rdata_int_per_req_bits#[209] << 17) | (wide_rdata_int_per_req_bits#[208] << 16) | (wide_rdata_int_per_req_bits#[207] << 15) | (wide_rdata_int_per_req_bits#[206] << 14) | (wide_rdata_int_per_req_bits#[205] << 13) | (wide_rdata_int_per_req_bits#[204] << 12) | (wide_rdata_int_per_req_bits#[203] << 11) | (wide_rdata_int_per_req_bits#[202] << 10) | (wide_rdata_int_per_req_bits#[201] << 9) | (wide_rdata_int_per_req_bits#[200] << 8) | (wide_rdata_int_per_req_bits#[199] << 7) | (wide_rdata_int_per_req_bits#[198] << 6) | (wide_rdata_int_per_req_bits#[197] << 5) | (wide_rdata_int_per_req_bits#[196] << 4) | (wide_rdata_int_per_req_bits#[195] << 3) | (wide_rdata_int_per_req_bits#[194] << 2) | (wide_rdata_int_per_req_bits#[193] << 1) | wide_rdata_int_per_req_bits#[192]) << 1) | (((wide_rresp_int_per_req_bits#[7] << 1) | wide_rresp_int_per_req_bits#[6]) << 0x41) | ((r_data_shift_per_req_bits#[3] & 1) << 0x43)
+  rtracker_mux_in_bits#[204..<268] = t525#[0..<64]
+  rtracker_mux_in_bits#[268] = (t525 >> 0x40) & 1
+  rtracker_mux_in_bits#[269] = (t525 >> 0x41) & 1
+  rtracker_mux_in_bits#[270] = (t525 >> 0x42) & 1
+  rtracker_mux_in_bits#[271] = (t525 >> 0x43) & 1
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_ar = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_ar](clk=clk, rst=rst, push_valid=_b2i_9, push_data=(wide_arid << 49) | (wide_araddr << 17) | (br_shift_left_arlen.out#[0..=7] << 9) | (narrow_arsize_int << 6) | (wide_arburst << 4) | (wide_arprot << 1) | (wide_aruser & 1), pop_ready=narrow_arready)
   mut gen_wide_reg_br_flow_reg_fwd_wide_b = br_flow_reg_fwd_p1::[name=gen_wide_reg_br_flow_reg_fwd_wide_b](clk=clk, rst=rst, push_valid=narrow_bvalid, push_data=(narrow_bid << 3) | ((narrow_buser & 1) << 2) | narrow_bresp, pop_ready=wide_bready)
-  mut _b2i_11 = if gen_narrow_reg_br_flow_reg_fwd_narrow_ar.push_ready != 0 and read_index_available__w1 != 0 { 1 } else { 0 }
+  mut _b2i_11 = if gen_narrow_reg_br_flow_reg_fwd_narrow_ar.push_ready != 0 and read_index_available != 0 { 1 } else { 0 }
   const wide_arready__w1 = _b2i_11
   mut _b2i_12 = if wide_arvalid != 0 and wide_arready__w1 != 0 { 1 } else { 0 }
-  const ar_beat__w1 = _b2i_12
-  mut _rep_13:U4 = if (ar_beat__w1 & 1) != 0 { 15 } else { 0 }
-  mut br_ram_flops_read_table = br_ram_flops::[name=br_ram_flops_read_table](wr_clk=clk, wr_rst=rst, wr_valid=ar_beat__w1, wr_addr=read_index__w1, wr_data=(`read_table_wr_data.offset` << 6) | (`read_table_wr_data.size` << 3) | (`read_table_wr_data.burst` << 1) | `read_table_wr_data.shift`, wr_word_en=1, rd_clk=clk, rd_rst=rst, rd_addr_valid=narrow_rvalid, rd_addr=resp_index__w1)
+  const ar_beat = _b2i_12
+  mut _rep_13:U4 = if (ar_beat & 1) != 0 { 15 } else { 0 }
+  mut br_ram_flops_read_table = br_ram_flops::[name=br_ram_flops_read_table](wr_clk=clk, wr_rst=rst, wr_valid=ar_beat, wr_addr=read_index, wr_data=(`read_table_wr_data.offset` << 6) | (`read_table_wr_data.size` << 3) | (`read_table_wr_data.burst` << 1) | `read_table_wr_data.shift`, wr_word_en=1, rd_clk=clk, rd_rst=rst, rd_addr_valid=narrow_rvalid, rd_addr=resp_index)
   mut `read_table_rd_data.offset` = br_ram_flops_read_table.rd_data#[6..=8]
   mut `read_table_rd_data.size` = br_ram_flops_read_table.rd_data#[3..=5]
   mut `read_table_rd_data.burst` = br_ram_flops_read_table.rd_data#[1..=2]
   mut `read_table_rd_data.shift` = br_ram_flops_read_table.rd_data & 1
-  br_misc_unused_p3::[name=br_misc_unused_read_table_rd_data_valid](`in`=br_ram_flops_read_table.rd_data_valid)
   mut br_flow_fork_aw = br_flow_fork::[name=br_flow_fork_aw](clk=clk, rst=rst, push_valid=wide_awvalid, pop_ready=((write_fifo_push_ready & 1) << 1) | (narrow_awready_int & 1))
   mut gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo = br_fifo_flops::[name=gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo](clk=clk, rst=rst, push_valid=(br_flow_fork_aw.pop_valid_unstable >> 1) & 1, push_data=((`write_fifo_push_info.offset` << 6) | (`write_fifo_push_info.size` << 3) | (`write_fifo_push_info.burst` << 1) | `write_fifo_push_info.shift`)#[0..=8], pop_ready=write_fifo_pop_ready)
   write_fifo_push_ready = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.push_ready
@@ -926,68 +126,70 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
   mut `write_fifo_pop_info.burst` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8]#[1..=2]
   mut `write_fifo_pop_info.shift` = gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_data#[0..=8] & 1
   mut _b2i_14 = if gen_write_fifo_depth_gt1_br_fifo_flops_write_fifo.pop_valid != 0 and write_fifo_pop_ready != 0 { 1 } else { 0 }
-  const write_fifo_pop_beat__w1 = _b2i_14
-  mut _b2i_15 = if narrow_wvalid_int__w1 != 0 and narrow_wready_int != 0 { 1 } else { 0 }
-  const narrow_w_int_beat__w1 = _b2i_15
+  const write_fifo_pop_beat = _b2i_14
+  mut _b2i_15 = if narrow_wvalid_int != 0 and narrow_wready_int != 0 { 1 } else { 0 }
+  const narrow_w_int_beat = _b2i_15
   mut _b2i_16 = if w_sending == 0 or (wide_wvalid != 0 and narrow_wready_int != 0 and narrow_wlast_int != 0) { 1 } else { 0 }
   write_fifo_pop_ready = _b2i_16
-  mut _b2i_17 = if (w_sending != 0 and (not (narrow_w_int_beat__w1 != 0 and narrow_wlast_int != 0))) or write_fifo_pop_beat__w1 != 0 { 1 } else { 0 }
+  mut _b2i_17 = if (w_sending != 0 and (not (narrow_w_int_beat != 0 and narrow_wlast_int != 0))) or write_fifo_pop_beat != 0 { 1 } else { 0 }
   if not (rst != 0) {
     w_sending = _b2i_17
   }
-  mut br_amba_axi_resizer_beat_tracker_w = br_amba_axi_resizer_beat_tracker::[name=br_amba_axi_resizer_beat_tracker_w](clk=clk, rst=rst, start_valid=write_fifo_pop_beat__w1, start_offset=`write_fifo_pop_info.offset`, size=`write_fifo_pop_info.size`, burst=`write_fifo_pop_info.burst`, shift=`write_fifo_pop_info.shift`, beat_valid=narrow_w_int_beat__w1)
+  mut br_amba_axi_resizer_beat_tracker_w = br_amba_axi_resizer_beat_tracker::[name=br_amba_axi_resizer_beat_tracker_w](clk=clk, rst=rst, start_valid=write_fifo_pop_beat, start_offset=`write_fifo_pop_info.offset`, size=`write_fifo_pop_info.size`, burst=`write_fifo_pop_info.burst`, shift=`write_fifo_pop_info.shift`, beat_valid=narrow_w_int_beat)
   narrow_wlast_int = U1(wide_wlast != 0 and br_amba_axi_resizer_beat_tracker_w.beat_last != 0)
   mut br_mux_bin_w_data = br_mux_bin::[name=br_mux_bin_w_data](select=br_amba_axi_resizer_beat_tracker_w.beat_lane, `in`=wide_wdata)
   mut br_mux_bin_w_strb = br_mux_bin_p1::[name=br_mux_bin_w_strb](select=br_amba_axi_resizer_beat_tracker_w.beat_lane, `in`=wide_wstrb)
   mut _b2i_19 = if w_sending != 0 and narrow_wready_int != 0 and br_amba_axi_resizer_beat_tracker_w.beat_last != 0 { 1 } else { 0 }
   mut _b2i_20 = if narrow_rvalid != 0 and narrow_rready != 0 and narrow_rlast != 0 { 1 } else { 0 }
   mut _rep_21:U4 = if (_b2i_20 & 1) != 0 { 15 } else { 0 }
-  const read_active_next__w1 = (read_active | (_rep_13 & read_index_onehot__w1)) & (~(_rep_21 & resp_index_onehot__w1)#[0..=3])
+  const read_active_next = (read_active | (_rep_13 & read_index_onehot)) & (~(_rep_21 & resp_index_onehot)#[0..=3])
   if not (rst != 0) {
-    read_active = read_active_next__w1
+    read_active = read_active_next
   }
   mut _b2i_22 = if narrow_rvalid != 0 and narrow_rready != 0 { 1 } else { 0 }
-  const narrow_r_beat__w1 = _b2i_22
-  mut _b2i_23 = if narrow_r_beat__w1 != 0 and (r_first & resp_index_onehot__w1) != 0 { 1 } else { 0 }
-  const narrow_r_new__w1 = _b2i_23
+  const narrow_r_beat = _b2i_22
+  mut _b2i_23 = if narrow_r_beat != 0 and (r_first & resp_index_onehot) != 0 { 1 } else { 0 }
+  const narrow_r_new = _b2i_23
   mut _b2i_24 = if narrow_rvalid_int != 0 and narrow_rready_int != 0 { 1 } else { 0 }
-  const narrow_r_int_beat__w1 = _b2i_24
+  const narrow_r_int_beat = _b2i_24
   if not (rst != 0) {
-    if narrow_r_beat__w1 != 0 {
+    if narrow_r_beat != 0 {
       r_first = _mux_10
     }
   }
   mut br_flow_reg_fwd_narrow_r = br_flow_reg_fwd_p2::[name=br_flow_reg_fwd_narrow_r](clk=clk, rst=rst, push_valid=narrow_rvalid, push_data=(narrow_rid << 36) | (narrow_rresp << 34) | ((narrow_ruser & 1) << 33) | (narrow_rdata << 1) | (narrow_rlast & 1), pop_ready=narrow_rready_int)
   narrow_rready = br_flow_reg_fwd_narrow_r.push_ready
   narrow_rvalid_int = br_flow_reg_fwd_narrow_r.pop_valid
-  const narrow_rid_int__w1 = (br_flow_reg_fwd_narrow_r.pop_data >> 36)#[0..=3]
-  const narrow_rresp_int_enum__w1 = (br_flow_reg_fwd_narrow_r.pop_data >> 34)#[0..=1]
-  const r_beat_index__w1 = narrow_rid_int__w1#[0..=1]
+  const narrow_rid_int = (br_flow_reg_fwd_narrow_r.pop_data >> 36)#[0..=3]
+  const narrow_rresp_int_enum = (br_flow_reg_fwd_narrow_r.pop_data >> 34)#[0..=1]
+  const r_beat_index = narrow_rid_int#[0..=1]
   mut br_shift_left_wide_rdata = br_shift_left_p1::[name=br_shift_left_wide_rdata](`in`=(br_flow_reg_fwd_narrow_r.pop_data >> 1)#[0..=31], shift=r_data_shift, fill=0)
   narrow_rready_int = U1(r_beat_last == 0 or wide_rready_int != 0)
-  mut br_mux_bin_rtracker_mux = br_mux_bin_p2::[name=br_mux_bin_rtracker_mux](select=r_beat_index__w1, `in`=rtracker_mux_in)
+  mut br_mux_bin_rtracker_mux = br_mux_bin_p2::[name=br_mux_bin_rtracker_mux](select=r_beat_index, `in`=rtracker_mux_in)
   mut `rtracker_mux_out.shift` = (br_mux_bin_rtracker_mux.out >> 0x43) & 1
   mut `rtracker_mux_out.resp` = br_mux_bin_rtracker_mux.out#[65..=66]
   mut `rtracker_mux_out.data` = br_mux_bin_rtracker_mux.out#[1..=64]
   mut `rtracker_mux_out.beat_last` = br_mux_bin_rtracker_mux.out & 1
   r_data_shift = `rtracker_mux_out.shift`
   r_beat_last = `rtracker_mux_out.beat_last`
-  mut _b2i_27 = if narrow_r_new__w1 != 0 and (resp_index_onehot__w1 & 1) != 0 { 1 } else { 0 }
-  const gen_r_data_tracking_0_tracker_start_valid__w1 = _b2i_27
-  mut _b2i_28 = if narrow_r_int_beat__w1 != 0 and r_beat_index__w1 == 0 { 1 } else { 0 }
-  const gen_r_data_tracking_0_tracker_beat_valid__w1 = _b2i_28
-  mut gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_0_tracker_start_valid__w1, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_0_tracker_beat_valid__w1)
-  `r_data_shift_per_req[0]` = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
-  `r_beat_last_per_req[0]` = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
-  match narrow_rresp_int_enum__w1 {
+  mut _b2i_27 = if narrow_r_new != 0 and (resp_index_onehot & 1) != 0 { 1 } else { 0 }
+  const gen_r_data_tracking_0_tracker_start_valid = _b2i_27
+  mut _b2i_28 = if narrow_r_int_beat != 0 and r_beat_index == 0 { 1 } else { 0 }
+  const gen_r_data_tracking_0_tracker_beat_valid = _b2i_28
+  mut gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_0_tracker_start_valid, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_0_tracker_beat_valid)
+  r_data_shift_per_req_bits#[0] = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  r_beat_last_per_req_bits#[0] = gen_r_data_tracking_0_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum {
     == br_amba.AxiRespOkay {
       gen_r_data_tracking_0_wide_rresp_comb = wide_rresp_saved
     }
     == br_amba.AxiRespExOkay {
-      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved }
+      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespOkay { br_amba.AxiRespExOkay }
+        else { wide_rresp_saved }
     }
     == br_amba.AxiRespSlverr {
-      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+      gen_r_data_tracking_0_wide_rresp_comb = if wide_rresp_saved == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr }
+        else { br_amba.AxiRespSlverr }
     }
     == br_amba.AxiRespDecerr {
       gen_r_data_tracking_0_wide_rresp_comb = br_amba.AxiRespDecerr
@@ -996,100 +198,44 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
       gen_r_data_tracking_0_wide_rresp_comb = 0ub?
     }
   }
-  mut _mux_29:U2 = if (`r_beat_last_per_req[0]` & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_0_wide_rresp_comb }
-  `wide_rresp_int_per_req[0]` = gen_r_data_tracking_0_wide_rresp_comb & 1
-  `wide_rresp_int_per_req[1]` = (gen_r_data_tracking_0_wide_rresp_comb >> 1) & 1
-  `wide_rdata_int_per_req[0]` = (br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] & 1
-  `wide_rdata_int_per_req[1]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 1) & 1
-  `wide_rdata_int_per_req[2]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 2) & 1
-  `wide_rdata_int_per_req[3]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 3) & 1
-  `wide_rdata_int_per_req[4]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 4) & 1
-  `wide_rdata_int_per_req[5]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 5) & 1
-  `wide_rdata_int_per_req[6]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 6) & 1
-  `wide_rdata_int_per_req[7]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 7) & 1
-  `wide_rdata_int_per_req[8]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 8) & 1
-  `wide_rdata_int_per_req[9]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 9) & 1
-  `wide_rdata_int_per_req[10]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 10) & 1
-  `wide_rdata_int_per_req[11]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 11) & 1
-  `wide_rdata_int_per_req[12]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 12) & 1
-  `wide_rdata_int_per_req[13]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 13) & 1
-  `wide_rdata_int_per_req[14]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 14) & 1
-  `wide_rdata_int_per_req[15]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 15) & 1
-  `wide_rdata_int_per_req[16]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 16) & 1
-  `wide_rdata_int_per_req[17]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 17) & 1
-  `wide_rdata_int_per_req[18]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 18) & 1
-  `wide_rdata_int_per_req[19]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 19) & 1
-  `wide_rdata_int_per_req[20]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 20) & 1
-  `wide_rdata_int_per_req[21]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 21) & 1
-  `wide_rdata_int_per_req[22]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 22) & 1
-  `wide_rdata_int_per_req[23]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 23) & 1
-  `wide_rdata_int_per_req[24]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 24) & 1
-  `wide_rdata_int_per_req[25]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 25) & 1
-  `wide_rdata_int_per_req[26]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 26) & 1
-  `wide_rdata_int_per_req[27]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 27) & 1
-  `wide_rdata_int_per_req[28]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 28) & 1
-  `wide_rdata_int_per_req[29]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 29) & 1
-  `wide_rdata_int_per_req[30]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 30) & 1
-  `wide_rdata_int_per_req[31]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 31) & 1
-  `wide_rdata_int_per_req[32]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 32) & 1
-  `wide_rdata_int_per_req[33]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 33) & 1
-  `wide_rdata_int_per_req[34]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 34) & 1
-  `wide_rdata_int_per_req[35]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 35) & 1
-  `wide_rdata_int_per_req[36]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 36) & 1
-  `wide_rdata_int_per_req[37]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 37) & 1
-  `wide_rdata_int_per_req[38]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 38) & 1
-  `wide_rdata_int_per_req[39]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 39) & 1
-  `wide_rdata_int_per_req[40]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 40) & 1
-  `wide_rdata_int_per_req[41]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 41) & 1
-  `wide_rdata_int_per_req[42]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 42) & 1
-  `wide_rdata_int_per_req[43]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 43) & 1
-  `wide_rdata_int_per_req[44]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 44) & 1
-  `wide_rdata_int_per_req[45]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 45) & 1
-  `wide_rdata_int_per_req[46]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 46) & 1
-  `wide_rdata_int_per_req[47]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 47) & 1
-  `wide_rdata_int_per_req[48]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 48) & 1
-  `wide_rdata_int_per_req[49]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 49) & 1
-  `wide_rdata_int_per_req[50]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 50) & 1
-  `wide_rdata_int_per_req[51]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 51) & 1
-  `wide_rdata_int_per_req[52]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 52) & 1
-  `wide_rdata_int_per_req[53]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 53) & 1
-  `wide_rdata_int_per_req[54]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 54) & 1
-  `wide_rdata_int_per_req[55]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 55) & 1
-  `wide_rdata_int_per_req[56]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 56) & 1
-  `wide_rdata_int_per_req[57]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 57) & 1
-  `wide_rdata_int_per_req[58]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 58) & 1
-  `wide_rdata_int_per_req[59]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 59) & 1
-  `wide_rdata_int_per_req[60]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 60) & 1
-  `wide_rdata_int_per_req[61]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 61) & 1
-  `wide_rdata_int_per_req[62]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 62) & 1
-  `wide_rdata_int_per_req[63]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63] >> 63) & 1
-  mut _mux_30:U64 = if gen_r_data_tracking_0_tracker_start_valid__w1 != 0 or (`r_beat_last_per_req[0]` & 1) != 0 { 0 } else { (`wide_rdata_int_per_req[63]` << 63) | (`wide_rdata_int_per_req[62]` << 62) | (`wide_rdata_int_per_req[61]` << 61) | (`wide_rdata_int_per_req[60]` << 60) | (`wide_rdata_int_per_req[59]` << 59) | (`wide_rdata_int_per_req[58]` << 58) | (`wide_rdata_int_per_req[57]` << 57) | (`wide_rdata_int_per_req[56]` << 56) | (`wide_rdata_int_per_req[55]` << 55) | (`wide_rdata_int_per_req[54]` << 54) | (`wide_rdata_int_per_req[53]` << 53) | (`wide_rdata_int_per_req[52]` << 52) | (`wide_rdata_int_per_req[51]` << 51) | (`wide_rdata_int_per_req[50]` << 50) | (`wide_rdata_int_per_req[49]` << 49) | (`wide_rdata_int_per_req[48]` << 48) | (`wide_rdata_int_per_req[47]` << 47) | (`wide_rdata_int_per_req[46]` << 46) | (`wide_rdata_int_per_req[45]` << 45) | (`wide_rdata_int_per_req[44]` << 44) | (`wide_rdata_int_per_req[43]` << 43) | (`wide_rdata_int_per_req[42]` << 42) | (`wide_rdata_int_per_req[41]` << 41) | (`wide_rdata_int_per_req[40]` << 40) | (`wide_rdata_int_per_req[39]` << 39) | (`wide_rdata_int_per_req[38]` << 38) | (`wide_rdata_int_per_req[37]` << 37) | (`wide_rdata_int_per_req[36]` << 36) | (`wide_rdata_int_per_req[35]` << 35) | (`wide_rdata_int_per_req[34]` << 34) | (`wide_rdata_int_per_req[33]` << 33) | (`wide_rdata_int_per_req[32]` << 32) | (`wide_rdata_int_per_req[31]` << 31) | (`wide_rdata_int_per_req[30]` << 30) | (`wide_rdata_int_per_req[29]` << 29) | (`wide_rdata_int_per_req[28]` << 28) | (`wide_rdata_int_per_req[27]` << 27) | (`wide_rdata_int_per_req[26]` << 26) | (`wide_rdata_int_per_req[25]` << 25) | (`wide_rdata_int_per_req[24]` << 24) | (`wide_rdata_int_per_req[23]` << 23) | (`wide_rdata_int_per_req[22]` << 22) | (`wide_rdata_int_per_req[21]` << 21) | (`wide_rdata_int_per_req[20]` << 20) | (`wide_rdata_int_per_req[19]` << 19) | (`wide_rdata_int_per_req[18]` << 18) | (`wide_rdata_int_per_req[17]` << 17) | (`wide_rdata_int_per_req[16]` << 16) | (`wide_rdata_int_per_req[15]` << 15) | (`wide_rdata_int_per_req[14]` << 14) | (`wide_rdata_int_per_req[13]` << 13) | (`wide_rdata_int_per_req[12]` << 12) | (`wide_rdata_int_per_req[11]` << 11) | (`wide_rdata_int_per_req[10]` << 10) | (`wide_rdata_int_per_req[9]` << 9) | (`wide_rdata_int_per_req[8]` << 8) | (`wide_rdata_int_per_req[7]` << 7) | (`wide_rdata_int_per_req[6]` << 6) | (`wide_rdata_int_per_req[5]` << 5) | (`wide_rdata_int_per_req[4]` << 4) | (`wide_rdata_int_per_req[3]` << 3) | (`wide_rdata_int_per_req[2]` << 2) | (`wide_rdata_int_per_req[1]` << 1) | `wide_rdata_int_per_req[0]` }
+  mut _mux_29:U2 = if (r_beat_last_per_req_bits#[0] & 1) != 0 { br_amba.AxiRespOkay#[0..=1] }
+    else { gen_r_data_tracking_0_wide_rresp_comb }
+  wide_rresp_int_per_req_bits#[0] = gen_r_data_tracking_0_wide_rresp_comb & 1
+  wide_rresp_int_per_req_bits#[1] = (gen_r_data_tracking_0_wide_rresp_comb >> 1) & 1
+  wide_rdata_int_per_req_bits#[0..<64] = (br_shift_left_wide_rdata.out | wide_rdata_saved)#[0..=63]#[0..<64]
+  mut _mux_30:U64 = if gen_r_data_tracking_0_tracker_start_valid != 0 or (r_beat_last_per_req_bits#[0] & 1) != 0 {
+    0
+  } else {
+    (wide_rdata_int_per_req_bits#[63] << 63) | (wide_rdata_int_per_req_bits#[62] << 62) | (wide_rdata_int_per_req_bits#[61] << 61) | (wide_rdata_int_per_req_bits#[60] << 60) | (wide_rdata_int_per_req_bits#[59] << 59) | (wide_rdata_int_per_req_bits#[58] << 58) | (wide_rdata_int_per_req_bits#[57] << 57) | (wide_rdata_int_per_req_bits#[56] << 56) | (wide_rdata_int_per_req_bits#[55] << 55) | (wide_rdata_int_per_req_bits#[54] << 54) | (wide_rdata_int_per_req_bits#[53] << 53) | (wide_rdata_int_per_req_bits#[52] << 52) | (wide_rdata_int_per_req_bits#[51] << 51) | (wide_rdata_int_per_req_bits#[50] << 50) | (wide_rdata_int_per_req_bits#[49] << 49) | (wide_rdata_int_per_req_bits#[48] << 48) | (wide_rdata_int_per_req_bits#[47] << 47) | (wide_rdata_int_per_req_bits#[46] << 46) | (wide_rdata_int_per_req_bits#[45] << 45) | (wide_rdata_int_per_req_bits#[44] << 44) | (wide_rdata_int_per_req_bits#[43] << 43) | (wide_rdata_int_per_req_bits#[42] << 42) | (wide_rdata_int_per_req_bits#[41] << 41) | (wide_rdata_int_per_req_bits#[40] << 40) | (wide_rdata_int_per_req_bits#[39] << 39) | (wide_rdata_int_per_req_bits#[38] << 38) | (wide_rdata_int_per_req_bits#[37] << 37) | (wide_rdata_int_per_req_bits#[36] << 36) | (wide_rdata_int_per_req_bits#[35] << 35) | (wide_rdata_int_per_req_bits#[34] << 34) | (wide_rdata_int_per_req_bits#[33] << 33) | (wide_rdata_int_per_req_bits#[32] << 32) | (wide_rdata_int_per_req_bits#[31] << 31) | (wide_rdata_int_per_req_bits#[30] << 30) | (wide_rdata_int_per_req_bits#[29] << 29) | (wide_rdata_int_per_req_bits#[28] << 28) | (wide_rdata_int_per_req_bits#[27] << 27) | (wide_rdata_int_per_req_bits#[26] << 26) | (wide_rdata_int_per_req_bits#[25] << 25) | (wide_rdata_int_per_req_bits#[24] << 24) | (wide_rdata_int_per_req_bits#[23] << 23) | (wide_rdata_int_per_req_bits#[22] << 22) | (wide_rdata_int_per_req_bits#[21] << 21) | (wide_rdata_int_per_req_bits#[20] << 20) | (wide_rdata_int_per_req_bits#[19] << 19) | (wide_rdata_int_per_req_bits#[18] << 18) | (wide_rdata_int_per_req_bits#[17] << 17) | (wide_rdata_int_per_req_bits#[16] << 16) | (wide_rdata_int_per_req_bits#[15] << 15) | (wide_rdata_int_per_req_bits#[14] << 14) | (wide_rdata_int_per_req_bits#[13] << 13) | (wide_rdata_int_per_req_bits#[12] << 12) | (wide_rdata_int_per_req_bits#[11] << 11) | (wide_rdata_int_per_req_bits#[10] << 10) | (wide_rdata_int_per_req_bits#[9] << 9) | (wide_rdata_int_per_req_bits#[8] << 8) | (wide_rdata_int_per_req_bits#[7] << 7) | (wide_rdata_int_per_req_bits#[6] << 6) | (wide_rdata_int_per_req_bits#[5] << 5) | (wide_rdata_int_per_req_bits#[4] << 4) | (wide_rdata_int_per_req_bits#[3] << 3) | (wide_rdata_int_per_req_bits#[2] << 2) | (wide_rdata_int_per_req_bits#[1] << 1) | wide_rdata_int_per_req_bits#[0]
+  }
   if not (rst != 0) {
-    if gen_r_data_tracking_0_tracker_start_valid__w1 != 0 or gen_r_data_tracking_0_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_0_tracker_start_valid != 0 or gen_r_data_tracking_0_tracker_beat_valid != 0 {
       wide_rdata_saved = _mux_30
     }
   }
   if not (rst != 0) {
-    if gen_r_data_tracking_0_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_0_tracker_beat_valid != 0 {
       wide_rresp_saved = _mux_29
     }
   }
-  mut _b2i_31 = if narrow_r_new__w1 != 0 and ((resp_index_onehot__w1 >> 1) & 1) != 0 { 1 } else { 0 }
-  const gen_r_data_tracking_1_tracker_start_valid__w1 = _b2i_31
-  mut _b2i_32 = if narrow_r_int_beat__w1 != 0 and r_beat_index__w1 == 1 { 1 } else { 0 }
-  const gen_r_data_tracking_1_tracker_beat_valid__w1 = _b2i_32
-  mut gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_1_tracker_start_valid__w1, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_1_tracker_beat_valid__w1)
-  `r_data_shift_per_req[1]` = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
-  `r_beat_last_per_req[1]` = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
-  match narrow_rresp_int_enum__w1 {
+  mut _b2i_31 = if narrow_r_new != 0 and ((resp_index_onehot >> 1) & 1) != 0 { 1 } else { 0 }
+  const gen_r_data_tracking_1_tracker_start_valid = _b2i_31
+  mut _b2i_32 = if narrow_r_int_beat != 0 and r_beat_index == 1 { 1 } else { 0 }
+  const gen_r_data_tracking_1_tracker_beat_valid = _b2i_32
+  mut gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_1_tracker_start_valid, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_1_tracker_beat_valid)
+  r_data_shift_per_req_bits#[1] = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  r_beat_last_per_req_bits#[1] = gen_r_data_tracking_1_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum {
     == br_amba.AxiRespOkay {
       gen_r_data_tracking_1_wide_rresp_comb = wide_rresp_saved_s1
     }
     == br_amba.AxiRespExOkay {
-      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s1 }
+      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay }
+        else { wide_rresp_saved_s1 }
     }
     == br_amba.AxiRespSlverr {
-      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+      gen_r_data_tracking_1_wide_rresp_comb = if wide_rresp_saved_s1 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr }
+        else { br_amba.AxiRespSlverr }
     }
     == br_amba.AxiRespDecerr {
       gen_r_data_tracking_1_wide_rresp_comb = br_amba.AxiRespDecerr
@@ -1098,100 +244,44 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
       gen_r_data_tracking_1_wide_rresp_comb = 0ub?
     }
   }
-  mut _mux_33:U2 = if (`r_beat_last_per_req[1]` & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_1_wide_rresp_comb }
-  `wide_rresp_int_per_req[2]` = gen_r_data_tracking_1_wide_rresp_comb & 1
-  `wide_rresp_int_per_req[3]` = (gen_r_data_tracking_1_wide_rresp_comb >> 1) & 1
-  `wide_rdata_int_per_req[64]` = (br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] & 1
-  `wide_rdata_int_per_req[65]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 1) & 1
-  `wide_rdata_int_per_req[66]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 2) & 1
-  `wide_rdata_int_per_req[67]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 3) & 1
-  `wide_rdata_int_per_req[68]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 4) & 1
-  `wide_rdata_int_per_req[69]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 5) & 1
-  `wide_rdata_int_per_req[70]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 6) & 1
-  `wide_rdata_int_per_req[71]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 7) & 1
-  `wide_rdata_int_per_req[72]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 8) & 1
-  `wide_rdata_int_per_req[73]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 9) & 1
-  `wide_rdata_int_per_req[74]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 10) & 1
-  `wide_rdata_int_per_req[75]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 11) & 1
-  `wide_rdata_int_per_req[76]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 12) & 1
-  `wide_rdata_int_per_req[77]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 13) & 1
-  `wide_rdata_int_per_req[78]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 14) & 1
-  `wide_rdata_int_per_req[79]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 15) & 1
-  `wide_rdata_int_per_req[80]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 16) & 1
-  `wide_rdata_int_per_req[81]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 17) & 1
-  `wide_rdata_int_per_req[82]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 18) & 1
-  `wide_rdata_int_per_req[83]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 19) & 1
-  `wide_rdata_int_per_req[84]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 20) & 1
-  `wide_rdata_int_per_req[85]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 21) & 1
-  `wide_rdata_int_per_req[86]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 22) & 1
-  `wide_rdata_int_per_req[87]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 23) & 1
-  `wide_rdata_int_per_req[88]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 24) & 1
-  `wide_rdata_int_per_req[89]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 25) & 1
-  `wide_rdata_int_per_req[90]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 26) & 1
-  `wide_rdata_int_per_req[91]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 27) & 1
-  `wide_rdata_int_per_req[92]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 28) & 1
-  `wide_rdata_int_per_req[93]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 29) & 1
-  `wide_rdata_int_per_req[94]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 30) & 1
-  `wide_rdata_int_per_req[95]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 31) & 1
-  `wide_rdata_int_per_req[96]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 32) & 1
-  `wide_rdata_int_per_req[97]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 33) & 1
-  `wide_rdata_int_per_req[98]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 34) & 1
-  `wide_rdata_int_per_req[99]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 35) & 1
-  `wide_rdata_int_per_req[100]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 36) & 1
-  `wide_rdata_int_per_req[101]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 37) & 1
-  `wide_rdata_int_per_req[102]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 38) & 1
-  `wide_rdata_int_per_req[103]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 39) & 1
-  `wide_rdata_int_per_req[104]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 40) & 1
-  `wide_rdata_int_per_req[105]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 41) & 1
-  `wide_rdata_int_per_req[106]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 42) & 1
-  `wide_rdata_int_per_req[107]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 43) & 1
-  `wide_rdata_int_per_req[108]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 44) & 1
-  `wide_rdata_int_per_req[109]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 45) & 1
-  `wide_rdata_int_per_req[110]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 46) & 1
-  `wide_rdata_int_per_req[111]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 47) & 1
-  `wide_rdata_int_per_req[112]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 48) & 1
-  `wide_rdata_int_per_req[113]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 49) & 1
-  `wide_rdata_int_per_req[114]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 50) & 1
-  `wide_rdata_int_per_req[115]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 51) & 1
-  `wide_rdata_int_per_req[116]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 52) & 1
-  `wide_rdata_int_per_req[117]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 53) & 1
-  `wide_rdata_int_per_req[118]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 54) & 1
-  `wide_rdata_int_per_req[119]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 55) & 1
-  `wide_rdata_int_per_req[120]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 56) & 1
-  `wide_rdata_int_per_req[121]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 57) & 1
-  `wide_rdata_int_per_req[122]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 58) & 1
-  `wide_rdata_int_per_req[123]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 59) & 1
-  `wide_rdata_int_per_req[124]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 60) & 1
-  `wide_rdata_int_per_req[125]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 61) & 1
-  `wide_rdata_int_per_req[126]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 62) & 1
-  `wide_rdata_int_per_req[127]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63] >> 63) & 1
-  mut _mux_34:U64 = if gen_r_data_tracking_1_tracker_start_valid__w1 != 0 or (`r_beat_last_per_req[1]` & 1) != 0 { 0 } else { (`wide_rdata_int_per_req[127]` << 63) | (`wide_rdata_int_per_req[126]` << 62) | (`wide_rdata_int_per_req[125]` << 61) | (`wide_rdata_int_per_req[124]` << 60) | (`wide_rdata_int_per_req[123]` << 59) | (`wide_rdata_int_per_req[122]` << 58) | (`wide_rdata_int_per_req[121]` << 57) | (`wide_rdata_int_per_req[120]` << 56) | (`wide_rdata_int_per_req[119]` << 55) | (`wide_rdata_int_per_req[118]` << 54) | (`wide_rdata_int_per_req[117]` << 53) | (`wide_rdata_int_per_req[116]` << 52) | (`wide_rdata_int_per_req[115]` << 51) | (`wide_rdata_int_per_req[114]` << 50) | (`wide_rdata_int_per_req[113]` << 49) | (`wide_rdata_int_per_req[112]` << 48) | (`wide_rdata_int_per_req[111]` << 47) | (`wide_rdata_int_per_req[110]` << 46) | (`wide_rdata_int_per_req[109]` << 45) | (`wide_rdata_int_per_req[108]` << 44) | (`wide_rdata_int_per_req[107]` << 43) | (`wide_rdata_int_per_req[106]` << 42) | (`wide_rdata_int_per_req[105]` << 41) | (`wide_rdata_int_per_req[104]` << 40) | (`wide_rdata_int_per_req[103]` << 39) | (`wide_rdata_int_per_req[102]` << 38) | (`wide_rdata_int_per_req[101]` << 37) | (`wide_rdata_int_per_req[100]` << 36) | (`wide_rdata_int_per_req[99]` << 35) | (`wide_rdata_int_per_req[98]` << 34) | (`wide_rdata_int_per_req[97]` << 33) | (`wide_rdata_int_per_req[96]` << 32) | (`wide_rdata_int_per_req[95]` << 31) | (`wide_rdata_int_per_req[94]` << 30) | (`wide_rdata_int_per_req[93]` << 29) | (`wide_rdata_int_per_req[92]` << 28) | (`wide_rdata_int_per_req[91]` << 27) | (`wide_rdata_int_per_req[90]` << 26) | (`wide_rdata_int_per_req[89]` << 25) | (`wide_rdata_int_per_req[88]` << 24) | (`wide_rdata_int_per_req[87]` << 23) | (`wide_rdata_int_per_req[86]` << 22) | (`wide_rdata_int_per_req[85]` << 21) | (`wide_rdata_int_per_req[84]` << 20) | (`wide_rdata_int_per_req[83]` << 19) | (`wide_rdata_int_per_req[82]` << 18) | (`wide_rdata_int_per_req[81]` << 17) | (`wide_rdata_int_per_req[80]` << 16) | (`wide_rdata_int_per_req[79]` << 15) | (`wide_rdata_int_per_req[78]` << 14) | (`wide_rdata_int_per_req[77]` << 13) | (`wide_rdata_int_per_req[76]` << 12) | (`wide_rdata_int_per_req[75]` << 11) | (`wide_rdata_int_per_req[74]` << 10) | (`wide_rdata_int_per_req[73]` << 9) | (`wide_rdata_int_per_req[72]` << 8) | (`wide_rdata_int_per_req[71]` << 7) | (`wide_rdata_int_per_req[70]` << 6) | (`wide_rdata_int_per_req[69]` << 5) | (`wide_rdata_int_per_req[68]` << 4) | (`wide_rdata_int_per_req[67]` << 3) | (`wide_rdata_int_per_req[66]` << 2) | (`wide_rdata_int_per_req[65]` << 1) | `wide_rdata_int_per_req[64]` }
+  mut _mux_33:U2 = if (r_beat_last_per_req_bits#[1] & 1) != 0 { br_amba.AxiRespOkay#[0..=1] }
+    else { gen_r_data_tracking_1_wide_rresp_comb }
+  wide_rresp_int_per_req_bits#[2] = gen_r_data_tracking_1_wide_rresp_comb & 1
+  wide_rresp_int_per_req_bits#[3] = (gen_r_data_tracking_1_wide_rresp_comb >> 1) & 1
+  wide_rdata_int_per_req_bits#[64..<128] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s1)#[0..=63]#[0..<64]
+  mut _mux_34:U64 = if gen_r_data_tracking_1_tracker_start_valid != 0 or (r_beat_last_per_req_bits#[1] & 1) != 0 {
+    0
+  } else {
+    (wide_rdata_int_per_req_bits#[127] << 63) | (wide_rdata_int_per_req_bits#[126] << 62) | (wide_rdata_int_per_req_bits#[125] << 61) | (wide_rdata_int_per_req_bits#[124] << 60) | (wide_rdata_int_per_req_bits#[123] << 59) | (wide_rdata_int_per_req_bits#[122] << 58) | (wide_rdata_int_per_req_bits#[121] << 57) | (wide_rdata_int_per_req_bits#[120] << 56) | (wide_rdata_int_per_req_bits#[119] << 55) | (wide_rdata_int_per_req_bits#[118] << 54) | (wide_rdata_int_per_req_bits#[117] << 53) | (wide_rdata_int_per_req_bits#[116] << 52) | (wide_rdata_int_per_req_bits#[115] << 51) | (wide_rdata_int_per_req_bits#[114] << 50) | (wide_rdata_int_per_req_bits#[113] << 49) | (wide_rdata_int_per_req_bits#[112] << 48) | (wide_rdata_int_per_req_bits#[111] << 47) | (wide_rdata_int_per_req_bits#[110] << 46) | (wide_rdata_int_per_req_bits#[109] << 45) | (wide_rdata_int_per_req_bits#[108] << 44) | (wide_rdata_int_per_req_bits#[107] << 43) | (wide_rdata_int_per_req_bits#[106] << 42) | (wide_rdata_int_per_req_bits#[105] << 41) | (wide_rdata_int_per_req_bits#[104] << 40) | (wide_rdata_int_per_req_bits#[103] << 39) | (wide_rdata_int_per_req_bits#[102] << 38) | (wide_rdata_int_per_req_bits#[101] << 37) | (wide_rdata_int_per_req_bits#[100] << 36) | (wide_rdata_int_per_req_bits#[99] << 35) | (wide_rdata_int_per_req_bits#[98] << 34) | (wide_rdata_int_per_req_bits#[97] << 33) | (wide_rdata_int_per_req_bits#[96] << 32) | (wide_rdata_int_per_req_bits#[95] << 31) | (wide_rdata_int_per_req_bits#[94] << 30) | (wide_rdata_int_per_req_bits#[93] << 29) | (wide_rdata_int_per_req_bits#[92] << 28) | (wide_rdata_int_per_req_bits#[91] << 27) | (wide_rdata_int_per_req_bits#[90] << 26) | (wide_rdata_int_per_req_bits#[89] << 25) | (wide_rdata_int_per_req_bits#[88] << 24) | (wide_rdata_int_per_req_bits#[87] << 23) | (wide_rdata_int_per_req_bits#[86] << 22) | (wide_rdata_int_per_req_bits#[85] << 21) | (wide_rdata_int_per_req_bits#[84] << 20) | (wide_rdata_int_per_req_bits#[83] << 19) | (wide_rdata_int_per_req_bits#[82] << 18) | (wide_rdata_int_per_req_bits#[81] << 17) | (wide_rdata_int_per_req_bits#[80] << 16) | (wide_rdata_int_per_req_bits#[79] << 15) | (wide_rdata_int_per_req_bits#[78] << 14) | (wide_rdata_int_per_req_bits#[77] << 13) | (wide_rdata_int_per_req_bits#[76] << 12) | (wide_rdata_int_per_req_bits#[75] << 11) | (wide_rdata_int_per_req_bits#[74] << 10) | (wide_rdata_int_per_req_bits#[73] << 9) | (wide_rdata_int_per_req_bits#[72] << 8) | (wide_rdata_int_per_req_bits#[71] << 7) | (wide_rdata_int_per_req_bits#[70] << 6) | (wide_rdata_int_per_req_bits#[69] << 5) | (wide_rdata_int_per_req_bits#[68] << 4) | (wide_rdata_int_per_req_bits#[67] << 3) | (wide_rdata_int_per_req_bits#[66] << 2) | (wide_rdata_int_per_req_bits#[65] << 1) | wide_rdata_int_per_req_bits#[64]
+  }
   if not (rst != 0) {
-    if gen_r_data_tracking_1_tracker_start_valid__w1 != 0 or gen_r_data_tracking_1_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_1_tracker_start_valid != 0 or gen_r_data_tracking_1_tracker_beat_valid != 0 {
       wide_rdata_saved_s1 = _mux_34
     }
   }
   if not (rst != 0) {
-    if gen_r_data_tracking_1_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_1_tracker_beat_valid != 0 {
       wide_rresp_saved_s1 = _mux_33
     }
   }
-  mut _b2i_35 = if narrow_r_new__w1 != 0 and ((resp_index_onehot__w1 >> 2) & 1) != 0 { 1 } else { 0 }
-  const gen_r_data_tracking_2_tracker_start_valid__w1 = _b2i_35
-  mut _b2i_36 = if narrow_r_int_beat__w1 != 0 and r_beat_index__w1 == 2 { 1 } else { 0 }
-  const gen_r_data_tracking_2_tracker_beat_valid__w1 = _b2i_36
-  mut gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_2_tracker_start_valid__w1, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_2_tracker_beat_valid__w1)
-  `r_data_shift_per_req[2]` = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
-  `r_beat_last_per_req[2]` = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
-  match narrow_rresp_int_enum__w1 {
+  mut _b2i_35 = if narrow_r_new != 0 and ((resp_index_onehot >> 2) & 1) != 0 { 1 } else { 0 }
+  const gen_r_data_tracking_2_tracker_start_valid = _b2i_35
+  mut _b2i_36 = if narrow_r_int_beat != 0 and r_beat_index == 2 { 1 } else { 0 }
+  const gen_r_data_tracking_2_tracker_beat_valid = _b2i_36
+  mut gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_2_tracker_start_valid, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_2_tracker_beat_valid)
+  r_data_shift_per_req_bits#[2] = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  r_beat_last_per_req_bits#[2] = gen_r_data_tracking_2_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum {
     == br_amba.AxiRespOkay {
       gen_r_data_tracking_2_wide_rresp_comb = wide_rresp_saved_s2
     }
     == br_amba.AxiRespExOkay {
-      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s2 }
+      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay }
+        else { wide_rresp_saved_s2 }
     }
     == br_amba.AxiRespSlverr {
-      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+      gen_r_data_tracking_2_wide_rresp_comb = if wide_rresp_saved_s2 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr }
+        else { br_amba.AxiRespSlverr }
     }
     == br_amba.AxiRespDecerr {
       gen_r_data_tracking_2_wide_rresp_comb = br_amba.AxiRespDecerr
@@ -1200,100 +290,44 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
       gen_r_data_tracking_2_wide_rresp_comb = 0ub?
     }
   }
-  mut _mux_37:U2 = if (`r_beat_last_per_req[2]` & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_2_wide_rresp_comb }
-  `wide_rresp_int_per_req[4]` = gen_r_data_tracking_2_wide_rresp_comb & 1
-  `wide_rresp_int_per_req[5]` = (gen_r_data_tracking_2_wide_rresp_comb >> 1) & 1
-  `wide_rdata_int_per_req[128]` = (br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] & 1
-  `wide_rdata_int_per_req[129]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 1) & 1
-  `wide_rdata_int_per_req[130]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 2) & 1
-  `wide_rdata_int_per_req[131]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 3) & 1
-  `wide_rdata_int_per_req[132]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 4) & 1
-  `wide_rdata_int_per_req[133]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 5) & 1
-  `wide_rdata_int_per_req[134]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 6) & 1
-  `wide_rdata_int_per_req[135]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 7) & 1
-  `wide_rdata_int_per_req[136]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 8) & 1
-  `wide_rdata_int_per_req[137]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 9) & 1
-  `wide_rdata_int_per_req[138]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 10) & 1
-  `wide_rdata_int_per_req[139]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 11) & 1
-  `wide_rdata_int_per_req[140]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 12) & 1
-  `wide_rdata_int_per_req[141]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 13) & 1
-  `wide_rdata_int_per_req[142]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 14) & 1
-  `wide_rdata_int_per_req[143]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 15) & 1
-  `wide_rdata_int_per_req[144]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 16) & 1
-  `wide_rdata_int_per_req[145]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 17) & 1
-  `wide_rdata_int_per_req[146]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 18) & 1
-  `wide_rdata_int_per_req[147]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 19) & 1
-  `wide_rdata_int_per_req[148]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 20) & 1
-  `wide_rdata_int_per_req[149]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 21) & 1
-  `wide_rdata_int_per_req[150]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 22) & 1
-  `wide_rdata_int_per_req[151]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 23) & 1
-  `wide_rdata_int_per_req[152]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 24) & 1
-  `wide_rdata_int_per_req[153]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 25) & 1
-  `wide_rdata_int_per_req[154]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 26) & 1
-  `wide_rdata_int_per_req[155]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 27) & 1
-  `wide_rdata_int_per_req[156]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 28) & 1
-  `wide_rdata_int_per_req[157]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 29) & 1
-  `wide_rdata_int_per_req[158]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 30) & 1
-  `wide_rdata_int_per_req[159]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 31) & 1
-  `wide_rdata_int_per_req[160]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 32) & 1
-  `wide_rdata_int_per_req[161]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 33) & 1
-  `wide_rdata_int_per_req[162]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 34) & 1
-  `wide_rdata_int_per_req[163]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 35) & 1
-  `wide_rdata_int_per_req[164]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 36) & 1
-  `wide_rdata_int_per_req[165]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 37) & 1
-  `wide_rdata_int_per_req[166]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 38) & 1
-  `wide_rdata_int_per_req[167]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 39) & 1
-  `wide_rdata_int_per_req[168]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 40) & 1
-  `wide_rdata_int_per_req[169]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 41) & 1
-  `wide_rdata_int_per_req[170]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 42) & 1
-  `wide_rdata_int_per_req[171]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 43) & 1
-  `wide_rdata_int_per_req[172]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 44) & 1
-  `wide_rdata_int_per_req[173]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 45) & 1
-  `wide_rdata_int_per_req[174]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 46) & 1
-  `wide_rdata_int_per_req[175]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 47) & 1
-  `wide_rdata_int_per_req[176]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 48) & 1
-  `wide_rdata_int_per_req[177]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 49) & 1
-  `wide_rdata_int_per_req[178]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 50) & 1
-  `wide_rdata_int_per_req[179]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 51) & 1
-  `wide_rdata_int_per_req[180]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 52) & 1
-  `wide_rdata_int_per_req[181]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 53) & 1
-  `wide_rdata_int_per_req[182]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 54) & 1
-  `wide_rdata_int_per_req[183]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 55) & 1
-  `wide_rdata_int_per_req[184]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 56) & 1
-  `wide_rdata_int_per_req[185]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 57) & 1
-  `wide_rdata_int_per_req[186]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 58) & 1
-  `wide_rdata_int_per_req[187]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 59) & 1
-  `wide_rdata_int_per_req[188]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 60) & 1
-  `wide_rdata_int_per_req[189]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 61) & 1
-  `wide_rdata_int_per_req[190]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 62) & 1
-  `wide_rdata_int_per_req[191]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63] >> 63) & 1
-  mut _mux_38:U64 = if gen_r_data_tracking_2_tracker_start_valid__w1 != 0 or (`r_beat_last_per_req[2]` & 1) != 0 { 0 } else { (`wide_rdata_int_per_req[191]` << 63) | (`wide_rdata_int_per_req[190]` << 62) | (`wide_rdata_int_per_req[189]` << 61) | (`wide_rdata_int_per_req[188]` << 60) | (`wide_rdata_int_per_req[187]` << 59) | (`wide_rdata_int_per_req[186]` << 58) | (`wide_rdata_int_per_req[185]` << 57) | (`wide_rdata_int_per_req[184]` << 56) | (`wide_rdata_int_per_req[183]` << 55) | (`wide_rdata_int_per_req[182]` << 54) | (`wide_rdata_int_per_req[181]` << 53) | (`wide_rdata_int_per_req[180]` << 52) | (`wide_rdata_int_per_req[179]` << 51) | (`wide_rdata_int_per_req[178]` << 50) | (`wide_rdata_int_per_req[177]` << 49) | (`wide_rdata_int_per_req[176]` << 48) | (`wide_rdata_int_per_req[175]` << 47) | (`wide_rdata_int_per_req[174]` << 46) | (`wide_rdata_int_per_req[173]` << 45) | (`wide_rdata_int_per_req[172]` << 44) | (`wide_rdata_int_per_req[171]` << 43) | (`wide_rdata_int_per_req[170]` << 42) | (`wide_rdata_int_per_req[169]` << 41) | (`wide_rdata_int_per_req[168]` << 40) | (`wide_rdata_int_per_req[167]` << 39) | (`wide_rdata_int_per_req[166]` << 38) | (`wide_rdata_int_per_req[165]` << 37) | (`wide_rdata_int_per_req[164]` << 36) | (`wide_rdata_int_per_req[163]` << 35) | (`wide_rdata_int_per_req[162]` << 34) | (`wide_rdata_int_per_req[161]` << 33) | (`wide_rdata_int_per_req[160]` << 32) | (`wide_rdata_int_per_req[159]` << 31) | (`wide_rdata_int_per_req[158]` << 30) | (`wide_rdata_int_per_req[157]` << 29) | (`wide_rdata_int_per_req[156]` << 28) | (`wide_rdata_int_per_req[155]` << 27) | (`wide_rdata_int_per_req[154]` << 26) | (`wide_rdata_int_per_req[153]` << 25) | (`wide_rdata_int_per_req[152]` << 24) | (`wide_rdata_int_per_req[151]` << 23) | (`wide_rdata_int_per_req[150]` << 22) | (`wide_rdata_int_per_req[149]` << 21) | (`wide_rdata_int_per_req[148]` << 20) | (`wide_rdata_int_per_req[147]` << 19) | (`wide_rdata_int_per_req[146]` << 18) | (`wide_rdata_int_per_req[145]` << 17) | (`wide_rdata_int_per_req[144]` << 16) | (`wide_rdata_int_per_req[143]` << 15) | (`wide_rdata_int_per_req[142]` << 14) | (`wide_rdata_int_per_req[141]` << 13) | (`wide_rdata_int_per_req[140]` << 12) | (`wide_rdata_int_per_req[139]` << 11) | (`wide_rdata_int_per_req[138]` << 10) | (`wide_rdata_int_per_req[137]` << 9) | (`wide_rdata_int_per_req[136]` << 8) | (`wide_rdata_int_per_req[135]` << 7) | (`wide_rdata_int_per_req[134]` << 6) | (`wide_rdata_int_per_req[133]` << 5) | (`wide_rdata_int_per_req[132]` << 4) | (`wide_rdata_int_per_req[131]` << 3) | (`wide_rdata_int_per_req[130]` << 2) | (`wide_rdata_int_per_req[129]` << 1) | `wide_rdata_int_per_req[128]` }
+  mut _mux_37:U2 = if (r_beat_last_per_req_bits#[2] & 1) != 0 { br_amba.AxiRespOkay#[0..=1] }
+    else { gen_r_data_tracking_2_wide_rresp_comb }
+  wide_rresp_int_per_req_bits#[4] = gen_r_data_tracking_2_wide_rresp_comb & 1
+  wide_rresp_int_per_req_bits#[5] = (gen_r_data_tracking_2_wide_rresp_comb >> 1) & 1
+  wide_rdata_int_per_req_bits#[128..<192] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s2)#[0..=63]#[0..<64]
+  mut _mux_38:U64 = if gen_r_data_tracking_2_tracker_start_valid != 0 or (r_beat_last_per_req_bits#[2] & 1) != 0 {
+    0
+  } else {
+    (wide_rdata_int_per_req_bits#[191] << 63) | (wide_rdata_int_per_req_bits#[190] << 62) | (wide_rdata_int_per_req_bits#[189] << 61) | (wide_rdata_int_per_req_bits#[188] << 60) | (wide_rdata_int_per_req_bits#[187] << 59) | (wide_rdata_int_per_req_bits#[186] << 58) | (wide_rdata_int_per_req_bits#[185] << 57) | (wide_rdata_int_per_req_bits#[184] << 56) | (wide_rdata_int_per_req_bits#[183] << 55) | (wide_rdata_int_per_req_bits#[182] << 54) | (wide_rdata_int_per_req_bits#[181] << 53) | (wide_rdata_int_per_req_bits#[180] << 52) | (wide_rdata_int_per_req_bits#[179] << 51) | (wide_rdata_int_per_req_bits#[178] << 50) | (wide_rdata_int_per_req_bits#[177] << 49) | (wide_rdata_int_per_req_bits#[176] << 48) | (wide_rdata_int_per_req_bits#[175] << 47) | (wide_rdata_int_per_req_bits#[174] << 46) | (wide_rdata_int_per_req_bits#[173] << 45) | (wide_rdata_int_per_req_bits#[172] << 44) | (wide_rdata_int_per_req_bits#[171] << 43) | (wide_rdata_int_per_req_bits#[170] << 42) | (wide_rdata_int_per_req_bits#[169] << 41) | (wide_rdata_int_per_req_bits#[168] << 40) | (wide_rdata_int_per_req_bits#[167] << 39) | (wide_rdata_int_per_req_bits#[166] << 38) | (wide_rdata_int_per_req_bits#[165] << 37) | (wide_rdata_int_per_req_bits#[164] << 36) | (wide_rdata_int_per_req_bits#[163] << 35) | (wide_rdata_int_per_req_bits#[162] << 34) | (wide_rdata_int_per_req_bits#[161] << 33) | (wide_rdata_int_per_req_bits#[160] << 32) | (wide_rdata_int_per_req_bits#[159] << 31) | (wide_rdata_int_per_req_bits#[158] << 30) | (wide_rdata_int_per_req_bits#[157] << 29) | (wide_rdata_int_per_req_bits#[156] << 28) | (wide_rdata_int_per_req_bits#[155] << 27) | (wide_rdata_int_per_req_bits#[154] << 26) | (wide_rdata_int_per_req_bits#[153] << 25) | (wide_rdata_int_per_req_bits#[152] << 24) | (wide_rdata_int_per_req_bits#[151] << 23) | (wide_rdata_int_per_req_bits#[150] << 22) | (wide_rdata_int_per_req_bits#[149] << 21) | (wide_rdata_int_per_req_bits#[148] << 20) | (wide_rdata_int_per_req_bits#[147] << 19) | (wide_rdata_int_per_req_bits#[146] << 18) | (wide_rdata_int_per_req_bits#[145] << 17) | (wide_rdata_int_per_req_bits#[144] << 16) | (wide_rdata_int_per_req_bits#[143] << 15) | (wide_rdata_int_per_req_bits#[142] << 14) | (wide_rdata_int_per_req_bits#[141] << 13) | (wide_rdata_int_per_req_bits#[140] << 12) | (wide_rdata_int_per_req_bits#[139] << 11) | (wide_rdata_int_per_req_bits#[138] << 10) | (wide_rdata_int_per_req_bits#[137] << 9) | (wide_rdata_int_per_req_bits#[136] << 8) | (wide_rdata_int_per_req_bits#[135] << 7) | (wide_rdata_int_per_req_bits#[134] << 6) | (wide_rdata_int_per_req_bits#[133] << 5) | (wide_rdata_int_per_req_bits#[132] << 4) | (wide_rdata_int_per_req_bits#[131] << 3) | (wide_rdata_int_per_req_bits#[130] << 2) | (wide_rdata_int_per_req_bits#[129] << 1) | wide_rdata_int_per_req_bits#[128]
+  }
   if not (rst != 0) {
-    if gen_r_data_tracking_2_tracker_start_valid__w1 != 0 or gen_r_data_tracking_2_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_2_tracker_start_valid != 0 or gen_r_data_tracking_2_tracker_beat_valid != 0 {
       wide_rdata_saved_s2 = _mux_38
     }
   }
   if not (rst != 0) {
-    if gen_r_data_tracking_2_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_2_tracker_beat_valid != 0 {
       wide_rresp_saved_s2 = _mux_37
     }
   }
-  mut _b2i_39 = if narrow_r_new__w1 != 0 and ((resp_index_onehot__w1 >> 3) & 1) != 0 { 1 } else { 0 }
-  const gen_r_data_tracking_3_tracker_start_valid__w1 = _b2i_39
-  mut _b2i_40 = if narrow_r_int_beat__w1 != 0 and r_beat_index__w1 == 3 { 1 } else { 0 }
-  const gen_r_data_tracking_3_tracker_beat_valid__w1 = _b2i_40
-  mut gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_3_tracker_start_valid__w1, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_3_tracker_beat_valid__w1)
-  `r_data_shift_per_req[3]` = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
-  `r_beat_last_per_req[3]` = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
-  match narrow_rresp_int_enum__w1 {
+  mut _b2i_39 = if narrow_r_new != 0 and ((resp_index_onehot >> 3) & 1) != 0 { 1 } else { 0 }
+  const gen_r_data_tracking_3_tracker_start_valid = _b2i_39
+  mut _b2i_40 = if narrow_r_int_beat != 0 and r_beat_index == 3 { 1 } else { 0 }
+  const gen_r_data_tracking_3_tracker_beat_valid = _b2i_40
+  mut gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r = br_amba_axi_resizer_beat_tracker::[name=gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r](clk=clk, rst=rst, start_valid=gen_r_data_tracking_3_tracker_start_valid, start_offset=`read_table_rd_data.offset`, size=`read_table_rd_data.size`, burst=`read_table_rd_data.burst`, shift=`read_table_rd_data.shift`, beat_valid=gen_r_data_tracking_3_tracker_beat_valid)
+  r_data_shift_per_req_bits#[3] = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_lane & 1
+  r_beat_last_per_req_bits#[3] = gen_r_data_tracking_3_br_amba_axi_resizer_beat_tracker_r.beat_last & 1
+  match narrow_rresp_int_enum {
     == br_amba.AxiRespOkay {
       gen_r_data_tracking_3_wide_rresp_comb = wide_rresp_saved_s3
     }
     == br_amba.AxiRespExOkay {
-      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay } else { wide_rresp_saved_s3 }
+      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespOkay { br_amba.AxiRespExOkay }
+        else { wide_rresp_saved_s3 }
     }
     == br_amba.AxiRespSlverr {
-      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr } else { br_amba.AxiRespSlverr }
+      gen_r_data_tracking_3_wide_rresp_comb = if wide_rresp_saved_s3 == br_amba.AxiRespDecerr { br_amba.AxiRespDecerr }
+        else { br_amba.AxiRespSlverr }
     }
     == br_amba.AxiRespDecerr {
       gen_r_data_tracking_3_wide_rresp_comb = br_amba.AxiRespDecerr
@@ -1302,91 +336,33 @@ pub mod br_amba_axi_shrinker::[timecheck=false](clk:Clock, narrow_arready:U1, na
       gen_r_data_tracking_3_wide_rresp_comb = 0ub?
     }
   }
-  mut _mux_41:U2 = if (`r_beat_last_per_req[3]` & 1) != 0 { br_amba.AxiRespOkay#[0..=1] } else { gen_r_data_tracking_3_wide_rresp_comb }
-  `wide_rresp_int_per_req[6]` = gen_r_data_tracking_3_wide_rresp_comb & 1
-  `wide_rresp_int_per_req[7]` = (gen_r_data_tracking_3_wide_rresp_comb >> 1) & 1
-  `wide_rdata_int_per_req[192]` = (br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] & 1
-  `wide_rdata_int_per_req[193]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 1) & 1
-  `wide_rdata_int_per_req[194]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 2) & 1
-  `wide_rdata_int_per_req[195]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 3) & 1
-  `wide_rdata_int_per_req[196]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 4) & 1
-  `wide_rdata_int_per_req[197]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 5) & 1
-  `wide_rdata_int_per_req[198]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 6) & 1
-  `wide_rdata_int_per_req[199]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 7) & 1
-  `wide_rdata_int_per_req[200]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 8) & 1
-  `wide_rdata_int_per_req[201]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 9) & 1
-  `wide_rdata_int_per_req[202]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 10) & 1
-  `wide_rdata_int_per_req[203]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 11) & 1
-  `wide_rdata_int_per_req[204]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 12) & 1
-  `wide_rdata_int_per_req[205]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 13) & 1
-  `wide_rdata_int_per_req[206]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 14) & 1
-  `wide_rdata_int_per_req[207]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 15) & 1
-  `wide_rdata_int_per_req[208]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 16) & 1
-  `wide_rdata_int_per_req[209]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 17) & 1
-  `wide_rdata_int_per_req[210]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 18) & 1
-  `wide_rdata_int_per_req[211]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 19) & 1
-  `wide_rdata_int_per_req[212]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 20) & 1
-  `wide_rdata_int_per_req[213]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 21) & 1
-  `wide_rdata_int_per_req[214]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 22) & 1
-  `wide_rdata_int_per_req[215]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 23) & 1
-  `wide_rdata_int_per_req[216]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 24) & 1
-  `wide_rdata_int_per_req[217]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 25) & 1
-  `wide_rdata_int_per_req[218]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 26) & 1
-  `wide_rdata_int_per_req[219]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 27) & 1
-  `wide_rdata_int_per_req[220]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 28) & 1
-  `wide_rdata_int_per_req[221]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 29) & 1
-  `wide_rdata_int_per_req[222]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 30) & 1
-  `wide_rdata_int_per_req[223]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 31) & 1
-  `wide_rdata_int_per_req[224]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 32) & 1
-  `wide_rdata_int_per_req[225]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 33) & 1
-  `wide_rdata_int_per_req[226]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 34) & 1
-  `wide_rdata_int_per_req[227]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 35) & 1
-  `wide_rdata_int_per_req[228]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 36) & 1
-  `wide_rdata_int_per_req[229]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 37) & 1
-  `wide_rdata_int_per_req[230]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 38) & 1
-  `wide_rdata_int_per_req[231]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 39) & 1
-  `wide_rdata_int_per_req[232]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 40) & 1
-  `wide_rdata_int_per_req[233]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 41) & 1
-  `wide_rdata_int_per_req[234]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 42) & 1
-  `wide_rdata_int_per_req[235]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 43) & 1
-  `wide_rdata_int_per_req[236]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 44) & 1
-  `wide_rdata_int_per_req[237]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 45) & 1
-  `wide_rdata_int_per_req[238]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 46) & 1
-  `wide_rdata_int_per_req[239]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 47) & 1
-  `wide_rdata_int_per_req[240]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 48) & 1
-  `wide_rdata_int_per_req[241]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 49) & 1
-  `wide_rdata_int_per_req[242]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 50) & 1
-  `wide_rdata_int_per_req[243]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 51) & 1
-  `wide_rdata_int_per_req[244]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 52) & 1
-  `wide_rdata_int_per_req[245]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 53) & 1
-  `wide_rdata_int_per_req[246]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 54) & 1
-  `wide_rdata_int_per_req[247]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 55) & 1
-  `wide_rdata_int_per_req[248]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 56) & 1
-  `wide_rdata_int_per_req[249]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 57) & 1
-  `wide_rdata_int_per_req[250]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 58) & 1
-  `wide_rdata_int_per_req[251]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 59) & 1
-  `wide_rdata_int_per_req[252]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 60) & 1
-  `wide_rdata_int_per_req[253]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 61) & 1
-  `wide_rdata_int_per_req[254]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 62) & 1
-  `wide_rdata_int_per_req[255]` = ((br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63] >> 63) & 1
-  mut _mux_42:U64 = if gen_r_data_tracking_3_tracker_start_valid__w1 != 0 or (`r_beat_last_per_req[3]` & 1) != 0 { 0 } else { (`wide_rdata_int_per_req[255]` << 63) | (`wide_rdata_int_per_req[254]` << 62) | (`wide_rdata_int_per_req[253]` << 61) | (`wide_rdata_int_per_req[252]` << 60) | (`wide_rdata_int_per_req[251]` << 59) | (`wide_rdata_int_per_req[250]` << 58) | (`wide_rdata_int_per_req[249]` << 57) | (`wide_rdata_int_per_req[248]` << 56) | (`wide_rdata_int_per_req[247]` << 55) | (`wide_rdata_int_per_req[246]` << 54) | (`wide_rdata_int_per_req[245]` << 53) | (`wide_rdata_int_per_req[244]` << 52) | (`wide_rdata_int_per_req[243]` << 51) | (`wide_rdata_int_per_req[242]` << 50) | (`wide_rdata_int_per_req[241]` << 49) | (`wide_rdata_int_per_req[240]` << 48) | (`wide_rdata_int_per_req[239]` << 47) | (`wide_rdata_int_per_req[238]` << 46) | (`wide_rdata_int_per_req[237]` << 45) | (`wide_rdata_int_per_req[236]` << 44) | (`wide_rdata_int_per_req[235]` << 43) | (`wide_rdata_int_per_req[234]` << 42) | (`wide_rdata_int_per_req[233]` << 41) | (`wide_rdata_int_per_req[232]` << 40) | (`wide_rdata_int_per_req[231]` << 39) | (`wide_rdata_int_per_req[230]` << 38) | (`wide_rdata_int_per_req[229]` << 37) | (`wide_rdata_int_per_req[228]` << 36) | (`wide_rdata_int_per_req[227]` << 35) | (`wide_rdata_int_per_req[226]` << 34) | (`wide_rdata_int_per_req[225]` << 33) | (`wide_rdata_int_per_req[224]` << 32) | (`wide_rdata_int_per_req[223]` << 31) | (`wide_rdata_int_per_req[222]` << 30) | (`wide_rdata_int_per_req[221]` << 29) | (`wide_rdata_int_per_req[220]` << 28) | (`wide_rdata_int_per_req[219]` << 27) | (`wide_rdata_int_per_req[218]` << 26) | (`wide_rdata_int_per_req[217]` << 25) | (`wide_rdata_int_per_req[216]` << 24) | (`wide_rdata_int_per_req[215]` << 23) | (`wide_rdata_int_per_req[214]` << 22) | (`wide_rdata_int_per_req[213]` << 21) | (`wide_rdata_int_per_req[212]` << 20) | (`wide_rdata_int_per_req[211]` << 19) | (`wide_rdata_int_per_req[210]` << 18) | (`wide_rdata_int_per_req[209]` << 17) | (`wide_rdata_int_per_req[208]` << 16) | (`wide_rdata_int_per_req[207]` << 15) | (`wide_rdata_int_per_req[206]` << 14) | (`wide_rdata_int_per_req[205]` << 13) | (`wide_rdata_int_per_req[204]` << 12) | (`wide_rdata_int_per_req[203]` << 11) | (`wide_rdata_int_per_req[202]` << 10) | (`wide_rdata_int_per_req[201]` << 9) | (`wide_rdata_int_per_req[200]` << 8) | (`wide_rdata_int_per_req[199]` << 7) | (`wide_rdata_int_per_req[198]` << 6) | (`wide_rdata_int_per_req[197]` << 5) | (`wide_rdata_int_per_req[196]` << 4) | (`wide_rdata_int_per_req[195]` << 3) | (`wide_rdata_int_per_req[194]` << 2) | (`wide_rdata_int_per_req[193]` << 1) | `wide_rdata_int_per_req[192]` }
+  mut _mux_41:U2 = if (r_beat_last_per_req_bits#[3] & 1) != 0 { br_amba.AxiRespOkay#[0..=1] }
+    else { gen_r_data_tracking_3_wide_rresp_comb }
+  wide_rresp_int_per_req_bits#[6] = gen_r_data_tracking_3_wide_rresp_comb & 1
+  wide_rresp_int_per_req_bits#[7] = (gen_r_data_tracking_3_wide_rresp_comb >> 1) & 1
+  wide_rdata_int_per_req_bits#[192..<256] = (br_shift_left_wide_rdata.out | wide_rdata_saved_s3)#[0..=63]#[0..<64]
+  mut _mux_42:U64 = if gen_r_data_tracking_3_tracker_start_valid != 0 or (r_beat_last_per_req_bits#[3] & 1) != 0 {
+    0
+  } else {
+    (wide_rdata_int_per_req_bits#[255] << 63) | (wide_rdata_int_per_req_bits#[254] << 62) | (wide_rdata_int_per_req_bits#[253] << 61) | (wide_rdata_int_per_req_bits#[252] << 60) | (wide_rdata_int_per_req_bits#[251] << 59) | (wide_rdata_int_per_req_bits#[250] << 58) | (wide_rdata_int_per_req_bits#[249] << 57) | (wide_rdata_int_per_req_bits#[248] << 56) | (wide_rdata_int_per_req_bits#[247] << 55) | (wide_rdata_int_per_req_bits#[246] << 54) | (wide_rdata_int_per_req_bits#[245] << 53) | (wide_rdata_int_per_req_bits#[244] << 52) | (wide_rdata_int_per_req_bits#[243] << 51) | (wide_rdata_int_per_req_bits#[242] << 50) | (wide_rdata_int_per_req_bits#[241] << 49) | (wide_rdata_int_per_req_bits#[240] << 48) | (wide_rdata_int_per_req_bits#[239] << 47) | (wide_rdata_int_per_req_bits#[238] << 46) | (wide_rdata_int_per_req_bits#[237] << 45) | (wide_rdata_int_per_req_bits#[236] << 44) | (wide_rdata_int_per_req_bits#[235] << 43) | (wide_rdata_int_per_req_bits#[234] << 42) | (wide_rdata_int_per_req_bits#[233] << 41) | (wide_rdata_int_per_req_bits#[232] << 40) | (wide_rdata_int_per_req_bits#[231] << 39) | (wide_rdata_int_per_req_bits#[230] << 38) | (wide_rdata_int_per_req_bits#[229] << 37) | (wide_rdata_int_per_req_bits#[228] << 36) | (wide_rdata_int_per_req_bits#[227] << 35) | (wide_rdata_int_per_req_bits#[226] << 34) | (wide_rdata_int_per_req_bits#[225] << 33) | (wide_rdata_int_per_req_bits#[224] << 32) | (wide_rdata_int_per_req_bits#[223] << 31) | (wide_rdata_int_per_req_bits#[222] << 30) | (wide_rdata_int_per_req_bits#[221] << 29) | (wide_rdata_int_per_req_bits#[220] << 28) | (wide_rdata_int_per_req_bits#[219] << 27) | (wide_rdata_int_per_req_bits#[218] << 26) | (wide_rdata_int_per_req_bits#[217] << 25) | (wide_rdata_int_per_req_bits#[216] << 24) | (wide_rdata_int_per_req_bits#[215] << 23) | (wide_rdata_int_per_req_bits#[214] << 22) | (wide_rdata_int_per_req_bits#[213] << 21) | (wide_rdata_int_per_req_bits#[212] << 20) | (wide_rdata_int_per_req_bits#[211] << 19) | (wide_rdata_int_per_req_bits#[210] << 18) | (wide_rdata_int_per_req_bits#[209] << 17) | (wide_rdata_int_per_req_bits#[208] << 16) | (wide_rdata_int_per_req_bits#[207] << 15) | (wide_rdata_int_per_req_bits#[206] << 14) | (wide_rdata_int_per_req_bits#[205] << 13) | (wide_rdata_int_per_req_bits#[204] << 12) | (wide_rdata_int_per_req_bits#[203] << 11) | (wide_rdata_int_per_req_bits#[202] << 10) | (wide_rdata_int_per_req_bits#[201] << 9) | (wide_rdata_int_per_req_bits#[200] << 8) | (wide_rdata_int_per_req_bits#[199] << 7) | (wide_rdata_int_per_req_bits#[198] << 6) | (wide_rdata_int_per_req_bits#[197] << 5) | (wide_rdata_int_per_req_bits#[196] << 4) | (wide_rdata_int_per_req_bits#[195] << 3) | (wide_rdata_int_per_req_bits#[194] << 2) | (wide_rdata_int_per_req_bits#[193] << 1) | wide_rdata_int_per_req_bits#[192]
+  }
   if not (rst != 0) {
-    if gen_r_data_tracking_3_tracker_start_valid__w1 != 0 or gen_r_data_tracking_3_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_3_tracker_start_valid != 0 or gen_r_data_tracking_3_tracker_beat_valid != 0 {
       wide_rdata_saved_s3 = _mux_42
     }
   }
   if not (rst != 0) {
-    if gen_r_data_tracking_3_tracker_beat_valid__w1 != 0 {
+    if gen_r_data_tracking_3_tracker_beat_valid != 0 {
       wide_rresp_saved_s3 = _mux_41
     }
   }
-  mut gen_narrow_reg_br_flow_reg_fwd_narrow_aw = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_aw](clk=clk, rst=rst, push_valid=br_flow_fork_aw.pop_valid_unstable & 1, push_data=(wide_awid << 49) | (narrow_awaddr_int__w1 << 17) | (br_shift_left_awlen.out#[0..=7] << 9) | (narrow_awsize_int__w1 << 6) | (narrow_awburst_int__w1 << 4) | (wide_awprot << 1) | (wide_awuser & 1), pop_ready=narrow_awready)
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_aw = br_flow_reg_fwd::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_aw](clk=clk, rst=rst, push_valid=br_flow_fork_aw.pop_valid_unstable & 1, push_data=(wide_awid << 49) | (wide_awaddr << 17) | (br_shift_left_awlen.out#[0..=7] << 9) | (narrow_awsize_int << 6) | (wide_awburst << 4) | (wide_awprot << 1) | (wide_awuser & 1), pop_ready=narrow_awready)
   narrow_awready_int = gen_narrow_reg_br_flow_reg_fwd_narrow_aw.push_ready
-  mut gen_narrow_reg_br_flow_reg_fwd_narrow_w = br_flow_reg_fwd_p3::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_w](clk=clk, rst=rst, push_valid=narrow_wvalid_int__w1, push_data=(br_mux_bin_w_data.out#[0..=31] << 6) | (br_mux_bin_w_strb.out#[0..=3] << 2) | ((wide_wuser & 1) << 1) | (narrow_wlast_int & 1), pop_ready=narrow_wready)
+  mut gen_narrow_reg_br_flow_reg_fwd_narrow_w = br_flow_reg_fwd_p3::[name=gen_narrow_reg_br_flow_reg_fwd_narrow_w](clk=clk, rst=rst, push_valid=narrow_wvalid_int, push_data=(br_mux_bin_w_data.out#[0..=31] << 6) | (br_mux_bin_w_strb.out#[0..=3] << 2) | ((wide_wuser & 1) << 1) | (narrow_wlast_int & 1), pop_ready=narrow_wready)
   narrow_wready_int = gen_narrow_reg_br_flow_reg_fwd_narrow_w.push_ready
-  mut gen_wide_reg_br_flow_reg_fwd_wide_r = br_flow_reg_fwd_p4::[name=gen_wide_reg_br_flow_reg_fwd_wide_r](clk=clk, rst=rst, push_valid=U1(narrow_rvalid_int != 0 and r_beat_last != 0), push_data=(narrow_rid_int__w1 << 68) | (`rtracker_mux_out.data`#[0..=63] << 4) | (`rtracker_mux_out.resp`#[0..=1] << 2) | ((((br_flow_reg_fwd_narrow_r.pop_data >> 33) & 1) & 1) << 1) | ((br_flow_reg_fwd_narrow_r.pop_data & 1) & 1), pop_ready=wide_rready)
+  mut gen_wide_reg_br_flow_reg_fwd_wide_r = br_flow_reg_fwd_p4::[name=gen_wide_reg_br_flow_reg_fwd_wide_r](clk=clk, rst=rst, push_valid=U1(narrow_rvalid_int != 0 and r_beat_last != 0), push_data=(narrow_rid_int << 68) | (`rtracker_mux_out.data`#[0..=63] << 4) | (`rtracker_mux_out.resp`#[0..=1] << 2) | ((((br_flow_reg_fwd_narrow_r.pop_data >> 33) & 1) & 1) << 1) | ((br_flow_reg_fwd_narrow_r.pop_data & 1) & 1), pop_ready=wide_rready)
   wide_rready_int = gen_wide_reg_br_flow_reg_fwd_wide_r.push_ready
-  rtracker_mux_in = (`rtracker_mux_in[271]` << 271) | (`rtracker_mux_in[270]` << 270) | (`rtracker_mux_in[269]` << 269) | (`rtracker_mux_in[268]` << 268) | (`rtracker_mux_in[267]` << 267) | (`rtracker_mux_in[266]` << 266) | (`rtracker_mux_in[265]` << 265) | (`rtracker_mux_in[264]` << 264) | (`rtracker_mux_in[263]` << 263) | (`rtracker_mux_in[262]` << 262) | (`rtracker_mux_in[261]` << 261) | (`rtracker_mux_in[260]` << 260) | (`rtracker_mux_in[259]` << 259) | (`rtracker_mux_in[258]` << 258) | (`rtracker_mux_in[257]` << 257) | (`rtracker_mux_in[256]` << 256) | (`rtracker_mux_in[255]` << 255) | (`rtracker_mux_in[254]` << 254) | (`rtracker_mux_in[253]` << 253) | (`rtracker_mux_in[252]` << 252) | (`rtracker_mux_in[251]` << 251) | (`rtracker_mux_in[250]` << 250) | (`rtracker_mux_in[249]` << 249) | (`rtracker_mux_in[248]` << 248) | (`rtracker_mux_in[247]` << 247) | (`rtracker_mux_in[246]` << 246) | (`rtracker_mux_in[245]` << 245) | (`rtracker_mux_in[244]` << 244) | (`rtracker_mux_in[243]` << 243) | (`rtracker_mux_in[242]` << 242) | (`rtracker_mux_in[241]` << 241) | (`rtracker_mux_in[240]` << 240) | (`rtracker_mux_in[239]` << 239) | (`rtracker_mux_in[238]` << 238) | (`rtracker_mux_in[237]` << 237) | (`rtracker_mux_in[236]` << 236) | (`rtracker_mux_in[235]` << 235) | (`rtracker_mux_in[234]` << 234) | (`rtracker_mux_in[233]` << 233) | (`rtracker_mux_in[232]` << 232) | (`rtracker_mux_in[231]` << 231) | (`rtracker_mux_in[230]` << 230) | (`rtracker_mux_in[229]` << 229) | (`rtracker_mux_in[228]` << 228) | (`rtracker_mux_in[227]` << 227) | (`rtracker_mux_in[226]` << 226) | (`rtracker_mux_in[225]` << 225) | (`rtracker_mux_in[224]` << 224) | (`rtracker_mux_in[223]` << 223) | (`rtracker_mux_in[222]` << 222) | (`rtracker_mux_in[221]` << 221) | (`rtracker_mux_in[220]` << 220) | (`rtracker_mux_in[219]` << 219) | (`rtracker_mux_in[218]` << 218) | (`rtracker_mux_in[217]` << 217) | (`rtracker_mux_in[216]` << 216) | (`rtracker_mux_in[215]` << 215) | (`rtracker_mux_in[214]` << 214) | (`rtracker_mux_in[213]` << 213) | (`rtracker_mux_in[212]` << 212) | (`rtracker_mux_in[211]` << 211) | (`rtracker_mux_in[210]` << 210) | (`rtracker_mux_in[209]` << 209) | (`rtracker_mux_in[208]` << 208) | (`rtracker_mux_in[207]` << 207) | (`rtracker_mux_in[206]` << 206) | (`rtracker_mux_in[205]` << 205) | (`rtracker_mux_in[204]` << 204) | (`rtracker_mux_in[203]` << 203) | (`rtracker_mux_in[202]` << 202) | (`rtracker_mux_in[201]` << 201) | (`rtracker_mux_in[200]` << 200) | (`rtracker_mux_in[199]` << 199) | (`rtracker_mux_in[198]` << 198) | (`rtracker_mux_in[197]` << 197) | (`rtracker_mux_in[196]` << 196) | (`rtracker_mux_in[195]` << 195) | (`rtracker_mux_in[194]` << 194) | (`rtracker_mux_in[193]` << 193) | (`rtracker_mux_in[192]` << 192) | (`rtracker_mux_in[191]` << 191) | (`rtracker_mux_in[190]` << 190) | (`rtracker_mux_in[189]` << 189) | (`rtracker_mux_in[188]` << 188) | (`rtracker_mux_in[187]` << 187) | (`rtracker_mux_in[186]` << 186) | (`rtracker_mux_in[185]` << 185) | (`rtracker_mux_in[184]` << 184) | (`rtracker_mux_in[183]` << 183) | (`rtracker_mux_in[182]` << 182) | (`rtracker_mux_in[181]` << 181) | (`rtracker_mux_in[180]` << 180) | (`rtracker_mux_in[179]` << 179) | (`rtracker_mux_in[178]` << 178) | (`rtracker_mux_in[177]` << 177) | (`rtracker_mux_in[176]` << 176) | (`rtracker_mux_in[175]` << 175) | (`rtracker_mux_in[174]` << 174) | (`rtracker_mux_in[173]` << 173) | (`rtracker_mux_in[172]` << 172) | (`rtracker_mux_in[171]` << 171) | (`rtracker_mux_in[170]` << 170) | (`rtracker_mux_in[169]` << 169) | (`rtracker_mux_in[168]` << 168) | (`rtracker_mux_in[167]` << 167) | (`rtracker_mux_in[166]` << 166) | (`rtracker_mux_in[165]` << 165) | (`rtracker_mux_in[164]` << 164) | (`rtracker_mux_in[163]` << 163) | (`rtracker_mux_in[162]` << 162) | (`rtracker_mux_in[161]` << 161) | (`rtracker_mux_in[160]` << 160) | (`rtracker_mux_in[159]` << 159) | (`rtracker_mux_in[158]` << 158) | (`rtracker_mux_in[157]` << 157) | (`rtracker_mux_in[156]` << 156) | (`rtracker_mux_in[155]` << 155) | (`rtracker_mux_in[154]` << 154) | (`rtracker_mux_in[153]` << 153) | (`rtracker_mux_in[152]` << 152) | (`rtracker_mux_in[151]` << 151) | (`rtracker_mux_in[150]` << 150) | (`rtracker_mux_in[149]` << 149) | (`rtracker_mux_in[148]` << 148) | (`rtracker_mux_in[147]` << 147) | (`rtracker_mux_in[146]` << 146) | (`rtracker_mux_in[145]` << 145) | (`rtracker_mux_in[144]` << 144) | (`rtracker_mux_in[143]` << 143) | (`rtracker_mux_in[142]` << 142) | (`rtracker_mux_in[141]` << 141) | (`rtracker_mux_in[140]` << 140) | (`rtracker_mux_in[139]` << 139) | (`rtracker_mux_in[138]` << 138) | (`rtracker_mux_in[137]` << 137) | (`rtracker_mux_in[136]` << 136) | (`rtracker_mux_in[135]` << 135) | (`rtracker_mux_in[134]` << 134) | (`rtracker_mux_in[133]` << 133) | (`rtracker_mux_in[132]` << 132) | (`rtracker_mux_in[131]` << 131) | (`rtracker_mux_in[130]` << 130) | (`rtracker_mux_in[129]` << 129) | (`rtracker_mux_in[128]` << 128) | (`rtracker_mux_in[127]` << 127) | (`rtracker_mux_in[126]` << 126) | (`rtracker_mux_in[125]` << 125) | (`rtracker_mux_in[124]` << 124) | (`rtracker_mux_in[123]` << 123) | (`rtracker_mux_in[122]` << 122) | (`rtracker_mux_in[121]` << 121) | (`rtracker_mux_in[120]` << 120) | (`rtracker_mux_in[119]` << 119) | (`rtracker_mux_in[118]` << 118) | (`rtracker_mux_in[117]` << 117) | (`rtracker_mux_in[116]` << 116) | (`rtracker_mux_in[115]` << 115) | (`rtracker_mux_in[114]` << 114) | (`rtracker_mux_in[113]` << 113) | (`rtracker_mux_in[112]` << 112) | (`rtracker_mux_in[111]` << 111) | (`rtracker_mux_in[110]` << 110) | (`rtracker_mux_in[109]` << 109) | (`rtracker_mux_in[108]` << 108) | (`rtracker_mux_in[107]` << 107) | (`rtracker_mux_in[106]` << 106) | (`rtracker_mux_in[105]` << 105) | (`rtracker_mux_in[104]` << 104) | (`rtracker_mux_in[103]` << 103) | (`rtracker_mux_in[102]` << 102) | (`rtracker_mux_in[101]` << 101) | (`rtracker_mux_in[100]` << 100) | (`rtracker_mux_in[99]` << 99) | (`rtracker_mux_in[98]` << 98) | (`rtracker_mux_in[97]` << 97) | (`rtracker_mux_in[96]` << 96) | (`rtracker_mux_in[95]` << 95) | (`rtracker_mux_in[94]` << 94) | (`rtracker_mux_in[93]` << 93) | (`rtracker_mux_in[92]` << 92) | (`rtracker_mux_in[91]` << 91) | (`rtracker_mux_in[90]` << 90) | (`rtracker_mux_in[89]` << 89) | (`rtracker_mux_in[88]` << 88) | (`rtracker_mux_in[87]` << 87) | (`rtracker_mux_in[86]` << 86) | (`rtracker_mux_in[85]` << 85) | (`rtracker_mux_in[84]` << 84) | (`rtracker_mux_in[83]` << 83) | (`rtracker_mux_in[82]` << 82) | (`rtracker_mux_in[81]` << 81) | (`rtracker_mux_in[80]` << 80) | (`rtracker_mux_in[79]` << 79) | (`rtracker_mux_in[78]` << 78) | (`rtracker_mux_in[77]` << 77) | (`rtracker_mux_in[76]` << 76) | (`rtracker_mux_in[75]` << 75) | (`rtracker_mux_in[74]` << 74) | (`rtracker_mux_in[73]` << 73) | (`rtracker_mux_in[72]` << 72) | (`rtracker_mux_in[71]` << 71) | (`rtracker_mux_in[70]` << 70) | (`rtracker_mux_in[69]` << 69) | (`rtracker_mux_in[68]` << 68) | (`rtracker_mux_in[67]` << 67) | (`rtracker_mux_in[66]` << 66) | (`rtracker_mux_in[65]` << 65) | (`rtracker_mux_in[64]` << 64) | (`rtracker_mux_in[63]` << 63) | (`rtracker_mux_in[62]` << 62) | (`rtracker_mux_in[61]` << 61) | (`rtracker_mux_in[60]` << 60) | (`rtracker_mux_in[59]` << 59) | (`rtracker_mux_in[58]` << 58) | (`rtracker_mux_in[57]` << 57) | (`rtracker_mux_in[56]` << 56) | (`rtracker_mux_in[55]` << 55) | (`rtracker_mux_in[54]` << 54) | (`rtracker_mux_in[53]` << 53) | (`rtracker_mux_in[52]` << 52) | (`rtracker_mux_in[51]` << 51) | (`rtracker_mux_in[50]` << 50) | (`rtracker_mux_in[49]` << 49) | (`rtracker_mux_in[48]` << 48) | (`rtracker_mux_in[47]` << 47) | (`rtracker_mux_in[46]` << 46) | (`rtracker_mux_in[45]` << 45) | (`rtracker_mux_in[44]` << 44) | (`rtracker_mux_in[43]` << 43) | (`rtracker_mux_in[42]` << 42) | (`rtracker_mux_in[41]` << 41) | (`rtracker_mux_in[40]` << 40) | (`rtracker_mux_in[39]` << 39) | (`rtracker_mux_in[38]` << 38) | (`rtracker_mux_in[37]` << 37) | (`rtracker_mux_in[36]` << 36) | (`rtracker_mux_in[35]` << 35) | (`rtracker_mux_in[34]` << 34) | (`rtracker_mux_in[33]` << 33) | (`rtracker_mux_in[32]` << 32) | (`rtracker_mux_in[31]` << 31) | (`rtracker_mux_in[30]` << 30) | (`rtracker_mux_in[29]` << 29) | (`rtracker_mux_in[28]` << 28) | (`rtracker_mux_in[27]` << 27) | (`rtracker_mux_in[26]` << 26) | (`rtracker_mux_in[25]` << 25) | (`rtracker_mux_in[24]` << 24) | (`rtracker_mux_in[23]` << 23) | (`rtracker_mux_in[22]` << 22) | (`rtracker_mux_in[21]` << 21) | (`rtracker_mux_in[20]` << 20) | (`rtracker_mux_in[19]` << 19) | (`rtracker_mux_in[18]` << 18) | (`rtracker_mux_in[17]` << 17) | (`rtracker_mux_in[16]` << 16) | (`rtracker_mux_in[15]` << 15) | (`rtracker_mux_in[14]` << 14) | (`rtracker_mux_in[13]` << 13) | (`rtracker_mux_in[12]` << 12) | (`rtracker_mux_in[11]` << 11) | (`rtracker_mux_in[10]` << 10) | (`rtracker_mux_in[9]` << 9) | (`rtracker_mux_in[8]` << 8) | (`rtracker_mux_in[7]` << 7) | (`rtracker_mux_in[6]` << 6) | (`rtracker_mux_in[5]` << 5) | (`rtracker_mux_in[4]` << 4) | (`rtracker_mux_in[3]` << 3) | (`rtracker_mux_in[2]` << 2) | (`rtracker_mux_in[1]` << 1) | `rtracker_mux_in[0]`
+  rtracker_mux_in = rtracker_mux_in_bits
   wide_awready = br_flow_fork_aw.push_ready
   wide_wready = _b2i_19
   wide_bid = (gen_wide_reg_br_flow_reg_fwd_wide_b.pop_data >> 3)#[0..=3]

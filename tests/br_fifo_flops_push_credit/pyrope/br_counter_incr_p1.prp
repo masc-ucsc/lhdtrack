@@ -1,10 +1,9 @@
 pub mod br_counter_incr_p1<MaxValueWidth=32, MaxIncrementWidth=32, MaxValue=29, MaxIncrement=1, EnableReinitAndIncr=1, EnableSaturate=0, EnableWrap=1, EnableAssertFinalNotValid=1, EnableCoverZeroIncrement=0, EnableCoverReinit=0, EnableCoverReinitAndIncr=0, EnableCoverReinitNoIncr=0>::[timecheck=false](clk:Clock, incr:U1, incr_valid:U1, initial_value:U5, reinit:U1, rst:U1) -> (value:U5@[], value_next:U5@[]) {
   reg value:U5
-  const MaxValueWithOverflow = MaxValue
   mut _mux_2:U5 = if reinit != 0 { initial_value } else { value }
   mut _mux_3:U5 = if incr_valid != 0 { incr } else { 0 }
-  const value_temp__w1 = (_mux_2 + _mux_3)#[0..=4]
-  mut _mux_4:U5 = if value_temp__w1 > MaxValueWithOverflow { ((value_temp__w1 - MaxValueWithOverflow)#[0..=31] - 1)#[0..=31]#[0..=4] } else { value_temp__w1 }
+  const value_temp = (_mux_2 + _mux_3)#[0..=4]
+  mut _mux_4:U5 = if value_temp > MaxValue { ((value_temp - MaxValue)#[0..=31] - 1)#[0..=31]#[0..=4] } else { value_temp }
   const value_next__w1 = _mux_4
   if rst != 0 {
     value = initial_value

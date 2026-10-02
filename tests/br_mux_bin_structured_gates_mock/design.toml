@@ -1,8 +1,8 @@
 # br_mux_bin_structured_gates_mock -- see README.md for provenance.
 [design]
 name  = "br_mux_bin_structured_gates_mock"
-top   = "br_mux_bin_structured_gates_mock"
-kind  = "sequential"          # combinational | sequential
+top   = "br_mux_bin_structured_gates_mock_bench"
+kind  = "combinational"          # combinational | sequential
 suite = "mux"         # groups the report; NOT a path component
 
 [provenance]
@@ -14,27 +14,33 @@ license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
 [status]
 # none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
 # measures FRONT ENDS, not languages, so it never enters a headline geomean.
-pyrope = "none"
+pyrope = "idiomatic"
 # none | proven | failed | unsupported -- until `proven`, a QoR win might just
 # be a different circuit.
-lec    = "none"
+lec    = "proven"
 
 # One elaborated parameter set per entry. Benchmark id is `br_mux_bin_structured_gates_mock#<id>`.
 [[config]]
-id     = "default"
+id     = "nsi5_sw16"
+sim_checksum = { cycles = 43478261, value = "13049023983008151410" }
 params = {}
 
 [synth]
+skip_reason = "Upstream behavioral mock prohibits synthesis; use br_mux_bin_structured_gates"
 flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
+# Upstream mock deliberately rejects SYNTHESIS; both Verilog simulators use this mode.
+verilog_profile = "behavioral"
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 1000000
+cycles = 43478261
 marker = "LHDTRACK-DONE"
 
 [lec]
+# Compare the same behavioral DUT used by simulation; synthesis guards stay active.
+verilog_profile = "behavioral"
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]

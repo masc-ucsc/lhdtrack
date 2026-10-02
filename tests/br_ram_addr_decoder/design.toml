@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_ram_addr_decoder#<id>`.
 [[config]]
 id     = "dw32_d32_ed0_s0_t4"
-sim_checksum = { cycles = 27400000, value = "7626654069768182666" }
+sim_checksum = { cycles = 32258065, value = "10383431028835827763" }
 # NO PARAMETERS. verilog/br_ram_addr_decoder.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 27400000
+cycles = 32258065
 marker = "LHDTRACK-DONE"
 
 [lec]

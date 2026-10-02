@@ -1,8 +1,6 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
 const br_demux_bin = import("br_demux_bin.br_demux_bin")
 const br_flow_mux_core = import("br_flow_mux_core.br_flow_mux_core")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-
 pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, Depth=32, Width=32, EnableAssertPushValidStability=1, ArbiterAlwaysGrants=1>::[timecheck=false](arb_can_grant:U2, arb_grant:U2, clk:Clock, pop_rd_data:U32, pop_rd_data_valid:U1, push_rd_addr:U10, push_rd_addr_valid:U2, rst:Reset) -> (arb_enable_priority_update:U1@[], arb_request:U2@[], pop_rd_addr:U5@[], pop_rd_addr_valid:U1@[], push_rd_addr_ready:U2@[], push_rd_data:U64@[], push_rd_data_valid:(e1:U1, e0:U1)@[]) {
   mut _mux_1:S32 = 0
   wire `demuxed_rd_addr_ready[0]`:U1 = nil
@@ -11,18 +9,7 @@ pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, D
   wire `mux_push_valid[0]`:U1 = nil
   wire `mux_push_valid[1]`:U1 = nil
   wire mux_push_valid:U2 = nil
-  wire `mux_push_data[0]`:U1 = nil
-  wire `mux_push_data[1]`:U1 = nil
-  wire `mux_push_data[2]`:U1 = nil
-  wire `mux_push_data[3]`:U1 = nil
-  wire `mux_push_data[4]`:U1 = nil
-  wire `mux_push_data[5]`:U1 = nil
-  wire `mux_push_data[6]`:U1 = nil
-  wire `mux_push_data[7]`:U1 = nil
-  wire `mux_push_data[8]`:U1 = nil
-  wire `mux_push_data[9]`:U1 = nil
-  wire `mux_push_data[10]`:U1 = nil
-  wire `mux_push_data[11]`:U1 = nil
+  wire mux_push_data_bits:U12 = nil
   wire mux_push_data:U12 = nil
   wire pop_rd_addr_fifo_id:U1 = nil
   wire pop_rd_addr:U5 = nil
@@ -45,27 +32,13 @@ pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, D
   _mux_1 = (Depth%NumReadPorts)#[0..=31]#sext[0..=31]
   _mux_1 = NumReadPorts#sext[0..=31]
 
-  const NumDemuxPopBackpressureCheckFlows = _mux_1
-  const EnableCoverDemuxPopBackpressure = NumDemuxPopBackpressureCheckFlows != 0
-  const demuxed_rd_addr_valid__w1 = push_rd_addr_valid
   const push_rd_addr_ready__w1 = demuxed_rd_addr_ready
-  const demuxed_rd_addr__w1 = push_rd_addr
-  `mux_push_valid[0]` = demuxed_rd_addr_valid__w1 & 1
-  const t17 = demuxed_rd_addr__w1#[0..=4] << 1
-  `mux_push_data[0]` = t17 & 1
-  `mux_push_data[1]` = (t17 >> 1) & 1
-  `mux_push_data[2]` = (t17 >> 2) & 1
-  `mux_push_data[3]` = (t17 >> 3) & 1
-  `mux_push_data[4]` = (t17 >> 4) & 1
-  `mux_push_data[5]` = (t17 >> 5) & 1
-  `mux_push_valid[1]` = (demuxed_rd_addr_valid__w1 >> 1) & 1
-  const t33 = (demuxed_rd_addr__w1#[5..=9] << 1) | 1
-  `mux_push_data[6]` = t33 & 1
-  `mux_push_data[7]` = (t33 >> 1) & 1
-  `mux_push_data[8]` = (t33 >> 2) & 1
-  `mux_push_data[9]` = (t33 >> 3) & 1
-  `mux_push_data[10]` = (t33 >> 4) & 1
-  `mux_push_data[11]` = (t33 >> 5) & 1
+  `mux_push_valid[0]` = push_rd_addr_valid & 1
+  const t17 = push_rd_addr#[0..=4] << 1
+  mux_push_data_bits#[0..<6] = t17#[0..<6]
+  `mux_push_valid[1]` = (push_rd_addr_valid >> 1) & 1
+  const t33 = (push_rd_addr#[5..=9] << 1) | 1
+  mux_push_data_bits#[6..<12] = t33#[0..<6]
   mut gen_read_port_mux_0_br_flow_mux_core_inst = br_flow_mux_core::[name=gen_read_port_mux_0_br_flow_mux_core_inst](clk=clk, rst=rst, can_grant=arb_can_grant, grant=arb_grant, push_valid=mux_push_valid, push_data=mux_push_data, pop_ready=1)
   arb_request__wtmp#[0..=1] = gen_read_port_mux_0_br_flow_mux_core_inst.request#[0..=1]
   arb_enable_priority_update__wtmp#[0] = gen_read_port_mux_0_br_flow_mux_core_inst.enable_priority_update & 1
@@ -78,7 +51,6 @@ pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, D
   mut gen_read_port_mux_0_br_demux_bin_rd_data = br_demux_bin::[name=gen_read_port_mux_0_br_demux_bin_rd_data](select=pop_rd_data_fifo_id & 1, in_valid=pop_rd_data_valid & 1, `in`=pop_rd_data)
   demuxed_rd_data_valid__wtmp#[0..=1] = gen_read_port_mux_0_br_demux_bin_rd_data.out_valid#[0..=1]
   demuxed_rd_data__wtmp#[0..=63] = gen_read_port_mux_0_br_demux_bin_rd_data.out#[0..=63]
-  br_misc_unused_p2::[name=br_misc_unused_pop_rd_data_fifo_id_valid](`in`=pop_rd_data_fifo_id_valid)
   mut `push_rd_data_valid__bpo.e1` = (demuxed_rd_data_valid >> 1) & 1
   mut `push_rd_data_valid__bpo.e0` = demuxed_rd_data_valid & 1
   const push_rd_data__w1 = demuxed_rd_data
@@ -86,7 +58,7 @@ pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, D
   `demuxed_rd_addr_ready[1]` = (gen_read_port_mux_0_br_flow_mux_core_inst.push_ready >> 1) & 1
   demuxed_rd_addr_ready = (`demuxed_rd_addr_ready[1]` << 1) | `demuxed_rd_addr_ready[0]`
   mux_push_valid = (`mux_push_valid[1]` << 1) | `mux_push_valid[0]`
-  mux_push_data = (`mux_push_data[11]` << 11) | (`mux_push_data[10]` << 10) | (`mux_push_data[9]` << 9) | (`mux_push_data[8]` << 8) | (`mux_push_data[7]` << 7) | (`mux_push_data[6]` << 6) | (`mux_push_data[5]` << 5) | (`mux_push_data[4]` << 4) | (`mux_push_data[3]` << 3) | (`mux_push_data[2]` << 2) | (`mux_push_data[1]` << 1) | `mux_push_data[0]`
+  mux_push_data = mux_push_data_bits
   pop_rd_addr_valid = pop_rd_addr_valid__wtmp
   arb_request = arb_request__wtmp
   arb_enable_priority_update = arb_enable_priority_update__wtmp

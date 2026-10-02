@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is mux.mux.
 const dut = import("mux.mux")
 
-pub mod mux_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod mux_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   const r = dut(in0=lfsr#[0..=7], in1=lfsr#[8..=15], in2=lfsr#[16..=23], in3=lfsr#[24..=31], sel=lfsr#[32..=33])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r
 
   if rst != 0 {

@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is FmaShareSgn.FmaShareSgn.
 const dut = import("FmaShareSgn.FmaShareSgn")
 
-pub mod FmaShareSgn_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod FmaShareSgn_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   const (res_c, res_d) = dut(a=lfsr#sext[0..=15], b=lfsr#sext[16..=31], c=lfsr#sext[32..=47], d=lfsr#sext[48..=63])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ res_c#[0..=31]
   wrap acc = ((acc << 1) | acc#[63]) ^ res_d#[0..=31]
 

@@ -1,14 +1,7 @@
-pub mod br_delay_valid<Width=4, NumStages=0, FirstStageUngated=0, EnableAssertFinalNotValid=1>::[timecheck=false](clk:Clock, `in`:U4, in_valid:U1, rst:Reset) -> (out:U4@[], out_stages:U4@[], out_valid:U1@[], out_valid_stages:U1@[]) {
-  mut stage_valid:U1 = 0
-  mut `stage`:U4 = 0
-  stage_valid = 0ub?
-  `stage` = 0sb?
-  mut stage_valid__w1 = stage_valid
-  stage_valid__w1#[0] = in_valid & 1
-  mut stage__w1 = `stage`
-  stage__w1#[0..=3] = `in`
-  out_valid = (stage_valid__w1 >> NumStages) & 1
-  out = (stage__w1 >> (NumStages*4))#[0..=3]
-  out_valid_stages = stage_valid__w1
-  out_stages = stage__w1
+// Zero-stage valid/payload passthrough shared by the pinned width variants.
+pub comb br_delay_valid<Width=64>(`in`:Unsigned(bits=Width), in_valid:U1) -> (out:Unsigned(bits=Width), out_stages:Unsigned(bits=Width), out_valid:U1, out_valid_stages:U1) {
+  out = `in`
+  out_stages = `in`
+  out_valid = in_valid
+  out_valid_stages = in_valid
 }

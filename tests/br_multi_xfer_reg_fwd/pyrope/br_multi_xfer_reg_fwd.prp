@@ -1,167 +1,38 @@
-const br_multi_xfer_checks_sendable_data_impl = import("br_multi_xfer_checks_sendable_data_impl.br_multi_xfer_checks_sendable_data_impl")
-const br_multi_xfer_checks_sendable_data_intg = import("br_multi_xfer_checks_sendable_data_intg.br_multi_xfer_checks_sendable_data_intg")
 const br_shift_left = import("br_shift_left.br_shift_left")
 const br_shift_right = import("br_shift_right.br_shift_right")
 
 pub mod br_multi_xfer_reg_fwd::[timecheck=false](clk:Clock, pop_receivable:U2, push_data:U64, push_sendable:U2, rst:U1) -> (pop_data:U64@[], pop_sendable:U2@[], push_receivable:U2@[]) {
   reg pop_sendable:U2:[async=false, initial=0, reset_pin=rst]
   reg pop_data:U64:[async=false, initial=0, reset_pin=rst]
-  wire `push_data_qual[0]`:U1 = nil
-  wire `push_data_qual[1]`:U1 = nil
-  wire `push_data_qual[2]`:U1 = nil
-  wire `push_data_qual[3]`:U1 = nil
-  wire `push_data_qual[4]`:U1 = nil
-  wire `push_data_qual[5]`:U1 = nil
-  wire `push_data_qual[6]`:U1 = nil
-  wire `push_data_qual[7]`:U1 = nil
-  wire `push_data_qual[8]`:U1 = nil
-  wire `push_data_qual[9]`:U1 = nil
-  wire `push_data_qual[10]`:U1 = nil
-  wire `push_data_qual[11]`:U1 = nil
-  wire `push_data_qual[12]`:U1 = nil
-  wire `push_data_qual[13]`:U1 = nil
-  wire `push_data_qual[14]`:U1 = nil
-  wire `push_data_qual[15]`:U1 = nil
-  wire `push_data_qual[16]`:U1 = nil
-  wire `push_data_qual[17]`:U1 = nil
-  wire `push_data_qual[18]`:U1 = nil
-  wire `push_data_qual[19]`:U1 = nil
-  wire `push_data_qual[20]`:U1 = nil
-  wire `push_data_qual[21]`:U1 = nil
-  wire `push_data_qual[22]`:U1 = nil
-  wire `push_data_qual[23]`:U1 = nil
-  wire `push_data_qual[24]`:U1 = nil
-  wire `push_data_qual[25]`:U1 = nil
-  wire `push_data_qual[26]`:U1 = nil
-  wire `push_data_qual[27]`:U1 = nil
-  wire `push_data_qual[28]`:U1 = nil
-  wire `push_data_qual[29]`:U1 = nil
-  wire `push_data_qual[30]`:U1 = nil
-  wire `push_data_qual[31]`:U1 = nil
-  wire `push_data_qual[32]`:U1 = nil
-  wire `push_data_qual[33]`:U1 = nil
-  wire `push_data_qual[34]`:U1 = nil
-  wire `push_data_qual[35]`:U1 = nil
-  wire `push_data_qual[36]`:U1 = nil
-  wire `push_data_qual[37]`:U1 = nil
-  wire `push_data_qual[38]`:U1 = nil
-  wire `push_data_qual[39]`:U1 = nil
-  wire `push_data_qual[40]`:U1 = nil
-  wire `push_data_qual[41]`:U1 = nil
-  wire `push_data_qual[42]`:U1 = nil
-  wire `push_data_qual[43]`:U1 = nil
-  wire `push_data_qual[44]`:U1 = nil
-  wire `push_data_qual[45]`:U1 = nil
-  wire `push_data_qual[46]`:U1 = nil
-  wire `push_data_qual[47]`:U1 = nil
-  wire `push_data_qual[48]`:U1 = nil
-  wire `push_data_qual[49]`:U1 = nil
-  wire `push_data_qual[50]`:U1 = nil
-  wire `push_data_qual[51]`:U1 = nil
-  wire `push_data_qual[52]`:U1 = nil
-  wire `push_data_qual[53]`:U1 = nil
-  wire `push_data_qual[54]`:U1 = nil
-  wire `push_data_qual[55]`:U1 = nil
-  wire `push_data_qual[56]`:U1 = nil
-  wire `push_data_qual[57]`:U1 = nil
-  wire `push_data_qual[58]`:U1 = nil
-  wire `push_data_qual[59]`:U1 = nil
-  wire `push_data_qual[60]`:U1 = nil
-  wire `push_data_qual[61]`:U1 = nil
-  wire `push_data_qual[62]`:U1 = nil
-  wire `push_data_qual[63]`:U1 = nil
+  wire push_data_qual_bits:U64 = nil
   wire push_data_qual:U64 = nil
   mut _mux_1:U2 = if pop_sendable < pop_receivable { pop_sendable } else { pop_receivable }
-  const pop_xfer_count__w1 = _mux_1
-  const pop_sendable_after_xfer__w1 = (pop_sendable - pop_xfer_count__w1)#[0..=1]
-  const push_receivable__w1 = (2 - pop_sendable_after_xfer__w1)#[0..=31]#[0..=1]
+  const pop_xfer_count = _mux_1
+  const pop_sendable_after_xfer = (pop_sendable - pop_xfer_count)#[0..=1]
+  const push_receivable__w1 = (2 - pop_sendable_after_xfer)#[0..=31]#[0..=1]
   mut _mux_2:U2 = if push_sendable < push_receivable__w1 { push_sendable } else { push_receivable__w1 }
-  const push_xfer_count__w1 = _mux_2
-  const pop_sendable_next__w1 = (pop_sendable_after_xfer__w1 + push_xfer_count__w1)#[0..=1]
-  mut br_shift_right_data = br_shift_right::[name=br_shift_right_data](`in`=pop_data, shift=pop_xfer_count__w1 & 1, fill=0)
-  mut _mux_3:U64 = if pop_xfer_count__w1 == 2 { 0 } else { br_shift_right_data.out#[0..=63] }
+  const push_xfer_count = _mux_2
+  const pop_sendable_next = (pop_sendable_after_xfer + push_xfer_count)#[0..=1]
+  mut br_shift_right_data = br_shift_right::[name=br_shift_right_data](`in`=pop_data, shift=pop_xfer_count & 1, fill=0)
+  mut _mux_3:U64 = if pop_xfer_count == 2 { 0 } else { br_shift_right_data.out#[0..=63] }
   mut _mux_4:U32 = if push_sendable > 0 { push_data#[0..=31] } else { 0 }
-  `push_data_qual[0]` = _mux_4 & 1
-  `push_data_qual[1]` = (_mux_4 >> 1) & 1
-  `push_data_qual[2]` = (_mux_4 >> 2) & 1
-  `push_data_qual[3]` = (_mux_4 >> 3) & 1
-  `push_data_qual[4]` = (_mux_4 >> 4) & 1
-  `push_data_qual[5]` = (_mux_4 >> 5) & 1
-  `push_data_qual[6]` = (_mux_4 >> 6) & 1
-  `push_data_qual[7]` = (_mux_4 >> 7) & 1
-  `push_data_qual[8]` = (_mux_4 >> 8) & 1
-  `push_data_qual[9]` = (_mux_4 >> 9) & 1
-  `push_data_qual[10]` = (_mux_4 >> 10) & 1
-  `push_data_qual[11]` = (_mux_4 >> 11) & 1
-  `push_data_qual[12]` = (_mux_4 >> 12) & 1
-  `push_data_qual[13]` = (_mux_4 >> 13) & 1
-  `push_data_qual[14]` = (_mux_4 >> 14) & 1
-  `push_data_qual[15]` = (_mux_4 >> 15) & 1
-  `push_data_qual[16]` = (_mux_4 >> 16) & 1
-  `push_data_qual[17]` = (_mux_4 >> 17) & 1
-  `push_data_qual[18]` = (_mux_4 >> 18) & 1
-  `push_data_qual[19]` = (_mux_4 >> 19) & 1
-  `push_data_qual[20]` = (_mux_4 >> 20) & 1
-  `push_data_qual[21]` = (_mux_4 >> 21) & 1
-  `push_data_qual[22]` = (_mux_4 >> 22) & 1
-  `push_data_qual[23]` = (_mux_4 >> 23) & 1
-  `push_data_qual[24]` = (_mux_4 >> 24) & 1
-  `push_data_qual[25]` = (_mux_4 >> 25) & 1
-  `push_data_qual[26]` = (_mux_4 >> 26) & 1
-  `push_data_qual[27]` = (_mux_4 >> 27) & 1
-  `push_data_qual[28]` = (_mux_4 >> 28) & 1
-  `push_data_qual[29]` = (_mux_4 >> 29) & 1
-  `push_data_qual[30]` = (_mux_4 >> 30) & 1
-  `push_data_qual[31]` = (_mux_4 >> 31) & 1
+  push_data_qual_bits#[0..<32] = _mux_4#[0..<32]
   mut _mux_5:U32 = if push_sendable > 1 { push_data#[32..=63] } else { 0 }
-  `push_data_qual[32]` = _mux_5 & 1
-  `push_data_qual[33]` = (_mux_5 >> 1) & 1
-  `push_data_qual[34]` = (_mux_5 >> 2) & 1
-  `push_data_qual[35]` = (_mux_5 >> 3) & 1
-  `push_data_qual[36]` = (_mux_5 >> 4) & 1
-  `push_data_qual[37]` = (_mux_5 >> 5) & 1
-  `push_data_qual[38]` = (_mux_5 >> 6) & 1
-  `push_data_qual[39]` = (_mux_5 >> 7) & 1
-  `push_data_qual[40]` = (_mux_5 >> 8) & 1
-  `push_data_qual[41]` = (_mux_5 >> 9) & 1
-  `push_data_qual[42]` = (_mux_5 >> 10) & 1
-  `push_data_qual[43]` = (_mux_5 >> 11) & 1
-  `push_data_qual[44]` = (_mux_5 >> 12) & 1
-  `push_data_qual[45]` = (_mux_5 >> 13) & 1
-  `push_data_qual[46]` = (_mux_5 >> 14) & 1
-  `push_data_qual[47]` = (_mux_5 >> 15) & 1
-  `push_data_qual[48]` = (_mux_5 >> 16) & 1
-  `push_data_qual[49]` = (_mux_5 >> 17) & 1
-  `push_data_qual[50]` = (_mux_5 >> 18) & 1
-  `push_data_qual[51]` = (_mux_5 >> 19) & 1
-  `push_data_qual[52]` = (_mux_5 >> 20) & 1
-  `push_data_qual[53]` = (_mux_5 >> 21) & 1
-  `push_data_qual[54]` = (_mux_5 >> 22) & 1
-  `push_data_qual[55]` = (_mux_5 >> 23) & 1
-  `push_data_qual[56]` = (_mux_5 >> 24) & 1
-  `push_data_qual[57]` = (_mux_5 >> 25) & 1
-  `push_data_qual[58]` = (_mux_5 >> 26) & 1
-  `push_data_qual[59]` = (_mux_5 >> 27) & 1
-  `push_data_qual[60]` = (_mux_5 >> 28) & 1
-  `push_data_qual[61]` = (_mux_5 >> 29) & 1
-  `push_data_qual[62]` = (_mux_5 >> 30) & 1
-  `push_data_qual[63]` = (_mux_5 >> 31) & 1
-  mut br_shift_left_data = br_shift_left::[name=br_shift_left_data](`in`=push_data_qual, shift=pop_sendable_after_xfer__w1 & 1, fill=0)
-  mut _mux_6:U64 = if pop_sendable_after_xfer__w1 == 2 { 0 } else { br_shift_left_data.out#[0..=63] }
-  mut _b2i_7 = if push_xfer_count__w1 != 0 or pop_xfer_count__w1 != 0 { 1 } else { 0 }
-  const pop_update__w1 = _b2i_7
+  push_data_qual_bits#[32..<64] = _mux_5#[0..<32]
+  mut br_shift_left_data = br_shift_left::[name=br_shift_left_data](`in`=push_data_qual, shift=pop_sendable_after_xfer & 1, fill=0)
+  mut _mux_6:U64 = if pop_sendable_after_xfer == 2 { 0 } else { br_shift_left_data.out#[0..=63] }
+  mut _b2i_7 = if push_xfer_count != 0 or pop_xfer_count != 0 { 1 } else { 0 }
+  const pop_update = _b2i_7
   if not (rst != 0) {
-    if pop_update__w1 != 0 {
-      pop_sendable = pop_sendable_next__w1
+    if pop_update != 0 {
+      pop_sendable = pop_sendable_next
     }
   }
   if not (rst != 0) {
-    if pop_update__w1 != 0 {
+    if pop_update != 0 {
       pop_data = _mux_3 | _mux_6
     }
   }
-  br_multi_xfer_checks_sendable_data_impl::[name=br_multi_xfer_checks_sendable_data_impl_pop](clk=clk, rst=rst, receivable=pop_receivable, sendable=pop_sendable, data=pop_data)
-  br_multi_xfer_checks_sendable_data_intg::[name=br_multi_xfer_checks_sendable_data_intg_push](clk=clk, rst=rst, receivable=push_receivable__w1, sendable=push_sendable, data=push_data)
-  push_data_qual = (`push_data_qual[63]` << 63) | (`push_data_qual[62]` << 62) | (`push_data_qual[61]` << 61) | (`push_data_qual[60]` << 60) | (`push_data_qual[59]` << 59) | (`push_data_qual[58]` << 58) | (`push_data_qual[57]` << 57) | (`push_data_qual[56]` << 56) | (`push_data_qual[55]` << 55) | (`push_data_qual[54]` << 54) | (`push_data_qual[53]` << 53) | (`push_data_qual[52]` << 52) | (`push_data_qual[51]` << 51) | (`push_data_qual[50]` << 50) | (`push_data_qual[49]` << 49) | (`push_data_qual[48]` << 48) | (`push_data_qual[47]` << 47) | (`push_data_qual[46]` << 46) | (`push_data_qual[45]` << 45) | (`push_data_qual[44]` << 44) | (`push_data_qual[43]` << 43) | (`push_data_qual[42]` << 42) | (`push_data_qual[41]` << 41) | (`push_data_qual[40]` << 40) | (`push_data_qual[39]` << 39) | (`push_data_qual[38]` << 38) | (`push_data_qual[37]` << 37) | (`push_data_qual[36]` << 36) | (`push_data_qual[35]` << 35) | (`push_data_qual[34]` << 34) | (`push_data_qual[33]` << 33) | (`push_data_qual[32]` << 32) | (`push_data_qual[31]` << 31) | (`push_data_qual[30]` << 30) | (`push_data_qual[29]` << 29) | (`push_data_qual[28]` << 28) | (`push_data_qual[27]` << 27) | (`push_data_qual[26]` << 26) | (`push_data_qual[25]` << 25) | (`push_data_qual[24]` << 24) | (`push_data_qual[23]` << 23) | (`push_data_qual[22]` << 22) | (`push_data_qual[21]` << 21) | (`push_data_qual[20]` << 20) | (`push_data_qual[19]` << 19) | (`push_data_qual[18]` << 18) | (`push_data_qual[17]` << 17) | (`push_data_qual[16]` << 16) | (`push_data_qual[15]` << 15) | (`push_data_qual[14]` << 14) | (`push_data_qual[13]` << 13) | (`push_data_qual[12]` << 12) | (`push_data_qual[11]` << 11) | (`push_data_qual[10]` << 10) | (`push_data_qual[9]` << 9) | (`push_data_qual[8]` << 8) | (`push_data_qual[7]` << 7) | (`push_data_qual[6]` << 6) | (`push_data_qual[5]` << 5) | (`push_data_qual[4]` << 4) | (`push_data_qual[3]` << 3) | (`push_data_qual[2]` << 2) | (`push_data_qual[1]` << 1) | `push_data_qual[0]`
+  push_data_qual = push_data_qual_bits
   push_receivable = push_receivable__w1
 }

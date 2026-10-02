@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Matched with cpu_harness.sv. Restart every 4096 clocks to repeat useful work.
 const processor = import("cpu.cpu")
-pub mod cpu_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
-  reg phase:u12 = 0
+pub mod cpu_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg phase:U12 = 0
   // No reset: the simulation flow initializes state to zero once at startup.
-  reg sum:u64 = nil
+  reg sum:U64 = nil
   const reset_active = rst!=0 or phase<4
-  const result = processor(i_clk=clk, i_rst=u1(not reset_active))
+  const result = processor(i_clk=clk, i_rst=U1(not reset_active))
   checksum = sum
   if rst == 0 {
     wrap phase += 1

@@ -21,11 +21,11 @@ pub mod br_amba_axil2apb::[timecheck=false](araddr:U32, arprot:U3, arvalid:U1, a
     rdata = prdata
   }
   mut _b2i_1 = if awvalid != 0 and wvalid != 0 and apb_state == 1 { 1 } else { 0 }
-  const write_req_ready__w1 = _b2i_1
+  const write_req_ready = _b2i_1
   mut _b2i_2 = if arvalid != 0 and apb_state == 1 { 1 } else { 0 }
-  const read_req_ready__w1 = _b2i_2
-  mut _b2i_3 = if write_req_ready__w1 != 0 and (((last_grant >> 1) & 1) == 0 or read_req_ready__w1 == 0) { 1 } else { 0 }
-  mut _b2i_4 = if read_req_ready__w1 != 0 and ((last_grant & 1) == 0 or write_req_ready__w1 == 0) { 1 } else { 0 }
+  const read_req_ready = _b2i_2
+  mut _b2i_3 = if write_req_ready != 0 and (((last_grant >> 1) & 1) == 0 or read_req_ready == 0) { 1 } else { 0 }
+  mut _b2i_4 = if read_req_ready != 0 and ((last_grant & 1) == 0 or write_req_ready == 0) { 1 } else { 0 }
   mut _b2i_5 = if apb_state == 8 and write_reg != 0 { 1 } else { 0 }
   mut _mux_6:U2 = if resp_reg != 0 { br_amba.AxiRespSlverr#[0..=1] } else { br_amba.AxiRespOkay#[0..=1] }
   mut _b2i_7 = if apb_state == 8 and (~write_reg) != 0 { 1 } else { 0 }
@@ -38,15 +38,15 @@ pub mod br_amba_axil2apb::[timecheck=false](araddr:U32, arprot:U3, arvalid:U1, a
   const pprot__w1 = prot_reg
   const pstrb__w1 = strb_reg
   mut br_arb_rr = br_arb_rr_t::[name=br_arb_rr](clk=clk, rst=rst, enable_priority_update=1, request=((_b2i_3 & 1) << 1) | (_b2i_4 & 1))
-  const arb_read_grant__w1 = br_arb_rr & 1
-  const arb_write_grant__w1 = (br_arb_rr >> 1) & 1
-  const arb_any_grant__w1 = U1(arb_write_grant__w1 != 0 or arb_read_grant__w1 != 0)
-  mut _mux_10:U32 = if arb_write_grant__w1 != 0 { awaddr } else { araddr }
-  mut _mux_11:U3 = if arb_write_grant__w1 != 0 { awprot } else { arprot }
+  const arb_read_grant = br_arb_rr & 1
+  const arb_write_grant = (br_arb_rr >> 1) & 1
+  const arb_any_grant = U1(arb_write_grant != 0 or arb_read_grant != 0)
+  mut _mux_10:U32 = if arb_write_grant != 0 { awaddr } else { araddr }
+  mut _mux_11:U3 = if arb_write_grant != 0 { awprot } else { arprot }
   apb_state_next = apb_state
   match apb_state {
     == 1 {
-      if arb_any_grant__w1 != 0 {
+      if arb_any_grant != 0 {
         apb_state_next = 2
       }
     }
@@ -67,35 +67,35 @@ pub mod br_amba_axil2apb::[timecheck=false](araddr:U32, arprot:U3, arvalid:U1, a
       apb_state_next = 0sb?
     }
   }
-  if arb_any_grant__w1 != 0 {
+  if arb_any_grant != 0 {
     addr_reg = _mux_10
   }
-  if arb_any_grant__w1 != 0 {
+  if arb_any_grant != 0 {
     data_reg = wdata
   }
-  if arb_any_grant__w1 != 0 {
-    write_reg = arb_write_grant__w1
+  if arb_any_grant != 0 {
+    write_reg = arb_write_grant
   }
-  if arb_any_grant__w1 != 0 {
-    _rep_12 = if (arb_write_grant__w1 & 1) != 0 { 15 } else { 0 }
+  if arb_any_grant != 0 {
+    _rep_12 = if (arb_write_grant & 1) != 0 { 15 } else { 0 }
     strb_reg = wstrb & _rep_12
   }
-  if arb_any_grant__w1 != 0 {
+  if arb_any_grant != 0 {
     prot_reg = _mux_11
   }
   if not (rst != 0) {
-    if arb_any_grant__w1 != 0 {
-      last_grant = ((arb_write_grant__w1 & 1) << 1) | (arb_read_grant__w1 & 1)
+    if arb_any_grant != 0 {
+      last_grant = ((arb_write_grant & 1) << 1) | (arb_read_grant & 1)
     }
   }
   if not (rst != 0) {
     apb_state = apb_state_next
   }
-  awready = arb_write_grant__w1
-  wready = arb_write_grant__w1
+  awready = arb_write_grant
+  wready = arb_write_grant
   bresp = _mux_6
   bvalid = _b2i_5
-  arready = arb_read_grant__w1
+  arready = arb_read_grant
   rresp = _mux_8
   rvalid = _b2i_7
   paddr = paddr__w1

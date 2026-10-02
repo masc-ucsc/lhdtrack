@@ -1,7 +1,5 @@
 const br_delay_nr = import("br_delay_nr.br_delay_nr")
 const br_delay_nr_p1 = import("br_delay_nr_p1.br_delay_nr_p1")
-const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
-
 pub mod br_cdc_reg_push<Width=32, RegisterResetActive=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, pop_flag:U1, push_data:U32, push_valid:U1, reset_active_pop:U1, rst:U1) -> (push_flag:U1@[], push_ready:U1@[], push_reg_data:U32@[], reset_active_push:U1@[]) {
   reg push_reg_data:U32:[async=false, initial=0, reset_pin=rst]
   reg push_flag_int:U1:[async=false, initial=0, reset_pin=rst]
@@ -10,9 +8,9 @@ pub mod br_cdc_reg_push<Width=32, RegisterResetActive=1, EnableCoverPushBackpres
   mut _b2i_3 = if push_flag_int == _mux_2 { 1 } else { 0 }
   const push_ready__w1 = _b2i_3
   mut _mux_4:U1 = if push_valid != 0 and push_ready__w1 != 0 { ~push_flag_int } else { push_flag_int & 1 }
-  const push_flag_int_next__w1 = _mux_4
+  const push_flag_int_next = _mux_4
   if not (rst != 0) {
-    push_flag_int = push_flag_int_next__w1
+    push_flag_int = push_flag_int_next
   }
   if not (rst != 0) {
     if push_valid != 0 and push_ready__w1 != 0 {
@@ -25,8 +23,7 @@ pub mod br_cdc_reg_push<Width=32, RegisterResetActive=1, EnableCoverPushBackpres
     }
   }
   mut br_delay_nr_reset_active_push = br_delay_nr::[name=br_delay_nr_reset_active_push](clk=clk, `in`=rst)
-  mut br_delay_nr_push_flag = br_delay_nr_p1::[name=br_delay_nr_push_flag](clk=clk, `in`=push_flag_int_next__w1)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
+  mut br_delay_nr_push_flag = br_delay_nr_p1::[name=br_delay_nr_push_flag](clk=clk, `in`=push_flag_int_next)
   push_ready = push_ready__w1
   reset_active_push = br_delay_nr_reset_active_push.out
   push_flag = br_delay_nr_push_flag.out

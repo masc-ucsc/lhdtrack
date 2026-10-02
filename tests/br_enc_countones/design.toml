@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_enc_countones#<id>`.
 [[config]]
 id     = "w32"
-sim_checksum = { cycles = 32300000, value = "8278950514098429886" }
+sim_checksum = { cycles = 28571429, value = "4095658773537092968" }
 # NO PARAMETERS. verilog/br_enc_countones.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the
@@ -39,10 +39,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 32300000
+cycles = 28571429
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -1,14 +1,11 @@
 const br_counter_incr_p1 = import("br_counter_incr_p1.br_counter_incr_p1")
 const br_fifo_staging_buffer = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
 pub mod br_fifo_pop_ctrl_core<Depth=16, Width=0x40, EnableBypass=0, RamReadLatency=0, RegisterPopOutputs=1, RamDepth=16, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](bypass_data_unstable:U64, bypass_valid_unstable:U1, clk:Clock, empty:U1, items:U5, pop_ready:U1, ram_rd_data:U64, ram_rd_data_valid:U1, rst:Reset) -> (bypass_ready:U1@[], pop_beat:U1@[], pop_data:U64@[], pop_valid:U1@[], ram_rd_addr:U4@[], ram_rd_addr_valid:U1@[]) {
   mut _mux_1:S32 = 0
   mut _mux_2:S32 = 0
   _mux_1 = (RamReadLatency + 1)#[0..=31]#sext[0..=31]
   _mux_2 = Depth#sext[0..=31]
   mut gen_staging_buffer_br_fifo_staging_buffer = br_fifo_staging_buffer::[name=gen_staging_buffer_br_fifo_staging_buffer](clk=clk, rst=rst, total_items=items, bypass_valid_unstable=bypass_valid_unstable, bypass_data_unstable=bypass_data_unstable, ram_rd_addr_ready=1, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data, pop_ready=pop_ready)
-  br_misc_unused::[name=gen_staging_buffer_br_misc_unused_empty](`in`=empty)
   mut _b2i_3 = if pop_ready != 0 and gen_staging_buffer_br_fifo_staging_buffer.pop_valid != 0 { 1 } else { 0 }
   mut gen_ram_rd_addr_counter_br_counter_incr_rd_addr = br_counter_incr_p1::[name=gen_ram_rd_addr_counter_br_counter_incr_rd_addr](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=gen_staging_buffer_br_fifo_staging_buffer.ram_rd_addr_valid, incr=1)
   pop_valid = gen_staging_buffer_br_fifo_staging_buffer.pop_valid

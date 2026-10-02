@@ -22,7 +22,7 @@ lec    = "proven" # Cross-clock formal results are informational, not a run gate
 # One elaborated parameter set per entry. Benchmark id is `br_cdc_fifo_ctrl_1r1w#<id>`.
 [[config]]
 id     = "d32_nss3_rrl1_rwl2_rpo1_w64"
-sim_checksum = { cycles = 15600000, value = "2753610802046674682" }
+sim_checksum = { cycles = 17241379, value = "8038501934445437014" }
 # NO PARAMETERS. verilog/br_cdc_fifo_ctrl_1r1w.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -41,10 +41,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 15600000
+cycles = 17241379
 marker = "LHDTRACK-DONE"
 
 [lec]

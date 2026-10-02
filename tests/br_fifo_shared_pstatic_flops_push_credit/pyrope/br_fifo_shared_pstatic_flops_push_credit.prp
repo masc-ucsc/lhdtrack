@@ -8,8 +8,8 @@ pub mod br_fifo_shared_pstatic_flops_push_credit::[timecheck=false](clk:Clock, c
   wire ram_rd_addr_valid:U1 = nil
   wire ram_rd_addr:U5 = nil
   mut _b2i_1 = if rst != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
-  const either_rst__w1 = _b2i_1
-  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk=clk, wr_rst=either_rst__w1, wr_valid=ram_wr_valid, wr_addr=ram_wr_addr, wr_data=ram_wr_data, wr_word_en=1, rd_clk=clk, rd_rst=either_rst__w1, rd_addr_valid=ram_rd_addr_valid, rd_addr=ram_rd_addr)
+  const either_rst = _b2i_1
+  mut br_ram_flops_data = br_ram_flops::[name=br_ram_flops_data](wr_clk=clk, wr_rst=either_rst, wr_valid=ram_wr_valid, wr_addr=ram_wr_addr, wr_data=ram_wr_data, wr_word_en=1, rd_clk=clk, rd_rst=either_rst, rd_addr_valid=ram_rd_addr_valid, rd_addr=ram_rd_addr)
   mut br_fifo_shared_pstatic_ctrl_push_credit_inst = br_fifo_shared_pstatic_ctrl_push_credit::[name=br_fifo_shared_pstatic_ctrl_push_credit_inst](clk=clk, rst=rst, config_base=config_base, config_bound=config_bound, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, push_fifo_id=push_fifo_id, credit_initial_push=credit_initial_push, credit_withhold_push=credit_withhold_push, pop_ready=pop_ready, ram_rd_data_valid=br_ram_flops_data.rd_data_valid, ram_rd_data=br_ram_flops_data.rd_data)
   ram_wr_valid = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_wr_valid
   ram_wr_addr = br_fifo_shared_pstatic_ctrl_push_credit_inst.ram_wr_addr

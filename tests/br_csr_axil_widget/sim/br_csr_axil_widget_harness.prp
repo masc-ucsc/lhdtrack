@@ -3,7 +3,7 @@
 // The Pyrope twin of br_csr_axil_widget_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,26 @@
 // "call to undefined function". The module inside it is br_csr_axil_widget.br_csr_axil_widget.
 const dut = import("br_csr_axil_widget.br_csr_axil_widget")
 
-pub mod br_csr_axil_widget_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_csr_axil_widget_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (axil_awready, axil_wready, axil_bvalid, axil_bresp, axil_arready, axil_rvalid, axil_rdata, axil_rresp, csr_req_valid, csr_req_write, csr_req_addr, csr_req_wdata, csr_req_wstrb, csr_req_secure, csr_req_privileged, csr_req_abort, request_aborted) = dut(axil_awvalid=lfsr#[0], axil_awaddr=lfsr#[1..=16], axil_awprot=lfsr#[17..=19], axil_wvalid=lfsr#[20], axil_wdata=lfsr#[21..=52], axil_wstrb=lfsr#[53..=56], axil_bready=lfsr#[57], axil_arvalid=lfsr#[58], axil_araddr=lfsr_x#[59..=74], axil_arprot=lfsr#[11..=13], axil_rready=lfsr#[14], csr_resp_valid=lfsr#[15], csr_resp_rdata=lfsr#[16..=47], csr_resp_slverr=lfsr#[48], csr_resp_decerr=lfsr#[49], timeout_enable=lfsr#[50], timeout_cycles=lfsr#[51..=57])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (axil_awready, axil_wready, axil_bvalid, axil_bresp, axil_arready, axil_rvalid, axil_rdata, axil_rresp, csr_req_valid, csr_req_write, csr_req_addr, csr_req_wdata, csr_req_wstrb, csr_req_secure, csr_req_privileged, csr_req_abort, request_aborted) = dut(clk=clk, rst=U1(dut_reset), axil_awvalid=lfsr#[0], axil_awaddr=lfsr#[1..=16], axil_awprot=lfsr#[17..=19], axil_wvalid=lfsr#[20], axil_wdata=lfsr#[21..=52], axil_wstrb=lfsr#[53..=56], axil_bready=lfsr#[57], axil_arvalid=lfsr#[58], axil_araddr=lfsr_x#[59..=74], axil_arprot=lfsr#[11..=13], axil_rready=lfsr#[14], csr_resp_valid=lfsr#[15], csr_resp_rdata=lfsr#[16..=47], csr_resp_slverr=lfsr#[48], csr_resp_decerr=lfsr#[49], timeout_enable=lfsr#[50], timeout_cycles=lfsr#[51..=57])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ axil_awready
   wrap acc = ((acc << 1) | acc#[63]) ^ axil_wready
   wrap acc = ((acc << 1) | acc#[63]) ^ axil_bvalid

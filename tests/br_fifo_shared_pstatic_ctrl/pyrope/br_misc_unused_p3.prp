@@ -1,2 +1,0 @@
-pub comb br_misc_unused_p3<Width=2>::[timecheck=false](`in`:U2) -> () {
-}

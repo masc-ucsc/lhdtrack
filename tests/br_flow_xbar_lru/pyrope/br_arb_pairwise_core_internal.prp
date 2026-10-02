@@ -42,8 +42,6 @@ pub comb br_arb_pairwise_core_internal<NumRequesters=4>::[timecheck=false](prior
   mut can_grant__w13 = can_grant__w12
   can_grant__w13#[3] = t135
   const t136 = request & can_grant__w13
-  const t137 = t136
-  const grant__w1 = t137
   can_grant = can_grant__w13
-  grant = grant__w1
+  grant = t136
 }

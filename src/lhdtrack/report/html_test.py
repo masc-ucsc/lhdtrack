@@ -106,5 +106,24 @@ class ReportSnapshot(unittest.TestCase):
         self.assertEqual(_problem_note({"note": None}), "")
 
 
+class SimulationWorkload(unittest.TestCase):
+    def test_retuned_cycles_do_not_compare_to_an_old_short_run(self):
+        from lhdtrack.report.html import _chart_data, _eligible, _sim_table
+        key = ("comb", "add", "default", None)
+        base = {"status": "ok", "sim": {"cycles": 50_000_000, "exec_ms": 1000}}
+        measured = {"status": "ok", "sim": {"cycles": 1_000_000, "exec_ms": 10}}
+        index = {key: {"sim_verilator": base, "sim_lhd_verilog": measured}}
+        metrics = [("exec", "Simulation speed", "", lambda r: r["sim"]["exec_ms"])]
+        self.assertIsNone(_chart_data([key], index, "sim_verilator",
+                                      ["sim_lhd_verilog"], metrics))
+        self.assertFalse(_eligible(measured, "sim_lhd_verilog", base,
+                                   {"idiomatic"}, "sim_lhd_pyrope"))
+        self.assertIn("50,000,000", _sim_table(None, [key], index,
+                                               "sim_verilator", {"idiomatic"}))
+        measured["sim"]["cycles"] = 50_000_000
+        chart = _chart_data([key], index, "sim_verilator", ["sim_lhd_verilog"], metrics)
+        self.assertEqual(chart["groups"][0]["values"]["exec"]["sim_lhd_verilog"], 100)
+
+
 if __name__ == "__main__":
     unittest.main()

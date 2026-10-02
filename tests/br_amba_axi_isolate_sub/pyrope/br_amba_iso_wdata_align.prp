@@ -1,50 +1,55 @@
 const br_counter = import("br_counter.br_counter")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
 pub mod br_amba_iso_wdata_align<MaxTransactionSkew=2, MaxAxiBurstLen=1, AxiBurstLenWidth=1, PreventExcessData=0, FakeWriteDataOnAlign=0>::[timecheck=false](align_and_hold_req:U1, clk:Clock, downstream_awready:U1, downstream_wready:U1, rst:Reset, upstream_awlen:U1, upstream_awvalid:U1, upstream_wlast:U1, upstream_wvalid:U1) -> (align_and_hold_done:U1@[], downstream_awvalid:U1@[], downstream_wlast:U1@[], downstream_wvalid:U1@[], upstream_awready:U1@[], upstream_wready:U1@[]) {
   wire excess_w_data_beats:U2 = nil
   wire excess_aw_data_beats:U2 = nil
   const MaxExcessCount = MaxTransactionSkew*MaxAxiBurstLen
-  br_misc_unused::[name=gen_aw_len_single_beat_br_misc_unused_upstream_awlen](`in`=upstream_awlen)
   mut _b2i_6 = if align_and_hold_req != 0 and U1(excess_aw_data_beats == 0 and excess_w_data_beats == 0) != 0 { 1 } else { 0 }
   const align_and_hold_done__w1 = _b2i_6
-  mut _b2i_7 = if U1(excess_w_data_beats >= (MaxExcessCount - 1)#[0..=31]) != 0 or (align_and_hold_req != 0 and U1(excess_w_data_beats > excess_aw_data_beats) != 0) or align_and_hold_done__w1 != 0 { 1 } else { 0 }
-  const holdoff_w__w1 = _b2i_7
-  mut _b2i_8 = if U1(excess_aw_data_beats >= (MaxExcessCount - MaxAxiBurstLen)#[0..=31]) != 0 or false or (align_and_hold_req != 0 and U1(excess_aw_data_beats > excess_w_data_beats) != 0) or align_and_hold_done__w1 != 0 { 1 } else { 0 }
-  const holdoff_aw__w1 = _b2i_8
-  mut _b2i_9 = if downstream_awready != 0 and holdoff_aw__w1 == 0 and true { 1 } else { 0 }
-  mut _b2i_10 = if downstream_wready != 0 and holdoff_w__w1 == 0 and true { 1 } else { 0 }
-  mut _b2i_11 = if upstream_awvalid != 0 and holdoff_aw__w1 == 0 { 1 } else { 0 }
+  mut _b2i_7 = if U1(excess_w_data_beats >= (MaxExcessCount - 1)#[0..=31]) != 0 or (align_and_hold_req != 0 and U1(excess_w_data_beats > excess_aw_data_beats) != 0) or align_and_hold_done__w1 != 0 {
+    1
+  } else {
+    0
+  }
+  const holdoff_w = _b2i_7
+  mut _b2i_8 = if U1(excess_aw_data_beats >= (MaxExcessCount - MaxAxiBurstLen)#[0..=31]) != 0 or false or (align_and_hold_req != 0 and U1(excess_aw_data_beats > excess_w_data_beats) != 0) or align_and_hold_done__w1 != 0 {
+    1
+  } else {
+    0
+  }
+  const holdoff_aw = _b2i_8
+  mut _b2i_9 = if downstream_awready != 0 and holdoff_aw == 0 and true { 1 } else { 0 }
+  mut _b2i_10 = if downstream_wready != 0 and holdoff_w == 0 and true { 1 } else { 0 }
+  mut _b2i_11 = if upstream_awvalid != 0 and holdoff_aw == 0 { 1 } else { 0 }
   const downstream_awvalid__w1 = _b2i_11
-  mut _b2i_12 = if (upstream_wvalid != 0 or false) and holdoff_w__w1 == 0 { 1 } else { 0 }
+  mut _b2i_12 = if (upstream_wvalid != 0 or false) and holdoff_w == 0 { 1 } else { 0 }
   const downstream_wvalid__w1 = _b2i_12
   mut _b2i_13 = if downstream_awvalid__w1 != 0 and downstream_awready != 0 { 1 } else { 0 }
   mut _b2i_14 = if downstream_wvalid__w1 != 0 and downstream_wready != 0 { 1 } else { 0 }
   mut _mux_15:U1 = if _b2i_13 != 0 { 1 } else { 0 }
-  const aw_incr__w1 = _mux_15
+  const aw_incr = _mux_15
   mut _mux_16:U1 = if _b2i_14 != 0 { 1 } else { 0 }
-  const w_incr__w1 = _mux_16
-  mut _mux_17:U1 = if aw_incr__w1 > w_incr__w1 { (aw_incr__w1 - w_incr__w1) & 1 } else { (w_incr__w1 - aw_incr__w1) & 1 }
-  const delta_mag__w1 = _mux_17
-  mut _b2i_18 = if aw_incr__w1 > w_incr__w1 { 1 } else { 0 }
-  const delta_incr_aw_valid__w1 = _b2i_18
-  mut _b2i_19 = if w_incr__w1 > aw_incr__w1 { 1 } else { 0 }
-  const delta_incr_w_valid__w1 = _b2i_19
-  mut _mux_20:U1 = if delta_mag__w1 < excess_w_data_beats { delta_mag__w1 & 1 } else { excess_w_data_beats & 1 }
-  const excess_aw_incr__w1 = (delta_mag__w1 - _mux_20) & 1
-  mut _mux_21:U1 = if delta_mag__w1 < excess_w_data_beats { delta_mag__w1 & 1 } else { excess_w_data_beats & 1 }
-  const excess_w_decr__w1 = _mux_21
-  mut _b2i_22 = if delta_incr_aw_valid__w1 != 0 and excess_aw_incr__w1 != 0 { 1 } else { 0 }
-  mut _b2i_23 = if delta_incr_aw_valid__w1 != 0 and excess_w_decr__w1 != 0 { 1 } else { 0 }
-  mut _mux_24:U1 = if delta_mag__w1 < excess_aw_data_beats { delta_mag__w1 & 1 } else { excess_aw_data_beats & 1 }
-  const excess_w_incr__w1 = (delta_mag__w1 - _mux_24) & 1
-  mut _mux_25:U1 = if delta_mag__w1 < excess_aw_data_beats { delta_mag__w1 & 1 } else { excess_aw_data_beats & 1 }
-  const excess_aw_decr__w1 = _mux_25
-  mut _b2i_26 = if delta_incr_w_valid__w1 != 0 and excess_w_incr__w1 != 0 { 1 } else { 0 }
-  mut _b2i_27 = if delta_incr_w_valid__w1 != 0 and excess_aw_decr__w1 != 0 { 1 } else { 0 }
-  mut br_counter_excess_aw = br_counter::[name=br_counter_excess_aw](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_22, incr=excess_aw_incr__w1, decr_valid=_b2i_27, decr=excess_aw_decr__w1)
+  const w_incr = _mux_16
+  mut _mux_17:U1 = if aw_incr > w_incr { (aw_incr - w_incr) & 1 } else { (w_incr - aw_incr) & 1 }
+  const delta_mag = _mux_17
+  mut _b2i_18 = if aw_incr > w_incr { 1 } else { 0 }
+  const delta_incr_aw_valid = _b2i_18
+  mut _b2i_19 = if w_incr > aw_incr { 1 } else { 0 }
+  const delta_incr_w_valid = _b2i_19
+  mut _mux_20:U1 = if delta_mag < excess_w_data_beats { delta_mag & 1 } else { excess_w_data_beats & 1 }
+  const excess_aw_incr = (delta_mag - _mux_20) & 1
+  mut _mux_21:U1 = if delta_mag < excess_w_data_beats { delta_mag & 1 } else { excess_w_data_beats & 1 }
+  const excess_w_decr = _mux_21
+  mut _b2i_22 = if delta_incr_aw_valid != 0 and excess_aw_incr != 0 { 1 } else { 0 }
+  mut _b2i_23 = if delta_incr_aw_valid != 0 and excess_w_decr != 0 { 1 } else { 0 }
+  mut _mux_24:U1 = if delta_mag < excess_aw_data_beats { delta_mag & 1 } else { excess_aw_data_beats & 1 }
+  const excess_w_incr = (delta_mag - _mux_24) & 1
+  mut _mux_25:U1 = if delta_mag < excess_aw_data_beats { delta_mag & 1 } else { excess_aw_data_beats & 1 }
+  const excess_aw_decr = _mux_25
+  mut _b2i_26 = if delta_incr_w_valid != 0 and excess_w_incr != 0 { 1 } else { 0 }
+  mut _b2i_27 = if delta_incr_w_valid != 0 and excess_aw_decr != 0 { 1 } else { 0 }
+  mut br_counter_excess_aw = br_counter::[name=br_counter_excess_aw](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_22, incr=excess_aw_incr, decr_valid=_b2i_27, decr=excess_aw_decr)
   excess_aw_data_beats = br_counter_excess_aw.value
-  mut br_counter_excess_w = br_counter::[name=br_counter_excess_w](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_26, incr=excess_w_incr__w1, decr_valid=_b2i_23, decr=excess_w_decr__w1)
+  mut br_counter_excess_w = br_counter::[name=br_counter_excess_w](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=_b2i_26, incr=excess_w_incr, decr_valid=_b2i_23, decr=excess_w_decr)
   excess_w_data_beats = br_counter_excess_w.value
   upstream_awready = _b2i_9
   upstream_wready = _b2i_10

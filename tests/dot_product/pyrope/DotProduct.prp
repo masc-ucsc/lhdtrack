@@ -1,3 +1,4 @@
-pub comb DotProduct::[timecheck=false](a:U16, b:U16, c:U16, d:U16) -> (res:U32) {
-  res = ((a*b) + (c*d))#[0..=31]
+// Two-term dot product a*b + c*d; the sum is truncated to 32 bits as in the reference.
+pub comb DotProduct(a:U16, b:U16, c:U16, d:U16) -> (res:U32) {
+  wrap res = a*b + c*d
 }

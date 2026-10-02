@@ -7,7 +7,7 @@ const br_enc_gray2bin = import("br_enc_gray2bin.br_enc_gray2bin")
 pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(clk:Clock, pop_count_gray:Unsigned(bits=COUNT_WIDTH), push_beat:Bool, reset_active_pop:Bool, rst:U1) -> (full:Bool@[], push_count_gray:Unsigned(bits=COUNT_WIDTH)@[], reset_active_push:Bool@[], slots:Unsigned(bits=COUNT_WIDTH)@[]) {
   cassert((1 << COUNT_WIDTH) > DEPTH)
 
-  reg push_count:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst != 0] = 0
+  reg push_count:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst] = 0
   wrap const push_count_next:Unsigned(bits=COUNT_WIDTH) = push_count + U1(push_beat)
   if push_beat {
     push_count = push_count_next
@@ -22,7 +22,7 @@ pub mod br_cdc_fifo_push_flag_mgr<DEPTH=2, COUNT_WIDTH=2, PUSH_COUNT_DELAY=2>(cl
   // While the pop side is in reset its count is meaningless: use the last one
   // seen before the reset.
   const pop_count = br_enc_gray2bin<WIDTH=COUNT_WIDTH>(gray=pop_count_gray)
-  reg pop_count_saved:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst != 0] = 0
+  reg pop_count_saved:Unsigned(bits=COUNT_WIDTH):[reset_pin=rst] = 0
   if not reset_active_pop {
     pop_count_saved = pop_count
   }

@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_demux_bin#<id>`.
 [[config]]
 id     = "nso16_sw32"
-sim_checksum = { cycles = 25400000, value = "10139266735199115459" }
+sim_checksum = { cycles = 28571429, value = "9331472270918983702" }
 # NO PARAMETERS. verilog/br_demux_bin.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 25400000
+cycles = 28571429
 marker = "LHDTRACK-DONE"
 
 [lec]

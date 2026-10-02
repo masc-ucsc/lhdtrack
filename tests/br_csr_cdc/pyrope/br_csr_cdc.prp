@@ -1,8 +1,6 @@
 const br_cdc_bit_pulse = import("br_cdc_bit_pulse.br_cdc_bit_pulse")
 const br_cdc_reg = import("br_cdc_reg.br_cdc_reg")
 const br_cdc_reg_p1 = import("br_cdc_reg_p1.br_cdc_reg_p1")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-
 pub mod br_csr_cdc::[timecheck=false](downstream_clk:Clock, downstream_resp_decerr:U1, downstream_resp_rdata:U32, downstream_resp_slverr:U1, downstream_resp_valid:U1, downstream_rst:U1, upstream_clk:Clock, upstream_req_abort:U1, upstream_req_addr:U16, upstream_req_privileged:U1, upstream_req_secure:U1, upstream_req_valid:U1, upstream_req_wdata:U32, upstream_req_write:U1, upstream_req_wstrb:U4, upstream_rst:U1) -> (downstream_req_abort:U1@[], downstream_req_addr:U16@[], downstream_req_privileged:U1@[], downstream_req_secure:U1@[], downstream_req_valid:U1@[], downstream_req_wdata:U32@[], downstream_req_write:U1@[], downstream_req_wstrb:U4@[], upstream_resp_decerr:U1@[], upstream_resp_rdata:U32@[], upstream_resp_slverr:U1@[], upstream_resp_valid:U1@[]) {
   mut `upstream_req.write` = upstream_req_write & 1
   mut `upstream_req.addr` = upstream_req_addr
@@ -25,8 +23,6 @@ pub mod br_csr_cdc::[timecheck=false](downstream_clk:Clock, downstream_resp_dece
   mut `upstream_resp.slverr` = (br_cdc_reg_resp.pop_data >> 1) & 1
   mut `upstream_resp.decerr` = br_cdc_reg_resp.pop_data & 1
   mut br_cdc_bit_pulse_abort = br_cdc_bit_pulse::[name=br_cdc_bit_pulse_abort](src_clk=upstream_clk, src_rst=upstream_rst, src_pulse=upstream_req_abort, dst_clk=downstream_clk, dst_rst=downstream_rst)
-  br_misc_unused_p2::[name=br_misc_unused_upstream_req_ready](`in`=br_cdc_reg_req.push_ready)
-  br_misc_unused_p2::[name=br_misc_unused_downstream_resp_ready](`in`=br_cdc_reg_resp.push_ready)
   upstream_resp_valid = br_cdc_reg_resp.pop_valid
   upstream_resp_rdata = `upstream_resp.rdata`
   upstream_resp_slverr = `upstream_resp.slverr`

@@ -25,7 +25,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_fifo_shared_pop_ctrl_ext_arbiter#<id>`.
 [[config]]
 id     = "d32_nf2_nrp2_rrl1_rd1_rpo1_sbd2_w32"
-sim_checksum = { cycles = 12900000, value = "11509832790594616802" }
+sim_checksum = { cycles = 28802673, value = "10150203779827746721" }
 # NO PARAMETERS. verilog/br_fifo_shared_pop_ctrl_ext_arbiter.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with
 # no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no
@@ -44,10 +44,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 12900000
+cycles = 28802673
 marker = "LHDTRACK-DONE"
 
 [lec]

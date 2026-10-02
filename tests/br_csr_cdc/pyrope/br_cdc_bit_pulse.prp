@@ -11,7 +11,7 @@ pub mod br_cdc_bit_pulse<NumStages=2, RegisterOutput=0>::[timecheck=false](dst_c
     }
   }
   mut br_cdc_bit_toggle_inst = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_inst](src_clk=src_clk, src_rst=src_rst, src_bit=src_level, dst_clk=dst_clk, dst_rst=dst_rst)
-  const dst_level__w1 = br_cdc_bit_toggle_inst
-  dst_level_d = dst_level__w1
-  dst_pulse = (dst_level__w1 ^ dst_level_d) & 1
+  const dst_level = br_cdc_bit_toggle_inst
+  dst_level_d = dst_level
+  dst_pulse = (dst_level ^ dst_level_d) & 1
 }

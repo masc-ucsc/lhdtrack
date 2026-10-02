@@ -5,8 +5,8 @@ pub mod br_cdc_stable_data_autoupdate::[timecheck=false](dst_clk:Clock, dst_rst:
   reg dst_data:U32:[async=false, clock_pin=dst_clk, initial=0, reset_pin=dst_rst]
   reg src_data_reg:U32:[async=false, clock_pin=src_clk, initial=0, reset_pin=src_rst]
   mut _b2i_1 = if src_data != src_data_reg { 1 } else { 0 }
-  const src_valid__w1 = _b2i_1
-  mut br_cdc_reg_inst = br_cdc_reg::[name=br_cdc_reg_inst](push_clk=src_clk, push_rst=src_rst, push_valid=src_valid__w1, push_data=src_data, pop_clk=dst_clk, pop_rst=dst_rst, pop_ready=1)
+  const src_valid = _b2i_1
+  mut br_cdc_reg_inst = br_cdc_reg::[name=br_cdc_reg_inst](push_clk=src_clk, push_rst=src_rst, push_valid=src_valid, push_data=src_data, pop_clk=dst_clk, pop_rst=dst_rst, pop_ready=1)
   if not (dst_rst != 0) {
     dst_updated = br_cdc_reg_inst.pop_valid
   }
@@ -16,7 +16,7 @@ pub mod br_cdc_stable_data_autoupdate::[timecheck=false](dst_clk:Clock, dst_rst:
     }
   }
   if not (src_rst != 0) {
-    if src_valid__w1 != 0 and br_cdc_reg_inst.push_ready != 0 {
+    if src_valid != 0 and br_cdc_reg_inst.push_ready != 0 {
       src_data_reg = src_data
     }
   }

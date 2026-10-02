@@ -1,7 +1,4 @@
 const br_counter_incr_p1 = import("br_counter_incr_p1.br_counter_incr_p1")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
-
 pub mod br_fifo_pop_ctrl_core<Depth=2, Width=32, EnableBypass=1, RamReadLatency=0, RegisterPopOutputs=0, RamDepth=2, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](bypass_data_unstable:U32, bypass_valid_unstable:U1, clk:Clock, empty:U1, items:U2, pop_ready:U1, ram_rd_data:U32, ram_rd_data_valid:U1, rst:Reset) -> (bypass_ready:U1@[], pop_beat:U1@[], pop_data:U32@[], pop_valid:U1@[], ram_rd_addr:U1@[], ram_rd_addr_valid:U1@[]) {
   mut _mux_1:S32 = 0
   mut _mux_2:S32 = 0
@@ -13,8 +10,6 @@ pub mod br_fifo_pop_ctrl_core<Depth=2, Width=32, EnableBypass=1, RamReadLatency=
 
   const pop_valid__w1 = U1(empty == 0 or bypass_valid_unstable != 0)
   mut _mux_5:U32 = if empty != 0 { bypass_data_unstable } else { ram_rd_data }
-  br_misc_unused_p2::[name=gen_no_buffer_br_misc_unused_ram_rd_data_valid](`in`=ram_rd_data_valid)
-  br_misc_unused_p3::[name=gen_no_buffer_br_misc_unused_items](`in`=items)
   mut _b2i_7 = if pop_ready != 0 and pop_valid__w1 != 0 { 1 } else { 0 }
   const pop_beat__w1 = _b2i_7
   mut _b2i_8 = if pop_beat__w1 != 0 and empty == 0 { 1 } else { 0 }

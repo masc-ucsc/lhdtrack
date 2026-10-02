@@ -12,8 +12,8 @@
 const dut = import("br_enc_onehot2bin.br_enc_onehot2bin")
 
 pub mod br_enc_onehot2bin_harness(rst:U1) -> (checksum:U64@[0]) {
-  reg lfsr:U64:[reset_pin=rst != 0] = 2611923443488327891
-  reg sum:U64:[reset_pin=rst != 0] = 0
+  reg lfsr:U64:[reset_pin=rst] = 2611923443488327891
+  reg sum:U64:[reset_pin=rst] = 0
 
   checksum = sum
 
@@ -22,7 +22,7 @@ pub mod br_enc_onehot2bin_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (out_valid, out) = dut(rst=rst, `in`=lfsr#[0..=31])
+  const (out_valid, out) = dut(clk=0, rst=rst, `in`=lfsr#[0..=31])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ out_valid

@@ -109,6 +109,18 @@ class Test:
     def sim_dir(self) -> Path:
         return self.root / "sim"
 
+    def sim_verilog_args(self) -> list[str]:
+        return self.verilog_args("sim")
+
+    def verilog_args(self, section: str) -> list[str]:
+        """Behavioral mocks must retain their upstream synthesis prohibition."""
+        profile = self.raw.get(section, {}).get("verilog_profile", "synthesis")
+        if profile == "synthesis":
+            return ["-DSYNTHESIS", "-DBR_PPA_SYNTHESIS"]
+        if profile == "behavioral":
+            return ["-DBR_PPA_SYNTHESIS"]
+        raise CorpusError(f"{self.name}: unknown {section}.verilog_profile {profile!r}")
+
     @property
     def filelist(self) -> Path:
         return self.verilog_dir / "filelist.f"
@@ -209,6 +221,15 @@ def load_test(path: Path) -> Test:
     synth = doc.get("synth", {})
     sim = doc.get("sim", {})
     lec = doc.get("lec", {})
+    for section, spec in (("sim", sim), ("lec", lec)):
+        if spec.get("verilog_profile", "synthesis") not in ("synthesis", "behavioral"):
+            raise CorpusError(f"{manifest}: [{section}].verilog_profile must be "
+                              "synthesis or behavioral")
+    for section, spec in (("sim", sim), ("synth", synth)):
+        if "skip_reason" in spec and (
+            not isinstance(spec["skip_reason"], str) or not spec["skip_reason"].strip()
+        ):
+            raise CorpusError(f"{manifest}: [{section}].skip_reason must be a nonempty string")
     if not isinstance(lec.get("gate", True), bool):
         raise CorpusError(f"{manifest}: [lec].gate must be true or false")
     return Test(

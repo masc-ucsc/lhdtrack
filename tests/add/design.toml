@@ -27,7 +27,7 @@ param_binding = "monomorphic"
 
 [[config]]
 id     = "bw8"
-sim_checksum = { cycles = 35000000, value = "15986531184027978586" }
+sim_checksum = { cycles = 35906643, value = "6348930682699375895" }
 # NO PARAMETERS. verilog/add.sv declares its parameter port list `localparam`,
 # so the top elaborates to ONE circuit with no flags anywhere -- no -chparam
 # for yosys, no -G for slang or verilator, no `#(...)` on the harness instance
@@ -44,9 +44,9 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# A pure adder is fast; this lands the run in the 2-10 s window once the
+# A pure adder is fast; target Verilator execution is 0.5-2 s once the
 # harness LFSR is accounted for. Re-tune after any large simulator speedup.
-cycles = 35000000
+cycles = 35906643
 marker = "LHDTRACK-DONE"
 
 [lec]

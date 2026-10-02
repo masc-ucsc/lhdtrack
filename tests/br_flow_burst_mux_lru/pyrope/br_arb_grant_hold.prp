@@ -1,7 +1,7 @@
 // Holds a grant across a burst: while a held grant is live it overrides the
 // arbiter, and the arbiter's priority only moves once no grant is held.
 pub mod br_arb_grant_hold<NUM_REQUESTERS=2>(enable_grant_hold_update:Bool, grant_from_arb:Unsigned(bits=NUM_REQUESTERS), grant_hold:Unsigned(bits=NUM_REQUESTERS), rst:U1) -> (enable_priority_update_to_arb:Bool@[0], grant:Unsigned(bits=NUM_REQUESTERS)@[0]) {
-  reg hold:Unsigned(bits=NUM_REQUESTERS):[reset_pin=rst != 0] = 0
+  reg hold:Unsigned(bits=NUM_REQUESTERS):[reset_pin=rst] = 0
 
   grant = if hold != 0 { hold } else { grant_from_arb }
   if enable_grant_hold_update {

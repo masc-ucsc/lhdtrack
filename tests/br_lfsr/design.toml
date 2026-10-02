@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_lfsr#<id>`.
 [[config]]
 id     = "as1_w32"
-sim_checksum = { cycles = 27100000, value = "17025577809362899425" }
+sim_checksum = { cycles = 23809524, value = "5973490963982061812" }
 # NO PARAMETERS. verilog/br_lfsr.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 27100000
+cycles = 23809524
 marker = "LHDTRACK-DONE"
 
 [lec]

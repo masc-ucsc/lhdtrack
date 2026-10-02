@@ -1,6 +1,5 @@
-pub comb parity::[timecheck=false](data:U8) -> (even_parity:U1, odd_parity:U1) {
-  wire even_parity:U1 = nil
-  const t2 = data#^[..]
-  even_parity = t2
+// Parity generator: even_parity is the XOR of all data bits, odd_parity its complement.
+pub comb parity(data:U8) -> (even_parity:U1, odd_parity:U1) {
+  even_parity = data#^[..]
   odd_parity = ~even_parity
 }

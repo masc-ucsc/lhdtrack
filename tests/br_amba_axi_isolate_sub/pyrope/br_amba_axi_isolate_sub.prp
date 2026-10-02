@@ -28,7 +28,6 @@ pub mod br_amba_axi_isolate_sub::[timecheck=false](clk:Clock, downstream_arready
   upstream_rid = 0ub?
   downstream_awid = 0ub?
   downstream_arid = 0ub?
-  const downstream_awlen__w1 = upstream_awlen
   mut downstream_awid__w1 = downstream_awid
   downstream_awid__w1#[0] = downstream_awid_min & 1
   mut upstream_bid__w1 = upstream_bid
@@ -56,7 +55,8 @@ pub mod br_amba_axi_isolate_sub::[timecheck=false](clk:Clock, downstream_arready
   downstream_arid_min = br_amba_iso_resp_tracker_r.downstream_axid
   resp_tracker_fifo_empty_r = br_amba_iso_resp_tracker_r.resp_fifo_empty
   downstream_arready_iso = U1(downstream_arready != 0 or br_amba_iso_ds_fsm_r.resp_tracker_isolate_req != 0)
-  mut _mux_11:U1 = if isolate_done != 0 { U1(br_amba_iso_ds_fsm_w.isolate_done != 0 or br_amba_iso_ds_fsm_r.isolate_done != 0) & 1 } else { U1(br_amba_iso_ds_fsm_w.isolate_done != 0 and br_amba_iso_ds_fsm_r.isolate_done != 0) & 1 }
+  mut _mux_11:U1 = if isolate_done != 0 { U1(br_amba_iso_ds_fsm_w.isolate_done != 0 or br_amba_iso_ds_fsm_r.isolate_done != 0) & 1 }
+    else { U1(br_amba_iso_ds_fsm_w.isolate_done != 0 and br_amba_iso_ds_fsm_r.isolate_done != 0) & 1 }
   if not (rst != 0) {
     isolate_done = _mux_11
   }
@@ -81,7 +81,7 @@ pub mod br_amba_axi_isolate_sub::[timecheck=false](clk:Clock, downstream_arready
   upstream_rvalid = br_flow_reg_fwd_us_r.pop_valid
   downstream_awaddr = upstream_awaddr
   downstream_awid = downstream_awid__w1
-  downstream_awlen = downstream_awlen__w1
+  downstream_awlen = upstream_awlen
   downstream_awsize = upstream_awsize
   downstream_awburst = upstream_awburst
   downstream_awcache = upstream_awcache

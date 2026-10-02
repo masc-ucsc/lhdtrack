@@ -11,7 +11,7 @@ test bench.run(cycles:U32=23600000) {
   mut result:U64 = 0
 
   tick cycles {
-    // `u1(...)`, not `int(...)`: this lhd build removed the `int` cast in
+    // `U1(...)`, not `int(...)`: this lhd build removed the `int` cast in
     // favour of sized/sign-explicit ones.
     acc.rst = U1(clock < 4)
     step

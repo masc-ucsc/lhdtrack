@@ -6,3 +6,4 @@ br_misc_unused.sv
 br_math_pkg.sv
 br_mux_bin.sv
 br_mux_bin_structured_gates_mock.sv
+br_mux_bin_structured_gates_mock_bench.sv

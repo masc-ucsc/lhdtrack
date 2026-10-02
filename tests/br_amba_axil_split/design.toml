@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_amba_axil_split#<id>`.
 [[config]]
 id     = "aw32_dw32_mor4_mow4_nba0_nbar1"
-sim_checksum = { cycles = 18600000, value = "14321358448426492689" }
+sim_checksum = { cycles = 15625000, value = "11610855950134135455" }
 # NO PARAMETERS. verilog/br_amba_axil_split.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -41,10 +41,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 18600000
+cycles = 15625000
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -1,11 +1,5 @@
-const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
-const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
-
-pub mod br_flow_valve::[timecheck=false](clk:Clock, en:U16, pop_ready:U16, push_valid:U16, rst:Reset) -> (pop_valid_unstable:U16@[], push_ready:U16@[]) {
-  const push_ready__w1 = pop_ready & en
-  const pop_valid_unstable__w1 = push_valid & en
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid_unstable__w1, ready=pop_ready, data=0)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=0)
-  push_ready = push_ready__w1
-  pop_valid_unstable = pop_valid_unstable__w1
+// Independently gate each flow's valid and ready with its enable bit.
+pub comb br_flow_valve(en:U16, pop_ready:U16, push_valid:U16) -> (pop_valid_unstable:U16, push_ready:U16) {
+  pop_valid_unstable = push_valid & en
+  push_ready = pop_ready & en
 }

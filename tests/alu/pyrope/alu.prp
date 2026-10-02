@@ -1,6 +1,41 @@
-pub comb alu::[timecheck=false](a:U8, b:U8, op:U3) -> (result:U8, zero:U1) {
-  result = 0sb?
-  result = unique if op == 0 { (a + b)#[0..=7] } elif op == 1 { (a - b)#[0..=7] } elif op == 2 { a & b } elif op == 3 { a | b } elif op == 4 { a ^ b } elif op == 5 { ~a } elif op == 6 { (a << b#[0..=2])#[0..=7] } elif op == 7 { a >> b#[0..=2] } else { 0 }
-  mut _b2i_1 = if result == 0 { 1 } else { 0 }
-  zero = _b2i_1
+// 8-bit ALU. `op` selects the operation; `zero` flags a zero result.
+comptime const OP_ADD = 0
+comptime const OP_SUB = 1
+comptime const OP_AND = 2
+comptime const OP_OR = 3
+comptime const OP_XOR = 4
+comptime const OP_NOT = 5
+comptime const OP_SLL = 6
+comptime const OP_SRL = 7
+
+pub comb alu(a:U8, b:U8, op:U3) -> (result:U8, zero:U1) {
+  // Shifts use only the low three bits of b.
+  const shamt = b#[0..<3]
+  match op {
+    == OP_ADD {
+      wrap result = a + b
+    }
+    == OP_SUB {
+      wrap result = a - b
+    }
+    == OP_AND {
+      result = a & b
+    }
+    == OP_OR {
+      result = a | b
+    }
+    == OP_XOR {
+      result = a ^ b
+    }
+    == OP_NOT {
+      result = ~a
+    }
+    == OP_SLL {
+      wrap result = a << shamt
+    }
+    == OP_SRL {
+      result = a >> shamt
+    }
+  }
+  zero = U1(result == 0)
 }

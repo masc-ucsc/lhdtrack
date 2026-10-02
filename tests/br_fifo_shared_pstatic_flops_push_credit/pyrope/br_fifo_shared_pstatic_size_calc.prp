@@ -1,16 +1,5 @@
 pub mod br_fifo_shared_pstatic_size_calc<NumFifos=2, Depth=32>::[timecheck=false](clk:Clock, config_base:U10, config_bound:U10, rst:Reset) -> (config_error:U1@[], config_size:U12@[]) {
-  wire `config_size[0]`:U1 = nil
-  wire `config_size[1]`:U1 = nil
-  wire `config_size[2]`:U1 = nil
-  wire `config_size[3]`:U1 = nil
-  wire `config_size[4]`:U1 = nil
-  wire `config_size[5]`:U1 = nil
-  wire `config_size[6]`:U1 = nil
-  wire `config_size[7]`:U1 = nil
-  wire `config_size[8]`:U1 = nil
-  wire `config_size[9]`:U1 = nil
-  wire `config_size[10]`:U1 = nil
-  wire `config_size[11]`:U1 = nil
+  wire config_size_bits:U12 = nil
   wire config_size:U12 = nil
   wire `config_base_gt_bound[0]`:U1 = nil
   wire `config_base_gt_bound[1]`:U1 = nil
@@ -18,24 +7,14 @@ pub mod br_fifo_shared_pstatic_size_calc<NumFifos=2, Depth=32>::[timecheck=false
   wire `config_base_lte_prev_bound[0]`:U1 = nil
   wire `config_base_lte_prev_bound[1]`:U1 = nil
   wire config_base_lte_prev_bound:U2 = nil
-  `config_size[0]` = ((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] & 1
-  `config_size[1]` = (((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] >> 1) & 1
-  `config_size[2]` = (((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] >> 2) & 1
-  `config_size[3]` = (((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] >> 3) & 1
-  `config_size[4]` = (((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] >> 4) & 1
-  `config_size[5]` = (((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5] >> 5) & 1
+  config_size_bits#[0..<6] = ((config_bound#[0..=4] + 1)#[0..=5] - config_base#[0..=4])#[0..=5]#[0..<6]
   `config_base_gt_bound[0]` = U1(config_base#[0..=4] > config_bound#[0..=4]) & 1
-  `config_size[6]` = ((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] & 1
-  `config_size[7]` = (((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] >> 1) & 1
-  `config_size[8]` = (((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] >> 2) & 1
-  `config_size[9]` = (((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] >> 3) & 1
-  `config_size[10]` = (((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] >> 4) & 1
-  `config_size[11]` = (((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5] >> 5) & 1
+  config_size_bits#[6..<12] = ((config_bound#[5..=9] + 1)#[0..=5] - config_base#[5..=9])#[0..=5]#[0..<6]
   `config_base_gt_bound[1]` = U1(config_base#[5..=9] > config_bound#[5..=9]) & 1
   `config_base_lte_prev_bound[0]` = 0
   `config_base_lte_prev_bound[1]` = U1(config_base#[5..=9] <= config_bound#[0..=4]) & 1
   mut _b2i_4 = if false or (config_base_gt_bound | config_base_lte_prev_bound) != 0 { 1 } else { 0 }
-  config_size = (`config_size[11]` << 11) | (`config_size[10]` << 10) | (`config_size[9]` << 9) | (`config_size[8]` << 8) | (`config_size[7]` << 7) | (`config_size[6]` << 6) | (`config_size[5]` << 5) | (`config_size[4]` << 4) | (`config_size[3]` << 3) | (`config_size[2]` << 2) | (`config_size[1]` << 1) | `config_size[0]`
+  config_size = config_size_bits
   config_base_gt_bound = (`config_base_gt_bound[1]` << 1) | `config_base_gt_bound[0]`
   config_base_lte_prev_bound = (`config_base_lte_prev_bound[1]` << 1) | `config_base_lte_prev_bound[0]`
   config_error = _b2i_4

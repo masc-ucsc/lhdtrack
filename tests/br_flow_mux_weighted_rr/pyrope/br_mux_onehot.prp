@@ -1,6 +1,15 @@
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
-pub mod br_mux_onehot<NumSymbolsIn=1, SymbolWidth=1, EnableAssertSelectOnehot=1>::[timecheck=false](`in`:U1, select:U1) -> (out:U1@[]) {
-  br_misc_unused::[name=gen_base_br_misc_unused_select](`in`=select)
-  out = `in`
+// OR all selected packed lanes, including multiple simultaneous selections.
+pub comb br_mux_onehot<NumSymbolsIn=1, SymbolWidth=1>(`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)) {
+  // The one-lane reference passes payload even when its select bit is zero.
+  if NumSymbolsIn == 1 {
+    out = `in`
+  } else {
+    mut data:Unsigned(bits=SymbolWidth) = 0
+    for lane in 0..<NumSymbolsIn {
+      if select#[lane] != 0 {
+        data |= `in`#[(lane*SymbolWidth)..+SymbolWidth]
+      }
+    }
+    out = data
+  }
 }

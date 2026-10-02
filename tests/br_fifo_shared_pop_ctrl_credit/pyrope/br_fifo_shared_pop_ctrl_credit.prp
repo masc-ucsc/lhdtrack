@@ -2,31 +2,25 @@ const br_arb_lru_internal = import("br_arb_lru_internal.br_arb_lru_internal")
 const br_fifo_shared_pop_ctrl_credit_ext_arbiter_t = import("br_fifo_shared_pop_ctrl_credit_ext_arbiter.br_fifo_shared_pop_ctrl_credit_ext_arbiter")
 
 pub mod br_fifo_shared_pop_ctrl_credit::[timecheck=false](clk:Clock, credit_initial_pop:U6, credit_withhold_pop:U6, data_ram_rd_data:U64, data_ram_rd_data_valid:U2, head:U10, head_valid:U2, pop_credit:U2, pop_receiver_in_reset:U1, ram_empty:U2, rst:U1) -> (credit_available_pop:U6@[], credit_count_pop:U6@[], data_ram_rd_addr:U10@[], data_ram_rd_addr_valid:U2@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:U2@[], pop_data:U64@[], pop_empty:U2@[], pop_fifo_id:U2@[], pop_sender_in_reset:U1@[], pop_valid:U2@[]) {
-  wire `arb_grant[0]`:U1 = nil
-  wire `arb_grant[1]`:U1 = nil
-  wire `arb_grant[2]`:U1 = nil
-  wire `arb_grant[3]`:U1 = nil
+  wire arb_grant_bits:U4 = nil
   wire arb_grant:U4 = nil
-  wire `arb_can_grant[0]`:U1 = nil
-  wire `arb_can_grant[1]`:U1 = nil
-  wire `arb_can_grant[2]`:U1 = nil
-  wire `arb_can_grant[3]`:U1 = nil
+  wire arb_can_grant_bits:U4 = nil
   wire arb_can_grant:U4 = nil
   mut _b2i_1 = if pop_receiver_in_reset != 0 or rst != 0 { 1 } else { 0 }
-  const either_rst__w1 = _b2i_1
+  const either_rst = _b2i_1
   mut br_fifo_shared_pop_ctrl_credit_ext_arbiter = br_fifo_shared_pop_ctrl_credit_ext_arbiter_t::[name=br_fifo_shared_pop_ctrl_credit_ext_arbiter](clk=clk, rst=rst, `head_valid.e1`=(head_valid >> 1) & 1, `head_valid.e0`=head_valid & 1, head=head, `ram_empty.e1`=(ram_empty >> 1) & 1, `ram_empty.e0`=ram_empty & 1, pop_receiver_in_reset=pop_receiver_in_reset, `pop_credit.e1`=(pop_credit >> 1) & 1, `pop_credit.e0`=pop_credit & 1, credit_initial_pop=credit_initial_pop, credit_withhold_pop=credit_withhold_pop, `data_ram_rd_data_valid.e1`=(data_ram_rd_data_valid >> 1) & 1, `data_ram_rd_data_valid.e0`=data_ram_rd_data_valid & 1, data_ram_rd_data=data_ram_rd_data, arb_grant=arb_grant, arb_can_grant=arb_can_grant)
-  mut gen_arb_lru_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_0_br_arb_lru_internal](clk=clk, rst=either_rst__w1, enable_priority_update=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[0..=1])
-  `arb_can_grant[0]` = gen_arb_lru_0_br_arb_lru_internal.can_grant & 1
-  `arb_can_grant[1]` = (gen_arb_lru_0_br_arb_lru_internal.can_grant >> 1) & 1
-  `arb_grant[0]` = gen_arb_lru_0_br_arb_lru_internal.grant & 1
-  `arb_grant[1]` = (gen_arb_lru_0_br_arb_lru_internal.grant >> 1) & 1
-  mut gen_arb_lru_1_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_1_br_arb_lru_internal](clk=clk, rst=either_rst__w1, enable_priority_update=(br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update >> 1) & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[2..=3])
-  `arb_can_grant[2]` = gen_arb_lru_1_br_arb_lru_internal.can_grant & 1
-  `arb_can_grant[3]` = (gen_arb_lru_1_br_arb_lru_internal.can_grant >> 1) & 1
-  `arb_grant[2]` = gen_arb_lru_1_br_arb_lru_internal.grant & 1
-  `arb_grant[3]` = (gen_arb_lru_1_br_arb_lru_internal.grant >> 1) & 1
-  arb_grant = (`arb_grant[3]` << 3) | (`arb_grant[2]` << 2) | (`arb_grant[1]` << 1) | `arb_grant[0]`
-  arb_can_grant = (`arb_can_grant[3]` << 3) | (`arb_can_grant[2]` << 2) | (`arb_can_grant[1]` << 1) | `arb_can_grant[0]`
+  mut gen_arb_lru_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_0_br_arb_lru_internal](clk=clk, rst=either_rst, enable_priority_update=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[0..=1])
+  arb_can_grant_bits#[0] = gen_arb_lru_0_br_arb_lru_internal.can_grant & 1
+  arb_can_grant_bits#[1] = (gen_arb_lru_0_br_arb_lru_internal.can_grant >> 1) & 1
+  arb_grant_bits#[0] = gen_arb_lru_0_br_arb_lru_internal.grant & 1
+  arb_grant_bits#[1] = (gen_arb_lru_0_br_arb_lru_internal.grant >> 1) & 1
+  mut gen_arb_lru_1_br_arb_lru_internal = br_arb_lru_internal::[name=gen_arb_lru_1_br_arb_lru_internal](clk=clk, rst=either_rst, enable_priority_update=(br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_enable_priority_update >> 1) & 1, request=br_fifo_shared_pop_ctrl_credit_ext_arbiter.arb_request#[2..=3])
+  arb_can_grant_bits#[2] = gen_arb_lru_1_br_arb_lru_internal.can_grant & 1
+  arb_can_grant_bits#[3] = (gen_arb_lru_1_br_arb_lru_internal.can_grant >> 1) & 1
+  arb_grant_bits#[2] = gen_arb_lru_1_br_arb_lru_internal.grant & 1
+  arb_grant_bits#[3] = (gen_arb_lru_1_br_arb_lru_internal.grant >> 1) & 1
+  arb_grant = arb_grant_bits
+  arb_can_grant = arb_can_grant_bits
   head_ready = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.head_ready.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.head_ready.e0
   pop_sender_in_reset = br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_sender_in_reset
   pop_valid = (br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_valid.e1 << 1) | br_fifo_shared_pop_ctrl_credit_ext_arbiter.pop_valid.e0

@@ -223,8 +223,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         [lhd, "compile", "verilog", "--top", ctx.top, "--emit-dir", "lg:ref",
          "--set", "compile.upass.inline=false",
          "--workdir", "rw", "--result-json", str(ctx.work / "elab_ref.json"),
-         "--", "-F", str(ctx.test.filelist), "-DSYNTHESIS",
-         "-DBR_PPA_SYNTHESIS", *params],
+         "--", "-F", str(ctx.test.filelist), *ctx.test.verilog_args("lec"), *params],
         check=False,
         timeout=wall,
     )
@@ -310,6 +309,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     if solver == "lgyosys":
         lec_block = lec_block.get("crosscheck") or lec_block
     block = {
+        "verilog_profile": ctx.test.raw.get("lec", {}).get("verilog_profile", "synthesis"),
         "verdict": verdict,
         "bounded": bool(lec_block.get("bounded")),
         "bound": lec_block.get("bound"),

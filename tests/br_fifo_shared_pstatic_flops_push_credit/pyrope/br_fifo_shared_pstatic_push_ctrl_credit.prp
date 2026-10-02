@@ -1,34 +1,9 @@
 const br_credit_receiver = import("br_credit_receiver.br_credit_receiver")
 const br_fifo_shared_pstatic_push_ctrl = import("br_fifo_shared_pstatic_push_ctrl.br_fifo_shared_pstatic_push_ctrl")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-
 pub mod br_fifo_shared_pstatic_push_ctrl_credit<NumFifos=2, Depth=32, Width=32, RegisterPushOutputs=1, EnableBypass=0, EnableCoverPushCreditStall=1, EnableCoverCreditWithhold=1, EnableCoverPushSenderInReset=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1>::[timecheck=false](bypass_ready:(e1:U1, e0:U1), clk:Clock, config_base:U10, config_bound:U10, config_size:U12, credit_initial_push:U12, credit_withhold_push:U12, dealloc_valid:(e1:U1, e0:U1), push_credit_stall:(e1:U1, e0:U1), push_data:U32, push_fifo_id:U1, push_full:U2, push_sender_in_reset:U1, push_valid:U1, rst:U1) -> (advance_tail:U2@[], bypass_data_unstable:U64@[], bypass_valid_unstable:(e1:U1, e0:U1)@[], credit_available_push:U12@[], credit_count_push:U12@[], push_credit:(e1:U1, e0:U1)@[], push_receiver_in_reset:U1@[], ram_wr_addr:U5@[], ram_wr_data:U32@[], ram_wr_valid:U1@[], tail:U10@[], tail_next:U10@[]) {
-  wire `credit_available_push[0]`:U1 = nil
-  wire `credit_available_push[1]`:U1 = nil
-  wire `credit_available_push[2]`:U1 = nil
-  wire `credit_available_push[3]`:U1 = nil
-  wire `credit_available_push[4]`:U1 = nil
-  wire `credit_available_push[5]`:U1 = nil
-  wire `credit_available_push[6]`:U1 = nil
-  wire `credit_available_push[7]`:U1 = nil
-  wire `credit_available_push[8]`:U1 = nil
-  wire `credit_available_push[9]`:U1 = nil
-  wire `credit_available_push[10]`:U1 = nil
-  wire `credit_available_push[11]`:U1 = nil
+  wire credit_available_push_bits:U12 = nil
   wire credit_available_push:U12 = nil
-  wire `credit_count_push[0]`:U1 = nil
-  wire `credit_count_push[1]`:U1 = nil
-  wire `credit_count_push[2]`:U1 = nil
-  wire `credit_count_push[3]`:U1 = nil
-  wire `credit_count_push[4]`:U1 = nil
-  wire `credit_count_push[5]`:U1 = nil
-  wire `credit_count_push[6]`:U1 = nil
-  wire `credit_count_push[7]`:U1 = nil
-  wire `credit_count_push[8]`:U1 = nil
-  wire `credit_count_push[9]`:U1 = nil
-  wire `credit_count_push[10]`:U1 = nil
-  wire `credit_count_push[11]`:U1 = nil
+  wire credit_count_push_bits:U12 = nil
   wire credit_count_push:U12 = nil
   wire `push_receiver_in_reset_internal[0]`:U1 = nil
   wire `push_receiver_in_reset_internal[1]`:U1 = nil
@@ -38,45 +13,23 @@ pub mod br_fifo_shared_pstatic_push_ctrl_credit<NumFifos=2, Depth=32, Width=32, 
   wire `push_credit__bpr.e0`:U1 = nil
   wire `bypass_valid_unstable__bpr.e1`:U1 = nil
   wire `bypass_valid_unstable__bpr.e0`:U1 = nil
-  br_misc_unused_p1::[name=br_misc_unused_config_size](`in`=config_size)
   mut _b2i_1 = if push_sender_in_reset != 0 or rst != 0 { 1 } else { 0 }
   const push_receiver_in_reset__w1 = `push_receiver_in_reset_internal[0]` & 1
-  br_misc_unused::[name=br_misc_unused_push_receiver_in_reset_internal_msbs](`in`=`push_receiver_in_reset_internal[1]` & 1)
   mut _b2i_2 = if push_valid != 0 and push_fifo_id == 0 { 1 } else { 0 }
   `receiver_push_valid[0]` = _b2i_2 & 1
   mut gen_credit_receiver_0_br_credit_receiver_inst = br_credit_receiver::[name=gen_credit_receiver_0_br_credit_receiver_inst](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall.e0, push_valid=`receiver_push_valid[0]` & 1, push_data=push_data, pop_credit=dealloc_valid.e0, credit_initial=credit_initial_push#[0..=5], credit_withhold=credit_withhold_push#[0..=5])
   `push_receiver_in_reset_internal[0]` = gen_credit_receiver_0_br_credit_receiver_inst.push_receiver_in_reset & 1
-  `credit_count_push[0]` = gen_credit_receiver_0_br_credit_receiver_inst.credit_count & 1
-  `credit_count_push[1]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_count >> 1) & 1
-  `credit_count_push[2]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_count >> 2) & 1
-  `credit_count_push[3]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_count >> 3) & 1
-  `credit_count_push[4]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_count >> 4) & 1
-  `credit_count_push[5]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_count >> 5) & 1
-  `credit_available_push[0]` = gen_credit_receiver_0_br_credit_receiver_inst.credit_available & 1
-  `credit_available_push[1]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_available >> 1) & 1
-  `credit_available_push[2]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_available >> 2) & 1
-  `credit_available_push[3]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_available >> 3) & 1
-  `credit_available_push[4]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_available >> 4) & 1
-  `credit_available_push[5]` = (gen_credit_receiver_0_br_credit_receiver_inst.credit_available >> 5) & 1
+  credit_count_push_bits#[0..<6] = gen_credit_receiver_0_br_credit_receiver_inst.credit_count#[0..<6]
+  credit_available_push_bits#[0..<6] = gen_credit_receiver_0_br_credit_receiver_inst.credit_available#[0..<6]
   mut _b2i_3 = if push_valid != 0 and push_fifo_id == 1 { 1 } else { 0 }
   `receiver_push_valid[1]` = _b2i_3 & 1
   mut gen_credit_receiver_1_br_credit_receiver_inst = br_credit_receiver::[name=gen_credit_receiver_1_br_credit_receiver_inst](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall.e1, push_valid=`receiver_push_valid[1]` & 1, push_data=push_data, pop_credit=dealloc_valid.e1, credit_initial=credit_initial_push#[6..=11], credit_withhold=credit_withhold_push#[6..=11])
   `push_receiver_in_reset_internal[1]` = gen_credit_receiver_1_br_credit_receiver_inst.push_receiver_in_reset & 1
-  `credit_count_push[6]` = gen_credit_receiver_1_br_credit_receiver_inst.credit_count & 1
-  `credit_count_push[7]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_count >> 1) & 1
-  `credit_count_push[8]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_count >> 2) & 1
-  `credit_count_push[9]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_count >> 3) & 1
-  `credit_count_push[10]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_count >> 4) & 1
-  `credit_count_push[11]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_count >> 5) & 1
-  `credit_available_push[6]` = gen_credit_receiver_1_br_credit_receiver_inst.credit_available & 1
-  `credit_available_push[7]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_available >> 1) & 1
-  `credit_available_push[8]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_available >> 2) & 1
-  `credit_available_push[9]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_available >> 3) & 1
-  `credit_available_push[10]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_available >> 4) & 1
-  `credit_available_push[11]` = (gen_credit_receiver_1_br_credit_receiver_inst.credit_available >> 5) & 1
+  credit_count_push_bits#[6..<12] = gen_credit_receiver_1_br_credit_receiver_inst.credit_count#[0..<6]
+  credit_available_push_bits#[6..<12] = gen_credit_receiver_1_br_credit_receiver_inst.credit_available#[0..<6]
   mut br_fifo_shared_pstatic_push_ctrl_inst = br_fifo_shared_pstatic_push_ctrl::[name=br_fifo_shared_pstatic_push_ctrl_inst](clk=clk, rst=_b2i_1, config_base=config_base, config_bound=config_bound, push_valid=push_valid, push_data=push_data, push_fifo_id=push_fifo_id, `push_full.e1`=(push_full >> 1) & 1, `push_full.e0`=push_full & 1, bypass_ready.e1=bypass_ready.e1, bypass_ready.e0=bypass_ready.e0)
-  credit_available_push = (`credit_available_push[11]` << 11) | (`credit_available_push[10]` << 10) | (`credit_available_push[9]` << 9) | (`credit_available_push[8]` << 8) | (`credit_available_push[7]` << 7) | (`credit_available_push[6]` << 6) | (`credit_available_push[5]` << 5) | (`credit_available_push[4]` << 4) | (`credit_available_push[3]` << 3) | (`credit_available_push[2]` << 2) | (`credit_available_push[1]` << 1) | `credit_available_push[0]`
-  credit_count_push = (`credit_count_push[11]` << 11) | (`credit_count_push[10]` << 10) | (`credit_count_push[9]` << 9) | (`credit_count_push[8]` << 8) | (`credit_count_push[7]` << 7) | (`credit_count_push[6]` << 6) | (`credit_count_push[5]` << 5) | (`credit_count_push[4]` << 4) | (`credit_count_push[3]` << 3) | (`credit_count_push[2]` << 2) | (`credit_count_push[1]` << 1) | `credit_count_push[0]`
+  credit_available_push = credit_available_push_bits
+  credit_count_push = credit_count_push_bits
   const t103 = gen_credit_receiver_1_br_credit_receiver_inst.push_credit
   `push_credit__bpr.e1` = t103
   push_credit.e1 = t103

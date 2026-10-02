@@ -1,6 +1,7 @@
-const br_arb_fixed_internal_t = import("br_arb_fixed_internal.br_arb_fixed_internal")
-
-pub mod br_arb_fixed::[timecheck=false](clk:Clock, request:U16, rst:Reset) -> (grant:U16@[]) {
-  mut br_arb_fixed_internal = br_arb_fixed_internal_t::[name=br_arb_fixed_internal](request=request)
-  grant = br_arb_fixed_internal.grant
+// Fixed-priority arbiter: the lowest-numbered request wins (bedrock br_arb_fixed, 16 requesters).
+// clk and rst are unused (the reference only uses them for assertions) and stay so the
+// ports line up with verilog/br_arb_fixed.sv.
+pub mod br_arb_fixed(clk:Clock, request:U16, rst:Reset) -> (grant:U16@[0]) {
+  // Two's complement: v & -v isolates the lowest set bit.
+  grant = request & -request
 }

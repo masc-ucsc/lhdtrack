@@ -3,7 +3,7 @@
 // The Pyrope twin of br_tracker_freelist_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_tracker_freelist.br_tracker_freelist.
 const dut = import("br_tracker_freelist.br_tracker_freelist")
 
-pub mod br_tracker_freelist_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_tracker_freelist_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (alloc_sendable, alloc_entry_id, dealloc_count) = dut(alloc_receivable=lfsr#[0], dealloc_valid=lfsr#[1], dealloc_entry_id=lfsr#[2..=5])
+  const (alloc_sendable, alloc_entry_id, dealloc_count) = dut(rst=U1(rst != 0), alloc_receivable=lfsr#[0], dealloc_valid=lfsr#[1], dealloc_entry_id=lfsr#[2..=5])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ alloc_sendable
   wrap acc = ((acc << 1) | acc#[63]) ^ alloc_entry_id
   wrap acc = ((acc << 1) | acc#[63]) ^ dealloc_count

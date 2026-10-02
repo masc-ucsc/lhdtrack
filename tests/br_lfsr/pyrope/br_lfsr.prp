@@ -1,15 +1,13 @@
-pub mod br_lfsr::[timecheck=false](advance:U1, clk:Clock, initial_state:U32, reinit:U1, rst:U1, taps:U32) -> (out:U1@[], out_state:U32@[]) {
-  reg state:U32
-  const out__w1 = state & 1
-  const out_state__w1 = state
-  const advanced_state__w1 = state
-  const t15 = (advanced_state__w1 & taps)#^[..]
-  mut _mux_3:U32 = if reinit != 0 { initial_state } else { (advanced_state__w1#[0..=30] << 1) | Unsigned((t15)#[0]) }
-  if rst != 0 {
-    state = initial_state
-  } elif advance != 0 or reinit != 0 {
-    state = _mux_3
+// Fibonacci LFSR (Width = 32, one step per advance). The next bit shifted into
+// bit 0 is the parity of the tapped state bits. State has no reset value: reset
+// and `reinit` both load the runtime `initial_state`, so they stay in the logic.
+pub mod br_lfsr(advance:U1, clk:Clock, initial_state:U32, reinit:U1, rst:U1, taps:U32) -> (reg out_state:U32@[0]=nil, out:U1@[0]) {
+  out = out_state#[0]
+  mut stepped:U32 = 0
+  wrap stepped = (out_state << 1) | (out_state & taps)#^[..]
+  if rst != 0 or reinit != 0 {
+    out_state = initial_state
+  } elif advance != 0 {
+    out_state = stepped
   }
-  out = out__w1
-  out_state = out_state__w1
 }

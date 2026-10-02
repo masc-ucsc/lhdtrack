@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: Apache-2.0
+// The observable truth tables of the eleven combinational mock gate models.
+pub comb br_gate_mock_bench(a:U1, b:U1, sel:U1) -> (out:U11) {
+  mut bits:U11 = 0
+  bits#[0] = a
+  bits#[1] = a
+  bits#[2] = ~a
+  bits#[3] = ~a
+  bits#[4] = a & b
+  bits#[5] = a | b
+  bits#[6] = a ^ b
+  const mux:U1 = if sel == 1 { b } else { a }
+  bits#[7] = mux
+  bits#[8] = mux
+  bits#[9] = a
+  bits#[10] = a
+  out = bits
+}

@@ -3,7 +3,7 @@
 // The Pyrope twin of br_amba_axil_msi_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,26 @@
 // "call to undefined function". The module inside it is br_amba_axil_msi.br_amba_axil_msi.
 const dut = import("br_amba_axil_msi.br_amba_axil_msi")
 
-pub mod br_amba_axil_msi_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_amba_axil_msi_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (error, init_awaddr, init_awvalid, init_wdata, init_wstrb, init_wvalid, init_bready) = dut(irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=0, device_id_per_irq=lfsr_x#[44..=107], event_id_per_irq=lfsr_x#[44..=107], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (error, init_awaddr, init_awvalid, init_wdata, init_wstrb, init_wvalid, init_bready) = dut(clk=clk, rst=U1(dut_reset), irq=lfsr#[0..=3], msi_dest_addr=lfsr#[4..=35], msi_enable=lfsr#[36..=39], msi_dest_idx=0, device_id_per_irq=lfsr_x#[44..=107], event_id_per_irq=lfsr_x#[44..=107], throttle_en=lfsr#[44], throttle_cntr_threshold=lfsr#[45..=48], init_awready=lfsr#[49], init_wready=lfsr#[50], init_bresp=lfsr#[51..=52], init_bvalid=lfsr#[53])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ error
   wrap acc = ((acc << 1) | acc#[63]) ^ init_awaddr
   wrap acc = ((acc << 1) | acc#[63]) ^ init_awvalid

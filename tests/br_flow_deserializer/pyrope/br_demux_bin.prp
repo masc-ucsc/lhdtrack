@@ -16,7 +16,6 @@ pub comb br_demux_bin<NumSymbolsOut=8, SymbolWidth=8, EnableAssertFinalNotValid=
   out_valid__w7#[6] = U1(in_valid != 0 and select == 6) & 1
   mut out_valid__w8 = out_valid__w7
   out_valid__w8#[7] = U1(in_valid != 0 and select == 7) & 1
-  const t34 = `in`
   out_valid = out_valid__w8
-  out = t34 | (t34 << 8) | (t34 << 16) | (t34 << 24) | (t34 << 32) | (t34 << 40) | (t34 << 48) | (t34 << 56)
+  out = `in` | (`in` << 8) | (`in` << 16) | (`in` << 24) | (`in` << 32) | (`in` << 40) | (`in` << 48) | (`in` << 56)
 }

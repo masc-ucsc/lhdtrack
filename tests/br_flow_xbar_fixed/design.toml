@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_xbar_fixed#<id>`.
 [[config]]
 id     = "npf4_npf4_rdo0_rpo0_w32"
-sim_checksum = { cycles = 23300000, value = "4097027808142624474" }
+sim_checksum = { cycles = 22222222, value = "13177729770263910055" }
 # NO PARAMETERS. verilog/br_flow_xbar_fixed.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 23300000
+cycles = 22222222
 marker = "LHDTRACK-DONE"
 
 [lec]

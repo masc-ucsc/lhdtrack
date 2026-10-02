@@ -1,5 +1,0 @@
-const br_misc_unused_p6 = import("br_misc_unused_p6.br_misc_unused_p6")
-
-pub mod br_flow_checks_valid_data_intg_p2<NumFlows=1, Width=3, EnableCoverBackpressure=0, EnableAssertValidStability=0, EnableAssertDataStability=0, EnableAssertDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoBackpressure=0>::[timecheck=false](clk:Clock, data:U3, ready:U1, rst:U1, valid:U1) -> () {
-  br_misc_unused_p6::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 5) | ((valid & 1) << 4) | ((ready & 1) << 3) | data)
-}

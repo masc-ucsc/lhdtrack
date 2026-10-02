@@ -1,7 +1,8 @@
-pub comb comparator::[timecheck=false](a:U8, b:U8) -> (eq:U1, gt:U1, gte:U1, lt:U1, lte:U1) {
+// Unsigned magnitude comparator; every flag is one bit.
+pub comb comparator(a:U8, b:U8) -> (eq:U1, gt:U1, gte:U1, lt:U1, lte:U1) {
   eq = U1(a == b)
-  lt = U1(a < b)
   gt = U1(a > b)
-  lte = U1(a <= b)
   gte = U1(a >= b)
+  lt = U1(a < b)
+  lte = U1(a <= b)
 }

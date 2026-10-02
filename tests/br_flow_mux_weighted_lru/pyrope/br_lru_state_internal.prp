@@ -1,154 +1,111 @@
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-
 pub mod br_lru_state_internal<NumRequesters=4>::[timecheck=false](clk:Clock, grant:(e3:U1, e2:U1, e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U16@[]) {
   reg state_reg___q:U16
   mut state_reg__composite:U16 = 0
   wire state_reg:U16 = nil
-  wire `state[0]`:U1 = nil
-  wire `state[1]`:U1 = nil
-  wire `state[2]`:U1 = nil
-  wire `state[3]`:U1 = nil
-  wire `state[4]`:U1 = nil
-  wire `state[5]`:U1 = nil
-  wire `state[6]`:U1 = nil
-  wire `state[7]`:U1 = nil
-  wire `state[8]`:U1 = nil
-  wire `state[9]`:U1 = nil
-  wire `state[10]`:U1 = nil
-  wire `state[11]`:U1 = nil
-  wire `state[12]`:U1 = nil
-  wire `state[13]`:U1 = nil
-  wire `state[14]`:U1 = nil
-  wire `state[15]`:U1 = nil
+  wire state_bits:U16 = nil
   wire state:U16 = nil
-  wire `state_reg_next[0]`:U1 = nil
-  wire `state_reg_next[1]`:U1 = nil
-  wire `state_reg_next[2]`:U1 = nil
-  wire `state_reg_next[3]`:U1 = nil
-  wire `state_reg_next[4]`:U1 = nil
-  wire `state_reg_next[5]`:U1 = nil
-  wire `state_reg_next[6]`:U1 = nil
-  wire `state_reg_next[7]`:U1 = nil
-  wire `state_reg_next[8]`:U1 = nil
-  wire `state_reg_next[9]`:U1 = nil
-  wire `state_reg_next[10]`:U1 = nil
-  wire `state_reg_next[11]`:U1 = nil
-  wire `state_reg_next[12]`:U1 = nil
-  wire `state_reg_next[13]`:U1 = nil
-  wire `state_reg_next[14]`:U1 = nil
-  wire `state_reg_next[15]`:U1 = nil
+  wire state_reg_next_bits:U16 = nil
   state_reg__composite = state_reg___q
-  `state[0]` = 0
+  state_bits#[0] = 0
   mut state_reg__composite__w1 = state_reg__composite
   state_reg__composite__w1#[0] = 0
-  `state_reg_next[0]` = 0
-  br_misc_unused::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[0]` & 1) << 2) | ((state_reg#[0..=3] & 1) << 1) | (`state[0]` & 1))
-  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { `state[1]` & 1 }
+  state_reg_next_bits#[0] = 0
+  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { state_bits#[1] & 1 }
   mut _mux_2:U1 = if grant.e0 != 0 { 0 } else { _mux_1 & 1 }
-  `state_reg_next[1]` = _mux_2 & 1
+  state_reg_next_bits#[1] = _mux_2 & 1
   if rst != 0 {
     state_reg___q#[1] = 1
   } elif update_priority != 0 {
-    state_reg___q#[1] = `state_reg_next[1]` & 1
+    state_reg___q#[1] = state_reg_next_bits#[1] & 1
   }
-  `state[1]` = (state_reg#[0..=3] >> 1) & 1
-  mut _mux_3:U1 = if grant.e2 != 0 { 1 } else { `state[2]` & 1 }
+  state_bits#[1] = (state_reg#[0..=3] >> 1) & 1
+  mut _mux_3:U1 = if grant.e2 != 0 { 1 } else { state_bits#[2] & 1 }
   mut _mux_4:U1 = if grant.e0 != 0 { 0 } else { _mux_3 & 1 }
-  `state_reg_next[2]` = _mux_4 & 1
+  state_reg_next_bits#[2] = _mux_4 & 1
   if rst != 0 {
     state_reg___q#[2] = 1
   } elif update_priority != 0 {
-    state_reg___q#[2] = `state_reg_next[2]` & 1
+    state_reg___q#[2] = state_reg_next_bits#[2] & 1
   }
-  `state[2]` = (state_reg#[0..=3] >> 2) & 1
-  mut _mux_5:U1 = if grant.e3 != 0 { 1 } else { `state[3]` & 1 }
+  state_bits#[2] = (state_reg#[0..=3] >> 2) & 1
+  mut _mux_5:U1 = if grant.e3 != 0 { 1 } else { state_bits#[3] & 1 }
   mut _mux_6:U1 = if grant.e0 != 0 { 0 } else { _mux_5 & 1 }
-  `state_reg_next[3]` = _mux_6 & 1
+  state_reg_next_bits#[3] = _mux_6 & 1
   if rst != 0 {
     state_reg___q#[3] = 1
   } elif update_priority != 0 {
-    state_reg___q#[3] = `state_reg_next[3]` & 1
+    state_reg___q#[3] = state_reg_next_bits#[3] & 1
   }
-  `state[3]` = (state_reg#[0..=3] >> 3) & 1
+  state_bits#[3] = (state_reg#[0..=3] >> 3) & 1
   mut _b2i_7 = if ((state_reg#[0..=3] >> 1) & 1) == 0 { 1 } else { 0 }
-  `state[4]` = _b2i_7 & 1
-  `state_reg_next[4]` = 0
+  state_bits#[4] = _b2i_7 & 1
+  state_reg_next_bits#[4] = 0
   mut state_reg__composite__w2 = state_reg__composite__w1
   state_reg__composite__w2#[4] = 0
-  br_misc_unused_p1::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[4]` & 1) << 1) | (state_reg#[4..=7] & 1))
-  `state[5]` = 0
+  state_bits#[5] = 0
   mut state_reg__composite__w3 = state_reg__composite__w2
   state_reg__composite__w3#[5] = 0
-  `state_reg_next[5]` = 0
-  br_misc_unused::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[5]` & 1) << 2) | (((state_reg#[4..=7] >> 1) & 1) << 1) | (`state[5]` & 1))
-  mut _mux_8:U1 = if grant.e2 != 0 { 1 } else { `state[6]` & 1 }
+  state_reg_next_bits#[5] = 0
+  mut _mux_8:U1 = if grant.e2 != 0 { 1 } else { state_bits#[6] & 1 }
   mut _mux_9:U1 = if grant.e1 != 0 { 0 } else { _mux_8 & 1 }
-  `state_reg_next[6]` = _mux_9 & 1
+  state_reg_next_bits#[6] = _mux_9 & 1
   if rst != 0 {
     state_reg___q#[6] = 1
   } elif update_priority != 0 {
-    state_reg___q#[6] = `state_reg_next[6]` & 1
+    state_reg___q#[6] = state_reg_next_bits#[6] & 1
   }
-  `state[6]` = (state_reg#[4..=7] >> 2) & 1
-  mut _mux_10:U1 = if grant.e3 != 0 { 1 } else { `state[7]` & 1 }
+  state_bits#[6] = (state_reg#[4..=7] >> 2) & 1
+  mut _mux_10:U1 = if grant.e3 != 0 { 1 } else { state_bits#[7] & 1 }
   mut _mux_11:U1 = if grant.e1 != 0 { 0 } else { _mux_10 & 1 }
-  `state_reg_next[7]` = _mux_11 & 1
+  state_reg_next_bits#[7] = _mux_11 & 1
   if rst != 0 {
     state_reg___q#[7] = 1
   } elif update_priority != 0 {
-    state_reg___q#[7] = `state_reg_next[7]` & 1
+    state_reg___q#[7] = state_reg_next_bits#[7] & 1
   }
-  `state[7]` = (state_reg#[4..=7] >> 3) & 1
+  state_bits#[7] = (state_reg#[4..=7] >> 3) & 1
   mut _b2i_12 = if ((state_reg#[0..=3] >> 2) & 1) == 0 { 1 } else { 0 }
-  `state[8]` = _b2i_12 & 1
-  `state_reg_next[8]` = 0
+  state_bits#[8] = _b2i_12 & 1
+  state_reg_next_bits#[8] = 0
   mut state_reg__composite__w4 = state_reg__composite__w3
   state_reg__composite__w4#[8] = 0
-  br_misc_unused_p1::[name=gen_state_row_2_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[8]` & 1) << 1) | (state_reg#[8..=11] & 1))
   mut _b2i_13 = if ((state_reg#[4..=7] >> 2) & 1) == 0 { 1 } else { 0 }
-  `state[9]` = _b2i_13 & 1
-  `state_reg_next[9]` = 0
+  state_bits#[9] = _b2i_13 & 1
+  state_reg_next_bits#[9] = 0
   mut state_reg__composite__w5 = state_reg__composite__w4
   state_reg__composite__w5#[9] = 0
-  br_misc_unused_p1::[name=gen_state_row_2_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[9]` & 1) << 1) | ((state_reg#[8..=11] >> 1) & 1))
-  `state[10]` = 0
+  state_bits#[10] = 0
   mut state_reg__composite__w6 = state_reg__composite__w5
   state_reg__composite__w6#[10] = 0
-  `state_reg_next[10]` = 0
-  br_misc_unused::[name=gen_state_row_2_gen_state_col_2_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[10]` & 1) << 2) | (((state_reg#[8..=11] >> 2) & 1) << 1) | (`state[10]` & 1))
-  mut _mux_14:U1 = if grant.e3 != 0 { 1 } else { `state[11]` & 1 }
+  state_reg_next_bits#[10] = 0
+  mut _mux_14:U1 = if grant.e3 != 0 { 1 } else { state_bits#[11] & 1 }
   mut _mux_15:U1 = if grant.e2 != 0 { 0 } else { _mux_14 & 1 }
-  `state_reg_next[11]` = _mux_15 & 1
+  state_reg_next_bits#[11] = _mux_15 & 1
   if rst != 0 {
     state_reg___q#[11] = 1
   } elif update_priority != 0 {
-    state_reg___q#[11] = `state_reg_next[11]` & 1
+    state_reg___q#[11] = state_reg_next_bits#[11] & 1
   }
-  `state[11]` = (state_reg#[8..=11] >> 3) & 1
+  state_bits#[11] = (state_reg#[8..=11] >> 3) & 1
   mut _b2i_16 = if ((state_reg#[0..=3] >> 3) & 1) == 0 { 1 } else { 0 }
-  `state[12]` = _b2i_16 & 1
-  `state_reg_next[12]` = 0
+  state_bits#[12] = _b2i_16 & 1
+  state_reg_next_bits#[12] = 0
   mut state_reg__composite__w7 = state_reg__composite__w6
   state_reg__composite__w7#[12] = 0
-  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[12]` & 1) << 1) | (state_reg#[12..=15] & 1))
   mut _b2i_17 = if ((state_reg#[4..=7] >> 3) & 1) == 0 { 1 } else { 0 }
-  `state[13]` = _b2i_17 & 1
-  `state_reg_next[13]` = 0
+  state_bits#[13] = _b2i_17 & 1
+  state_reg_next_bits#[13] = 0
   mut state_reg__composite__w8 = state_reg__composite__w7
   state_reg__composite__w8#[13] = 0
-  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_1_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[13]` & 1) << 1) | ((state_reg#[12..=15] >> 1) & 1))
   mut _b2i_18 = if ((state_reg#[8..=11] >> 3) & 1) == 0 { 1 } else { 0 }
-  `state[14]` = _b2i_18 & 1
-  `state_reg_next[14]` = 0
+  state_bits#[14] = _b2i_18 & 1
+  state_reg_next_bits#[14] = 0
   mut state_reg__composite__w9 = state_reg__composite__w8
   state_reg__composite__w9#[14] = 0
-  br_misc_unused_p1::[name=gen_state_row_3_gen_state_col_2_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[14]` & 1) << 1) | ((state_reg#[12..=15] >> 2) & 1))
-  `state[15]` = 0
+  state_bits#[15] = 0
   mut state_reg__composite__w10 = state_reg__composite__w9
   state_reg__composite__w10#[15] = 0
-  `state_reg_next[15]` = 0
-  br_misc_unused::[name=gen_state_row_3_gen_state_col_3_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[15]` & 1) << 2) | (((state_reg#[12..=15] >> 3) & 1) << 1) | (`state[15]` & 1))
-  state = (`state[15]` << 15) | (`state[14]` << 14) | (`state[13]` << 13) | (`state[12]` << 12) | (`state[11]` << 11) | (`state[10]` << 10) | (`state[9]` << 9) | (`state[8]` << 8) | (`state[7]` << 7) | (`state[6]` << 6) | (`state[5]` << 5) | (`state[4]` << 4) | (`state[3]` << 3) | (`state[2]` << 2) | (`state[1]` << 1) | `state[0]`
+  state_reg_next_bits#[15] = 0
+  state = state_bits
   state_reg = state_reg__composite__w10
 }

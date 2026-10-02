@@ -3,7 +3,7 @@
 // The Pyrope twin of br_credit_sender_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,27 +11,27 @@
 // "call to undefined function". The module inside it is br_credit_sender.br_credit_sender.
 const dut = import("br_credit_sender.br_credit_sender")
 
-pub mod br_credit_sender_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_credit_sender_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u320 = lfsr |
+  const lfsr_x:U320 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
     (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
     (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
 
-  const (push_ready, pop_sender_in_reset, pop_valid, pop_data, credit_count, credit_available) = dut(pop_receiver_in_reset=rst, push_valid=lfsr#[0..=3], push_data=lfsr_x#[4..=259], pop_credit=lfsr#[4..=6], credit_initial=lfsr#[7..=11], credit_withhold=lfsr#[12..=16])
+  const (push_ready, pop_sender_in_reset, pop_valid, pop_data, credit_count, credit_available) = dut(rst=U1(rst != 0), pop_receiver_in_reset=rst, push_valid=lfsr#[0..=3], push_data=lfsr_x#[4..=259], pop_credit=lfsr#[4..=6], credit_initial=lfsr#[7..=11], credit_withhold=lfsr#[12..=16])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_sender_in_reset
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid

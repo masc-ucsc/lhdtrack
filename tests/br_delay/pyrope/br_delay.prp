@@ -1,33 +1,14 @@
-pub mod br_delay::[timecheck=false](clk:Clock, `in`:U8, rst:U1) -> (out:U8@[], out_stages:U40@[]) {
-  reg stages___q:U40
-  mut stages__composite:U40 = 0
-  wire stages:U40 = nil
-  stages__composite = stages___q
-  mut stages__composite__w1 = stages__composite
-  stages__composite__w1#[0..=7] = `in`
-  if rst != 0 {
-    stages___q#[8..=15] = 0
-  } else {
-    stages___q#[8..=15] = stages#[0..=7]
-  }
-  if rst != 0 {
-    stages___q#[16..=23] = 0
-  } else {
-    stages___q#[16..=23] = stages#[8..=15]
-  }
-  if rst != 0 {
-    stages___q#[24..=31] = 0
-  } else {
-    stages___q#[24..=31] = stages#[16..=23]
-  }
-  if rst != 0 {
-    stages___q#[32..=39] = 0
-  } else {
-    stages___q#[32..=39] = stages#[24..=31]
-  }
-  const out__w1 = (stages >> 32)#[0..=7]
-  const out_stages__w1 = stages
-  stages = stages__composite__w1
-  out = out__w1
-  out_stages = out_stages__w1
+// Four-stage, 8-bit delay line with synchronous reset to zero.
+//
+// `stages` holds the input in byte 0 (never stored, so it is never written) and
+// stage i in byte i. Keeping the reference's single 40-bit register, rather than
+// a 32-bit shift register, lets LEC pair the state and prove unbounded.
+//
+// out and out_stages deliberately land at `@[]`: they mix the live input with
+// registered stages, which one `@[N]` cannot express.
+pub mod br_delay(clk:Clock, `in`:U8, rst:U1) -> (out:U8@[], out_stages:U40@[]) {
+  reg stages:U40:[reset_pin=rst] = 0
+  stages#[8..<40] = (stages#[8..<32] << 8) | `in`
+  out = stages#[32..<40]
+  out_stages = (stages#[8..<40] << 8) | `in`
 }

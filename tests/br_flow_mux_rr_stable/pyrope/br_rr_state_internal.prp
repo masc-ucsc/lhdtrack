@@ -1,13 +1,6 @@
 pub mod br_rr_state_internal<NumRequesters=8>::[timecheck=false](clk:Clock, grant:U8, rst:U1, update_priority:U1) -> (last_grant:U8@[], priority_mask:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
   reg last_grant:U8
-  wire `last_grant_init[0]`:U1 = nil
-  wire `last_grant_init[1]`:U1 = nil
-  wire `last_grant_init[2]`:U1 = nil
-  wire `last_grant_init[3]`:U1 = nil
-  wire `last_grant_init[4]`:U1 = nil
-  wire `last_grant_init[5]`:U1 = nil
-  wire `last_grant_init[6]`:U1 = nil
-  wire `last_grant_init[7]`:U1 = nil
+  wire last_grant_init_bits:U8 = nil
   wire last_grant_init:U8 = nil
   wire `priority_mask__bpr.e7`:U1 = nil
   wire `priority_mask__bpr.e6`:U1 = nil
@@ -33,20 +26,20 @@ pub mod br_rr_state_internal<NumRequesters=8>::[timecheck=false](clk:Clock, gran
   mut `priority_mask__bpo.e6` = _b2i_7
   mut _b2i_8 = if ((last_grant >> 7) & 1) != 0 { 1 } else { 0 }
   mut `priority_mask__bpo.e7` = _b2i_8
-  `last_grant_init[7]` = 1
-  `last_grant_init[0]` = 0
-  `last_grant_init[1]` = 0
-  `last_grant_init[2]` = 0
-  `last_grant_init[3]` = 0
-  `last_grant_init[4]` = 0
-  `last_grant_init[5]` = 0
-  `last_grant_init[6]` = 0
+  last_grant_init_bits#[7] = 1
+  last_grant_init_bits#[0] = 0
+  last_grant_init_bits#[1] = 0
+  last_grant_init_bits#[2] = 0
+  last_grant_init_bits#[3] = 0
+  last_grant_init_bits#[4] = 0
+  last_grant_init_bits#[5] = 0
+  last_grant_init_bits#[6] = 0
   if rst != 0 {
     last_grant = last_grant_init
   } elif update_priority != 0 {
     last_grant = grant
   }
-  last_grant_init = (`last_grant_init[7]` << 7) | (`last_grant_init[6]` << 6) | (`last_grant_init[5]` << 5) | (`last_grant_init[4]` << 4) | (`last_grant_init[3]` << 3) | (`last_grant_init[2]` << 2) | (`last_grant_init[1]` << 1) | `last_grant_init[0]`
+  last_grant_init = last_grant_init_bits
   const t41 = `priority_mask__bpo.e7`
   `priority_mask__bpr.e7` = t41
   priority_mask.e7 = t41

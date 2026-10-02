@@ -1,11 +1,15 @@
-pub comb br_mux_onehot<NumSymbolsIn=8, SymbolWidth=32, EnableAssertSelectOnehot=1>::[timecheck=false](`in`:U256, select:U8) -> (out:U32) {
-  mut _rep_1:U32 = if (select & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_2:U32 = if ((select >> 1) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_3:U32 = if ((select >> 2) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_4:U32 = if ((select >> 3) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_5:U32 = if ((select >> 4) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_6:U32 = if ((select >> 5) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_7:U32 = if ((select >> 6) & 1) != 0 { 0xffffffff } else { 0 }
-  mut _rep_8:U32 = if ((select >> 7) & 1) != 0 { 0xffffffff } else { 0 }
-  out = (((((((0 | (_rep_1 & `in`#[0..=31])) | (_rep_2 & `in`#[32..=63])) | (_rep_3 & `in`#[64..=95])) | (_rep_4 & `in`#[96..=127])) | (_rep_5 & `in`#[128..=159])) | (_rep_6 & `in`#[160..=191])) | (_rep_7 & `in`#[192..=223])) | (_rep_8 & `in`#[224..=255])
+// OR all selected packed lanes, including multiple simultaneous selections.
+pub comb br_mux_onehot<NumSymbolsIn=8, SymbolWidth=32>(`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)) {
+  // The one-lane reference passes payload even when its select bit is zero.
+  if NumSymbolsIn == 1 {
+    out = `in`
+  } else {
+    mut data:Unsigned(bits=SymbolWidth) = 0
+    for lane in 0..<NumSymbolsIn {
+      if select#[lane] != 0 {
+        data |= `in`#[(lane*SymbolWidth)..+SymbolWidth]
+      }
+    }
+    out = data
+  }
 }

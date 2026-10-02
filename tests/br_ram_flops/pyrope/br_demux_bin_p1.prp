@@ -8,7 +8,6 @@ pub comb br_demux_bin_p1<NumSymbolsOut=4, SymbolWidth=0x48, EnableAssertFinalNot
   out_valid__w3#[2] = U1(in_valid != 0 and select == 2) & 1
   mut out_valid__w4 = out_valid__w3
   out_valid__w4#[3] = U1(in_valid != 0 and select == 3) & 1
-  const t18 = `in`
   out_valid = out_valid__w4
-  out = t18 | (t18 << 0x48) | (t18 << 0x90) | (t18 << 0xd8)
+  out = `in` | (`in` << 0x48) | (`in` << 0x90) | (`in` << 0xd8)
 }

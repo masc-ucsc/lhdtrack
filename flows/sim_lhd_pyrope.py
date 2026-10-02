@@ -19,6 +19,8 @@ USES_TECH = False
 
 
 def run(ctx: FlowContext) -> dict:
+    if reason := ctx.test.raw.get("sim", {}).get("skip_reason"):
+        raise FlowSkip(reason)
     from lib.simgate import run_lhd_sim
 
     tb = ctx.test.sim_dir / f"{ctx.top}_tb.prp"

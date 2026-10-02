@@ -3,7 +3,7 @@
 // The Pyrope twin of br_amba_axi_isolate_mgr_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,26 @@
 // "call to undefined function". The module inside it is br_amba_axi_isolate_mgr.br_amba_axi_isolate_mgr.
 const dut = import("br_amba_axi_isolate_mgr.br_amba_axi_isolate_mgr")
 
-pub mod br_amba_axi_isolate_mgr_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_amba_axi_isolate_mgr_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (isolate_done, upstream_awready, upstream_wready, upstream_bid, upstream_buser, upstream_bresp, upstream_bvalid, upstream_arready, upstream_rid, upstream_rdata, upstream_ruser, upstream_rresp, upstream_rlast, upstream_rvalid, downstream_awaddr, downstream_awid, downstream_awlen, downstream_awsize, downstream_awburst, downstream_awcache, downstream_awprot, downstream_awuser, downstream_awvalid, downstream_wdata, downstream_wstrb, downstream_wuser, downstream_wlast, downstream_wvalid, downstream_bready, downstream_araddr, downstream_arid, downstream_arlen, downstream_arsize, downstream_arburst, downstream_arcache, downstream_arprot, downstream_aruser, downstream_arvalid, downstream_rready) = dut(isolate_req=lfsr#[0], upstream_awaddr=lfsr#[1..=32], upstream_awid=lfsr#[33..=36], upstream_awlen=lfsr#[37], upstream_awsize=lfsr#[38..=40], upstream_awburst=lfsr#[41..=42], upstream_awcache=lfsr#[43..=46], upstream_awprot=lfsr#[47..=49], upstream_awuser=lfsr#[50], upstream_awvalid=lfsr#[51], upstream_wdata=lfsr_x#[52..=83], upstream_wstrb=lfsr#[20..=23], upstream_wuser=lfsr#[24], upstream_wlast=lfsr#[25], upstream_wvalid=lfsr#[26], upstream_bready=lfsr#[27], upstream_araddr=lfsr#[28..=59], upstream_arid=lfsr#[60..=63], upstream_arlen=lfsr#[0], upstream_arsize=lfsr#[1..=3], upstream_arburst=lfsr#[4..=5], upstream_arprot=lfsr#[6..=8], upstream_arcache=lfsr#[9..=12], upstream_aruser=lfsr#[13], upstream_arvalid=lfsr#[14], upstream_rready=lfsr#[15], downstream_awready=lfsr#[16], downstream_wready=lfsr#[17], downstream_bid=lfsr#[18..=21], downstream_buser=lfsr#[22], downstream_bresp=lfsr#[23..=24], downstream_bvalid=lfsr#[25], downstream_arready=lfsr#[26], downstream_rid=lfsr#[27..=30], downstream_rdata=lfsr#[31..=62], downstream_ruser=lfsr#[63], downstream_rresp=lfsr#[0..=1], downstream_rlast=lfsr#[2], downstream_rvalid=lfsr#[3])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (isolate_done, upstream_awready, upstream_wready, upstream_bid, upstream_buser, upstream_bresp, upstream_bvalid, upstream_arready, upstream_rid, upstream_rdata, upstream_ruser, upstream_rresp, upstream_rlast, upstream_rvalid, downstream_awaddr, downstream_awid, downstream_awlen, downstream_awsize, downstream_awburst, downstream_awcache, downstream_awprot, downstream_awuser, downstream_awvalid, downstream_wdata, downstream_wstrb, downstream_wuser, downstream_wlast, downstream_wvalid, downstream_bready, downstream_araddr, downstream_arid, downstream_arlen, downstream_arsize, downstream_arburst, downstream_arcache, downstream_arprot, downstream_aruser, downstream_arvalid, downstream_rready) = dut(clk=clk, rst=U1(dut_reset), isolate_req=lfsr#[0], upstream_awaddr=lfsr#[1..=32], upstream_awid=lfsr#[33..=36], upstream_awlen=lfsr#[37], upstream_awsize=lfsr#[38..=40], upstream_awburst=lfsr#[41..=42], upstream_awcache=lfsr#[43..=46], upstream_awprot=lfsr#[47..=49], upstream_awuser=lfsr#[50], upstream_awvalid=lfsr#[51], upstream_wdata=lfsr_x#[52..=83], upstream_wstrb=lfsr#[20..=23], upstream_wuser=lfsr#[24], upstream_wlast=lfsr#[25], upstream_wvalid=lfsr#[26], upstream_bready=lfsr#[27], upstream_araddr=lfsr#[28..=59], upstream_arid=lfsr#[60..=63], upstream_arlen=lfsr#[0], upstream_arsize=lfsr#[1..=3], upstream_arburst=lfsr#[4..=5], upstream_arprot=lfsr#[6..=8], upstream_arcache=lfsr#[9..=12], upstream_aruser=lfsr#[13], upstream_arvalid=lfsr#[14], upstream_rready=lfsr#[15], downstream_awready=lfsr#[16], downstream_wready=lfsr#[17], downstream_bid=lfsr#[18..=21], downstream_buser=lfsr#[22], downstream_bresp=lfsr#[23..=24], downstream_bvalid=lfsr#[25], downstream_arready=lfsr#[26], downstream_rid=lfsr#[27..=30], downstream_rdata=lfsr#[31..=62], downstream_ruser=lfsr#[63], downstream_rresp=lfsr#[0..=1], downstream_rlast=lfsr#[2], downstream_rvalid=lfsr#[3])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ isolate_done
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_awready
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_wready

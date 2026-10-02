@@ -25,7 +25,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `mul_three_sgn#<id>`.
 [[config]]
 id     = "bw8"
-sim_checksum = { cycles = 81000000, value = "14041091647480906067" }
+sim_checksum = { cycles = 32993890, value = "13303535473200617614" }
 # NO PARAMETERS. verilog/MulThreeSgn.sv declares its parameter port list
 # `localparam`, so the top elaborates to ONE circuit with no flags anywhere --
 # no -chparam for yosys, no -G for slang or verilator, no `#(...)` on the
@@ -42,10 +42,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one verilator simulation lands near 2 s (1-3 s window). Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 81000000
+cycles = 32993890
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -1,7 +1,7 @@
 // Two-stage reset synchronizer: assertion is asynchronous; release takes two clocks.
 // Keep the reference's packed state for automatic LEC correspondence.
 pub mod br_cdc_rst_sync(arst:U1, clk:Clock) -> (srst:U1@[0]) {
-  reg br_gate_cdc_sync_arst_srst_n_in_d:U2:[async=true, clock_pin=clk, reset_pin=arst != 0] = 0
+  reg br_gate_cdc_sync_arst_srst_n_in_d:U2:[async=true, clock_pin=clk, reset_pin=arst] = 0
   wrap br_gate_cdc_sync_arst_srst_n_in_d = (br_gate_cdc_sync_arst_srst_n_in_d << 1) | 1
   srst = ~br_gate_cdc_sync_arst_srst_n_in_d#[1]
 }

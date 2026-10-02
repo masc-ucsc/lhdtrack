@@ -31,10 +31,10 @@ from ..run import host_name
 
 CSS = """
 :root{--bg:#fff;--fg:#16181d;--muted:#6b7280;--line:#e5e7eb;--head:#f7f8fa;
---good:#0a7c3f;--bad:#b91c1c;--warn:#a16207;--accent:#1d4ed8;--chip:#eef2ff;--series-a:#b45309;--series-b:#1d4ed8}
+--good:#0a7c3f;--bad:#b91c1c;--warn:#a16207;--accent:#1d4ed8;--chip:#eef2ff;--series-a:#b45309;--series-b:#1d4ed8;--series-c:#0a7c3f}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e6e8ec;--muted:#9aa1ab;
 --line:#262b33;--head:#161a20;--good:#4ade80;--bad:#f87171;--warn:#fbbf24;
---accent:#93b4ff;--chip:#1b2233;--series-a:#fbbf24;--series-b:#93b4ff}}
+--accent:#93b4ff;--chip:#1b2233;--series-a:#fbbf24;--series-b:#93b4ff;--series-c:#4ade80}}
 *{box-sizing:border-box}
 body{margin:0;padding:2rem 1.5rem 4rem;background:var(--bg);color:var(--fg);
 font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -339,6 +339,9 @@ def write_report(
         # first -- who is ahead, on what, by how much -- and the numbers only
         # once something looks worth chasing.
         body.append(f"<h2>Synthesis · {_e(tech)}</h2>")
+        if not any("syn_lhd_verilog_usyn" in syn[k] for k in keys):
+            body.append('<p class="sub">USYN has not been measured on this host and technology; '
+                        'its columns are unmeasured. Results from other hosts are excluded.</p>')
         body.append(_synth_policy_note([r for k in keys for r in syn[k].values()]))
         data = _chart_data(
             keys, syn, base_syn, list(_SYN_FLOWS[1:]),
@@ -368,9 +371,15 @@ def write_report(
 
     body.append(_sta_section(rows, cfg))
 
+    simulation_start = len(body)
     if sim:
         keys = sorted(sim, key=lambda k: (k[1], k[2]))
         body.append("<h2>Simulation</h2>")
+        body.append('<p class="sub">Latest recorded measurements for Verilator, LiveHD Verilog '
+                    'and LiveHD Pyrope. Regenerating this report does not remeasure changed '
+                    'sources. Verilator execution targets 0.5–2 seconds per test. Execution '
+                    'speed is separate from host C++ compilation and '
+                    'front-end setup; checksum failures remain failed rows.</p>')
         data = _chart_data(
             keys, sim, base_sim, list(_SIM_FLOWS[1:]),
             [
@@ -384,6 +393,11 @@ def write_report(
         if data:
             body.append(_chart_block("chart-sim", data))
         body.append(_sim_table(None, keys, sim, base_sim, headline))
+
+    if sim and rcfg.get("simulation_first", False):
+        simulation = body[simulation_start:]
+        del body[simulation_start:]
+        body[1:1] = simulation
 
     if lec:
         # TWO DIFFERENT OBLIGATIONS, never mixed. `pyrope vs verilog` compares
@@ -590,8 +604,10 @@ aria-label="distribution of OpenTimer error against OpenSTA">
 than OpenSTA)</span><span>right = pessimistic</span></p>"""
 
 
-_SYN_FLOWS = ("syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope")
-_SYN_LABELS = ("yosys+slang+abc", "lhd·verilog", "lhd·pyrope")
+_SYN_FLOWS = (
+    "syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope", "syn_lhd_verilog_usyn",
+)
+_SYN_LABELS = ("yosys+slang+abc", "lhd·verilog·abc", "lhd·pyrope·abc", "lhd·verilog·usyn")
 
 
 def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
@@ -708,7 +724,8 @@ _SIM_LABELS = ("verilator", "lhd·verilog", "lhd·pyrope")
 
 
 def _sim_table(title, keys, index, base_flow, headline) -> str:
-    head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>']
+    head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>',
+            '<th rowspan="2">cycles</th>']
     for label in _SIM_LABELS:
         head.append(f'<th class="g" colspan="4">{_e(label)}</th>')
     head.append("</tr><tr>")
@@ -721,7 +738,9 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         _, test, config, _ = key
         flows = index[key]
         base = flows.get(base_flow, {})
-        cells = [f'<td class="l">{_e(test)} {_tags(flows)}</td><td class="l muted">{_e(config)}</td>']
+        cells = [f'<td class="l">{_e(test)} {_tags(flows)}</td>'
+                 f'<td class="l muted">{_e(config)}</td>',
+                 f'<td>{_fmt(base.get("sim", {}).get("cycles"))}</td>']
         for flow in _SIM_FLOWS:
             r = flows.get(flow)
             # Checksum disagreement fails the cross-simulator correctness gate,
@@ -730,12 +749,16 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
             # process/setup failure has no sim payload and remains blank.
             has_measurement = bool(r and r.get("sim", {}).get("exec_ms") is not None)
             if not r or (r.get("status") != "ok" and not has_measurement):
-                cells.append(f'<td class="muted g" colspan="4">{_e((r or {}).get("status", "—"))}</td>')
+                reason = _e(_problem_note(r or {}))
+                status = _e((r or {}).get("status", "—"))
+                cells.append(f'<td class="muted g" colspan="4" title="{reason}">{status}</td>')
                 continue
             t = r.get("time_ms", {})
             s = r.get("sim", {})
             rate = s.get("cycles_per_s", 0) / 1e6
             gate = ' <span class="tag">checksum</span>' if r.get("status") == "failed" else ""
+            if s.get("cycles") != base.get("sim", {}).get("cycles"):
+                gate += ' <span class="tag">cycles differ</span>'
             cells.append(
                 f'<td class="g">{_fmt(t.get("setup", 0)/1000, 1)}{gate}</td>'
                 f'<td>{_fmt(t.get("cc", 0)/1000, 1)}</td>'
@@ -754,7 +777,7 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
                         ratios[(flow, metric)].append(gain)
         body.append("<tr>" + "".join(cells) + "</tr>")
 
-    foot = ['<tr><td class="l" colspan="2">geomean vs verilator</td>']
+    foot = ['<tr><td class="l" colspan="3">geomean vs verilator</td>']
     for flow in _SIM_FLOWS:
         foot.append('<td class="g">' + _ratio(ratios[(flow, "setup")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "cc")]) + "</td>")
@@ -770,7 +793,7 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
 <tbody>{''.join(body)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
 <p class="sub muted">Ratios are <b>baseline &divide; measured</b>, so
 <b>higher is always better</b> — 2.00&times; means twice as fast.
-All three simulators fold the same checksum or the test fails.</p>
+Ratios require equal cycle counts. All three simulators fold the same checksum or the test fails.</p>
 """
 
 
@@ -825,6 +848,10 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
         return False
     if row.get("status") != "ok" or not base or base.get("status") != "ok":
         return False
+    if flow.startswith("sim_"):
+        cycles = base.get("sim", {}).get("cycles")
+        if cycles is None or row.get("sim", {}).get("cycles") != cycles:
+            return False
     if flow != pyrope_flow:
         return True
     return bool(row.get("comparable")) and row.get("pyrope_status", "none") in headline
@@ -1167,6 +1194,7 @@ _FLOW_SERIES = {
     "lec_lhd": ("lhd (cvc5)", "b"),
     "syn_lhd_verilog": ("lhd·verilog", "a"),
     "syn_lhd_pyrope": ("lhd·pyrope", "b"),
+    "syn_lhd_verilog_usyn": ("lhd·verilog·usyn", "c"),
     "sim_lhd_verilog": ("lhd·verilog", "a"),
     "sim_lhd_pyrope": ("lhd·pyrope", "b"),
 }
@@ -1190,7 +1218,11 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
             per_flow = {}
             for flow in flows:
                 r = by_flow.get(flow)
-                if r and r.get("status") == "ok":
+                same_workload = (not flow.startswith("sim_") or
+                                 (base.get("sim", {}).get("cycles") is not None and
+                                  (r or {}).get("sim", {}).get("cycles") ==
+                                  base.get("sim", {}).get("cycles")))
+                if r and r.get("status") == "ok" and same_workload:
                     gain = _gain(get(r), get(base))
                     if gain:
                         per_flow[flow] = round(gain, 4)
@@ -1260,7 +1292,7 @@ border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
 CHART_JS = r"""
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var COL = { a: 'var(--series-a)', b: 'var(--series-b)' };
+  var COL = { a: 'var(--series-a)', b: 'var(--series-b)', c: 'var(--series-c)' };
   // Only ratios that mean something get a gridline: 0.5x, 1x, 2x are readable
   // landmarks, 1.37x is noise.
   var GRID = [0.1, 0.2, 0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10];

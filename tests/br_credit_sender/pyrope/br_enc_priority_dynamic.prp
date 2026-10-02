@@ -1,54 +1,21 @@
 const br_enc_priority_encoder = import("br_enc_priority_encoder.br_enc_priority_encoder")
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-
 pub mod br_enc_priority_dynamic<NumRequesters=4, NumResults=4>::[timecheck=false](clk:Clock, `in`:U4, lowest_prio:U4, rst:Reset) -> (out:U16@[]) {
-  wire `out[0]`:U1 = nil
-  wire `out[1]`:U1 = nil
-  wire `out[2]`:U1 = nil
-  wire `out[3]`:U1 = nil
-  wire `out[4]`:U1 = nil
-  wire `out[5]`:U1 = nil
-  wire `out[6]`:U1 = nil
-  wire `out[7]`:U1 = nil
-  wire `out[8]`:U1 = nil
-  wire `out[9]`:U1 = nil
-  wire `out[10]`:U1 = nil
-  wire `out[11]`:U1 = nil
-  wire `out[12]`:U1 = nil
-  wire `out[13]`:U1 = nil
-  wire `out[14]`:U1 = nil
-  wire `out[15]`:U1 = nil
+  wire out_bits:U16 = nil
   wire out:U16 = nil
-  wire `priority_mask[0]`:U1 = nil
-  wire `priority_mask[1]`:U1 = nil
-  wire `priority_mask[2]`:U1 = nil
-  wire `priority_mask[3]`:U1 = nil
+  wire priority_mask_bits:U4 = nil
   wire priority_mask:U4 = nil
-  `priority_mask[0]` = U1(lowest_prio != 0) & 1
-  `priority_mask[1]` = U1(lowest_prio#[1..=3] != 0) & 1
-  `priority_mask[2]` = U1(lowest_prio#[2..=3] != 0) & 1
-  `priority_mask[3]` = U1(((lowest_prio >> 3) & 1) != 0) & 1
-  const in_high_prio__w1 = `in` & (~priority_mask)
-  const t25 = ((`in` & priority_mask) << 3) | in_high_prio__w1#[1..=3]
+  priority_mask_bits#[0] = U1(lowest_prio != 0) & 1
+  priority_mask_bits#[1] = U1(lowest_prio#[1..=3] != 0) & 1
+  priority_mask_bits#[2] = U1(lowest_prio#[2..=3] != 0) & 1
+  priority_mask_bits#[3] = U1(((lowest_prio >> 3) & 1) != 0) & 1
+  const in_high_prio = `in` & (~priority_mask)
+  const t25 = ((`in` & priority_mask) << 3) | in_high_prio#[1..=3]
   mut br_enc_priority_encoder_inst = br_enc_priority_encoder::[name=br_enc_priority_encoder_inst](clk=clk, rst=rst, `in.e6`=(t25 >> 6) & 1, `in.e5`=(t25 >> 5) & 1, `in.e4`=(t25 >> 4) & 1, `in.e3`=(t25 >> 3) & 1, `in.e2`=(t25 >> 2) & 1, `in.e1`=(t25 >> 1) & 1, `in.e0`=t25 & 1)
-  const out_internal__w1 = br_enc_priority_encoder_inst
-  br_misc_unused_p1::[name=br_misc_unused_in_high_prio_lsb](`in`=in_high_prio__w1 & 1)
-  `out[0]` = (out_internal__w1#[0..=6]#[3..=6] | (out_internal__w1#[0..=6]#[0..=2] << 1)) & 1
-  `out[1]` = ((out_internal__w1#[0..=6]#[3..=6] | (out_internal__w1#[0..=6]#[0..=2] << 1)) >> 1) & 1
-  `out[2]` = ((out_internal__w1#[0..=6]#[3..=6] | (out_internal__w1#[0..=6]#[0..=2] << 1)) >> 2) & 1
-  `out[3]` = ((out_internal__w1#[0..=6]#[3..=6] | (out_internal__w1#[0..=6]#[0..=2] << 1)) >> 3) & 1
-  `out[4]` = (out_internal__w1#[7..=13]#[3..=6] | (out_internal__w1#[7..=13]#[0..=2] << 1)) & 1
-  `out[5]` = ((out_internal__w1#[7..=13]#[3..=6] | (out_internal__w1#[7..=13]#[0..=2] << 1)) >> 1) & 1
-  `out[6]` = ((out_internal__w1#[7..=13]#[3..=6] | (out_internal__w1#[7..=13]#[0..=2] << 1)) >> 2) & 1
-  `out[7]` = ((out_internal__w1#[7..=13]#[3..=6] | (out_internal__w1#[7..=13]#[0..=2] << 1)) >> 3) & 1
-  `out[8]` = (out_internal__w1#[14..=20]#[3..=6] | (out_internal__w1#[14..=20]#[0..=2] << 1)) & 1
-  `out[9]` = ((out_internal__w1#[14..=20]#[3..=6] | (out_internal__w1#[14..=20]#[0..=2] << 1)) >> 1) & 1
-  `out[10]` = ((out_internal__w1#[14..=20]#[3..=6] | (out_internal__w1#[14..=20]#[0..=2] << 1)) >> 2) & 1
-  `out[11]` = ((out_internal__w1#[14..=20]#[3..=6] | (out_internal__w1#[14..=20]#[0..=2] << 1)) >> 3) & 1
-  `out[12]` = (out_internal__w1#[21..=27]#[3..=6] | (out_internal__w1#[21..=27]#[0..=2] << 1)) & 1
-  `out[13]` = ((out_internal__w1#[21..=27]#[3..=6] | (out_internal__w1#[21..=27]#[0..=2] << 1)) >> 1) & 1
-  `out[14]` = ((out_internal__w1#[21..=27]#[3..=6] | (out_internal__w1#[21..=27]#[0..=2] << 1)) >> 2) & 1
-  `out[15]` = ((out_internal__w1#[21..=27]#[3..=6] | (out_internal__w1#[21..=27]#[0..=2] << 1)) >> 3) & 1
-  out = (`out[15]` << 15) | (`out[14]` << 14) | (`out[13]` << 13) | (`out[12]` << 12) | (`out[11]` << 11) | (`out[10]` << 10) | (`out[9]` << 9) | (`out[8]` << 8) | (`out[7]` << 7) | (`out[6]` << 6) | (`out[5]` << 5) | (`out[4]` << 4) | (`out[3]` << 3) | (`out[2]` << 2) | (`out[1]` << 1) | `out[0]`
-  priority_mask = (`priority_mask[3]` << 3) | (`priority_mask[2]` << 2) | (`priority_mask[1]` << 1) | `priority_mask[0]`
+  const out_internal = br_enc_priority_encoder_inst
+  out_bits#[0..<4] = (out_internal#[0..=6]#[3..=6] | (out_internal#[0..=6]#[0..=2] << 1))#[0..<4]
+  out_bits#[4..<8] = (out_internal#[7..=13]#[3..=6] | (out_internal#[7..=13]#[0..=2] << 1))#[0..<4]
+  out_bits#[8..<12] = (out_internal#[14..=20]#[3..=6] | (out_internal#[14..=20]#[0..=2] << 1))#[0..<4]
+  out_bits#[12..<16] = (out_internal#[21..=27]#[3..=6] | (out_internal#[21..=27]#[0..=2] << 1))#[0..<4]
+  out = out_bits
+  priority_mask = priority_mask_bits
 }

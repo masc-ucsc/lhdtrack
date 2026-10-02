@@ -1,20 +1,12 @@
-const br_flow_checks_valid_data_impl_t = import("br_flow_checks_valid_data_impl.br_flow_checks_valid_data_impl")
-const br_flow_checks_valid_data_intg_t = import("br_flow_checks_valid_data_intg.br_flow_checks_valid_data_intg")
-
-pub mod br_flow_reg_fwd::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
-  reg pop_valid:U1:[async=false, initial=0, reset_pin=rst]
-  reg pop_data:U32
-  mut _b2i_1 = if pop_ready != 0 or pop_valid == 0 { 1 } else { 0 }
-  const push_ready__w1 = _b2i_1
-  mut _b2i_2 = if push_valid != 0 or push_ready__w1 == 0 { 1 } else { 0 }
-  if not (rst != 0) {
-    pop_valid = _b2i_2
-  }
-  mut _b2i_3 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
-  if _b2i_3 != 0 {
+// Forward register: accept a beat whenever empty or the consumer is ready.
+// Payload is unreset and still captures during reset when a beat is accepted.
+pub mod br_flow_reg_fwd(clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
+  reg pop_valid:U1:[reset_pin=rst] = 0
+  reg pop_data:U32 = nil
+  const ready = pop_ready != 0 or pop_valid == 0
+  push_ready = U1(ready)
+  pop_valid = U1(push_valid != 0 or not ready)
+  if ready and push_valid != 0 {
     pop_data = push_data
   }
-  br_flow_checks_valid_data_impl_t::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=pop_valid, ready=pop_ready, data=pop_data)
-  br_flow_checks_valid_data_intg_t::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
-  push_ready = push_ready__w1
 }

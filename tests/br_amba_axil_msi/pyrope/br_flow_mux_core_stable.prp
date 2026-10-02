@@ -1,4 +1,3 @@
-const br_flow_checks_valid_data_impl_p2 = import("br_flow_checks_valid_data_impl_p2.br_flow_checks_valid_data_impl_p2")
 const br_flow_mux_core_t = import("br_flow_mux_core.br_flow_mux_core")
 const br_flow_reg_both = import("br_flow_reg_both.br_flow_reg_both")
 
@@ -7,7 +6,6 @@ pub mod br_flow_mux_core_stable<NumFlows=4, Width=33, RegisterPopReady=1, Enable
   mut br_flow_mux_core = br_flow_mux_core_t::[name=br_flow_mux_core](clk=clk, rst=rst, can_grant=can_grant, grant=grant, push_valid=push_valid, push_data=push_data, pop_ready=internal_pop_ready)
   mut gen_flow_reg_both_br_flow_reg_both = br_flow_reg_both::[name=gen_flow_reg_both_br_flow_reg_both](clk=clk, rst=rst, push_valid=br_flow_mux_core.pop_valid_unstable, push_data=br_flow_mux_core.pop_data_unstable, pop_ready=pop_ready)
   internal_pop_ready = gen_flow_reg_both_br_flow_reg_both.push_ready
-  br_flow_checks_valid_data_impl_p2::[name=br_flow_checks_valid_data_impl](clk=clk, rst=rst, valid=gen_flow_reg_both_br_flow_reg_both.pop_valid, ready=pop_ready, data=gen_flow_reg_both_br_flow_reg_both.pop_data)
   request = br_flow_mux_core.request
   enable_priority_update = br_flow_mux_core.enable_priority_update
   push_ready = br_flow_mux_core.push_ready

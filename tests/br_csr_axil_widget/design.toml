@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_csr_axil_widget#<id>`.
 [[config]]
 id     = "aw16_dw32_mtc100_rcro0_rro0"
-sim_checksum = { cycles = 14500000, value = "13484450357068250097" }
+sim_checksum = { cycles = 21276596, value = "1924993957221816739" }
 # NO PARAMETERS. verilog/br_csr_axil_widget.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -41,10 +41,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 14500000
+cycles = 21276596
 marker = "LHDTRACK-DONE"
 
 [lec]

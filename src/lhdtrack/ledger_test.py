@@ -57,6 +57,30 @@ class LatestRowsTest(unittest.TestCase):
         self.assertEqual({r["test"] for r in rows}, {"a", "b", "c"})
         self.assertEqual(next(r for r in rows if r["test"] == "b")["status"], "failed")
 
+    def test_focused_fixture_replaces_its_old_skipped_configuration(self):
+        self.add("01", ["a", "b", "fixture"])
+        self.ledger.append({"host": "host1", "run_id": "02"}, [
+            {"test": "fixture", "config": "five_lanes", "flow": "syn_lhd_verilog",
+             "tech": "asap7", "status": "ok"},
+        ])
+        rows = self.ledger.latest_rows("host1")
+        self.assertEqual(len(rows), 3)
+        self.assertEqual([r["config"] for r in rows if r["test"] == "fixture"],
+                         ["five_lanes"])
+
+    def test_one_configuration_rerun_preserves_the_other_configuration(self):
+        self.ledger.append({"host": "host1", "run_id": "01"}, [
+            {"test": "fixture", "config": config, "flow": "syn_lhd_verilog",
+             "tech": "asap7", "status": "ok"} for config in ("small", "large")
+        ])
+        self.ledger.append({"host": "host1", "run_id": "02"}, [
+            {"test": "fixture", "config": "small", "flow": "syn_lhd_verilog",
+             "tech": "asap7", "status": "failed"},
+        ])
+        rows = self.ledger.latest_rows("host1")
+        self.assertEqual({r["config"] for r in rows}, {"small", "large"})
+        self.assertEqual(next(r for r in rows if r["config"] == "small")["status"], "failed")
+
     def test_hosts_remain_independent_when_loading_all(self):
         self.add("01", ["a", "b"], host="host1")
         self.add("02", ["a", "b", "c"], host="host2")

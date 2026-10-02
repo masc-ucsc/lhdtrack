@@ -1,7 +1,7 @@
 // One-entry skid buffer: register backpressure and retain the stalled beat.
 // Data is deliberately unreset, including a capture during reset if stalled.
 pub mod br_flow_reg_rev(clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, rst:U1) -> (pop_data:U32@[0], pop_valid:U1@[0], push_ready:U1@[0]) {
-  reg ready:Bool:[reset_pin=rst != 0] = true
+  reg ready:Bool:[reset_pin=rst] = true
   reg reg_data:U32 = nil
   push_ready = U1(ready)
   pop_valid = U1(not ready or push_valid != 0)

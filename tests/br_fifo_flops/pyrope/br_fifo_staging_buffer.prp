@@ -1,32 +1,25 @@
 const br_counter_p1 = import("br_counter_p1.br_counter_p1")
 const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 const br_misc_tieoff_zero = import("br_misc_tieoff_zero.br_misc_tieoff_zero")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-
 pub mod br_fifo_staging_buffer<EnableBypass=0, TotalDepth=16, RamReadLatency=0, BufferDepth=1, Width=0x40, RegisterPopOutputs=1, TotalItemsIncludesStaged=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableCoverSameCycleReadIssueAndReturn=1, EnableCoverBypassAndReadDataSameCycle=1>::[timecheck=false](bypass_data_unstable:U64, bypass_valid_unstable:U1, clk:Clock, pop_ready:U1, ram_rd_addr_ready:U1, ram_rd_data:U64, ram_rd_data_valid:U1, rst:U1, total_items:U5) -> (bypass_ready:U1@[], pop_data:U64@[], pop_empty:U1@[], pop_valid:U1@[], ram_rd_addr_valid:U1@[]) {
   reg pop_empty:U1:[async=false, initial=1, reset_pin=rst]
   wire staged_items:U1 = nil
   wire pop_valid:U1 = nil
   mut _b2i_1 = if pop_valid != 0 and pop_ready != 0 { 1 } else { 0 }
-  const pop_beat__w1 = _b2i_1
+  const pop_beat = _b2i_1
   mut _b2i_2 = if staged_items < BufferDepth or pop_ready != 0 { 1 } else { 0 }
   mut gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready = br_misc_tieoff_zero::[name=gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready]()
   const bypass_ready__w1 = gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready
   mut gen_pop_reg_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_br_flow_reg_fwd](clk=clk, rst=rst, push_valid=ram_rd_data_valid, push_data=ram_rd_data, pop_ready=pop_ready)
   pop_valid = gen_pop_reg_br_flow_reg_fwd.pop_valid
-  br_misc_unused::[name=gen_pop_reg_br_misc_unused_internal_pop_valid_nonbypass](`in`=ram_rd_data_valid)
-  br_misc_unused::[name=gen_zero_lat_space_available_br_misc_unused_pop_valid_nonbypass](`in`=pop_valid)
   mut _b2i_5 = if _b2i_2 != 0 and U1(staged_items < total_items) != 0 and bypass_ready__w1 == 0 { 1 } else { 0 }
   const ram_rd_addr_valid__w1 = _b2i_5
   mut _b2i_6 = if ram_rd_addr_valid__w1 != 0 and ram_rd_addr_ready != 0 { 1 } else { 0 }
-  const staged_items_incr__w1 = _b2i_6
-  br_misc_unused_p2::[name=gen_no_bypass_push_br_misc_unused_bypass_inputs](`in`=((U1(bypass_valid_unstable != 0 and bypass_ready__w1 != 0) & 1) << 65) | ((bypass_valid_unstable & 1) << 64) | bypass_data_unstable)
-  br_misc_unused::[name=gen_no_buffer_br_misc_unused_internal_pop_ready](`in`=gen_pop_reg_br_flow_reg_fwd.push_ready)
-  mut br_counter_staged_items = br_counter_p1::[name=br_counter_staged_items](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=staged_items_incr__w1, incr=1, decr_valid=pop_beat__w1, decr=1)
+  const staged_items_incr = _b2i_6
+  mut br_counter_staged_items = br_counter_p1::[name=br_counter_staged_items](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=staged_items_incr, incr=1, decr_valid=pop_beat, decr=1)
   staged_items = br_counter_staged_items.value
   if not (rst != 0) {
-    if staged_items_incr__w1 != 0 or pop_beat__w1 != 0 {
+    if staged_items_incr != 0 or pop_beat != 0 {
       pop_empty = U1(br_counter_staged_items.value_next == 0)
     }
   }

@@ -10,185 +10,43 @@ pub mod br_tracker_freelist<NumEntries=32, NumAllocPerCycle=2, NumDeallocPorts=2
   wire `push_entry_id_valid[0]`:U1 = nil
   wire `push_entry_id_valid[1]`:U1 = nil
   wire push_entry_id_valid:U2 = nil
-  wire `push_entry_id[0]`:U1 = nil
-  wire `push_entry_id[1]`:U1 = nil
-  wire `push_entry_id[2]`:U1 = nil
-  wire `push_entry_id[3]`:U1 = nil
-  wire `push_entry_id[4]`:U1 = nil
-  wire `push_entry_id[5]`:U1 = nil
-  wire `push_entry_id[6]`:U1 = nil
-  wire `push_entry_id[7]`:U1 = nil
-  wire `push_entry_id[8]`:U1 = nil
-  wire `push_entry_id[9]`:U1 = nil
+  wire push_entry_id_bits:U10 = nil
   wire push_entry_id:U10 = nil
   wire `push_receivable_decoded[0]`:U1 = nil
   wire `push_receivable_decoded[1]`:U1 = nil
-  wire `dealloc_entry_id_onehot[0]`:U1 = nil
-  wire `dealloc_entry_id_onehot[1]`:U1 = nil
-  wire `dealloc_entry_id_onehot[2]`:U1 = nil
-  wire `dealloc_entry_id_onehot[3]`:U1 = nil
-  wire `dealloc_entry_id_onehot[4]`:U1 = nil
-  wire `dealloc_entry_id_onehot[5]`:U1 = nil
-  wire `dealloc_entry_id_onehot[6]`:U1 = nil
-  wire `dealloc_entry_id_onehot[7]`:U1 = nil
-  wire `dealloc_entry_id_onehot[8]`:U1 = nil
-  wire `dealloc_entry_id_onehot[9]`:U1 = nil
-  wire `dealloc_entry_id_onehot[10]`:U1 = nil
-  wire `dealloc_entry_id_onehot[11]`:U1 = nil
-  wire `dealloc_entry_id_onehot[12]`:U1 = nil
-  wire `dealloc_entry_id_onehot[13]`:U1 = nil
-  wire `dealloc_entry_id_onehot[14]`:U1 = nil
-  wire `dealloc_entry_id_onehot[15]`:U1 = nil
-  wire `dealloc_entry_id_onehot[16]`:U1 = nil
-  wire `dealloc_entry_id_onehot[17]`:U1 = nil
-  wire `dealloc_entry_id_onehot[18]`:U1 = nil
-  wire `dealloc_entry_id_onehot[19]`:U1 = nil
-  wire `dealloc_entry_id_onehot[20]`:U1 = nil
-  wire `dealloc_entry_id_onehot[21]`:U1 = nil
-  wire `dealloc_entry_id_onehot[22]`:U1 = nil
-  wire `dealloc_entry_id_onehot[23]`:U1 = nil
-  wire `dealloc_entry_id_onehot[24]`:U1 = nil
-  wire `dealloc_entry_id_onehot[25]`:U1 = nil
-  wire `dealloc_entry_id_onehot[26]`:U1 = nil
-  wire `dealloc_entry_id_onehot[27]`:U1 = nil
-  wire `dealloc_entry_id_onehot[28]`:U1 = nil
-  wire `dealloc_entry_id_onehot[29]`:U1 = nil
-  wire `dealloc_entry_id_onehot[30]`:U1 = nil
-  wire `dealloc_entry_id_onehot[31]`:U1 = nil
-  wire `dealloc_entry_id_onehot[32]`:U1 = nil
-  wire `dealloc_entry_id_onehot[33]`:U1 = nil
-  wire `dealloc_entry_id_onehot[34]`:U1 = nil
-  wire `dealloc_entry_id_onehot[35]`:U1 = nil
-  wire `dealloc_entry_id_onehot[36]`:U1 = nil
-  wire `dealloc_entry_id_onehot[37]`:U1 = nil
-  wire `dealloc_entry_id_onehot[38]`:U1 = nil
-  wire `dealloc_entry_id_onehot[39]`:U1 = nil
-  wire `dealloc_entry_id_onehot[40]`:U1 = nil
-  wire `dealloc_entry_id_onehot[41]`:U1 = nil
-  wire `dealloc_entry_id_onehot[42]`:U1 = nil
-  wire `dealloc_entry_id_onehot[43]`:U1 = nil
-  wire `dealloc_entry_id_onehot[44]`:U1 = nil
-  wire `dealloc_entry_id_onehot[45]`:U1 = nil
-  wire `dealloc_entry_id_onehot[46]`:U1 = nil
-  wire `dealloc_entry_id_onehot[47]`:U1 = nil
-  wire `dealloc_entry_id_onehot[48]`:U1 = nil
-  wire `dealloc_entry_id_onehot[49]`:U1 = nil
-  wire `dealloc_entry_id_onehot[50]`:U1 = nil
-  wire `dealloc_entry_id_onehot[51]`:U1 = nil
-  wire `dealloc_entry_id_onehot[52]`:U1 = nil
-  wire `dealloc_entry_id_onehot[53]`:U1 = nil
-  wire `dealloc_entry_id_onehot[54]`:U1 = nil
-  wire `dealloc_entry_id_onehot[55]`:U1 = nil
-  wire `dealloc_entry_id_onehot[56]`:U1 = nil
-  wire `dealloc_entry_id_onehot[57]`:U1 = nil
-  wire `dealloc_entry_id_onehot[58]`:U1 = nil
-  wire `dealloc_entry_id_onehot[59]`:U1 = nil
-  wire `dealloc_entry_id_onehot[60]`:U1 = nil
-  wire `dealloc_entry_id_onehot[61]`:U1 = nil
-  wire `dealloc_entry_id_onehot[62]`:U1 = nil
-  wire `dealloc_entry_id_onehot[63]`:U1 = nil
+  wire dealloc_entry_id_onehot_bits:U64 = nil
   mut unstaged_free_entries_clear:U32 = 0sb?
-  const priority_encoder_in__w1 = unstaged_free_entries
-  mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e31`=(priority_encoder_in__w1 >> 31) & 1, `in.e30`=(priority_encoder_in__w1 >> 30) & 1, `in.e29`=(priority_encoder_in__w1 >> 29) & 1, `in.e28`=(priority_encoder_in__w1 >> 28) & 1, `in.e27`=(priority_encoder_in__w1 >> 27) & 1, `in.e26`=(priority_encoder_in__w1 >> 26) & 1, `in.e25`=(priority_encoder_in__w1 >> 25) & 1, `in.e24`=(priority_encoder_in__w1 >> 24) & 1, `in.e23`=(priority_encoder_in__w1 >> 23) & 1, `in.e22`=(priority_encoder_in__w1 >> 22) & 1, `in.e21`=(priority_encoder_in__w1 >> 21) & 1, `in.e20`=(priority_encoder_in__w1 >> 20) & 1, `in.e19`=(priority_encoder_in__w1 >> 19) & 1, `in.e18`=(priority_encoder_in__w1 >> 18) & 1, `in.e17`=(priority_encoder_in__w1 >> 17) & 1, `in.e16`=(priority_encoder_in__w1 >> 16) & 1, `in.e15`=(priority_encoder_in__w1 >> 15) & 1, `in.e14`=(priority_encoder_in__w1 >> 14) & 1, `in.e13`=(priority_encoder_in__w1 >> 13) & 1, `in.e12`=(priority_encoder_in__w1 >> 12) & 1, `in.e11`=(priority_encoder_in__w1 >> 11) & 1, `in.e10`=(priority_encoder_in__w1 >> 10) & 1, `in.e9`=(priority_encoder_in__w1 >> 9) & 1, `in.e8`=(priority_encoder_in__w1 >> 8) & 1, `in.e7`=(priority_encoder_in__w1 >> 7) & 1, `in.e6`=(priority_encoder_in__w1 >> 6) & 1, `in.e5`=(priority_encoder_in__w1 >> 5) & 1, `in.e4`=(priority_encoder_in__w1 >> 4) & 1, `in.e3`=(priority_encoder_in__w1 >> 3) & 1, `in.e2`=(priority_encoder_in__w1 >> 2) & 1, `in.e1`=(priority_encoder_in__w1 >> 1) & 1, `in.e0`=priority_encoder_in__w1 & 1)
-  const push_entry_id_onehot__w1 = br_enc_priority_encoder_free_entries
-  mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot__w1#[0..=31])
+  const priority_encoder_in = unstaged_free_entries
+  mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e31`=(priority_encoder_in >> 31) & 1, `in.e30`=(priority_encoder_in >> 30) & 1, `in.e29`=(priority_encoder_in >> 29) & 1, `in.e28`=(priority_encoder_in >> 28) & 1, `in.e27`=(priority_encoder_in >> 27) & 1, `in.e26`=(priority_encoder_in >> 26) & 1, `in.e25`=(priority_encoder_in >> 25) & 1, `in.e24`=(priority_encoder_in >> 24) & 1, `in.e23`=(priority_encoder_in >> 23) & 1, `in.e22`=(priority_encoder_in >> 22) & 1, `in.e21`=(priority_encoder_in >> 21) & 1, `in.e20`=(priority_encoder_in >> 20) & 1, `in.e19`=(priority_encoder_in >> 19) & 1, `in.e18`=(priority_encoder_in >> 18) & 1, `in.e17`=(priority_encoder_in >> 17) & 1, `in.e16`=(priority_encoder_in >> 16) & 1, `in.e15`=(priority_encoder_in >> 15) & 1, `in.e14`=(priority_encoder_in >> 14) & 1, `in.e13`=(priority_encoder_in >> 13) & 1, `in.e12`=(priority_encoder_in >> 12) & 1, `in.e11`=(priority_encoder_in >> 11) & 1, `in.e10`=(priority_encoder_in >> 10) & 1, `in.e9`=(priority_encoder_in >> 9) & 1, `in.e8`=(priority_encoder_in >> 8) & 1, `in.e7`=(priority_encoder_in >> 7) & 1, `in.e6`=(priority_encoder_in >> 6) & 1, `in.e5`=(priority_encoder_in >> 5) & 1, `in.e4`=(priority_encoder_in >> 4) & 1, `in.e3`=(priority_encoder_in >> 3) & 1, `in.e2`=(priority_encoder_in >> 2) & 1, `in.e1`=(priority_encoder_in >> 1) & 1, `in.e0`=priority_encoder_in & 1)
+  const push_entry_id_onehot = br_enc_priority_encoder_free_entries
+  mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot#[0..=31])
   `push_entry_id_valid[0]` = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out_valid & 1
-  `push_entry_id[0]` = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out & 1
-  `push_entry_id[1]` = (gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out >> 1) & 1
-  `push_entry_id[2]` = (gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out >> 2) & 1
-  `push_entry_id[3]` = (gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out >> 3) & 1
-  `push_entry_id[4]` = (gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out >> 4) & 1
-  mut gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot__w1#[32..=63])
+  push_entry_id_bits#[0..<5] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out#[0..<5]
+  mut gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot#[32..=63])
   `push_entry_id_valid[1]` = gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out_valid & 1
-  `push_entry_id[5]` = gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out & 1
-  `push_entry_id[6]` = (gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out >> 1) & 1
-  `push_entry_id[7]` = (gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out >> 2) & 1
-  `push_entry_id[8]` = (gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out >> 3) & 1
-  `push_entry_id[9]` = (gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out >> 4) & 1
+  push_entry_id_bits#[5..<10] = gen_push_entry_id_1_br_enc_onehot2bin_push_entry_id.out#[0..<5]
   mut gen_multi_alloc_ports_br_enc_countones_push_sendable = br_enc_countones::[name=gen_multi_alloc_ports_br_enc_countones_push_sendable](`in`=push_entry_id_valid)
   mut gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd = br_multi_xfer_reg_fwd::[name=gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd](clk=clk, rst=rst, push_sendable=gen_multi_alloc_ports_br_enc_countones_push_sendable, push_data=push_entry_id, pop_receivable=alloc_receivable)
   `push_receivable_decoded[0]` = U1(gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd.push_receivable > 0) & 1
   `push_receivable_decoded[1]` = U1(gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd.push_receivable > 1) & 1
-  unstaged_free_entries_clear = if (`push_receivable_decoded[0]` & 1) != 0 { 0 | push_entry_id_onehot__w1#[0..=31] } else { 0 }
+  unstaged_free_entries_clear = if (`push_receivable_decoded[0]` & 1) != 0 { 0 | push_entry_id_onehot#[0..=31] } else { 0 }
   if (`push_receivable_decoded[1]` & 1) != 0 {
-    unstaged_free_entries_clear = unstaged_free_entries_clear | push_entry_id_onehot__w1#[32..=63]
+    unstaged_free_entries_clear = unstaged_free_entries_clear | push_entry_id_onehot#[32..=63]
   }
   mut gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id = br_enc_bin2onehot::[name=gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id](clk=clk, rst=rst, `in`=dealloc_entry_id#[0..=4], in_valid=dealloc_valid.e0)
-  `dealloc_entry_id_onehot[0]` = gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id & 1
-  `dealloc_entry_id_onehot[1]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 1) & 1
-  `dealloc_entry_id_onehot[2]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 2) & 1
-  `dealloc_entry_id_onehot[3]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 3) & 1
-  `dealloc_entry_id_onehot[4]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 4) & 1
-  `dealloc_entry_id_onehot[5]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 5) & 1
-  `dealloc_entry_id_onehot[6]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 6) & 1
-  `dealloc_entry_id_onehot[7]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 7) & 1
-  `dealloc_entry_id_onehot[8]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 8) & 1
-  `dealloc_entry_id_onehot[9]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 9) & 1
-  `dealloc_entry_id_onehot[10]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 10) & 1
-  `dealloc_entry_id_onehot[11]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 11) & 1
-  `dealloc_entry_id_onehot[12]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 12) & 1
-  `dealloc_entry_id_onehot[13]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 13) & 1
-  `dealloc_entry_id_onehot[14]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 14) & 1
-  `dealloc_entry_id_onehot[15]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 15) & 1
-  `dealloc_entry_id_onehot[16]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 16) & 1
-  `dealloc_entry_id_onehot[17]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 17) & 1
-  `dealloc_entry_id_onehot[18]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 18) & 1
-  `dealloc_entry_id_onehot[19]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 19) & 1
-  `dealloc_entry_id_onehot[20]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 20) & 1
-  `dealloc_entry_id_onehot[21]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 21) & 1
-  `dealloc_entry_id_onehot[22]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 22) & 1
-  `dealloc_entry_id_onehot[23]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 23) & 1
-  `dealloc_entry_id_onehot[24]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 24) & 1
-  `dealloc_entry_id_onehot[25]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 25) & 1
-  `dealloc_entry_id_onehot[26]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 26) & 1
-  `dealloc_entry_id_onehot[27]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 27) & 1
-  `dealloc_entry_id_onehot[28]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 28) & 1
-  `dealloc_entry_id_onehot[29]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 29) & 1
-  `dealloc_entry_id_onehot[30]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 30) & 1
-  `dealloc_entry_id_onehot[31]` = (gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id >> 31) & 1
+  dealloc_entry_id_onehot_bits#[0..<32] = gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id#[0..<32]
   mut gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id = br_enc_bin2onehot::[name=gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id](clk=clk, rst=rst, `in`=dealloc_entry_id#[5..=9], in_valid=dealloc_valid.e1)
-  `dealloc_entry_id_onehot[32]` = gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id & 1
-  `dealloc_entry_id_onehot[33]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 1) & 1
-  `dealloc_entry_id_onehot[34]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 2) & 1
-  `dealloc_entry_id_onehot[35]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 3) & 1
-  `dealloc_entry_id_onehot[36]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 4) & 1
-  `dealloc_entry_id_onehot[37]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 5) & 1
-  `dealloc_entry_id_onehot[38]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 6) & 1
-  `dealloc_entry_id_onehot[39]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 7) & 1
-  `dealloc_entry_id_onehot[40]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 8) & 1
-  `dealloc_entry_id_onehot[41]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 9) & 1
-  `dealloc_entry_id_onehot[42]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 10) & 1
-  `dealloc_entry_id_onehot[43]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 11) & 1
-  `dealloc_entry_id_onehot[44]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 12) & 1
-  `dealloc_entry_id_onehot[45]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 13) & 1
-  `dealloc_entry_id_onehot[46]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 14) & 1
-  `dealloc_entry_id_onehot[47]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 15) & 1
-  `dealloc_entry_id_onehot[48]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 16) & 1
-  `dealloc_entry_id_onehot[49]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 17) & 1
-  `dealloc_entry_id_onehot[50]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 18) & 1
-  `dealloc_entry_id_onehot[51]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 19) & 1
-  `dealloc_entry_id_onehot[52]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 20) & 1
-  `dealloc_entry_id_onehot[53]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 21) & 1
-  `dealloc_entry_id_onehot[54]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 22) & 1
-  `dealloc_entry_id_onehot[55]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 23) & 1
-  `dealloc_entry_id_onehot[56]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 24) & 1
-  `dealloc_entry_id_onehot[57]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 25) & 1
-  `dealloc_entry_id_onehot[58]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 26) & 1
-  `dealloc_entry_id_onehot[59]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 27) & 1
-  `dealloc_entry_id_onehot[60]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 28) & 1
-  `dealloc_entry_id_onehot[61]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 29) & 1
-  `dealloc_entry_id_onehot[62]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 30) & 1
-  `dealloc_entry_id_onehot[63]` = (gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id >> 31) & 1
+  dealloc_entry_id_onehot_bits#[32..<64] = gen_dealloc_entry_id_onehot_1_br_enc_bin2onehot_dealloc_entry_id#[0..<32]
   mut br_enc_countones_dealloc_count = br_enc_countones::[name=br_enc_countones_dealloc_count](`in`=(dealloc_valid.e1 << 1) | dealloc_valid.e0)
   mut br_delay_dealloc_count = br_delay::[name=br_delay_dealloc_count](clk=clk, rst=rst, `in`=br_enc_countones_dealloc_count)
-  const unstaged_free_entries_next__w1 = (unstaged_free_entries | ((0 | ((`dealloc_entry_id_onehot[31]` << 31) | (`dealloc_entry_id_onehot[30]` << 30) | (`dealloc_entry_id_onehot[29]` << 29) | (`dealloc_entry_id_onehot[28]` << 28) | (`dealloc_entry_id_onehot[27]` << 27) | (`dealloc_entry_id_onehot[26]` << 26) | (`dealloc_entry_id_onehot[25]` << 25) | (`dealloc_entry_id_onehot[24]` << 24) | (`dealloc_entry_id_onehot[23]` << 23) | (`dealloc_entry_id_onehot[22]` << 22) | (`dealloc_entry_id_onehot[21]` << 21) | (`dealloc_entry_id_onehot[20]` << 20) | (`dealloc_entry_id_onehot[19]` << 19) | (`dealloc_entry_id_onehot[18]` << 18) | (`dealloc_entry_id_onehot[17]` << 17) | (`dealloc_entry_id_onehot[16]` << 16) | (`dealloc_entry_id_onehot[15]` << 15) | (`dealloc_entry_id_onehot[14]` << 14) | (`dealloc_entry_id_onehot[13]` << 13) | (`dealloc_entry_id_onehot[12]` << 12) | (`dealloc_entry_id_onehot[11]` << 11) | (`dealloc_entry_id_onehot[10]` << 10) | (`dealloc_entry_id_onehot[9]` << 9) | (`dealloc_entry_id_onehot[8]` << 8) | (`dealloc_entry_id_onehot[7]` << 7) | (`dealloc_entry_id_onehot[6]` << 6) | (`dealloc_entry_id_onehot[5]` << 5) | (`dealloc_entry_id_onehot[4]` << 4) | (`dealloc_entry_id_onehot[3]` << 3) | (`dealloc_entry_id_onehot[2]` << 2) | (`dealloc_entry_id_onehot[1]` << 1) | `dealloc_entry_id_onehot[0]`)) | ((`dealloc_entry_id_onehot[63]` << 31) | (`dealloc_entry_id_onehot[62]` << 30) | (`dealloc_entry_id_onehot[61]` << 29) | (`dealloc_entry_id_onehot[60]` << 28) | (`dealloc_entry_id_onehot[59]` << 27) | (`dealloc_entry_id_onehot[58]` << 26) | (`dealloc_entry_id_onehot[57]` << 25) | (`dealloc_entry_id_onehot[56]` << 24) | (`dealloc_entry_id_onehot[55]` << 23) | (`dealloc_entry_id_onehot[54]` << 22) | (`dealloc_entry_id_onehot[53]` << 21) | (`dealloc_entry_id_onehot[52]` << 20) | (`dealloc_entry_id_onehot[51]` << 19) | (`dealloc_entry_id_onehot[50]` << 18) | (`dealloc_entry_id_onehot[49]` << 17) | (`dealloc_entry_id_onehot[48]` << 16) | (`dealloc_entry_id_onehot[47]` << 15) | (`dealloc_entry_id_onehot[46]` << 14) | (`dealloc_entry_id_onehot[45]` << 13) | (`dealloc_entry_id_onehot[44]` << 12) | (`dealloc_entry_id_onehot[43]` << 11) | (`dealloc_entry_id_onehot[42]` << 10) | (`dealloc_entry_id_onehot[41]` << 9) | (`dealloc_entry_id_onehot[40]` << 8) | (`dealloc_entry_id_onehot[39]` << 7) | (`dealloc_entry_id_onehot[38]` << 6) | (`dealloc_entry_id_onehot[37]` << 5) | (`dealloc_entry_id_onehot[36]` << 4) | (`dealloc_entry_id_onehot[35]` << 3) | (`dealloc_entry_id_onehot[34]` << 2) | (`dealloc_entry_id_onehot[33]` << 1) | `dealloc_entry_id_onehot[32]`))) & (~unstaged_free_entries_clear)
+  const unstaged_free_entries_next = (unstaged_free_entries | ((0 | ((dealloc_entry_id_onehot_bits#[31] << 31) | (dealloc_entry_id_onehot_bits#[30] << 30) | (dealloc_entry_id_onehot_bits#[29] << 29) | (dealloc_entry_id_onehot_bits#[28] << 28) | (dealloc_entry_id_onehot_bits#[27] << 27) | (dealloc_entry_id_onehot_bits#[26] << 26) | (dealloc_entry_id_onehot_bits#[25] << 25) | (dealloc_entry_id_onehot_bits#[24] << 24) | (dealloc_entry_id_onehot_bits#[23] << 23) | (dealloc_entry_id_onehot_bits#[22] << 22) | (dealloc_entry_id_onehot_bits#[21] << 21) | (dealloc_entry_id_onehot_bits#[20] << 20) | (dealloc_entry_id_onehot_bits#[19] << 19) | (dealloc_entry_id_onehot_bits#[18] << 18) | (dealloc_entry_id_onehot_bits#[17] << 17) | (dealloc_entry_id_onehot_bits#[16] << 16) | (dealloc_entry_id_onehot_bits#[15] << 15) | (dealloc_entry_id_onehot_bits#[14] << 14) | (dealloc_entry_id_onehot_bits#[13] << 13) | (dealloc_entry_id_onehot_bits#[12] << 12) | (dealloc_entry_id_onehot_bits#[11] << 11) | (dealloc_entry_id_onehot_bits#[10] << 10) | (dealloc_entry_id_onehot_bits#[9] << 9) | (dealloc_entry_id_onehot_bits#[8] << 8) | (dealloc_entry_id_onehot_bits#[7] << 7) | (dealloc_entry_id_onehot_bits#[6] << 6) | (dealloc_entry_id_onehot_bits#[5] << 5) | (dealloc_entry_id_onehot_bits#[4] << 4) | (dealloc_entry_id_onehot_bits#[3] << 3) | (dealloc_entry_id_onehot_bits#[2] << 2) | (dealloc_entry_id_onehot_bits#[1] << 1) | dealloc_entry_id_onehot_bits#[0])) | ((dealloc_entry_id_onehot_bits#[63] << 31) | (dealloc_entry_id_onehot_bits#[62] << 30) | (dealloc_entry_id_onehot_bits#[61] << 29) | (dealloc_entry_id_onehot_bits#[60] << 28) | (dealloc_entry_id_onehot_bits#[59] << 27) | (dealloc_entry_id_onehot_bits#[58] << 26) | (dealloc_entry_id_onehot_bits#[57] << 25) | (dealloc_entry_id_onehot_bits#[56] << 24) | (dealloc_entry_id_onehot_bits#[55] << 23) | (dealloc_entry_id_onehot_bits#[54] << 22) | (dealloc_entry_id_onehot_bits#[53] << 21) | (dealloc_entry_id_onehot_bits#[52] << 20) | (dealloc_entry_id_onehot_bits#[51] << 19) | (dealloc_entry_id_onehot_bits#[50] << 18) | (dealloc_entry_id_onehot_bits#[49] << 17) | (dealloc_entry_id_onehot_bits#[48] << 16) | (dealloc_entry_id_onehot_bits#[47] << 15) | (dealloc_entry_id_onehot_bits#[46] << 14) | (dealloc_entry_id_onehot_bits#[45] << 13) | (dealloc_entry_id_onehot_bits#[44] << 12) | (dealloc_entry_id_onehot_bits#[43] << 11) | (dealloc_entry_id_onehot_bits#[42] << 10) | (dealloc_entry_id_onehot_bits#[41] << 9) | (dealloc_entry_id_onehot_bits#[40] << 8) | (dealloc_entry_id_onehot_bits#[39] << 7) | (dealloc_entry_id_onehot_bits#[38] << 6) | (dealloc_entry_id_onehot_bits#[37] << 5) | (dealloc_entry_id_onehot_bits#[36] << 4) | (dealloc_entry_id_onehot_bits#[35] << 3) | (dealloc_entry_id_onehot_bits#[34] << 2) | (dealloc_entry_id_onehot_bits#[33] << 1) | dealloc_entry_id_onehot_bits#[32]))) & (~unstaged_free_entries_clear)
   if not (rst != 0) {
     if U1((push_entry_id_valid != 0 and gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd.push_receivable > 0) or ((dealloc_valid.e1 << 1) | dealloc_valid.e0) != 0) != 0 {
-      unstaged_free_entries = unstaged_free_entries_next__w1
+      unstaged_free_entries = unstaged_free_entries_next
     }
   }
   push_entry_id_valid = (`push_entry_id_valid[1]` << 1) | `push_entry_id_valid[0]`
-  push_entry_id = (`push_entry_id[9]` << 9) | (`push_entry_id[8]` << 8) | (`push_entry_id[7]` << 7) | (`push_entry_id[6]` << 6) | (`push_entry_id[5]` << 5) | (`push_entry_id[4]` << 4) | (`push_entry_id[3]` << 3) | (`push_entry_id[2]` << 2) | (`push_entry_id[1]` << 1) | `push_entry_id[0]`
+  push_entry_id = push_entry_id_bits
   alloc_sendable = gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd.pop_sendable
   alloc_entry_id = gen_multi_alloc_ports_gen_reg_alloc_br_multi_xfer_reg_fwd.pop_data
   dealloc_count = br_delay_dealloc_count.out

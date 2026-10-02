@@ -3,7 +3,7 @@
 pub mod br_flow_mux_fixed_stable(clk:Clock, pop_ready:U1, push_data:U256, push_valid:U8, rst:U1) -> (pop_data:U32@[0], pop_valid:U1@[0], push_ready:U8@[0]) {
   comptime const lanes = push_valid.[bits]
   comptime const width = push_data.[bits]/lanes
-  reg valid:Bool:[reset_pin=rst != 0] = false
+  reg valid:Bool:[reset_pin=rst] = false
   reg data:U32 = nil
   const ready = pop_ready != 0 or not valid
   mut seen:Bool = false

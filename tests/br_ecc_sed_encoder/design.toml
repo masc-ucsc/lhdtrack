@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_ecc_sed_encoder#<id>`.
 [[config]]
 id     = "dw32_ri0_ro0"
-sim_checksum = { cycles = 31300000, value = "6901599511511289386" }
+sim_checksum = { cycles = 53728778, value = "3701604916243947601" }
 # NO PARAMETERS. verilog/br_ecc_sed_encoder.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 31300000
+cycles = 53728778
 marker = "LHDTRACK-DONE"
 
 [lec]

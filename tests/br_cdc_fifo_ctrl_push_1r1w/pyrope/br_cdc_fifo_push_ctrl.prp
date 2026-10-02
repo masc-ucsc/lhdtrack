@@ -8,7 +8,7 @@ pub mod br_cdc_fifo_push_ctrl<DEPTH=2, WIDTH=1, COUNT_WIDTH=2, PUSH_COUNT_DELAY=
   push_beat = push_valid and not flags.full
 
   // Write address walks the RAM entries 0..DEPTH-1 and wraps.
-  reg wr_addr:Unsigned(max=DEPTH - 1):[reset_pin=rst != 0] = 0
+  reg wr_addr:Unsigned(max=DEPTH - 1):[reset_pin=rst] = 0
   if push_beat {
     wrap wr_addr = if wr_addr == DEPTH - 1 { 0 } else { wr_addr + 1 }
   }

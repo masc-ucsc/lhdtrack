@@ -8,11 +8,11 @@ pub mod br_flow_burst_mux_core_stable<NumFlows=8, Width=32, RegisterPopReady=0, 
   wire pop_payload:U33 = nil
   const pop_data__w1 = pop_payload#[0..=31]
   const pop_last__w1 = (pop_payload >> 32) & 1
-  const internal_pop_payload_unstable__w1 = ((internal_pop_last_unstable & 1) << 32) | internal_pop_data_unstable
+  const internal_pop_payload_unstable = ((internal_pop_last_unstable & 1) << 32) | internal_pop_data_unstable
   mut br_flow_burst_mux_core = br_flow_burst_mux_core_t::[name=br_flow_burst_mux_core](clk=clk, rst=rst, grant_from_arb=grant_from_arb, push_valid=push_valid, `push_last.e7`=(push_last >> 7) & 1, `push_last.e6`=(push_last >> 6) & 1, `push_last.e5`=(push_last >> 5) & 1, `push_last.e4`=(push_last >> 4) & 1, `push_last.e3`=(push_last >> 3) & 1, `push_last.e2`=(push_last >> 2) & 1, `push_last.e1`=(push_last >> 1) & 1, `push_last.e0`=push_last & 1, push_data=push_data, pop_ready=internal_pop_ready)
   internal_pop_last_unstable = br_flow_burst_mux_core.pop_last_unstable
   internal_pop_data_unstable = br_flow_burst_mux_core.pop_data_unstable
-  mut gen_flow_reg_fwd_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_flow_reg_fwd_br_flow_reg_fwd](clk=clk, rst=rst, push_valid=br_flow_burst_mux_core.pop_valid_unstable, push_data=internal_pop_payload_unstable__w1, pop_ready=pop_ready)
+  mut gen_flow_reg_fwd_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_flow_reg_fwd_br_flow_reg_fwd](clk=clk, rst=rst, push_valid=br_flow_burst_mux_core.pop_valid_unstable, push_data=internal_pop_payload_unstable, pop_ready=pop_ready)
   internal_pop_ready = gen_flow_reg_fwd_br_flow_reg_fwd.push_ready
   pop_payload = gen_flow_reg_fwd_br_flow_reg_fwd.pop_data
   request = br_flow_burst_mux_core.request

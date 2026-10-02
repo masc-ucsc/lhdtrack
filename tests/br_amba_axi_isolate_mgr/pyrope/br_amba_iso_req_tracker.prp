@@ -3,15 +3,15 @@ const br_counter_p2 = import("br_counter_p2.br_counter_p2")
 pub mod br_amba_iso_req_tracker<MaxOutstanding=16>::[timecheck=false](clk:Clock, downstream_axready:U1, downstream_xlast:U1, downstream_xvalid:U1, isolate_req:U1, rst:U1, upstream_axvalid:U1, upstream_xready:U1) -> (downstream_axvalid:U1@[], downstream_xready:U1@[], isolate_done:U1@[], upstream_axready:U1@[], upstream_xlast:U1@[], upstream_xvalid:U1@[]) {
   reg isolate_done:U1:[async=false, initial=0, reset_pin=rst]
   wire expected_resp_count:U5 = nil
-  const count_max__w1 = U1(expected_resp_count == MaxOutstanding)
+  const count_max = U1(expected_resp_count == MaxOutstanding)
   mut _mux_3:U1 = if isolate_done != 0 { U1(not (expected_resp_count == 0 and isolate_req == 0)) & 1 } else { isolate_req & 1 }
   mut _b2i_4 = if isolate_req != 0 or isolate_done != 0 { 1 } else { 0 }
-  const isolated__w1 = _b2i_4
-  mut _b2i_5 = if downstream_axready != 0 and isolated__w1 == 0 and count_max__w1 == 0 { 1 } else { 0 }
-  mut _b2i_6 = if upstream_axvalid != 0 and isolated__w1 == 0 and count_max__w1 == 0 { 1 } else { 0 }
+  const isolated = _b2i_4
+  mut _b2i_5 = if downstream_axready != 0 and isolated == 0 and count_max == 0 { 1 } else { 0 }
+  mut _b2i_6 = if upstream_axvalid != 0 and isolated == 0 and count_max == 0 { 1 } else { 0 }
   const downstream_axvalid__w1 = _b2i_6
-  mut _b2i_7 = if downstream_xvalid != 0 and isolated__w1 == 0 { 1 } else { 0 }
-  mut _b2i_8 = if upstream_xready != 0 or isolated__w1 != 0 { 1 } else { 0 }
+  mut _b2i_7 = if downstream_xvalid != 0 and isolated == 0 { 1 } else { 0 }
+  mut _b2i_8 = if upstream_xready != 0 or isolated != 0 { 1 } else { 0 }
   const downstream_xready__w1 = _b2i_8
   if not (rst != 0) {
     isolate_done = _mux_3

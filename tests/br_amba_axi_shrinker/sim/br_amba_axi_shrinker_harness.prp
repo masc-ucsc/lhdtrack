@@ -3,7 +3,7 @@
 // The Pyrope twin of br_amba_axi_shrinker_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,26 @@
 // "call to undefined function". The module inside it is br_amba_axi_shrinker.br_amba_axi_shrinker.
 const dut = import("br_amba_axi_shrinker.br_amba_axi_shrinker")
 
-pub mod br_amba_axi_shrinker_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_amba_axi_shrinker_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (wide_awready, wide_wready, wide_bid, wide_buser, wide_bresp, wide_bvalid, wide_arready, wide_rid, wide_rdata, wide_ruser, wide_rresp, wide_rlast, wide_rvalid, narrow_awaddr, narrow_awid, narrow_awlen, narrow_awsize, narrow_awburst, narrow_awprot, narrow_awuser, narrow_awvalid, narrow_wdata, narrow_wstrb, narrow_wuser, narrow_wlast, narrow_wvalid, narrow_bready, narrow_araddr, narrow_arid, narrow_arlen, narrow_arsize, narrow_arburst, narrow_arprot, narrow_aruser, narrow_arvalid, narrow_rready) = dut(wide_awaddr=lfsr#[0..=31], wide_awid=lfsr#[32..=35], wide_awlen=lfsr#[36..=43], wide_awsize=lfsr#[44..=46], wide_awburst=lfsr#[47..=48], wide_awprot=lfsr#[49..=51], wide_awuser=lfsr#[52], wide_awvalid=lfsr#[53], wide_wdata=lfsr_x#[54..=117], wide_wstrb=lfsr#[54..=61], wide_wuser=lfsr#[62], wide_wlast=lfsr#[63], wide_wvalid=lfsr#[0], wide_bready=lfsr#[1], wide_araddr=lfsr#[2..=33], wide_arid=lfsr#[34..=37], wide_arlen=lfsr#[38..=45], wide_arsize=lfsr#[46..=48], wide_arburst=lfsr#[49..=50], wide_arprot=lfsr#[51..=53], wide_aruser=lfsr#[54], wide_arvalid=lfsr#[55], wide_rready=lfsr#[56], narrow_awready=lfsr#[57], narrow_wready=lfsr#[58], narrow_bid=lfsr#[59..=62], narrow_buser=lfsr#[63], narrow_bresp=lfsr#[0..=1], narrow_bvalid=lfsr#[2], narrow_arready=lfsr#[3], narrow_rid=lfsr#[4..=7], narrow_rdata=lfsr#[8..=39], narrow_ruser=lfsr#[40], narrow_rresp=lfsr#[41..=42], narrow_rlast=lfsr#[43], narrow_rvalid=lfsr#[44])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (wide_awready, wide_wready, wide_bid, wide_buser, wide_bresp, wide_bvalid, wide_arready, wide_rid, wide_rdata, wide_ruser, wide_rresp, wide_rlast, wide_rvalid, narrow_awaddr, narrow_awid, narrow_awlen, narrow_awsize, narrow_awburst, narrow_awprot, narrow_awuser, narrow_awvalid, narrow_wdata, narrow_wstrb, narrow_wuser, narrow_wlast, narrow_wvalid, narrow_bready, narrow_araddr, narrow_arid, narrow_arlen, narrow_arsize, narrow_arburst, narrow_arprot, narrow_aruser, narrow_arvalid, narrow_rready) = dut(clk=clk, rst=U1(dut_reset), wide_awaddr=lfsr#[0..=31], wide_awid=lfsr#[32..=35], wide_awlen=lfsr#[36..=43], wide_awsize=lfsr#[44..=46], wide_awburst=lfsr#[47..=48], wide_awprot=lfsr#[49..=51], wide_awuser=lfsr#[52], wide_awvalid=lfsr#[53], wide_wdata=lfsr_x#[54..=117], wide_wstrb=lfsr#[54..=61], wide_wuser=lfsr#[62], wide_wlast=lfsr#[63], wide_wvalid=lfsr#[0], wide_bready=lfsr#[1], wide_araddr=lfsr#[2..=33], wide_arid=lfsr#[34..=37], wide_arlen=lfsr#[38..=45], wide_arsize=lfsr#[46..=48], wide_arburst=lfsr#[49..=50], wide_arprot=lfsr#[51..=53], wide_aruser=lfsr#[54], wide_arvalid=lfsr#[55], wide_rready=lfsr#[56], narrow_awready=lfsr#[57], narrow_wready=lfsr#[58], narrow_bid=lfsr#[59..=62], narrow_buser=lfsr#[63], narrow_bresp=lfsr#[0..=1], narrow_bvalid=lfsr#[2], narrow_arready=lfsr#[3], narrow_rid=lfsr#[4..=7], narrow_rdata=lfsr#[8..=39], narrow_ruser=lfsr#[40], narrow_rresp=lfsr#[41..=42], narrow_rlast=lfsr#[43], narrow_rvalid=lfsr#[44])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ wide_awready
   wrap acc = ((acc << 1) | acc#[63]) ^ wide_wready
   wrap acc = ((acc << 1) | acc#[63]) ^ wide_bid

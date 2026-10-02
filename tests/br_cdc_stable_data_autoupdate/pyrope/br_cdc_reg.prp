@@ -4,38 +4,7 @@ const br_cdc_reg_push_t = import("br_cdc_reg_push.br_cdc_reg_push")
 const br_gate_cdc_maxdel = import("br_gate_cdc_maxdel.br_gate_cdc_maxdel")
 
 pub mod br_cdc_reg<Width=32, RegisterPopOutputs=0, RegisterResetActive=1, NumSyncStages=2, EnableCoverPushBackpressure=1, EnableCoverPopBackpressure=1, EnableAssertPushValidStability=0, EnableAssertPushDataStability=0, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](pop_clk:Clock, pop_ready:U1, pop_rst:U1, push_clk:Clock, push_data:U32, push_rst:U1, push_valid:U1) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[]) {
-  wire `push_reg_data_maxdel[0]`:U1 = nil
-  wire `push_reg_data_maxdel[1]`:U1 = nil
-  wire `push_reg_data_maxdel[2]`:U1 = nil
-  wire `push_reg_data_maxdel[3]`:U1 = nil
-  wire `push_reg_data_maxdel[4]`:U1 = nil
-  wire `push_reg_data_maxdel[5]`:U1 = nil
-  wire `push_reg_data_maxdel[6]`:U1 = nil
-  wire `push_reg_data_maxdel[7]`:U1 = nil
-  wire `push_reg_data_maxdel[8]`:U1 = nil
-  wire `push_reg_data_maxdel[9]`:U1 = nil
-  wire `push_reg_data_maxdel[10]`:U1 = nil
-  wire `push_reg_data_maxdel[11]`:U1 = nil
-  wire `push_reg_data_maxdel[12]`:U1 = nil
-  wire `push_reg_data_maxdel[13]`:U1 = nil
-  wire `push_reg_data_maxdel[14]`:U1 = nil
-  wire `push_reg_data_maxdel[15]`:U1 = nil
-  wire `push_reg_data_maxdel[16]`:U1 = nil
-  wire `push_reg_data_maxdel[17]`:U1 = nil
-  wire `push_reg_data_maxdel[18]`:U1 = nil
-  wire `push_reg_data_maxdel[19]`:U1 = nil
-  wire `push_reg_data_maxdel[20]`:U1 = nil
-  wire `push_reg_data_maxdel[21]`:U1 = nil
-  wire `push_reg_data_maxdel[22]`:U1 = nil
-  wire `push_reg_data_maxdel[23]`:U1 = nil
-  wire `push_reg_data_maxdel[24]`:U1 = nil
-  wire `push_reg_data_maxdel[25]`:U1 = nil
-  wire `push_reg_data_maxdel[26]`:U1 = nil
-  wire `push_reg_data_maxdel[27]`:U1 = nil
-  wire `push_reg_data_maxdel[28]`:U1 = nil
-  wire `push_reg_data_maxdel[29]`:U1 = nil
-  wire `push_reg_data_maxdel[30]`:U1 = nil
-  wire `push_reg_data_maxdel[31]`:U1 = nil
+  wire push_reg_data_maxdel_bits:U32 = nil
   wire push_reg_data_maxdel:U32 = nil
   wire push_reset_active_pop:U1 = nil
   wire pop_push_flag:U1 = nil
@@ -43,69 +12,69 @@ pub mod br_cdc_reg<Width=32, RegisterPopOutputs=0, RegisterResetActive=1, NumSyn
   wire pop_reset_active_push:U1 = nil
   wire push_pop_flag:U1 = nil
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_0 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_0](`in`=push_reg_data & 1)
-  `push_reg_data_maxdel[0]` = br_gate_cdc_maxdel_push_reg_data_maxdel_0 & 1
+  push_reg_data_maxdel_bits#[0] = br_gate_cdc_maxdel_push_reg_data_maxdel_0 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_1 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_1](`in`=(push_reg_data >> 1) & 1)
-  `push_reg_data_maxdel[1]` = br_gate_cdc_maxdel_push_reg_data_maxdel_1 & 1
+  push_reg_data_maxdel_bits#[1] = br_gate_cdc_maxdel_push_reg_data_maxdel_1 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_2 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_2](`in`=(push_reg_data >> 2) & 1)
-  `push_reg_data_maxdel[2]` = br_gate_cdc_maxdel_push_reg_data_maxdel_2 & 1
+  push_reg_data_maxdel_bits#[2] = br_gate_cdc_maxdel_push_reg_data_maxdel_2 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_3 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_3](`in`=(push_reg_data >> 3) & 1)
-  `push_reg_data_maxdel[3]` = br_gate_cdc_maxdel_push_reg_data_maxdel_3 & 1
+  push_reg_data_maxdel_bits#[3] = br_gate_cdc_maxdel_push_reg_data_maxdel_3 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_4 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_4](`in`=(push_reg_data >> 4) & 1)
-  `push_reg_data_maxdel[4]` = br_gate_cdc_maxdel_push_reg_data_maxdel_4 & 1
+  push_reg_data_maxdel_bits#[4] = br_gate_cdc_maxdel_push_reg_data_maxdel_4 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_5 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_5](`in`=(push_reg_data >> 5) & 1)
-  `push_reg_data_maxdel[5]` = br_gate_cdc_maxdel_push_reg_data_maxdel_5 & 1
+  push_reg_data_maxdel_bits#[5] = br_gate_cdc_maxdel_push_reg_data_maxdel_5 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_6 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_6](`in`=(push_reg_data >> 6) & 1)
-  `push_reg_data_maxdel[6]` = br_gate_cdc_maxdel_push_reg_data_maxdel_6 & 1
+  push_reg_data_maxdel_bits#[6] = br_gate_cdc_maxdel_push_reg_data_maxdel_6 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_7 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_7](`in`=(push_reg_data >> 7) & 1)
-  `push_reg_data_maxdel[7]` = br_gate_cdc_maxdel_push_reg_data_maxdel_7 & 1
+  push_reg_data_maxdel_bits#[7] = br_gate_cdc_maxdel_push_reg_data_maxdel_7 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_8 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_8](`in`=(push_reg_data >> 8) & 1)
-  `push_reg_data_maxdel[8]` = br_gate_cdc_maxdel_push_reg_data_maxdel_8 & 1
+  push_reg_data_maxdel_bits#[8] = br_gate_cdc_maxdel_push_reg_data_maxdel_8 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_9 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_9](`in`=(push_reg_data >> 9) & 1)
-  `push_reg_data_maxdel[9]` = br_gate_cdc_maxdel_push_reg_data_maxdel_9 & 1
+  push_reg_data_maxdel_bits#[9] = br_gate_cdc_maxdel_push_reg_data_maxdel_9 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_10 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_10](`in`=(push_reg_data >> 10) & 1)
-  `push_reg_data_maxdel[10]` = br_gate_cdc_maxdel_push_reg_data_maxdel_10 & 1
+  push_reg_data_maxdel_bits#[10] = br_gate_cdc_maxdel_push_reg_data_maxdel_10 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_11 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_11](`in`=(push_reg_data >> 11) & 1)
-  `push_reg_data_maxdel[11]` = br_gate_cdc_maxdel_push_reg_data_maxdel_11 & 1
+  push_reg_data_maxdel_bits#[11] = br_gate_cdc_maxdel_push_reg_data_maxdel_11 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_12 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_12](`in`=(push_reg_data >> 12) & 1)
-  `push_reg_data_maxdel[12]` = br_gate_cdc_maxdel_push_reg_data_maxdel_12 & 1
+  push_reg_data_maxdel_bits#[12] = br_gate_cdc_maxdel_push_reg_data_maxdel_12 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_13 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_13](`in`=(push_reg_data >> 13) & 1)
-  `push_reg_data_maxdel[13]` = br_gate_cdc_maxdel_push_reg_data_maxdel_13 & 1
+  push_reg_data_maxdel_bits#[13] = br_gate_cdc_maxdel_push_reg_data_maxdel_13 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_14 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_14](`in`=(push_reg_data >> 14) & 1)
-  `push_reg_data_maxdel[14]` = br_gate_cdc_maxdel_push_reg_data_maxdel_14 & 1
+  push_reg_data_maxdel_bits#[14] = br_gate_cdc_maxdel_push_reg_data_maxdel_14 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_15 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_15](`in`=(push_reg_data >> 15) & 1)
-  `push_reg_data_maxdel[15]` = br_gate_cdc_maxdel_push_reg_data_maxdel_15 & 1
+  push_reg_data_maxdel_bits#[15] = br_gate_cdc_maxdel_push_reg_data_maxdel_15 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_16 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_16](`in`=(push_reg_data >> 16) & 1)
-  `push_reg_data_maxdel[16]` = br_gate_cdc_maxdel_push_reg_data_maxdel_16 & 1
+  push_reg_data_maxdel_bits#[16] = br_gate_cdc_maxdel_push_reg_data_maxdel_16 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_17 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_17](`in`=(push_reg_data >> 17) & 1)
-  `push_reg_data_maxdel[17]` = br_gate_cdc_maxdel_push_reg_data_maxdel_17 & 1
+  push_reg_data_maxdel_bits#[17] = br_gate_cdc_maxdel_push_reg_data_maxdel_17 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_18 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_18](`in`=(push_reg_data >> 18) & 1)
-  `push_reg_data_maxdel[18]` = br_gate_cdc_maxdel_push_reg_data_maxdel_18 & 1
+  push_reg_data_maxdel_bits#[18] = br_gate_cdc_maxdel_push_reg_data_maxdel_18 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_19 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_19](`in`=(push_reg_data >> 19) & 1)
-  `push_reg_data_maxdel[19]` = br_gate_cdc_maxdel_push_reg_data_maxdel_19 & 1
+  push_reg_data_maxdel_bits#[19] = br_gate_cdc_maxdel_push_reg_data_maxdel_19 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_20 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_20](`in`=(push_reg_data >> 20) & 1)
-  `push_reg_data_maxdel[20]` = br_gate_cdc_maxdel_push_reg_data_maxdel_20 & 1
+  push_reg_data_maxdel_bits#[20] = br_gate_cdc_maxdel_push_reg_data_maxdel_20 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_21 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_21](`in`=(push_reg_data >> 21) & 1)
-  `push_reg_data_maxdel[21]` = br_gate_cdc_maxdel_push_reg_data_maxdel_21 & 1
+  push_reg_data_maxdel_bits#[21] = br_gate_cdc_maxdel_push_reg_data_maxdel_21 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_22 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_22](`in`=(push_reg_data >> 22) & 1)
-  `push_reg_data_maxdel[22]` = br_gate_cdc_maxdel_push_reg_data_maxdel_22 & 1
+  push_reg_data_maxdel_bits#[22] = br_gate_cdc_maxdel_push_reg_data_maxdel_22 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_23 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_23](`in`=(push_reg_data >> 23) & 1)
-  `push_reg_data_maxdel[23]` = br_gate_cdc_maxdel_push_reg_data_maxdel_23 & 1
+  push_reg_data_maxdel_bits#[23] = br_gate_cdc_maxdel_push_reg_data_maxdel_23 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_24 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_24](`in`=(push_reg_data >> 24) & 1)
-  `push_reg_data_maxdel[24]` = br_gate_cdc_maxdel_push_reg_data_maxdel_24 & 1
+  push_reg_data_maxdel_bits#[24] = br_gate_cdc_maxdel_push_reg_data_maxdel_24 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_25 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_25](`in`=(push_reg_data >> 25) & 1)
-  `push_reg_data_maxdel[25]` = br_gate_cdc_maxdel_push_reg_data_maxdel_25 & 1
+  push_reg_data_maxdel_bits#[25] = br_gate_cdc_maxdel_push_reg_data_maxdel_25 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_26 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_26](`in`=(push_reg_data >> 26) & 1)
-  `push_reg_data_maxdel[26]` = br_gate_cdc_maxdel_push_reg_data_maxdel_26 & 1
+  push_reg_data_maxdel_bits#[26] = br_gate_cdc_maxdel_push_reg_data_maxdel_26 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_27 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_27](`in`=(push_reg_data >> 27) & 1)
-  `push_reg_data_maxdel[27]` = br_gate_cdc_maxdel_push_reg_data_maxdel_27 & 1
+  push_reg_data_maxdel_bits#[27] = br_gate_cdc_maxdel_push_reg_data_maxdel_27 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_28 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_28](`in`=(push_reg_data >> 28) & 1)
-  `push_reg_data_maxdel[28]` = br_gate_cdc_maxdel_push_reg_data_maxdel_28 & 1
+  push_reg_data_maxdel_bits#[28] = br_gate_cdc_maxdel_push_reg_data_maxdel_28 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_29 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_29](`in`=(push_reg_data >> 29) & 1)
-  `push_reg_data_maxdel[29]` = br_gate_cdc_maxdel_push_reg_data_maxdel_29 & 1
+  push_reg_data_maxdel_bits#[29] = br_gate_cdc_maxdel_push_reg_data_maxdel_29 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_30 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_30](`in`=(push_reg_data >> 30) & 1)
-  `push_reg_data_maxdel[30]` = br_gate_cdc_maxdel_push_reg_data_maxdel_30 & 1
+  push_reg_data_maxdel_bits#[30] = br_gate_cdc_maxdel_push_reg_data_maxdel_30 & 1
   mut br_gate_cdc_maxdel_push_reg_data_maxdel_31 = br_gate_cdc_maxdel::[name=br_gate_cdc_maxdel_push_reg_data_maxdel_31](`in`=(push_reg_data >> 31) & 1)
-  `push_reg_data_maxdel[31]` = br_gate_cdc_maxdel_push_reg_data_maxdel_31 & 1
+  push_reg_data_maxdel_bits#[31] = br_gate_cdc_maxdel_push_reg_data_maxdel_31 & 1
   mut br_cdc_reg_push = br_cdc_reg_push_t::[name=br_cdc_reg_push](clk=push_clk, rst=push_rst, push_valid=push_valid, push_data=push_data, reset_active_pop=push_reset_active_pop, pop_flag=push_pop_flag)
   push_reg_data = br_cdc_reg_push.push_reg_data
   mut br_cdc_reg_pop = br_cdc_reg_pop_t::[name=br_cdc_reg_pop](clk=pop_clk, rst=pop_rst, pop_ready=pop_ready, reset_active_push=pop_reset_active_push, push_flag=pop_push_flag, push_reg_data=push_reg_data_maxdel)
@@ -117,7 +86,7 @@ pub mod br_cdc_reg<Width=32, RegisterPopOutputs=0, RegisterResetActive=1, NumSyn
   push_reset_active_pop = br_cdc_bit_toggle_pop_to_push_reset_active
   mut br_cdc_bit_toggle_pop_to_push_flag = br_cdc_bit_toggle::[name=br_cdc_bit_toggle_pop_to_push_flag](src_clk=pop_clk, src_rst=pop_rst, src_bit=br_cdc_reg_pop.pop_flag, dst_clk=push_clk, dst_rst=push_rst)
   push_pop_flag = br_cdc_bit_toggle_pop_to_push_flag
-  push_reg_data_maxdel = (`push_reg_data_maxdel[31]` << 31) | (`push_reg_data_maxdel[30]` << 30) | (`push_reg_data_maxdel[29]` << 29) | (`push_reg_data_maxdel[28]` << 28) | (`push_reg_data_maxdel[27]` << 27) | (`push_reg_data_maxdel[26]` << 26) | (`push_reg_data_maxdel[25]` << 25) | (`push_reg_data_maxdel[24]` << 24) | (`push_reg_data_maxdel[23]` << 23) | (`push_reg_data_maxdel[22]` << 22) | (`push_reg_data_maxdel[21]` << 21) | (`push_reg_data_maxdel[20]` << 20) | (`push_reg_data_maxdel[19]` << 19) | (`push_reg_data_maxdel[18]` << 18) | (`push_reg_data_maxdel[17]` << 17) | (`push_reg_data_maxdel[16]` << 16) | (`push_reg_data_maxdel[15]` << 15) | (`push_reg_data_maxdel[14]` << 14) | (`push_reg_data_maxdel[13]` << 13) | (`push_reg_data_maxdel[12]` << 12) | (`push_reg_data_maxdel[11]` << 11) | (`push_reg_data_maxdel[10]` << 10) | (`push_reg_data_maxdel[9]` << 9) | (`push_reg_data_maxdel[8]` << 8) | (`push_reg_data_maxdel[7]` << 7) | (`push_reg_data_maxdel[6]` << 6) | (`push_reg_data_maxdel[5]` << 5) | (`push_reg_data_maxdel[4]` << 4) | (`push_reg_data_maxdel[3]` << 3) | (`push_reg_data_maxdel[2]` << 2) | (`push_reg_data_maxdel[1]` << 1) | `push_reg_data_maxdel[0]`
+  push_reg_data_maxdel = push_reg_data_maxdel_bits
   push_ready = br_cdc_reg_push.push_ready
   pop_valid = br_cdc_reg_pop.pop_valid
   pop_data = br_cdc_reg_pop.pop_data

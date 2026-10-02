@@ -76,7 +76,7 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     )
     run = ctx.run(
         "run",
-        [lhd, "sim", *inputs, "--run-only", f"+cycles={cycles}",
+        [lhd, "sim", *inputs, "--run-only", "--arg", f"cycles={cycles}",
          *sim_policy, "--set", "sim.ninja=false",
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )

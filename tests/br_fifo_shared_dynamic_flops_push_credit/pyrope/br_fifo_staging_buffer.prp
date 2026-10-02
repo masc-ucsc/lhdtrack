@@ -2,9 +2,6 @@ const br_counter_p1 = import("br_counter_p1.br_counter_p1")
 const br_counter_p2 = import("br_counter_p2.br_counter_p2")
 const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 const br_misc_tieoff_zero = import("br_misc_tieoff_zero.br_misc_tieoff_zero")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p8 = import("br_misc_unused_p8.br_misc_unused_p8")
-
 pub mod br_fifo_staging_buffer<EnableBypass=0, TotalDepth=32, RamReadLatency=1, BufferDepth=2, Width=32, RegisterPopOutputs=1, TotalItemsIncludesStaged=0, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableCoverSameCycleReadIssueAndReturn=1, EnableCoverBypassAndReadDataSameCycle=1>::[timecheck=false](bypass_data_unstable:U32, bypass_valid_unstable:U1, clk:Clock, pop_ready:U1, ram_rd_addr_ready:U1, ram_rd_data:U32, ram_rd_data_valid:U1, rst:U1, total_items:U6) -> (bypass_ready:U1@[], pop_data:U32@[], pop_empty:U1@[], pop_valid:U1@[], ram_rd_addr_valid:U1@[]) {
   reg pop_empty:U1:[async=false, initial=1, reset_pin=rst]
   reg buffer_valid:U1:[async=false, initial=0, reset_pin=rst]
@@ -14,59 +11,65 @@ pub mod br_fifo_staging_buffer<EnableBypass=0, TotalDepth=32, RamReadLatency=1, 
   wire pop_valid:U1 = nil
   wire gen_single_entry_buffer_ram_rd_inflight_count:U1 = nil
   mut _b2i_1 = if pop_valid != 0 and pop_ready != 0 { 1 } else { 0 }
-  const pop_beat__w1 = _b2i_1
+  const pop_beat = _b2i_1
   mut gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready = br_misc_tieoff_zero::[name=gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready]()
   const bypass_ready__w1 = gen_no_bypass_push_br_misc_tieoff_zero_bypass_ready
-  const push_valid__w1 = ram_rd_data_valid
-  const push_data__w1 = ram_rd_data
-  const gen_single_entry_buffer_has_inflight_read__w1 = U1(gen_single_entry_buffer_ram_rd_inflight_count != 0)
-  mut _b2i_4 = if buffer_bypass != 0 and gen_single_entry_buffer_has_inflight_read__w1 != 0 { 1 } else { 0 }
-  const gen_single_entry_buffer_buffer_fwd_block__w1 = _b2i_4
-  mut _b2i_5 = if buffer_valid != 0 and gen_single_entry_buffer_buffer_fwd_block__w1 == 0 { 1 } else { 0 }
-  const gen_single_entry_buffer_buffer_fwd_valid__w1 = _b2i_5
-  mut _b2i_6 = if gen_single_entry_buffer_buffer_fwd_valid__w1 != 0 or ram_rd_data_valid != 0 { 1 } else { 0 }
-  mut _mux_7:U32 = if gen_single_entry_buffer_buffer_fwd_valid__w1 != 0 { buffer_data } else { push_data__w1 }
-  br_misc_unused::[name=gen_pop_reg_br_misc_unused_internal_pop_valid_nonbypass](`in`=_b2i_6)
+  const gen_single_entry_buffer_has_inflight_read = U1(gen_single_entry_buffer_ram_rd_inflight_count != 0)
+  mut _b2i_4 = if buffer_bypass != 0 and gen_single_entry_buffer_has_inflight_read != 0 { 1 } else { 0 }
+  const gen_single_entry_buffer_buffer_fwd_block = _b2i_4
+  mut _b2i_5 = if buffer_valid != 0 and gen_single_entry_buffer_buffer_fwd_block == 0 { 1 } else { 0 }
+  const gen_single_entry_buffer_buffer_fwd_valid = _b2i_5
+  mut _mux_7:U32 = if gen_single_entry_buffer_buffer_fwd_valid != 0 { buffer_data } else { ram_rd_data }
   mut _b2i_8 = if staged_items < BufferDepth or (pop_ready != 0 and pop_valid != 0) { 1 } else { 0 }
-  const bypass_beat__w1 = U1(bypass_valid_unstable != 0 and bypass_ready__w1 != 0)
+  const bypass_beat = U1(bypass_valid_unstable != 0 and bypass_ready__w1 != 0)
   mut _b2i_10 = if _b2i_8 != 0 and U1(total_items > 0) != 0 and bypass_ready__w1 == 0 { 1 } else { 0 }
   const ram_rd_addr_valid__w1 = _b2i_10
   mut _b2i_11 = if ram_rd_addr_valid__w1 != 0 and ram_rd_addr_ready != 0 { 1 } else { 0 }
-  const ram_rd_addr_beat__w1 = _b2i_11
-  const staged_items_incr__w1 = ram_rd_addr_beat__w1
-  br_misc_unused_p8::[name=gen_no_bypass_push_br_misc_unused_bypass_inputs](`in`=((bypass_beat__w1 & 1) << 33) | ((bypass_valid_unstable & 1) << 32) | bypass_data_unstable)
-  mut gen_single_entry_buffer_br_counter_read_inflight = br_counter_p1::[name=gen_single_entry_buffer_br_counter_read_inflight](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=ram_rd_addr_beat__w1, incr=1, decr_valid=ram_rd_data_valid, decr=1)
+  const ram_rd_addr_beat = _b2i_11
+  mut gen_single_entry_buffer_br_counter_read_inflight = br_counter_p1::[name=gen_single_entry_buffer_br_counter_read_inflight](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=ram_rd_addr_beat, incr=1, decr_valid=ram_rd_data_valid, decr=1)
   gen_single_entry_buffer_ram_rd_inflight_count = gen_single_entry_buffer_br_counter_read_inflight.value
-  mut _b2i_12 = if gen_single_entry_buffer_buffer_fwd_valid__w1 != 0 or ram_rd_data_valid != 0 or (bypass_beat__w1 != 0 and gen_single_entry_buffer_has_inflight_read__w1 == 0) { 1 } else { 0 }
+  mut _b2i_12 = if gen_single_entry_buffer_buffer_fwd_valid != 0 or ram_rd_data_valid != 0 or (bypass_beat != 0 and gen_single_entry_buffer_has_inflight_read == 0) {
+    1
+  } else {
+    0
+  }
   mut gen_pop_reg_br_flow_reg_fwd = br_flow_reg_fwd::[name=gen_pop_reg_br_flow_reg_fwd](clk=clk, rst=rst, push_valid=_b2i_12, push_data=_mux_7, pop_ready=pop_ready)
   pop_valid = gen_pop_reg_br_flow_reg_fwd.pop_valid
-  mut br_counter_staged_items = br_counter_p2::[name=br_counter_staged_items](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=staged_items_incr__w1, incr=1, decr_valid=pop_beat__w1, decr=1)
+  mut br_counter_staged_items = br_counter_p2::[name=br_counter_staged_items](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=ram_rd_addr_beat, incr=1, decr_valid=pop_beat, decr=1)
   staged_items = br_counter_staged_items.value
   if not (rst != 0) {
-    if staged_items_incr__w1 != 0 or pop_beat__w1 != 0 {
+    if ram_rd_addr_beat != 0 or pop_beat != 0 {
       pop_empty = U1(br_counter_staged_items.value_next == 0)
     }
   }
-  mut _b2i_14 = if gen_pop_reg_br_flow_reg_fwd.push_ready != 0 and gen_single_entry_buffer_buffer_fwd_block__w1 == 0 { 1 } else { 0 }
-  const gen_single_entry_buffer_buffer_fwd_ready__w1 = _b2i_14
-  mut _b2i_15 = if push_valid__w1 != 0 or gen_single_entry_buffer_buffer_fwd_ready__w1 == 0 { 1 } else { 0 }
-  mut _b2i_16 = if (push_valid__w1 != 0 and gen_pop_reg_br_flow_reg_fwd.push_ready == 0) or (bypass_beat__w1 != 0 and gen_single_entry_buffer_has_inflight_read__w1 != 0) { 1 } else { 0 }
+  mut _b2i_14 = if gen_pop_reg_br_flow_reg_fwd.push_ready != 0 and gen_single_entry_buffer_buffer_fwd_block == 0 { 1 } else { 0 }
+  const gen_single_entry_buffer_buffer_fwd_ready = _b2i_14
+  mut _b2i_15 = if ram_rd_data_valid != 0 or gen_single_entry_buffer_buffer_fwd_ready == 0 { 1 } else { 0 }
+  mut _b2i_16 = if (ram_rd_data_valid != 0 and gen_pop_reg_br_flow_reg_fwd.push_ready == 0) or (bypass_beat != 0 and gen_single_entry_buffer_has_inflight_read != 0) {
+    1
+  } else {
+    0
+  }
   mut _mux_17:U1 = if buffer_valid != 0 { _b2i_15 & 1 } else { _b2i_16 & 1 }
-  const gen_single_entry_buffer_buffer_valid_next__w1 = _mux_17
-  mut _b2i_18 = if gen_single_entry_buffer_buffer_valid_next__w1 != 0 and (buffer_valid == 0 or gen_single_entry_buffer_buffer_fwd_ready__w1 != 0) { 1 } else { 0 }
-  const gen_single_entry_buffer_buffer_data_le__w1 = _b2i_18
-  mut _mux_19:U32 = if gen_pop_reg_br_flow_reg_fwd.push_ready != 0 and buffer_valid == 0 { bypass_data_unstable } else { push_data__w1 }
+  const gen_single_entry_buffer_buffer_valid_next = _mux_17
+  mut _b2i_18 = if gen_single_entry_buffer_buffer_valid_next != 0 and (buffer_valid == 0 or gen_single_entry_buffer_buffer_fwd_ready != 0) {
+    1
+  } else {
+    0
+  }
+  const gen_single_entry_buffer_buffer_data_le = _b2i_18
+  mut _mux_19:U32 = if gen_pop_reg_br_flow_reg_fwd.push_ready != 0 and buffer_valid == 0 { bypass_data_unstable } else { ram_rd_data }
   if not (rst != 0) {
-    buffer_valid = gen_single_entry_buffer_buffer_valid_next__w1
+    buffer_valid = gen_single_entry_buffer_buffer_valid_next
   }
   if not (rst != 0) {
-    if gen_single_entry_buffer_buffer_data_le__w1 != 0 {
+    if gen_single_entry_buffer_buffer_data_le != 0 {
       buffer_data = _mux_19
     }
   }
   if not (rst != 0) {
-    if gen_single_entry_buffer_buffer_data_le__w1 != 0 {
-      buffer_bypass = bypass_beat__w1
+    if gen_single_entry_buffer_buffer_data_le != 0 {
+      buffer_bypass = bypass_beat
     }
   }
   bypass_ready = bypass_ready__w1

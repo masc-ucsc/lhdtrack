@@ -1,6 +1,5 @@
 pub comb br_arb_fixed_internal<NumRequesters=4>::[timecheck=false](request:U4) -> (can_grant:(e3:U1, e2:U1, e1:U1, e0:U1), grant:U4) {
   wire can_grant__bpr:(e3:U1, e2:U1, e1:U1, e0:U1) = nil
-  mut `can_grant__bpo.e0` = 1
   mut `can_grant__bpo.e1` = U1(not ((request & 1) != 0))
   mut `can_grant__bpo.e2` = U1(not (request#[0..=1] != 0))
   mut `can_grant__bpo.e3` = U1(not (request#[0..=2] != 0))

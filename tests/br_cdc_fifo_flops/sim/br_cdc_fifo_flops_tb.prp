@@ -6,17 +6,17 @@
 // Identical driver, identical work, either way.
 const dut = import("lg:br_cdc_fifo_flops_harness")
 
-test bench.run(cycles:u32=1200000) {
+test bench.run(cycles:U32=1200000) {
   mut acc = dut
-  mut result:u64 = 0
+  mut result:U64 = 0
 
   tick cycles {
-    // `u1(...)`, not `int(...)`: this lhd build removed the `int` cast in
+    // `U1(...)`, not `int(...)`: this lhd build removed the `int` cast in
     // favour of sized/sign-explicit ones.
-    acc.rst = u1(clock < 4)
+    acc.rst = U1(clock < 4)
     step
     result = acc.checksum
   }
 
-  puts("LHDTRACK-DONE cycles={} checksum={}", cycles, result)
+  puts("LHDTRACK-DONE cycles={cycles} checksum={result}")
 }

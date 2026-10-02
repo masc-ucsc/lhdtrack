@@ -1,6 +1,50 @@
-const br_arb_lru_internal_t = import("br_arb_lru_internal.br_arb_lru_internal")
+// Least-recently-used arbiter, 16 requesters, zero latency from request to grant.
+// A pairwise priority matrix remembers, for every pair, which requester was
+// granted less recently; the requester that loses to nobody else requesting wins.
+// enable_priority_update gates the matrix update; grants are made either way.
 
-pub mod br_arb_lru::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
-  mut br_arb_lru_internal = br_arb_lru_internal_t::[name=br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)
-  grant = br_arb_lru_internal.grant
+// Reset matrix: for i < j requester i outranks j (bit i*N + j); everything else 0.
+comb upper_triangle<N=16>() -> (m:Unsigned(bits=N*N)) {
+  m = 0
+  for i in 0..<N {
+    for j in (i + 1)..<N {
+      m#[i*N + j] = 1
+    }
+  }
+}
+
+pub mod br_arb_lru(clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
+  comptime const N = request.[bits]
+  comptime const INIT = upper_triangle<N=N>()
+
+  // Only the strict upper triangle is state; the lower triangle is its mirror
+  // (outranks(i, j) == not outranks(j, i)) and the diagonal is unused.
+  reg state:Unsigned(bits=N*N) = INIT
+
+  mut can_grant:Unsigned(bits=N) = 0
+  for i in 0..<N {
+    mut wins = true
+    for j in 0..<N {
+      if i < j {
+        wins = wins and (request#[j] == 0 or state#[i*N + j] == 1)
+      } elif i > j {
+        wins = wins and (request#[j] == 0 or state#[j*N + i] == 0)
+      }
+    }
+    can_grant#[i] = U1(wins)
+  }
+  grant = request & can_grant
+
+  // The granted requester becomes the lowest priority against everyone.
+  if enable_priority_update == 1 and request != 0 {
+    for i in 0..<N {
+      for j in (i + 1)..<N {
+        if grant#[i] == 1 {
+          state#[i*N + j] = 0
+        } elif grant#[j] == 1 {
+          state#[i*N + j] = 1
+        }
+      }
+    }
+  }
 }

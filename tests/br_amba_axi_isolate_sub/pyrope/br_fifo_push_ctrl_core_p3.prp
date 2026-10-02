@@ -1,10 +1,7 @@
 const br_counter_incr_p2 = import("br_counter_incr_p2.br_counter_incr_p2")
-const br_flow_checks_valid_data_intg_p1 = import("br_flow_checks_valid_data_intg_p1.br_flow_checks_valid_data_intg_p1")
-
 pub mod br_fifo_push_ctrl_core_p3<Depth=15, Width=1, EnableBypass=1, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=0, EnableAssertPushDataStability=0, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](addr_base:U4, addr_bound:U4, bypass_ready:U1, clk:Clock, full:U1, push_data:U1, push_valid:U1, rst:Reset) -> (bypass_data_unstable:U1@[], bypass_valid_unstable:U1@[], push_beat:U1@[], push_ready:U1@[], ram_wr_addr:U4@[], ram_wr_addr_next:U4@[], ram_wr_data:U1@[], ram_wr_valid:U1@[]) {
   wire ram_wr_addr:U4 = nil
   const push_ready__w1 = U1(full == 0)
-  br_flow_checks_valid_data_intg_p1::[name=br_flow_checks_valid_data_intg](clk=clk, rst=rst, valid=push_valid, ready=push_ready__w1, data=push_data)
   mut _b2i_2 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
   const push_beat__w1 = _b2i_2
   mut _b2i_3 = if push_beat__w1 != 0 and bypass_ready == 0 { 1 } else { 0 }

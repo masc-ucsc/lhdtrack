@@ -1,3 +1,4 @@
-pub comb barrel_shifter::[timecheck=false](data:U8, shift_amt:U3) -> (shifted:U8) {
-  shifted = (data << shift_amt)#[0..=7]
+// Logical left shifter; bits shifted past the MSB are dropped.
+pub comb barrel_shifter(data:U8, shift_amt:U3) -> (shifted:U8) {
+  wrap shifted = data << shift_amt
 }

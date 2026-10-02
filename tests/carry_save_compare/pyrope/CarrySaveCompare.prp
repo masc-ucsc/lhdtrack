@@ -1,3 +1,4 @@
-pub comb CarrySaveCompare::[timecheck=false](a:U20, b:U20, c:U20, d:U20) -> (res:U1) {
+// res = (a + b) > c*d. The sum keeps its carry bit (21 bits) and the product is full width.
+pub comb CarrySaveCompare(a:U20, b:U20, c:U20, d:U20) -> (res:U1) {
   res = U1((a + b) > (c*d))
 }

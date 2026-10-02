@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is icmp.icmp.
 const dut = import("icmp.icmp")
 
-pub mod icmp_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod icmp_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   const (eq, ne, slt, sle, sgt, sge, ult, ule, ugt, uge) = dut(a=lfsr#[0..=7], b=lfsr#[8..=15])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ eq
   wrap acc = ((acc << 1) | acc#[63]) ^ ne
   wrap acc = ((acc << 1) | acc#[63]) ^ slt

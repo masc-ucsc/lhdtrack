@@ -132,11 +132,28 @@ class Ledger:
             key: max(runs, key=lambda run_id: (len(runs[run_id]), run_id))
             for key, runs in run_slots.items()
         }
+        # A focused run can replace a test's complete configuration matrix
+        # without replacing every other test. Retire its former slots too;
+        # otherwise newly runnable fixtures retain their obsolete skipped top.
+        test_runs: dict[tuple, dict[str, set[str]]] = {}
+        for row in rows:
+            key_scope = scope(row)
+            run_id = row.get("run_id", "")
+            if run_id < base_runs[key_scope]:
+                continue
+            runs = test_runs.setdefault((*key_scope, row.get("test")), {})
+            runs.setdefault(run_id, set()).add(row.get("config", "default"))
+        test_bases = {
+            key: max(runs, key=lambda run_id: (len(runs[run_id]), run_id))
+            for key, runs in test_runs.items()
+        }
 
         latest: dict[tuple, dict] = {}
         for row in rows:
             key_scope = scope(row)
             if row.get("run_id", "") < base_runs[key_scope]:
+                continue
+            if row.get("run_id", "") < test_bases[(*key_scope, row.get("test"))]:
                 continue
             key = (*key_scope, row.get("test"), row.get("config", "default"))
             previous = latest.get(key)

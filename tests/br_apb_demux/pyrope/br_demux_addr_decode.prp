@@ -1,221 +1,49 @@
 pub comb br_demux_addr_decode<AddrWidth=12, NumDownstreams=4, HasDefaultDownstream=0, UpstreamAddrMask=4095, DownstreamAddrMask=281474976710655>::[timecheck=false](addr_valid:U1, clk:U1, downstream_addr_base:U48, downstream_addr_in:U48, downstream_addr_size:U48, rst:U1, upstream_addr:U12) -> (downstream_addr_out:U48, select_onehot:U4) {
   mut _mux_1:S32 = 0
-  wire `select_onehot[0]`:U1 = nil
-  wire `select_onehot[1]`:U1 = nil
-  wire `select_onehot[2]`:U1 = nil
-  wire `select_onehot[3]`:U1 = nil
+  wire select_onehot_bits:U4 = nil
   wire select_onehot:U4 = nil
-  wire `downstream_addr_out[0]`:U1 = nil
-  wire `downstream_addr_out[1]`:U1 = nil
-  wire `downstream_addr_out[2]`:U1 = nil
-  wire `downstream_addr_out[3]`:U1 = nil
-  wire `downstream_addr_out[4]`:U1 = nil
-  wire `downstream_addr_out[5]`:U1 = nil
-  wire `downstream_addr_out[6]`:U1 = nil
-  wire `downstream_addr_out[7]`:U1 = nil
-  wire `downstream_addr_out[8]`:U1 = nil
-  wire `downstream_addr_out[9]`:U1 = nil
-  wire `downstream_addr_out[10]`:U1 = nil
-  wire `downstream_addr_out[11]`:U1 = nil
-  wire `downstream_addr_out[12]`:U1 = nil
-  wire `downstream_addr_out[13]`:U1 = nil
-  wire `downstream_addr_out[14]`:U1 = nil
-  wire `downstream_addr_out[15]`:U1 = nil
-  wire `downstream_addr_out[16]`:U1 = nil
-  wire `downstream_addr_out[17]`:U1 = nil
-  wire `downstream_addr_out[18]`:U1 = nil
-  wire `downstream_addr_out[19]`:U1 = nil
-  wire `downstream_addr_out[20]`:U1 = nil
-  wire `downstream_addr_out[21]`:U1 = nil
-  wire `downstream_addr_out[22]`:U1 = nil
-  wire `downstream_addr_out[23]`:U1 = nil
-  wire `downstream_addr_out[24]`:U1 = nil
-  wire `downstream_addr_out[25]`:U1 = nil
-  wire `downstream_addr_out[26]`:U1 = nil
-  wire `downstream_addr_out[27]`:U1 = nil
-  wire `downstream_addr_out[28]`:U1 = nil
-  wire `downstream_addr_out[29]`:U1 = nil
-  wire `downstream_addr_out[30]`:U1 = nil
-  wire `downstream_addr_out[31]`:U1 = nil
-  wire `downstream_addr_out[32]`:U1 = nil
-  wire `downstream_addr_out[33]`:U1 = nil
-  wire `downstream_addr_out[34]`:U1 = nil
-  wire `downstream_addr_out[35]`:U1 = nil
-  wire `downstream_addr_out[36]`:U1 = nil
-  wire `downstream_addr_out[37]`:U1 = nil
-  wire `downstream_addr_out[38]`:U1 = nil
-  wire `downstream_addr_out[39]`:U1 = nil
-  wire `downstream_addr_out[40]`:U1 = nil
-  wire `downstream_addr_out[41]`:U1 = nil
-  wire `downstream_addr_out[42]`:U1 = nil
-  wire `downstream_addr_out[43]`:U1 = nil
-  wire `downstream_addr_out[44]`:U1 = nil
-  wire `downstream_addr_out[45]`:U1 = nil
-  wire `downstream_addr_out[46]`:U1 = nil
-  wire `downstream_addr_out[47]`:U1 = nil
+  wire downstream_addr_out_bits:U48 = nil
   wire downstream_addr_out:U48 = nil
-  wire `downstream_addr_limit[0]`:U1 = nil
-  wire `downstream_addr_limit[1]`:U1 = nil
-  wire `downstream_addr_limit[2]`:U1 = nil
-  wire `downstream_addr_limit[3]`:U1 = nil
-  wire `downstream_addr_limit[4]`:U1 = nil
-  wire `downstream_addr_limit[5]`:U1 = nil
-  wire `downstream_addr_limit[6]`:U1 = nil
-  wire `downstream_addr_limit[7]`:U1 = nil
-  wire `downstream_addr_limit[8]`:U1 = nil
-  wire `downstream_addr_limit[9]`:U1 = nil
-  wire `downstream_addr_limit[10]`:U1 = nil
-  wire `downstream_addr_limit[11]`:U1 = nil
-  wire `downstream_addr_limit[12]`:U1 = nil
-  wire `downstream_addr_limit[13]`:U1 = nil
-  wire `downstream_addr_limit[14]`:U1 = nil
-  wire `downstream_addr_limit[15]`:U1 = nil
-  wire `downstream_addr_limit[16]`:U1 = nil
-  wire `downstream_addr_limit[17]`:U1 = nil
-  wire `downstream_addr_limit[18]`:U1 = nil
-  wire `downstream_addr_limit[19]`:U1 = nil
-  wire `downstream_addr_limit[20]`:U1 = nil
-  wire `downstream_addr_limit[21]`:U1 = nil
-  wire `downstream_addr_limit[22]`:U1 = nil
-  wire `downstream_addr_limit[23]`:U1 = nil
-  wire `downstream_addr_limit[24]`:U1 = nil
-  wire `downstream_addr_limit[25]`:U1 = nil
-  wire `downstream_addr_limit[26]`:U1 = nil
-  wire `downstream_addr_limit[27]`:U1 = nil
-  wire `downstream_addr_limit[28]`:U1 = nil
-  wire `downstream_addr_limit[29]`:U1 = nil
-  wire `downstream_addr_limit[30]`:U1 = nil
-  wire `downstream_addr_limit[31]`:U1 = nil
-  wire `downstream_addr_limit[32]`:U1 = nil
-  wire `downstream_addr_limit[33]`:U1 = nil
-  wire `downstream_addr_limit[34]`:U1 = nil
-  wire `downstream_addr_limit[35]`:U1 = nil
-  wire `downstream_addr_limit[36]`:U1 = nil
-  wire `downstream_addr_limit[37]`:U1 = nil
-  wire `downstream_addr_limit[38]`:U1 = nil
-  wire `downstream_addr_limit[39]`:U1 = nil
-  wire `downstream_addr_limit[40]`:U1 = nil
-  wire `downstream_addr_limit[41]`:U1 = nil
-  wire `downstream_addr_limit[42]`:U1 = nil
-  wire `downstream_addr_limit[43]`:U1 = nil
-  wire `downstream_addr_limit[44]`:U1 = nil
-  wire `downstream_addr_limit[45]`:U1 = nil
-  wire `downstream_addr_limit[46]`:U1 = nil
-  wire `downstream_addr_limit[47]`:U1 = nil
-  wire `downstream_addr_range_disabled[0]`:U1 = nil
-  wire `downstream_addr_range_disabled[1]`:U1 = nil
-  wire `downstream_addr_range_disabled[2]`:U1 = nil
-  wire `downstream_addr_range_disabled[3]`:U1 = nil
+  wire downstream_addr_limit_bits:U48 = nil
+  wire downstream_addr_range_disabled_bits:U4 = nil
   _mux_1 = NumDownstreams#sext[0..=31]
-  `downstream_addr_limit[0]` = ((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] & 1
-  `downstream_addr_limit[1]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 1) & 1
-  `downstream_addr_limit[2]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 2) & 1
-  `downstream_addr_limit[3]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 3) & 1
-  `downstream_addr_limit[4]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 4) & 1
-  `downstream_addr_limit[5]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 5) & 1
-  `downstream_addr_limit[6]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 6) & 1
-  `downstream_addr_limit[7]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 7) & 1
-  `downstream_addr_limit[8]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 8) & 1
-  `downstream_addr_limit[9]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 9) & 1
-  `downstream_addr_limit[10]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 10) & 1
-  `downstream_addr_limit[11]` = (((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11] >> 11) & 1
-  `downstream_addr_range_disabled[0]` = U1(downstream_addr_size#[0..=11] == 0) & 1
-  `downstream_addr_limit[12]` = ((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] & 1
-  `downstream_addr_limit[13]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 1) & 1
-  `downstream_addr_limit[14]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 2) & 1
-  `downstream_addr_limit[15]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 3) & 1
-  `downstream_addr_limit[16]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 4) & 1
-  `downstream_addr_limit[17]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 5) & 1
-  `downstream_addr_limit[18]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 6) & 1
-  `downstream_addr_limit[19]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 7) & 1
-  `downstream_addr_limit[20]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 8) & 1
-  `downstream_addr_limit[21]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 9) & 1
-  `downstream_addr_limit[22]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 10) & 1
-  `downstream_addr_limit[23]` = (((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11] >> 11) & 1
-  `downstream_addr_range_disabled[1]` = U1(downstream_addr_size#[12..=23] == 0) & 1
-  `downstream_addr_limit[24]` = ((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] & 1
-  `downstream_addr_limit[25]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 1) & 1
-  `downstream_addr_limit[26]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 2) & 1
-  `downstream_addr_limit[27]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 3) & 1
-  `downstream_addr_limit[28]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 4) & 1
-  `downstream_addr_limit[29]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 5) & 1
-  `downstream_addr_limit[30]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 6) & 1
-  `downstream_addr_limit[31]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 7) & 1
-  `downstream_addr_limit[32]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 8) & 1
-  `downstream_addr_limit[33]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 9) & 1
-  `downstream_addr_limit[34]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 10) & 1
-  `downstream_addr_limit[35]` = (((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11] >> 11) & 1
-  `downstream_addr_range_disabled[2]` = U1(downstream_addr_size#[24..=35] == 0) & 1
-  `downstream_addr_limit[36]` = ((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] & 1
-  `downstream_addr_limit[37]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 1) & 1
-  `downstream_addr_limit[38]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 2) & 1
-  `downstream_addr_limit[39]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 3) & 1
-  `downstream_addr_limit[40]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 4) & 1
-  `downstream_addr_limit[41]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 5) & 1
-  `downstream_addr_limit[42]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 6) & 1
-  `downstream_addr_limit[43]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 7) & 1
-  `downstream_addr_limit[44]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 8) & 1
-  `downstream_addr_limit[45]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 9) & 1
-  `downstream_addr_limit[46]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 10) & 1
-  `downstream_addr_limit[47]` = (((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11] >> 11) & 1
-  `downstream_addr_range_disabled[3]` = U1(downstream_addr_size#[36..=47] == 0) & 1
-  const upstream_addr_masked__w1 = upstream_addr & UpstreamAddrMask
-  mut _b2i_6 = if (`downstream_addr_range_disabled[0]` & 1) == 0 and upstream_addr_masked__w1 >= downstream_addr_base#[0..=11] and upstream_addr_masked__w1 <= ((`downstream_addr_limit[11]` << 11) | (`downstream_addr_limit[10]` << 10) | (`downstream_addr_limit[9]` << 9) | (`downstream_addr_limit[8]` << 8) | (`downstream_addr_limit[7]` << 7) | (`downstream_addr_limit[6]` << 6) | (`downstream_addr_limit[5]` << 5) | (`downstream_addr_limit[4]` << 4) | (`downstream_addr_limit[3]` << 3) | (`downstream_addr_limit[2]` << 2) | (`downstream_addr_limit[1]` << 1) | `downstream_addr_limit[0]`) { 1 } else { 0 }
-  `select_onehot[0]` = _b2i_6 & 1
-  `downstream_addr_out[0]` = (downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) & 1
-  `downstream_addr_out[1]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 1) & 1
-  `downstream_addr_out[2]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 2) & 1
-  `downstream_addr_out[3]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 3) & 1
-  `downstream_addr_out[4]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 4) & 1
-  `downstream_addr_out[5]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 5) & 1
-  `downstream_addr_out[6]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 6) & 1
-  `downstream_addr_out[7]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 7) & 1
-  `downstream_addr_out[8]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 8) & 1
-  `downstream_addr_out[9]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 9) & 1
-  `downstream_addr_out[10]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 10) & 1
-  `downstream_addr_out[11]` = ((downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11]) >> 11) & 1
-  mut _b2i_7 = if (`downstream_addr_range_disabled[1]` & 1) == 0 and upstream_addr_masked__w1 >= downstream_addr_base#[12..=23] and upstream_addr_masked__w1 <= ((`downstream_addr_limit[23]` << 11) | (`downstream_addr_limit[22]` << 10) | (`downstream_addr_limit[21]` << 9) | (`downstream_addr_limit[20]` << 8) | (`downstream_addr_limit[19]` << 7) | (`downstream_addr_limit[18]` << 6) | (`downstream_addr_limit[17]` << 5) | (`downstream_addr_limit[16]` << 4) | (`downstream_addr_limit[15]` << 3) | (`downstream_addr_limit[14]` << 2) | (`downstream_addr_limit[13]` << 1) | `downstream_addr_limit[12]`) { 1 } else { 0 }
-  `select_onehot[1]` = _b2i_7 & 1
-  `downstream_addr_out[12]` = (downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) & 1
-  `downstream_addr_out[13]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 1) & 1
-  `downstream_addr_out[14]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 2) & 1
-  `downstream_addr_out[15]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 3) & 1
-  `downstream_addr_out[16]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 4) & 1
-  `downstream_addr_out[17]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 5) & 1
-  `downstream_addr_out[18]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 6) & 1
-  `downstream_addr_out[19]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 7) & 1
-  `downstream_addr_out[20]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 8) & 1
-  `downstream_addr_out[21]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 9) & 1
-  `downstream_addr_out[22]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 10) & 1
-  `downstream_addr_out[23]` = ((downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23]) >> 11) & 1
-  mut _b2i_8 = if (`downstream_addr_range_disabled[2]` & 1) == 0 and upstream_addr_masked__w1 >= downstream_addr_base#[24..=35] and upstream_addr_masked__w1 <= ((`downstream_addr_limit[35]` << 11) | (`downstream_addr_limit[34]` << 10) | (`downstream_addr_limit[33]` << 9) | (`downstream_addr_limit[32]` << 8) | (`downstream_addr_limit[31]` << 7) | (`downstream_addr_limit[30]` << 6) | (`downstream_addr_limit[29]` << 5) | (`downstream_addr_limit[28]` << 4) | (`downstream_addr_limit[27]` << 3) | (`downstream_addr_limit[26]` << 2) | (`downstream_addr_limit[25]` << 1) | `downstream_addr_limit[24]`) { 1 } else { 0 }
-  `select_onehot[2]` = _b2i_8 & 1
-  `downstream_addr_out[24]` = (downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) & 1
-  `downstream_addr_out[25]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 1) & 1
-  `downstream_addr_out[26]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 2) & 1
-  `downstream_addr_out[27]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 3) & 1
-  `downstream_addr_out[28]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 4) & 1
-  `downstream_addr_out[29]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 5) & 1
-  `downstream_addr_out[30]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 6) & 1
-  `downstream_addr_out[31]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 7) & 1
-  `downstream_addr_out[32]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 8) & 1
-  `downstream_addr_out[33]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 9) & 1
-  `downstream_addr_out[34]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 10) & 1
-  `downstream_addr_out[35]` = ((downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35]) >> 11) & 1
-  mut _b2i_9 = if (`downstream_addr_range_disabled[3]` & 1) == 0 and upstream_addr_masked__w1 >= downstream_addr_base#[36..=47] and upstream_addr_masked__w1 <= ((`downstream_addr_limit[47]` << 11) | (`downstream_addr_limit[46]` << 10) | (`downstream_addr_limit[45]` << 9) | (`downstream_addr_limit[44]` << 8) | (`downstream_addr_limit[43]` << 7) | (`downstream_addr_limit[42]` << 6) | (`downstream_addr_limit[41]` << 5) | (`downstream_addr_limit[40]` << 4) | (`downstream_addr_limit[39]` << 3) | (`downstream_addr_limit[38]` << 2) | (`downstream_addr_limit[37]` << 1) | `downstream_addr_limit[36]`) { 1 } else { 0 }
-  `select_onehot[3]` = _b2i_9 & 1
-  `downstream_addr_out[36]` = (downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) & 1
-  `downstream_addr_out[37]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 1) & 1
-  `downstream_addr_out[38]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 2) & 1
-  `downstream_addr_out[39]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 3) & 1
-  `downstream_addr_out[40]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 4) & 1
-  `downstream_addr_out[41]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 5) & 1
-  `downstream_addr_out[42]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 6) & 1
-  `downstream_addr_out[43]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 7) & 1
-  `downstream_addr_out[44]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 8) & 1
-  `downstream_addr_out[45]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 9) & 1
-  `downstream_addr_out[46]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 10) & 1
-  `downstream_addr_out[47]` = ((downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47]) >> 11) & 1
-  select_onehot = (`select_onehot[3]` << 3) | (`select_onehot[2]` << 2) | (`select_onehot[1]` << 1) | `select_onehot[0]`
-  downstream_addr_out = (`downstream_addr_out[47]` << 47) | (`downstream_addr_out[46]` << 46) | (`downstream_addr_out[45]` << 45) | (`downstream_addr_out[44]` << 44) | (`downstream_addr_out[43]` << 43) | (`downstream_addr_out[42]` << 42) | (`downstream_addr_out[41]` << 41) | (`downstream_addr_out[40]` << 40) | (`downstream_addr_out[39]` << 39) | (`downstream_addr_out[38]` << 38) | (`downstream_addr_out[37]` << 37) | (`downstream_addr_out[36]` << 36) | (`downstream_addr_out[35]` << 35) | (`downstream_addr_out[34]` << 34) | (`downstream_addr_out[33]` << 33) | (`downstream_addr_out[32]` << 32) | (`downstream_addr_out[31]` << 31) | (`downstream_addr_out[30]` << 30) | (`downstream_addr_out[29]` << 29) | (`downstream_addr_out[28]` << 28) | (`downstream_addr_out[27]` << 27) | (`downstream_addr_out[26]` << 26) | (`downstream_addr_out[25]` << 25) | (`downstream_addr_out[24]` << 24) | (`downstream_addr_out[23]` << 23) | (`downstream_addr_out[22]` << 22) | (`downstream_addr_out[21]` << 21) | (`downstream_addr_out[20]` << 20) | (`downstream_addr_out[19]` << 19) | (`downstream_addr_out[18]` << 18) | (`downstream_addr_out[17]` << 17) | (`downstream_addr_out[16]` << 16) | (`downstream_addr_out[15]` << 15) | (`downstream_addr_out[14]` << 14) | (`downstream_addr_out[13]` << 13) | (`downstream_addr_out[12]` << 12) | (`downstream_addr_out[11]` << 11) | (`downstream_addr_out[10]` << 10) | (`downstream_addr_out[9]` << 9) | (`downstream_addr_out[8]` << 8) | (`downstream_addr_out[7]` << 7) | (`downstream_addr_out[6]` << 6) | (`downstream_addr_out[5]` << 5) | (`downstream_addr_out[4]` << 4) | (`downstream_addr_out[3]` << 3) | (`downstream_addr_out[2]` << 2) | (`downstream_addr_out[1]` << 1) | `downstream_addr_out[0]`
+  downstream_addr_limit_bits#[0..<12] = ((downstream_addr_base#[0..=11] + downstream_addr_size#[0..=11])#[0..=11] - 1)#[0..=11]#[0..<12]
+  downstream_addr_range_disabled_bits#[0] = U1(downstream_addr_size#[0..=11] == 0) & 1
+  downstream_addr_limit_bits#[12..<24] = ((downstream_addr_base#[12..=23] + downstream_addr_size#[12..=23])#[0..=11] - 1)#[0..=11]#[0..<12]
+  downstream_addr_range_disabled_bits#[1] = U1(downstream_addr_size#[12..=23] == 0) & 1
+  downstream_addr_limit_bits#[24..<36] = ((downstream_addr_base#[24..=35] + downstream_addr_size#[24..=35])#[0..=11] - 1)#[0..=11]#[0..<12]
+  downstream_addr_range_disabled_bits#[2] = U1(downstream_addr_size#[24..=35] == 0) & 1
+  downstream_addr_limit_bits#[36..<48] = ((downstream_addr_base#[36..=47] + downstream_addr_size#[36..=47])#[0..=11] - 1)#[0..=11]#[0..<12]
+  downstream_addr_range_disabled_bits#[3] = U1(downstream_addr_size#[36..=47] == 0) & 1
+  const upstream_addr_masked = upstream_addr & UpstreamAddrMask
+  mut _b2i_6 = if (downstream_addr_range_disabled_bits#[0] & 1) == 0 and upstream_addr_masked >= downstream_addr_base#[0..=11] and upstream_addr_masked <= ((downstream_addr_limit_bits#[11] << 11) | (downstream_addr_limit_bits#[10] << 10) | (downstream_addr_limit_bits#[9] << 9) | (downstream_addr_limit_bits#[8] << 8) | (downstream_addr_limit_bits#[7] << 7) | (downstream_addr_limit_bits#[6] << 6) | (downstream_addr_limit_bits#[5] << 5) | (downstream_addr_limit_bits#[4] << 4) | (downstream_addr_limit_bits#[3] << 3) | (downstream_addr_limit_bits#[2] << 2) | (downstream_addr_limit_bits#[1] << 1) | downstream_addr_limit_bits#[0]) {
+    1
+  } else {
+    0
+  }
+  select_onehot_bits#[0] = _b2i_6 & 1
+  downstream_addr_out_bits#[0..<12] = (downstream_addr_in#[0..=11] & DownstreamAddrMask#[0..=11])#[0..<12]
+  mut _b2i_7 = if (downstream_addr_range_disabled_bits#[1] & 1) == 0 and upstream_addr_masked >= downstream_addr_base#[12..=23] and upstream_addr_masked <= ((downstream_addr_limit_bits#[23] << 11) | (downstream_addr_limit_bits#[22] << 10) | (downstream_addr_limit_bits#[21] << 9) | (downstream_addr_limit_bits#[20] << 8) | (downstream_addr_limit_bits#[19] << 7) | (downstream_addr_limit_bits#[18] << 6) | (downstream_addr_limit_bits#[17] << 5) | (downstream_addr_limit_bits#[16] << 4) | (downstream_addr_limit_bits#[15] << 3) | (downstream_addr_limit_bits#[14] << 2) | (downstream_addr_limit_bits#[13] << 1) | downstream_addr_limit_bits#[12]) {
+    1
+  } else {
+    0
+  }
+  select_onehot_bits#[1] = _b2i_7 & 1
+  downstream_addr_out_bits#[12..<24] = (downstream_addr_in#[12..=23] & DownstreamAddrMask#[12..=23])#[0..<12]
+  mut _b2i_8 = if (downstream_addr_range_disabled_bits#[2] & 1) == 0 and upstream_addr_masked >= downstream_addr_base#[24..=35] and upstream_addr_masked <= ((downstream_addr_limit_bits#[35] << 11) | (downstream_addr_limit_bits#[34] << 10) | (downstream_addr_limit_bits#[33] << 9) | (downstream_addr_limit_bits#[32] << 8) | (downstream_addr_limit_bits#[31] << 7) | (downstream_addr_limit_bits#[30] << 6) | (downstream_addr_limit_bits#[29] << 5) | (downstream_addr_limit_bits#[28] << 4) | (downstream_addr_limit_bits#[27] << 3) | (downstream_addr_limit_bits#[26] << 2) | (downstream_addr_limit_bits#[25] << 1) | downstream_addr_limit_bits#[24]) {
+    1
+  } else {
+    0
+  }
+  select_onehot_bits#[2] = _b2i_8 & 1
+  downstream_addr_out_bits#[24..<36] = (downstream_addr_in#[24..=35] & DownstreamAddrMask#[24..=35])#[0..<12]
+  mut _b2i_9 = if (downstream_addr_range_disabled_bits#[3] & 1) == 0 and upstream_addr_masked >= downstream_addr_base#[36..=47] and upstream_addr_masked <= ((downstream_addr_limit_bits#[47] << 11) | (downstream_addr_limit_bits#[46] << 10) | (downstream_addr_limit_bits#[45] << 9) | (downstream_addr_limit_bits#[44] << 8) | (downstream_addr_limit_bits#[43] << 7) | (downstream_addr_limit_bits#[42] << 6) | (downstream_addr_limit_bits#[41] << 5) | (downstream_addr_limit_bits#[40] << 4) | (downstream_addr_limit_bits#[39] << 3) | (downstream_addr_limit_bits#[38] << 2) | (downstream_addr_limit_bits#[37] << 1) | downstream_addr_limit_bits#[36]) {
+    1
+  } else {
+    0
+  }
+  select_onehot_bits#[3] = _b2i_9 & 1
+  downstream_addr_out_bits#[36..<48] = (downstream_addr_in#[36..=47] & DownstreamAddrMask#[36..=47])#[0..<12]
+  select_onehot = select_onehot_bits
+  downstream_addr_out = downstream_addr_out_bits
 }

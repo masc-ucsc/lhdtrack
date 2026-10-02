@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_flow_mux_lru_stable#<id>`.
 [[config]]
 id     = "nf8_rpr0_w32"
-sim_checksum = { cycles = 18400000, value = "10341925190706823752" }
+sim_checksum = { cycles = 31959092, value = "7933005247620370630" }
 # NO PARAMETERS. verilog/br_flow_mux_lru_stable.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -40,10 +40,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 18400000
+cycles = 31959092
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -200,5 +200,35 @@
       "syn_lhd_verilog": 0.6391752515737836,
       "syn_lhd_pyrope": 0.6391752515737836
     }
+  },
+  {
+    "run": "20261001T232300",
+    "date": "2026-10-01",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local sha256:d18e0a21caf05d30c33770489095134dcf88099b9818f1d06d59a246487c8300,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.9661399792885209,
+      "syn_lhd_pyrope": 0.9661399792885209
+    }
+  },
+  {
+    "run": "20261002T064214",
+    "date": "2026-10-02",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local sha256:d18e0a21caf05d30c33770489095134dcf88099b9818f1d06d59a246487c8300,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 0.9661399792885209,
+      "syn_lhd_pyrope": 0.9661399792885209
+    }
+  },
+  {
+    "run": "20261002T065455",
+    "date": "2026-10-02",
+    "seg": "Darwin-arm64|abc=UC Berkeley, ABC 1.01 (compiled redacted redacted),cxx=Apple clang version 21.0.0 (clang-2100.1.1.101),lgcheck=local sha256:d18e0a21caf05d30c33770489095134dcf88099b9818f1d06d59a246487c8300,lhd_synthesis=local sha256:48f8396e2e12b7fe2bdf60e6031c2bea2bb30c2c45e85dd976d0fe2357367819,lhd_yosys=Yosys 0.68+435977e97 (LiveHD),make=GNU Make 3.81,sta=3.1.0,verilator=Verilator v5.046 rev v5.046,yosys=Yosys 0.64,yosys_slang=yosys-slang sha256:55096405d1514bcd",
+    "flows": {
+      "syn_yosys_abc": 1.0,
+      "syn_lhd_verilog": 1.0,
+      "syn_lhd_pyrope": 1.0
+    }
   }
 ]

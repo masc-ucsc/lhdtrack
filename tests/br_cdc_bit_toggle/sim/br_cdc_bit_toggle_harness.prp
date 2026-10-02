@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_cdc_bit_toggle.br_cdc_bit_toggle.
 const dut = import("br_cdc_bit_toggle.br_cdc_bit_toggle")
 
-pub mod br_cdc_bit_toggle_harness(clk:u1, rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64:[clock_pin=ref clk] = nil
-  reg sum:u64:[clock_pin=ref clk] = nil
+pub mod br_cdc_bit_toggle_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = nil
+  reg sum:U64 = nil
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   const r = dut(src_clk=clk, dst_clk=clk, src_rst=rst, dst_rst=rst, src_bit=lfsr#[0])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r
 
   if rst != 0 {

@@ -6,7 +6,7 @@ from unittest import TestCase
 
 from lhdtrack.cache import Cache
 from lhdtrack.cli import record_sim_checksum
-from lhdtrack.corpus import load_test
+from lhdtrack.corpus import CorpusError, load_test
 from lhdtrack.keys import file_digest, manifest_digest
 from lhdtrack.run import Row, Runner
 from lhdtrack.toolchain import Toolchain
@@ -36,6 +36,30 @@ def _sim_row(flow: str, checksum: str, cycles: int = 100) -> Row:
 
 
 class RecordedChecksum(TestCase):
+    def test_behavioral_simulation_changes_key_without_changing_formal_default(self):
+        with TemporaryDirectory() as directory:
+            test = Path(directory) / "dut"
+            test.mkdir()
+            manifest = test / "design.toml"
+            manifest.write_text(MANIFEST)
+            before = manifest_digest(manifest)
+            manifest.write_text(MANIFEST + 'verilog_profile = "behavioral"\n')
+            self.assertNotEqual(manifest_digest(manifest), before)
+            fixture = load_test(test)
+            self.assertNotIn("-DSYNTHESIS", fixture.sim_verilog_args())
+            self.assertIn("-DSYNTHESIS", fixture.verilog_args("lec"))
+
+    def test_invalid_profile_and_empty_capability_reason_are_rejected(self):
+        with TemporaryDirectory() as directory:
+            test = Path(directory) / "dut"
+            test.mkdir()
+            manifest = test / "design.toml"
+            for extra in ('verilog_profile = "behavoural"\n', 'skip_reason = ""\n'):
+                with self.subTest(extra=extra):
+                    manifest.write_text(MANIFEST + extra)
+                    with self.assertRaises(CorpusError):
+                        load_test(test)
+
     def _runner(self, root: Path) -> Runner:
         tc = Toolchain(root, "test", "", {}, {}, {}, {})
         return Runner(root, tc, Cache(root), "test", {})

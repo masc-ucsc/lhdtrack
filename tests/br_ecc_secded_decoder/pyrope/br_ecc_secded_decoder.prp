@@ -1,823 +1,355 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
-const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
-const br_delay_valid_p2 = import("br_delay_valid_p2.br_delay_valid_p2")
+const br_delay_valid_p1 = import("br_delay_valid.br_delay_valid")
+const br_delay_valid_p2 = import("br_delay_valid.br_delay_valid")
 
 pub mod br_ecc_secded_decoder::[timecheck=false](clk:Clock, rcv_data:U32, rcv_parity:U7, rcv_valid:U1, rst:Reset) -> (dec_codeword:U39@[], dec_data:U32@[], dec_error_ce:U1@[], dec_error_due:U1@[], dec_error_syndrome:U7@[], dec_valid:U1@[]) {
-  wire `parity_check_matrix[0]`:U1 = nil
-  wire `parity_check_matrix[1]`:U1 = nil
-  wire `parity_check_matrix[2]`:U1 = nil
-  wire `parity_check_matrix[3]`:U1 = nil
-  wire `parity_check_matrix[4]`:U1 = nil
-  wire `parity_check_matrix[5]`:U1 = nil
-  wire `parity_check_matrix[6]`:U1 = nil
-  wire `parity_check_matrix[7]`:U1 = nil
-  wire `parity_check_matrix[8]`:U1 = nil
-  wire `parity_check_matrix[9]`:U1 = nil
-  wire `parity_check_matrix[10]`:U1 = nil
-  wire `parity_check_matrix[11]`:U1 = nil
-  wire `parity_check_matrix[12]`:U1 = nil
-  wire `parity_check_matrix[13]`:U1 = nil
-  wire `parity_check_matrix[14]`:U1 = nil
-  wire `parity_check_matrix[15]`:U1 = nil
-  wire `parity_check_matrix[16]`:U1 = nil
-  wire `parity_check_matrix[17]`:U1 = nil
-  wire `parity_check_matrix[18]`:U1 = nil
-  wire `parity_check_matrix[19]`:U1 = nil
-  wire `parity_check_matrix[20]`:U1 = nil
-  wire `parity_check_matrix[21]`:U1 = nil
-  wire `parity_check_matrix[22]`:U1 = nil
-  wire `parity_check_matrix[23]`:U1 = nil
-  wire `parity_check_matrix[24]`:U1 = nil
-  wire `parity_check_matrix[25]`:U1 = nil
-  wire `parity_check_matrix[26]`:U1 = nil
-  wire `parity_check_matrix[27]`:U1 = nil
-  wire `parity_check_matrix[28]`:U1 = nil
-  wire `parity_check_matrix[29]`:U1 = nil
-  wire `parity_check_matrix[30]`:U1 = nil
-  wire `parity_check_matrix[31]`:U1 = nil
-  wire `parity_check_matrix[32]`:U1 = nil
-  wire `parity_check_matrix[33]`:U1 = nil
-  wire `parity_check_matrix[34]`:U1 = nil
-  wire `parity_check_matrix[35]`:U1 = nil
-  wire `parity_check_matrix[36]`:U1 = nil
-  wire `parity_check_matrix[37]`:U1 = nil
-  wire `parity_check_matrix[38]`:U1 = nil
-  wire `parity_check_matrix[39]`:U1 = nil
-  wire `parity_check_matrix[40]`:U1 = nil
-  wire `parity_check_matrix[41]`:U1 = nil
-  wire `parity_check_matrix[42]`:U1 = nil
-  wire `parity_check_matrix[43]`:U1 = nil
-  wire `parity_check_matrix[44]`:U1 = nil
-  wire `parity_check_matrix[45]`:U1 = nil
-  wire `parity_check_matrix[46]`:U1 = nil
-  wire `parity_check_matrix[47]`:U1 = nil
-  wire `parity_check_matrix[48]`:U1 = nil
-  wire `parity_check_matrix[49]`:U1 = nil
-  wire `parity_check_matrix[50]`:U1 = nil
-  wire `parity_check_matrix[51]`:U1 = nil
-  wire `parity_check_matrix[52]`:U1 = nil
-  wire `parity_check_matrix[53]`:U1 = nil
-  wire `parity_check_matrix[54]`:U1 = nil
-  wire `parity_check_matrix[55]`:U1 = nil
-  wire `parity_check_matrix[56]`:U1 = nil
-  wire `parity_check_matrix[57]`:U1 = nil
-  wire `parity_check_matrix[58]`:U1 = nil
-  wire `parity_check_matrix[59]`:U1 = nil
-  wire `parity_check_matrix[60]`:U1 = nil
-  wire `parity_check_matrix[61]`:U1 = nil
-  wire `parity_check_matrix[62]`:U1 = nil
-  wire `parity_check_matrix[63]`:U1 = nil
-  wire `parity_check_matrix[64]`:U1 = nil
-  wire `parity_check_matrix[65]`:U1 = nil
-  wire `parity_check_matrix[66]`:U1 = nil
-  wire `parity_check_matrix[67]`:U1 = nil
-  wire `parity_check_matrix[68]`:U1 = nil
-  wire `parity_check_matrix[69]`:U1 = nil
-  wire `parity_check_matrix[70]`:U1 = nil
-  wire `parity_check_matrix[71]`:U1 = nil
-  wire `parity_check_matrix[72]`:U1 = nil
-  wire `parity_check_matrix[73]`:U1 = nil
-  wire `parity_check_matrix[74]`:U1 = nil
-  wire `parity_check_matrix[75]`:U1 = nil
-  wire `parity_check_matrix[76]`:U1 = nil
-  wire `parity_check_matrix[77]`:U1 = nil
-  wire `parity_check_matrix[78]`:U1 = nil
-  wire `parity_check_matrix[79]`:U1 = nil
-  wire `parity_check_matrix[80]`:U1 = nil
-  wire `parity_check_matrix[81]`:U1 = nil
-  wire `parity_check_matrix[82]`:U1 = nil
-  wire `parity_check_matrix[83]`:U1 = nil
-  wire `parity_check_matrix[84]`:U1 = nil
-  wire `parity_check_matrix[85]`:U1 = nil
-  wire `parity_check_matrix[86]`:U1 = nil
-  wire `parity_check_matrix[87]`:U1 = nil
-  wire `parity_check_matrix[88]`:U1 = nil
-  wire `parity_check_matrix[89]`:U1 = nil
-  wire `parity_check_matrix[90]`:U1 = nil
-  wire `parity_check_matrix[91]`:U1 = nil
-  wire `parity_check_matrix[92]`:U1 = nil
-  wire `parity_check_matrix[93]`:U1 = nil
-  wire `parity_check_matrix[94]`:U1 = nil
-  wire `parity_check_matrix[95]`:U1 = nil
-  wire `parity_check_matrix[96]`:U1 = nil
-  wire `parity_check_matrix[97]`:U1 = nil
-  wire `parity_check_matrix[98]`:U1 = nil
-  wire `parity_check_matrix[99]`:U1 = nil
-  wire `parity_check_matrix[100]`:U1 = nil
-  wire `parity_check_matrix[101]`:U1 = nil
-  wire `parity_check_matrix[102]`:U1 = nil
-  wire `parity_check_matrix[103]`:U1 = nil
-  wire `parity_check_matrix[104]`:U1 = nil
-  wire `parity_check_matrix[105]`:U1 = nil
-  wire `parity_check_matrix[106]`:U1 = nil
-  wire `parity_check_matrix[107]`:U1 = nil
-  wire `parity_check_matrix[108]`:U1 = nil
-  wire `parity_check_matrix[109]`:U1 = nil
-  wire `parity_check_matrix[110]`:U1 = nil
-  wire `parity_check_matrix[111]`:U1 = nil
-  wire `parity_check_matrix[112]`:U1 = nil
-  wire `parity_check_matrix[113]`:U1 = nil
-  wire `parity_check_matrix[114]`:U1 = nil
-  wire `parity_check_matrix[115]`:U1 = nil
-  wire `parity_check_matrix[116]`:U1 = nil
-  wire `parity_check_matrix[117]`:U1 = nil
-  wire `parity_check_matrix[118]`:U1 = nil
-  wire `parity_check_matrix[119]`:U1 = nil
-  wire `parity_check_matrix[120]`:U1 = nil
-  wire `parity_check_matrix[121]`:U1 = nil
-  wire `parity_check_matrix[122]`:U1 = nil
-  wire `parity_check_matrix[123]`:U1 = nil
-  wire `parity_check_matrix[124]`:U1 = nil
-  wire `parity_check_matrix[125]`:U1 = nil
-  wire `parity_check_matrix[126]`:U1 = nil
-  wire `parity_check_matrix[127]`:U1 = nil
-  wire `parity_check_matrix[128]`:U1 = nil
-  wire `parity_check_matrix[129]`:U1 = nil
-  wire `parity_check_matrix[130]`:U1 = nil
-  wire `parity_check_matrix[131]`:U1 = nil
-  wire `parity_check_matrix[132]`:U1 = nil
-  wire `parity_check_matrix[133]`:U1 = nil
-  wire `parity_check_matrix[134]`:U1 = nil
-  wire `parity_check_matrix[135]`:U1 = nil
-  wire `parity_check_matrix[136]`:U1 = nil
-  wire `parity_check_matrix[137]`:U1 = nil
-  wire `parity_check_matrix[138]`:U1 = nil
-  wire `parity_check_matrix[139]`:U1 = nil
-  wire `parity_check_matrix[140]`:U1 = nil
-  wire `parity_check_matrix[141]`:U1 = nil
-  wire `parity_check_matrix[142]`:U1 = nil
-  wire `parity_check_matrix[143]`:U1 = nil
-  wire `parity_check_matrix[144]`:U1 = nil
-  wire `parity_check_matrix[145]`:U1 = nil
-  wire `parity_check_matrix[146]`:U1 = nil
-  wire `parity_check_matrix[147]`:U1 = nil
-  wire `parity_check_matrix[148]`:U1 = nil
-  wire `parity_check_matrix[149]`:U1 = nil
-  wire `parity_check_matrix[150]`:U1 = nil
-  wire `parity_check_matrix[151]`:U1 = nil
-  wire `parity_check_matrix[152]`:U1 = nil
-  wire `parity_check_matrix[153]`:U1 = nil
-  wire `parity_check_matrix[154]`:U1 = nil
-  wire `parity_check_matrix[155]`:U1 = nil
-  wire `parity_check_matrix[156]`:U1 = nil
-  wire `parity_check_matrix[157]`:U1 = nil
-  wire `parity_check_matrix[158]`:U1 = nil
-  wire `parity_check_matrix[159]`:U1 = nil
-  wire `parity_check_matrix[160]`:U1 = nil
-  wire `parity_check_matrix[161]`:U1 = nil
-  wire `parity_check_matrix[162]`:U1 = nil
-  wire `parity_check_matrix[163]`:U1 = nil
-  wire `parity_check_matrix[164]`:U1 = nil
-  wire `parity_check_matrix[165]`:U1 = nil
-  wire `parity_check_matrix[166]`:U1 = nil
-  wire `parity_check_matrix[167]`:U1 = nil
-  wire `parity_check_matrix[168]`:U1 = nil
-  wire `parity_check_matrix[169]`:U1 = nil
-  wire `parity_check_matrix[170]`:U1 = nil
-  wire `parity_check_matrix[171]`:U1 = nil
-  wire `parity_check_matrix[172]`:U1 = nil
-  wire `parity_check_matrix[173]`:U1 = nil
-  wire `parity_check_matrix[174]`:U1 = nil
-  wire `parity_check_matrix[175]`:U1 = nil
-  wire `parity_check_matrix[176]`:U1 = nil
-  wire `parity_check_matrix[177]`:U1 = nil
-  wire `parity_check_matrix[178]`:U1 = nil
-  wire `parity_check_matrix[179]`:U1 = nil
-  wire `parity_check_matrix[180]`:U1 = nil
-  wire `parity_check_matrix[181]`:U1 = nil
-  wire `parity_check_matrix[182]`:U1 = nil
-  wire `parity_check_matrix[183]`:U1 = nil
-  wire `parity_check_matrix[184]`:U1 = nil
-  wire `parity_check_matrix[185]`:U1 = nil
-  wire `parity_check_matrix[186]`:U1 = nil
-  wire `parity_check_matrix[187]`:U1 = nil
-  wire `parity_check_matrix[188]`:U1 = nil
-  wire `parity_check_matrix[189]`:U1 = nil
-  wire `parity_check_matrix[190]`:U1 = nil
-  wire `parity_check_matrix[191]`:U1 = nil
-  wire `parity_check_matrix[192]`:U1 = nil
-  wire `parity_check_matrix[193]`:U1 = nil
-  wire `parity_check_matrix[194]`:U1 = nil
-  wire `parity_check_matrix[195]`:U1 = nil
-  wire `parity_check_matrix[196]`:U1 = nil
-  wire `parity_check_matrix[197]`:U1 = nil
-  wire `parity_check_matrix[198]`:U1 = nil
-  wire `parity_check_matrix[199]`:U1 = nil
-  wire `parity_check_matrix[200]`:U1 = nil
-  wire `parity_check_matrix[201]`:U1 = nil
-  wire `parity_check_matrix[202]`:U1 = nil
-  wire `parity_check_matrix[203]`:U1 = nil
-  wire `parity_check_matrix[204]`:U1 = nil
-  wire `parity_check_matrix[205]`:U1 = nil
-  wire `parity_check_matrix[206]`:U1 = nil
-  wire `parity_check_matrix[207]`:U1 = nil
-  wire `parity_check_matrix[208]`:U1 = nil
-  wire `parity_check_matrix[209]`:U1 = nil
-  wire `parity_check_matrix[210]`:U1 = nil
-  wire `parity_check_matrix[211]`:U1 = nil
-  wire `parity_check_matrix[212]`:U1 = nil
-  wire `parity_check_matrix[213]`:U1 = nil
-  wire `parity_check_matrix[214]`:U1 = nil
-  wire `parity_check_matrix[215]`:U1 = nil
-  wire `parity_check_matrix[216]`:U1 = nil
-  wire `parity_check_matrix[217]`:U1 = nil
-  wire `parity_check_matrix[218]`:U1 = nil
-  wire `parity_check_matrix[219]`:U1 = nil
-  wire `parity_check_matrix[220]`:U1 = nil
-  wire `parity_check_matrix[221]`:U1 = nil
-  wire `parity_check_matrix[222]`:U1 = nil
-  wire `parity_check_matrix[223]`:U1 = nil
-  wire `parity_check_matrix[224]`:U1 = nil
-  wire `parity_check_matrix[225]`:U1 = nil
-  wire `parity_check_matrix[226]`:U1 = nil
-  wire `parity_check_matrix[227]`:U1 = nil
-  wire `parity_check_matrix[228]`:U1 = nil
-  wire `parity_check_matrix[229]`:U1 = nil
-  wire `parity_check_matrix[230]`:U1 = nil
-  wire `parity_check_matrix[231]`:U1 = nil
-  wire `parity_check_matrix[232]`:U1 = nil
-  wire `parity_check_matrix[233]`:U1 = nil
-  wire `parity_check_matrix[234]`:U1 = nil
-  wire `parity_check_matrix[235]`:U1 = nil
-  wire `parity_check_matrix[236]`:U1 = nil
-  wire `parity_check_matrix[237]`:U1 = nil
-  wire `parity_check_matrix[238]`:U1 = nil
-  wire `parity_check_matrix[239]`:U1 = nil
-  wire `parity_check_matrix[240]`:U1 = nil
-  wire `parity_check_matrix[241]`:U1 = nil
-  wire `parity_check_matrix[242]`:U1 = nil
-  wire `parity_check_matrix[243]`:U1 = nil
-  wire `parity_check_matrix[244]`:U1 = nil
-  wire `parity_check_matrix[245]`:U1 = nil
-  wire `parity_check_matrix[246]`:U1 = nil
-  wire `parity_check_matrix[247]`:U1 = nil
-  wire `parity_check_matrix[248]`:U1 = nil
-  wire `parity_check_matrix[249]`:U1 = nil
-  wire `parity_check_matrix[250]`:U1 = nil
-  wire `parity_check_matrix[251]`:U1 = nil
-  wire `parity_check_matrix[252]`:U1 = nil
-  wire `parity_check_matrix[253]`:U1 = nil
-  wire `parity_check_matrix[254]`:U1 = nil
-  wire `parity_check_matrix[255]`:U1 = nil
-  wire `parity_check_matrix[256]`:U1 = nil
-  wire `parity_check_matrix[257]`:U1 = nil
-  wire `parity_check_matrix[258]`:U1 = nil
-  wire `parity_check_matrix[259]`:U1 = nil
-  wire `parity_check_matrix[260]`:U1 = nil
-  wire `parity_check_matrix[261]`:U1 = nil
-  wire `parity_check_matrix[262]`:U1 = nil
-  wire `parity_check_matrix[263]`:U1 = nil
-  wire `parity_check_matrix[264]`:U1 = nil
-  wire `parity_check_matrix[265]`:U1 = nil
-  wire `parity_check_matrix[266]`:U1 = nil
-  wire `parity_check_matrix[267]`:U1 = nil
-  wire `parity_check_matrix[268]`:U1 = nil
-  wire `parity_check_matrix[269]`:U1 = nil
-  wire `parity_check_matrix[270]`:U1 = nil
-  wire `parity_check_matrix[271]`:U1 = nil
-  wire `parity_check_matrix[272]`:U1 = nil
-  wire `syndrome[0]`:U1 = nil
-  wire `syndrome[1]`:U1 = nil
-  wire `syndrome[2]`:U1 = nil
-  wire `syndrome[3]`:U1 = nil
-  wire `syndrome[4]`:U1 = nil
-  wire `syndrome[5]`:U1 = nil
-  wire `syndrome[6]`:U1 = nil
+  wire parity_check_matrix_bits:U273 = nil
+  wire syndrome_bits:U7 = nil
   wire syndrome:U7 = nil
-  wire `cw[0]`:U1 = nil
-  wire `cw[1]`:U1 = nil
-  wire `cw[2]`:U1 = nil
-  wire `cw[3]`:U1 = nil
-  wire `cw[4]`:U1 = nil
-  wire `cw[5]`:U1 = nil
-  wire `cw[6]`:U1 = nil
-  wire `cw[7]`:U1 = nil
-  wire `cw[8]`:U1 = nil
-  wire `cw[9]`:U1 = nil
-  wire `cw[10]`:U1 = nil
-  wire `cw[11]`:U1 = nil
-  wire `cw[12]`:U1 = nil
-  wire `cw[13]`:U1 = nil
-  wire `cw[14]`:U1 = nil
-  wire `cw[15]`:U1 = nil
-  wire `cw[16]`:U1 = nil
-  wire `cw[17]`:U1 = nil
-  wire `cw[18]`:U1 = nil
-  wire `cw[19]`:U1 = nil
-  wire `cw[20]`:U1 = nil
-  wire `cw[21]`:U1 = nil
-  wire `cw[22]`:U1 = nil
-  wire `cw[23]`:U1 = nil
-  wire `cw[24]`:U1 = nil
-  wire `cw[25]`:U1 = nil
-  wire `cw[26]`:U1 = nil
-  wire `cw[27]`:U1 = nil
-  wire `cw[28]`:U1 = nil
-  wire `cw[29]`:U1 = nil
-  wire `cw[30]`:U1 = nil
-  wire `cw[31]`:U1 = nil
-  wire `cw[32]`:U1 = nil
-  wire `cw[33]`:U1 = nil
-  wire `cw[34]`:U1 = nil
-  wire `cw[35]`:U1 = nil
-  wire `cw[36]`:U1 = nil
-  wire `cw[37]`:U1 = nil
-  wire `cw[38]`:U1 = nil
+  wire cw_bits:U39 = nil
   wire cw:U39 = nil
-  wire `internal_h_column_match[0]`:U1 = nil
-  wire `internal_h_column_match[1]`:U1 = nil
-  wire `internal_h_column_match[2]`:U1 = nil
-  wire `internal_h_column_match[3]`:U1 = nil
-  wire `internal_h_column_match[4]`:U1 = nil
-  wire `internal_h_column_match[5]`:U1 = nil
-  wire `internal_h_column_match[6]`:U1 = nil
-  wire `internal_h_column_match[7]`:U1 = nil
-  wire `internal_h_column_match[8]`:U1 = nil
-  wire `internal_h_column_match[9]`:U1 = nil
-  wire `internal_h_column_match[10]`:U1 = nil
-  wire `internal_h_column_match[11]`:U1 = nil
-  wire `internal_h_column_match[12]`:U1 = nil
-  wire `internal_h_column_match[13]`:U1 = nil
-  wire `internal_h_column_match[14]`:U1 = nil
-  wire `internal_h_column_match[15]`:U1 = nil
-  wire `internal_h_column_match[16]`:U1 = nil
-  wire `internal_h_column_match[17]`:U1 = nil
-  wire `internal_h_column_match[18]`:U1 = nil
-  wire `internal_h_column_match[19]`:U1 = nil
-  wire `internal_h_column_match[20]`:U1 = nil
-  wire `internal_h_column_match[21]`:U1 = nil
-  wire `internal_h_column_match[22]`:U1 = nil
-  wire `internal_h_column_match[23]`:U1 = nil
-  wire `internal_h_column_match[24]`:U1 = nil
-  wire `internal_h_column_match[25]`:U1 = nil
-  wire `internal_h_column_match[26]`:U1 = nil
-  wire `internal_h_column_match[27]`:U1 = nil
-  wire `internal_h_column_match[28]`:U1 = nil
-  wire `internal_h_column_match[29]`:U1 = nil
-  wire `internal_h_column_match[30]`:U1 = nil
-  wire `internal_h_column_match[31]`:U1 = nil
-  wire `internal_h_column_match[32]`:U1 = nil
-  wire `internal_h_column_match[33]`:U1 = nil
-  wire `internal_h_column_match[34]`:U1 = nil
-  wire `internal_h_column_match[35]`:U1 = nil
-  wire `internal_h_column_match[36]`:U1 = nil
-  wire `internal_h_column_match[37]`:U1 = nil
-  wire `internal_h_column_match[38]`:U1 = nil
+  wire internal_h_column_match_bits:U39 = nil
   wire internal_h_column_match:U39 = nil
-  wire `internal_corrected_codeword_compressed[0]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[1]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[2]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[3]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[4]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[5]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[6]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[7]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[8]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[9]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[10]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[11]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[12]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[13]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[14]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[15]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[16]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[17]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[18]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[19]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[20]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[21]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[22]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[23]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[24]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[25]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[26]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[27]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[28]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[29]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[30]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[31]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[32]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[33]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[34]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[35]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[36]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[37]`:U1 = nil
-  wire `internal_corrected_codeword_compressed[38]`:U1 = nil
+  wire internal_corrected_codeword_compressed_bits:U39 = nil
   wire internal_corrected_codeword_compressed:U39 = nil
-  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk=clk, rst=rst, in_valid=rcv_valid, `in`=(rcv_parity << 32) | rcv_data)
-  `cw[32]` = (br_delay_valid_inputs.out >> 32)#[0..=6] & 1
-  `cw[33]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 1) & 1
-  `cw[34]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 2) & 1
-  `cw[35]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 3) & 1
-  `cw[36]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 4) & 1
-  `cw[37]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 5) & 1
-  `cw[38]` = ((br_delay_valid_inputs.out >> 32)#[0..=6] >> 6) & 1
-  `cw[0]` = br_delay_valid_inputs.out#[0..=31] & 1
-  `cw[1]` = (br_delay_valid_inputs.out#[0..=31] >> 1) & 1
-  `cw[2]` = (br_delay_valid_inputs.out#[0..=31] >> 2) & 1
-  `cw[3]` = (br_delay_valid_inputs.out#[0..=31] >> 3) & 1
-  `cw[4]` = (br_delay_valid_inputs.out#[0..=31] >> 4) & 1
-  `cw[5]` = (br_delay_valid_inputs.out#[0..=31] >> 5) & 1
-  `cw[6]` = (br_delay_valid_inputs.out#[0..=31] >> 6) & 1
-  `cw[7]` = (br_delay_valid_inputs.out#[0..=31] >> 7) & 1
-  `cw[8]` = (br_delay_valid_inputs.out#[0..=31] >> 8) & 1
-  `cw[9]` = (br_delay_valid_inputs.out#[0..=31] >> 9) & 1
-  `cw[10]` = (br_delay_valid_inputs.out#[0..=31] >> 10) & 1
-  `cw[11]` = (br_delay_valid_inputs.out#[0..=31] >> 11) & 1
-  `cw[12]` = (br_delay_valid_inputs.out#[0..=31] >> 12) & 1
-  `cw[13]` = (br_delay_valid_inputs.out#[0..=31] >> 13) & 1
-  `cw[14]` = (br_delay_valid_inputs.out#[0..=31] >> 14) & 1
-  `cw[15]` = (br_delay_valid_inputs.out#[0..=31] >> 15) & 1
-  `cw[16]` = (br_delay_valid_inputs.out#[0..=31] >> 16) & 1
-  `cw[17]` = (br_delay_valid_inputs.out#[0..=31] >> 17) & 1
-  `cw[18]` = (br_delay_valid_inputs.out#[0..=31] >> 18) & 1
-  `cw[19]` = (br_delay_valid_inputs.out#[0..=31] >> 19) & 1
-  `cw[20]` = (br_delay_valid_inputs.out#[0..=31] >> 20) & 1
-  `cw[21]` = (br_delay_valid_inputs.out#[0..=31] >> 21) & 1
-  `cw[22]` = (br_delay_valid_inputs.out#[0..=31] >> 22) & 1
-  `cw[23]` = (br_delay_valid_inputs.out#[0..=31] >> 23) & 1
-  `cw[24]` = (br_delay_valid_inputs.out#[0..=31] >> 24) & 1
-  `cw[25]` = (br_delay_valid_inputs.out#[0..=31] >> 25) & 1
-  `cw[26]` = (br_delay_valid_inputs.out#[0..=31] >> 26) & 1
-  `cw[27]` = (br_delay_valid_inputs.out#[0..=31] >> 27) & 1
-  `cw[28]` = (br_delay_valid_inputs.out#[0..=31] >> 28) & 1
-  `cw[29]` = (br_delay_valid_inputs.out#[0..=31] >> 29) & 1
-  `cw[30]` = (br_delay_valid_inputs.out#[0..=31] >> 30) & 1
-  `cw[31]` = (br_delay_valid_inputs.out#[0..=31] >> 31) & 1
-  `syndrome[6]` = ((((((((((((((((((((((((((((`cw[0]` & 1) ^ (`cw[1]` & 1)) & 1) ^ (`cw[2]` & 1)) & 1) ^ (`cw[3]` & 1)) & 1) ^ (`cw[4]` & 1)) & 1) ^ (`cw[5]` & 1)) & 1) ^ (`cw[6]` & 1)) & 1) ^ (`cw[7]` & 1)) & 1) ^ (`cw[8]` & 1)) & 1) ^ (`cw[9]` & 1)) & 1) ^ (`cw[10]` & 1)) & 1) ^ (`cw[11]` & 1)) & 1) ^ (`cw[12]` & 1)) & 1) ^ (`cw[13]` & 1)) & 1) ^ (`cw[32]` & 1)) & 1
-  `syndrome[5]` = ((((((((((((((((((((((((((((`cw[0]` & 1) ^ (`cw[1]` & 1)) & 1) ^ (`cw[2]` & 1)) & 1) ^ (`cw[3]` & 1)) & 1) ^ (`cw[4]` & 1)) & 1) ^ (`cw[14]` & 1)) & 1) ^ (`cw[15]` & 1)) & 1) ^ (`cw[16]` & 1)) & 1) ^ (`cw[17]` & 1)) & 1) ^ (`cw[18]` & 1)) & 1) ^ (`cw[19]` & 1)) & 1) ^ (`cw[20]` & 1)) & 1) ^ (`cw[21]` & 1)) & 1) ^ (`cw[22]` & 1)) & 1) ^ (`cw[33]` & 1)) & 1
-  `syndrome[4]` = ((((((((((((((((((((((((((((`cw[0]` & 1) ^ (`cw[5]` & 1)) & 1) ^ (`cw[6]` & 1)) & 1) ^ (`cw[7]` & 1)) & 1) ^ (`cw[8]` & 1)) & 1) ^ (`cw[14]` & 1)) & 1) ^ (`cw[15]` & 1)) & 1) ^ (`cw[16]` & 1)) & 1) ^ (`cw[17]` & 1)) & 1) ^ (`cw[23]` & 1)) & 1) ^ (`cw[27]` & 1)) & 1) ^ (`cw[28]` & 1)) & 1) ^ (`cw[30]` & 1)) & 1) ^ (`cw[31]` & 1)) & 1) ^ (`cw[34]` & 1)) & 1
-  `syndrome[3]` = ((((((((((((((((((((((((((((`cw[1]` & 1) ^ (`cw[5]` & 1)) & 1) ^ (`cw[9]` & 1)) & 1) ^ (`cw[10]` & 1)) & 1) ^ (`cw[11]` & 1)) & 1) ^ (`cw[14]` & 1)) & 1) ^ (`cw[18]` & 1)) & 1) ^ (`cw[19]` & 1)) & 1) ^ (`cw[20]` & 1)) & 1) ^ (`cw[24]` & 1)) & 1) ^ (`cw[26]` & 1)) & 1) ^ (`cw[28]` & 1)) & 1) ^ (`cw[29]` & 1)) & 1) ^ (`cw[31]` & 1)) & 1) ^ (`cw[35]` & 1)) & 1
-  `syndrome[2]` = ((((((((((((((((((((((((((((`cw[2]` & 1) ^ (`cw[6]` & 1)) & 1) ^ (`cw[9]` & 1)) & 1) ^ (`cw[12]` & 1)) & 1) ^ (`cw[13]` & 1)) & 1) ^ (`cw[15]` & 1)) & 1) ^ (`cw[18]` & 1)) & 1) ^ (`cw[21]` & 1)) & 1) ^ (`cw[22]` & 1)) & 1) ^ (`cw[25]` & 1)) & 1) ^ (`cw[26]` & 1)) & 1) ^ (`cw[27]` & 1)) & 1) ^ (`cw[29]` & 1)) & 1) ^ (`cw[30]` & 1)) & 1) ^ (`cw[36]` & 1)) & 1
-  `syndrome[1]` = ((((((((((((((((((((((((((`cw[3]` & 1) ^ (`cw[7]` & 1)) & 1) ^ (`cw[10]` & 1)) & 1) ^ (`cw[13]` & 1)) & 1) ^ (`cw[16]` & 1)) & 1) ^ (`cw[19]` & 1)) & 1) ^ (`cw[22]` & 1)) & 1) ^ (`cw[23]` & 1)) & 1) ^ (`cw[24]` & 1)) & 1) ^ (`cw[25]` & 1)) & 1) ^ (`cw[26]` & 1)) & 1) ^ (`cw[27]` & 1)) & 1) ^ (`cw[28]` & 1)) & 1) ^ (`cw[37]` & 1)) & 1
-  `syndrome[0]` = ((((((((((((((((((((((((((`cw[4]` & 1) ^ (`cw[8]` & 1)) & 1) ^ (`cw[11]` & 1)) & 1) ^ (`cw[12]` & 1)) & 1) ^ (`cw[17]` & 1)) & 1) ^ (`cw[20]` & 1)) & 1) ^ (`cw[21]` & 1)) & 1) ^ (`cw[23]` & 1)) & 1) ^ (`cw[24]` & 1)) & 1) ^ (`cw[25]` & 1)) & 1) ^ (`cw[29]` & 1)) & 1) ^ (`cw[30]` & 1)) & 1) ^ (`cw[31]` & 1)) & 1) ^ (`cw[38]` & 1)) & 1
-  `parity_check_matrix[0]` = 0
-  `parity_check_matrix[1]` = 0
-  `parity_check_matrix[2]` = 0
-  `parity_check_matrix[3]` = 0
-  `parity_check_matrix[4]` = 1
-  `parity_check_matrix[5]` = 1
-  `parity_check_matrix[6]` = 1
-  `parity_check_matrix[7]` = 0
-  `parity_check_matrix[8]` = 0
-  `parity_check_matrix[9]` = 0
-  `parity_check_matrix[10]` = 1
-  `parity_check_matrix[11]` = 0
-  `parity_check_matrix[12]` = 1
-  `parity_check_matrix[13]` = 1
-  `parity_check_matrix[14]` = 0
-  `parity_check_matrix[15]` = 0
-  `parity_check_matrix[16]` = 1
-  `parity_check_matrix[17]` = 0
-  `parity_check_matrix[18]` = 0
-  `parity_check_matrix[19]` = 1
-  `parity_check_matrix[20]` = 1
-  `parity_check_matrix[21]` = 0
-  `parity_check_matrix[22]` = 1
-  `parity_check_matrix[23]` = 0
-  `parity_check_matrix[24]` = 0
-  `parity_check_matrix[25]` = 0
-  `parity_check_matrix[26]` = 1
-  `parity_check_matrix[27]` = 1
-  `parity_check_matrix[28]` = 1
-  `parity_check_matrix[29]` = 0
-  `parity_check_matrix[30]` = 0
-  `parity_check_matrix[31]` = 0
-  `parity_check_matrix[32]` = 0
-  `parity_check_matrix[33]` = 1
-  `parity_check_matrix[34]` = 1
-  `parity_check_matrix[35]` = 0
-  `parity_check_matrix[36]` = 0
-  `parity_check_matrix[37]` = 0
-  `parity_check_matrix[38]` = 1
-  `parity_check_matrix[39]` = 1
-  `parity_check_matrix[40]` = 0
-  `parity_check_matrix[41]` = 1
-  `parity_check_matrix[42]` = 0
-  `parity_check_matrix[43]` = 0
-  `parity_check_matrix[44]` = 1
-  `parity_check_matrix[45]` = 0
-  `parity_check_matrix[46]` = 1
-  `parity_check_matrix[47]` = 0
-  `parity_check_matrix[48]` = 1
-  `parity_check_matrix[49]` = 0
-  `parity_check_matrix[50]` = 1
-  `parity_check_matrix[51]` = 0
-  `parity_check_matrix[52]` = 0
-  `parity_check_matrix[53]` = 1
-  `parity_check_matrix[54]` = 0
-  `parity_check_matrix[55]` = 1
-  `parity_check_matrix[56]` = 1
-  `parity_check_matrix[57]` = 0
-  `parity_check_matrix[58]` = 0
-  `parity_check_matrix[59]` = 0
-  `parity_check_matrix[60]` = 1
-  `parity_check_matrix[61]` = 0
-  `parity_check_matrix[62]` = 1
-  `parity_check_matrix[63]` = 0
-  `parity_check_matrix[64]` = 0
-  `parity_check_matrix[65]` = 1
-  `parity_check_matrix[66]` = 1
-  `parity_check_matrix[67]` = 0
-  `parity_check_matrix[68]` = 0
-  `parity_check_matrix[69]` = 1
-  `parity_check_matrix[70]` = 0
-  `parity_check_matrix[71]` = 1
-  `parity_check_matrix[72]` = 0
-  `parity_check_matrix[73]` = 1
-  `parity_check_matrix[74]` = 0
-  `parity_check_matrix[75]` = 0
-  `parity_check_matrix[76]` = 1
-  `parity_check_matrix[77]` = 1
-  `parity_check_matrix[78]` = 0
-  `parity_check_matrix[79]` = 0
-  `parity_check_matrix[80]` = 1
-  `parity_check_matrix[81]` = 0
-  `parity_check_matrix[82]` = 0
-  `parity_check_matrix[83]` = 1
-  `parity_check_matrix[84]` = 1
-  `parity_check_matrix[85]` = 0
-  `parity_check_matrix[86]` = 1
-  `parity_check_matrix[87]` = 0
-  `parity_check_matrix[88]` = 0
-  `parity_check_matrix[89]` = 0
-  `parity_check_matrix[90]` = 1
-  `parity_check_matrix[91]` = 0
-  `parity_check_matrix[92]` = 1
-  `parity_check_matrix[93]` = 1
-  `parity_check_matrix[94]` = 0
-  `parity_check_matrix[95]` = 0
-  `parity_check_matrix[96]` = 0
-  `parity_check_matrix[97]` = 1
-  `parity_check_matrix[98]` = 0
-  `parity_check_matrix[99]` = 0
-  `parity_check_matrix[100]` = 0
-  `parity_check_matrix[101]` = 1
-  `parity_check_matrix[102]` = 1
-  `parity_check_matrix[103]` = 1
-  `parity_check_matrix[104]` = 0
-  `parity_check_matrix[105]` = 0
-  `parity_check_matrix[106]` = 0
-  `parity_check_matrix[107]` = 1
-  `parity_check_matrix[108]` = 0
-  `parity_check_matrix[109]` = 1
-  `parity_check_matrix[110]` = 1
-  `parity_check_matrix[111]` = 0
-  `parity_check_matrix[112]` = 0
-  `parity_check_matrix[113]` = 1
-  `parity_check_matrix[114]` = 0
-  `parity_check_matrix[115]` = 0
-  `parity_check_matrix[116]` = 1
-  `parity_check_matrix[117]` = 1
-  `parity_check_matrix[118]` = 0
-  `parity_check_matrix[119]` = 1
-  `parity_check_matrix[120]` = 0
-  `parity_check_matrix[121]` = 0
-  `parity_check_matrix[122]` = 0
-  `parity_check_matrix[123]` = 1
-  `parity_check_matrix[124]` = 1
-  `parity_check_matrix[125]` = 0
-  `parity_check_matrix[126]` = 0
-  `parity_check_matrix[127]` = 0
-  `parity_check_matrix[128]` = 1
-  `parity_check_matrix[129]` = 1
-  `parity_check_matrix[130]` = 0
-  `parity_check_matrix[131]` = 1
-  `parity_check_matrix[132]` = 0
-  `parity_check_matrix[133]` = 0
-  `parity_check_matrix[134]` = 1
-  `parity_check_matrix[135]` = 0
-  `parity_check_matrix[136]` = 1
-  `parity_check_matrix[137]` = 0
-  `parity_check_matrix[138]` = 1
-  `parity_check_matrix[139]` = 0
-  `parity_check_matrix[140]` = 1
-  `parity_check_matrix[141]` = 0
-  `parity_check_matrix[142]` = 0
-  `parity_check_matrix[143]` = 1
-  `parity_check_matrix[144]` = 0
-  `parity_check_matrix[145]` = 1
-  `parity_check_matrix[146]` = 0
-  `parity_check_matrix[147]` = 1
-  `parity_check_matrix[148]` = 0
-  `parity_check_matrix[149]` = 1
-  `parity_check_matrix[150]` = 0
-  `parity_check_matrix[151]` = 0
-  `parity_check_matrix[152]` = 1
-  `parity_check_matrix[153]` = 0
-  `parity_check_matrix[154]` = 0
-  `parity_check_matrix[155]` = 1
-  `parity_check_matrix[156]` = 1
-  `parity_check_matrix[157]` = 0
-  `parity_check_matrix[158]` = 0
-  `parity_check_matrix[159]` = 1
-  `parity_check_matrix[160]` = 0
-  `parity_check_matrix[161]` = 1
-  `parity_check_matrix[162]` = 1
-  `parity_check_matrix[163]` = 0
-  `parity_check_matrix[164]` = 0
-  `parity_check_matrix[165]` = 1
-  `parity_check_matrix[166]` = 0
-  `parity_check_matrix[167]` = 0
-  `parity_check_matrix[168]` = 1
-  `parity_check_matrix[169]` = 1
-  `parity_check_matrix[170]` = 0
-  `parity_check_matrix[171]` = 1
-  `parity_check_matrix[172]` = 0
-  `parity_check_matrix[173]` = 0
-  `parity_check_matrix[174]` = 0
-  `parity_check_matrix[175]` = 1
-  `parity_check_matrix[176]` = 1
-  `parity_check_matrix[177]` = 1
-  `parity_check_matrix[178]` = 0
-  `parity_check_matrix[179]` = 0
-  `parity_check_matrix[180]` = 0
-  `parity_check_matrix[181]` = 0
-  `parity_check_matrix[182]` = 0
-  `parity_check_matrix[183]` = 1
-  `parity_check_matrix[184]` = 1
-  `parity_check_matrix[185]` = 1
-  `parity_check_matrix[186]` = 0
-  `parity_check_matrix[187]` = 0
-  `parity_check_matrix[188]` = 0
-  `parity_check_matrix[189]` = 0
-  `parity_check_matrix[190]` = 1
-  `parity_check_matrix[191]` = 1
-  `parity_check_matrix[192]` = 0
-  `parity_check_matrix[193]` = 1
-  `parity_check_matrix[194]` = 0
-  `parity_check_matrix[195]` = 0
-  `parity_check_matrix[196]` = 0
-  `parity_check_matrix[197]` = 1
-  `parity_check_matrix[198]` = 0
-  `parity_check_matrix[199]` = 1
-  `parity_check_matrix[200]` = 1
-  `parity_check_matrix[201]` = 0
-  `parity_check_matrix[202]` = 0
-  `parity_check_matrix[203]` = 1
-  `parity_check_matrix[204]` = 0
-  `parity_check_matrix[205]` = 1
-  `parity_check_matrix[206]` = 1
-  `parity_check_matrix[207]` = 0
-  `parity_check_matrix[208]` = 0
-  `parity_check_matrix[209]` = 0
-  `parity_check_matrix[210]` = 1
-  `parity_check_matrix[211]` = 0
-  `parity_check_matrix[212]` = 1
-  `parity_check_matrix[213]` = 0
-  `parity_check_matrix[214]` = 1
-  `parity_check_matrix[215]` = 0
-  `parity_check_matrix[216]` = 0
-  `parity_check_matrix[217]` = 1
-  `parity_check_matrix[218]` = 0
-  `parity_check_matrix[219]` = 0
-  `parity_check_matrix[220]` = 1
-  `parity_check_matrix[221]` = 1
-  `parity_check_matrix[222]` = 0
-  `parity_check_matrix[223]` = 0
-  `parity_check_matrix[224]` = 0
-  `parity_check_matrix[225]` = 0
-  `parity_check_matrix[226]` = 0
-  `parity_check_matrix[227]` = 0
-  `parity_check_matrix[228]` = 0
-  `parity_check_matrix[229]` = 0
-  `parity_check_matrix[230]` = 1
-  `parity_check_matrix[231]` = 0
-  `parity_check_matrix[232]` = 0
-  `parity_check_matrix[233]` = 0
-  `parity_check_matrix[234]` = 0
-  `parity_check_matrix[235]` = 0
-  `parity_check_matrix[236]` = 1
-  `parity_check_matrix[237]` = 0
-  `parity_check_matrix[238]` = 0
-  `parity_check_matrix[239]` = 0
-  `parity_check_matrix[240]` = 0
-  `parity_check_matrix[241]` = 0
-  `parity_check_matrix[242]` = 1
-  `parity_check_matrix[243]` = 0
-  `parity_check_matrix[244]` = 0
-  `parity_check_matrix[245]` = 0
-  `parity_check_matrix[246]` = 0
-  `parity_check_matrix[247]` = 0
-  `parity_check_matrix[248]` = 1
-  `parity_check_matrix[249]` = 0
-  `parity_check_matrix[250]` = 0
-  `parity_check_matrix[251]` = 0
-  `parity_check_matrix[252]` = 0
-  `parity_check_matrix[253]` = 0
-  `parity_check_matrix[254]` = 1
-  `parity_check_matrix[255]` = 0
-  `parity_check_matrix[256]` = 0
-  `parity_check_matrix[257]` = 0
-  `parity_check_matrix[258]` = 0
-  `parity_check_matrix[259]` = 0
-  `parity_check_matrix[260]` = 1
-  `parity_check_matrix[261]` = 0
-  `parity_check_matrix[262]` = 0
-  `parity_check_matrix[263]` = 0
-  `parity_check_matrix[264]` = 0
-  `parity_check_matrix[265]` = 0
-  `parity_check_matrix[266]` = 1
-  `parity_check_matrix[267]` = 0
-  `parity_check_matrix[268]` = 0
-  `parity_check_matrix[269]` = 0
-  `parity_check_matrix[270]` = 0
-  `parity_check_matrix[271]` = 0
-  `parity_check_matrix[272]` = 0
-  mut br_delay_valid_syndrome = br_delay_valid_p1::[name=br_delay_valid_syndrome](clk=clk, rst=rst, in_valid=br_delay_valid_inputs.out_valid, `in`=(cw << 7) | syndrome)
-  const internal_error_syndrome__w1 = br_delay_valid_syndrome.out#[0..=6]
-  const t904 = internal_error_syndrome__w1#^[..]
-  const internal_error_syndrome_parity__w1 = t904
-  const internal_error_syndrome_is_odd__w1 = internal_error_syndrome_parity__w1
-  mut _b2i_3 = if U1(internal_error_syndrome__w1 == 0) == 0 and U1(internal_error_syndrome_parity__w1 == 0) != 0 { 1 } else { 0 }
-  `internal_h_column_match[0]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[6]` << 6) | (`parity_check_matrix[5]` << 5) | (`parity_check_matrix[4]` << 4) | (`parity_check_matrix[3]` << 3) | (`parity_check_matrix[2]` << 2) | (`parity_check_matrix[1]` << 1) | `parity_check_matrix[0]`)) & 1
-  `internal_h_column_match[1]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[13]` << 6) | (`parity_check_matrix[12]` << 5) | (`parity_check_matrix[11]` << 4) | (`parity_check_matrix[10]` << 3) | (`parity_check_matrix[9]` << 2) | (`parity_check_matrix[8]` << 1) | `parity_check_matrix[7]`)) & 1
-  `internal_h_column_match[2]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[20]` << 6) | (`parity_check_matrix[19]` << 5) | (`parity_check_matrix[18]` << 4) | (`parity_check_matrix[17]` << 3) | (`parity_check_matrix[16]` << 2) | (`parity_check_matrix[15]` << 1) | `parity_check_matrix[14]`)) & 1
-  `internal_h_column_match[3]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[27]` << 6) | (`parity_check_matrix[26]` << 5) | (`parity_check_matrix[25]` << 4) | (`parity_check_matrix[24]` << 3) | (`parity_check_matrix[23]` << 2) | (`parity_check_matrix[22]` << 1) | `parity_check_matrix[21]`)) & 1
-  `internal_h_column_match[4]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[34]` << 6) | (`parity_check_matrix[33]` << 5) | (`parity_check_matrix[32]` << 4) | (`parity_check_matrix[31]` << 3) | (`parity_check_matrix[30]` << 2) | (`parity_check_matrix[29]` << 1) | `parity_check_matrix[28]`)) & 1
-  `internal_h_column_match[5]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[41]` << 6) | (`parity_check_matrix[40]` << 5) | (`parity_check_matrix[39]` << 4) | (`parity_check_matrix[38]` << 3) | (`parity_check_matrix[37]` << 2) | (`parity_check_matrix[36]` << 1) | `parity_check_matrix[35]`)) & 1
-  `internal_h_column_match[6]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[48]` << 6) | (`parity_check_matrix[47]` << 5) | (`parity_check_matrix[46]` << 4) | (`parity_check_matrix[45]` << 3) | (`parity_check_matrix[44]` << 2) | (`parity_check_matrix[43]` << 1) | `parity_check_matrix[42]`)) & 1
-  `internal_h_column_match[7]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[55]` << 6) | (`parity_check_matrix[54]` << 5) | (`parity_check_matrix[53]` << 4) | (`parity_check_matrix[52]` << 3) | (`parity_check_matrix[51]` << 2) | (`parity_check_matrix[50]` << 1) | `parity_check_matrix[49]`)) & 1
-  `internal_h_column_match[8]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[62]` << 6) | (`parity_check_matrix[61]` << 5) | (`parity_check_matrix[60]` << 4) | (`parity_check_matrix[59]` << 3) | (`parity_check_matrix[58]` << 2) | (`parity_check_matrix[57]` << 1) | `parity_check_matrix[56]`)) & 1
-  `internal_h_column_match[9]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[69]` << 6) | (`parity_check_matrix[68]` << 5) | (`parity_check_matrix[67]` << 4) | (`parity_check_matrix[66]` << 3) | (`parity_check_matrix[65]` << 2) | (`parity_check_matrix[64]` << 1) | `parity_check_matrix[63]`)) & 1
-  `internal_h_column_match[10]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[76]` << 6) | (`parity_check_matrix[75]` << 5) | (`parity_check_matrix[74]` << 4) | (`parity_check_matrix[73]` << 3) | (`parity_check_matrix[72]` << 2) | (`parity_check_matrix[71]` << 1) | `parity_check_matrix[70]`)) & 1
-  `internal_h_column_match[11]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[83]` << 6) | (`parity_check_matrix[82]` << 5) | (`parity_check_matrix[81]` << 4) | (`parity_check_matrix[80]` << 3) | (`parity_check_matrix[79]` << 2) | (`parity_check_matrix[78]` << 1) | `parity_check_matrix[77]`)) & 1
-  `internal_h_column_match[12]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[90]` << 6) | (`parity_check_matrix[89]` << 5) | (`parity_check_matrix[88]` << 4) | (`parity_check_matrix[87]` << 3) | (`parity_check_matrix[86]` << 2) | (`parity_check_matrix[85]` << 1) | `parity_check_matrix[84]`)) & 1
-  `internal_h_column_match[13]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[97]` << 6) | (`parity_check_matrix[96]` << 5) | (`parity_check_matrix[95]` << 4) | (`parity_check_matrix[94]` << 3) | (`parity_check_matrix[93]` << 2) | (`parity_check_matrix[92]` << 1) | `parity_check_matrix[91]`)) & 1
-  `internal_h_column_match[14]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[104]` << 6) | (`parity_check_matrix[103]` << 5) | (`parity_check_matrix[102]` << 4) | (`parity_check_matrix[101]` << 3) | (`parity_check_matrix[100]` << 2) | (`parity_check_matrix[99]` << 1) | `parity_check_matrix[98]`)) & 1
-  `internal_h_column_match[15]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[111]` << 6) | (`parity_check_matrix[110]` << 5) | (`parity_check_matrix[109]` << 4) | (`parity_check_matrix[108]` << 3) | (`parity_check_matrix[107]` << 2) | (`parity_check_matrix[106]` << 1) | `parity_check_matrix[105]`)) & 1
-  `internal_h_column_match[16]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[118]` << 6) | (`parity_check_matrix[117]` << 5) | (`parity_check_matrix[116]` << 4) | (`parity_check_matrix[115]` << 3) | (`parity_check_matrix[114]` << 2) | (`parity_check_matrix[113]` << 1) | `parity_check_matrix[112]`)) & 1
-  `internal_h_column_match[17]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[125]` << 6) | (`parity_check_matrix[124]` << 5) | (`parity_check_matrix[123]` << 4) | (`parity_check_matrix[122]` << 3) | (`parity_check_matrix[121]` << 2) | (`parity_check_matrix[120]` << 1) | `parity_check_matrix[119]`)) & 1
-  `internal_h_column_match[18]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[132]` << 6) | (`parity_check_matrix[131]` << 5) | (`parity_check_matrix[130]` << 4) | (`parity_check_matrix[129]` << 3) | (`parity_check_matrix[128]` << 2) | (`parity_check_matrix[127]` << 1) | `parity_check_matrix[126]`)) & 1
-  `internal_h_column_match[19]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[139]` << 6) | (`parity_check_matrix[138]` << 5) | (`parity_check_matrix[137]` << 4) | (`parity_check_matrix[136]` << 3) | (`parity_check_matrix[135]` << 2) | (`parity_check_matrix[134]` << 1) | `parity_check_matrix[133]`)) & 1
-  `internal_h_column_match[20]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[146]` << 6) | (`parity_check_matrix[145]` << 5) | (`parity_check_matrix[144]` << 4) | (`parity_check_matrix[143]` << 3) | (`parity_check_matrix[142]` << 2) | (`parity_check_matrix[141]` << 1) | `parity_check_matrix[140]`)) & 1
-  `internal_h_column_match[21]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[153]` << 6) | (`parity_check_matrix[152]` << 5) | (`parity_check_matrix[151]` << 4) | (`parity_check_matrix[150]` << 3) | (`parity_check_matrix[149]` << 2) | (`parity_check_matrix[148]` << 1) | `parity_check_matrix[147]`)) & 1
-  `internal_h_column_match[22]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[160]` << 6) | (`parity_check_matrix[159]` << 5) | (`parity_check_matrix[158]` << 4) | (`parity_check_matrix[157]` << 3) | (`parity_check_matrix[156]` << 2) | (`parity_check_matrix[155]` << 1) | `parity_check_matrix[154]`)) & 1
-  `internal_h_column_match[23]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[167]` << 6) | (`parity_check_matrix[166]` << 5) | (`parity_check_matrix[165]` << 4) | (`parity_check_matrix[164]` << 3) | (`parity_check_matrix[163]` << 2) | (`parity_check_matrix[162]` << 1) | `parity_check_matrix[161]`)) & 1
-  `internal_h_column_match[24]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[174]` << 6) | (`parity_check_matrix[173]` << 5) | (`parity_check_matrix[172]` << 4) | (`parity_check_matrix[171]` << 3) | (`parity_check_matrix[170]` << 2) | (`parity_check_matrix[169]` << 1) | `parity_check_matrix[168]`)) & 1
-  `internal_h_column_match[25]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[181]` << 6) | (`parity_check_matrix[180]` << 5) | (`parity_check_matrix[179]` << 4) | (`parity_check_matrix[178]` << 3) | (`parity_check_matrix[177]` << 2) | (`parity_check_matrix[176]` << 1) | `parity_check_matrix[175]`)) & 1
-  `internal_h_column_match[26]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[188]` << 6) | (`parity_check_matrix[187]` << 5) | (`parity_check_matrix[186]` << 4) | (`parity_check_matrix[185]` << 3) | (`parity_check_matrix[184]` << 2) | (`parity_check_matrix[183]` << 1) | `parity_check_matrix[182]`)) & 1
-  `internal_h_column_match[27]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[195]` << 6) | (`parity_check_matrix[194]` << 5) | (`parity_check_matrix[193]` << 4) | (`parity_check_matrix[192]` << 3) | (`parity_check_matrix[191]` << 2) | (`parity_check_matrix[190]` << 1) | `parity_check_matrix[189]`)) & 1
-  `internal_h_column_match[28]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[202]` << 6) | (`parity_check_matrix[201]` << 5) | (`parity_check_matrix[200]` << 4) | (`parity_check_matrix[199]` << 3) | (`parity_check_matrix[198]` << 2) | (`parity_check_matrix[197]` << 1) | `parity_check_matrix[196]`)) & 1
-  `internal_h_column_match[29]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[209]` << 6) | (`parity_check_matrix[208]` << 5) | (`parity_check_matrix[207]` << 4) | (`parity_check_matrix[206]` << 3) | (`parity_check_matrix[205]` << 2) | (`parity_check_matrix[204]` << 1) | `parity_check_matrix[203]`)) & 1
-  `internal_h_column_match[30]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[216]` << 6) | (`parity_check_matrix[215]` << 5) | (`parity_check_matrix[214]` << 4) | (`parity_check_matrix[213]` << 3) | (`parity_check_matrix[212]` << 2) | (`parity_check_matrix[211]` << 1) | `parity_check_matrix[210]`)) & 1
-  `internal_h_column_match[31]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[223]` << 6) | (`parity_check_matrix[222]` << 5) | (`parity_check_matrix[221]` << 4) | (`parity_check_matrix[220]` << 3) | (`parity_check_matrix[219]` << 2) | (`parity_check_matrix[218]` << 1) | `parity_check_matrix[217]`)) & 1
-  `internal_h_column_match[32]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[230]` << 6) | (`parity_check_matrix[229]` << 5) | (`parity_check_matrix[228]` << 4) | (`parity_check_matrix[227]` << 3) | (`parity_check_matrix[226]` << 2) | (`parity_check_matrix[225]` << 1) | `parity_check_matrix[224]`)) & 1
-  `internal_h_column_match[33]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[237]` << 6) | (`parity_check_matrix[236]` << 5) | (`parity_check_matrix[235]` << 4) | (`parity_check_matrix[234]` << 3) | (`parity_check_matrix[233]` << 2) | (`parity_check_matrix[232]` << 1) | `parity_check_matrix[231]`)) & 1
-  `internal_h_column_match[34]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[244]` << 6) | (`parity_check_matrix[243]` << 5) | (`parity_check_matrix[242]` << 4) | (`parity_check_matrix[241]` << 3) | (`parity_check_matrix[240]` << 2) | (`parity_check_matrix[239]` << 1) | `parity_check_matrix[238]`)) & 1
-  `internal_h_column_match[35]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[251]` << 6) | (`parity_check_matrix[250]` << 5) | (`parity_check_matrix[249]` << 4) | (`parity_check_matrix[248]` << 3) | (`parity_check_matrix[247]` << 2) | (`parity_check_matrix[246]` << 1) | `parity_check_matrix[245]`)) & 1
-  `internal_h_column_match[36]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[258]` << 6) | (`parity_check_matrix[257]` << 5) | (`parity_check_matrix[256]` << 4) | (`parity_check_matrix[255]` << 3) | (`parity_check_matrix[254]` << 2) | (`parity_check_matrix[253]` << 1) | `parity_check_matrix[252]`)) & 1
-  `internal_h_column_match[37]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[265]` << 6) | (`parity_check_matrix[264]` << 5) | (`parity_check_matrix[263]` << 4) | (`parity_check_matrix[262]` << 3) | (`parity_check_matrix[261]` << 2) | (`parity_check_matrix[260]` << 1) | `parity_check_matrix[259]`)) & 1
-  `internal_h_column_match[38]` = U1(internal_error_syndrome__w1 == ((`parity_check_matrix[272]` << 6) | (`parity_check_matrix[271]` << 5) | (`parity_check_matrix[270]` << 4) | (`parity_check_matrix[269]` << 3) | (`parity_check_matrix[268]` << 2) | (`parity_check_matrix[267]` << 1) | `parity_check_matrix[266]`)) & 1
-  mut _b2i_43 = if internal_error_syndrome_is_odd__w1 != 0 and internal_h_column_match == 0 { 1 } else { 0 }
+  mut br_delay_valid_inputs = br_delay_valid<Width=39>(in_valid=rcv_valid, `in`=(rcv_parity << 32) | rcv_data)
+  cw_bits#[32..<39] = (br_delay_valid_inputs.out >> 32)#[0..=6]#[0..<7]
+  cw_bits#[0..<32] = br_delay_valid_inputs.out#[0..=31]#[0..<32]
+  syndrome_bits#[6] = ((((((((((((((((((((((((((((cw_bits#[0] & 1) ^ (cw_bits#[1] & 1)) & 1) ^ (cw_bits#[2] & 1)) & 1) ^ (cw_bits#[3] & 1)) & 1) ^ (cw_bits#[4] & 1)) & 1) ^ (cw_bits#[5] & 1)) & 1) ^ (cw_bits#[6] & 1)) & 1) ^ (cw_bits#[7] & 1)) & 1) ^ (cw_bits#[8] & 1)) & 1) ^ (cw_bits#[9] & 1)) & 1) ^ (cw_bits#[10] & 1)) & 1) ^ (cw_bits#[11] & 1)) & 1) ^ (cw_bits#[12] & 1)) & 1) ^ (cw_bits#[13] & 1)) & 1) ^ (cw_bits#[32] & 1)) & 1
+  syndrome_bits#[5] = ((((((((((((((((((((((((((((cw_bits#[0] & 1) ^ (cw_bits#[1] & 1)) & 1) ^ (cw_bits#[2] & 1)) & 1) ^ (cw_bits#[3] & 1)) & 1) ^ (cw_bits#[4] & 1)) & 1) ^ (cw_bits#[14] & 1)) & 1) ^ (cw_bits#[15] & 1)) & 1) ^ (cw_bits#[16] & 1)) & 1) ^ (cw_bits#[17] & 1)) & 1) ^ (cw_bits#[18] & 1)) & 1) ^ (cw_bits#[19] & 1)) & 1) ^ (cw_bits#[20] & 1)) & 1) ^ (cw_bits#[21] & 1)) & 1) ^ (cw_bits#[22] & 1)) & 1) ^ (cw_bits#[33] & 1)) & 1
+  syndrome_bits#[4] = ((((((((((((((((((((((((((((cw_bits#[0] & 1) ^ (cw_bits#[5] & 1)) & 1) ^ (cw_bits#[6] & 1)) & 1) ^ (cw_bits#[7] & 1)) & 1) ^ (cw_bits#[8] & 1)) & 1) ^ (cw_bits#[14] & 1)) & 1) ^ (cw_bits#[15] & 1)) & 1) ^ (cw_bits#[16] & 1)) & 1) ^ (cw_bits#[17] & 1)) & 1) ^ (cw_bits#[23] & 1)) & 1) ^ (cw_bits#[27] & 1)) & 1) ^ (cw_bits#[28] & 1)) & 1) ^ (cw_bits#[30] & 1)) & 1) ^ (cw_bits#[31] & 1)) & 1) ^ (cw_bits#[34] & 1)) & 1
+  syndrome_bits#[3] = ((((((((((((((((((((((((((((cw_bits#[1] & 1) ^ (cw_bits#[5] & 1)) & 1) ^ (cw_bits#[9] & 1)) & 1) ^ (cw_bits#[10] & 1)) & 1) ^ (cw_bits#[11] & 1)) & 1) ^ (cw_bits#[14] & 1)) & 1) ^ (cw_bits#[18] & 1)) & 1) ^ (cw_bits#[19] & 1)) & 1) ^ (cw_bits#[20] & 1)) & 1) ^ (cw_bits#[24] & 1)) & 1) ^ (cw_bits#[26] & 1)) & 1) ^ (cw_bits#[28] & 1)) & 1) ^ (cw_bits#[29] & 1)) & 1) ^ (cw_bits#[31] & 1)) & 1) ^ (cw_bits#[35] & 1)) & 1
+  syndrome_bits#[2] = ((((((((((((((((((((((((((((cw_bits#[2] & 1) ^ (cw_bits#[6] & 1)) & 1) ^ (cw_bits#[9] & 1)) & 1) ^ (cw_bits#[12] & 1)) & 1) ^ (cw_bits#[13] & 1)) & 1) ^ (cw_bits#[15] & 1)) & 1) ^ (cw_bits#[18] & 1)) & 1) ^ (cw_bits#[21] & 1)) & 1) ^ (cw_bits#[22] & 1)) & 1) ^ (cw_bits#[25] & 1)) & 1) ^ (cw_bits#[26] & 1)) & 1) ^ (cw_bits#[27] & 1)) & 1) ^ (cw_bits#[29] & 1)) & 1) ^ (cw_bits#[30] & 1)) & 1) ^ (cw_bits#[36] & 1)) & 1
+  syndrome_bits#[1] = ((((((((((((((((((((((((((cw_bits#[3] & 1) ^ (cw_bits#[7] & 1)) & 1) ^ (cw_bits#[10] & 1)) & 1) ^ (cw_bits#[13] & 1)) & 1) ^ (cw_bits#[16] & 1)) & 1) ^ (cw_bits#[19] & 1)) & 1) ^ (cw_bits#[22] & 1)) & 1) ^ (cw_bits#[23] & 1)) & 1) ^ (cw_bits#[24] & 1)) & 1) ^ (cw_bits#[25] & 1)) & 1) ^ (cw_bits#[26] & 1)) & 1) ^ (cw_bits#[27] & 1)) & 1) ^ (cw_bits#[28] & 1)) & 1) ^ (cw_bits#[37] & 1)) & 1
+  syndrome_bits#[0] = ((((((((((((((((((((((((((cw_bits#[4] & 1) ^ (cw_bits#[8] & 1)) & 1) ^ (cw_bits#[11] & 1)) & 1) ^ (cw_bits#[12] & 1)) & 1) ^ (cw_bits#[17] & 1)) & 1) ^ (cw_bits#[20] & 1)) & 1) ^ (cw_bits#[21] & 1)) & 1) ^ (cw_bits#[23] & 1)) & 1) ^ (cw_bits#[24] & 1)) & 1) ^ (cw_bits#[25] & 1)) & 1) ^ (cw_bits#[29] & 1)) & 1) ^ (cw_bits#[30] & 1)) & 1) ^ (cw_bits#[31] & 1)) & 1) ^ (cw_bits#[38] & 1)) & 1
+  parity_check_matrix_bits#[0] = 0
+  parity_check_matrix_bits#[1] = 0
+  parity_check_matrix_bits#[2] = 0
+  parity_check_matrix_bits#[3] = 0
+  parity_check_matrix_bits#[4] = 1
+  parity_check_matrix_bits#[5] = 1
+  parity_check_matrix_bits#[6] = 1
+  parity_check_matrix_bits#[7] = 0
+  parity_check_matrix_bits#[8] = 0
+  parity_check_matrix_bits#[9] = 0
+  parity_check_matrix_bits#[10] = 1
+  parity_check_matrix_bits#[11] = 0
+  parity_check_matrix_bits#[12] = 1
+  parity_check_matrix_bits#[13] = 1
+  parity_check_matrix_bits#[14] = 0
+  parity_check_matrix_bits#[15] = 0
+  parity_check_matrix_bits#[16] = 1
+  parity_check_matrix_bits#[17] = 0
+  parity_check_matrix_bits#[18] = 0
+  parity_check_matrix_bits#[19] = 1
+  parity_check_matrix_bits#[20] = 1
+  parity_check_matrix_bits#[21] = 0
+  parity_check_matrix_bits#[22] = 1
+  parity_check_matrix_bits#[23] = 0
+  parity_check_matrix_bits#[24] = 0
+  parity_check_matrix_bits#[25] = 0
+  parity_check_matrix_bits#[26] = 1
+  parity_check_matrix_bits#[27] = 1
+  parity_check_matrix_bits#[28] = 1
+  parity_check_matrix_bits#[29] = 0
+  parity_check_matrix_bits#[30] = 0
+  parity_check_matrix_bits#[31] = 0
+  parity_check_matrix_bits#[32] = 0
+  parity_check_matrix_bits#[33] = 1
+  parity_check_matrix_bits#[34] = 1
+  parity_check_matrix_bits#[35] = 0
+  parity_check_matrix_bits#[36] = 0
+  parity_check_matrix_bits#[37] = 0
+  parity_check_matrix_bits#[38] = 1
+  parity_check_matrix_bits#[39] = 1
+  parity_check_matrix_bits#[40] = 0
+  parity_check_matrix_bits#[41] = 1
+  parity_check_matrix_bits#[42] = 0
+  parity_check_matrix_bits#[43] = 0
+  parity_check_matrix_bits#[44] = 1
+  parity_check_matrix_bits#[45] = 0
+  parity_check_matrix_bits#[46] = 1
+  parity_check_matrix_bits#[47] = 0
+  parity_check_matrix_bits#[48] = 1
+  parity_check_matrix_bits#[49] = 0
+  parity_check_matrix_bits#[50] = 1
+  parity_check_matrix_bits#[51] = 0
+  parity_check_matrix_bits#[52] = 0
+  parity_check_matrix_bits#[53] = 1
+  parity_check_matrix_bits#[54] = 0
+  parity_check_matrix_bits#[55] = 1
+  parity_check_matrix_bits#[56] = 1
+  parity_check_matrix_bits#[57] = 0
+  parity_check_matrix_bits#[58] = 0
+  parity_check_matrix_bits#[59] = 0
+  parity_check_matrix_bits#[60] = 1
+  parity_check_matrix_bits#[61] = 0
+  parity_check_matrix_bits#[62] = 1
+  parity_check_matrix_bits#[63] = 0
+  parity_check_matrix_bits#[64] = 0
+  parity_check_matrix_bits#[65] = 1
+  parity_check_matrix_bits#[66] = 1
+  parity_check_matrix_bits#[67] = 0
+  parity_check_matrix_bits#[68] = 0
+  parity_check_matrix_bits#[69] = 1
+  parity_check_matrix_bits#[70] = 0
+  parity_check_matrix_bits#[71] = 1
+  parity_check_matrix_bits#[72] = 0
+  parity_check_matrix_bits#[73] = 1
+  parity_check_matrix_bits#[74] = 0
+  parity_check_matrix_bits#[75] = 0
+  parity_check_matrix_bits#[76] = 1
+  parity_check_matrix_bits#[77] = 1
+  parity_check_matrix_bits#[78] = 0
+  parity_check_matrix_bits#[79] = 0
+  parity_check_matrix_bits#[80] = 1
+  parity_check_matrix_bits#[81] = 0
+  parity_check_matrix_bits#[82] = 0
+  parity_check_matrix_bits#[83] = 1
+  parity_check_matrix_bits#[84] = 1
+  parity_check_matrix_bits#[85] = 0
+  parity_check_matrix_bits#[86] = 1
+  parity_check_matrix_bits#[87] = 0
+  parity_check_matrix_bits#[88] = 0
+  parity_check_matrix_bits#[89] = 0
+  parity_check_matrix_bits#[90] = 1
+  parity_check_matrix_bits#[91] = 0
+  parity_check_matrix_bits#[92] = 1
+  parity_check_matrix_bits#[93] = 1
+  parity_check_matrix_bits#[94] = 0
+  parity_check_matrix_bits#[95] = 0
+  parity_check_matrix_bits#[96] = 0
+  parity_check_matrix_bits#[97] = 1
+  parity_check_matrix_bits#[98] = 0
+  parity_check_matrix_bits#[99] = 0
+  parity_check_matrix_bits#[100] = 0
+  parity_check_matrix_bits#[101] = 1
+  parity_check_matrix_bits#[102] = 1
+  parity_check_matrix_bits#[103] = 1
+  parity_check_matrix_bits#[104] = 0
+  parity_check_matrix_bits#[105] = 0
+  parity_check_matrix_bits#[106] = 0
+  parity_check_matrix_bits#[107] = 1
+  parity_check_matrix_bits#[108] = 0
+  parity_check_matrix_bits#[109] = 1
+  parity_check_matrix_bits#[110] = 1
+  parity_check_matrix_bits#[111] = 0
+  parity_check_matrix_bits#[112] = 0
+  parity_check_matrix_bits#[113] = 1
+  parity_check_matrix_bits#[114] = 0
+  parity_check_matrix_bits#[115] = 0
+  parity_check_matrix_bits#[116] = 1
+  parity_check_matrix_bits#[117] = 1
+  parity_check_matrix_bits#[118] = 0
+  parity_check_matrix_bits#[119] = 1
+  parity_check_matrix_bits#[120] = 0
+  parity_check_matrix_bits#[121] = 0
+  parity_check_matrix_bits#[122] = 0
+  parity_check_matrix_bits#[123] = 1
+  parity_check_matrix_bits#[124] = 1
+  parity_check_matrix_bits#[125] = 0
+  parity_check_matrix_bits#[126] = 0
+  parity_check_matrix_bits#[127] = 0
+  parity_check_matrix_bits#[128] = 1
+  parity_check_matrix_bits#[129] = 1
+  parity_check_matrix_bits#[130] = 0
+  parity_check_matrix_bits#[131] = 1
+  parity_check_matrix_bits#[132] = 0
+  parity_check_matrix_bits#[133] = 0
+  parity_check_matrix_bits#[134] = 1
+  parity_check_matrix_bits#[135] = 0
+  parity_check_matrix_bits#[136] = 1
+  parity_check_matrix_bits#[137] = 0
+  parity_check_matrix_bits#[138] = 1
+  parity_check_matrix_bits#[139] = 0
+  parity_check_matrix_bits#[140] = 1
+  parity_check_matrix_bits#[141] = 0
+  parity_check_matrix_bits#[142] = 0
+  parity_check_matrix_bits#[143] = 1
+  parity_check_matrix_bits#[144] = 0
+  parity_check_matrix_bits#[145] = 1
+  parity_check_matrix_bits#[146] = 0
+  parity_check_matrix_bits#[147] = 1
+  parity_check_matrix_bits#[148] = 0
+  parity_check_matrix_bits#[149] = 1
+  parity_check_matrix_bits#[150] = 0
+  parity_check_matrix_bits#[151] = 0
+  parity_check_matrix_bits#[152] = 1
+  parity_check_matrix_bits#[153] = 0
+  parity_check_matrix_bits#[154] = 0
+  parity_check_matrix_bits#[155] = 1
+  parity_check_matrix_bits#[156] = 1
+  parity_check_matrix_bits#[157] = 0
+  parity_check_matrix_bits#[158] = 0
+  parity_check_matrix_bits#[159] = 1
+  parity_check_matrix_bits#[160] = 0
+  parity_check_matrix_bits#[161] = 1
+  parity_check_matrix_bits#[162] = 1
+  parity_check_matrix_bits#[163] = 0
+  parity_check_matrix_bits#[164] = 0
+  parity_check_matrix_bits#[165] = 1
+  parity_check_matrix_bits#[166] = 0
+  parity_check_matrix_bits#[167] = 0
+  parity_check_matrix_bits#[168] = 1
+  parity_check_matrix_bits#[169] = 1
+  parity_check_matrix_bits#[170] = 0
+  parity_check_matrix_bits#[171] = 1
+  parity_check_matrix_bits#[172] = 0
+  parity_check_matrix_bits#[173] = 0
+  parity_check_matrix_bits#[174] = 0
+  parity_check_matrix_bits#[175] = 1
+  parity_check_matrix_bits#[176] = 1
+  parity_check_matrix_bits#[177] = 1
+  parity_check_matrix_bits#[178] = 0
+  parity_check_matrix_bits#[179] = 0
+  parity_check_matrix_bits#[180] = 0
+  parity_check_matrix_bits#[181] = 0
+  parity_check_matrix_bits#[182] = 0
+  parity_check_matrix_bits#[183] = 1
+  parity_check_matrix_bits#[184] = 1
+  parity_check_matrix_bits#[185] = 1
+  parity_check_matrix_bits#[186] = 0
+  parity_check_matrix_bits#[187] = 0
+  parity_check_matrix_bits#[188] = 0
+  parity_check_matrix_bits#[189] = 0
+  parity_check_matrix_bits#[190] = 1
+  parity_check_matrix_bits#[191] = 1
+  parity_check_matrix_bits#[192] = 0
+  parity_check_matrix_bits#[193] = 1
+  parity_check_matrix_bits#[194] = 0
+  parity_check_matrix_bits#[195] = 0
+  parity_check_matrix_bits#[196] = 0
+  parity_check_matrix_bits#[197] = 1
+  parity_check_matrix_bits#[198] = 0
+  parity_check_matrix_bits#[199] = 1
+  parity_check_matrix_bits#[200] = 1
+  parity_check_matrix_bits#[201] = 0
+  parity_check_matrix_bits#[202] = 0
+  parity_check_matrix_bits#[203] = 1
+  parity_check_matrix_bits#[204] = 0
+  parity_check_matrix_bits#[205] = 1
+  parity_check_matrix_bits#[206] = 1
+  parity_check_matrix_bits#[207] = 0
+  parity_check_matrix_bits#[208] = 0
+  parity_check_matrix_bits#[209] = 0
+  parity_check_matrix_bits#[210] = 1
+  parity_check_matrix_bits#[211] = 0
+  parity_check_matrix_bits#[212] = 1
+  parity_check_matrix_bits#[213] = 0
+  parity_check_matrix_bits#[214] = 1
+  parity_check_matrix_bits#[215] = 0
+  parity_check_matrix_bits#[216] = 0
+  parity_check_matrix_bits#[217] = 1
+  parity_check_matrix_bits#[218] = 0
+  parity_check_matrix_bits#[219] = 0
+  parity_check_matrix_bits#[220] = 1
+  parity_check_matrix_bits#[221] = 1
+  parity_check_matrix_bits#[222] = 0
+  parity_check_matrix_bits#[223] = 0
+  parity_check_matrix_bits#[224] = 0
+  parity_check_matrix_bits#[225] = 0
+  parity_check_matrix_bits#[226] = 0
+  parity_check_matrix_bits#[227] = 0
+  parity_check_matrix_bits#[228] = 0
+  parity_check_matrix_bits#[229] = 0
+  parity_check_matrix_bits#[230] = 1
+  parity_check_matrix_bits#[231] = 0
+  parity_check_matrix_bits#[232] = 0
+  parity_check_matrix_bits#[233] = 0
+  parity_check_matrix_bits#[234] = 0
+  parity_check_matrix_bits#[235] = 0
+  parity_check_matrix_bits#[236] = 1
+  parity_check_matrix_bits#[237] = 0
+  parity_check_matrix_bits#[238] = 0
+  parity_check_matrix_bits#[239] = 0
+  parity_check_matrix_bits#[240] = 0
+  parity_check_matrix_bits#[241] = 0
+  parity_check_matrix_bits#[242] = 1
+  parity_check_matrix_bits#[243] = 0
+  parity_check_matrix_bits#[244] = 0
+  parity_check_matrix_bits#[245] = 0
+  parity_check_matrix_bits#[246] = 0
+  parity_check_matrix_bits#[247] = 0
+  parity_check_matrix_bits#[248] = 1
+  parity_check_matrix_bits#[249] = 0
+  parity_check_matrix_bits#[250] = 0
+  parity_check_matrix_bits#[251] = 0
+  parity_check_matrix_bits#[252] = 0
+  parity_check_matrix_bits#[253] = 0
+  parity_check_matrix_bits#[254] = 1
+  parity_check_matrix_bits#[255] = 0
+  parity_check_matrix_bits#[256] = 0
+  parity_check_matrix_bits#[257] = 0
+  parity_check_matrix_bits#[258] = 0
+  parity_check_matrix_bits#[259] = 0
+  parity_check_matrix_bits#[260] = 1
+  parity_check_matrix_bits#[261] = 0
+  parity_check_matrix_bits#[262] = 0
+  parity_check_matrix_bits#[263] = 0
+  parity_check_matrix_bits#[264] = 0
+  parity_check_matrix_bits#[265] = 0
+  parity_check_matrix_bits#[266] = 1
+  parity_check_matrix_bits#[267] = 0
+  parity_check_matrix_bits#[268] = 0
+  parity_check_matrix_bits#[269] = 0
+  parity_check_matrix_bits#[270] = 0
+  parity_check_matrix_bits#[271] = 0
+  parity_check_matrix_bits#[272] = 0
+  mut br_delay_valid_syndrome = br_delay_valid_p1<Width=46>(in_valid=br_delay_valid_inputs.out_valid, `in`=(cw << 7) | syndrome)
+  const internal_error_syndrome = br_delay_valid_syndrome.out#[0..=6]
+  const t904 = internal_error_syndrome#^[..]
+  mut _b2i_3 = if U1(internal_error_syndrome == 0) == 0 and U1(t904 == 0) != 0 { 1 } else { 0 }
+  internal_h_column_match_bits#[0] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[6] << 6) | (parity_check_matrix_bits#[5] << 5) | (parity_check_matrix_bits#[4] << 4) | (parity_check_matrix_bits#[3] << 3) | (parity_check_matrix_bits#[2] << 2) | (parity_check_matrix_bits#[1] << 1) | parity_check_matrix_bits#[0])) & 1
+  internal_h_column_match_bits#[1] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[13] << 6) | (parity_check_matrix_bits#[12] << 5) | (parity_check_matrix_bits#[11] << 4) | (parity_check_matrix_bits#[10] << 3) | (parity_check_matrix_bits#[9] << 2) | (parity_check_matrix_bits#[8] << 1) | parity_check_matrix_bits#[7])) & 1
+  internal_h_column_match_bits#[2] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[20] << 6) | (parity_check_matrix_bits#[19] << 5) | (parity_check_matrix_bits#[18] << 4) | (parity_check_matrix_bits#[17] << 3) | (parity_check_matrix_bits#[16] << 2) | (parity_check_matrix_bits#[15] << 1) | parity_check_matrix_bits#[14])) & 1
+  internal_h_column_match_bits#[3] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[27] << 6) | (parity_check_matrix_bits#[26] << 5) | (parity_check_matrix_bits#[25] << 4) | (parity_check_matrix_bits#[24] << 3) | (parity_check_matrix_bits#[23] << 2) | (parity_check_matrix_bits#[22] << 1) | parity_check_matrix_bits#[21])) & 1
+  internal_h_column_match_bits#[4] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[34] << 6) | (parity_check_matrix_bits#[33] << 5) | (parity_check_matrix_bits#[32] << 4) | (parity_check_matrix_bits#[31] << 3) | (parity_check_matrix_bits#[30] << 2) | (parity_check_matrix_bits#[29] << 1) | parity_check_matrix_bits#[28])) & 1
+  internal_h_column_match_bits#[5] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[41] << 6) | (parity_check_matrix_bits#[40] << 5) | (parity_check_matrix_bits#[39] << 4) | (parity_check_matrix_bits#[38] << 3) | (parity_check_matrix_bits#[37] << 2) | (parity_check_matrix_bits#[36] << 1) | parity_check_matrix_bits#[35])) & 1
+  internal_h_column_match_bits#[6] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[48] << 6) | (parity_check_matrix_bits#[47] << 5) | (parity_check_matrix_bits#[46] << 4) | (parity_check_matrix_bits#[45] << 3) | (parity_check_matrix_bits#[44] << 2) | (parity_check_matrix_bits#[43] << 1) | parity_check_matrix_bits#[42])) & 1
+  internal_h_column_match_bits#[7] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[55] << 6) | (parity_check_matrix_bits#[54] << 5) | (parity_check_matrix_bits#[53] << 4) | (parity_check_matrix_bits#[52] << 3) | (parity_check_matrix_bits#[51] << 2) | (parity_check_matrix_bits#[50] << 1) | parity_check_matrix_bits#[49])) & 1
+  internal_h_column_match_bits#[8] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[62] << 6) | (parity_check_matrix_bits#[61] << 5) | (parity_check_matrix_bits#[60] << 4) | (parity_check_matrix_bits#[59] << 3) | (parity_check_matrix_bits#[58] << 2) | (parity_check_matrix_bits#[57] << 1) | parity_check_matrix_bits#[56])) & 1
+  internal_h_column_match_bits#[9] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[69] << 6) | (parity_check_matrix_bits#[68] << 5) | (parity_check_matrix_bits#[67] << 4) | (parity_check_matrix_bits#[66] << 3) | (parity_check_matrix_bits#[65] << 2) | (parity_check_matrix_bits#[64] << 1) | parity_check_matrix_bits#[63])) & 1
+  internal_h_column_match_bits#[10] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[76] << 6) | (parity_check_matrix_bits#[75] << 5) | (parity_check_matrix_bits#[74] << 4) | (parity_check_matrix_bits#[73] << 3) | (parity_check_matrix_bits#[72] << 2) | (parity_check_matrix_bits#[71] << 1) | parity_check_matrix_bits#[70])) & 1
+  internal_h_column_match_bits#[11] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[83] << 6) | (parity_check_matrix_bits#[82] << 5) | (parity_check_matrix_bits#[81] << 4) | (parity_check_matrix_bits#[80] << 3) | (parity_check_matrix_bits#[79] << 2) | (parity_check_matrix_bits#[78] << 1) | parity_check_matrix_bits#[77])) & 1
+  internal_h_column_match_bits#[12] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[90] << 6) | (parity_check_matrix_bits#[89] << 5) | (parity_check_matrix_bits#[88] << 4) | (parity_check_matrix_bits#[87] << 3) | (parity_check_matrix_bits#[86] << 2) | (parity_check_matrix_bits#[85] << 1) | parity_check_matrix_bits#[84])) & 1
+  internal_h_column_match_bits#[13] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[97] << 6) | (parity_check_matrix_bits#[96] << 5) | (parity_check_matrix_bits#[95] << 4) | (parity_check_matrix_bits#[94] << 3) | (parity_check_matrix_bits#[93] << 2) | (parity_check_matrix_bits#[92] << 1) | parity_check_matrix_bits#[91])) & 1
+  internal_h_column_match_bits#[14] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[104] << 6) | (parity_check_matrix_bits#[103] << 5) | (parity_check_matrix_bits#[102] << 4) | (parity_check_matrix_bits#[101] << 3) | (parity_check_matrix_bits#[100] << 2) | (parity_check_matrix_bits#[99] << 1) | parity_check_matrix_bits#[98])) & 1
+  internal_h_column_match_bits#[15] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[111] << 6) | (parity_check_matrix_bits#[110] << 5) | (parity_check_matrix_bits#[109] << 4) | (parity_check_matrix_bits#[108] << 3) | (parity_check_matrix_bits#[107] << 2) | (parity_check_matrix_bits#[106] << 1) | parity_check_matrix_bits#[105])) & 1
+  internal_h_column_match_bits#[16] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[118] << 6) | (parity_check_matrix_bits#[117] << 5) | (parity_check_matrix_bits#[116] << 4) | (parity_check_matrix_bits#[115] << 3) | (parity_check_matrix_bits#[114] << 2) | (parity_check_matrix_bits#[113] << 1) | parity_check_matrix_bits#[112])) & 1
+  internal_h_column_match_bits#[17] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[125] << 6) | (parity_check_matrix_bits#[124] << 5) | (parity_check_matrix_bits#[123] << 4) | (parity_check_matrix_bits#[122] << 3) | (parity_check_matrix_bits#[121] << 2) | (parity_check_matrix_bits#[120] << 1) | parity_check_matrix_bits#[119])) & 1
+  internal_h_column_match_bits#[18] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[132] << 6) | (parity_check_matrix_bits#[131] << 5) | (parity_check_matrix_bits#[130] << 4) | (parity_check_matrix_bits#[129] << 3) | (parity_check_matrix_bits#[128] << 2) | (parity_check_matrix_bits#[127] << 1) | parity_check_matrix_bits#[126])) & 1
+  internal_h_column_match_bits#[19] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[139] << 6) | (parity_check_matrix_bits#[138] << 5) | (parity_check_matrix_bits#[137] << 4) | (parity_check_matrix_bits#[136] << 3) | (parity_check_matrix_bits#[135] << 2) | (parity_check_matrix_bits#[134] << 1) | parity_check_matrix_bits#[133])) & 1
+  internal_h_column_match_bits#[20] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[146] << 6) | (parity_check_matrix_bits#[145] << 5) | (parity_check_matrix_bits#[144] << 4) | (parity_check_matrix_bits#[143] << 3) | (parity_check_matrix_bits#[142] << 2) | (parity_check_matrix_bits#[141] << 1) | parity_check_matrix_bits#[140])) & 1
+  internal_h_column_match_bits#[21] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[153] << 6) | (parity_check_matrix_bits#[152] << 5) | (parity_check_matrix_bits#[151] << 4) | (parity_check_matrix_bits#[150] << 3) | (parity_check_matrix_bits#[149] << 2) | (parity_check_matrix_bits#[148] << 1) | parity_check_matrix_bits#[147])) & 1
+  internal_h_column_match_bits#[22] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[160] << 6) | (parity_check_matrix_bits#[159] << 5) | (parity_check_matrix_bits#[158] << 4) | (parity_check_matrix_bits#[157] << 3) | (parity_check_matrix_bits#[156] << 2) | (parity_check_matrix_bits#[155] << 1) | parity_check_matrix_bits#[154])) & 1
+  internal_h_column_match_bits#[23] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[167] << 6) | (parity_check_matrix_bits#[166] << 5) | (parity_check_matrix_bits#[165] << 4) | (parity_check_matrix_bits#[164] << 3) | (parity_check_matrix_bits#[163] << 2) | (parity_check_matrix_bits#[162] << 1) | parity_check_matrix_bits#[161])) & 1
+  internal_h_column_match_bits#[24] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[174] << 6) | (parity_check_matrix_bits#[173] << 5) | (parity_check_matrix_bits#[172] << 4) | (parity_check_matrix_bits#[171] << 3) | (parity_check_matrix_bits#[170] << 2) | (parity_check_matrix_bits#[169] << 1) | parity_check_matrix_bits#[168])) & 1
+  internal_h_column_match_bits#[25] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[181] << 6) | (parity_check_matrix_bits#[180] << 5) | (parity_check_matrix_bits#[179] << 4) | (parity_check_matrix_bits#[178] << 3) | (parity_check_matrix_bits#[177] << 2) | (parity_check_matrix_bits#[176] << 1) | parity_check_matrix_bits#[175])) & 1
+  internal_h_column_match_bits#[26] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[188] << 6) | (parity_check_matrix_bits#[187] << 5) | (parity_check_matrix_bits#[186] << 4) | (parity_check_matrix_bits#[185] << 3) | (parity_check_matrix_bits#[184] << 2) | (parity_check_matrix_bits#[183] << 1) | parity_check_matrix_bits#[182])) & 1
+  internal_h_column_match_bits#[27] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[195] << 6) | (parity_check_matrix_bits#[194] << 5) | (parity_check_matrix_bits#[193] << 4) | (parity_check_matrix_bits#[192] << 3) | (parity_check_matrix_bits#[191] << 2) | (parity_check_matrix_bits#[190] << 1) | parity_check_matrix_bits#[189])) & 1
+  internal_h_column_match_bits#[28] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[202] << 6) | (parity_check_matrix_bits#[201] << 5) | (parity_check_matrix_bits#[200] << 4) | (parity_check_matrix_bits#[199] << 3) | (parity_check_matrix_bits#[198] << 2) | (parity_check_matrix_bits#[197] << 1) | parity_check_matrix_bits#[196])) & 1
+  internal_h_column_match_bits#[29] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[209] << 6) | (parity_check_matrix_bits#[208] << 5) | (parity_check_matrix_bits#[207] << 4) | (parity_check_matrix_bits#[206] << 3) | (parity_check_matrix_bits#[205] << 2) | (parity_check_matrix_bits#[204] << 1) | parity_check_matrix_bits#[203])) & 1
+  internal_h_column_match_bits#[30] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[216] << 6) | (parity_check_matrix_bits#[215] << 5) | (parity_check_matrix_bits#[214] << 4) | (parity_check_matrix_bits#[213] << 3) | (parity_check_matrix_bits#[212] << 2) | (parity_check_matrix_bits#[211] << 1) | parity_check_matrix_bits#[210])) & 1
+  internal_h_column_match_bits#[31] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[223] << 6) | (parity_check_matrix_bits#[222] << 5) | (parity_check_matrix_bits#[221] << 4) | (parity_check_matrix_bits#[220] << 3) | (parity_check_matrix_bits#[219] << 2) | (parity_check_matrix_bits#[218] << 1) | parity_check_matrix_bits#[217])) & 1
+  internal_h_column_match_bits#[32] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[230] << 6) | (parity_check_matrix_bits#[229] << 5) | (parity_check_matrix_bits#[228] << 4) | (parity_check_matrix_bits#[227] << 3) | (parity_check_matrix_bits#[226] << 2) | (parity_check_matrix_bits#[225] << 1) | parity_check_matrix_bits#[224])) & 1
+  internal_h_column_match_bits#[33] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[237] << 6) | (parity_check_matrix_bits#[236] << 5) | (parity_check_matrix_bits#[235] << 4) | (parity_check_matrix_bits#[234] << 3) | (parity_check_matrix_bits#[233] << 2) | (parity_check_matrix_bits#[232] << 1) | parity_check_matrix_bits#[231])) & 1
+  internal_h_column_match_bits#[34] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[244] << 6) | (parity_check_matrix_bits#[243] << 5) | (parity_check_matrix_bits#[242] << 4) | (parity_check_matrix_bits#[241] << 3) | (parity_check_matrix_bits#[240] << 2) | (parity_check_matrix_bits#[239] << 1) | parity_check_matrix_bits#[238])) & 1
+  internal_h_column_match_bits#[35] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[251] << 6) | (parity_check_matrix_bits#[250] << 5) | (parity_check_matrix_bits#[249] << 4) | (parity_check_matrix_bits#[248] << 3) | (parity_check_matrix_bits#[247] << 2) | (parity_check_matrix_bits#[246] << 1) | parity_check_matrix_bits#[245])) & 1
+  internal_h_column_match_bits#[36] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[258] << 6) | (parity_check_matrix_bits#[257] << 5) | (parity_check_matrix_bits#[256] << 4) | (parity_check_matrix_bits#[255] << 3) | (parity_check_matrix_bits#[254] << 2) | (parity_check_matrix_bits#[253] << 1) | parity_check_matrix_bits#[252])) & 1
+  internal_h_column_match_bits#[37] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[265] << 6) | (parity_check_matrix_bits#[264] << 5) | (parity_check_matrix_bits#[263] << 4) | (parity_check_matrix_bits#[262] << 3) | (parity_check_matrix_bits#[261] << 2) | (parity_check_matrix_bits#[260] << 1) | parity_check_matrix_bits#[259])) & 1
+  internal_h_column_match_bits#[38] = U1(internal_error_syndrome == ((parity_check_matrix_bits#[272] << 6) | (parity_check_matrix_bits#[271] << 5) | (parity_check_matrix_bits#[270] << 4) | (parity_check_matrix_bits#[269] << 3) | (parity_check_matrix_bits#[268] << 2) | (parity_check_matrix_bits#[267] << 1) | parity_check_matrix_bits#[266])) & 1
+  mut _b2i_43 = if t904 != 0 and internal_h_column_match == 0 { 1 } else { 0 }
   mut _b2i_44 = if _b2i_3 != 0 or _b2i_43 != 0 { 1 } else { 0 }
-  mut _b2i_45 = if internal_error_syndrome_is_odd__w1 != 0 and internal_h_column_match != 0 { 1 } else { 0 }
-  const internal_corrected_codeword__w1 = (br_delay_valid_syndrome.out >> 7)#[0..=38] ^ internal_h_column_match
-  `internal_corrected_codeword_compressed[32]` = (internal_corrected_codeword__w1 >> 32)#[0..=6] & 1
-  `internal_corrected_codeword_compressed[33]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 1) & 1
-  `internal_corrected_codeword_compressed[34]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 2) & 1
-  `internal_corrected_codeword_compressed[35]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 3) & 1
-  `internal_corrected_codeword_compressed[36]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 4) & 1
-  `internal_corrected_codeword_compressed[37]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 5) & 1
-  `internal_corrected_codeword_compressed[38]` = ((internal_corrected_codeword__w1 >> 32)#[0..=6] >> 6) & 1
-  `internal_corrected_codeword_compressed[0]` = internal_corrected_codeword__w1#[0..=31] & 1
-  `internal_corrected_codeword_compressed[1]` = (internal_corrected_codeword__w1#[0..=31] >> 1) & 1
-  `internal_corrected_codeword_compressed[2]` = (internal_corrected_codeword__w1#[0..=31] >> 2) & 1
-  `internal_corrected_codeword_compressed[3]` = (internal_corrected_codeword__w1#[0..=31] >> 3) & 1
-  `internal_corrected_codeword_compressed[4]` = (internal_corrected_codeword__w1#[0..=31] >> 4) & 1
-  `internal_corrected_codeword_compressed[5]` = (internal_corrected_codeword__w1#[0..=31] >> 5) & 1
-  `internal_corrected_codeword_compressed[6]` = (internal_corrected_codeword__w1#[0..=31] >> 6) & 1
-  `internal_corrected_codeword_compressed[7]` = (internal_corrected_codeword__w1#[0..=31] >> 7) & 1
-  `internal_corrected_codeword_compressed[8]` = (internal_corrected_codeword__w1#[0..=31] >> 8) & 1
-  `internal_corrected_codeword_compressed[9]` = (internal_corrected_codeword__w1#[0..=31] >> 9) & 1
-  `internal_corrected_codeword_compressed[10]` = (internal_corrected_codeword__w1#[0..=31] >> 10) & 1
-  `internal_corrected_codeword_compressed[11]` = (internal_corrected_codeword__w1#[0..=31] >> 11) & 1
-  `internal_corrected_codeword_compressed[12]` = (internal_corrected_codeword__w1#[0..=31] >> 12) & 1
-  `internal_corrected_codeword_compressed[13]` = (internal_corrected_codeword__w1#[0..=31] >> 13) & 1
-  `internal_corrected_codeword_compressed[14]` = (internal_corrected_codeword__w1#[0..=31] >> 14) & 1
-  `internal_corrected_codeword_compressed[15]` = (internal_corrected_codeword__w1#[0..=31] >> 15) & 1
-  `internal_corrected_codeword_compressed[16]` = (internal_corrected_codeword__w1#[0..=31] >> 16) & 1
-  `internal_corrected_codeword_compressed[17]` = (internal_corrected_codeword__w1#[0..=31] >> 17) & 1
-  `internal_corrected_codeword_compressed[18]` = (internal_corrected_codeword__w1#[0..=31] >> 18) & 1
-  `internal_corrected_codeword_compressed[19]` = (internal_corrected_codeword__w1#[0..=31] >> 19) & 1
-  `internal_corrected_codeword_compressed[20]` = (internal_corrected_codeword__w1#[0..=31] >> 20) & 1
-  `internal_corrected_codeword_compressed[21]` = (internal_corrected_codeword__w1#[0..=31] >> 21) & 1
-  `internal_corrected_codeword_compressed[22]` = (internal_corrected_codeword__w1#[0..=31] >> 22) & 1
-  `internal_corrected_codeword_compressed[23]` = (internal_corrected_codeword__w1#[0..=31] >> 23) & 1
-  `internal_corrected_codeword_compressed[24]` = (internal_corrected_codeword__w1#[0..=31] >> 24) & 1
-  `internal_corrected_codeword_compressed[25]` = (internal_corrected_codeword__w1#[0..=31] >> 25) & 1
-  `internal_corrected_codeword_compressed[26]` = (internal_corrected_codeword__w1#[0..=31] >> 26) & 1
-  `internal_corrected_codeword_compressed[27]` = (internal_corrected_codeword__w1#[0..=31] >> 27) & 1
-  `internal_corrected_codeword_compressed[28]` = (internal_corrected_codeword__w1#[0..=31] >> 28) & 1
-  `internal_corrected_codeword_compressed[29]` = (internal_corrected_codeword__w1#[0..=31] >> 29) & 1
-  `internal_corrected_codeword_compressed[30]` = (internal_corrected_codeword__w1#[0..=31] >> 30) & 1
-  `internal_corrected_codeword_compressed[31]` = (internal_corrected_codeword__w1#[0..=31] >> 31) & 1
-  mut br_delay_valid_outputs = br_delay_valid_p2::[name=br_delay_valid_outputs](clk=clk, rst=rst, in_valid=br_delay_valid_syndrome.out_valid, `in`=(internal_corrected_codeword_compressed << 9) | ((_b2i_45 & 1) << 8) | ((_b2i_44 & 1) << 7) | internal_error_syndrome__w1)
+  mut _b2i_45 = if t904 != 0 and internal_h_column_match != 0 { 1 } else { 0 }
+  const internal_corrected_codeword = (br_delay_valid_syndrome.out >> 7)#[0..=38] ^ internal_h_column_match
+  internal_corrected_codeword_compressed_bits#[32..<39] = (internal_corrected_codeword >> 32)#[0..=6]#[0..<7]
+  internal_corrected_codeword_compressed_bits#[0..<32] = internal_corrected_codeword#[0..=31]#[0..<32]
+  mut br_delay_valid_outputs = br_delay_valid_p2<Width=48>(in_valid=br_delay_valid_syndrome.out_valid, `in`=(internal_corrected_codeword_compressed << 9) | ((_b2i_45 & 1) << 8) | ((_b2i_44 & 1) << 7) | internal_error_syndrome)
   const dec_codeword__w1 = (br_delay_valid_outputs.out >> 9)#[0..=38]
-  syndrome = (`syndrome[6]` << 6) | (`syndrome[5]` << 5) | (`syndrome[4]` << 4) | (`syndrome[3]` << 3) | (`syndrome[2]` << 2) | (`syndrome[1]` << 1) | `syndrome[0]`
-  cw = (`cw[38]` << 38) | (`cw[37]` << 37) | (`cw[36]` << 36) | (`cw[35]` << 35) | (`cw[34]` << 34) | (`cw[33]` << 33) | (`cw[32]` << 32) | (`cw[31]` << 31) | (`cw[30]` << 30) | (`cw[29]` << 29) | (`cw[28]` << 28) | (`cw[27]` << 27) | (`cw[26]` << 26) | (`cw[25]` << 25) | (`cw[24]` << 24) | (`cw[23]` << 23) | (`cw[22]` << 22) | (`cw[21]` << 21) | (`cw[20]` << 20) | (`cw[19]` << 19) | (`cw[18]` << 18) | (`cw[17]` << 17) | (`cw[16]` << 16) | (`cw[15]` << 15) | (`cw[14]` << 14) | (`cw[13]` << 13) | (`cw[12]` << 12) | (`cw[11]` << 11) | (`cw[10]` << 10) | (`cw[9]` << 9) | (`cw[8]` << 8) | (`cw[7]` << 7) | (`cw[6]` << 6) | (`cw[5]` << 5) | (`cw[4]` << 4) | (`cw[3]` << 3) | (`cw[2]` << 2) | (`cw[1]` << 1) | `cw[0]`
-  internal_h_column_match = (`internal_h_column_match[38]` << 38) | (`internal_h_column_match[37]` << 37) | (`internal_h_column_match[36]` << 36) | (`internal_h_column_match[35]` << 35) | (`internal_h_column_match[34]` << 34) | (`internal_h_column_match[33]` << 33) | (`internal_h_column_match[32]` << 32) | (`internal_h_column_match[31]` << 31) | (`internal_h_column_match[30]` << 30) | (`internal_h_column_match[29]` << 29) | (`internal_h_column_match[28]` << 28) | (`internal_h_column_match[27]` << 27) | (`internal_h_column_match[26]` << 26) | (`internal_h_column_match[25]` << 25) | (`internal_h_column_match[24]` << 24) | (`internal_h_column_match[23]` << 23) | (`internal_h_column_match[22]` << 22) | (`internal_h_column_match[21]` << 21) | (`internal_h_column_match[20]` << 20) | (`internal_h_column_match[19]` << 19) | (`internal_h_column_match[18]` << 18) | (`internal_h_column_match[17]` << 17) | (`internal_h_column_match[16]` << 16) | (`internal_h_column_match[15]` << 15) | (`internal_h_column_match[14]` << 14) | (`internal_h_column_match[13]` << 13) | (`internal_h_column_match[12]` << 12) | (`internal_h_column_match[11]` << 11) | (`internal_h_column_match[10]` << 10) | (`internal_h_column_match[9]` << 9) | (`internal_h_column_match[8]` << 8) | (`internal_h_column_match[7]` << 7) | (`internal_h_column_match[6]` << 6) | (`internal_h_column_match[5]` << 5) | (`internal_h_column_match[4]` << 4) | (`internal_h_column_match[3]` << 3) | (`internal_h_column_match[2]` << 2) | (`internal_h_column_match[1]` << 1) | `internal_h_column_match[0]`
-  internal_corrected_codeword_compressed = (`internal_corrected_codeword_compressed[38]` << 38) | (`internal_corrected_codeword_compressed[37]` << 37) | (`internal_corrected_codeword_compressed[36]` << 36) | (`internal_corrected_codeword_compressed[35]` << 35) | (`internal_corrected_codeword_compressed[34]` << 34) | (`internal_corrected_codeword_compressed[33]` << 33) | (`internal_corrected_codeword_compressed[32]` << 32) | (`internal_corrected_codeword_compressed[31]` << 31) | (`internal_corrected_codeword_compressed[30]` << 30) | (`internal_corrected_codeword_compressed[29]` << 29) | (`internal_corrected_codeword_compressed[28]` << 28) | (`internal_corrected_codeword_compressed[27]` << 27) | (`internal_corrected_codeword_compressed[26]` << 26) | (`internal_corrected_codeword_compressed[25]` << 25) | (`internal_corrected_codeword_compressed[24]` << 24) | (`internal_corrected_codeword_compressed[23]` << 23) | (`internal_corrected_codeword_compressed[22]` << 22) | (`internal_corrected_codeword_compressed[21]` << 21) | (`internal_corrected_codeword_compressed[20]` << 20) | (`internal_corrected_codeword_compressed[19]` << 19) | (`internal_corrected_codeword_compressed[18]` << 18) | (`internal_corrected_codeword_compressed[17]` << 17) | (`internal_corrected_codeword_compressed[16]` << 16) | (`internal_corrected_codeword_compressed[15]` << 15) | (`internal_corrected_codeword_compressed[14]` << 14) | (`internal_corrected_codeword_compressed[13]` << 13) | (`internal_corrected_codeword_compressed[12]` << 12) | (`internal_corrected_codeword_compressed[11]` << 11) | (`internal_corrected_codeword_compressed[10]` << 10) | (`internal_corrected_codeword_compressed[9]` << 9) | (`internal_corrected_codeword_compressed[8]` << 8) | (`internal_corrected_codeword_compressed[7]` << 7) | (`internal_corrected_codeword_compressed[6]` << 6) | (`internal_corrected_codeword_compressed[5]` << 5) | (`internal_corrected_codeword_compressed[4]` << 4) | (`internal_corrected_codeword_compressed[3]` << 3) | (`internal_corrected_codeword_compressed[2]` << 2) | (`internal_corrected_codeword_compressed[1]` << 1) | `internal_corrected_codeword_compressed[0]`
+  syndrome = syndrome_bits
+  cw = cw_bits
+  internal_h_column_match = internal_h_column_match_bits
+  internal_corrected_codeword_compressed = internal_corrected_codeword_compressed_bits
   dec_valid = br_delay_valid_outputs.out_valid
   dec_codeword = dec_codeword__w1
   dec_error_ce = (br_delay_valid_outputs.out >> 8) & 1

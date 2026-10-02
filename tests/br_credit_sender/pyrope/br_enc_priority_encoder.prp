@@ -1,89 +1,51 @@
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
-
 pub mod br_enc_priority_encoder<NumRequesters=7, NumResults=4, MsbHighestPriority=0, MaxInHot=4>::[timecheck=false](clk:Clock, `in`:(e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), rst:Reset) -> (out:U28@[]) {
-  wire `out_internal[0]`:U1 = nil
-  wire `out_internal[1]`:U1 = nil
-  wire `out_internal[2]`:U1 = nil
-  wire `out_internal[3]`:U1 = nil
-  wire `out_internal[4]`:U1 = nil
-  wire `out_internal[5]`:U1 = nil
-  wire `out_internal[6]`:U1 = nil
-  wire `out_internal[7]`:U1 = nil
-  wire `out_internal[8]`:U1 = nil
-  wire `out_internal[9]`:U1 = nil
-  wire `out_internal[10]`:U1 = nil
-  wire `out_internal[11]`:U1 = nil
-  wire `out_internal[12]`:U1 = nil
-  wire `out_internal[13]`:U1 = nil
-  wire `out_internal[14]`:U1 = nil
-  wire `out_internal[15]`:U1 = nil
-  wire `out_internal[16]`:U1 = nil
-  wire `out_internal[17]`:U1 = nil
-  wire `out_internal[18]`:U1 = nil
-  wire `out_internal[19]`:U1 = nil
-  wire `out_internal[20]`:U1 = nil
-  wire `out_internal[21]`:U1 = nil
-  wire `out_internal[22]`:U1 = nil
-  wire `out_internal[23]`:U1 = nil
-  wire `out_internal[24]`:U1 = nil
-  wire `out_internal[25]`:U1 = nil
-  wire `out_internal[26]`:U1 = nil
-  wire `out_internal[27]`:U1 = nil
+  wire out_internal_bits:U28 = nil
   wire out_internal:U28 = nil
-  const in_internal__w1 = (`in`.e6 << 6) | (`in`.e5 << 5) | (`in`.e4 << 4) | (`in`.e3 << 3) | (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
-  const gen_out_internal_0_in_masked__w1 = in_internal__w1
-  `out_internal[0]` = gen_out_internal_0_in_masked__w1 & 1
-  `out_internal[1]` = U1(((gen_out_internal_0_in_masked__w1 >> 1) & 1) != 0 and (gen_out_internal_0_in_masked__w1 & 1) == 0) & 1
-  `out_internal[2]` = U1(((gen_out_internal_0_in_masked__w1 >> 2) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=1] == 0) & 1
-  `out_internal[3]` = U1(((gen_out_internal_0_in_masked__w1 >> 3) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=2] == 0) & 1
-  `out_internal[4]` = U1(((gen_out_internal_0_in_masked__w1 >> 4) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=3] == 0) & 1
-  `out_internal[5]` = U1(((gen_out_internal_0_in_masked__w1 >> 5) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=4] == 0) & 1
-  `out_internal[6]` = U1(((gen_out_internal_0_in_masked__w1 >> 6) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=5] == 0) & 1
-  const gen_out_internal_1_in_masked__w2 = in_internal__w1 & (~((`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=6])
-  `out_internal[7]` = 0
-  br_misc_unused_p1::[name=gen_out_internal_1_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=gen_out_internal_1_in_masked__w2 & 1)
-  `out_internal[8]` = (gen_out_internal_1_in_masked__w2 >> 1) & 1
-  mut _b2i_7 = if ((gen_out_internal_1_in_masked__w2 >> 2) & 1) != 0 and ((gen_out_internal_1_in_masked__w2 >> 1) & 1) == 0 { 1 } else { 0 }
-  `out_internal[9]` = _b2i_7 & 1
-  mut _b2i_8 = if ((gen_out_internal_1_in_masked__w2 >> 3) & 1) != 0 and gen_out_internal_1_in_masked__w2#[1..=2] == 0 { 1 } else { 0 }
-  `out_internal[10]` = _b2i_8 & 1
-  mut _b2i_9 = if ((gen_out_internal_1_in_masked__w2 >> 4) & 1) != 0 and gen_out_internal_1_in_masked__w2#[1..=3] == 0 { 1 } else { 0 }
-  `out_internal[11]` = _b2i_9 & 1
-  mut _b2i_10 = if ((gen_out_internal_1_in_masked__w2 >> 5) & 1) != 0 and gen_out_internal_1_in_masked__w2#[1..=4] == 0 { 1 } else { 0 }
-  `out_internal[12]` = _b2i_10 & 1
-  mut _b2i_11 = if ((gen_out_internal_1_in_masked__w2 >> 6) & 1) != 0 and gen_out_internal_1_in_masked__w2#[1..=5] == 0 { 1 } else { 0 }
-  `out_internal[13]` = _b2i_11 & 1
-  const gen_out_internal_2_in_masked__w3 = (in_internal__w1 & (~((`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=6])) & (~((`out_internal[13]` << 6) | (`out_internal[12]` << 5) | (`out_internal[11]` << 4) | (`out_internal[10]` << 3) | (`out_internal[9]` << 2) | (`out_internal[8]` << 1) | `out_internal[7]`)#[0..=6])
-  `out_internal[14]` = 0
-  `out_internal[15]` = 0
-  br_misc_unused_p2::[name=gen_out_internal_2_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=gen_out_internal_2_in_masked__w3#[0..=1])
-  br_misc_unused_p2::[name=gen_out_internal_2_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_1](`in`=gen_out_internal_2_in_masked__w3#[0..=1])
-  `out_internal[16]` = (gen_out_internal_2_in_masked__w3 >> 2) & 1
-  mut _b2i_12 = if ((gen_out_internal_2_in_masked__w3 >> 3) & 1) != 0 and ((gen_out_internal_2_in_masked__w3 >> 2) & 1) == 0 { 1 } else { 0 }
-  `out_internal[17]` = _b2i_12 & 1
-  mut _b2i_13 = if ((gen_out_internal_2_in_masked__w3 >> 4) & 1) != 0 and gen_out_internal_2_in_masked__w3#[2..=3] == 0 { 1 } else { 0 }
-  `out_internal[18]` = _b2i_13 & 1
-  mut _b2i_14 = if ((gen_out_internal_2_in_masked__w3 >> 5) & 1) != 0 and gen_out_internal_2_in_masked__w3#[2..=4] == 0 { 1 } else { 0 }
-  `out_internal[19]` = _b2i_14 & 1
-  mut _b2i_15 = if ((gen_out_internal_2_in_masked__w3 >> 6) & 1) != 0 and gen_out_internal_2_in_masked__w3#[2..=5] == 0 { 1 } else { 0 }
-  `out_internal[20]` = _b2i_15 & 1
-  const gen_out_internal_3_in_masked__w4 = ((in_internal__w1 & (~((`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`)#[0..=6])) & (~((`out_internal[13]` << 6) | (`out_internal[12]` << 5) | (`out_internal[11]` << 4) | (`out_internal[10]` << 3) | (`out_internal[9]` << 2) | (`out_internal[8]` << 1) | `out_internal[7]`)#[0..=6])) & (~((`out_internal[20]` << 6) | (`out_internal[19]` << 5) | (`out_internal[18]` << 4) | (`out_internal[17]` << 3) | (`out_internal[16]` << 2) | (`out_internal[15]` << 1) | `out_internal[14]`)#[0..=6])
-  `out_internal[21]` = 0
-  `out_internal[22]` = 0
-  `out_internal[23]` = 0
-  br_misc_unused_p3::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_0](`in`=gen_out_internal_3_in_masked__w4#[0..=2])
-  br_misc_unused_p3::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_1](`in`=gen_out_internal_3_in_masked__w4#[0..=2])
-  br_misc_unused_p3::[name=gen_out_internal_3_gen_out_masked_lsb_tieoff_br_misc_unused_in_masked_2](`in`=gen_out_internal_3_in_masked__w4#[0..=2])
-  `out_internal[24]` = (gen_out_internal_3_in_masked__w4 >> 3) & 1
-  mut _b2i_16 = if ((gen_out_internal_3_in_masked__w4 >> 4) & 1) != 0 and ((gen_out_internal_3_in_masked__w4 >> 3) & 1) == 0 { 1 } else { 0 }
-  `out_internal[25]` = _b2i_16 & 1
-  mut _b2i_17 = if ((gen_out_internal_3_in_masked__w4 >> 5) & 1) != 0 and gen_out_internal_3_in_masked__w4#[3..=4] == 0 { 1 } else { 0 }
-  `out_internal[26]` = _b2i_17 & 1
-  mut _b2i_18 = if ((gen_out_internal_3_in_masked__w4 >> 6) & 1) != 0 and gen_out_internal_3_in_masked__w4#[3..=5] == 0 { 1 } else { 0 }
-  `out_internal[27]` = _b2i_18 & 1
+  const in_internal = (`in`.e6 << 6) | (`in`.e5 << 5) | (`in`.e4 << 4) | (`in`.e3 << 3) | (`in`.e2 << 2) | (`in`.e1 << 1) | `in`.e0
+  out_internal_bits#[0] = in_internal & 1
+  out_internal_bits#[1] = U1(((in_internal >> 1) & 1) != 0 and (in_internal & 1) == 0) & 1
+  out_internal_bits#[2] = U1(((in_internal >> 2) & 1) != 0 and in_internal#[0..=1] == 0) & 1
+  out_internal_bits#[3] = U1(((in_internal >> 3) & 1) != 0 and in_internal#[0..=2] == 0) & 1
+  out_internal_bits#[4] = U1(((in_internal >> 4) & 1) != 0 and in_internal#[0..=3] == 0) & 1
+  out_internal_bits#[5] = U1(((in_internal >> 5) & 1) != 0 and in_internal#[0..=4] == 0) & 1
+  out_internal_bits#[6] = U1(((in_internal >> 6) & 1) != 0 and in_internal#[0..=5] == 0) & 1
+  const gen_out_internal_1_in_masked = in_internal & (~((out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=6])
+  out_internal_bits#[7] = 0
+  out_internal_bits#[8] = (gen_out_internal_1_in_masked >> 1) & 1
+  mut _b2i_7 = if ((gen_out_internal_1_in_masked >> 2) & 1) != 0 and ((gen_out_internal_1_in_masked >> 1) & 1) == 0 { 1 } else { 0 }
+  out_internal_bits#[9] = _b2i_7 & 1
+  mut _b2i_8 = if ((gen_out_internal_1_in_masked >> 3) & 1) != 0 and gen_out_internal_1_in_masked#[1..=2] == 0 { 1 } else { 0 }
+  out_internal_bits#[10] = _b2i_8 & 1
+  mut _b2i_9 = if ((gen_out_internal_1_in_masked >> 4) & 1) != 0 and gen_out_internal_1_in_masked#[1..=3] == 0 { 1 } else { 0 }
+  out_internal_bits#[11] = _b2i_9 & 1
+  mut _b2i_10 = if ((gen_out_internal_1_in_masked >> 5) & 1) != 0 and gen_out_internal_1_in_masked#[1..=4] == 0 { 1 } else { 0 }
+  out_internal_bits#[12] = _b2i_10 & 1
+  mut _b2i_11 = if ((gen_out_internal_1_in_masked >> 6) & 1) != 0 and gen_out_internal_1_in_masked#[1..=5] == 0 { 1 } else { 0 }
+  out_internal_bits#[13] = _b2i_11 & 1
+  const gen_out_internal_2_in_masked = (in_internal & (~((out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=6])) & (~((out_internal_bits#[13] << 6) | (out_internal_bits#[12] << 5) | (out_internal_bits#[11] << 4) | (out_internal_bits#[10] << 3) | (out_internal_bits#[9] << 2) | (out_internal_bits#[8] << 1) | out_internal_bits#[7])#[0..=6])
+  out_internal_bits#[14] = 0
+  out_internal_bits#[15] = 0
+  out_internal_bits#[16] = (gen_out_internal_2_in_masked >> 2) & 1
+  mut _b2i_12 = if ((gen_out_internal_2_in_masked >> 3) & 1) != 0 and ((gen_out_internal_2_in_masked >> 2) & 1) == 0 { 1 } else { 0 }
+  out_internal_bits#[17] = _b2i_12 & 1
+  mut _b2i_13 = if ((gen_out_internal_2_in_masked >> 4) & 1) != 0 and gen_out_internal_2_in_masked#[2..=3] == 0 { 1 } else { 0 }
+  out_internal_bits#[18] = _b2i_13 & 1
+  mut _b2i_14 = if ((gen_out_internal_2_in_masked >> 5) & 1) != 0 and gen_out_internal_2_in_masked#[2..=4] == 0 { 1 } else { 0 }
+  out_internal_bits#[19] = _b2i_14 & 1
+  mut _b2i_15 = if ((gen_out_internal_2_in_masked >> 6) & 1) != 0 and gen_out_internal_2_in_masked#[2..=5] == 0 { 1 } else { 0 }
+  out_internal_bits#[20] = _b2i_15 & 1
+  const gen_out_internal_3_in_masked = ((in_internal & (~((out_internal_bits#[6] << 6) | (out_internal_bits#[5] << 5) | (out_internal_bits#[4] << 4) | (out_internal_bits#[3] << 3) | (out_internal_bits#[2] << 2) | (out_internal_bits#[1] << 1) | out_internal_bits#[0])#[0..=6])) & (~((out_internal_bits#[13] << 6) | (out_internal_bits#[12] << 5) | (out_internal_bits#[11] << 4) | (out_internal_bits#[10] << 3) | (out_internal_bits#[9] << 2) | (out_internal_bits#[8] << 1) | out_internal_bits#[7])#[0..=6])) & (~((out_internal_bits#[20] << 6) | (out_internal_bits#[19] << 5) | (out_internal_bits#[18] << 4) | (out_internal_bits#[17] << 3) | (out_internal_bits#[16] << 2) | (out_internal_bits#[15] << 1) | out_internal_bits#[14])#[0..=6])
+  out_internal_bits#[21] = 0
+  out_internal_bits#[22] = 0
+  out_internal_bits#[23] = 0
+  out_internal_bits#[24] = (gen_out_internal_3_in_masked >> 3) & 1
+  mut _b2i_16 = if ((gen_out_internal_3_in_masked >> 4) & 1) != 0 and ((gen_out_internal_3_in_masked >> 3) & 1) == 0 { 1 } else { 0 }
+  out_internal_bits#[25] = _b2i_16 & 1
+  mut _b2i_17 = if ((gen_out_internal_3_in_masked >> 5) & 1) != 0 and gen_out_internal_3_in_masked#[3..=4] == 0 { 1 } else { 0 }
+  out_internal_bits#[26] = _b2i_17 & 1
+  mut _b2i_18 = if ((gen_out_internal_3_in_masked >> 6) & 1) != 0 and gen_out_internal_3_in_masked#[3..=5] == 0 { 1 } else { 0 }
+  out_internal_bits#[27] = _b2i_18 & 1
   const out__w1 = out_internal
-  out_internal = (`out_internal[27]` << 27) | (`out_internal[26]` << 26) | (`out_internal[25]` << 25) | (`out_internal[24]` << 24) | (`out_internal[23]` << 23) | (`out_internal[22]` << 22) | (`out_internal[21]` << 21) | (`out_internal[20]` << 20) | (`out_internal[19]` << 19) | (`out_internal[18]` << 18) | (`out_internal[17]` << 17) | (`out_internal[16]` << 16) | (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`
+  out_internal = out_internal_bits
   out = out__w1
 }

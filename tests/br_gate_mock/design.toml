@@ -1,8 +1,8 @@
 # br_gate_mock -- see README.md for provenance.
 [design]
 name  = "br_gate_mock"
-top   = "br_gate_mock"
-kind  = "sequential"          # combinational | sequential
+top   = "br_gate_mock_bench"
+kind  = "combinational"          # combinational | sequential
 suite = "gate"         # groups the report; NOT a path component
 
 [provenance]
@@ -14,14 +14,15 @@ license  = "Apache-2.0"             # SPDX id; LICENSE carries the full text
 [status]
 # none | auto | idiomatic -- `auto` is a machine emission from the Verilog and
 # measures FRONT ENDS, not languages, so it never enters a headline geomean.
-pyrope = "none"
+pyrope = "idiomatic"
 # none | proven | failed | unsupported -- until `proven`, a QoR win might just
 # be a different circuit.
-lec    = "none"
+lec    = "proven"
 
 # One elaborated parameter set per entry. Benchmark id is `br_gate_mock#<id>`.
 [[config]]
-id     = "default"
+id     = "comb11"
+sim_checksum = { cycles = 40000000, value = "208990033563065612" }
 params = {}
 
 [synth]
@@ -29,10 +30,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 1000000
+cycles = 40000000
 marker = "LHDTRACK-DONE"
 
 [lec]

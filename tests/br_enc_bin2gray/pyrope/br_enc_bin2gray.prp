@@ -1,4 +1,4 @@
-// Binary to Gray code: adjacent inputs differ in one output bit.
-pub comb br_enc_bin2gray::[timecheck=false](bin:U32) -> (gray:U32) {
-  gray = bin#[1..=31] ^ bin
+// Binary to Gray code: adjacent inputs differ in exactly one output bit.
+pub comb br_enc_bin2gray(bin:U32) -> (gray:U32) {
+  gray = bin ^ (bin >> 1)
 }

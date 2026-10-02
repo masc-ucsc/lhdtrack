@@ -114,6 +114,7 @@ def extract(
     verilator: Path | None = None,
     filelist: Path | None = None,
     verilator_env: dict[str, str] | None = None,
+    verilog_args: list[str] | None = None,
 ) -> PortList:
     """Elaborate the design and return its ports, widths resolved.
 
@@ -130,7 +131,8 @@ def extract(
     if verilator and verilator.exists():
         try:
             return _from_verilator(
-                top, sources, params or {}, verilator, include_dir, filelist, verilator_env
+                top, sources, params or {}, verilator, include_dir, filelist, verilator_env,
+                verilog_args,
             )
         except (subprocess.SubprocessError, OSError, json.JSONDecodeError, KeyError, ValueError):
             pass
@@ -144,6 +146,7 @@ def extract(
                 yosys_slang,
                 include_dir,
                 filelist,
+                verilog_args,
             )
         except (subprocess.SubprocessError, OSError, json.JSONDecodeError, KeyError):
             pass
@@ -151,13 +154,16 @@ def extract(
 
 
 def _from_verilator(
-    top, sources, params, verilator, include_dir, filelist, env=None
+    top, sources, params, verilator, include_dir, filelist, env=None, verilog_args=None
 ) -> PortList:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "tree.json"
         cmd = [
             str(verilator), "--json-only", "--top-module", top, "-Wno-fatal",
-            "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS", "--json-only-output", str(out), "--Mdir", td,
+            *(verilog_args if verilog_args is not None else
+              ["-DSYNTHESIS", "-DBR_PPA_SYNTHESIS"]),
+            "-DBR_VERILATOR",
+            "--json-only-output", str(out), "--Mdir", td,
         ]
         if include_dir:
             cmd.append(f"-I{include_dir}")
@@ -257,7 +263,8 @@ def _signed(by_addr: dict, dtype_addr: str | None, depth: int = 0) -> bool:
     return False
 
 
-def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist) -> PortList:
+def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist,
+                verilog_args=None) -> PortList:
     """Elaborate with yosys+slang and read the ports out of `write_json`.
 
     The width is `len(bits)` on the port object, which is post-elaboration and
@@ -268,17 +275,19 @@ def _from_yosys(top, sources, params, yosys, yosys_slang, include_dir, filelist)
         out = Path(td) / "ports.json"
         inc = f"-I{include_dir} " if include_dir else ""
         src = " ".join(str(s) for s in sources)
+        defines = " ".join(verilog_args if verilog_args is not None else
+                           ["-DSYNTHESIS", "-DBR_PPA_SYNTHESIS"])
         if yosys_slang and yosys_slang.exists():
             source_arg = f"-F {filelist}" if filelist and filelist.exists() else src
             params_arg = " ".join(f"-G{k}={v}" for k, v in sorted(params.items()))
             read = (
-                f"read_slang --top {top} --no-proc {inc}-DSYNTHESIS -DBR_PPA_SYNTHESIS "
+                f"read_slang --top {top} --no-proc {inc}{defines} "
                 f"{params_arg} {source_arg}"
             )
             hierarchy = f"hierarchy -check -top {top}"
         else:
             ch = " ".join(f"-chparam {k} {v}" for k, v in sorted(params.items()))
-            read = f"read_verilog -sv {inc}-DSYNTHESIS -DBR_PPA_SYNTHESIS {src}"
+            read = f"read_verilog -sv {inc}{defines} {src}"
             hierarchy = f"hierarchy -check -top {top} {ch}"
         script = (
             f"{read}; "

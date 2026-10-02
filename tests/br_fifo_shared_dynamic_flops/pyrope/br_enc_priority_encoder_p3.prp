@@ -2,9 +2,9 @@ pub mod br_enc_priority_encoder_p3<NumRequesters=2, NumResults=1, MsbHighestPrio
   wire `out_internal[0]`:U1 = nil
   wire `out_internal[1]`:U1 = nil
   wire out_internal:U2 = nil
-  const gen_out_internal_0_in_masked__w1 = (`in`.e1 << 1) | `in`.e0
-  `out_internal[0]` = gen_out_internal_0_in_masked__w1 & 1
-  `out_internal[1]` = U1(((gen_out_internal_0_in_masked__w1 >> 1) & 1) != 0 and (gen_out_internal_0_in_masked__w1 & 1) == 0) & 1
+  const gen_out_internal_0_in_masked = (`in`.e1 << 1) | `in`.e0
+  `out_internal[0]` = gen_out_internal_0_in_masked & 1
+  `out_internal[1]` = U1(((gen_out_internal_0_in_masked >> 1) & 1) != 0 and (gen_out_internal_0_in_masked & 1) == 0) & 1
   const out__w1 = out_internal
   out_internal = (`out_internal[1]` << 1) | `out_internal[0]`
   out = out__w1

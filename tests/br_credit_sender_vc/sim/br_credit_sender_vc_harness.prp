@@ -3,7 +3,7 @@
 // The Pyrope twin of br_credit_sender_vc_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,27 +11,29 @@
 // "call to undefined function". The module inside it is br_credit_sender_vc.br_credit_sender_vc.
 const dut = import("br_credit_sender_vc.br_credit_sender_vc")
 
-pub mod br_credit_sender_vc_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_credit_sender_vc_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u320 = lfsr |
+  const lfsr_x:U320 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128) |
     (((lfsr#[0..=12] << 51) | lfsr#[13..=63]) << 192) |
     (((lfsr#[0..=59] << 4) | lfsr#[60..=63]) << 256)
 
-  const (request, enable_priority_update, push_ready, pop_sender_in_reset, pop_valid, pop_data, pop_vc, credit_count, credit_available) = dut(pop_receiver_in_reset=rst, can_grant=lfsr#[0..=3], grant=lfsr#[4..=7], push_valid=lfsr#[8..=11], push_data=lfsr_x#[12..=267], pop_credit=lfsr#[12..=23], credit_initial=lfsr#[24..=43], credit_withhold=lfsr#[44..=63])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (request, enable_priority_update, push_ready, pop_sender_in_reset, pop_valid, pop_data, pop_vc, credit_count, credit_available) = dut(clk=clk, rst=U1(dut_reset), pop_receiver_in_reset=rst, can_grant=lfsr#[0..=3], grant=lfsr#[4..=7], push_valid=lfsr#[8..=11], push_data=lfsr_x#[12..=267], pop_credit=lfsr#[12..=23], credit_initial=lfsr#[24..=43], credit_withhold=lfsr#[44..=63])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ request
   wrap acc = ((acc << 1) | acc#[63]) ^ enable_priority_update
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

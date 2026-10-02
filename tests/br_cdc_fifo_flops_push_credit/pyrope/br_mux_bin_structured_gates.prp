@@ -1,10 +1,4 @@
 const br_gate_mux2 = import("br_gate_mux2.br_gate_mux2")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
-const br_misc_unused_p4 = import("br_misc_unused_p4.br_misc_unused_p4")
-const br_misc_unused_p5 = import("br_misc_unused_p5.br_misc_unused_p5")
-const br_misc_unused_p6 = import("br_misc_unused_p6.br_misc_unused_p6")
-const br_misc_unused_p7 = import("br_misc_unused_p7.br_misc_unused_p7")
-
 pub mod br_mux_bin_structured_gates<NumSymbolsIn=32, SymbolWidth=0x40>::[timecheck=false](`in`:U2048, select:(e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)) -> (out:U64@[], out_valid:U1@[]) {
   mut in_stages__wtmp:U12288 = 0sb?
   wire in_stages:U12288 = nil
@@ -21549,12 +21543,7 @@ pub mod br_mux_bin_structured_gates<NumSymbolsIn=32, SymbolWidth=0x40>::[timeche
   in_stages__wtmp__w1989#[10303] = gen_n_gen_level_4_gen_mux_0_gen_mux2_gate_63_br_gate_mux2_inst & 1
   mut in_stages__wtmp__w1990 = in_stages__wtmp__w1989
   in_stages__wtmp__w1990#[10304..=12287] = 0
-  br_misc_unused_p3::[name=gen_n_gen_level_4_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[8192..=10239]#[128..=2047])
   const out__w1 = in_stages#[10240..=12287]#[0..=63]
-  br_misc_unused_p4::[name=gen_n_br_misc_unused_final_stage_unused](`in`=in_stages#[10240..=12287]#[64..=2047])
-  br_misc_unused_p5::[name=gen_n_gen_level_1_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[2048..=4095]#[1024..=2047])
-  br_misc_unused_p6::[name=gen_n_gen_level_2_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[4096..=6143]#[512..=2047])
-  br_misc_unused_p7::[name=gen_n_gen_level_3_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[6144..=8191]#[256..=2047])
   in_stages = in_stages__wtmp__w1990
   out = out__w1
   out_valid = U1(((select.e4 << 4) | (select.e3 << 3) | (select.e2 << 2) | (select.e1 << 1) | select.e0) < NumSymbolsIn)

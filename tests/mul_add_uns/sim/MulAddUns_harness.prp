@@ -12,8 +12,8 @@
 const dut = import("MulAddUns.MulAddUns")
 
 pub mod MulAddUns_harness(rst:U1) -> (checksum:U64@[0]) {
-  reg lfsr:U64:[reset_pin=rst != 0] = 2611923443488327891
-  reg sum:U64:[reset_pin=rst != 0] = 0
+  reg lfsr:U64:[reset_pin=rst] = 2611923443488327891
+  reg sum:U64:[reset_pin=rst] = 0
 
   checksum = sum
 

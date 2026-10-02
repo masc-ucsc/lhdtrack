@@ -3,7 +3,7 @@
 // The Pyrope twin of br_amba_axi_timing_slice_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,24 @@
 // "call to undefined function". The module inside it is br_amba_axi_timing_slice.br_amba_axi_timing_slice.
 const dut = import("br_amba_axi_timing_slice.br_amba_axi_timing_slice")
 
-pub mod br_amba_axi_timing_slice_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_amba_axi_timing_slice_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (target_awready, target_wready, target_bid, target_buser, target_bresp, target_bvalid, target_arready, target_rid, target_rdata, target_ruser, target_rresp, target_rlast, target_rvalid, init_awaddr, init_awid, init_awlen, init_awsize, init_awburst, init_awprot, init_awuser, init_awvalid, init_wdata, init_wstrb, init_wuser, init_wlast, init_wvalid, init_bready, init_araddr, init_arid, init_arlen, init_arsize, init_arburst, init_arprot, init_aruser, init_arvalid, init_rready) = dut(target_awaddr=lfsr#[0..=31], target_awid=lfsr#[32..=35], target_awlen=lfsr#[36..=43], target_awsize=lfsr#[44..=46], target_awburst=lfsr#[47..=48], target_awprot=lfsr#[49..=51], target_awuser=lfsr#[52], target_awvalid=lfsr#[53], target_wdata=lfsr_x#[54..=85], target_wstrb=lfsr#[22..=25], target_wuser=lfsr#[26], target_wlast=lfsr#[27], target_wvalid=lfsr#[28], target_bready=lfsr#[29], target_araddr=lfsr#[30..=61], target_arid=lfsr_x#[62..=65], target_arlen=lfsr#[2..=9], target_arsize=lfsr#[10..=12], target_arburst=lfsr#[13..=14], target_arprot=lfsr#[15..=17], target_aruser=lfsr#[18], target_arvalid=lfsr#[19], target_rready=lfsr#[20], init_awready=lfsr#[21], init_wready=lfsr#[22], init_bid=lfsr#[23..=26], init_buser=lfsr#[27], init_bresp=lfsr#[28..=29], init_bvalid=lfsr#[30], init_arready=lfsr#[31], init_rid=lfsr#[32..=35], init_rdata=lfsr_x#[36..=67], init_ruser=lfsr#[4], init_rresp=lfsr#[5..=6], init_rlast=lfsr#[7], init_rvalid=lfsr#[8])
+  const (target_awready, target_wready, target_bid, target_buser, target_bresp, target_bvalid, target_arready, target_rid, target_rdata, target_ruser, target_rresp, target_rlast, target_rvalid, init_awaddr, init_awid, init_awlen, init_awsize, init_awburst, init_awprot, init_awuser, init_awvalid, init_wdata, init_wstrb, init_wuser, init_wlast, init_wvalid, init_bready, init_araddr, init_arid, init_arlen, init_arsize, init_arburst, init_arprot, init_aruser, init_arvalid, init_rready) = dut(rst=rst != 0, target_awaddr=lfsr#[0..=31], target_awid=lfsr#[32..=35], target_awlen=lfsr#[36..=43], target_awsize=lfsr#[44..=46], target_awburst=lfsr#[47..=48], target_awprot=lfsr#[49..=51], target_awuser=lfsr#[52], target_awvalid=lfsr#[53], target_wdata=lfsr_x#[54..=85], target_wstrb=lfsr#[22..=25], target_wuser=lfsr#[26], target_wlast=lfsr#[27], target_wvalid=lfsr#[28], target_bready=lfsr#[29], target_araddr=lfsr#[30..=61], target_arid=lfsr_x#[62..=65], target_arlen=lfsr#[2..=9], target_arsize=lfsr#[10..=12], target_arburst=lfsr#[13..=14], target_arprot=lfsr#[15..=17], target_aruser=lfsr#[18], target_arvalid=lfsr#[19], target_rready=lfsr#[20], init_awready=lfsr#[21], init_wready=lfsr#[22], init_bid=lfsr#[23..=26], init_buser=lfsr#[27], init_bresp=lfsr#[28..=29], init_bvalid=lfsr#[30], init_arready=lfsr#[31], init_rid=lfsr#[32..=35], init_rdata=lfsr_x#[36..=67], init_ruser=lfsr#[4], init_rresp=lfsr#[5..=6], init_rlast=lfsr#[7], init_rvalid=lfsr#[8])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ target_awready
   wrap acc = ((acc << 1) | acc#[63]) ^ target_wready
   wrap acc = ((acc << 1) | acc#[63]) ^ target_bid

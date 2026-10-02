@@ -60,7 +60,7 @@ _PRP_KEYWORDS = {
 # Names the generated harness declares itself; a destructured DUT output that
 # collides with one of these would shadow it.
 _HARNESS_LOCALS = frozenset(
-    {"dut", "rst", "checksum", "lfsr", "lfsr_x", "sum", "nxt", "acc", "r"}
+    {"dut", "clk", "rst", "checksum", "lfsr", "lfsr_x", "sum", "nxt", "acc", "r"}
 )
 
 
@@ -135,7 +135,7 @@ def _lfsr_x_prp(copies: int) -> str:
     body = " |\n    ".join(terms)
     return (
         f"\n  // lfsr rotated by {ROT}*i in word i, so a stimulus window may wrap past bit 63.\n"
-        f"  const lfsr_x:u{64 * copies} = {body}\n"
+        f"  const lfsr_x:U{64 * copies} = {body}\n"
     )
 
 
@@ -309,13 +309,13 @@ endmodule
 
 
 # ------------------------------------------------------ Pyrope harness ------
-# The implicit clock / reset inputs LiveHD auto-wires at a call site when the
-# caller OMITS them (docs 04b "Implicit clock and reset"): a child's `clk` or
-# `clock` gets the caller's implicit clock, a child's `rst`/`reset`/`rst_n`/
-# `reset_n` the caller's implicit reset by its LOGICAL assertion (an active-low
-# child sees the inversion). Case-sensitive, like Pyrope names.
-_AUTO_CLOCKS = frozenset({"clk", "clock"})
-_AUTO_RESETS = frozenset({"rst", "reset", "rst_n", "reset_n"})
+# Pyrope binds a clock/reset by TYPE (`clk:Clock`, `rst:Reset`), never by name
+# (livehd qa.md section 6). The harness therefore declares a real `clk:Clock`
+# and `rst:Reset` and binds EVERY DUT clock/reset explicitly from them, with the
+# conversion the DUT's declared port type needs. Leaving one unbound used to be
+# the silent wrong-checksum trap: a harness whose `rst` was a `u1` DATA input
+# had no Reset of its own, LiveHD minted `reset:Reset` for it, the DUT's
+# `rst:Reset` auto-wired to that minted reset, and nothing ever drove it.
 
 
 def _split_top_level(text: str) -> list[str]:
@@ -364,7 +364,7 @@ def _balanced(text: str, start: int, open_ch: str = "(", close_ch: str = ")") ->
 
 
 def _pyrope_signature_start(prp_text: str, top: str) -> int | None:
-    """Index of the `(` opening `mod top`'s input list, or None.
+    """Index of the `(` opening a `mod` or `comb` top's input list, or None.
 
     Skips what may sit between the name and the inputs, in either order: a
     lambda attribute list (`::[timecheck=false]`) and a generic list
@@ -372,7 +372,7 @@ def _pyrope_signature_start(prp_text: str, top: str) -> int | None:
     """
     import re
 
-    for m in re.finditer(rf"\bmod\s+{re.escape(top)}\b", prp_text):
+    for m in re.finditer(rf"\b(?:mod|comb)\s+{re.escape(top)}\b", prp_text):
         i = m.end()
         while True:
             while i < len(prp_text) and prp_text[i].isspace():
@@ -388,76 +388,115 @@ def _pyrope_signature_start(prp_text: str, top: str) -> int | None:
     return None
 
 
-def pyrope_bool_ports(prp_text: str, top: str) -> set[str]:
-    """The ports the Pyrope DUT `top` declares `bool` (or `boolean`).
+def pyrope_port_types(prp_text: str, top: str) -> dict[str, str] | None:
+    """Each port of the Pyrope DUT `top` -> its declared type text (`Clock`,
+    `Reset`, `U1`, `Bool`, `Unsigned(bits=8)`, ...; "" when untyped).
 
-    Booleans never mix with integers at a port (user ruling 2026-09-27): an LFSR
-    bit bound to a `bool` input needs `boolean(...)`, and a `bool` output folded
-    into the integer checksum needs `u1(...)`. The Verilog port list cannot tell
-    a `bool` from a `u1`, so the kinds come from the Pyrope signature. Pass the
-    result to harness_prp as `bool_ports`.
+    None when the source has no `mod` or `comb` top signature: the generator then
+    falls back to the Verilog port list alone (clocks as `Clock`, resets as
+    `Reset`). The Verilog list cannot tell a `Bool` from a `U1`, a data `rst`
+    from a `Reset`, or say that a combinational Pyrope top dropped its unused
+    clk/rst, so the Pyrope signature decides how each port is bound.
     """
     import re
 
     start = _pyrope_signature_start(prp_text, top)
     if start is None:
-        return set()
+        return None
     ins, after = _balanced(prp_text, start)
     lists = [ins]
     arrow = re.match(r"\s*->\s*\(", prp_text[after:])
     if arrow:
         lists.append(_balanced(prp_text, after + arrow.end() - 1)[0])
-    out = set()
+    out: dict[str, str] = {}
     for plist in lists:
         for item in _split_top_level(re.sub(r"//[^\n]*", "", plist)):
             name, sep, ty = item.partition(":")
-            ty = ty.split("@")[0].split("=")[0].strip()
-            name = name.split()[-1].strip("`") if name.split() else ""
-            if sep and name and ty in ("bool", "boolean"):
-                out.add(name)
+            words = name.split()
+            name = words[-1].strip("`") if words else ""
+            if not name:
+                continue
+            # `x:U8@[0] = 3` / `x:Reset:[attr]`: the type is the text before
+            # any timing, attribute or default.
+            ty = re.split(r"@|=|:\[", ty)[0].strip() if sep else ""
+            out[name] = ty
     return out
+
+
+def pyrope_bool_ports(prp_text: str, top: str) -> set[str]:
+    """The ports the Pyrope DUT `top` declares `Bool`.
+
+    Booleans never mix with integers at a port (user ruling 2026-09-27): an LFSR
+    bit bound to a `Bool` input needs `Bool(...)`, and a `Bool` output folded
+    into the integer checksum needs `U1(...)`. Kept for callers that predate
+    pyrope_port_types; harness_prp reads the Bool ports from `port_types`.
+    """
+    types = pyrope_port_types(prp_text, top) or {}
+    return {n for n, t in types.items() if t in ("Bool", "bool", "boolean")}
 
 
 def harness_prp(
     pl: PortList,
     input_constants: dict[str, int] | None = None,
     bool_ports: set[str] | None = None,
+    port_types: dict[str, str] | None = None,
 ) -> str:
+    """The Pyrope harness. `port_types` (pyrope_port_types of the DUT source)
+    picks each port's binding; without it every Verilog clock is taken to be a
+    `Clock` and every reset a `Reset`, which is what LiveHD emits for a port
+    that really clocks or resets state."""
     top = pl.top
     stim = _slices(pl.inputs)
     outs = pl.outputs
     constants = _input_constants(pl, input_constants)
-    bools = bool_ports or set()
+    types = port_types
+    bools = set(bool_ports or set())
+    if types is not None:
+        bools |= {n for n, t in types.items() if t in ("Bool", "bool", "boolean")}
+
+    def declared(name: str) -> bool:
+        # A combinational Pyrope top may DROP the clk/rst the Verilog only
+        # carries for its interface (unconnected clock/reset are not an LEC
+        # difference): bind only what the DUT declares.
+        return types is None or name in types
 
     args = []
-    # Auto-emitted Pyrope keeps clk/rst as explicit ports (lhd emits
-    # `mod X(clk:u1, rst:u1, ...)`). Hand-written Pyrope leaves them implicit
-    # and declares neither -- which is why this is driven by the port list from
-    # the VERILOG, and why a hand-written module needs its harness adjusted when
-    # it is promoted to `idiomatic`.
-    #
-    # A child clock or reset with the conventional name is OMITTED: LiveHD wires
-    # the harness's own implicit clock/reset into it, reset by its logical
-    # assertion, so an active-low `rst_n` sees `rst` inverted like `~rst` on the
-    # SV side. Binding a clock to a constant (`clk=1`) is a compile error: the
-    # emitted Verilog would never clock that child. Any other clock or reset name
-    # (`wr_clk`, `rst_ni`) is bound explicitly from the harness's `clk`/`rst`.
-    need_clk = False
+    # Every clock and reset is bound EXPLICITLY from the harness's own
+    # `clk:Clock` / `rst:Reset`: no reliance on auto-wiring (a DUT with two
+    # Clock inputs must be bound anyway), and the conversion follows the DUT's
+    # declared type. An active-low Verilog reset (`rst_n`) gets the inverted
+    # level, like `~rst` on the SV side; in Pyrope its polarity lives on the
+    # DUT's registers (`negreset=true`), so the signal itself is just `not rst`.
     for c in pl.clocks:
-        if c.name in _AUTO_CLOCKS:
+        if not declared(c.name):
             continue
-        need_clk = True
-        args.append(f"{pid(c.name)}={'boolean(clk)' if c.name in bools else 'clk'}")
-    for r in pl.resets:
-        if r.name in _AUTO_RESETS:
-            continue
-        cond = "rst == 0" if r.active_low_reset else "rst != 0"
-        if r.name in bools:
-            args.append(f"{pid(r.name)}={cond}")
-        elif r.active_low_reset:
-            args.append(f"{pid(r.name)}=u1({cond})")
+        ty = (types or {}).get(c.name, "Clock")
+        if ty in ("Clock", ""):
+            args.append(f"{pid(c.name)}=clk")
+        elif c.name in bools:
+            # A Clock is never data (`Bool(clk)` is an error). A Pyrope DUT that
+            # declares its Verilog clock as data clocks its state from a minted
+            # clock instead; this input is then a plain bit, held low.
+            args.append(f"{pid(c.name)}=false")
         else:
-            args.append(f"{pid(r.name)}=rst")
+            args.append(f"{pid(c.name)}=0")
+    for r in pl.resets:
+        if not declared(r.name):
+            continue
+        ty = (types or {}).get(r.name, "Reset")
+        level = "not rst" if r.active_low_reset else "rst"
+        if ty in ("Reset", "") or r.name in bools:
+            args.append(f"{pid(r.name)}={level}")  # a Reset is Bool-like: no cast either way
+        else:
+            args.append(f"{pid(r.name)}=U1({level})")
+    for p, _, _ in stim:
+        ty = (types or {}).get(p.name, "")
+        if ty in ("Clock", "Reset"):
+            raise HarnessError(
+                f"{pl.top}: the Pyrope DUT declares `{p.name}:{ty}`, but the Verilog port list "
+                "treats it as data (its name is not a clock/reset name); the harnesses would "
+                "drive it differently"
+            )
     copies = _lfsr_x_copies(stim, constants)
     for p, lo, hi in stim:
         if p.name in constants:
@@ -476,7 +515,7 @@ def harness_prp(
             elif hi > lo:
                 args.append(f"{pid(p.name)}={reg}#[{lo}..={hi}]")
             elif p.name in bools:
-                args.append(f"{pid(p.name)}=boolean({reg}#[{lo}])")
+                args.append(f"{pid(p.name)}=Bool({reg}#[{lo}])")
             else:
                 args.append(f"{pid(p.name)}={reg}#[{lo}]")
     # A single-output lambda auto-unwraps its result tuple; more than one must
@@ -486,9 +525,8 @@ def harness_prp(
     # way, a multi-output `comb` never did -- so this emits the one spelling
     # both accept. Getting it wrong is the most likely way a generated Pyrope
     # harness fails to compile, so it is decided here, once.
-    # No cast on the read. `u64(x)` is not a built-in cast in this lhd build,
-    # and none is needed: Pyrope integers are unlimited precision and `acc` is
-    # declared u64 with `wrap`, so the narrowing is explicit at the assignment.
+    # No cast on the read: Pyrope integers are unlimited precision and `acc` is
+    # declared U64 with `wrap`, so the narrowing is explicit at the assignment.
     #
     # The destructured names become harness locals, so an output sharing a name
     # with one of the harness's own (`lfsr`, `sum`, `acc`, ...) would shadow it.
@@ -508,11 +546,11 @@ def harness_prp(
         chunks = _chunks(p.width)
         for lo, hi in chunks:
             # A signed output is folded as its raw bits: the SV harness reads it
-            # through an unsigned `o_` wire, i.e. zero-extended. A `bool` output
-            # is a bit only through `u1(...)` (true == 1).
+            # through an unsigned `o_` wire, i.e. zero-extended. A `Bool` output
+            # is a bit only through `U1(...)` (true == 1).
             whole = len(chunks) == 1 and not p.signed
             if p.name in bools:
-                val = f"u1({expr})"
+                val = f"U1({expr})"
             else:
                 val = expr if whole else f"{expr}#[{lo}..={hi}]"
             steps.append(f"  wrap acc = ((acc << 1) | acc#[63]) ^ {val}")
@@ -523,7 +561,7 @@ def harness_prp(
 // The Pyrope twin of {top}_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED from the DUT's port list and its Pyrope signature. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -531,29 +569,27 @@ def harness_prp(
 // "call to undefined function". The module inside it is {top}.{top}.
 const dut = import("{top}.{top}")
 
-pub mod {top}_harness({"clk:u1, " if need_clk else ""}rst:u1) -> (checksum:u64@[0]) {{
-  reg lfsr:u64 = {SEED}
-  reg sum:u64  = 0
+// `clk:Clock` / `rst:Reset` are this harness's clock and reset: its two
+// registers bind to them implicitly (the `= value` is the reset value, like
+// the SV `if (rst)` branch), and every DUT clock/reset is bound from them.
+pub mod {top}_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {{
+  reg lfsr:U64 = {SEED}
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 {lfsr_x}
 {call}
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
 {fold}
 
-  if rst != 0 {{
-    lfsr = {SEED}
-    sum  = 0
-  }} else {{
-    lfsr = nxt
-    sum  = acc
-  }}
+  lfsr = nxt
+  sum  = acc
 }}
 """
 
@@ -568,19 +604,19 @@ def tb_prp(pl: PortList, cycles: int) -> str:
 // Identical driver, identical work, either way.
 const dut = import("lg:{top}_harness")
 
-test bench.run(cycles:u32={cycles}) {{
+test bench.run(cycles:U32={cycles}) {{
   mut acc = dut
-  mut result:u64 = 0
+  mut result:U64 = 0
 
+  // The tick's minted `clock:Clock` auto-wires to the harness's single Clock
+  // input; a Bool drives its Reset without a cast. Never poke the clock.
   tick cycles {{
-    // `u1(...)`, not `int(...)`: this lhd build removed the `int` cast in
-    // favour of sized/sign-explicit ones.
-    acc.rst = u1(clock < {RESET_CYCLES})
+    acc.rst = clock < {RESET_CYCLES}
     step
     result = acc.checksum
   }}
 
-  puts("LHDTRACK-DONE cycles={{}} checksum={{}}", cycles, result)
+  puts("LHDTRACK-DONE cycles={{cycles}} checksum={{result}}")
 }}
 """
 

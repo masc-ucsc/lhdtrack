@@ -11,9 +11,9 @@
 // "call to undefined function". The module inside it is br_fifo_shared_dynamic_ctrl.br_fifo_shared_dynamic_ctrl.
 const dut = import("br_fifo_shared_dynamic_ctrl.br_fifo_shared_dynamic_ctrl")
 
-pub mod br_fifo_shared_dynamic_ctrl_harness(rst:U1) -> (checksum:U64@[0]) {
-  reg lfsr:U64:[reset_pin=rst != 0] = 2611923443488327891
-  reg sum:U64:[reset_pin=rst != 0] = 0
+pub mod br_fifo_shared_dynamic_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64:[reset_pin=rst] = 2611923443488327891
+  reg sum:U64:[reset_pin=rst] = 0
 
   checksum = sum
 
@@ -25,7 +25,7 @@ pub mod br_fifo_shared_dynamic_ctrl_harness(rst:U1) -> (checksum:U64@[0]) {
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
   const lfsr_x:U128 = lfsr | (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_ready, push_full, pop_valid, pop_data, pop_empty, data_ram_wr_valid, data_ram_wr_addr, data_ram_wr_data, data_ram_rd_addr_valid, data_ram_rd_addr, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(rst=rst, push_valid=lfsr#[0..=1], push_data=lfsr_x#[2..=65], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], data_ram_rd_data_valid=lfsr#[6..=7], data_ram_rd_data=lfsr_x#[8..=71], ptr_ram_rd_data_valid=lfsr#[8..=9], ptr_ram_rd_data=lfsr#[10..=19])
+  const (push_ready, push_full, pop_valid, pop_data, pop_empty, data_ram_wr_valid, data_ram_wr_addr, data_ram_wr_data, data_ram_rd_addr_valid, data_ram_rd_addr, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(clk=clk, rst=rst, push_valid=lfsr#[0..=1], push_data=lfsr_x#[2..=65], push_fifo_id=lfsr#[2..=3], pop_ready=lfsr#[4..=5], data_ram_rd_data_valid=lfsr#[6..=7], data_ram_rd_data=lfsr_x#[8..=71], ptr_ram_rd_data_valid=lfsr#[8..=9], ptr_ram_rd_data=lfsr#[10..=19])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready

@@ -12,24 +12,23 @@ pub mod br_tracker_freelist::[timecheck=false](alloc_receivable:U1, clk:Clock, d
   wire push_entry_id:U4 = nil
   mut dealloc_entry_id_onehot__wtmp:U16 = 0sb?
   wire dealloc_entry_id_onehot:U16 = nil
-  const priority_encoder_in__w1 = unstaged_free_entries
-  mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e15`=(priority_encoder_in__w1 >> 15) & 1, `in.e14`=(priority_encoder_in__w1 >> 14) & 1, `in.e13`=(priority_encoder_in__w1 >> 13) & 1, `in.e12`=(priority_encoder_in__w1 >> 12) & 1, `in.e11`=(priority_encoder_in__w1 >> 11) & 1, `in.e10`=(priority_encoder_in__w1 >> 10) & 1, `in.e9`=(priority_encoder_in__w1 >> 9) & 1, `in.e8`=(priority_encoder_in__w1 >> 8) & 1, `in.e7`=(priority_encoder_in__w1 >> 7) & 1, `in.e6`=(priority_encoder_in__w1 >> 6) & 1, `in.e5`=(priority_encoder_in__w1 >> 5) & 1, `in.e4`=(priority_encoder_in__w1 >> 4) & 1, `in.e3`=(priority_encoder_in__w1 >> 3) & 1, `in.e2`=(priority_encoder_in__w1 >> 2) & 1, `in.e1`=(priority_encoder_in__w1 >> 1) & 1, `in.e0`=priority_encoder_in__w1 & 1)
-  const push_entry_id_onehot__w1 = br_enc_priority_encoder_free_entries
-  mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot__w1#[0..=15])
+  const priority_encoder_in = unstaged_free_entries
+  mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e15`=(priority_encoder_in >> 15) & 1, `in.e14`=(priority_encoder_in >> 14) & 1, `in.e13`=(priority_encoder_in >> 13) & 1, `in.e12`=(priority_encoder_in >> 12) & 1, `in.e11`=(priority_encoder_in >> 11) & 1, `in.e10`=(priority_encoder_in >> 10) & 1, `in.e9`=(priority_encoder_in >> 9) & 1, `in.e8`=(priority_encoder_in >> 8) & 1, `in.e7`=(priority_encoder_in >> 7) & 1, `in.e6`=(priority_encoder_in >> 6) & 1, `in.e5`=(priority_encoder_in >> 5) & 1, `in.e4`=(priority_encoder_in >> 4) & 1, `in.e3`=(priority_encoder_in >> 3) & 1, `in.e2`=(priority_encoder_in >> 2) & 1, `in.e1`=(priority_encoder_in >> 1) & 1, `in.e0`=priority_encoder_in & 1)
+  const push_entry_id_onehot = br_enc_priority_encoder_free_entries
+  mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot#[0..=15])
   push_entry_id_valid__wtmp#[0] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out_valid & 1
   push_entry_id__wtmp#[0..=3] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out#[0..=3]
   const alloc_sendable__w1 = push_entry_id_valid & 1
   const alloc_entry_id__w1 = push_entry_id
-  const gen_single_alloc_port_push_ready__w1 = alloc_receivable
-  mut _mux_3:U16 = if gen_single_alloc_port_push_ready__w1 != 0 { push_entry_id_onehot__w1#[0..=15] } else { 0 }
+  mut _mux_3:U16 = if alloc_receivable != 0 { push_entry_id_onehot#[0..=15] } else { 0 }
   mut gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id = br_enc_bin2onehot::[name=gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id](clk=clk, rst=rst, `in`=dealloc_entry_id, in_valid=dealloc_valid & 1)
   dealloc_entry_id_onehot__wtmp#[0..=15] = gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id#[0..=15]
   mut br_enc_countones_dealloc_count = br_enc_countones::[name=br_enc_countones_dealloc_count](`in`=dealloc_valid)
   mut br_delay_dealloc_count = br_delay::[name=br_delay_dealloc_count](clk=clk, rst=rst, `in`=br_enc_countones_dealloc_count)
-  const unstaged_free_entries_next__w1 = (unstaged_free_entries | (0 | dealloc_entry_id_onehot)) & (~_mux_3#[0..=15])
+  const unstaged_free_entries_next = (unstaged_free_entries | (0 | dealloc_entry_id_onehot)) & (~_mux_3#[0..=15])
   if not (rst != 0) {
-    if U1(((push_entry_id_valid & 1) != 0 and gen_single_alloc_port_push_ready__w1 != 0) or dealloc_valid != 0) != 0 {
-      unstaged_free_entries = unstaged_free_entries_next__w1
+    if U1(((push_entry_id_valid & 1) != 0 and alloc_receivable != 0) or dealloc_valid != 0) != 0 {
+      unstaged_free_entries = unstaged_free_entries_next
     }
   }
   push_entry_id_valid = push_entry_id_valid__wtmp

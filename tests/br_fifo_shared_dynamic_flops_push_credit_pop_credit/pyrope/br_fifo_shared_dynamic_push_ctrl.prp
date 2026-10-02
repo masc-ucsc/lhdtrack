@@ -4,67 +4,28 @@ const br_tracker_freelist = import("br_tracker_freelist.br_tracker_freelist")
 
 pub mod br_fifo_shared_dynamic_push_ctrl<NumWritePorts=2, NumFifos=2, Depth=32, Width=32, DeallocCountDelay=1, EnableCoverPushBackpressure=0, EnableAssertPushValidStability=0, EnableAssertPushDataStability=0, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertUniqueDeallocEntryId=1, EnableAssertNoPushBackpressure=1>::[timecheck=false](clk:Clock, dealloc_entry_id:U10, dealloc_valid:U2, push_data:U64, push_fifo_id:(e1:U1, e0:U1), push_valid:U2, rst:Reset) -> (data_ram_wr_addr:U10@[], data_ram_wr_data:U64@[], data_ram_wr_valid:(e1:U1, e0:U1)@[], dealloc_count:U2@[], next_tail:U20@[], next_tail_valid:U4@[], push_full:U1@[], push_ready:U2@[]) {
   wire data_ram_wr_valid__bpr:(e1:U1, e0:U1) = nil
-  wire `next_tail_valid[0]`:U1 = nil
-  wire `next_tail_valid[1]`:U1 = nil
-  wire `next_tail_valid[2]`:U1 = nil
-  wire `next_tail_valid[3]`:U1 = nil
+  wire next_tail_valid_bits:U4 = nil
   wire next_tail_valid:U4 = nil
-  wire `next_tail[0]`:U1 = nil
-  wire `next_tail[1]`:U1 = nil
-  wire `next_tail[2]`:U1 = nil
-  wire `next_tail[3]`:U1 = nil
-  wire `next_tail[4]`:U1 = nil
-  wire `next_tail[5]`:U1 = nil
-  wire `next_tail[6]`:U1 = nil
-  wire `next_tail[7]`:U1 = nil
-  wire `next_tail[8]`:U1 = nil
-  wire `next_tail[9]`:U1 = nil
-  wire `next_tail[10]`:U1 = nil
-  wire `next_tail[11]`:U1 = nil
-  wire `next_tail[12]`:U1 = nil
-  wire `next_tail[13]`:U1 = nil
-  wire `next_tail[14]`:U1 = nil
-  wire `next_tail[15]`:U1 = nil
-  wire `next_tail[16]`:U1 = nil
-  wire `next_tail[17]`:U1 = nil
-  wire `next_tail[18]`:U1 = nil
-  wire `next_tail[19]`:U1 = nil
+  wire next_tail_bits:U20 = nil
   wire next_tail:U20 = nil
   wire alloc_receivable:U2 = nil
-  const data_ram_wr_data__w1 = push_data
   mut br_tracker_freelist_inst = br_tracker_freelist::[name=br_tracker_freelist_inst](clk=clk, rst=rst, alloc_receivable=alloc_receivable, `dealloc_valid.e1`=(dealloc_valid >> 1) & 1, `dealloc_valid.e0`=dealloc_valid & 1, dealloc_entry_id=dealloc_entry_id)
   mut gen_alloc_mapping_br_multi_xfer_distributor_rr_inst = br_multi_xfer_distributor_rr::[name=gen_alloc_mapping_br_multi_xfer_distributor_rr_inst](clk=clk, rst=rst, push_sendable=br_tracker_freelist_inst.alloc_sendable, push_data=br_tracker_freelist_inst.alloc_entry_id, pop_ready=push_valid)
   alloc_receivable = gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.push_receivable
   mut `data_ram_wr_valid__bpo.e1` = ((push_valid & gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_valid) >> 1) & 1
   mut `data_ram_wr_valid__bpo.e0` = (push_valid & gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_valid) & 1
   mut gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst = br_demux_bin::[name=gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst](select=push_fifo_id.e0, in_valid=data_ram_wr_valid__bpr.e0, `in`=gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_data#[0..=4])
-  `next_tail_valid[0]` = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out_valid & 1
-  `next_tail[0]` = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] & 1
-  `next_tail[1]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 1) & 1
-  `next_tail[2]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 2) & 1
-  `next_tail[3]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 3) & 1
-  `next_tail[4]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 4) & 1
-  `next_tail_valid[2]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out_valid >> 1) & 1
-  `next_tail[10]` = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] & 1
-  `next_tail[11]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 1) & 1
-  `next_tail[12]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 2) & 1
-  `next_tail[13]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 3) & 1
-  `next_tail[14]` = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 4) & 1
+  next_tail_valid_bits#[0] = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out_valid & 1
+  next_tail_bits#[0..<5] = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[0..=4]#[0..<5]
+  next_tail_valid_bits#[2] = (gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out_valid >> 1) & 1
+  next_tail_bits#[10..<15] = gen_next_tail_0_br_demux_bin_port_next_tail_valid_inst.out#[5..=9]#[0..<5]
   mut gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst = br_demux_bin::[name=gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst](select=push_fifo_id.e1, in_valid=data_ram_wr_valid__bpr.e1, `in`=gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_data#[5..=9])
-  `next_tail_valid[1]` = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out_valid & 1
-  `next_tail[5]` = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] & 1
-  `next_tail[6]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 1) & 1
-  `next_tail[7]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 2) & 1
-  `next_tail[8]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 3) & 1
-  `next_tail[9]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4] >> 4) & 1
-  `next_tail_valid[3]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out_valid >> 1) & 1
-  `next_tail[15]` = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] & 1
-  `next_tail[16]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 1) & 1
-  `next_tail[17]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 2) & 1
-  `next_tail[18]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 3) & 1
-  `next_tail[19]` = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9] >> 4) & 1
-  next_tail_valid = (`next_tail_valid[3]` << 3) | (`next_tail_valid[2]` << 2) | (`next_tail_valid[1]` << 1) | `next_tail_valid[0]`
-  next_tail = (`next_tail[19]` << 19) | (`next_tail[18]` << 18) | (`next_tail[17]` << 17) | (`next_tail[16]` << 16) | (`next_tail[15]` << 15) | (`next_tail[14]` << 14) | (`next_tail[13]` << 13) | (`next_tail[12]` << 12) | (`next_tail[11]` << 11) | (`next_tail[10]` << 10) | (`next_tail[9]` << 9) | (`next_tail[8]` << 8) | (`next_tail[7]` << 7) | (`next_tail[6]` << 6) | (`next_tail[5]` << 5) | (`next_tail[4]` << 4) | (`next_tail[3]` << 3) | (`next_tail[2]` << 2) | (`next_tail[1]` << 1) | `next_tail[0]`
+  next_tail_valid_bits#[1] = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out_valid & 1
+  next_tail_bits#[5..<10] = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[0..=4]#[0..<5]
+  next_tail_valid_bits#[3] = (gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out_valid >> 1) & 1
+  next_tail_bits#[15..<20] = gen_next_tail_1_br_demux_bin_port_next_tail_valid_inst.out#[5..=9]#[0..<5]
+  next_tail_valid = next_tail_valid_bits
+  next_tail = next_tail_bits
   const t76 = `data_ram_wr_valid__bpo.e1`
   data_ram_wr_valid__bpr.e1 = t76
   data_ram_wr_valid.e1 = t76
@@ -74,6 +35,6 @@ pub mod br_fifo_shared_dynamic_push_ctrl<NumWritePorts=2, NumFifos=2, Depth=32, 
   push_ready = gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_valid
   push_full = U1(br_tracker_freelist_inst.alloc_sendable == 0)
   data_ram_wr_addr = gen_alloc_mapping_br_multi_xfer_distributor_rr_inst.pop_data
-  data_ram_wr_data = data_ram_wr_data__w1
+  data_ram_wr_data = push_data
   dealloc_count = br_tracker_freelist_inst.dealloc_count
 }

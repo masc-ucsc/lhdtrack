@@ -3,7 +3,7 @@
 // The Pyrope twin of br_amba_axi_default_target_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_amba_axi_default_target.br_amba_axi_default_target.
 const dut = import("br_amba_axi_default_target.br_amba_axi_default_target")
 
-pub mod br_amba_axi_default_target_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_amba_axi_default_target_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (target_awready, target_wready, target_bvalid, target_bid, target_bresp, target_arready, target_rvalid, target_rdata, target_rresp, target_rid, target_rlast) = dut(target_awvalid=lfsr#[0], target_awid=lfsr#[1..=4], target_awlen=lfsr#[5], target_wvalid=lfsr#[6], target_wlast=lfsr#[7], target_bready=lfsr#[8], target_arvalid=lfsr#[9], target_arid=lfsr#[10..=13], target_arlen=lfsr#[14], target_rready=lfsr#[15])
+  const (target_awready, target_wready, target_bvalid, target_bid, target_bresp, target_arready, target_rvalid, target_rdata, target_rresp, target_rid, target_rlast) = dut(rst=rst != 0, target_awvalid=lfsr#[0], target_awid=lfsr#[1..=4], target_awlen=lfsr#[5], target_wvalid=lfsr#[6], target_wlast=lfsr#[7], target_bready=lfsr#[8], target_arvalid=lfsr#[9], target_arid=lfsr#[10..=13], target_arlen=lfsr#[14], target_rready=lfsr#[15])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ target_awready
   wrap acc = ((acc << 1) | acc#[63]) ^ target_wready
   wrap acc = ((acc << 1) | acc#[63]) ^ target_bvalid

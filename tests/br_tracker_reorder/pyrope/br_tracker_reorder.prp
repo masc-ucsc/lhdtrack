@@ -3,22 +3,7 @@ const br_tracker_sequence = import("br_tracker_sequence.br_tracker_sequence")
 
 pub mod br_tracker_reorder::[timecheck=false](alloc_ready:U1, clk:Clock, dealloc_complete_ready:U1, dealloc_entry_id:U4, dealloc_valid:U1, rst:U1) -> (alloc_entry_id:U4@[], alloc_valid:U1@[], allocated_entry_count:U5@[], dealloc_complete_entry_id:U4@[], dealloc_complete_valid:U1@[], free_entry_count:U5@[]) {
   reg dealloc_pending:U16:[async=false, initial=0, reset_pin=rst]
-  wire `dealloc_pending_next[0]`:U1 = nil
-  wire `dealloc_pending_next[1]`:U1 = nil
-  wire `dealloc_pending_next[2]`:U1 = nil
-  wire `dealloc_pending_next[3]`:U1 = nil
-  wire `dealloc_pending_next[4]`:U1 = nil
-  wire `dealloc_pending_next[5]`:U1 = nil
-  wire `dealloc_pending_next[6]`:U1 = nil
-  wire `dealloc_pending_next[7]`:U1 = nil
-  wire `dealloc_pending_next[8]`:U1 = nil
-  wire `dealloc_pending_next[9]`:U1 = nil
-  wire `dealloc_pending_next[10]`:U1 = nil
-  wire `dealloc_pending_next[11]`:U1 = nil
-  wire `dealloc_pending_next[12]`:U1 = nil
-  wire `dealloc_pending_next[13]`:U1 = nil
-  wire `dealloc_pending_next[14]`:U1 = nil
-  wire `dealloc_pending_next[15]`:U1 = nil
+  wire dealloc_pending_next_bits:U16 = nil
   wire dealloc_pending_next:U16 = nil
   wire dealloc_complete_counter_value:U4 = nil
   const dealloc_complete_entry_id__w1 = dealloc_complete_counter_value
@@ -40,80 +25,80 @@ pub mod br_tracker_reorder::[timecheck=false](alloc_ready:U1, clk:Clock, dealloc
   mut _b2i_16 = if dealloc_valid != 0 and dealloc_entry_id == 15 { 1 } else { 0 }
   const dealloc_complete_valid__w1 = ((dealloc_pending << 1) >> (dealloc_complete_counter_value + 1)) & 1
   mut _b2i_17 = if dealloc_complete_valid__w1 != 0 and dealloc_complete_ready != 0 { 1 } else { 0 }
-  const dealloc_complete_beat__w1 = _b2i_17
-  mut br_tracker_sequence_allocate_counter = br_tracker_sequence::[name=br_tracker_sequence_allocate_counter](clk=clk, rst=rst, alloc_receivable=alloc_ready, dealloc_valid=dealloc_complete_beat__w1, dealloc_size=1)
-  mut br_counter_incr_deallocate_counter = br_counter_incr_p1::[name=br_counter_incr_deallocate_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=dealloc_complete_beat__w1, incr=1)
+  const dealloc_complete_beat = _b2i_17
+  mut br_tracker_sequence_allocate_counter = br_tracker_sequence::[name=br_tracker_sequence_allocate_counter](clk=clk, rst=rst, alloc_receivable=alloc_ready, dealloc_valid=dealloc_complete_beat, dealloc_size=1)
+  mut br_counter_incr_deallocate_counter = br_counter_incr_p1::[name=br_counter_incr_deallocate_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=dealloc_complete_beat, incr=1)
   dealloc_complete_counter_value = br_counter_incr_deallocate_counter.value
   if not (rst != 0) {
-    if dealloc_valid != 0 or dealloc_complete_beat__w1 != 0 {
+    if dealloc_valid != 0 or dealloc_complete_beat != 0 {
       dealloc_pending = dealloc_pending_next
     }
   }
-  mut _b2i_18 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 0 { 1 } else { 0 }
+  mut _b2i_18 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 0 { 1 } else { 0 }
   mut _mux_19:U1 = if _b2i_18 != 0 { 0 } else { dealloc_pending & 1 }
   mut _mux_20:U1 = if _b2i_1 != 0 { 1 } else { _mux_19 & 1 }
-  `dealloc_pending_next[0]` = _mux_20 & 1
-  mut _b2i_21 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 1 { 1 } else { 0 }
+  dealloc_pending_next_bits#[0] = _mux_20 & 1
+  mut _b2i_21 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 1 { 1 } else { 0 }
   mut _mux_22:U1 = if _b2i_21 != 0 { 0 } else { (dealloc_pending >> 1) & 1 }
   mut _mux_23:U1 = if _b2i_2 != 0 { 1 } else { _mux_22 & 1 }
-  `dealloc_pending_next[1]` = _mux_23 & 1
-  mut _b2i_24 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 2 { 1 } else { 0 }
+  dealloc_pending_next_bits#[1] = _mux_23 & 1
+  mut _b2i_24 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 2 { 1 } else { 0 }
   mut _mux_25:U1 = if _b2i_24 != 0 { 0 } else { (dealloc_pending >> 2) & 1 }
   mut _mux_26:U1 = if _b2i_3 != 0 { 1 } else { _mux_25 & 1 }
-  `dealloc_pending_next[2]` = _mux_26 & 1
-  mut _b2i_27 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 3 { 1 } else { 0 }
+  dealloc_pending_next_bits#[2] = _mux_26 & 1
+  mut _b2i_27 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 3 { 1 } else { 0 }
   mut _mux_28:U1 = if _b2i_27 != 0 { 0 } else { (dealloc_pending >> 3) & 1 }
   mut _mux_29:U1 = if _b2i_4 != 0 { 1 } else { _mux_28 & 1 }
-  `dealloc_pending_next[3]` = _mux_29 & 1
-  mut _b2i_30 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 4 { 1 } else { 0 }
+  dealloc_pending_next_bits#[3] = _mux_29 & 1
+  mut _b2i_30 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 4 { 1 } else { 0 }
   mut _mux_31:U1 = if _b2i_30 != 0 { 0 } else { (dealloc_pending >> 4) & 1 }
   mut _mux_32:U1 = if _b2i_5 != 0 { 1 } else { _mux_31 & 1 }
-  `dealloc_pending_next[4]` = _mux_32 & 1
-  mut _b2i_33 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 5 { 1 } else { 0 }
+  dealloc_pending_next_bits#[4] = _mux_32 & 1
+  mut _b2i_33 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 5 { 1 } else { 0 }
   mut _mux_34:U1 = if _b2i_33 != 0 { 0 } else { (dealloc_pending >> 5) & 1 }
   mut _mux_35:U1 = if _b2i_6 != 0 { 1 } else { _mux_34 & 1 }
-  `dealloc_pending_next[5]` = _mux_35 & 1
-  mut _b2i_36 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 6 { 1 } else { 0 }
+  dealloc_pending_next_bits#[5] = _mux_35 & 1
+  mut _b2i_36 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 6 { 1 } else { 0 }
   mut _mux_37:U1 = if _b2i_36 != 0 { 0 } else { (dealloc_pending >> 6) & 1 }
   mut _mux_38:U1 = if _b2i_7 != 0 { 1 } else { _mux_37 & 1 }
-  `dealloc_pending_next[6]` = _mux_38 & 1
-  mut _b2i_39 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 7 { 1 } else { 0 }
+  dealloc_pending_next_bits#[6] = _mux_38 & 1
+  mut _b2i_39 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 7 { 1 } else { 0 }
   mut _mux_40:U1 = if _b2i_39 != 0 { 0 } else { (dealloc_pending >> 7) & 1 }
   mut _mux_41:U1 = if _b2i_8 != 0 { 1 } else { _mux_40 & 1 }
-  `dealloc_pending_next[7]` = _mux_41 & 1
-  mut _b2i_42 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 8 { 1 } else { 0 }
+  dealloc_pending_next_bits#[7] = _mux_41 & 1
+  mut _b2i_42 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 8 { 1 } else { 0 }
   mut _mux_43:U1 = if _b2i_42 != 0 { 0 } else { (dealloc_pending >> 8) & 1 }
   mut _mux_44:U1 = if _b2i_9 != 0 { 1 } else { _mux_43 & 1 }
-  `dealloc_pending_next[8]` = _mux_44 & 1
-  mut _b2i_45 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 9 { 1 } else { 0 }
+  dealloc_pending_next_bits#[8] = _mux_44 & 1
+  mut _b2i_45 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 9 { 1 } else { 0 }
   mut _mux_46:U1 = if _b2i_45 != 0 { 0 } else { (dealloc_pending >> 9) & 1 }
   mut _mux_47:U1 = if _b2i_10 != 0 { 1 } else { _mux_46 & 1 }
-  `dealloc_pending_next[9]` = _mux_47 & 1
-  mut _b2i_48 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 10 { 1 } else { 0 }
+  dealloc_pending_next_bits#[9] = _mux_47 & 1
+  mut _b2i_48 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 10 { 1 } else { 0 }
   mut _mux_49:U1 = if _b2i_48 != 0 { 0 } else { (dealloc_pending >> 10) & 1 }
   mut _mux_50:U1 = if _b2i_11 != 0 { 1 } else { _mux_49 & 1 }
-  `dealloc_pending_next[10]` = _mux_50 & 1
-  mut _b2i_51 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 11 { 1 } else { 0 }
+  dealloc_pending_next_bits#[10] = _mux_50 & 1
+  mut _b2i_51 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 11 { 1 } else { 0 }
   mut _mux_52:U1 = if _b2i_51 != 0 { 0 } else { (dealloc_pending >> 11) & 1 }
   mut _mux_53:U1 = if _b2i_12 != 0 { 1 } else { _mux_52 & 1 }
-  `dealloc_pending_next[11]` = _mux_53 & 1
-  mut _b2i_54 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 12 { 1 } else { 0 }
+  dealloc_pending_next_bits#[11] = _mux_53 & 1
+  mut _b2i_54 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 12 { 1 } else { 0 }
   mut _mux_55:U1 = if _b2i_54 != 0 { 0 } else { (dealloc_pending >> 12) & 1 }
   mut _mux_56:U1 = if _b2i_13 != 0 { 1 } else { _mux_55 & 1 }
-  `dealloc_pending_next[12]` = _mux_56 & 1
-  mut _b2i_57 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 13 { 1 } else { 0 }
+  dealloc_pending_next_bits#[12] = _mux_56 & 1
+  mut _b2i_57 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 13 { 1 } else { 0 }
   mut _mux_58:U1 = if _b2i_57 != 0 { 0 } else { (dealloc_pending >> 13) & 1 }
   mut _mux_59:U1 = if _b2i_14 != 0 { 1 } else { _mux_58 & 1 }
-  `dealloc_pending_next[13]` = _mux_59 & 1
-  mut _b2i_60 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 14 { 1 } else { 0 }
+  dealloc_pending_next_bits#[13] = _mux_59 & 1
+  mut _b2i_60 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 14 { 1 } else { 0 }
   mut _mux_61:U1 = if _b2i_60 != 0 { 0 } else { (dealloc_pending >> 14) & 1 }
   mut _mux_62:U1 = if _b2i_15 != 0 { 1 } else { _mux_61 & 1 }
-  `dealloc_pending_next[14]` = _mux_62 & 1
-  mut _b2i_63 = if dealloc_complete_beat__w1 != 0 and dealloc_complete_entry_id__w1 == 15 { 1 } else { 0 }
+  dealloc_pending_next_bits#[14] = _mux_62 & 1
+  mut _b2i_63 = if dealloc_complete_beat != 0 and dealloc_complete_entry_id__w1 == 15 { 1 } else { 0 }
   mut _mux_64:U1 = if _b2i_63 != 0 { 0 } else { (dealloc_pending >> 15) & 1 }
   mut _mux_65:U1 = if _b2i_16 != 0 { 1 } else { _mux_64 & 1 }
-  `dealloc_pending_next[15]` = _mux_65 & 1
-  dealloc_pending_next = (`dealloc_pending_next[15]` << 15) | (`dealloc_pending_next[14]` << 14) | (`dealloc_pending_next[13]` << 13) | (`dealloc_pending_next[12]` << 12) | (`dealloc_pending_next[11]` << 11) | (`dealloc_pending_next[10]` << 10) | (`dealloc_pending_next[9]` << 9) | (`dealloc_pending_next[8]` << 8) | (`dealloc_pending_next[7]` << 7) | (`dealloc_pending_next[6]` << 6) | (`dealloc_pending_next[5]` << 5) | (`dealloc_pending_next[4]` << 4) | (`dealloc_pending_next[3]` << 3) | (`dealloc_pending_next[2]` << 2) | (`dealloc_pending_next[1]` << 1) | `dealloc_pending_next[0]`
+  dealloc_pending_next_bits#[15] = _mux_65 & 1
+  dealloc_pending_next = dealloc_pending_next_bits
   alloc_valid = br_tracker_sequence_allocate_counter.alloc_sendable
   alloc_entry_id = br_tracker_sequence_allocate_counter.alloc_entry_id
   dealloc_complete_valid = dealloc_complete_valid__w1

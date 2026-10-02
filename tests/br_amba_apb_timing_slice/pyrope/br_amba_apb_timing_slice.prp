@@ -18,9 +18,9 @@ pub mod br_amba_apb_timing_slice::[timecheck=false](clk:Clock, paddr_in:U32, pen
   pslverr_out = pslverr_in
   prdata_out = prdata_in
   mut _b2i_1 = if psel_out != 0 and penable_out != 0 and pready_in != 0 { 1 } else { 0 }
-  const valid_handshake__w1 = _b2i_1
-  mut _b2i_2 = if psel_in != 0 and valid_handshake__w1 == 0 and valid_handshake_d1 == 0 { 1 } else { 0 }
-  mut _b2i_3 = if penable_in != 0 and valid_handshake__w1 == 0 and valid_handshake_d1 == 0 { 1 } else { 0 }
+  const valid_handshake = _b2i_1
+  mut _b2i_2 = if psel_in != 0 and valid_handshake == 0 and valid_handshake_d1 == 0 { 1 } else { 0 }
+  mut _b2i_3 = if penable_in != 0 and valid_handshake == 0 and valid_handshake_d1 == 0 { 1 } else { 0 }
   mut _b2i_4 = if psel_out != 0 and penable_out != 0 and pready_in != 0 { 1 } else { 0 }
   if not (rst != 0) {
     psel_out = _b2i_2
@@ -32,6 +32,6 @@ pub mod br_amba_apb_timing_slice::[timecheck=false](clk:Clock, paddr_in:U32, pen
     pready_out = _b2i_4
   }
   if not (rst != 0) {
-    valid_handshake_d1 = valid_handshake__w1
+    valid_handshake_d1 = valid_handshake
   }
 }

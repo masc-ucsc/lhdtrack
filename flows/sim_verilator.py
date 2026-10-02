@@ -8,7 +8,7 @@ rows read against each other stage for stage:
     exec_ms    the built binary, re-run    the simulation ALONE, best-of-N
 
 WHAT IS HELD EQUAL to the LiveHD side (this is the whole premise):
-  * the SOURCE   -- same filelist, same -DSYNTHESIS. Both simulators read the
+  * the SOURCE   -- same filelist and declared Verilog profile. Both simulators read the
                     same RTL, not one of them reading a re-emission of it.
   * the HARNESS  -- both drive sim/<top>_tb*, generated as a matched pair from
                     one port list, so identical work goes into both.
@@ -38,6 +38,8 @@ USES_TECH = False
 
 
 def run(ctx: FlowContext) -> dict:
+    if reason := ctx.test.raw.get("sim", {}).get("skip_reason"):
+        raise FlowSkip(reason)
     tb = ctx.test.sim_dir / f"{ctx.top}_tb_verilator.cpp"
     if not tb.exists():
         raise FlowSkip(f"no verilator testbench: {tb.name} (run `lhdtrack import seed`)")
@@ -66,7 +68,7 @@ def run(ctx: FlowContext) -> dict:
     setup = [
         ctx.tool("verilator"), "--cc", "--exe", "--Mdir", str(vobj),
         "--top-module", sim_top, "-Wno-fatal", "--x-initial", "0", "--x-assign", "0",
-        "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
+        *ctx.test.sim_verilog_args(),
         "-DBR_VERILATOR",
         "-I" + str(ctx.test.verilog_dir),
         *params,

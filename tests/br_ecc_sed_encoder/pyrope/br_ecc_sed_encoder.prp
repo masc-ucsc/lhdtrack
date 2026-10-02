@@ -1,10 +1,10 @@
 const br_delay_valid = import("br_delay_valid.br_delay_valid")
-const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
+const br_delay_valid_p1 = import("br_delay_valid.br_delay_valid")
 
 pub mod br_ecc_sed_encoder::[timecheck=false](clk:Clock, data:U32, data_valid:U1, rst:Reset) -> (enc_codeword:U33@[], enc_valid:U1@[]) {
-  mut br_delay_valid_inputs = br_delay_valid::[name=br_delay_valid_inputs](clk=clk, rst=rst, in_valid=data_valid, `in`=data)
+  mut br_delay_valid_inputs = br_delay_valid<Width=32>(in_valid=data_valid, `in`=data)
   const t8 = br_delay_valid_inputs.out#[0..=31]#^[..]
-  mut br_delay_valid_outputs = br_delay_valid_p1::[name=br_delay_valid_outputs](clk=clk, rst=rst, in_valid=br_delay_valid_inputs.out_valid, `in`=((t8 & 1) << 32) | br_delay_valid_inputs.out#[0..=31])
+  mut br_delay_valid_outputs = br_delay_valid_p1<Width=33>(in_valid=br_delay_valid_inputs.out_valid, `in`=((t8 & 1) << 32) | br_delay_valid_inputs.out#[0..=31])
   enc_valid = br_delay_valid_outputs.out_valid
   enc_codeword = br_delay_valid_outputs.out
 }

@@ -3,7 +3,7 @@
 // The Pyrope twin of br_fifo_flops_push_credit_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_fifo_flops_push_credit.br_fifo_flops_push_credit.
 const dut = import("br_fifo_flops_push_credit.br_fifo_flops_push_credit")
 
-pub mod br_fifo_flops_push_credit_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_fifo_flops_push_credit_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, credit_count_push, credit_available_push, empty, empty_next, items, items_next) = dut(push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46])
+  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, credit_count_push, credit_available_push, empty, empty_next, items, items_next) = dut(rst=U1(rst != 0), push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset
   wrap acc = ((acc << 1) | acc#[63]) ^ push_credit
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid

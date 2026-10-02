@@ -5,17 +5,17 @@ pub mod br_credit_receiver::[timecheck=false](clk:Clock, credit_initial:U5, cred
   reg push_credit:U3:[async=false, initial=0, reset_pin=rst]
   wire credit_decr:U3 = nil
   mut _b2i_1 = if rst != 0 or push_sender_in_reset != 0 { 1 } else { 0 }
-  const either_rst__w1 = _b2i_1
-  const credit_decr_valid__w1 = U1(push_credit_stall == 0)
-  mut _b2i_4 = if either_rst__w1 == 0 { 1 } else { 0 }
+  const either_rst = _b2i_1
+  const credit_decr_valid = U1(push_credit_stall == 0)
+  mut _b2i_4 = if either_rst == 0 { 1 } else { 0 }
   mut _rep_5:U4 = if (_b2i_4 & 1) != 0 { 15 } else { 0 }
   if not (rst != 0) {
     push_receiver_in_reset = 0
   }
-  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk=clk, rst=either_rst__w1, incr_valid=U1(pop_credit != 0), incr=pop_credit, decr_valid=credit_decr_valid__w1, decr=credit_decr, initial_value=credit_initial, withhold=credit_withhold)
+  mut br_credit_counter = br_credit_counter_t::[name=br_credit_counter](clk=clk, rst=either_rst, incr_valid=U1(pop_credit != 0), incr=pop_credit, decr_valid=credit_decr_valid, decr=credit_decr, initial_value=credit_initial, withhold=credit_withhold)
   mut _mux_6:U3 = if br_credit_counter.available < 4 { br_credit_counter.available#[0..=2] } else { 4 }
   credit_decr = _mux_6
-  mut _mux_7:U3 = if credit_decr_valid__w1 != 0 and br_credit_counter.decr_ready != 0 and either_rst__w1 == 0 { credit_decr } else { 0 }
+  mut _mux_7:U3 = if credit_decr_valid != 0 and br_credit_counter.decr_ready != 0 and either_rst == 0 { credit_decr } else { 0 }
   if not (rst != 0) {
     push_credit = _mux_7
   }

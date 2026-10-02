@@ -3,7 +3,7 @@
 // The Pyrope twin of br_flow_mux_weighted_rr_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,20 +11,22 @@
 // "call to undefined function". The module inside it is br_flow_mux_weighted_rr.br_flow_mux_weighted_rr.
 const dut = import("br_flow_mux_weighted_rr.br_flow_mux_weighted_rr")
 
-pub mod br_flow_mux_weighted_rr_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_flow_mux_weighted_rr_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (push_ready, pop_valid_unstable, pop_data_unstable) = dut(cfg_weight=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2], pop_ready=lfsr#[3])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (push_ready, pop_valid_unstable, pop_data_unstable) = dut(clk=clk, rst=dut_reset, cfg_weight=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2], pop_ready=lfsr#[3])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_valid_unstable
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_data_unstable

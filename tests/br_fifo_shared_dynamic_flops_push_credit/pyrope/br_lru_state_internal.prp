@@ -1,45 +1,33 @@
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-const br_misc_unused_p10 = import("br_misc_unused_p10.br_misc_unused_p10")
-
 pub mod br_lru_state_internal<NumRequesters=2>::[timecheck=false](clk:Clock, grant:(e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U4@[]) {
   reg state_reg___q:U4
   mut state_reg__composite:U4 = 0
   wire state_reg:U4 = nil
-  wire `state[0]`:U1 = nil
-  wire `state[1]`:U1 = nil
-  wire `state[2]`:U1 = nil
-  wire `state[3]`:U1 = nil
+  wire state_bits:U4 = nil
   wire state:U4 = nil
-  wire `state_reg_next[0]`:U1 = nil
-  wire `state_reg_next[1]`:U1 = nil
-  wire `state_reg_next[2]`:U1 = nil
-  wire `state_reg_next[3]`:U1 = nil
+  wire state_reg_next_bits:U4 = nil
   state_reg__composite = state_reg___q
-  `state[0]` = 0
+  state_bits#[0] = 0
   mut state_reg__composite__w1 = state_reg__composite
   state_reg__composite__w1#[0] = 0
-  `state_reg_next[0]` = 0
-  br_misc_unused_p10::[name=gen_state_row_0_gen_state_col_0_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[0]` & 1) << 2) | ((state_reg#[0..=1] & 1) << 1) | (`state[0]` & 1))
-  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { `state[1]` & 1 }
+  state_reg_next_bits#[0] = 0
+  mut _mux_1:U1 = if grant.e1 != 0 { 1 } else { state_bits#[1] & 1 }
   mut _mux_2:U1 = if grant.e0 != 0 { 0 } else { _mux_1 & 1 }
-  `state_reg_next[1]` = _mux_2 & 1
+  state_reg_next_bits#[1] = _mux_2 & 1
   if rst != 0 {
     state_reg___q#[1] = 1
   } elif update_priority != 0 {
-    state_reg___q#[1] = `state_reg_next[1]` & 1
+    state_reg___q#[1] = state_reg_next_bits#[1] & 1
   }
-  `state[1]` = (state_reg#[0..=1] >> 1) & 1
+  state_bits#[1] = (state_reg#[0..=1] >> 1) & 1
   mut _b2i_3 = if ((state_reg#[0..=1] >> 1) & 1) == 0 { 1 } else { 0 }
-  `state[2]` = _b2i_3 & 1
-  `state_reg_next[2]` = 0
+  state_bits#[2] = _b2i_3 & 1
+  state_reg_next_bits#[2] = 0
   mut state_reg__composite__w2 = state_reg__composite__w1
   state_reg__composite__w2#[2] = 0
-  br_misc_unused_p1::[name=gen_state_row_1_gen_state_col_0_gen_lower_tri_br_misc_unused_states](`in`=((`state_reg_next[2]` & 1) << 1) | (state_reg#[2..=3] & 1))
-  `state[3]` = 0
+  state_bits#[3] = 0
   mut state_reg__composite__w3 = state_reg__composite__w2
   state_reg__composite__w3#[3] = 0
-  `state_reg_next[3]` = 0
-  br_misc_unused_p10::[name=gen_state_row_1_gen_state_col_1_gen_diag_br_misc_unused_states](`in`=((`state_reg_next[3]` & 1) << 2) | (((state_reg#[2..=3] >> 1) & 1) << 1) | (`state[3]` & 1))
-  state = (`state[3]` << 3) | (`state[2]` << 2) | (`state[1]` << 1) | `state[0]`
+  state_reg_next_bits#[3] = 0
+  state = state_bits
   state_reg = state_reg__composite__w3
 }

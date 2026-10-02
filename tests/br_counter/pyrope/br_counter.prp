@@ -1,17 +1,14 @@
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
-pub mod br_counter::[timecheck=false](clk:Clock, decr:U1, decr_valid:U1, incr:U1, incr_valid:U1, initial_value:U8, reinit:U1, rst:U1) -> (value:U8@[], value_next:U8@[]) {
-  reg value:U8
-  mut _mux_2:U1 = if incr_valid != 0 { incr & 1 } else { 0 }
-  mut _mux_3:U1 = if decr_valid != 0 { decr & 1 } else { 0 }
-  mut _mux_4:U9 = if reinit != 0 { initial_value } else { value }
-  const value_temp__w1 = ((_mux_4 + _mux_2)#[0..=8] - _mux_3)#[0..=8]
-  const value_next__w1 = value_temp__w1#[0..=7]
-  br_misc_unused::[name=gen_no_wrap_or_saturate_gen_unused_br_misc_unused_value_temp_msbs](`in`=(value_temp__w1 >> 8) & 1)
+// 8-bit up/down counter that wraps modulo 256 (bedrock br_counter, MaxValue=255, MaxChange=1).
+// `reinit` reloads initial_value and the same-cycle incr/decr apply to that value.
+// Reset loads a runtime input, so it stays in the next-state logic.
+pub mod br_counter(clk:Clock, decr:U1, decr_valid:U1, incr:U1, incr_valid:U1, initial_value:U8, reinit:U1, rst:U1) -> (reg value:U8@[0]=nil, value_next:U8@[0]) {
+  const base = if reinit != 0 { initial_value } else { value }
+  const up = if incr_valid != 0 { incr } else { 0 }
+  const down = if decr_valid != 0 { decr } else { 0 }
+  wrap value_next = base + up - down
   if rst != 0 {
     value = initial_value
-  } elif U1(reinit != 0 or incr_valid != 0 or decr_valid != 0) != 0 {
-    value = value_next__w1
+  } elif reinit != 0 or incr_valid != 0 or decr_valid != 0 {
+    value = value_next
   }
-  value_next = value_next__w1
 }

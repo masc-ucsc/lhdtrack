@@ -1,20 +1,18 @@
 pub mod br_counter<MaxValueWidth=32, MaxChangeWidth=32, MaxValue=16, MaxChange=4, MaxIncrement=4, MaxDecrement=1, EnableWrap=0, EnableReinitAndChange=1, EnableSaturate=1, EnableAssertFinalNotValid=1, EnableCoverZeroChange=0, EnableCoverReinit=0, EnableCoverReinitAndChange=0, EnableCoverReinitNoChange=0, EnableCoverIncrementAndDecrement=1, EnableAssertFinalInitialValue=0>::[timecheck=false](clk:Clock, decr:U3, decr_valid:U1, incr:U3, incr_valid:U1, initial_value:U5, reinit:U1, rst:U1) -> (value:U5@[], value_next:U5@[]) {
   reg value:U5
-  const MaxValueResized = MaxValue
-  const MaxValueWithOverflow = MaxValue
   mut _mux_2:U3 = if incr_valid != 0 { incr } else { 0 }
-  const incr_qual__w1 = _mux_2
+  const incr_qual = _mux_2
   mut _mux_3:U3 = if decr_valid != 0 { decr } else { 0 }
-  const decr_qual__w1 = _mux_3
+  const decr_qual = _mux_3
   mut _mux_4:U5 = if reinit != 0 { initial_value } else { value }
-  const value_temp__w1 = ((_mux_4 + incr_qual__w1)#[0..=4] - decr_qual__w1)#[0..=4]
-  mut _b2i_6 = if decr_qual__w1 > incr_qual__w1 { 1 } else { 0 }
-  const gen_wrap_or_saturate_is_net_decr__w1 = _b2i_6
-  mut _b2i_7 = if value_temp__w1 > MaxValueWithOverflow { 1 } else { 0 }
-  const gen_wrap_or_saturate_would_out_of_bounds__w1 = _b2i_7
-  mut _b2i_8 = if gen_wrap_or_saturate_would_out_of_bounds__w1 != 0 and gen_wrap_or_saturate_is_net_decr__w1 != 0 { 1 } else { 0 }
-  mut _b2i_9 = if gen_wrap_or_saturate_would_out_of_bounds__w1 != 0 and gen_wrap_or_saturate_is_net_decr__w1 == 0 { 1 } else { 0 }
-  mut _mux_10:U5 = if _b2i_9 != 0 { MaxValueResized } else { value_temp__w1 }
+  const value_temp = ((_mux_4 + incr_qual)#[0..=4] - decr_qual)#[0..=4]
+  mut _b2i_6 = if decr_qual > incr_qual { 1 } else { 0 }
+  const gen_wrap_or_saturate_is_net_decr = _b2i_6
+  mut _b2i_7 = if value_temp > MaxValue { 1 } else { 0 }
+  const gen_wrap_or_saturate_would_out_of_bounds = _b2i_7
+  mut _b2i_8 = if gen_wrap_or_saturate_would_out_of_bounds != 0 and gen_wrap_or_saturate_is_net_decr != 0 { 1 } else { 0 }
+  mut _b2i_9 = if gen_wrap_or_saturate_would_out_of_bounds != 0 and gen_wrap_or_saturate_is_net_decr == 0 { 1 } else { 0 }
+  mut _mux_10:U5 = if _b2i_9 != 0 { MaxValue } else { value_temp }
   mut _mux_11:U5 = if _b2i_8 != 0 { 0 } else { _mux_10 }
   const value_next__w1 = _mux_11
   if rst != 0 {

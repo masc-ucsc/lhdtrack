@@ -1,39 +1,6 @@
-pub mod br_enc_priority_encoder::[timecheck=false](clk:Clock, `in`:U16, rst:Reset) -> (out:U16@[]) {
-  wire `out_internal[0]`:U1 = nil
-  wire `out_internal[1]`:U1 = nil
-  wire `out_internal[2]`:U1 = nil
-  wire `out_internal[3]`:U1 = nil
-  wire `out_internal[4]`:U1 = nil
-  wire `out_internal[5]`:U1 = nil
-  wire `out_internal[6]`:U1 = nil
-  wire `out_internal[7]`:U1 = nil
-  wire `out_internal[8]`:U1 = nil
-  wire `out_internal[9]`:U1 = nil
-  wire `out_internal[10]`:U1 = nil
-  wire `out_internal[11]`:U1 = nil
-  wire `out_internal[12]`:U1 = nil
-  wire `out_internal[13]`:U1 = nil
-  wire `out_internal[14]`:U1 = nil
-  wire `out_internal[15]`:U1 = nil
-  wire out_internal:U16 = nil
-  const gen_out_internal_0_in_masked__w1 = `in`
-  `out_internal[0]` = gen_out_internal_0_in_masked__w1 & 1
-  `out_internal[1]` = U1(((gen_out_internal_0_in_masked__w1 >> 1) & 1) != 0 and (gen_out_internal_0_in_masked__w1 & 1) == 0) & 1
-  `out_internal[2]` = U1(((gen_out_internal_0_in_masked__w1 >> 2) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=1] == 0) & 1
-  `out_internal[3]` = U1(((gen_out_internal_0_in_masked__w1 >> 3) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=2] == 0) & 1
-  `out_internal[4]` = U1(((gen_out_internal_0_in_masked__w1 >> 4) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=3] == 0) & 1
-  `out_internal[5]` = U1(((gen_out_internal_0_in_masked__w1 >> 5) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=4] == 0) & 1
-  `out_internal[6]` = U1(((gen_out_internal_0_in_masked__w1 >> 6) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=5] == 0) & 1
-  `out_internal[7]` = U1(((gen_out_internal_0_in_masked__w1 >> 7) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=6] == 0) & 1
-  `out_internal[8]` = U1(((gen_out_internal_0_in_masked__w1 >> 8) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=7] == 0) & 1
-  `out_internal[9]` = U1(((gen_out_internal_0_in_masked__w1 >> 9) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=8] == 0) & 1
-  `out_internal[10]` = U1(((gen_out_internal_0_in_masked__w1 >> 10) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=9] == 0) & 1
-  `out_internal[11]` = U1(((gen_out_internal_0_in_masked__w1 >> 11) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=10] == 0) & 1
-  `out_internal[12]` = U1(((gen_out_internal_0_in_masked__w1 >> 12) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=11] == 0) & 1
-  `out_internal[13]` = U1(((gen_out_internal_0_in_masked__w1 >> 13) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=12] == 0) & 1
-  `out_internal[14]` = U1(((gen_out_internal_0_in_masked__w1 >> 14) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=13] == 0) & 1
-  `out_internal[15]` = U1(((gen_out_internal_0_in_masked__w1 >> 15) & 1) != 0 and gen_out_internal_0_in_masked__w1#[0..=14] == 0) & 1
-  const out__w1 = out_internal
-  out_internal = (`out_internal[15]` << 15) | (`out_internal[14]` << 14) | (`out_internal[13]` << 13) | (`out_internal[12]` << 12) | (`out_internal[11]` << 11) | (`out_internal[10]` << 10) | (`out_internal[9]` << 9) | (`out_internal[8]` << 8) | (`out_internal[7]` << 7) | (`out_internal[6]` << 6) | (`out_internal[5]` << 5) | (`out_internal[4]` << 4) | (`out_internal[3]` << 3) | (`out_internal[2]` << 2) | (`out_internal[1]` << 1) | `out_internal[0]`
-  out = out__w1
+// Single-result priority encoder (NumRequesters = 16, LSB highest priority):
+// `out` is the one-hot lowest set bit of `in`. clk and rst are unused (upstream
+// uses them only for assertions) and stay on this external top.
+pub mod br_enc_priority_encoder(clk:Clock, `in`:U16, rst:Reset) -> (out:U16@[0]) {
+  out = `in` & -`in`
 }

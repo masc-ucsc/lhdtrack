@@ -2,7 +2,7 @@
 // requesters at or below it (the ones that lose priority next cycle).
 pub mod br_rr_state_internal<NUM_REQUESTERS=2>(grant:Unsigned(bits=NUM_REQUESTERS), rst:U1, update_priority:Bool) -> (priority_mask:Unsigned(bits=NUM_REQUESTERS)@[0]) {
   // After reset the top requester counts as last granted, so requester 0 leads.
-  reg last_grant:Unsigned(bits=NUM_REQUESTERS):[reset_pin=rst != 0] = 1 << (NUM_REQUESTERS - 1)
+  reg last_grant:Unsigned(bits=NUM_REQUESTERS):[reset_pin=rst] = 1 << (NUM_REQUESTERS - 1)
   if update_priority {
     last_grant = grant
   }

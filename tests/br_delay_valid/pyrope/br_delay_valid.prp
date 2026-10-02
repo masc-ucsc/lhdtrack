@@ -1,32 +1,19 @@
-pub mod br_delay_valid::[timecheck=false](clk:Clock, `in`:U8, in_valid:U1, rst:U1) -> (out:U8@[], out_stages:U16@[], out_valid:U1@[], out_valid_stages:U2@[]) {
-  reg stage_valid___q:U2
-  mut stage_valid__composite:U2 = 0
-  wire stage_valid:U2 = nil
-  reg stage___q:U16
-  mut stage__composite:U16 = 0
-  wire `stage`:U16 = nil
-  stage_valid__composite = stage_valid___q
-  stage__composite = stage___q
-  mut stage_valid__composite__w1 = stage_valid__composite
-  stage_valid__composite__w1#[0] = in_valid & 1
-  mut stage__composite__w1 = stage__composite
-  stage__composite__w1#[0..=7] = `in`
+// One valid-qualified delay `stage`; payload storage is deliberately unreset.
+// Stage-zero outputs expose the current input; packed state preserves pairing.
+pub mod br_delay_valid(clk:Clock, `in`:U8, in_valid:U1, rst:U1) -> (out:U8@[], out_stages:U16@[], out_valid:U1@[], out_valid_stages:U2@[]) {
+  reg stage_valid___q:U2 = nil
+  reg stage___q:U16 = nil
   if rst != 0 {
     stage_valid___q#[1] = 0
   } else {
-    stage_valid___q#[1] = stage_valid & 1
+    stage_valid___q#[1] = in_valid
   }
-  if (stage_valid & 1) != 0 {
-    stage___q#[8..=15] = `stage`#[0..=7]
+  // Next-valid mode captures with the previous valid, matching the reference.
+  if in_valid != 0 {
+    stage___q#[8..<16] = `in`
   }
-  const out_valid__w1 = (stage_valid >> 1) & 1
-  const out__w1 = (`stage` >> 8)#[0..=7]
-  const out_valid_stages__w1 = stage_valid
-  const out_stages__w1 = `stage`
-  stage_valid = stage_valid__composite__w1
-  `stage` = stage__composite__w1
-  out_valid = out_valid__w1
-  out = out__w1
-  out_valid_stages = out_valid_stages__w1
-  out_stages = out_stages__w1
+  out = stage___q#[8..]
+  out_valid = stage_valid___q#[1]
+  out_stages = (`in`, out)#[..]
+  out_valid_stages = (in_valid, out_valid)#[..]
 }

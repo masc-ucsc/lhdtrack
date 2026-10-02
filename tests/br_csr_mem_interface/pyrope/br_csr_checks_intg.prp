@@ -1,5 +1,0 @@
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-
-pub mod br_csr_checks_intg<AddrWidth=6, DataWidth=32, EnableAddressRangeCheck=1, AddrMin=0, AddrMax=15, EnableWriteDataKnownCheck=0>::[timecheck=false](clk:Clock, req_abort:U1, req_addr:U6, req_privileged:U1, req_secure:U1, req_valid:U1, req_wdata:U32, req_write:U1, req_wstrb:U4, resp_valid:U1, rst:U1) -> () {
-  br_misc_unused_p2::[name=br_misc_unused_all_unused](`in`=((rst & 1) << 48) | ((req_valid & 1) << 47) | ((req_write & 1) << 46) | (req_addr << 40) | (req_wdata << 8) | (req_wstrb << 4) | ((req_secure & 1) << 3) | ((req_privileged & 1) << 2) | ((req_abort & 1) << 1) | (resp_valid & 1))
-}

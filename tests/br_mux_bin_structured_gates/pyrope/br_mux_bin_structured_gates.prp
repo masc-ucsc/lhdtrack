@@ -1,10 +1,5 @@
 const br_gate_mux2 = import("br_gate_mux2.br_gate_mux2")
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-const br_misc_unused_p1 = import("br_misc_unused_p1.br_misc_unused_p1")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-const br_misc_unused_p3 = import("br_misc_unused_p3.br_misc_unused_p3")
-
-pub mod br_mux_bin_structured_gates::[timecheck=false](`in`:U512, select:U4) -> (out:U32@[], out_valid:U1@[]) {
+pub comb br_mux_bin_structured_gates::[timecheck=false](`in`:U512, select:U4) -> (out:U32, out_valid:U1) {
   mut in_stages__wtmp:U2560 = 0sb?
   wire in_stages:U2560 = nil
   in_stages__wtmp#[0..=511] = 0
@@ -5034,11 +5029,7 @@ pub mod br_mux_bin_structured_gates::[timecheck=false](`in`:U512, select:U4) -> 
   in_stages__wtmp__w484#[2079] = gen_n_gen_level_3_gen_mux_0_gen_mux2_gate_31_br_gate_mux2_inst & 1
   mut in_stages__wtmp__w485 = in_stages__wtmp__w484
   in_stages__wtmp__w485#[2080..=2559] = 0
-  br_misc_unused::[name=gen_n_gen_level_3_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[1536..=2047]#[64..=511])
   const out__w1 = in_stages#[2048..=2559]#[0..=31]
-  br_misc_unused_p1::[name=gen_n_br_misc_unused_final_stage_unused](`in`=in_stages#[2048..=2559]#[32..=511])
-  br_misc_unused_p2::[name=gen_n_gen_level_1_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[512..=1023]#[256..=511])
-  br_misc_unused_p3::[name=gen_n_gen_level_2_gen_last_stage_unused_br_misc_unused_last_stage_unused](`in`=in_stages#[1024..=1535]#[128..=511])
   in_stages = in_stages__wtmp__w485
   out = out__w1
   out_valid = U1(select < 16)

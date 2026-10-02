@@ -11,12 +11,11 @@ test bench.run(cycles:U32=1000000) {
   mut result:U64 = 0
 
   tick cycles {
-    // `u1(...)`, not `int(...)`: this lhd build removed the `int` cast in
+    // `U1(...)`, not `int(...)`: this lhd build removed the `int` cast in
     // favour of sized/sign-explicit ones.
     acc.rst = U1(clock < 4)
     // One LiveHD step is one complete clock period.  Keep the explicit clock
     // asserted for the CDC harness; two steps would commit every flop twice.
-    acc.clk = 1
     step
     result = acc.checksum
   }

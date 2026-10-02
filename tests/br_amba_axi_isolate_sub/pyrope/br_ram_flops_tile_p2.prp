@@ -1,5 +1,3 @@
-const br_misc_unused = import("br_misc_unused.br_misc_unused")
-
 pub mod br_ram_flops_tile_p2<Depth=15, Width=1, NumWritePorts=1, NumReadPorts=1, EnablePartialWrite=0, WordWidth=1, EnableBypass=0, EnableReset=0, UseStructuredGates=0, EnableStructuredGatesDataQualification=1, EnableAssertFinalNotValid=1>::[timecheck=false](rd_addr:U4, rd_addr_valid:U1, rd_clk:Clock, rd_rst:U1, wr_addr:U4, wr_clk:Clock, wr_data:U1, wr_rst:U1, wr_valid:U1, wr_word_en:U1) -> (rd_data:U1@[], rd_data_valid:U1@[]) {
   reg mem:[15]U1:[__store_clock_pin=wr_clk, __store_posclk=true, ordering="old"]
   rd_data = 0ub?
@@ -8,7 +6,6 @@ pub mod br_ram_flops_tile_p2<Depth=15, Width=1, NumWritePorts=1, NumReadPorts=1,
       mem[wr_addr] = wr_data & 1
     }
   }
-  br_misc_unused::[name=gen_multi_entry_gen_unused_wr_word_en_br_misc_unused_wr_word_en](`in`=wr_word_en)
   mut _oob_read_1:U1 = if rd_addr < 15 { mem[rd_addr] } else { 0 }
   mut rd_data__w1 = rd_data
   rd_data__w1#[0] = _oob_read_1 & 1

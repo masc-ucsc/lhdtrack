@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+// Five 16-bit lanes; selectors 5, 6 and 7 exercise the invalid-input path.
+pub comb br_mux_bin_structured_gates_mock_bench(select:U3, data:U80)
+    -> (out:U16, out_valid:U1) {
+  mut value:U16 = 0
+  for lane in 0..<5 {
+    if select == lane {
+      value = data#[(lane * 16)..<((lane + 1) * 16)]
+    }
+  }
+  out = value
+  out_valid = U1(select < 5)
+}

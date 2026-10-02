@@ -1,139 +1,9 @@
 const br_credit_receiver_t = import("br_credit_receiver.br_credit_receiver")
 const br_fifo_shared_dynamic_push_ctrl_t = import("br_fifo_shared_dynamic_push_ctrl.br_fifo_shared_dynamic_push_ctrl")
-const br_misc_unused_p2 = import("br_misc_unused_p2.br_misc_unused_p2")
-
 pub mod br_fifo_shared_dynamic_push_ctrl_credit<NumWritePorts=2, NumReadPorts=2, NumFifos=2, Depth=32, Width=32, RegisterPushOutputs=1, EnableCoverPushCreditStall=1, EnableCoverCreditWithhold=1, EnableCoverPushSenderInReset=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertUniqueDeallocEntryId=1>::[timecheck=false](clk:Clock, credit_initial_push:U6, credit_withhold_push:U6, dealloc_entry_id:U10, dealloc_valid:U2, push_credit_stall:U1, push_data:U64, push_fifo_id:(e1:U1, e0:U1), push_sender_in_reset:U1, push_valid:U2, rst:U1) -> (credit_available_push:U6@[], credit_count_push:U6@[], data_ram_wr_addr:U10@[], data_ram_wr_data:U64@[], data_ram_wr_valid:U2@[], next_tail:U20@[], next_tail_valid:U4@[], push_credit:U2@[], push_full:U1@[], push_receiver_in_reset:U1@[]) {
-  wire `push_data_comb[0]`:U1 = nil
-  wire `push_data_comb[1]`:U1 = nil
-  wire `push_data_comb[2]`:U1 = nil
-  wire `push_data_comb[3]`:U1 = nil
-  wire `push_data_comb[4]`:U1 = nil
-  wire `push_data_comb[5]`:U1 = nil
-  wire `push_data_comb[6]`:U1 = nil
-  wire `push_data_comb[7]`:U1 = nil
-  wire `push_data_comb[8]`:U1 = nil
-  wire `push_data_comb[9]`:U1 = nil
-  wire `push_data_comb[10]`:U1 = nil
-  wire `push_data_comb[11]`:U1 = nil
-  wire `push_data_comb[12]`:U1 = nil
-  wire `push_data_comb[13]`:U1 = nil
-  wire `push_data_comb[14]`:U1 = nil
-  wire `push_data_comb[15]`:U1 = nil
-  wire `push_data_comb[16]`:U1 = nil
-  wire `push_data_comb[17]`:U1 = nil
-  wire `push_data_comb[18]`:U1 = nil
-  wire `push_data_comb[19]`:U1 = nil
-  wire `push_data_comb[20]`:U1 = nil
-  wire `push_data_comb[21]`:U1 = nil
-  wire `push_data_comb[22]`:U1 = nil
-  wire `push_data_comb[23]`:U1 = nil
-  wire `push_data_comb[24]`:U1 = nil
-  wire `push_data_comb[25]`:U1 = nil
-  wire `push_data_comb[26]`:U1 = nil
-  wire `push_data_comb[27]`:U1 = nil
-  wire `push_data_comb[28]`:U1 = nil
-  wire `push_data_comb[29]`:U1 = nil
-  wire `push_data_comb[30]`:U1 = nil
-  wire `push_data_comb[31]`:U1 = nil
-  wire `push_data_comb[32]`:U1 = nil
-  wire `push_data_comb[33]`:U1 = nil
-  wire `push_data_comb[34]`:U1 = nil
-  wire `push_data_comb[35]`:U1 = nil
-  wire `push_data_comb[36]`:U1 = nil
-  wire `push_data_comb[37]`:U1 = nil
-  wire `push_data_comb[38]`:U1 = nil
-  wire `push_data_comb[39]`:U1 = nil
-  wire `push_data_comb[40]`:U1 = nil
-  wire `push_data_comb[41]`:U1 = nil
-  wire `push_data_comb[42]`:U1 = nil
-  wire `push_data_comb[43]`:U1 = nil
-  wire `push_data_comb[44]`:U1 = nil
-  wire `push_data_comb[45]`:U1 = nil
-  wire `push_data_comb[46]`:U1 = nil
-  wire `push_data_comb[47]`:U1 = nil
-  wire `push_data_comb[48]`:U1 = nil
-  wire `push_data_comb[49]`:U1 = nil
-  wire `push_data_comb[50]`:U1 = nil
-  wire `push_data_comb[51]`:U1 = nil
-  wire `push_data_comb[52]`:U1 = nil
-  wire `push_data_comb[53]`:U1 = nil
-  wire `push_data_comb[54]`:U1 = nil
-  wire `push_data_comb[55]`:U1 = nil
-  wire `push_data_comb[56]`:U1 = nil
-  wire `push_data_comb[57]`:U1 = nil
-  wire `push_data_comb[58]`:U1 = nil
-  wire `push_data_comb[59]`:U1 = nil
-  wire `push_data_comb[60]`:U1 = nil
-  wire `push_data_comb[61]`:U1 = nil
-  wire `push_data_comb[62]`:U1 = nil
-  wire `push_data_comb[63]`:U1 = nil
-  wire `push_data_comb[64]`:U1 = nil
-  wire `push_data_comb[65]`:U1 = nil
+  wire push_data_comb_bits:U66 = nil
   wire push_data_comb:U66 = nil
-  wire `internal_push_data[0]`:U1 = nil
-  wire `internal_push_data[1]`:U1 = nil
-  wire `internal_push_data[2]`:U1 = nil
-  wire `internal_push_data[3]`:U1 = nil
-  wire `internal_push_data[4]`:U1 = nil
-  wire `internal_push_data[5]`:U1 = nil
-  wire `internal_push_data[6]`:U1 = nil
-  wire `internal_push_data[7]`:U1 = nil
-  wire `internal_push_data[8]`:U1 = nil
-  wire `internal_push_data[9]`:U1 = nil
-  wire `internal_push_data[10]`:U1 = nil
-  wire `internal_push_data[11]`:U1 = nil
-  wire `internal_push_data[12]`:U1 = nil
-  wire `internal_push_data[13]`:U1 = nil
-  wire `internal_push_data[14]`:U1 = nil
-  wire `internal_push_data[15]`:U1 = nil
-  wire `internal_push_data[16]`:U1 = nil
-  wire `internal_push_data[17]`:U1 = nil
-  wire `internal_push_data[18]`:U1 = nil
-  wire `internal_push_data[19]`:U1 = nil
-  wire `internal_push_data[20]`:U1 = nil
-  wire `internal_push_data[21]`:U1 = nil
-  wire `internal_push_data[22]`:U1 = nil
-  wire `internal_push_data[23]`:U1 = nil
-  wire `internal_push_data[24]`:U1 = nil
-  wire `internal_push_data[25]`:U1 = nil
-  wire `internal_push_data[26]`:U1 = nil
-  wire `internal_push_data[27]`:U1 = nil
-  wire `internal_push_data[28]`:U1 = nil
-  wire `internal_push_data[29]`:U1 = nil
-  wire `internal_push_data[30]`:U1 = nil
-  wire `internal_push_data[31]`:U1 = nil
-  wire `internal_push_data[32]`:U1 = nil
-  wire `internal_push_data[33]`:U1 = nil
-  wire `internal_push_data[34]`:U1 = nil
-  wire `internal_push_data[35]`:U1 = nil
-  wire `internal_push_data[36]`:U1 = nil
-  wire `internal_push_data[37]`:U1 = nil
-  wire `internal_push_data[38]`:U1 = nil
-  wire `internal_push_data[39]`:U1 = nil
-  wire `internal_push_data[40]`:U1 = nil
-  wire `internal_push_data[41]`:U1 = nil
-  wire `internal_push_data[42]`:U1 = nil
-  wire `internal_push_data[43]`:U1 = nil
-  wire `internal_push_data[44]`:U1 = nil
-  wire `internal_push_data[45]`:U1 = nil
-  wire `internal_push_data[46]`:U1 = nil
-  wire `internal_push_data[47]`:U1 = nil
-  wire `internal_push_data[48]`:U1 = nil
-  wire `internal_push_data[49]`:U1 = nil
-  wire `internal_push_data[50]`:U1 = nil
-  wire `internal_push_data[51]`:U1 = nil
-  wire `internal_push_data[52]`:U1 = nil
-  wire `internal_push_data[53]`:U1 = nil
-  wire `internal_push_data[54]`:U1 = nil
-  wire `internal_push_data[55]`:U1 = nil
-  wire `internal_push_data[56]`:U1 = nil
-  wire `internal_push_data[57]`:U1 = nil
-  wire `internal_push_data[58]`:U1 = nil
-  wire `internal_push_data[59]`:U1 = nil
-  wire `internal_push_data[60]`:U1 = nil
-  wire `internal_push_data[61]`:U1 = nil
-  wire `internal_push_data[62]`:U1 = nil
-  wire `internal_push_data[63]`:U1 = nil
+  wire internal_push_data_bits:U64 = nil
   wire internal_push_data:U64 = nil
   wire `internal_push_fifo_id[0]`:U1 = nil
   wire `internal_push_fifo_id[1]`:U1 = nil
@@ -142,146 +12,19 @@ pub mod br_fifo_shared_dynamic_push_ctrl_credit<NumWritePorts=2, NumReadPorts=2,
   wire internal_push_data_comb:U66 = nil
   mut _b2i_1 = if push_sender_in_reset != 0 or rst != 0 { 1 } else { 0 }
   const t11 = ((push_fifo_id.e0 & 1) << 32) | push_data#[0..=31]
-  `push_data_comb[0]` = t11 & 1
-  `push_data_comb[1]` = (t11 >> 1) & 1
-  `push_data_comb[2]` = (t11 >> 2) & 1
-  `push_data_comb[3]` = (t11 >> 3) & 1
-  `push_data_comb[4]` = (t11 >> 4) & 1
-  `push_data_comb[5]` = (t11 >> 5) & 1
-  `push_data_comb[6]` = (t11 >> 6) & 1
-  `push_data_comb[7]` = (t11 >> 7) & 1
-  `push_data_comb[8]` = (t11 >> 8) & 1
-  `push_data_comb[9]` = (t11 >> 9) & 1
-  `push_data_comb[10]` = (t11 >> 10) & 1
-  `push_data_comb[11]` = (t11 >> 11) & 1
-  `push_data_comb[12]` = (t11 >> 12) & 1
-  `push_data_comb[13]` = (t11 >> 13) & 1
-  `push_data_comb[14]` = (t11 >> 14) & 1
-  `push_data_comb[15]` = (t11 >> 15) & 1
-  `push_data_comb[16]` = (t11 >> 16) & 1
-  `push_data_comb[17]` = (t11 >> 17) & 1
-  `push_data_comb[18]` = (t11 >> 18) & 1
-  `push_data_comb[19]` = (t11 >> 19) & 1
-  `push_data_comb[20]` = (t11 >> 20) & 1
-  `push_data_comb[21]` = (t11 >> 21) & 1
-  `push_data_comb[22]` = (t11 >> 22) & 1
-  `push_data_comb[23]` = (t11 >> 23) & 1
-  `push_data_comb[24]` = (t11 >> 24) & 1
-  `push_data_comb[25]` = (t11 >> 25) & 1
-  `push_data_comb[26]` = (t11 >> 26) & 1
-  `push_data_comb[27]` = (t11 >> 27) & 1
-  `push_data_comb[28]` = (t11 >> 28) & 1
-  `push_data_comb[29]` = (t11 >> 29) & 1
-  `push_data_comb[30]` = (t11 >> 30) & 1
-  `push_data_comb[31]` = (t11 >> 31) & 1
-  `push_data_comb[32]` = (t11 >> 32) & 1
+  push_data_comb_bits#[0..<33] = t11#[0..<33]
   const t80 = ((push_fifo_id.e1 & 1) << 32) | push_data#[32..=63]
-  `push_data_comb[33]` = t80 & 1
-  `push_data_comb[34]` = (t80 >> 1) & 1
-  `push_data_comb[35]` = (t80 >> 2) & 1
-  `push_data_comb[36]` = (t80 >> 3) & 1
-  `push_data_comb[37]` = (t80 >> 4) & 1
-  `push_data_comb[38]` = (t80 >> 5) & 1
-  `push_data_comb[39]` = (t80 >> 6) & 1
-  `push_data_comb[40]` = (t80 >> 7) & 1
-  `push_data_comb[41]` = (t80 >> 8) & 1
-  `push_data_comb[42]` = (t80 >> 9) & 1
-  `push_data_comb[43]` = (t80 >> 10) & 1
-  `push_data_comb[44]` = (t80 >> 11) & 1
-  `push_data_comb[45]` = (t80 >> 12) & 1
-  `push_data_comb[46]` = (t80 >> 13) & 1
-  `push_data_comb[47]` = (t80 >> 14) & 1
-  `push_data_comb[48]` = (t80 >> 15) & 1
-  `push_data_comb[49]` = (t80 >> 16) & 1
-  `push_data_comb[50]` = (t80 >> 17) & 1
-  `push_data_comb[51]` = (t80 >> 18) & 1
-  `push_data_comb[52]` = (t80 >> 19) & 1
-  `push_data_comb[53]` = (t80 >> 20) & 1
-  `push_data_comb[54]` = (t80 >> 21) & 1
-  `push_data_comb[55]` = (t80 >> 22) & 1
-  `push_data_comb[56]` = (t80 >> 23) & 1
-  `push_data_comb[57]` = (t80 >> 24) & 1
-  `push_data_comb[58]` = (t80 >> 25) & 1
-  `push_data_comb[59]` = (t80 >> 26) & 1
-  `push_data_comb[60]` = (t80 >> 27) & 1
-  `push_data_comb[61]` = (t80 >> 28) & 1
-  `push_data_comb[62]` = (t80 >> 29) & 1
-  `push_data_comb[63]` = (t80 >> 30) & 1
-  `push_data_comb[64]` = (t80 >> 31) & 1
-  `push_data_comb[65]` = (t80 >> 32) & 1
-  `internal_push_data[0]` = internal_push_data_comb#[0..=32]#[0..=31] & 1
-  `internal_push_data[1]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 1) & 1
-  `internal_push_data[2]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 2) & 1
-  `internal_push_data[3]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 3) & 1
-  `internal_push_data[4]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 4) & 1
-  `internal_push_data[5]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 5) & 1
-  `internal_push_data[6]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 6) & 1
-  `internal_push_data[7]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 7) & 1
-  `internal_push_data[8]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 8) & 1
-  `internal_push_data[9]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 9) & 1
-  `internal_push_data[10]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 10) & 1
-  `internal_push_data[11]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 11) & 1
-  `internal_push_data[12]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 12) & 1
-  `internal_push_data[13]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 13) & 1
-  `internal_push_data[14]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 14) & 1
-  `internal_push_data[15]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 15) & 1
-  `internal_push_data[16]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 16) & 1
-  `internal_push_data[17]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 17) & 1
-  `internal_push_data[18]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 18) & 1
-  `internal_push_data[19]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 19) & 1
-  `internal_push_data[20]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 20) & 1
-  `internal_push_data[21]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 21) & 1
-  `internal_push_data[22]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 22) & 1
-  `internal_push_data[23]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 23) & 1
-  `internal_push_data[24]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 24) & 1
-  `internal_push_data[25]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 25) & 1
-  `internal_push_data[26]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 26) & 1
-  `internal_push_data[27]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 27) & 1
-  `internal_push_data[28]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 28) & 1
-  `internal_push_data[29]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 29) & 1
-  `internal_push_data[30]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 30) & 1
-  `internal_push_data[31]` = (internal_push_data_comb#[0..=32]#[0..=31] >> 31) & 1
+  push_data_comb_bits#[33..<66] = t80#[0..<33]
+  internal_push_data_bits#[0..<32] = internal_push_data_comb#[0..=32]#[0..=31]#[0..<32]
   `internal_push_fifo_id[0]` = (internal_push_data_comb#[0..=32] >> 32) & 1
-  `internal_push_data[32]` = internal_push_data_comb#[33..=65]#[0..=31] & 1
-  `internal_push_data[33]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 1) & 1
-  `internal_push_data[34]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 2) & 1
-  `internal_push_data[35]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 3) & 1
-  `internal_push_data[36]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 4) & 1
-  `internal_push_data[37]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 5) & 1
-  `internal_push_data[38]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 6) & 1
-  `internal_push_data[39]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 7) & 1
-  `internal_push_data[40]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 8) & 1
-  `internal_push_data[41]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 9) & 1
-  `internal_push_data[42]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 10) & 1
-  `internal_push_data[43]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 11) & 1
-  `internal_push_data[44]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 12) & 1
-  `internal_push_data[45]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 13) & 1
-  `internal_push_data[46]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 14) & 1
-  `internal_push_data[47]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 15) & 1
-  `internal_push_data[48]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 16) & 1
-  `internal_push_data[49]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 17) & 1
-  `internal_push_data[50]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 18) & 1
-  `internal_push_data[51]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 19) & 1
-  `internal_push_data[52]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 20) & 1
-  `internal_push_data[53]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 21) & 1
-  `internal_push_data[54]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 22) & 1
-  `internal_push_data[55]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 23) & 1
-  `internal_push_data[56]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 24) & 1
-  `internal_push_data[57]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 25) & 1
-  `internal_push_data[58]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 26) & 1
-  `internal_push_data[59]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 27) & 1
-  `internal_push_data[60]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 28) & 1
-  `internal_push_data[61]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 29) & 1
-  `internal_push_data[62]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 30) & 1
-  `internal_push_data[63]` = (internal_push_data_comb#[33..=65]#[0..=31] >> 31) & 1
+  internal_push_data_bits#[32..<64] = internal_push_data_comb#[33..=65]#[0..=31]#[0..<32]
   `internal_push_fifo_id[1]` = (internal_push_data_comb#[33..=65] >> 32) & 1
   mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data_comb, pop_credit=pop_credit, credit_initial=credit_initial_push, credit_withhold=credit_withhold_push)
   internal_push_data_comb = br_credit_receiver.pop_data
   mut br_fifo_shared_dynamic_push_ctrl = br_fifo_shared_dynamic_push_ctrl_t::[name=br_fifo_shared_dynamic_push_ctrl](clk=clk, rst=_b2i_1, push_valid=br_credit_receiver.pop_valid, push_data=internal_push_data, push_fifo_id.e1=(internal_push_fifo_id >> 1) & 1, push_fifo_id.e0=internal_push_fifo_id & 1, dealloc_valid=dealloc_valid, dealloc_entry_id=dealloc_entry_id)
   pop_credit = br_fifo_shared_dynamic_push_ctrl.dealloc_count
-  br_misc_unused_p2::[name=br_misc_unused_internal_push_ready](`in`=br_fifo_shared_dynamic_push_ctrl.push_ready)
-  push_data_comb = (`push_data_comb[65]` << 65) | (`push_data_comb[64]` << 64) | (`push_data_comb[63]` << 63) | (`push_data_comb[62]` << 62) | (`push_data_comb[61]` << 61) | (`push_data_comb[60]` << 60) | (`push_data_comb[59]` << 59) | (`push_data_comb[58]` << 58) | (`push_data_comb[57]` << 57) | (`push_data_comb[56]` << 56) | (`push_data_comb[55]` << 55) | (`push_data_comb[54]` << 54) | (`push_data_comb[53]` << 53) | (`push_data_comb[52]` << 52) | (`push_data_comb[51]` << 51) | (`push_data_comb[50]` << 50) | (`push_data_comb[49]` << 49) | (`push_data_comb[48]` << 48) | (`push_data_comb[47]` << 47) | (`push_data_comb[46]` << 46) | (`push_data_comb[45]` << 45) | (`push_data_comb[44]` << 44) | (`push_data_comb[43]` << 43) | (`push_data_comb[42]` << 42) | (`push_data_comb[41]` << 41) | (`push_data_comb[40]` << 40) | (`push_data_comb[39]` << 39) | (`push_data_comb[38]` << 38) | (`push_data_comb[37]` << 37) | (`push_data_comb[36]` << 36) | (`push_data_comb[35]` << 35) | (`push_data_comb[34]` << 34) | (`push_data_comb[33]` << 33) | (`push_data_comb[32]` << 32) | (`push_data_comb[31]` << 31) | (`push_data_comb[30]` << 30) | (`push_data_comb[29]` << 29) | (`push_data_comb[28]` << 28) | (`push_data_comb[27]` << 27) | (`push_data_comb[26]` << 26) | (`push_data_comb[25]` << 25) | (`push_data_comb[24]` << 24) | (`push_data_comb[23]` << 23) | (`push_data_comb[22]` << 22) | (`push_data_comb[21]` << 21) | (`push_data_comb[20]` << 20) | (`push_data_comb[19]` << 19) | (`push_data_comb[18]` << 18) | (`push_data_comb[17]` << 17) | (`push_data_comb[16]` << 16) | (`push_data_comb[15]` << 15) | (`push_data_comb[14]` << 14) | (`push_data_comb[13]` << 13) | (`push_data_comb[12]` << 12) | (`push_data_comb[11]` << 11) | (`push_data_comb[10]` << 10) | (`push_data_comb[9]` << 9) | (`push_data_comb[8]` << 8) | (`push_data_comb[7]` << 7) | (`push_data_comb[6]` << 6) | (`push_data_comb[5]` << 5) | (`push_data_comb[4]` << 4) | (`push_data_comb[3]` << 3) | (`push_data_comb[2]` << 2) | (`push_data_comb[1]` << 1) | `push_data_comb[0]`
-  internal_push_data = (`internal_push_data[63]` << 63) | (`internal_push_data[62]` << 62) | (`internal_push_data[61]` << 61) | (`internal_push_data[60]` << 60) | (`internal_push_data[59]` << 59) | (`internal_push_data[58]` << 58) | (`internal_push_data[57]` << 57) | (`internal_push_data[56]` << 56) | (`internal_push_data[55]` << 55) | (`internal_push_data[54]` << 54) | (`internal_push_data[53]` << 53) | (`internal_push_data[52]` << 52) | (`internal_push_data[51]` << 51) | (`internal_push_data[50]` << 50) | (`internal_push_data[49]` << 49) | (`internal_push_data[48]` << 48) | (`internal_push_data[47]` << 47) | (`internal_push_data[46]` << 46) | (`internal_push_data[45]` << 45) | (`internal_push_data[44]` << 44) | (`internal_push_data[43]` << 43) | (`internal_push_data[42]` << 42) | (`internal_push_data[41]` << 41) | (`internal_push_data[40]` << 40) | (`internal_push_data[39]` << 39) | (`internal_push_data[38]` << 38) | (`internal_push_data[37]` << 37) | (`internal_push_data[36]` << 36) | (`internal_push_data[35]` << 35) | (`internal_push_data[34]` << 34) | (`internal_push_data[33]` << 33) | (`internal_push_data[32]` << 32) | (`internal_push_data[31]` << 31) | (`internal_push_data[30]` << 30) | (`internal_push_data[29]` << 29) | (`internal_push_data[28]` << 28) | (`internal_push_data[27]` << 27) | (`internal_push_data[26]` << 26) | (`internal_push_data[25]` << 25) | (`internal_push_data[24]` << 24) | (`internal_push_data[23]` << 23) | (`internal_push_data[22]` << 22) | (`internal_push_data[21]` << 21) | (`internal_push_data[20]` << 20) | (`internal_push_data[19]` << 19) | (`internal_push_data[18]` << 18) | (`internal_push_data[17]` << 17) | (`internal_push_data[16]` << 16) | (`internal_push_data[15]` << 15) | (`internal_push_data[14]` << 14) | (`internal_push_data[13]` << 13) | (`internal_push_data[12]` << 12) | (`internal_push_data[11]` << 11) | (`internal_push_data[10]` << 10) | (`internal_push_data[9]` << 9) | (`internal_push_data[8]` << 8) | (`internal_push_data[7]` << 7) | (`internal_push_data[6]` << 6) | (`internal_push_data[5]` << 5) | (`internal_push_data[4]` << 4) | (`internal_push_data[3]` << 3) | (`internal_push_data[2]` << 2) | (`internal_push_data[1]` << 1) | `internal_push_data[0]`
+  push_data_comb = push_data_comb_bits
+  internal_push_data = internal_push_data_bits
   internal_push_fifo_id = (`internal_push_fifo_id[1]` << 1) | `internal_push_fifo_id[0]`
   push_receiver_in_reset = br_credit_receiver.push_receiver_in_reset
   push_credit = br_credit_receiver.push_credit

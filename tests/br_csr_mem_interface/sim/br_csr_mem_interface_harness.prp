@@ -3,7 +3,7 @@
 // The Pyrope twin of br_csr_mem_interface_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,24 +11,26 @@
 // "call to undefined function". The module inside it is br_csr_mem_interface.br_csr_mem_interface.
 const dut = import("br_csr_mem_interface.br_csr_mem_interface")
 
-pub mod br_csr_mem_interface_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_csr_mem_interface_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u128 = lfsr |
+  const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (resp_valid, resp_rdata, resp_slverr, resp_decerr, mem_access_valid, mem_access_addr, mem_access_wr_en, mem_access_wr_data, mem_access_wr_strb) = dut(req_valid=lfsr#[0], req_write=lfsr#[1], req_addr=lfsr#[2..=17], req_wdata=lfsr#[18..=49], req_wstrb=lfsr#[50..=53], req_privileged=lfsr#[54], req_secure=lfsr#[55], req_abort=lfsr#[56], mem_access_ready=lfsr#[57], mem_read_data_valid=lfsr#[58], mem_read_data=lfsr_x#[59..=90], mem_read_data_err=lfsr#[27])
+  const dut_reset:Bool = rst != 0
 
-  mut acc:u64 = sum
+  const (resp_valid, resp_rdata, resp_slverr, resp_decerr, mem_access_valid, mem_access_addr, mem_access_wr_en, mem_access_wr_data, mem_access_wr_strb) = dut(clk=clk, rst=U1(dut_reset), req_valid=lfsr#[0], req_write=lfsr#[1], req_addr=lfsr#[2..=17], req_wdata=lfsr#[18..=49], req_wstrb=lfsr#[50..=53], req_privileged=lfsr#[54], req_secure=lfsr#[55], req_abort=lfsr#[56], mem_access_ready=lfsr#[57], mem_read_data_valid=lfsr#[58], mem_read_data=lfsr_x#[59..=90], mem_read_data_err=lfsr#[27])
+
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ resp_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ resp_rdata
   wrap acc = ((acc << 1) | acc#[63]) ^ resp_slverr

@@ -8,11 +8,11 @@ pub mod br_cdc_fifo_push_ctrl_credit<Depth=32, Width=0x40, RamWriteLatency=2, Ma
   wire pop_count_delta:U6 = nil
   full = 0ub?
   mut br_gate_or2_either_rst = br_gate_or2::[name=br_gate_or2_either_rst](in0=rst, in1=push_sender_in_reset)
-  const either_rst__w1 = br_gate_or2_either_rst
+  const either_rst = br_gate_or2_either_rst
   mut br_credit_receiver = br_credit_receiver_t::[name=br_credit_receiver](clk=clk, rst=rst, push_sender_in_reset=push_sender_in_reset, push_credit_stall=push_credit_stall, push_valid=push_valid, push_data=push_data, pop_credit=pop_count_delta, credit_initial=credit_initial_push, credit_withhold=credit_withhold_push)
-  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk=clk, rst=either_rst__w1, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
+  mut br_cdc_fifo_push_flag_mgr = br_cdc_fifo_push_flag_mgr_t::[name=br_cdc_fifo_push_flag_mgr](clk=clk, rst=either_rst, push_beat=push_beat, pop_count_gray=pop_count_gray, reset_active_pop=reset_active_pop)
   pop_count_delta = br_cdc_fifo_push_flag_mgr.pop_count_delta
-  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk=clk, rst=either_rst__w1, push_valid=br_credit_receiver.pop_valid, push_data=br_credit_receiver.pop_data, bypass_ready=0, addr_base=0, addr_bound=(Depth - 1)#[0..=4], full=br_cdc_fifo_push_flag_mgr.full)
+  mut br_fifo_push_ctrl_core = br_fifo_push_ctrl_core_t::[name=br_fifo_push_ctrl_core](clk=clk, rst=either_rst, push_valid=br_credit_receiver.pop_valid, push_data=br_credit_receiver.pop_data, bypass_ready=0, addr_base=0, addr_bound=(Depth - 1)#[0..=4], full=br_cdc_fifo_push_flag_mgr.full)
   push_beat = br_fifo_push_ctrl_core.push_beat
   push_receiver_in_reset = br_credit_receiver.push_receiver_in_reset
   push_credit = br_credit_receiver.push_credit

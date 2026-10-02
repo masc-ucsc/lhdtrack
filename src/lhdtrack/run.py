@@ -249,6 +249,11 @@ class Runner:
             lec_gate=job.test.lec_gate,
         )
 
+        if row.kind == "synth" or job.flow == "lec_netlist":
+            if reason := job.test.raw.get("synth", {}).get("skip_reason"):
+                row.status, row.note = "skipped", reason
+                return row
+
         if job.tech and job.tech not in self.tc.techs:
             row.status = "skipped"
             row.note = (

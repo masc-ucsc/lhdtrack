@@ -1,3 +1,5 @@
-pub comb Fma::[timecheck=false](a:U32, b:U32, c:U32) -> (res:U64) {
-  res = ((a*b) + c)#[0..=63]
+// Fused multiply-add, a*b + c. The 64-bit result holds the largest possible value
+// ((2^32-1)^2 + 2^32-1 < 2^64), so no wrap is needed.
+pub comb Fma(a:U32, b:U32, c:U32) -> (res:U64) {
+  res = a*b + c
 }

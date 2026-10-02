@@ -21,7 +21,7 @@ param_binding = "monomorphic"
 [[config]]
 id = "rv32_w32_d256"
 params = {}
-sim_checksum = { cycles = 10000000, value = "11144181027426691521" }
+sim_checksum = { cycles = 30303030, value = "16398650154506311257" }
 
 [synth]
 flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
@@ -29,7 +29,7 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 [sim]
 flows = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
 # Ten million cycles gives useful timing while keeping the comparison quick.
-cycles = 10000000
+cycles = 30303030
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -13,12 +13,12 @@ pub mod br_tracker_sequence<NumEntries=16, MaxAllocSize=1, EntryIdWidth=4, Enabl
   mut _mux_2:U32 = if free_entry_count > MaxAllocSize { MaxAllocSize } else { free_entry_count & 1 }
   const alloc_sendable__w1 = _mux_2 & 1
   mut _b2i_3 = if alloc_receivable > 0 and alloc_sendable__w1 > 0 { 1 } else { 0 }
-  const alloc_beat__w1 = _b2i_3
+  const alloc_beat = _b2i_3
   mut _mux_4:U1 = if alloc_receivable > alloc_sendable__w1 { alloc_sendable__w1 & 1 } else { alloc_receivable & 1 }
-  const alloc_size__w1 = _mux_4
-  mut br_counter_incr_allocate_counter = br_counter_incr_p2::[name=br_counter_incr_allocate_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=alloc_beat__w1, incr=alloc_size__w1)
+  const alloc_size = _mux_4
+  mut br_counter_incr_allocate_counter = br_counter_incr_p2::[name=br_counter_incr_allocate_counter](clk=clk, rst=rst, reinit=0, initial_value=0, incr_valid=alloc_beat, incr=alloc_size)
   alloc_counter_value = br_counter_incr_allocate_counter.value
-  mut br_counter_free_entry_counter = br_counter_p1::[name=br_counter_free_entry_counter](clk=clk, rst=rst, reinit=0, initial_value=NumEntries#[0..=4], incr_valid=dealloc_valid, incr=dealloc_size, decr_valid=alloc_beat__w1, decr=alloc_size__w1)
+  mut br_counter_free_entry_counter = br_counter_p1::[name=br_counter_free_entry_counter](clk=clk, rst=rst, reinit=0, initial_value=NumEntries#[0..=4], incr_valid=dealloc_valid, incr=dealloc_size, decr_valid=alloc_beat, decr=alloc_size)
   free_entry_count = br_counter_free_entry_counter.value
   alloc_sendable = alloc_sendable__w1
   alloc_entry_id = alloc_entry_id__w1

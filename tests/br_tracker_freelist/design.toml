@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_freelist#<id>`.
 [[config]]
 id     = "eb0_napc1_ndp1_ne16_rao0"
-sim_checksum = { cycles = 17900000, value = "13357115996756794661" }
+sim_checksum = { cycles = 37993920, value = "11646344938450787478" }
 # NO PARAMETERS. verilog/br_tracker_freelist.sv declares its parameter port
 # list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -41,10 +41,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 17900000
+cycles = 37993920
 marker = "LHDTRACK-DONE"
 
 [lec]

@@ -3,7 +3,7 @@
 // The Pyrope twin of br_arb_multi_rr_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,20 +11,20 @@
 // "call to undefined function". The module inside it is br_arb_multi_rr.br_arb_multi_rr.
 const dut = import("br_arb_multi_rr.br_arb_multi_rr")
 
-pub mod br_arb_multi_rr_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_arb_multi_rr_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (grant, grant_ordered, grant_count) = dut(enable_priority_update=lfsr#[0], request=lfsr#[1..=16], grant_allowed=lfsr#[17..=18])
+  const (grant, grant_ordered, grant_count) = dut(rst=U1(rst != 0), enable_priority_update=lfsr#[0], request=lfsr#[1..=16], grant_allowed=lfsr#[17..=18])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ grant
   wrap acc = ((acc << 1) | acc#[63]) ^ grant_ordered
   wrap acc = ((acc << 1) | acc#[63]) ^ grant_count

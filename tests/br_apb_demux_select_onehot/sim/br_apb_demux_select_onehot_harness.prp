@@ -3,7 +3,7 @@
 // The Pyrope twin of br_apb_demux_select_onehot_harness.sv: same LFSR, same fold, same seed, so all
 // three simulators must agree on `checksum` or the test fails.
 //
-// This is GENERATED and assumes the DUT is a `mod` with these port names. A
+// This is GENERATED and assumes the DUT is a `mod` or `comb` with these port names. A
 // hand-written idiomatic Pyrope module may present a different interface;
 // adjusting this file is part of promoting the test to status.pyrope =
 // "idiomatic".
@@ -11,25 +11,25 @@
 // "call to undefined function". The module inside it is br_apb_demux_select_onehot.br_apb_demux_select_onehot.
 const dut = import("br_apb_demux_select_onehot.br_apb_demux_select_onehot")
 
-pub mod br_apb_demux_select_onehot_harness(rst:u1) -> (checksum:u64@[0]) {
-  reg lfsr:u64 = 2611923443488327891
-  reg sum:u64  = 0
+pub mod br_apb_demux_select_onehot_harness(rst:U1) -> (checksum:U64@[0]) {
+  reg lfsr:U64 = 2611923443488327891
+  reg sum:U64  = 0
 
   checksum = sum
 
-  mut nxt:u64 = lfsr
+  mut nxt:U64 = lfsr
   wrap nxt = nxt ^ (nxt << 13)
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
   // lfsr rotated by 17*i in word i, so a stimulus window may wrap past bit 63.
-  const lfsr_x:u192 = lfsr |
+  const lfsr_x:U192 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64) |
     (((lfsr#[0..=29] << 34) | lfsr#[30..=63]) << 128)
 
   const (upstream_prdata, upstream_pready, upstream_pslverr, downstream_paddr, downstream_psel, downstream_penable, downstream_pprot, downstream_pstrb, downstream_pwrite, downstream_pwdata) = dut(select_onehot=lfsr#[0..=3], upstream_paddr=lfsr#[4..=15], upstream_psel=lfsr#[16], upstream_penable=lfsr#[17], upstream_pprot=lfsr#[18..=20], upstream_pstrb=lfsr#[21..=24], upstream_pwrite=lfsr#[25], upstream_pwdata=lfsr#[26..=57], downstream_prdata=lfsr_x#[58..=185], downstream_pready=lfsr#[58..=61], downstream_pslverr=lfsr_x#[62..=65])
 
-  mut acc:u64 = sum
+  mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_prdata
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_pready
   wrap acc = ((acc << 1) | acc#[63]) ^ upstream_pslverr

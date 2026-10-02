@@ -1,27 +1,118 @@
-const br_fifo_pop_ctrl_t = import("br_fifo_pop_ctrl.br_fifo_pop_ctrl")
-const br_fifo_push_ctrl_t = import("br_fifo_push_ctrl.br_fifo_push_ctrl")
+// FIFO controller for an external 1R1W RAM (bedrock-rtl br_fifo_ctrl_1r1w), one
+// configuration: 32 entries of 32 bits, push bypass enabled, registered pop
+// outputs, RAM read latency 1.
+//
+// Push side: a push is accepted while the FIFO is not full. If the pop side can
+// take the beat straight away (bypass_ready) it never touches the RAM,
+// otherwise it is written at ram_wr_addr.
+// Pop side: items are read back from the RAM at ram_rd_addr into a two-entry
+// staging buffer (one skid entry plus the pop register), which is also where
+// bypassed pushes land. The occupancy counters and flags (slots/items, full/
+// empty and their *_next versions) are exposed to the surrounding RAM wrapper.
+//
+// Outputs are declared @[] because the generated harness mixes them with
+// same-cycle inputs.
+comptime const DEPTH = 32 // occupancy counters are U6 (0..=DEPTH), RAM addresses U5, data U32
+comptime const STAGING_DEPTH = 2 // RAM read latency + 1: skid entry + pop register
 
-pub mod br_fifo_ctrl_1r1w::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, ram_rd_data:U32, ram_rd_data_valid:U1, rst:Reset) -> (empty:U1@[], empty_next:U1@[], full:U1@[], full_next:U1@[], items:U6@[], items_next:U6@[], pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[], ram_rd_addr:U5@[], ram_rd_addr_valid:U1@[], ram_wr_addr:U5@[], ram_wr_data:U32@[], ram_wr_valid:U1@[], slots:U6@[], slots_next:U6@[]) {
-  wire bypass_ready:U1 = nil
-  wire pop_beat:U1 = nil
-  mut br_fifo_push_ctrl = br_fifo_push_ctrl_t::[name=br_fifo_push_ctrl](clk=clk, rst=rst, push_valid=push_valid, push_data=push_data, bypass_ready=bypass_ready, pop_beat=pop_beat)
-  mut br_fifo_pop_ctrl = br_fifo_pop_ctrl_t::[name=br_fifo_pop_ctrl](clk=clk, rst=rst, pop_ready=pop_ready, bypass_valid_unstable=br_fifo_push_ctrl.bypass_valid_unstable, bypass_data_unstable=br_fifo_push_ctrl.bypass_data_unstable, ram_rd_data_valid=ram_rd_data_valid, ram_rd_data=ram_rd_data, push_beat=br_fifo_push_ctrl.push_beat)
-  bypass_ready = br_fifo_pop_ctrl.bypass_ready
-  pop_beat = br_fifo_pop_ctrl.pop_beat
-  push_ready = br_fifo_push_ctrl.push_ready
-  pop_valid = br_fifo_pop_ctrl.pop_valid
-  pop_data = br_fifo_pop_ctrl.pop_data
-  full = br_fifo_push_ctrl.full
-  full_next = br_fifo_push_ctrl.full_next
-  slots = br_fifo_push_ctrl.slots
-  slots_next = br_fifo_push_ctrl.slots_next
-  empty = br_fifo_pop_ctrl.empty
-  empty_next = br_fifo_pop_ctrl.empty_next
-  items = br_fifo_pop_ctrl.items
-  items_next = br_fifo_pop_ctrl.items_next
-  ram_wr_valid = br_fifo_push_ctrl.ram_wr_valid
-  ram_wr_addr = br_fifo_push_ctrl.ram_wr_addr
-  ram_wr_data = br_fifo_push_ctrl.ram_wr_data
-  ram_rd_addr_valid = br_fifo_pop_ctrl.ram_rd_addr_valid
-  ram_rd_addr = br_fifo_pop_ctrl.ram_rd_addr
+pub mod br_fifo_ctrl_1r1w(clk:Clock, pop_ready:U1, push_data:U32, push_valid:U1, ram_rd_data:U32, ram_rd_data_valid:U1, rst:Reset) -> (empty:U1@[], empty_next:U1@[], full:U1@[], full_next:U1@[], items:U6@[], items_next:U6@[], pop_data:U32@[], pop_valid:U1@[], push_ready:U1@[], ram_rd_addr:U5@[], ram_rd_addr_valid:U1@[], ram_wr_addr:U5@[], ram_wr_data:U32@[], ram_wr_valid:U1@[], slots:U6@[], slots_next:U6@[]) {
+  const push_req = push_valid == 1
+  const pop_req = pop_ready == 1
+  const rd_data_valid = ram_rd_data_valid == 1
+
+  // ---- Pop register (br_flow_reg_fwd): the registered pop port. ----
+  reg pop_valid_q:Bool = false
+  reg pop_data_q:U32 = nil // never reset: only meaningful while pop_valid_q
+
+  const pop_beat = pop_req and pop_valid_q
+  const out_ready = pop_req or not pop_valid_q // the register can accept a new beat
+
+  // ---- Staging buffer state. ----
+  reg staged:U2 = 0 // beats held between the RAM/bypass and the pop port, 0..=2
+  reg rd_inflight:U1 = 0 // a RAM read whose data has not come back yet
+  reg skid_valid:Bool = false
+  reg skid_bypass:Bool = false // skid entry came from the bypass, not from the RAM
+  reg skid_data:U32 = 0
+
+  // ---- Occupancy. ----
+  reg slots_q:U6 = DEPTH // free entries, owned by the push side
+  reg items_q:U6 = 0 // stored entries, owned by the pop side
+  reg full_q:Bool = false
+  reg empty_q:Bool = true
+
+  const push_beat = push_req and not full_q
+
+  // A beat bypasses the RAM when the staging buffer has room for it right now.
+  const space_available = staged < STAGING_DEPTH or (pop_req and pop_valid_q)
+  const bypass_ready = space_available and (items_q < STAGING_DEPTH or (items_q == STAGING_DEPTH and pop_req))
+  const bypass_beat = push_req and bypass_ready
+
+  // RAM reads are issued for items that are stored but not yet staged.
+  reg rd_addr_q:U5 = 0
+  const rd_addr_valid = space_available and staged < items_q and not bypass_ready
+  const staged_incr = rd_addr_valid or bypass_beat
+
+  const stage_valid = rd_data_valid or bypass_beat
+  const stage_data = if rd_data_valid { ram_rd_data } else { push_data }
+
+  // ---- Single-entry skid buffer in front of the pop register. ----
+  const fwd_block = skid_bypass and rd_inflight == 1 // a bypassed entry must wait for the in-flight RAM read
+  const fwd_valid = skid_valid and not fwd_block
+  const fwd_ready = out_ready and not fwd_block
+  const out_valid = fwd_valid or rd_data_valid or (bypass_beat and rd_inflight == 0)
+  const out_data = if fwd_valid { skid_data } else { stage_data }
+
+  const skid_valid_next = if skid_valid { stage_valid or not fwd_ready } else { (stage_valid and not out_ready) or (bypass_beat and rd_inflight == 1) }
+  if skid_valid_next and (not skid_valid or fwd_ready) {
+    skid_data = if out_ready and not skid_valid { push_data } else { stage_data }
+    skid_bypass = bypass_beat
+  }
+  skid_valid = skid_valid_next
+
+  pop_valid_q = out_valid or not out_ready
+  if out_ready and out_valid {
+    pop_data_q = out_data
+  }
+
+  wrap staged = staged + U1(staged_incr) - U1(pop_beat)
+  wrap rd_inflight = rd_inflight + U1(rd_addr_valid) - U1(rd_data_valid)
+  if rd_addr_valid {
+    wrap rd_addr_q += 1
+  }
+
+  // ---- RAM write port. ----
+  reg wr_addr_q:U5 = 0
+  const wr_valid = push_beat and not bypass_ready
+  if wr_valid {
+    wrap wr_addr_q += 1
+  }
+
+  // ---- Counters and flags. ----
+  mut slots_n:U6 = 0
+  wrap slots_n = slots_q + U1(pop_beat) - U1(push_beat)
+  mut items_n:U6 = 0
+  wrap items_n = items_q + U1(push_beat) - U1(pop_beat)
+  slots_q = slots_n
+  items_q = items_n
+  if push_beat or pop_beat {
+    full_q = slots_n == 0
+    empty_q = items_n == 0
+  }
+
+  push_ready = U1(not full_q)
+  pop_valid = U1(pop_valid_q)
+  pop_data = pop_data_q
+  full = U1(full_q)
+  full_next = U1(slots_n == 0)
+  slots = slots_q
+  slots_next = slots_n
+  empty = U1(empty_q)
+  empty_next = U1(items_n == 0)
+  items = items_q
+  items_next = items_n
+  ram_wr_valid = U1(wr_valid)
+  ram_wr_addr = wr_addr_q
+  ram_wr_data = push_data
+  ram_rd_addr_valid = U1(rd_addr_valid)
+  ram_rd_addr = rd_addr_q
 }

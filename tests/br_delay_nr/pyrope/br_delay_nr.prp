@@ -1,14 +1,8 @@
-pub mod br_delay_nr::[timecheck=false](clk:Clock, `in`:U64) -> (out:U64@[], out_stages:U128@[]) {
-  reg stages___q:U128
-  mut stages__composite:U128 = 0
-  wire stages:U128 = nil
-  stages__composite = stages___q
-  mut stages__composite__w1 = stages__composite
-  stages__composite__w1#[0..=63] = `in`
-  stages___q#[64..=127] = stages#[0..=63]
-  const out__w1 = (stages >> 0x40)#[0..=63]
-  const out_stages__w1 = stages
-  stages = stages__composite__w1
-  out = out__w1
-  out_stages = out_stages__w1
+// One unreset delay `stage`. Stage zero remains the current input.
+// Packed state retains the reference's unused low half for LEC pairing.
+pub mod br_delay_nr(clk:Clock, `in`:U64) -> (out:U64@[], out_stages:U128@[]) {
+  reg stages___q:U128 = nil
+  stages___q#[64..<128] = `in`
+  out = stages___q#[64..]
+  out_stages = (`in`, out)#[..]
 }

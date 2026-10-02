@@ -110,7 +110,7 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
   mut branch_target:U32 = 0sb?
   mut wb_data:U32 = 0sb?
   dec_opcode = if_id_instr#[0..=6]
-  const dec_rd__w1 = if_id_instr#[7..=11]
+  const dec_rd = if_id_instr#[7..=11]
   dec_funct3 = if_id_instr#[12..=14]
   dec_rs1 = if_id_instr#[15..=19]
   dec_rs2 = if_id_instr#[20..=24]
@@ -204,20 +204,24 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
   mut _mux_5:U32 = if dec_rs1_addr == 0 { 0 } else { _mux_4 }
   mut _mux_6:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == dec_rs2_addr { mem_wb_result } else { regfile[dec_rs2_addr] }
   mut _mux_7:U32 = if dec_rs2_addr == 0 { 0 } else { _mux_6 }
-  mut _b2i_8 = if id_ex_valid != 0 and id_ex_mem_read != 0 and if_id_valid != 0 and ((dec_rs1_addr == id_ex_rd and id_ex_rd != 0) or (dec_rs2_addr == id_ex_rd and id_ex_rd != 0)) { 1 } else { 0 }
-  const stall__w1 = _b2i_8
+  mut _b2i_8 = if id_ex_valid != 0 and id_ex_mem_read != 0 and if_id_valid != 0 and ((dec_rs1_addr == id_ex_rd and id_ex_rd != 0) or (dec_rs2_addr == id_ex_rd and id_ex_rd != 0)) {
+    1
+  } else {
+    0
+  }
+  const stall = _b2i_8
   mut _mux_9:U32 = if ex_mem_wb_sel == 2 { ex_mem_pc_plus4 } else { ex_mem_alu_result }
   ex_mem_fwd_data = _mux_9
   mut _mux_10:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == id_ex_rs1 { mem_wb_result } else { id_ex_rs1_data }
   mut _mux_11:U32 = if ex_mem_valid != 0 and ex_mem_reg_write != 0 and ex_mem_rd == id_ex_rs1 { ex_mem_fwd_data } else { _mux_10 }
   mut _mux_12:U32 = if id_ex_rs1 == 0 { 0 } else { _mux_11 }
-  const fwd_rs1__w1 = _mux_12
+  const fwd_rs1 = _mux_12
   mut _mux_13:U32 = if mem_wb_valid != 0 and mem_wb_reg_write != 0 and mem_wb_rd == id_ex_rs2 { mem_wb_result } else { id_ex_rs2_data }
   mut _mux_14:U32 = if ex_mem_valid != 0 and ex_mem_reg_write != 0 and ex_mem_rd == id_ex_rs2 { ex_mem_fwd_data } else { _mux_13 }
   mut _mux_15:U32 = if id_ex_rs2 == 0 { 0 } else { _mux_14 }
-  const fwd_rs2__w1 = _mux_15
-  alu_in1 = fwd_rs1__w1
-  mut _mux_16:U32 = if id_ex_alu_src != 0 { id_ex_imm } else { fwd_rs2__w1 }
+  const fwd_rs2 = _mux_15
+  alu_in1 = fwd_rs1
+  mut _mux_16:U32 = if id_ex_alu_src != 0 { id_ex_imm } else { fwd_rs2 }
   alu_in2 = _mux_16
   alu_add = (alu_in1 + alu_in2)#[0..=31]
   alu_sub = (alu_in1 - alu_in2)#[0..=31]
@@ -264,12 +268,12 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
   } else {
     alu_result = unique if id_ex_alu_op == 0 { alu_add } elif id_ex_alu_op == 8 { alu_sub } elif id_ex_alu_op == 1 { sll_s4 } elif id_ex_alu_op == 2 { alu_slt & 1 } elif id_ex_alu_op == 3 { alu_sltu & 1 } elif id_ex_alu_op == 4 { alu_in1 ^ alu_in2 } elif id_ex_alu_op == 5 { srl_s4 } elif id_ex_alu_op == 13 { sra_s4 } elif id_ex_alu_op == 6 { alu_in1 | alu_in2 } elif id_ex_alu_op == 7 { alu_in1 & alu_in2 } else { alu_add }
   }
-  branch_sub = (fwd_rs1__w1 - fwd_rs2__w1)#[0..=31]
+  branch_sub = (fwd_rs1 - fwd_rs2)#[0..=31]
   branch_taken = 0
   branch_target = 0
   if id_ex_valid != 0 and id_ex_jump != 0 {
     branch_taken = 1
-    branch_target = if id_ex_is_jalr != 0 { (fwd_rs1__w1 + id_ex_imm)#[0..=31] & 0xfffffffe } else { (id_ex_pc + id_ex_imm)#[0..=31] }
+    branch_target = if id_ex_is_jalr != 0 { (fwd_rs1 + id_ex_imm)#[0..=31] & 0xfffffffe } else { (id_ex_pc + id_ex_imm)#[0..=31] }
   } elif id_ex_valid != 0 and id_ex_branch != 0 {
     branch_target = (id_ex_pc + id_ex_imm)#[0..=31]
     match id_ex_funct3 {
@@ -282,17 +286,17 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
         branch_taken = _b2i_38
       }
       == 4 {
-        branch_taken = (((fwd_rs1__w1 >> 31) & 1 & (~((fwd_rs2__w1 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1__w1 >> 31) & 1) ^ ((fwd_rs2__w1 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1
+        branch_taken = (((fwd_rs1 >> 31) & 1 & (~((fwd_rs2 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1 >> 31) & 1) ^ ((fwd_rs2 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1
       }
       == 5 {
-        branch_taken = ~((((fwd_rs1__w1 >> 31) & 1 & (~((fwd_rs2__w1 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1__w1 >> 31) & 1) ^ ((fwd_rs2__w1 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1)#[0]
+        branch_taken = ~((((fwd_rs1 >> 31) & 1 & (~((fwd_rs2 >> 31) & 1)#[0]) & 1) | ((~((((fwd_rs1 >> 31) & 1) ^ ((fwd_rs2 >> 31) & 1)) & 1)#[0]) & (branch_sub >> 31) & 1 & 1)) & 1)#[0]
       }
       == 6 {
-        _b2i_39 = if fwd_rs1__w1 < fwd_rs2__w1 { 1 } else { 0 }
+        _b2i_39 = if fwd_rs1 < fwd_rs2 { 1 } else { 0 }
         branch_taken = _b2i_39
       }
       == 7 {
-        _b2i_40 = if fwd_rs1__w1 < fwd_rs2__w1 { 1 } else { 0 }
+        _b2i_40 = if fwd_rs1 < fwd_rs2 { 1 } else { 0 }
         _b2i_41 = if branch_sub == 0 { 1 } else { 0 }
         branch_taken = ((~_b2i_40#[0]) | _b2i_41) & 1
       }
@@ -300,28 +304,30 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
       }
     }
   }
-  const flush__w1 = branch_taken
-  wb_data = unique if ex_mem_wb_sel == 1 { dmem[ex_mem_alu_result#[2..=9]] } elif ex_mem_wb_sel == 2 { ex_mem_pc_plus4 } else { ex_mem_alu_result }
+  const flush = branch_taken
+  wb_data = unique if ex_mem_wb_sel == 1 { dmem[ex_mem_alu_result#[2..=9]] }
+    elif ex_mem_wb_sel == 2 { ex_mem_pc_plus4 }
+    else { ex_mem_alu_result }
   if i_rst != 0 {
-    if flush__w1 != 0 {
+    if flush != 0 {
       pc = branch_target
-    } elif (~stall__w1#[0]) != 0 {
+    } elif (~stall#[0]) != 0 {
       pc = (pc + 4)#[0..=31]
     }
   }
   if i_rst != 0 {
-    if flush__w1 != 0 {
+    if flush != 0 {
       if_id_valid = 0
       if_id_pc = 0
       if_id_instr = 0
-    } elif (~stall__w1#[0]) != 0 {
+    } elif (~stall#[0]) != 0 {
       if_id_valid = 1
       if_id_pc = pc
       if_id_instr = imem[pc#[2..=9]]
     }
   }
   if i_rst != 0 {
-    if flush__w1 != 0 or stall__w1 != 0 {
+    if flush != 0 or stall != 0 {
       id_ex_valid = 0
       id_ex_reg_write = 0
       id_ex_mem_read = 0
@@ -334,7 +340,7 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
       id_ex_rs1_data = _mux_5
       id_ex_rs2_data = _mux_7
       id_ex_imm = dec_imm
-      id_ex_rd = dec_rd__w1
+      id_ex_rd = dec_rd
       id_ex_rs1 = dec_rs1_addr
       id_ex_rs2 = dec_rs2_addr
       id_ex_alu_op = dec_alu_op
@@ -353,7 +359,7 @@ pub mod riscv_core::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
   if i_rst != 0 {
     ex_mem_valid = id_ex_valid
     ex_mem_alu_result = alu_result
-    ex_mem_rs2_data = fwd_rs2__w1
+    ex_mem_rs2_data = fwd_rs2
     ex_mem_rd = id_ex_rd
     ex_mem_pc_plus4 = (id_ex_pc + 4)#[0..=31]
     ex_mem_mem_read = id_ex_mem_read

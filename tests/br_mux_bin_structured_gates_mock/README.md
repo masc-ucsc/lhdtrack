@@ -1,24 +1,22 @@
 # br_mux_bin_structured_gates_mock
 
-<!-- What this block does, in a sentence or two. -->
+The upstream file declares `br_mux_bin_structured_gates`, not a module named after
+the mock file. `verilog/br_mux_bin_structured_gates_mock_bench.sv` provides a fixed
+top around that behavioral model: five 16-bit lanes, a three-bit selector and separate
+data/valid outputs. Selectors 0–4 exercise every lane; 5–7 exercise invalid selections.
+Both observable outputs enter the harness checksum.
 
-| | |
-| --- | --- |
-| top | `br_mux_bin_structured_gates_mock` |
-| kind | sequential |
-| suite | mux |
-| upstream | _fill in_ |
-| revision | _fill in_ |
-| upstream path | _fill in_ |
+The upstream source and synthesis prohibition are unchanged. `[sim]` and `[lec]` use
+`verilog_profile = "behavioral"`, which omits `SYNTHESIS` in both Verilog simulators,
+port extraction and source-equivalence elaboration. Their defaults remain the existing
+synthesis profile for all other tests. This is a behavioral simulation benchmark:
+`[synth].skip_reason` explicitly skips physical synthesis and RTL/netlist comparisons.
+Use `br_mux_bin_structured_gates` for the real structured-gate synthesis benchmark.
 
-## Known gaps
+The handwritten Pyrope DUT passes unbounded native and independent Yosys-backed
+source LEC. Generated paired harnesses drive the same LFSR and fold the same outputs;
+Verilator's recorded reference uses 43,478,261 cycles, tuned to 0.5–2 seconds.
 
-<!-- Anything a reader of the report needs to know: an unproven LEC, a Pyrope
-     side that is still a machine emission, a parameter set that does not
-     elaborate, a harness that needed hand-adjustment. -->
-
-## Generated files
-
-`sim/` and `constraints/` are produced by `lhdtrack import seed br_mux_bin_structured_gates_mock` and
-carry a `lhdtrack-generated` marker. Remove the marker to take a file over by
-hand; the generator will not touch it again.
+Recreate the harnesses with `lhdtrack import seed br_mux_bin_structured_gates_mock`.
+Provenance is in `design.toml`. The wrapper has no overridable parameters; upstream
+intermediate modules keep their original parameter declarations.

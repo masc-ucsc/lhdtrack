@@ -55,7 +55,7 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one verilator simulation lands near 2 s (1-3 s window). Re-check after any large
+# Tuned so one verilator simulation lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
 cycles = 1000000
@@ -133,6 +133,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         verilator=tc.bin("verilator") if tc.has("verilator") else None,
         filelist=test.filelist,
         verilator_env=tc.env_for(tc.bin("verilator")) if tc.has("verilator") else None,
+        verilog_args=test.sim_verilog_args(),
     )
     if pl.source == "regex":
         # A regex scan cannot resolve a width that is a parameter expression, and
@@ -174,13 +175,14 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         _set_status(test.root / "design.toml", "pyrope", "auto")
         made.append('status.pyrope = "auto" (seed was already present)')
 
-    # 2. Harness pair + driver pair. The Verilog port list cannot tell a `bool`
-    # from a `u1`, so the Pyrope DUT's own signature says which ports need a
-    # boolean(...)/u1(...) cast in the Pyrope harness.
-    bool_ports = (
-        gtb.pyrope_bool_ports(test.pyrope_top.read_text(), test.top)
+    # 2. Harness pair + driver pair. The Verilog port list cannot tell a `Bool`
+    # from a `U1`, a `Reset` from a data `rst`, or that a combinational Pyrope
+    # top dropped its unused clk/rst, so the Pyrope DUT's own signature says
+    # how the Pyrope harness binds each port.
+    port_types = (
+        gtb.pyrope_port_types(test.pyrope_top.read_text(), test.top)
         if test.pyrope_top.exists()
-        else set()
+        else None
     )
     for rel, text in (
         (
@@ -189,7 +191,7 @@ def seed_test(root: Path, test, tc, cfg: dict, force: bool = False) -> list[str]
         ),
         (
             f"{test.top}_harness.prp",
-            gtb.harness_prp(pl, input_constants, bool_ports=bool_ports),
+            gtb.harness_prp(pl, input_constants, port_types=port_types),
         ),
         (f"{test.top}_tb.prp", gtb.tb_prp(pl, test.sim_cycles or 1_000_000)),
         (f"{test.top}_tb_verilator.cpp", gtb.tb_verilator(pl, test.sim_cycles or 1_000_000)),
@@ -244,7 +246,7 @@ def _emit_pyrope_seed(test, tc, params: dict) -> bool:
                 # Before that, omitting these elaborated br_counter_incr at
                 # MaxValue=1 -- every port u1 -- while the Verilog side used
                 # MaxValue=255, and LEC rightly refuted two different circuits.
-                "--", "-F", str(test.filelist), "-DSYNTHESIS", "-DBR_PPA_SYNTHESIS",
+                "--", "-F", str(test.filelist), *test.sim_verilog_args(),
                 *[f"-G{k}={v}" for k, v in sorted(params.items())],
             ],
             check=True, capture_output=True, timeout=900,

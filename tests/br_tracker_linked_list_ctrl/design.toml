@@ -28,7 +28,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_tracker_linked_list_ctrl#<id>`.
 [[config]]
 id     = "d128_nll4_nwp4_rrl2"
-sim_checksum = { cycles = 23000000, value = "997454751465706571" }
+sim_checksum = { cycles = 21739130, value = "17998191402705735362" }
 # NO PARAMETERS. verilog/br_tracker_linked_list_ctrl.sv declares its parameter
 # port list `localparam`, so the top elaborates to ONE circuit with no flags
 # anywhere -- no -chparam for yosys, no -G for slang or verilator, no `#(...)`
@@ -46,10 +46,10 @@ flows = ["syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 [sim]
 flows  = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope"]
-# Tuned so one simulation lands in the 2-10 s window. Re-check after any large
+# Tuned so Verilator execution lands near 1 s (0.5-2 s window). Re-check after any large
 # simulator speedup: a benchmark that has outrun its cycle count reports
 # process startup, not the simulator.
-cycles = 23000000
+cycles = 21739130
 marker = "LHDTRACK-DONE"
 
 # The external pointer RAM response and linked-list allocator obey protocols;

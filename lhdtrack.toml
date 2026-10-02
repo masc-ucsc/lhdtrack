@@ -54,6 +54,8 @@ value = 400.0
 unit = "ps"
 
 [report]
+# Lead with Verilator versus both LiveHD simulation front ends.
+simulation_first = true
 # The headline geomean aggregates idiomatic Pyrope only. `auto` rows are shown
 # but kept in a separate population -- machine-emitted Pyrope enters the same
 # LGraph the Verilog does, so it measures front ends, not languages.

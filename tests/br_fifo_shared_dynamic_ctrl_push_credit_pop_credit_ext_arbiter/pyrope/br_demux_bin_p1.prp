@@ -4,7 +4,6 @@ pub comb br_demux_bin_p1<NumSymbolsOut=2, SymbolWidth=32, EnableAssertFinalNotVa
   out_valid__w1#[0] = U1(in_valid != 0 and select == 0) & 1
   mut out_valid__w2 = out_valid__w1
   out_valid__w2#[1] = U1(in_valid != 0 and select == 1) & 1
-  const t10 = `in`
   out_valid = out_valid__w2
-  out = t10 | (t10 << 32)
+  out = `in` | (`in` << 32)
 }
