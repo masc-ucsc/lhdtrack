@@ -22,7 +22,7 @@ lec    = "proven"
 # One elaborated parameter set per entry. Benchmark id is `br_multi_xfer_distributor_rr#<id>`.
 [[config]]
 id     = "nf16_ns4_sw64"
-sim_checksum = { cycles = 56921676, value = "0" }
+sim_checksum = { cycles = 56921676, value = "4898949008861742175" }
 # NO PARAMETERS. verilog/br_multi_xfer_distributor_rr.sv declares its
 # parameter port list `localparam`, so the top elaborates to ONE circuit with
 # no flags anywhere -- no -chparam for yosys, no -G for slang or verilator, no
@@ -47,10 +47,15 @@ cycles = 56921676
 marker = "LHDTRACK-DONE"
 
 # CountWidth can encode 0..7, but the interface only permits 0..NumSymbols.
-# Pin the count to a legal idle transfer until the generic harness grows a
-# range-constrained stimulus source.
+# Pin the count to a legal value until the generic harness grows a
+# range-constrained stimulus source. It was 0, "a legal idle transfer": that
+# idled the whole datapath, every pop_valid/pop_data stayed zero and all three
+# simulators agreed on checksum 0 without computing anything (the one test in
+# the corpus whose recorded checksum was 0). NumSymbols=4, the legal maximum,
+# keeps every symbol in flight so the distributor, the multi-grant arbiter and
+# the one-hot muxes all toggle under the random pop_ready/push_data.
 [sim.inputs]
-push_sendable = 0
+push_sendable = 4
 
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.

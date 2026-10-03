@@ -13,6 +13,10 @@ gitignored rendering rebuilt from the ledger; `var/` is disposable machine-local
 ## Build, Test, and Development Commands
 
 - `make toolchain` builds and stages pinned tools and Liberty files.
+- `tools/stage_lhd.py` copies the LiveHD checkout's `-c opt` lhd and its runfiles into
+  `var/toolchain/eval/<digest>-<rev>/` and points `toolchain.json` at the copy (lhd,
+  lgcheck, yosys2, RUNFILES_DIR, versions), so a later `bazel build` cannot move the
+  binary under a running regression. `--dry-run` shows the version it would stage.
 - `make check` validates corpus structure; problems fail, capability notes do not.
 - `make lint` compile-checks Python in `src/`, `flows/`, and `tools/`.
 - `make run RUN_ARGS="--test add"` runs one test end to end and regenerates reports.
