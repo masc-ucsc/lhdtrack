@@ -26,7 +26,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from ..corpus import discover
-from ..ledger import TARGET_DIR, Ledger, slug
+from ..ledger import DATA_DIR, TARGET_DIR, Ledger, slug
 from ..run import host_name
 
 CSS = """
@@ -225,11 +225,13 @@ def _satopt_comparison(root: Path, host: str, name: str = "satopt") -> str:
 def write_report(
     root: Path, out: Path | None = None, cfg: dict | None = None, host: str | None = None,
     synthesis_run: str | None = None, comparison_name: str | None = None,
+    prefer_evaluation: bool = True,
 ) -> Path:
     cfg = cfg or {}
     host = host or host_name()
     evaluation = root / "data" / f"verilog-eval-{slug(host)}.json"
-    if evaluation.exists() and synthesis_run is None and comparison_name is None:
+    if (prefer_evaluation and evaluation.exists()
+            and synthesis_run is None and comparison_name is None):
         from .verilog_eval import write_evaluation
 
         return write_evaluation(root, evaluation, out=out)
@@ -1927,6 +1929,12 @@ def write_all(root: Path, cfg: dict | None = None, only: str | None = None) -> l
     out: list[Path] = []
     for h in hosts:
         out.append(write_report(root, cfg=cfg, host=h))
+        evaluation = root / DATA_DIR / f"verilog-eval-{slug(h)}.json"
+        if evaluation.exists():
+            auxiliary = json.loads(evaluation.read_text()).get("auxiliary_report")
+            if auxiliary:
+                out.append(write_report(root, out=root / TARGET_DIR / auxiliary,
+                                        cfg=cfg, host=h, prefer_evaluation=False))
         out.append(write_timeseries(root, cfg=cfg, host=h))
     out.append(write_index(root))
     return out

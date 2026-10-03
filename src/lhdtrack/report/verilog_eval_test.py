@@ -3,11 +3,46 @@ import unittest
 
 from lhdtrack.report.verilog_eval import (
     bounded_yosys_evidence, geomean_ratios, lec_time_geomean, proof_covers_digest,
-    proof_ok, satopt_lec_effect, select_rows, synth_proof, verify_transparent_instance_renaming,
+    proof_ok, satopt_lec_effect, select_rows, simulation_section, synth_proof,
+    verify_transparent_instance_renaming,
 )
 
 
 class VerilogEvaluation(unittest.TestCase):
+    def test_focused_proof_override_keeps_exact_scope_and_never_falls_back(self):
+        flow = "lec_netlist_verilog_no_satopt"
+        versions = dict(lhd="fixed")
+        spec = dict(host="satsuma", tech="asap7", run_id="proof", synth_run_id="synth",
+                    baselines=[], satopt_profiles=[False], versions=versions,
+                    proof_overrides=[dict(test="cpu", config="one", flow=flow, run_id="fix")])
+        base = dict(host="satsuma", tech="asap7", config="one", versions=versions)
+        rows = [dict(base, test="cpu", flow=flow, run_id="proof"),
+                dict(base, test="other", flow=flow, run_id="proof"),
+                dict(base, test="cpu", flow="syn_lhd_verilog_no_satopt", run_id="synth"),
+                dict(base, test="cpu", flow=flow, run_id="fix", versions=dict(lhd="wrong"))]
+        selected = select_rows(rows, spec)
+        self.assertNotIn(("cpu", "one", flow), selected)
+        self.assertIn(("other", "one", flow), selected)
+        self.assertIn(("cpu", "one", "syn_lhd_verilog_no_satopt"), selected)
+        correction = dict(base, test="cpu", flow=flow, run_id="fix")
+        rows.insert(0, correction)
+        self.assertIs(select_rows(rows, spec)["cpu", "one", flow], correction)
+
+    def test_simulation_section_keeps_latest_failure_and_excludes_other_hosts(self):
+        base = dict(host="satsuma", kind="sim", suite="comb", test="add", config="one",
+                    pyrope_status="idiomatic", lec="proven", status="ok", time_ms={},
+                    sim=dict(cycles=10, exec_ms=1, cycles_per_s=10000))
+        rows = [dict(base, run_id="20261002T000000", flow="sim_lhd_verilog"),
+                dict(base, run_id="20261003T000000", flow="sim_verilator"),
+                dict(base, run_id="20261003T000000", flow="sim_lhd_verilog", status="failed"),
+                dict(base, run_id="20261004T000000", flow="sim_verilator",
+                     host="other", test="foreign")]
+        html = simulation_section(rows, "satsuma", {})
+        self.assertIn("2 observations", html)
+        self.assertIn('checksum</span>', html)
+        self.assertNotIn("foreign", html)
+        self.assertEqual(simulation_section(rows, "unmeasured", {}), "")
+
     def test_reemit_accepts_only_transparent_instance_renaming(self):
         old = "module top(input d, output q);\nregion u_region(.d(d), .q(q));\nchild u_real(.d(d));\nendmodule\n"
         new = old.replace("u_region", "__flat___region")

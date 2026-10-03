@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "host": "satsuma",
+  "completed_utc": "2026-10-03T11:57:38.510956+00:00",
+  "requested_wait": {
+    "start_utc": "2026-10-03T05:23:43Z",
+    "end_utc": "2026-10-03T07:23:43Z"
+  },
+  "livehd_commits": [
+    "c89dcef7f",
+    "59b64c714"
+  ],
+  "validation": {
+    "optimized_build": "passed",
+    "debug_build": "passed",
+    "optimized_tests_passed": 4563,
+    "optimized_tests_skipped": 2,
+    "debug_tests_passed": 4562,
+    "debug_tests_skipped": 3,
+    "tracker_source_tests": 49,
+    "tracker_flow_tests": 20,
+    "tracker_tool_tests": 2,
+    "corpus_check_problems": 0,
+    "lint": "passed"
+  },
+  "scope": {
+    "synthesis_run": "20261003T005830",
+    "full_matrix_run": "20261003T005805",
+    "corrected_full_proof_run": "20261003T031358",
+    "corrected_verilog_proof_run": "20261003T031409",
+    "corrected_cpu_image_run": "20261003T035538",
+    "compile_satopt": false,
+    "usyn_tmap": "abc",
+    "usyn_clock_phases": 2,
+    "simulation": "original Verilog and Pyrope sources; not mapped-netlist simulation"
+  },
+  "current": {
+    "refutations": 0,
+    "checker_setup_errors": 0,
+    "simulation_mismatches": 0,
+    "simulation_observations_checked": 573,
+    "simulation_skips": 12,
+    "successful_usyn_synthesis": 190,
+    "successful_abc_synthesis": 184,
+    "abc_synthesis_timeouts": 6,
+    "full_matrix_synthesis_timeouts": 24
+  },
+  "resolved_issues": [
+    "Canonicalize HHDS pin padding so reused and fresh graph snapshots match.",
+    "Keep unwritten unmatched reference memory bits unknown; specified initial contents and known writes remain checked.",
+    "Allow omitted unused inputs in the opt-in independent port adapter; missing used inputs still refute.",
+    "Stage unchanged CPU hex images in checker working directories and record their hashes."
+  ],
+  "remaining": "Timeouts, inconclusive proofs, and bounded proof scopes remain visible. The ABC RAM exact-netlist check times out; the USYN RAM has an independent 6-step bounded proof.",
+  "ledger_prefix": {
+    "rows": 16637,
+    "sha256": "82544be2967a5dfc35b518eed6673e68c166237930844f2305f0b429bafca957",
+    "preserved": true
+  },
+  "runs": {
+    "20261003T005805": {
+      "rows": 2535,
+      "status": {
+        "lec_lgyosys": {
+          "ok": 180,
+          "failed": 11,
+          "skipped": 4
+        },
+        "lec_lhd": {
+          "ok": 191,
+          "failed": 0,
+          "skipped": 4
+        },
+        "lec_netlist": {
+          "ok": 380,
+          "failed": 0,
+          "skipped": 10
+        },
+        "sim_lhd_pyrope": {
+          "ok": 191,
+          "failed": 0,
+          "skipped": 4
+        },
+        "sim_lhd_verilog": {
+          "ok": 191,
+          "failed": 0,
+          "skipped": 4
+        },
+        "sim_verilator": {
+          "ok": 191,
+          "failed": 0,
+          "skipped": 4
+        },
+        "syn_lhd_pyrope": {
+          "ok": 368,
+          "failed": 12,
+          "skipped": 10
+        },
+        "syn_lhd_verilog": {
+          "ok": 368,
+          "failed": 12,
+          "skipped": 10
+        },
+        "syn_yosys_abc": {
+          "ok": 380,
+          "failed": 0,
+          "skipped": 10
+        }
+      },
+      "proofs": {
+        "lec_result": {
+          "proven:unbounded": 684,
+          "timeout:unresolved": 42,
+          "error:unresolved": 11,
+          "inconclusive:unresolved": 13,
+          "proven:bounded": 12
+        },
+        "lec_verilog_result": {
+          "proven:unbounded": 336,
+          "timeout:unresolved": 42,
+          "proven:bounded": 2
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 283,
+          "timeout:unresolved": 41,
+          "inconclusive:unresolved": 35,
+          "proven:bounded": 21
+        }
+      },
+      "refutes": [],
+      "formal_errors": [
+        [
+          "br_apb_demux_select_onehot",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_demux_addr_decode",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_enc_priority_dynamic",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_demux_select_unstable",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_fork_lockstep",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_fork_select_multihot",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_join",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_join_lockstep",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_join_select_multihot",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_mux_select_unstable",
+          "lec_lgyosys",
+          "lec_result"
+        ],
+        [
+          "br_flow_valve",
+          "lec_lgyosys",
+          "lec_result"
+        ]
+      ],
+      "simulation_observations_checked": 573,
+      "simulation_mismatches": [],
+      "failures": [
+        {
+          "test": "br_apb_demux_select_onehot",
+          "config": "aw12_nd4",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_demux_addr_decode",
+          "config": "aw16_nd4",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_enc_priority_dynamic",
+          "config": "nr16_nr1",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_demux_select_unstable",
+          "config": "nf4_w32",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_fork_lockstep",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_fork_select_multihot",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_join",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_join_lockstep",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_join_select_multihot",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_mux_select_unstable",
+          "config": "nf4_w32",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "br_flow_valve",
+          "config": "nf16",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        },
+        {
+          "test": "fma",
+          "config": "bw32",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fma",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fma",
+          "config": "bw32",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fma",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fmaa",
+          "config": "bw24",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fmaa",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fmaa",
+          "config": "bw24",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fmaa",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_add_sgn",
+          "config": "bw24",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_add_sgn",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_add_sgn",
+          "config": "bw24",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_add_sgn",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_three",
+          "config": "bw32",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_three",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_three",
+          "config": "bw32",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_three",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_sgn",
+          "config": "bw26",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_sgn",
+          "config": "bw26",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_sgn",
+          "config": "bw26",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_sgn",
+          "config": "bw26",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_uns",
+          "config": "bw28",
+          "tech": "sky130",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_uns",
+          "config": "bw28",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_uns",
+          "config": "bw28",
+          "tech": "sky130",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_uns",
+          "config": "bw28",
+          "tech": "asap7",
+          "flow": "syn_lhd_pyrope",
+          "note": "synth timed out after 660s"
+        }
+      ]
+    },
+    "20261003T005830": {
+      "rows": 780,
+      "status": {
+        "lec_netlist_verilog_no_satopt": {
+          "ok": 183,
+          "failed": 1,
+          "skipped": 11
+        },
+        "lec_netlist_verilog_usyn_no_satopt": {
+          "ok": 190,
+          "failed": 0,
+          "skipped": 5
+        },
+        "syn_lhd_verilog_no_satopt": {
+          "ok": 184,
+          "failed": 6,
+          "skipped": 5
+        },
+        "syn_lhd_verilog_usyn_no_satopt": {
+          "ok": 190,
+          "failed": 0,
+          "skipped": 5
+        }
+      },
+      "proofs": {
+        "lec_result": {},
+        "lec_verilog_result": {
+          "proven:unbounded": 291,
+          "timeout:unresolved": 70,
+          "proven:bounded": 11,
+          "inconclusive:unresolved": 1,
+          "refuted:counterexample": 1
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 222,
+          "proven:bounded": 78,
+          "timeout:unresolved": 72,
+          "inconclusive:unresolved": 2
+        }
+      },
+      "refutes": [
+        [
+          "br_ram_flops",
+          "lec_netlist_verilog_no_satopt",
+          "lec_verilog_result"
+        ]
+      ],
+      "formal_errors": [],
+      "simulation_observations_checked": 0,
+      "simulation_mismatches": [],
+      "failures": [
+        {
+          "test": "fma",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "fmaa",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_add_sgn",
+          "config": "bw24",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "mul_three",
+          "config": "bw32",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_sgn",
+          "config": "bw26",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "sqr_uns",
+          "config": "bw28",
+          "tech": "asap7",
+          "flow": "syn_lhd_verilog_no_satopt",
+          "note": "synth timed out after 660s"
+        },
+        {
+          "test": "br_ram_flops",
+          "config": "ads1_d64_dt4_epw1_rdds1_rdws1_t_31c8054b",
+          "tech": "asap7",
+          "flow": "lec_netlist_verilog_no_satopt",
+          "note": "synthesized netlist refuted: cvc5 verilog-vs-netlist"
+        }
+      ]
+    },
+    "20261003T031358": {
+      "rows": 780,
+      "status": {
+        "lec_lgyosys": {
+          "ok": 190,
+          "failed": 1,
+          "skipped": 4
+        },
+        "lec_lhd": {
+          "ok": 191,
+          "failed": 0,
+          "skipped": 4
+        },
+        "lec_netlist": {
+          "ok": 380,
+          "failed": 0,
+          "skipped": 10
+        }
+      },
+      "proofs": {
+        "lec_result": {
+          "proven:unbounded": 671,
+          "timeout:unresolved": 42,
+          "inconclusive:unresolved": 33,
+          "proven:bounded": 15,
+          "error:unresolved": 1
+        },
+        "lec_verilog_result": {
+          "proven:unbounded": 336,
+          "timeout:unresolved": 42,
+          "proven:bounded": 2
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 282,
+          "timeout:unresolved": 40,
+          "inconclusive:unresolved": 37,
+          "proven:bounded": 21
+        }
+      },
+      "refutes": [],
+      "formal_errors": [
+        [
+          "cpu",
+          "lec_lgyosys",
+          "lec_result"
+        ]
+      ],
+      "simulation_observations_checked": 0,
+      "simulation_mismatches": [],
+      "failures": [
+        {
+          "test": "cpu",
+          "config": "rv32_w32_d256",
+          "tech": null,
+          "flow": "lec_lgyosys",
+          "note": "equivalence checker error: lgyosys pyrope-vs-verilog"
+        }
+      ]
+    },
+    "20261003T031409": {
+      "rows": 390,
+      "status": {
+        "lec_netlist_verilog_no_satopt": {
+          "ok": 184,
+          "failed": 0,
+          "skipped": 11
+        },
+        "lec_netlist_verilog_usyn_no_satopt": {
+          "ok": 190,
+          "failed": 0,
+          "skipped": 5
+        }
+      },
+      "proofs": {
+        "lec_result": {},
+        "lec_verilog_result": {
+          "proven:unbounded": 291,
+          "timeout:unresolved": 71,
+          "proven:bounded": 11,
+          "inconclusive:unresolved": 1
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 222,
+          "proven:bounded": 78,
+          "timeout:unresolved": 72,
+          "inconclusive:unresolved": 2
+        }
+      },
+      "refutes": [],
+      "formal_errors": [],
+      "simulation_observations_checked": 0,
+      "simulation_mismatches": [],
+      "failures": []
+    },
+    "20261003T035538": {
+      "rows": 6,
+      "status": {
+        "lec_lgyosys": {
+          "ok": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "lec_lhd": {
+          "ok": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "lec_netlist": {
+          "ok": 2,
+          "failed": 0,
+          "skipped": 0
+        },
+        "lec_netlist_verilog_no_satopt": {
+          "ok": 1,
+          "failed": 0,
+          "skipped": 0
+        },
+        "lec_netlist_verilog_usyn_no_satopt": {
+          "ok": 1,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "proofs": {
+        "lec_result": {
+          "inconclusive:unresolved": 1,
+          "proven:unbounded": 1,
+          "timeout:unresolved": 2
+        },
+        "lec_verilog_result": {
+          "timeout:unresolved": 3,
+          "proven:unbounded": 1
+        },
+        "lec_aux_result": {
+          "timeout:unresolved": 4
+        }
+      },
+      "refutes": [],
+      "formal_errors": [],
+      "simulation_observations_checked": 0,
+      "simulation_mismatches": [],
+      "failures": []
+    }
+  },
+  "artifact_audit": {
+    "source_files": 6097,
+    "successful_synthesis_artifacts": 374,
+    "checked_netlist_model_pairs": 748,
+    "current_formal_errors": [],
+    "paired_proofs": {
+      "abc": {
+        "lec_verilog_result": {
+          "proven:unbounded": 167,
+          "absent:unresolved": 11,
+          "timeout:unresolved": 16,
+          "proven:bounded": 1
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 110,
+          "proven:bounded": 37,
+          "timeout:unresolved": 37,
+          "absent:unresolved": 11
+        }
+      },
+      "usyn": {
+        "lec_verilog_result": {
+          "proven:unbounded": 124,
+          "absent:unresolved": 5,
+          "timeout:unresolved": 55,
+          "proven:bounded": 10,
+          "inconclusive:unresolved": 1
+        },
+        "lec_aux_result": {
+          "proven:unbounded": 112,
+          "proven:bounded": 41,
+          "timeout:unresolved": 37,
+          "absent:unresolved": 5
+        }
+      }
+    }
+  }
+}

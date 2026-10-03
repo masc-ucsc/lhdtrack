@@ -19,7 +19,7 @@ def native_evidence(path: Path) -> dict:
 
     result = {name: report[name] for name in
               ("schema_version", "kind", "algorithm", "scope", "tmap", "output", "totals",
-               "constraints", "endpoint_search", "elapsed_ms", "peak_bytes", "cache")
+               "constraints", "arithmetic", "endpoint_search", "elapsed_ms", "peak_bytes", "cache")
               if name in report}
     result.update(report_sha256=sha256(data).hexdigest(), definition_regions=len(regions),
                   cost_scope="definition-region native proxy; not mapped cell area",

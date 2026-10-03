@@ -11,7 +11,8 @@ class NativeEvidence(TestCase):
     def test_additive_work_cost_and_region_outcomes(self):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "qor.json"
-            path.write_text(json.dumps(dict(schema_version=5, kind="usyn", regions=[
+            path.write_text(json.dumps(dict(schema_version=5, kind="usyn",
+                arithmetic=dict(adder="auto", adder_block=0, multiplier="csa"), regions=[
                 dict(before=dict(total=20), after_residual=dict(total=15),
                      work=dict(selection=10, residual=30, total=40),
                      residual=dict(accepted=True, skipped=False, rewrite_wins=2)),
@@ -19,6 +20,8 @@ class NativeEvidence(TestCase):
                      work=dict(selection=7, residual=0, total=7),
                      residual=dict(accepted=False, skipped=True, rewrite_wins=0))])))
             result = native_evidence(path)
+            self.assertEqual(result["arithmetic"],
+                             dict(adder="auto", adder_block=0, multiplier="csa"))
             self.assertEqual(result["cost_stages"]["before"]["total"], 28)
             self.assertEqual(result["cost_stages"]["after_residual"]["total"], 23)
             self.assertEqual(result["work"], dict(selection=17, residual=30, total=47))

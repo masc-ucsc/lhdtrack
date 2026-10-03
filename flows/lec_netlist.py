@@ -25,7 +25,7 @@ same Liberty the netlist was mapped against.
 from __future__ import annotations
 
 from lhdtrack.context import FlowContext, FlowSkip
-from lib.lec import check_elaboration_internal_error, classify, counterexample
+from lib.lec import check_elaboration_internal_error, classify, counterexample, stage_readmem_data
 from lib.lhd_synth_policy import abc_settings
 
 NAME = "lec_netlist"
@@ -53,6 +53,7 @@ def _check(
     import json
 
     lhd = ctx.tool("lhd")
+    images = stage_readmem_data(ctx, ctx.work / f"LW-{label}")
     result_json = ctx.work / f"{label}.json"
     resource_json = result_json.with_suffix(".resource.json")
     resource_json.unlink(missing_ok=True)
@@ -113,6 +114,8 @@ def _check(
         "timeout_s": ctx.lec_timeout_s,
         "wall_limit_s": wall,
     }
+    if images:
+        block["input_images"] = images
     if satopt is not None:
         block["compile_satopt"] = satopt
     block["phase_ms"] = {}

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from lhdtrack.context import FlowError, FlowSkip
 from lec_netlist import _check
+from lib.lec import stage_readmem_data
 from lhdtrack.metrics import measure
 from lhdtrack.report.verilog_eval import bounded_yosys_evidence, synth_flow
 
@@ -89,6 +90,7 @@ def independent_check(ctx, netlist, reference, *, models=None):
         raise FlowError("missing Liberty cell models for independent netlist LEC")
     dest = ctx.work / "oracle"
     dest.mkdir(exist_ok=True)
+    images = stage_readmem_data(ctx, dest)
     (dest / "impl.v").write_bytes(netlist.read_bytes() + b"\n" + model_text)
     (dest / "ref.v").write_bytes(reference.read_bytes() + b"\n" + model_text)
     env = {**ctx.tc.env_for(str(ctx.tool("lhd"))),
@@ -112,6 +114,8 @@ def independent_check(ctx, netlist, reference, *, models=None):
                  invocation="direct-lgcheck", log=str(measured.log),
                  lgcheck_sha256=hashlib.sha256(check.read_bytes()).hexdigest(),
                  models_sha256=hashlib.sha256(model_text).hexdigest())
+    if images:
+        block["input_images"] = images
     def read(path):
         return path.read_text() if path.exists() else ""
     block = bounded_yosys_evidence(block, read(measured.log),

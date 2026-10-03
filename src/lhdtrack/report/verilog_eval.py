@@ -1,12 +1,12 @@
 """A reproducible Verilog-only mapper evaluation, retaining named baselines."""
-from collections import Counter
+from collections import Counter, defaultdict
 import json
 import math
 import re
 from pathlib import Path
 
 from ..ledger import Ledger
-from .html import _display_lec_verdict, _e, _fmt, _page, _VERDICT_CLASS
+from .html import _display_lec_verdict, _e, _fmt, _page, _sim_table, _VERDICT_CLASS
 
 MAPPERS = ("abc", "usyn")
 
@@ -26,6 +26,8 @@ def lec_flow(mapper, satopt=True):
 def select_rows(history, spec):
     """Do not let old LiveHD slots leak into a partial or failed rerun."""
     baselines = {(r["test"], r["config"], r["run_id"]) for r in spec["baselines"]}
+    overrides = {(r["test"], r["config"], r["flow"]): r["run_id"]
+                 for r in spec.get("proof_overrides", [])}
     selected = {}
     for row in history:
         if row.get("host") != spec["host"] or row.get("tech") != spec["tech"]:
@@ -35,9 +37,11 @@ def select_rows(history, spec):
             keep = (*key[:2], row["run_id"]) in baselines
         else:
             wanted_run = (spec.get("synth_run_id", spec["run_id"])
-                          if row["flow"] in synth_flows(spec) else spec["run_id"])
+                          if row["flow"] in synth_flows(spec) else overrides.get(key, spec["run_id"]))
             keep = row["run_id"] == wanted_run and row["flow"] in synth_flows(spec) | {
                 lec_flow(m, enabled) for m in MAPPERS for enabled in spec.get("satopt_profiles", [True])}
+        if keep and key in overrides and row["flow"] not in synth_flows(spec):
+            keep = row.get("versions") == spec["versions"]
         if keep:
             selected[key] = row
     return selected
@@ -245,6 +249,32 @@ def _satopt_effect(rows, spec, metrics):
             + ''.join(trs) + '</tbody></table></div>')
 
 
+def simulation_section(history: list[dict], host: str, report_cfg: dict) -> str:
+    """Show latest host-local simulation gates without mixing them into synthesis."""
+    latest = {}
+    for row in sorted(history, key=lambda r: r.get("run_id", "")):
+        if row.get("host") == host and row.get("kind") == "sim":
+            latest[row["test"], row.get("config", "default"), row["flow"]] = row
+    if not latest:
+        return ""
+    index = defaultdict(dict)
+    for row in latest.values():
+        key = row["suite"], row["test"], row.get("config", "default"), None
+        index[key][row["flow"]] = row
+    keys = sorted(index, key=lambda k: (k[1], k[2]))
+    runs = sorted({r["run_id"] for r in latest.values()})
+    counts = Counter(r.get("status", "unknown") for r in latest.values())
+    intro = ('<h2>Simulation · latest results on this host</h2><p class="sub">'
+             f'Host {_e(host)} · runs {_e(runs[0])}–{_e(runs[-1])} · '
+             f'{len(latest)} observations: {_e(json.dumps(dict(counts), sort_keys=True))}. '
+             'These are separately recorded source-simulation measurements, not simulations '
+             'of the mapped netlists above. Checksum failures remain visible and are excluded '
+             'from speed geomeans. Cached baselines retain their recorded measurement dates.</p>')
+    return intro + _sim_table(None, keys, index,
+                             report_cfg.get("baseline_sim_flow", "sim_verilator"),
+                             set(report_cfg.get("headline_pyrope_status", ["idiomatic"])))
+
+
 def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
     spec = json.loads(path.read_text())
     rows = select_rows(Ledger(root).load(spec["host"]), spec)
@@ -254,7 +284,9 @@ def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
             f'{_e(spec.get("phase", "complete"))}. '
             'Yosys+Slang+ABC synthesis baselines are retained from their recorded dates. '
             'Only the selected LiveHD runs appear below; a blank means not measured. '
-            'Pyrope, simulation and other technologies are excluded.</p>',
+            'The synthesis comparison uses Verilog for this technology. Latest source-simulation '
+            'results are included on the host page; Pyrope and other-technology synthesis '
+            'remain in the linked full report.</p>',
             f'<p>LiveHD: <code>{_e(spec["versions"]["lhd"])}</code><br>'
             f'Liberty hash: <code>{_e(spec["liberty_sha256"])}</code>. '
             'LEC checks the emitted Verilog netlist against the original Verilog source. '
@@ -272,6 +304,12 @@ def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
                     f'<code>{_e(spec["synth_versions"]["lhd"])}</code>. '
                     'LEC uses the binary above; proof records link the checked emission hash to the retained synthesis artifact. '
                     'Synthesis timings from other hosts are not included.</p>')
+    if spec.get("proof_overrides"):
+        corrections = "; ".join(
+            f'{r["test"]}/{r["config"]}: {r["flow"]} from {r["run_id"]}'
+            for r in spec["proof_overrides"])
+        body.append(f'<p>Focused proof corrections: {_e(corrections)}. '
+                    'They use the checker versions above and retain the measured netlist hashes.</p>')
     counts = Counter((r["flow"], r["status"]) for r in rows.values()
                      if r["flow"] != "syn_yosys_abc")
     body.append('<p>' + '; '.join(
@@ -322,7 +360,7 @@ def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
                     '&gt;1 is better, &lt;1 is worse for every metric. '
                     'Unverified results are included; refuted netlists are excluded. '
                     'Each metric uses matched, finite, positive measurements and shows its sample count. '
-                    'LEC checks the pass.satopt=true emission; pass.satopt=false netlists are unverified.</p>')
+                    'Each selected compile SAT profile checks its own exact emitted netlist.</p>')
         for satopt in profiles:
             footer = ['<tfoot><tr><th class="l">Geomean vs Yosys+Slang+ABC</th>',
                       '<td colspan="6">1.000× baseline</td>']
@@ -380,6 +418,12 @@ def write_evaluation(root: Path, path: Path, out: Path | None = None) -> Path:
             f'<td class="note">{_e(n)}</td></tr>' for t, c, f, n in details
         ) + '</tbody></table></div>')
     out = out or root / 'target' / f'report-{spec["host"]}.html'
+    if out.name == f'report-{spec["host"]}.html':
+        from ..cli import load_config
+
+        simulation_rows = Ledger(root).latest_rows(spec["host"])
+        body.append(simulation_section(simulation_rows, spec["host"],
+                                       load_config(root).get("report", {})))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_page('lhdtrack — Verilog mapper evaluation', '\n'.join(body)))
     return out

@@ -22,8 +22,10 @@ backend's proof strategies, while the latter exhausted its time budget.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import shutil
 from pathlib import Path
 
 from lhdtrack.context import FlowContext, FlowError, FlowSkip
@@ -189,6 +191,17 @@ def _why(measured) -> str:
     return f"exit {measured.rc}"
 
 
+def stage_readmem_data(ctx: FlowContext, destination: Path) -> list[dict]:
+    """Keep test-local memory images available in each checker's working directory."""
+    source = ctx.work / "data"
+    if not source.is_dir():
+        return []
+    shutil.copytree(source, destination / "data", dirs_exist_ok=True)
+    return [dict(path=str(path.relative_to(ctx.work)),
+                 sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+            for path in sorted(source.rglob("*")) if path.is_file()]
+
+
 def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     """Prove pyrope == verilog with one backend. Returns the `lec` block."""
     lhd = ctx.tool("lhd")
@@ -256,6 +269,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         raise FlowError("[lec].match must be a string of ref=impl state pairs")
     match_args = ["--set", f"formal.lec.match={match}"] if match.strip() else []
 
+    images = stage_readmem_data(ctx, ctx.work / "LW")
     result_json = ctx.work / f"lec_{solver}.json"
     # TWO BUDGETS, because one of them is not enforced. `formal.timeout` is the
     # SOLVER's, and the lgyosys backend does not honour it: it emits both sides
@@ -272,6 +286,8 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
             "--top", f"{ctx.top}.{ctx.top}", "--workdir", "LW",
             *([] if solver == "cvc5" else ["--set", f"formal.solver={solver}"]),
             "--set", f"formal.timeout={timeout_s}",
+            *(["--set", "formal.normalize_split_ports=true"]
+              if solver == "lgyosys" else []),
             *match_args,
             "--result-json", str(result_json),
         ],
@@ -325,6 +341,10 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         "timeout_s": timeout_s,
         "wall_limit_s": wall,
     }
+    if images:
+        block["input_images"] = images
+    if solver == "lgyosys":
+        block["normalize_split_ports"] = True
     if verdict == "refuted":
         # Carry the first divergence: "this is wrong" is not actionable,
         # "out_stages(ref=0 impl=254) at step 1" is.

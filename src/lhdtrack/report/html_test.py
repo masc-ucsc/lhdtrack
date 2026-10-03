@@ -3,13 +3,29 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from lhdtrack.report.html import (
-    _eligible, _gate_snapshot_lec, _lec_section, _netlist_lec_section, _problem_note, write_report,
+    _eligible, _gate_snapshot_lec, _lec_section, _netlist_lec_section, _problem_note,
+    write_all, write_report,
 )
 
 
 class ReportSnapshot(unittest.TestCase):
+    def test_evaluation_regenerates_linked_full_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data").mkdir()
+            (root / "data/verilog-eval-snapshot-host.json").write_text(json.dumps({
+                "auxiliary_report": "report-snapshot-host-full.html",
+            }))
+            main = root / "target/report-snapshot-host.html"
+            with patch("lhdtrack.report.verilog_eval.write_evaluation", return_value=main):
+                outputs = write_all(root, only="snapshot-host")
+            full = root / "target/report-snapshot-host-full.html"
+            self.assertIn(full, outputs)
+            self.assertIn("No runs recorded", full.read_text())
+
     def test_lec_speedup_requires_matching_definitive_answers(self):
         key = ("rtl", "delay", "default", None)
         for left, right, comparable in (
