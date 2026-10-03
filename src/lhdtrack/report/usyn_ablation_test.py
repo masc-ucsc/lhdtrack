@@ -2,7 +2,7 @@
 from copy import deepcopy
 from unittest import TestCase
 
-from lhdtrack.report.usyn_ablation import frequency_ratio, summarize
+from lhdtrack.report.usyn_ablation import frequency_ratio, summarize, timing_ratio
 
 
 def mapping(delay, digest):
@@ -35,6 +35,15 @@ class FrequencyComparison(TestCase):
         self.assertIsNone(frequency_ratio(base, measured, bp, bad))
         measured["sta"]["sdc_period_ns"] = 800
         self.assertIsNone(frequency_ratio(base, measured, bp, mp))
+
+    def test_provisional_timing_never_turns_a_bounded_check_into_a_claim(self):
+        base, measured = mapping(200, "abc"), mapping(100, "usyn")
+        self.assertEqual(timing_ratio(base, measured), 2)
+        self.assertIsNone(frequency_ratio(base, measured, proof("abc"), proof("usyn", True)))
+        for invalid in (dict(measured, status="failed"), dict(measured, host="other")):
+            self.assertIsNone(timing_ratio(base, invalid))
+        measured["sta"]["opensta_ns"] = float("nan")
+        self.assertIsNone(timing_ratio(base, measured))
 
     def test_missing_failed_and_skipped_slots_remain_in_matrix(self):
         slots = [dict(test="a", config="one"), dict(test="missing", config="one")]

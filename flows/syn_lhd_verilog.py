@@ -17,7 +17,7 @@ and re-measuring LiveHD is the entire point.
 from __future__ import annotations
 
 from lhdtrack.context import FlowContext, FlowError, FlowSkip
-from lib.lhd_synth_policy import abc_settings
+from lib.lhd_synth_policy import mapping_settings
 
 NAME = "syn_lhd_verilog"
 KIND = "synth"
@@ -53,8 +53,7 @@ def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
     settings = [
         "--set", f"synth.mapper={mapper}",
         "--set", f"synth.liberty={ctx.liberty[0]}",
-        "--set", f"pass.{mapper}.delay={ctx.abc_delay_ps()}",
-        *abc_settings(ctx.tech.name),
+        *mapping_settings(ctx.tech.name, mapper, str(ctx.abc_delay_ps())),
         # SAT optimization is an explicit experiment; the compiler defaults
         # it off. Keep each profile's recorded name consistent with its argv.
         "--set", f"pass.satopt={str(satopt).lower()}",
@@ -136,6 +135,6 @@ def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
             )
         result["qor"].update(usyn_tmap=usyn["tmap"], usyn_output=usyn["output"],
                              usyn_evidence=native_evidence(evidence_path))
-        policy.update({"pass.usyn.tmap": usyn["tmap"],
-                       "pass.usyn.delay": str(ctx.abc_delay_ps())})
+        policy["pass.usyn.tmap"] = usyn["tmap"]
+        policy.setdefault("pass.usyn.delay", str(ctx.abc_delay_ps()))
     return {"netlist": netlist, **result}

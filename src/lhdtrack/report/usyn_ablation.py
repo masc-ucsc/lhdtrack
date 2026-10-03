@@ -22,6 +22,11 @@ def frequency_ratio(base, measured, base_proof, measured_proof):
     if not all(unbounded_proof(s, p) for s, p in
                ((base, base_proof), (measured, measured_proof))):
         return None
+    return timing_ratio(base, measured)
+
+
+def timing_ratio(base, measured):
+    """Compatible measured timing for diagnostics, without a proof claim."""
     if any(s.get("status") != "ok" for s in (base, measured)):
         return None
     identity = ("host", "host_class", "liberty_sha256", "tech")

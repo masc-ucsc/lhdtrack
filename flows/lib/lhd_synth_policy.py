@@ -29,6 +29,23 @@ def abc_settings(tech: str) -> list[str]:
     return out + ["--set", f"pass.abc.satopt={satopt}"]
 
 
+def mapping_settings(tech: str, mapper: str, delay: str) -> list[str]:
+    """Apply an explicit mapping-delay experiment without duplicate CLI keys."""
+    key = f"pass.{mapper}.delay"
+    settings = abc_settings(tech)
+    other = []
+    override = None
+    for i in range(0, len(settings), 2):
+        name, value = settings[i + 1].split("=", 1)
+        if name == key:
+            if override is not None and override != value:
+                raise ValueError(f"conflicting {key} overrides")
+            override = value
+        else:
+            other.extend(settings[i:i + 2])
+    return ["--set", f"{key}={override if override is not None else delay}", *other]
+
+
 def recorded_settings(commands: list[str]) -> dict[str, str]:
     """Store actual command settings with each measurement; never infer history."""
     selected = {"pass.color.synth_alg", "pass.color.ctrl_cones", "pass.color.forward",

@@ -120,6 +120,58 @@ concurrent proof workers. The normalization audit found no ABC gate extraction i
 644 structural native emissions. The final integrated compiler passes the
 `make usyn` adder smoke with both checkers for both mappers.
 
+### USYN lgcheck and timing follow-up (2026-10-02)
+
+[data/usyn-followup-20261002-satsuma.json](data/usyn-followup-20261002-satsuma.json)
+retains the final 195-slot run, fresh independent lgcheck sweeps, all additional
+experiments, and full critical-path cell/load evidence for every ratio below 0.8.
+Measured ratios without an unbounded exact-netlist proof are provisional and stay
+out of headline geomeans. Bounded checks, timeouts and skips remain explicit.
+
+The final direct lgcheck sweep reports 112 unbounded proofs, 41 six-step bounded
+checks, 36 timeouts, one inconclusive result and five constraint skips: zero refutes
+and zero checker errors. At least one engine gives an unbounded exact-netlist proof
+for 136 emissions. These results do not establish equivalence for the unresolved
+cases. Separate fresh audits of the previous emissions retain all 195 six-step
+outcomes and the 78 unresolved/bounded cases retried at 12 steps, also without
+refutes. The deeper audit applies to those previous emissions, not the final ones.
+Integrity checks verify all 190 final emissions/model sets and 6,097 source files.
+The producer diff exactly matches LiveHD commit `69cba5bdd`; the final normalization
+audit retains 161 log digests and zero ABC gate extractions.
+
+Native carry-save products, balanced comparisons of at least eight bits, and
+mapping-only cell sizing reduce the below-0.8 population from 42 to 20. Explicit
+flattening produces identical netlists on all 20 remaining cases. A separate
+`pass.usyn.delay=50` experiment brings eight more above 0.8, with area tradeoffs;
+its recipe is never pooled into the default headline. Eleven remaining default
+cases have no eligible register-rooted endpoints, exposing the limits of the local
+residual optimizer on combinational outputs. Per-case paths and next steps are
+retained in the report. On the same 23 proven idiomatic headline slots, the
+frequency geomean moves from 94.73% to 95.01% of ABC, with essentially unchanged
+paired area. Many larger arithmetic gains remain provisional because their exact
+netlist proofs time out; these do not enter that headline.
+
+The Verilog driver now accepts one explicit mapping-delay override through
+`LHDTRACK_LHD_SET` and records the actual target. The SDC-derived default is unchanged;
+explicit targets change the mapping recipe and its cache key. Conflicting explicit
+targets fail. Synthesis and proof use the same retained policy and emission.
+
+Regenerate the report offline, or repeat direct lgcheck while retained work exists:
+
+```bash
+python3 tools/report_usyn_followup.py --from-summary data/usyn-followup-20261002-satsuma.json
+python3 tools/check_usyn_netlists.py --summary data/usyn-followup-20261002-satsuma.json \
+  --variant candidate --jobs 16 --steps 6 --timeout 300 --output var/lgcheck-repeat.json
+# A deeper bounded-only check; this does not establish an unbounded proof.
+python3 tools/check_usyn_netlists.py --summary data/usyn-followup-20261002-satsuma.json \
+  --variant candidate --unresolved-only --bmc-only --steps 12 --timeout 300 \
+  --output var/lgcheck-deep.json
+```
+
+The audit verifies retained source, emission and model digests before invoking the
+manifest's lgcheck against the original Verilog. No ABC Boolean optimization is
+added to USYN; ABC supplies optional technology mapping and physical cell sizing.
+
 ### Manual ASAP7 synthesis example
 
 After `make toolchain` has staged the single merged ASAP7 Liberty, these two commands
