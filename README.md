@@ -78,13 +78,47 @@ actual settings. `--resume RUN_ID` restores those settings. `--lec-from RUN_ID`
 checks each retained SAT profile's own measured netlist. Synthesis rows include
 source, SDC, Liberty and emitted-netlist digests; native work is counted under the
 map phase. Mapped cell totals are read from both ABC and USYN technology-map reports.
+Native rows also retain per-stage proxy costs, additive work counters and their
+decision-report digest. These definition-region estimates are separate from
+mapped cell area and the process RSS measurements.
 
 To combine the stages with a retained ABC run, use
 `tools/report_usyn_ablation.py --abc RUN_ID --selection RUN_ID --residual RUN_ID
---feedback RUN_ID --output data/usyn-asap7.json`. It writes the full matrix and a
+--feedback RUN_ID --output data/usyn-asap7.json`. Add `--improved RUN_ID` to
+include a later native frequency iteration alongside the controlled stages.
+It writes the full matrix and a
 page under `target/`. Frequency ratios require equal source/SDC digests, complete
 constrained timing and an unbounded proof of each exact netlist. Headline geomeans
 retain the idiomatic, LEC-proven Pyrope population; the full table shows every case.
+The same-slot footer uses the intersection of all variants' proven populations.
+The optional improved run also reports a paired native-to-native frequency gain.
+Regenerate the committed matrix without `var/` using
+`python3 tools/report_usyn_ablation.py --from-summary data/usyn-asap7.json`.
+
+### Retained ASAP7 evaluation (2026-10-02, satsuma)
+
+[data/usyn-asap7-20261002-satsuma.json](data/usyn-asap7-20261002-satsuma.json)
+contains all 195 configurations and the ABC, selection, residual, feedback and
+improved-native variants. Every native variant synthesized 190 configurations
+with five explicit constraint skips. ABC retained six synthesis timeouts.
+The improved native run has 136 unbounded exact-netlist proofs; unresolved
+checks and unavailable whole-design native-state timing remain visible.
+
+On the same 23 proven idiomatic headline slots, frequency relative to ABC is
+83.04% for selection, 89.46% with residual optimization, 89.43% with feedback,
+and 94.73% after wide-sum prefix lowering. The arithmetic iteration improves
+native frequency by 5.9% with a 1.36% area increase in the paired geomeans.
+The 64-bit AddMop period falls from 1,549.4 ps to 411.6 ps (ABC: 416.4 ps),
+with both engines proving the emission. Its native area rises by about 37%.
+These are constrained cell timing results; native cost proxies are separate.
+
+The JSON records exact compiler/source hashes, settings, source/SDC/netlist
+and Liberty digests, native stage evidence, runtime/RSS and both proof outcomes.
+All original observations remain in the append-only ledger. Enriched rows identify
+the original row and retained decision report by hash. Runtime observations used
+concurrent proof workers. The normalization audit found no ABC gate extraction in
+644 structural native emissions. The final integrated compiler passes the
+`make usyn` adder smoke with both checkers for both mappers.
 
 ### Manual ASAP7 synthesis example
 
@@ -767,9 +801,8 @@ or `--satopt-profiles disabled` to select just one. Synthesis without satopt
 (`syn_lhd_verilog[_usyn]_no_satopt`) gets its own table; a "SAT optimization
 effect" table then pairs each design's two profiles (satopt=false ÷ satopt=true,
 >1 means satopt helps) for QoR, synthesis time, memory, and native LEC time.
-Only the satopt=true emission is LEC-checked; satopt=false netlists are shown
-as unverified. Both LEC tables check the same satopt=true
-retained netlist bytes with native LEC and independent lgcheck. Liberty model
+Each profile checks its own retained netlist bytes with native LEC and
+independent lgcheck; neither inherits the other profile's proof. Liberty model
 generation and Verilog export are shared setup outside both timers. Timed
 commands include input loading, compilation and proof; native phase timings
 are retained in the ledger and shown in the time-cell tooltip. The frontend

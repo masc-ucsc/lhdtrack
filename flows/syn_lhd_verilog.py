@@ -125,13 +125,17 @@ def run_mapper(ctx: FlowContext, mapper: str, *, satopt: bool = True) -> dict:
     policy["synth.mapper"] = mapper
     policy["pass.satopt"] = str(satopt).lower()
     if mapper == "usyn":
+        from lib.usyn_evidence import native_evidence
+
+        evidence_path = ctx.work / "W/synth/qor.json.usyn.json"
         usyn = json.loads((ctx.work / "W/synth/qor.json.usyn.json").read_text())
         if usyn.get("tmap") != "abc" or usyn.get("output") != "mapped-cmos":
             raise FlowError(
                 "USYN evaluation requires tmap=abc and output=mapped-cmos, "
                 f"got tmap={usyn.get('tmap')} output={usyn.get('output')}"
             )
-        result["qor"].update(usyn_tmap=usyn["tmap"], usyn_output=usyn["output"])
+        result["qor"].update(usyn_tmap=usyn["tmap"], usyn_output=usyn["output"],
+                             usyn_evidence=native_evidence(evidence_path))
         policy.update({"pass.usyn.tmap": usyn["tmap"],
                        "pass.usyn.delay": str(ctx.abc_delay_ps())})
     return {"netlist": netlist, **result}

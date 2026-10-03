@@ -53,3 +53,26 @@ class FrequencyComparison(TestCase):
         specs["selection"]["host"] = "other"
         with self.assertRaisesRegex(ValueError, "same host"):
             summarize(history, specs)
+
+    def test_common_population_and_native_iteration_require_paired_proofs(self):
+        slots = [dict(test=t, config="one") for t in ("a", "b")]
+        specs = {name: dict(host="host", tech="asap7", liberty_sha256="lib",
+                            run_id=name, slots=slots)
+                 for name in ("abc", "feedback", "improved")}
+        history = []
+        for name, factor in (("abc", 4), ("feedback", 2), ("improved", 1)):
+            suffix = "" if name == "abc" else "_usyn"
+            for index, test in enumerate(("a", "b"), start=1):
+                identity = dict(run_id=name, test=test, config="one")
+                digest = f"{name}-{test}"
+                history.append(dict(mapping(50 * index * factor, digest), **identity,
+                                    comparable=True, flow=f"syn_lhd_verilog{suffix}_no_satopt"))
+                if name != "improved" or test != "b":
+                    history.append(dict(proof(digest), **identity,
+                                        flow=f"lec_netlist_verilog{suffix}_no_satopt"))
+        result = summarize(history, specs)
+        self.assertEqual(result["headline"]["feedback"]["count"], 2)
+        self.assertEqual(result["headline"]["improved"]["count"], 1)
+        self.assertEqual({m["count"] for m in result["common_headline"].values()}, {1})
+        self.assertEqual(result["common_headline"]["improved"]["frequency_ratio"], 4)
+        self.assertEqual(result["native_iteration"], dict(count=1, frequency_ratio=2))

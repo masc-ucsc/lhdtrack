@@ -54,6 +54,8 @@ def summarize(history, specs):
     slots = sorted({(r["test"], r["config"]) for s in specs.values() for r in s["slots"]})
     counts = {name: Counter() for name in specs}
     samples = {name: [] for name in specs}
+    common_samples = {name: [] for name in specs}
+    iteration_samples = []
     matrix = []
     for test, config in slots:
         entry = dict(test=test, config=config, variants={})
@@ -73,8 +75,26 @@ def summarize(history, specs):
                 samples[name].append(math.log(ratio))
             entry["variants"][name] = dict(
                 synthesis=synth, proof=proof, frequency_ratio=ratio, unbounded_proven=verified)
+        variants = entry["variants"]
+        if all(v["frequency_ratio"] is not None and v["synthesis"].get("comparable")
+               for v in variants.values()):
+            for name, v in variants.items():
+                common_samples[name].append(math.log(v["frequency_ratio"]))
+        if "feedback" in variants and "improved" in variants:
+            before, after = variants["feedback"], variants["improved"]
+            ratio = frequency_ratio(before["synthesis"], after["synthesis"],
+                                    before["proof"], after["proof"])
+            if ratio is not None and all(v["synthesis"].get("comparable")
+                                         for v in (before, after)):
+                iteration_samples.append(math.log(ratio))
         matrix.append(entry)
     return dict(schema_version=1, runs=specs, rows=matrix,
+                common_headline={k: dict(count=len(v), frequency_ratio=
+                                 math.exp(math.fsum(v) / len(v)) if v else None)
+                                 for k, v in common_samples.items()},
+                native_iteration=dict(count=len(iteration_samples), frequency_ratio=
+                                 math.exp(math.fsum(iteration_samples) / len(iteration_samples))
+                                 if iteration_samples else None),
                 counts={k: dict(v) for k, v in counts.items()},
                 headline={k: dict(count=len(v), frequency_ratio=
                           math.exp(math.fsum(v) / len(v)) if v else None)
@@ -107,5 +127,22 @@ def render(summary):
             body += f'<td title="{_e(synth.get("note", synth.get("status", "pending")))}">'
             body += _e(text) + '</td>'
         body += '</tr>'
-    body += '</tbody></table>'
+    body += '</tbody><tfoot>'
+    for key, label in (("headline", "Geomean vs ABC"),
+                       ("common_headline", "Same-slot geomean vs ABC")):
+        if key not in summary:
+            continue
+        body += f'<tr><th>{label}</th>'
+        for name in names:
+            metric = summary[key][name]
+            ratio = metric["frequency_ratio"]
+            value = f'{ratio:.3f}×' if ratio is not None else '—'
+            body += f'<td>{value} (n={metric["count"]})</td>'
+        body += '</tr>'
+    body += '</tfoot></table>'
+    iteration = summary.get("native_iteration", {})
+    if iteration.get("frequency_ratio") is not None:
+        body += (f'<p>Improved native frequency / feedback-stage frequency: '
+                 f'{iteration["frequency_ratio"]:.3f}× (n={iteration["count"]}, '
+                 'paired proven idiomatic slots).</p>')
     return _page('ASAP7 USYN ablation', body)

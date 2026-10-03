@@ -94,7 +94,8 @@ class IndependentVerdicts(unittest.TestCase):
                     tool=Mock(return_value=Path('/staged/lhd')), top='dut', work=Path('.'),
                     chparams=lambda: {},
                     test=SimpleNamespace(pyrope_status='auto', pyrope_top=Path(__file__),
-                                         filelist=Path('filelist.f'), lec_status='proven'),
+                                         filelist=Path('filelist.f'), lec_status='proven',
+                                         verilog_args=lambda _: []),
                     run=Mock(side_effect=[timeout] if failed_side == 'Verilog' else [ok, timeout]),
                 )
                 result = run_lec(ctx, 'lgyosys', 10)
