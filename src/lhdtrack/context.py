@@ -54,6 +54,8 @@ class FlowContext:
     # A solver that gives up is a THIRD state, not a failure -- but it has to be
     # bounded or a nightly never finishes. Policy, so it lives in lhdtrack.toml.
     lec_timeout_s: int = 300
+    # Shared compiler/native-object worker budget for all simulation backends.
+    sim_build_jobs: int = 8
     stage: Stage = field(default_factory=Stage)
     cmds: list[str] = field(default_factory=list)
 

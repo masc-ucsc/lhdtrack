@@ -191,6 +191,10 @@ class Runner:
         self.cache = cache
         self.run_id = run_id
         self.cfg = cfg
+        self.sim_build_jobs = int(cfg.get("run", {}).get("sim_build_jobs", 8))
+        if self.sim_build_jobs < 1:
+            raise ValueError("run.sim_build_jobs must be a positive integer")
+        self.measurement_jobs = max(1, int(cfg.get("run", {}).get("jobs", 4)))
         self.keep_work = keep_work
         self.work_root = root / "var" / "work" / run_id
         # (test, config) -> recorded (cycles, checksum); set per execute().
@@ -211,6 +215,7 @@ class Runner:
         """
         partial = self.root / "var" / "runs" / self.run_id / "partial.jsonl"
         partial.parent.mkdir(parents=True, exist_ok=True)
+        self.measurement_jobs = max(1, jobs_parallel)
 
         rows_by_index: dict[int, Row] = {}
         # A flow that consumes sibling workdirs (lec_netlist proves the synth
@@ -282,7 +287,8 @@ class Runner:
             row.status, row.note = "skipped", f"toolchain missing: {', '.join(missing)}"
             return row
 
-        key = cache_key(job.test, job.config, job.tech, job.flow, job.flow_file, self.tc)
+        key = cache_key(job.test, job.config, job.tech, job.flow, job.flow_file, self.tc,
+                        sim_build_jobs=self.sim_build_jobs if row.kind == "sim" else None)
         if job.flow in self.baseline_flows:
             hit = self.cache.get(job.flow, key)
             if hit:
@@ -312,6 +318,7 @@ class Runner:
             logs=logs,
             sim_reps=int(self.cfg.get("run", {}).get("sim_reps", 3)),
             lec_timeout_s=int(self.cfg.get("run", {}).get("lec_timeout_s", 300)),
+            sim_build_jobs=self.sim_build_jobs,
         )
 
         try:
@@ -340,6 +347,8 @@ class Runner:
         row.qor = result.get("qor", {})
         row.sta = result.get("sta", {})
         row.sim = result.get("sim", {})
+        if row.sim:
+            row.sim["measurement_jobs"] = self.measurement_jobs
         if "lec" in result:
             row.lec_result = result["lec"]
             # `row.lec` mirrors the MANIFEST's status.lec, which is a claim about

@@ -4,10 +4,12 @@
 [run]
 # Both technologies on every test. One pinned Liberty version each; see tech/.
 techs = ["sky130", "asap7"]
-# Parallel flow invocations. Each flow is single-threaded by construction so the
-# wall-clock it reports is its own -- raising this past the physical core count
-# makes every timing metric in the run a lie.
+# Parallel flow invocations. Simulation compilation uses sim_build_jobs workers
+# per flow; keep jobs * sim_build_jobs within the physical core budget.
 jobs = 4
+# Equal host compilation/native-object worker limit for Verilator, Slop and LLVM.
+# Setup/code generation remains sequential. Also accepts --sim-build-jobs N.
+sim_build_jobs = 8
 # The exec leg of a simulation is measured best-of-N, never once.
 sim_reps = 3
 # Per-obligation LEC budget. A solver that exhausts this budget is reported as

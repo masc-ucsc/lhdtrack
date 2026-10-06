@@ -22,6 +22,7 @@ class SimulationBackends(unittest.TestCase):
                 measured = SimpleNamespace(ms=25, log=log)
                 ctx = SimpleNamespace(
                     work=work, test=SimpleNamespace(sim_cycles=100, sim_marker="LHDTRACK-DONE"),
+                    sim_build_jobs=8,
                     tool=Mock(return_value=Path("/staged/lhd")),
                     run=Mock(return_value=SimpleNamespace(ms=125, log=log)),
                     run_best=Mock(return_value=(measured, [25, 30, 26])),
@@ -32,11 +33,12 @@ class SimulationBackends(unittest.TestCase):
                     argv = call.args[1]
                     self.assertIn(f"sim.tune.backend={backend}", argv)
                     self.assertIn("sim.tune.profile=off", argv)
-                    self.assertIn("sim.jobs=1", argv)
+                    self.assertIn("sim.jobs=8", argv)
                     self.assertIn("sim.init_zero=true", argv)
                     self.assertIn("sim.unknown_zero=true", argv)
                 self.assertIn("--init-zero", ctx.run_best.call_args.args[1])
                 self.assertEqual(result["sim"]["backend"], backend)
+                self.assertEqual(result["sim"]["build_jobs"], 8)
                 self.assertEqual(result["sim"]["exec_ms"], 25)
                 self.assertEqual(result["sim"]["exec_samples_ms"], [25, 30, 26])
                 self.assertEqual(ctx.stage.time_ms, {"cc": 100})

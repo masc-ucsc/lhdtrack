@@ -657,7 +657,8 @@ selected evaluation specifications. Results are separated by domain and host:
   run-only wall time. A summary shows median seconds and per-test ratio geomeans;
   hover the LLVM columns or bars for absolute costs. Above 1× favors LLVM for
   every metric; below 1× favors Slop.
-  Pairs require matching cycles, checksums, host, LiveHD version and run;
+  Pairs require matching cycles, checksums, host, LiveHD version, run, build-job
+  limits and outer concurrency;
   failed or unmatched measurements stay visible without entering the comparison.
   This backend comparison includes all Pyrope source styles because it compares
   the same source through two backends. Exact-netlist simulation checks have
@@ -675,13 +676,18 @@ test/config filter; tables remain sortable.
 The existing `sim_lhd_verilog` and `sim_lhd_pyrope` flows explicitly select Slop.
 The planner also schedules their `_llvm` counterparts when those language flows
 are declared. `--flow` can select any individual backend. Both backends use the
-same startup policy and cycle counts, with profiling off and one compiler job
-per flow. Execution is measured best of three, separately from setup and host
+same startup policy and cycle counts, with profiling off and the same bounded
+parallel build budget. `run.sim_build_jobs` (default 8), or `--sim-build-jobs N`,
+controls host compilation and LLVM native-object lowering; Verilator uses the
+same limit. Setup/code generation stays sequential. Keep outer flow workers
+times this limit within the host's physical core budget. Build limits enter
+simulation cache keys and are recorded alongside outer concurrency in each row.
+Execution is measured best of three, separately from setup and host
 compilation; all measurements remain gated against the recorded checksum.
 To refresh the complete simulation matrix without synthesis or LEC reruns:
 
 ```sh
-lhdtrack run --no-cache --flow sim_verilator \
+lhdtrack run --no-cache -j 8 --sim-build-jobs 8 --flow sim_verilator \
   --flow sim_lhd_verilog --flow sim_lhd_pyrope \
   --flow sim_lhd_verilog_llvm --flow sim_lhd_pyrope_llvm
 ```

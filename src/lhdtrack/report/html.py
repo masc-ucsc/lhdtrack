@@ -499,8 +499,18 @@ def write_report(
             phases = "; ".join(f"{n} workers ({count} measurements)"
                                for n, count in sorted(workers.items()))
             body.append(f'<p class="sub">Measurement concurrency: {phases}. '
-                        'Each flow uses one compiler job. Slop/LLVM pairs must share '
-                        'the same concurrency setting.</p>')
+                        'Slop/LLVM pairs must share the same outer concurrency setting.</p>')
+        builds = Counter(r.get("sim", {}).get("build_jobs")
+                         for k in keys for r in sim[k].values()
+                         if r.get("sim", {}).get("build_jobs"))
+        if builds:
+            limits = "; ".join(f"{n} build jobs per flow ({count} measurements)"
+                               for n, count in sorted(builds.items()))
+            body.append(f'<p class="sub">Build parallelism: {limits}. '
+                        'C++ compilation and LLVM native-object lowering share the same '
+                        'worker limit. Setup/code generation remains sequential; final '
+                        'linking follows object compilation. Backend pairs require '
+                        'matching build limits.</p>')
         data = _chart_data(
             keys, sim, base_sim, list(_SIM_FLOWS[1:]),
             [
@@ -885,6 +895,8 @@ def _llvm_gain(llvm: dict, slop: dict, metric: str = "exec") -> float | None:
         return None
     a, b = llvm.get("sim", {}), slop.get("sim", {})
     if a.get("measurement_jobs") != b.get("measurement_jobs"):
+        return None
+    if a.get("build_jobs") != b.get("build_jobs"):
         return None
     if (not a.get("cycles") or a.get("cycles") != b.get("cycles")
             or a.get("checksum") is None or a.get("checksum") != b.get("checksum")):

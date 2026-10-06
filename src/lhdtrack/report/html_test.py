@@ -202,6 +202,7 @@ class SimulationWorkload(unittest.TestCase):
                 self.assertIsNone(_llvm_gain({**llvm_v, field: value}, verilog))
         for field, value in (("cycles", 99), ("checksum", "8"), ("backend", "slop"),
                              ("measurement_jobs", 32),
+                             ("build_jobs", 8),
                              ("exec_ms", 0), ("exec_ms", float("inf"))):
             with self.subTest(field=field, value=value):
                 changed = {**llvm_v, "sim": {**llvm_v["sim"], field: value}}

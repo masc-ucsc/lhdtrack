@@ -67,6 +67,7 @@ def run_lhd_sim(
         raise ValueError(f"unknown simulation backend: {backend}")
     cycles = ctx.test.sim_cycles
     inputs = [design_input, str(tb)]
+    build_jobs = ctx.sim_build_jobs
 
     # Match Verilator's two-state startup contract.  State without an explicit
     # initializer or reset powers on at zero, and source-level unknown literal
@@ -78,7 +79,7 @@ def run_lhd_sim(
         "--set", "sim.unknown_zero=true",
         "--set", f"sim.tune.backend={backend}",
         "--set", "sim.tune.profile=off",
-        "--set", "sim.jobs=1",
+        "--set", f"sim.jobs={build_jobs}",
     ]
     ctx.run(
         "setup",
@@ -97,7 +98,8 @@ def run_lhd_sim(
         result = parse_result(run.log, ctx.test.sim_marker)
         if result.cycles != cycles:
             raise FlowError(f"simulation ran {result.cycles} cycles, expected {cycles}")
-        return {"sim": {"backend": backend, "cycles": result.cycles, "checksum": result.checksum,
+        return {"sim": {"backend": backend, "build_jobs": build_jobs,
+                        "cycles": result.cycles, "checksum": result.checksum,
                         "validation_only": True}}
 
     drv = ctx.work / "SW" / "sim" / "drv.bin"
@@ -124,6 +126,7 @@ def run_lhd_sim(
     return {
         "sim": {
             "backend": backend,
+            "build_jobs": build_jobs,
             "cycles": cycles,
             "exec_ms": best.ms,
             "exec_samples_ms": samples,

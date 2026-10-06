@@ -227,6 +227,11 @@ def _top_parameter_issues(t, TopModule) -> list[str]:
 
 # -------------------------------------------------------------------- run ---
 def cmd_run(args, root: Path, cfg: dict) -> int:
+    if (build_jobs := getattr(args, "sim_build_jobs", None)) is not None:
+        if build_jobs < 1:
+            print("--sim-build-jobs must be a positive integer")
+            return 2
+        cfg = {**cfg, "run": {**cfg.get("run", {}), "sim_build_jobs": build_jobs}}
     try:
         tc = Toolchain.load(root)
     except ToolchainError as e:
@@ -253,6 +258,8 @@ def cmd_run(args, root: Path, cfg: dict) -> int:
     runner = Runner(root, tc, cache, run_id, cfg, keep_work=args.keep_work)
 
     print(f"{C['b']}run {run_id}{C['0']} · {len(jobs)} jobs · host {tc.host_class}")
+    if any(getattr(job.module, "KIND", None) == "sim" for job in jobs):
+        print(f"simulation build limit: {runner.sim_build_jobs} jobs per flow; setup sequential")
     if missing := [t for t in ("lhd", "yosys", "abc", "verilator", "sta") if not tc.has(t)]:
         print(f"{C['warn']}toolchain missing {', '.join(missing)} — dependent flows will skip{C['0']}")
 
@@ -438,6 +445,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--no-report", action="store_true")
     r.add_argument("--keep-work", action="store_true", help="keep netlists and build trees")
     r.add_argument("-j", "--jobs", type=int)
+    r.add_argument("--sim-build-jobs", type=int,
+                   help="equal per-design compiler/native-object worker limit for simulators")
     r.add_argument("--record-checksum", action="store_true",
                    help="write each sim_verilator checksum into design.toml as the reference")
     r.set_defaults(fn=cmd_run)

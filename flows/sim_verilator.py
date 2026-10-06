@@ -80,12 +80,10 @@ def run(ctx: FlowContext) -> dict:
     ctx.run("setup", setup)
 
     # 2. host C++ compile + link
-    # Each flow invocation is single-threaded by benchmark contract. The outer
-    # runner already schedules independent jobs across cores; an inner
-    # `-j $(nproc)` here oversubscribes the host and makes both wall time and
-    # peak RSS depend on what the other three workers happen to be compiling.
+    # Use the same bounded compiler budget as Slop and LLVM. Keep outer flow
+    # concurrency times this budget within the available physical cores.
     ctx.run("cc", [ctx.tool("make"), "-C", str(vobj), "-f", f"V{sim_top}.mk",
-                   "-j", "1", f"CXX={ctx.tool('cxx')}", f"V{sim_top}"])
+                   "-j", str(ctx.sim_build_jobs), f"CXX={ctx.tool('cxx')}", f"V{sim_top}"])
 
     # 3. the simulation alone, best-of-N
     binary = vobj / f"V{sim_top}"
@@ -98,6 +96,7 @@ def run(ctx: FlowContext) -> dict:
     result = parse_result(best.log, ctx.test.sim_marker)
     return {
         "sim": {
+            "build_jobs": ctx.sim_build_jobs,
             "cycles": cycles,
             "exec_ms": best.ms,
             "exec_samples_ms": samples,

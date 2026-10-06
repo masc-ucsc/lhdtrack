@@ -107,6 +107,7 @@ def cache_key(
     flow_name: str,
     flow_file: Path,
     tc: Toolchain,
+    *, sim_build_jobs: int | None = None,
 ) -> str:
     h = hashlib.sha256()
     h.update(b"lhdtrack-key-v1\0")
@@ -125,6 +126,8 @@ def cache_key(
     # describing an experiment that no longer exists -- the one thing the flow
     # digest is here to prevent.
     h.update(_content_digest(_shared_recipe(flow_file.parent, flow_name)).encode())
+    if sim_build_jobs is not None:
+        h.update(f"\0sim_build_jobs={sim_build_jobs}".encode())
 
     tools = set(FLOW_TOOLS.get(flow_name, ()))
     if flow_name.startswith("syn_"):

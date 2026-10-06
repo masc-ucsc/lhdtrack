@@ -171,10 +171,13 @@ class RuntimeData(TestCase):
             flow_file = root / "probe.py"
             flow_file.write_text("# simulated flow recipe\n")
             seen = []
+            build_limits = []
 
             def probe(ctx):
                 seen.append((ctx.work / "data" / "program.hex").read_text())
-                return {"sim": {"checksum": seen[-1].strip(), "cycles": 1}}
+                build_limits.append(ctx.sim_build_jobs)
+                return {"sim": {"checksum": seen[-1].strip(), "cycles": 1,
+                                "build_jobs": ctx.sim_build_jobs}}
 
             test = load_test(test_dir)
             tc = Toolchain(root, "test", "", {}, {}, {}, {})
@@ -191,3 +194,23 @@ class RuntimeData(TestCase):
             self.assertFalse(changed.cached)
             self.assertEqual(changed.sim["checksum"], "56")
             self.assertEqual(seen, ["12\n", "56\n"])
+            self.assertEqual(build_limits, [8, 8])
+            self.assertEqual(changed.sim["measurement_jobs"], 4)
+            # Reusing the source, toolchain and recipe under another build
+            # budget must remeasure the baseline rather than load its old time.
+            different = Runner(root, tc, Cache(root), "parallel",
+                               {"run": {"sim_build_jobs": 4, "jobs": 2},
+                                "cache": {"baseline_flows": ["probe"]}}, keep_work=True)
+            updated = different._one(job)
+            self.assertFalse(updated.cached)
+            self.assertEqual(updated.sim["build_jobs"], 4)
+            self.assertEqual(updated.sim["measurement_jobs"], 2)
+            self.assertEqual(build_limits, [8, 8, 4])
+
+    def test_invalid_build_budget_is_rejected(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            tc = Toolchain(root, "test", "", {}, {}, {}, {})
+            for jobs in (0, -1):
+                with self.subTest(jobs=jobs), self.assertRaisesRegex(ValueError, "positive"):
+                    Runner(root, tc, Cache(root), "test", {"run": {"sim_build_jobs": jobs}})
