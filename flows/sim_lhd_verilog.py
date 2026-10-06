@@ -6,9 +6,10 @@ that would measure the Pyrope front end a second time and put an emitter round
 trip between the Verilog and the thing being simulated.
 
 The three legs match sim_verilator's exactly -- setup / cc / exec -- because
-`lhd sim --setup-only` writes the driver sources and `--run-only` does the host
-C++ compile plus the simulation. Timing --run-only alone would report a clang
-timing as if it were a simulator timing.
+`lhd sim --setup-only` writes driver sources and LLVM kernel objects;
+`--run-only` completes compilation/linking and runs the simulation. Timing
+--run-only alone would report a clang timing as if it were a simulator timing.
+Compare setup + cc for backend preparation and include elab for total cost.
 """
 
 from __future__ import annotations

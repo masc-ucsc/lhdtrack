@@ -49,7 +49,8 @@ cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--m
 .chart .bar:hover{opacity:1!important;stroke:var(--fg);stroke-width:1}
 .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
 background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
-border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
+border-radius:5px;width:max-content;max-width:min(600px,calc(100% - 16px));
+white-space:normal;overflow-wrap:anywhere;transform:translateY(-100%);z-index:5}
 .caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
 .chart-search{font:inherit;margin:0 0 .6rem .4rem;padding:.25rem .5rem;
 border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
@@ -75,7 +76,7 @@ boundary of what may be compared.</p>
 <th>rows</th><th class="l">last run</th><th class="l">Synthesis</th>
 <th class="l">Simulation</th><th class="l">LEC</th><th class="l">History</th></tr></thead>
 <tbody><tr><td class="l"><a href="results-syn-mada4.html">mada4</a></td><td class="l muted">Linux-x86_64</td><td>178</td><td>26,472</td><td class="l muted">2026-09-25</td><td class="l"><a href="results-syn-mada4.html">Synthesis</a></td><td class="l"><a href="results-sim-mada4.html">Simulation</a></td><td class="l"><a href="results-lec-mada4.html">LEC</a></td><td class="l"><a href="timeseries-mada4.html">history</a></td></tr><tr><td class="l"><a href="results-syn-mascm1.html">mascm1</a></td><td class="l muted">Darwin-arm64</td><td>92</td><td>10,159</td><td class="l muted">2026-10-02</td><td class="l"><a href="results-syn-mascm1.html">Synthesis</a></td><td class="l"><a href="results-sim-mascm1.html">Simulation</a></td><td class="l"><a href="results-lec-mascm1.html">LEC</a></td><td class="l"><a href="timeseries-mascm1.html">history</a></td></tr><tr><td class="l"><a href="results-syn-satsuma.html">satsuma</a></td><td class="l muted">Linux-x86_64</td><td>95</td><td>30,385</td><td class="l muted">2026-10-06</td><td class="l"><a href="results-syn-satsuma.html">Synthesis</a></td><td class="l"><a href="results-sim-satsuma.html">Simulation</a></td><td class="l"><a href="results-lec-satsuma.html">LEC</a></td><td class="l"><a href="timeseries-satsuma.html">history</a></td></tr></tbody></table></div>
-<p class="sub muted" style="margin-top:3rem">Generated 2026-10-06 08:41 from <code>data/</code>.
+<p class="sub muted" style="margin-top:3rem">Generated 2026-10-06 10:50 from <code>data/</code>.
 This page is a pure rendering of the ledger — nothing is recorded only in
 <code>target/</code>, which is regenerated on every run.</p>
 </div>
@@ -174,13 +175,21 @@ This page is a pure rendering of the ledger — nothing is recorded only in
         });
         rect.addEventListener('mousemove', function (e) {
           var r = plot.getBoundingClientRect();
-          tip.style.left = (e.clientX - r.left + plot.scrollLeft) + 'px';
-          tip.style.top = (e.clientY - r.top) + 'px';
           tip.style.opacity = 1;
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
             val.toFixed(2) + '× baseline / measured' +
             (g.solid ? '' : '  (' +
               (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
+          var times = g.times && g.times[metricKey] && g.times[metricKey][f.key];
+          if (times) {
+            tip.textContent += '  baseline ' + (times.baseline_ms / 1000).toFixed(3) +
+              's / measured ' + (times.measured_ms / 1000).toFixed(3) + 's';
+          }
+          var left = e.clientX - r.left + plot.scrollLeft - tip.offsetWidth / 2;
+          left = Math.max(plot.scrollLeft + 8,
+            Math.min(left, plot.scrollLeft + plot.clientWidth - tip.offsetWidth - 8));
+          tip.style.left = left + 'px';
+          tip.style.top = Math.max(tip.offsetHeight + 8, e.clientY - r.top - 8) + 'px';
         });
         rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
         svg.appendChild(rect);

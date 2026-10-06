@@ -649,7 +649,15 @@ selected evaluation specifications. Results are separated by domain and host:
   Two extra columns show **LLVM execution speed relative to Slop**, one per
   source language: Slop execution time divided by LLVM execution time, so above
   1× means LLVM helps. LLVM setup and compilation do not contribute to these
-  ratios. Pairs require matching cycles, checksums, host, LiveHD version and run;
+  execution ratios. The backend plot also compares **setup + compile** and
+  **total time including one simulation**. Combine setup and compile because
+  LLVM creates kernel objects during setup; the remaining compilation/linking
+  happens in run-only. Total also includes the separate Verilog elaboration.
+  Compile time is estimated by subtracting the best standalone execution from
+  run-only wall time. A summary shows median seconds and per-test ratio geomeans;
+  hover the LLVM columns or bars for absolute costs. Above 1× favors LLVM for
+  every metric; below 1× favors Slop.
+  Pairs require matching cycles, checksums, host, LiveHD version and run;
   failed or unmatched measurements stay visible without entering the comparison.
   This backend comparison includes all Pyrope source styles because it compares
   the same source through two backends. Exact-netlist simulation checks have

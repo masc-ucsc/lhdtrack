@@ -24,6 +24,7 @@ import json
 import math
 from collections import Counter, defaultdict
 from pathlib import Path
+from statistics import median
 
 from ..corpus import discover
 from ..ledger import DATA_DIR, TARGET_DIR, Ledger, slug
@@ -506,6 +507,8 @@ def write_report(
                 ("exec", "Simulation speed", "", lambda r: r.get("sim", {}).get("exec_ms")),
                 ("cc", "Host C++ compile", "s", lambda r: r.get("time_ms", {}).get("cc")),
                 ("setup", "Front end", "s", lambda r: r.get("time_ms", {}).get("setup")),
+                ("prepare", "Setup + compile", "s", lambda r: _sim_cost_ms(r, "prepare")),
+                ("total", "Total incl. one simulation", "s", lambda r: _sim_cost_ms(r, "total")),
                 ("mem", "Peak memory", "MB",
                  lambda r: r.get("peak_rss_kb", {}).get("max")),
             ],
@@ -514,11 +517,16 @@ def write_report(
             body.append(_chart_block("chart-sim", data))
         body.append(_sim_table(None, keys, sim, base_sim, headline))
         llvm_data = _llvm_chart_data(keys, sim)
-        body.append('<h2>LLVM execution speed relative to Slop</h2>'
+        body.append('<h2>LLVM relative to Slop</h2>'
                     '<p class="sub">Same source language, cycles, checksum, host and LiveHD build '
                     'in the same run. Slop execution time ÷ LLVM execution time: above 1× '
                     'means LLVM is faster. Failed and unmatched runs are excluded; all '
-                    'Pyrope source styles are eligible for this backend comparison.</p>')
+                    'Pyrope source styles are eligible for this backend comparison.</p>'
+                    '<p class="sub">Setup + compile combines code generation, LLVM kernel-object '
+                    'creation, host compilation and linking. Total adds one simulation and '
+                    'the separate Verilog elaboration step. Compile time is estimated as '
+                    'run-only wall time minus the best standalone execution; these are '
+                    'measured cold-flow costs, not isolated compiler timings.</p>')
         if llvm_data:
             for language in ("verilog", "pyrope"):
                 gains = [g["values"]["exec"][language] for g in llvm_data["groups"]
@@ -532,6 +540,7 @@ def write_report(
                                 f'over {len(gains)} pairs; '
                                 f'LLVM is more than 5% faster on {faster}, more than 5% slower '
                                 f'on {slower}, and within 5% on {similar}.</p>')
+            body.append(_llvm_timing_summary(llvm_data))
             body.append(_chart_block("chart-sim-llvm", llvm_data))
         else:
             body.append('<p class="sub">No matching successful Slop/LLVM measurements yet.</p>')
@@ -847,7 +856,24 @@ _SIM_FLOWS = ("sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope")
 _SIM_LABELS = ("verilator", "lhd·verilog", "lhd·pyrope")
 
 
-def _llvm_gain(llvm: dict, slop: dict) -> float | None:
+def _sim_cost_ms(row: dict, metric: str) -> float | None:
+    """Combine stages without treating unrecorded build times as zero."""
+    execution = row.get("sim", {}).get("exec_ms")
+    if metric == "exec":
+        values = [execution]
+    elif metric in ("prepare", "total"):
+        stages = row.get("time_ms", {})
+        values = [stages.get("setup"), stages.get("cc")]
+        if metric == "total":
+            values.extend((stages.get("elab", 0), execution))
+    else:
+        raise ValueError(f"unknown simulation cost: {metric}")
+    if not all(isinstance(v, (float, int)) and math.isfinite(v) and v >= 0 for v in values):
+        return None
+    return sum(values)
+
+
+def _llvm_gain(llvm: dict, slop: dict, metric: str = "exec") -> float | None:
     if (llvm.get("status") != "ok" or slop.get("status") != "ok"
             or slop.get("sim", {}).get("backend") != "slop"
             or llvm.get("sim", {}).get("backend") != "llvm"):
@@ -863,7 +889,10 @@ def _llvm_gain(llvm: dict, slop: dict) -> float | None:
     if (not a.get("cycles") or a.get("cycles") != b.get("cycles")
             or a.get("checksum") is None or a.get("checksum") != b.get("checksum")):
         return None
-    measured, base = a.get("exec_ms"), b.get("exec_ms")
+    execution = (_sim_cost_ms(llvm, "exec"), _sim_cost_ms(slop, "exec"))
+    if not all(isinstance(v, (float, int)) and math.isfinite(v) and v > 0 for v in execution):
+        return None
+    measured, base = _sim_cost_ms(llvm, metric), _sim_cost_ms(slop, metric)
     if not all(isinstance(v, (float, int)) and math.isfinite(v) and v > 0
                for v in (measured, base)):
         return None
@@ -873,25 +902,57 @@ def _llvm_gain(llvm: dict, slop: dict) -> float | None:
 def _llvm_chart_data(keys, index) -> dict | None:
     groups = []
     for key in keys:
-        gains = {}
-        for language in ("verilog", "pyrope"):
-            source = f"sim_lhd_{language}"
-            gain = _llvm_gain(index[key].get(source + "_llvm", {}),
-                              index[key].get(source, {}))
-            if gain is not None:
-                gains[language] = gain
-        if gains:
+        values, times = {}, {}
+        for metric in ("exec", "prepare", "total"):
+            gains, costs = {}, {}
+            for language in ("verilog", "pyrope"):
+                source = f"sim_lhd_{language}"
+                llvm, slop = index[key].get(source + "_llvm", {}), index[key].get(source, {})
+                gain = _llvm_gain(llvm, slop, metric)
+                if gain is not None:
+                    gains[language] = gain
+                    costs[language] = {"baseline_ms": _sim_cost_ms(slop, metric),
+                                       "measured_ms": _sim_cost_ms(llvm, metric)}
+            values[metric], times[metric] = gains, costs
+        if any(values.values()):
             groups.append({"test": key[1], "config": key[2], "solid": True,
-                           "values": {"exec": gains}})
+                           "values": values, "times": times})
     if not groups:
         return None
     return {"baseline": "Slop for the same source language",
-            "flows": [{"key": "verilog", "label": "Verilog LLVM / Slop speed", "series": "a"},
-                      {"key": "pyrope", "label": "Pyrope LLVM / Slop speed", "series": "b"}],
-            "metrics": [{"key": "exec", "label": "LLVM simulation speed", "unit": ""}],
-            "sortFlow": "verilog", "sortLabel": "Verilog LLVM / Slop speed",
+            "flows": [{"key": "verilog", "label": "Verilog LLVM / Slop", "series": "a"},
+                      {"key": "pyrope", "label": "Pyrope LLVM / Slop", "series": "b"}],
+            "metrics": [{"key": "exec", "label": "LLVM simulation speed", "unit": ""},
+                        {"key": "prepare", "label": "Setup + compile", "unit": ""},
+                        {"key": "total", "label": "Total incl. one simulation", "unit": ""}],
+            "sortFlow": "verilog", "sortLabel": "Verilog LLVM / Slop",
             "solidNote": "matched successful checksums; same run and compiler build",
             "groups": groups}
+
+
+def _llvm_timing_summary(data: dict) -> str:
+    rows = []
+    for language in ("verilog", "pyrope"):
+        for metric in data["metrics"]:
+            key = metric["key"]
+            pairs = [group["times"][key][language] for group in data["groups"]
+                     if language in group["times"][key]]
+            if not pairs:
+                continue
+            gains = [pair["baseline_ms"] / pair["measured_ms"] for pair in pairs]
+            slop = median(pair["baseline_ms"] for pair in pairs) / 1000
+            llvm = median(pair["measured_ms"] for pair in pairs) / 1000
+            label = "Simulation execution" if key == "exec" else metric["label"]
+            rows.append(f'<tr><td class="l">{language.title()}</td>'
+                        f'<td class="l">{_e(label)}</td>'
+                        f'<td>{_fmt(slop)}</td><td>{_fmt(llvm)}</td>'
+                        f'<td>{_ratio(gains)}</td><td>{len(pairs)}</td></tr>')
+    return ('<div class="scroll"><table><thead><tr><th class="l">Source</th>'
+            '<th class="l">Metric</th><th>Slop median s</th><th>LLVM median s</th>'
+            '<th>Geomean Slop time ÷ LLVM time</th><th>Pairs</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table></div>'
+            '<p class="sub">Above 1× favors LLVM for every metric; below 1× favors Slop. '
+            'The geomean uses per-test ratios, rather than the ratio of the medians.</p>')
 
 
 def _sim_table(title, keys, index, base_flow, headline) -> str:
@@ -960,6 +1021,10 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
                 label = _ratio([gain])
                 note = (f'Slop {slop["sim"]["exec_ms"] / 1000:.4f}s / '
                         f'LLVM {llvm["sim"]["exec_ms"] / 1000:.4f}s')
+                for metric, cost_label in (("prepare", "setup + compile"), ("total", "total")):
+                    if _llvm_gain(llvm, slop, metric) is not None:
+                        note += (f'; {cost_label}: Slop {_sim_cost_ms(slop, metric) / 1000:.4f}s / '
+                                 f'LLVM {_sim_cost_ms(llvm, metric) / 1000:.4f}s')
             else:
                 status = llvm.get("status", "—")
                 color = "bad" if status == "failed" else "muted"
@@ -996,8 +1061,8 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
 <p class="sub muted">Ratios are <b>baseline &divide; measured</b>, so
 <b>higher is always better</b> — 2.00&times; means twice as fast.
 Ratios require equal cycle counts. All simulators fold the recorded checksum or the test fails.
-The two LLVM columns show Slop time ÷ LLVM time for the same source language;
-hover for absolute execution times. Above 1× means LLVM helps.</p>
+The two LLVM columns show Slop execution time ÷ LLVM execution time for the same source language;
+hover for absolute execution, setup+compile and total times. Above 1× means LLVM helps.</p>
 """
 
 
@@ -1526,7 +1591,8 @@ cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--m
 .chart .bar:hover{opacity:1!important;stroke:var(--fg);stroke-width:1}
 .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
 background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
-border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
+border-radius:5px;width:max-content;max-width:min(600px,calc(100% - 16px));
+white-space:normal;overflow-wrap:anywhere;transform:translateY(-100%);z-index:5}
 .caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
 .chart-search{font:inherit;margin:0 0 .6rem .4rem;padding:.25rem .5rem;
 border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
@@ -1630,13 +1696,21 @@ CHART_JS = r"""
         });
         rect.addEventListener('mousemove', function (e) {
           var r = plot.getBoundingClientRect();
-          tip.style.left = (e.clientX - r.left + plot.scrollLeft) + 'px';
-          tip.style.top = (e.clientY - r.top) + 'px';
           tip.style.opacity = 1;
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
             val.toFixed(2) + '× baseline / measured' +
             (g.solid ? '' : '  (' +
               (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
+          var times = g.times && g.times[metricKey] && g.times[metricKey][f.key];
+          if (times) {
+            tip.textContent += '  baseline ' + (times.baseline_ms / 1000).toFixed(3) +
+              's / measured ' + (times.measured_ms / 1000).toFixed(3) + 's';
+          }
+          var left = e.clientX - r.left + plot.scrollLeft - tip.offsetWidth / 2;
+          left = Math.max(plot.scrollLeft + 8,
+            Math.min(left, plot.scrollLeft + plot.clientWidth - tip.offsetWidth - 8));
+          tip.style.left = left + 'px';
+          tip.style.top = Math.max(tip.offsetHeight + 8, e.clientY - r.top - 8) + 'px';
         });
         rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
         svg.appendChild(rect);

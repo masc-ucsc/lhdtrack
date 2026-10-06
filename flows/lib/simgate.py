@@ -50,11 +50,13 @@ def run_lhd_sim(
 ) -> dict:
     """The `lhd sim` half of a simulation row: setup / cc / exec.
 
-    THE TIME SPLIT MATTERS. `--setup-only` only WRITES the driver sources; the
-    host C++ compile happens inside `--run-only`, which rebuilds drv.bin every
-    invocation. Reporting `--run-only`'s wall clock as "simulation" would report
-    a clang timing. So the binary it just built is re-run separately: that is
-    the simulation alone, and the remainder is the compile.
+    THE TIME SPLIT MATTERS. `--setup-only` writes driver sources and, for LLVM,
+    kernel objects. `--run-only` completes host compilation/linking, rebuilds
+    drv.bin and runs it. The binary is re-run separately to measure simulation
+    alone; subtracting its best execution from run-only estimates compile time.
+    Compare setup + compile across backends because object generation straddles
+    those stages differently. Verilog's separate elab stage also belongs in
+    the total cost of preparing and executing one simulation.
 
     sim.ninja=false PINS the build path. `lhd sim` uses ninja when it finds one
     on PATH and its own parallel compile otherwise; leaving that to chance makes
