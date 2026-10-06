@@ -14,11 +14,12 @@ from lhdtrack.cache import Cache
 from lhdtrack.cli import load_config
 from lhdtrack.corpus import discover
 from lhdtrack.ledger import Ledger
-from lhdtrack.report.html import write_report, write_index
+from lhdtrack.report.html import write_report, write_results, write_index
 from lhdtrack.run import Runner, expected_checksums, host_name, load_flows, plan
 from lhdtrack.toolchain import Toolchain
 
 FLOWS = ["sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope",
+         "sim_lhd_verilog_llvm", "sim_lhd_pyrope_llvm",
          "syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope"]
 
 
@@ -54,14 +55,20 @@ def main():
     groups = defaultdict(list)
     done = 0
     last_render = 0.0
-    out = ROOT / "target" / (f"host-refresh-{run}.html" if args.test else f"report-{host_name()}-full.html")
+    name = f"host-refresh-{run}.html" if args.test else f"results-syn-{host_name()}-full.html"
+    out = ROOT / "target" / name
     state = dict(run_id=run, host=host_name(), jobs=args.jobs, flows=FLOWS,
                  phase="running", total=len(jobs), completed=0)
 
     def render():
         nonlocal last_render
         (folder / "host-refresh.json").write_text(json.dumps(state, indent=2) + "\n")
-        write_report(ROOT, out=out, cfg=cfg, host=host_name(), comparison_name="host-refresh")
+        if args.test:
+            write_report(ROOT, out=out, cfg=cfg, host=host_name(), comparison_name="host-refresh")
+        else:
+            write_results(ROOT, cfg=cfg, host=host_name())
+            write_report(ROOT, out=out, cfg=cfg, host=host_name(), kind="synth",
+                         prefer_evaluation=False, comparison_name="host-refresh")
         write_index(ROOT)
         last_render = time.monotonic()
 

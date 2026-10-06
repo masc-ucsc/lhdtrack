@@ -59,7 +59,9 @@ run: ## THE CRON TARGET: lint the corpus, run the regression, render this machin
 	-@$(LHDTRACK) check
 	@rc=0; $(LHDTRACK) run $(RUN_ARGS) || rc=$$?; \
 	 echo; \
-	 echo "report:  $(TARGET)/report-$(HOST).html"; \
+	 echo "synth:   $(TARGET)/results-syn-$(HOST).html"; \
+	 echo "sim:     $(TARGET)/results-sim-$(HOST).html"; \
+	 echo "lec:     $(TARGET)/results-lec-$(HOST).html"; \
 	 echo "history: $(TARGET)/timeseries-$(HOST).html"; \
 	 if [ $$rc -ne 0 ]; then echo "STATUS:  $$rc (a test failed -- see the report's failures section)"; fi; \
 	 exit $$rc

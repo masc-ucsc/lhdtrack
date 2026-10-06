@@ -37,7 +37,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from lhdtrack.cli import find_root, load_config  # noqa: E402
 from lhdtrack.ledger import slug  # noqa: E402
-from lhdtrack.report import write_report  # noqa: E402
+from lhdtrack.report.html import RESULT_KINDS, write_report  # noqa: E402
 from lhdtrack.run import host_name  # noqa: E402
 
 
@@ -100,10 +100,13 @@ def render(root: Path, cfg: dict, run_id: str | None = None) -> tuple[Path, int,
             counts[row.get("status", "ok")] = counts.get(row.get("status", "ok"), 0) + 1
             n += 1
 
-    out = root / "target" / f"report-{slug(host)}.html"
-    write_report(root / "var" / "live", out=out, cfg=cfg, host=host)
-    _mark_live(out, ident["run_id"], n, counts)
-    return out, n, counts
+    outputs = []
+    for kind, (suffix, _) in RESULT_KINDS.items():
+        out = root / "target" / f"results-{suffix}-{slug(host)}.html"
+        write_report(root / "var" / "live", out=out, cfg=cfg, host=host, kind=kind)
+        _mark_live(out, ident["run_id"], n, counts)
+        outputs.append(out)
+    return outputs[0], n, counts
 
 
 _BANNER = """<p class="sub" style="border-left:4px solid #d08770;padding-left:.7em">
@@ -123,6 +126,8 @@ def _mark_live(out: Path, run: str, n: int, counts: dict) -> None:
     # After the header block, before the first section.
     marker = "<h2>"
     idx = html.find(marker)
+    if idx == -1:
+        idx = html.find('<p class="sub muted"')
     if idx != -1:
         html = html[:idx] + banner + html[idx:]
     out.write_text(html)

@@ -1,9 +1,9 @@
 """Render `target/` from `data/`.
 
-SECTION ORDER: synthesis, STA accuracy, simulation. The first and last are the
-results; STA accuracy sits between them because it is a diagnostic on the
-synthesis numbers above it -- less important than either, but the thing that
-tells you when a delay reported above cannot be trusted.
+Host results have separate synthesis, simulation and equivalence pages.
+Synthesis keeps its STA diagnostics; simulation keeps backend speed comparisons;
+LEC keeps proof coverage and timing. Explicitly named snapshots can still show
+the complete selected evaluation.
 
 Two more rules shape everything below.
 
@@ -44,7 +44,9 @@ h2{font-size:1.05rem;margin:2.5rem 0 .5rem;padding-bottom:.35rem;border-bottom:1
 .sub{color:var(--muted);margin:0 0 1.5rem}
 .meta{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.5rem}
 .chip{background:var(--chip);border-radius:999px;padding:.15rem .6rem;font-size:12px;
-white-space:nowrap}
+white-space:normal;overflow-wrap:anywhere;max-width:100%}
+nav a{text-decoration:none;color:var(--accent)}
+nav a[aria-current="page"]{background:var(--accent);color:var(--bg)}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th,td{padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -66,6 +68,87 @@ svg{display:block;max-width:100%}
 
 SERIES_COLORS = ["#1d4ed8", "#b45309", "#0a7c3f", "#7c3aed", "#be123c", "#0891b2"]
 
+RESULT_KINDS = {"synth": ("syn", "Synthesis"), "sim": ("sim", "Simulation"),
+                "lec": ("lec", "LEC")}
+
+
+def _results_nav(host: str, kind: str | None = None) -> str:
+    links = []
+    for key, (suffix, label) in RESULT_KINDS.items():
+        current = ' aria-current="page"' if key == kind else ""
+        links.append(f'<a class="chip"{current} href="results-{suffix}-{slug(host)}.html">'
+                     f'{label}</a>')
+    return ('<nav class="meta" aria-label="Results">'
+            '<a class="chip" href="index.html">Machines</a>' + "".join(links)
+            + f'<a class="chip" href="timeseries-{slug(host)}.html">History</a></nav>')
+
+
+def _coverage_plot(groups: list[tuple[str, Counter]]) -> str:
+    """Count outcomes independently; bounded proofs keep their own category."""
+    categories = ("proven", "bounded", "refuted", "timeout", "inconclusive",
+                  "unsupported", "error", "skipped", "not-measured")
+    colors = ("var(--good)", "var(--accent)", "var(--bad)", "var(--warn)",
+              "var(--series-a)", "var(--muted)", "var(--series-b)",
+              "#7c3aed", "var(--line)")
+    groups = [(label, counts) for label, counts in groups if counts]
+    if not groups:
+        return '<p class="sub">No verdicts recorded yet.</p>'
+    # Unknown outcomes remain visible instead of disappearing from the denominator.
+    extra = sorted({v for _, counts in groups for v in counts} - set(categories))
+    palette = dict(zip(categories, colors))
+    categories = (*categories, *extra)
+    height = 32 * len(groups) + 16
+    bars = []
+    for i, (label, counts) in enumerate(groups):
+        total = sum(counts.values())
+        bars.append(f'<text x="4" y="{i * 32 + 24}" fill="var(--fg)" '
+                    f'font-size="12">{_e(label)}</text>')
+        x = 330.0
+        for verdict in categories:
+            count = counts.get(verdict, 0)
+            if not count:
+                continue
+            width = 500 * count / total
+            bars.append(f'<rect x="{x:.2f}" y="{i * 32 + 8}" width="{width:.2f}" '
+                        f'height="22" fill="{palette.get(verdict, "var(--muted)")}">'
+                        f'<title>{_e(label)}: {_e(verdict)} {count}/{total}</title></rect>')
+            x += width
+        bars.append(f'<text x="840" y="{i * 32 + 24}" fill="var(--muted)" '
+                    f'font-size="12">n={total}</text>')
+    legend = "".join(f'<span><i style="background:{palette.get(v, "var(--muted)")}"></i>'
+                     f'{_e(v)}</span>' for v in categories
+                     if any(counts.get(v) for _, counts in groups))
+    return ('<div class="scroll"><svg role="img" aria-label="Verdict coverage by checker" '
+            f'viewBox="0 0 920 {height}" style="min-width:700px">'
+            + "".join(bars) + f'</svg></div><div class="legend">{legend}</div>')
+
+
+def _coverage_verdict(block: dict, fallback: str = "not-measured") -> str:
+    if fallback == "ok":
+        fallback = "not-measured"
+    verdict = _display_lec_verdict(block) or fallback
+    return "bounded" if verdict.startswith("bounded(") else verdict
+
+
+def write_results(root: Path, cfg: dict | None = None, host: str | None = None) -> list[Path]:
+    """Render separate domains for a host."""
+    host = host or host_name()
+    outputs = [write_report(root, cfg=cfg, host=host, kind=kind)
+               for kind in RESULT_KINDS]
+    evaluation = root / DATA_DIR / f"verilog-eval-{slug(host)}.json"
+    if evaluation.exists():
+        auxiliary = json.loads(evaluation.read_text()).get("auxiliary_report")
+        if auxiliary:
+            name = _auxiliary_report_name(host, auxiliary)
+            outputs.append(write_report(root, out=root / TARGET_DIR / name, cfg=cfg,
+                                        host=host, prefer_evaluation=False, kind="synth"))
+    return outputs
+
+
+def _auxiliary_report_name(host: str, name: str) -> str:
+    return (f"results-syn-{slug(host)}-full.html"
+            if name == f"report-{slug(host)}-full.html" else name)
+
 
 def _e(x) -> str:
     return html.escape(str(x))
@@ -79,6 +162,30 @@ def _fmt(v, digits=2, dash="—"):
     if isinstance(v, int):
         return f"{v:,}"
     return _e(v)
+
+
+def _synth_display_values(row):
+    """Show every recorded metric, labeling partial mapped-logic measurements."""
+    qor, sta = row.get("qor", {}), row.get("sta", {})
+    ms, kb = row.get("time_ms", {}).get("total"), row.get("peak_rss_kb", {}).get("max")
+    values = [sta.get("opensta_ns"), qor.get("area_um2"), qor.get("cells"),
+              qor.get("logic_depth"), ms / 1000 if ms is not None else None,
+              kb / 1024 if kb is not None else None]
+    scopes = [""] * len(values)
+    for index, field, scope in ((0, "abc_max_delay_ns", "region"),
+                                (1, "lhd_area_um2", "logic"), (2, "lhd_cells", "logic")):
+        if values[index] is None and qor.get(field) is not None:
+            values[index], scopes[index] = qor[field], scope
+    return values, scopes
+
+
+def _synth_scope_tag(scope):
+    if not scope:
+        return ""
+    explanation = ("Maximum mapped region delay in this library's time unit; whole-design STA unavailable."
+                   if scope == "region" else
+                   "Mapped combinational logic only; preserved native state or memory is not included.")
+    return f' <span class="tag" title="{_e(explanation)}">{_e(scope)}</span>'
 
 
 def _display_lec_verdict(block: dict | None) -> str | None:
@@ -226,15 +333,21 @@ def write_report(
     root: Path, out: Path | None = None, cfg: dict | None = None, host: str | None = None,
     synthesis_run: str | None = None, comparison_name: str | None = None,
     prefer_evaluation: bool = True,
+    kind: str | None = None,
 ) -> Path:
     cfg = cfg or {}
     host = host or host_name()
+    if kind is not None and kind not in RESULT_KINDS:
+        raise ValueError(f"unknown result kind: {kind}")
+    if (kind is None and out is None and synthesis_run is None
+            and comparison_name is None and prefer_evaluation):
+        return write_results(root, cfg=cfg, host=host)[0]
     evaluation = root / "data" / f"verilog-eval-{slug(host)}.json"
-    if (prefer_evaluation and evaluation.exists()
+    if (prefer_evaluation and evaluation.exists() and kind != "sim"
             and synthesis_run is None and comparison_name is None):
         from .verilog_eval import write_evaluation
 
-        return write_evaluation(root, evaluation, out=out)
+        return write_evaluation(root, evaluation, out=out, kind=kind)
     rcfg = cfg.get("report", {})
     base_syn = rcfg.get("baseline_flow", "syn_yosys_abc")
     base_sim = rcfg.get("baseline_sim_flow", "sim_verilator")
@@ -279,22 +392,27 @@ def write_report(
         snapshot_flows = {r["flow"] for r in snapshot}
         rows = [r for r in rows if r.get("flow") not in snapshot_flows] + snapshot
         rows = _gate_snapshot_lec(rows, synthesis_run)
-    out = out or root / TARGET_DIR / f"report-{slug(host)}.html"
+    if kind is not None:
+        rows = [r for r in rows if r.get("kind") == kind]
+    suffix = f"results-{RESULT_KINDS[kind][0]}" if kind else "report"
+    out = out or root / TARGET_DIR / f"{suffix}-{slug(host)}.html"
     out.parent.mkdir(parents=True, exist_ok=True)
+    page_name = f"{RESULT_KINDS[kind][1]} · {host}" if kind else "lhdtrack"
 
     if not rows:
         out.write_text(
             _page(
-                "lhdtrack",
-                f"<h1>lhdtrack</h1><p class='sub'>No runs recorded on "
+                f"lhdtrack — {page_name}",
+                f"<h1>{_e(page_name)}</h1>{_results_nav(host, kind)}"
+                f"<p class='sub'>No runs recorded on "
                 f"<b>{_e(host)}</b> yet. Run <code>make run</code>.</p>",
             )
         )
         return out
 
     ident = max(rows, key=lambda row: row.get("run_id", ""))
-    body = [_header(ident, rows)]
-    if synthesis_run is None or comparison_name is not None:
+    body = [_results_nav(host, kind), _header(ident, rows, page_name)]
+    if kind in (None, "synth") and (synthesis_run is None or comparison_name is not None):
         body.append(_satopt_comparison(root, host, comparison_name or "satopt"))
     if synthesis_run is not None:
         body.append(f'<p class="sub" data-synthesis-run="{_e(synthesis_run)}">'
@@ -303,24 +421,14 @@ def write_report(
     # index: (test, config, tech) -> flow -> row
     syn: dict[tuple, dict[str, dict]] = defaultdict(dict)
     sim: dict[tuple, dict[str, dict]] = defaultdict(dict)
-    lec: dict[tuple, dict[str, dict]] = defaultdict(dict)
     for r in rows:
         key = (r["suite"], r["test"], r.get("config", "default"), r.get("tech"))
         if r.get("kind") == "synth":
             syn[key][r["flow"]] = r
         elif r.get("kind") == "sim":
-            sim[(r["suite"], r["test"], r.get("config", "default"), None)][r["flow"]] = r
-        elif r.get("kind") == "lec":
-            # KEYED BY TECH LIKE ANY OTHER ROW. `lec_netlist` sets USES_TECH, so
-            # it produces one row per technology; collapsing tech to None made
-            # sky130's and asap7's rows overwrite each other. It also proves a
-            # DIFFERENT obligation, so it belongs to `_netlist_lec_section`
-            # alone -- mixing it in here made `len(...) == 2` below false for
-            # every test that ran it, silently emptying the proof-time chart.
-            if r.get("flow") == "lec_netlist":
+            if r.get("flow", "").startswith("sim_retained_usyn_netlist"):
                 continue
-            lec[(r["suite"], r["test"], r.get("config", "default"), None)][r["flow"]] = r
-
+            sim[(r["suite"], r["test"], r.get("config", "default"), None)][r["flow"]] = r
     # ORDER: synthesis, then STA accuracy, then simulation. Synthesis and
     # simulation are the results; STA accuracy sits between them because it is a
     # DIAGNOSTIC -- nobody is trying to improve it, but a timer drifting from the
@@ -371,7 +479,8 @@ def write_report(
             )
         body.append(_synth_table(None, keys, syn, base_syn, headline, unit))
 
-    body.append(_sta_section(rows, cfg))
+    if kind in (None, "synth"):
+        body.append(_sta_section(rows, cfg))
 
     simulation_start = len(body)
     if sim:
@@ -382,6 +491,15 @@ def write_report(
                     'sources. Verilator execution targets 0.5–2 seconds per test. Execution '
                     'speed is separate from host C++ compilation and '
                     'front-end setup; checksum failures remain failed rows.</p>')
+        workers = Counter(r.get("sim", {}).get("measurement_jobs")
+                          for k in keys for r in sim[k].values()
+                          if r.get("sim", {}).get("measurement_jobs"))
+        if workers:
+            phases = "; ".join(f"{n} workers ({count} measurements)"
+                               for n, count in sorted(workers.items()))
+            body.append(f'<p class="sub">Measurement concurrency: {phases}. '
+                        'Each flow uses one compiler job. Slop/LLVM pairs must share '
+                        'the same concurrency setting.</p>')
         data = _chart_data(
             keys, sim, base_sim, list(_SIM_FLOWS[1:]),
             [
@@ -395,47 +513,50 @@ def write_report(
         if data:
             body.append(_chart_block("chart-sim", data))
         body.append(_sim_table(None, keys, sim, base_sim, headline))
+        llvm_data = _llvm_chart_data(keys, sim)
+        body.append('<h2>LLVM execution speed relative to Slop</h2>'
+                    '<p class="sub">Same source language, cycles, checksum, host and LiveHD build '
+                    'in the same run. Slop execution time ÷ LLVM execution time: above 1× '
+                    'means LLVM is faster. Failed and unmatched runs are excluded; all '
+                    'Pyrope source styles are eligible for this backend comparison.</p>')
+        if llvm_data:
+            for language in ("verilog", "pyrope"):
+                gains = [g["values"]["exec"][language] for g in llvm_data["groups"]
+                         if language in g["values"]["exec"]]
+                if gains:
+                    faster = sum(gain > 1.05 for gain in gains)
+                    slower = sum(gain < 0.95 for gain in gains)
+                    similar = len(gains) - faster - slower
+                    body.append(f'<p class="sub"><b>{language.title()}</b>: '
+                                f'LLVM speed / Slop geomean {_ratio(gains)} '
+                                f'over {len(gains)} pairs; '
+                                f'LLVM is more than 5% faster on {faster}, more than 5% slower '
+                                f'on {slower}, and within 5% on {similar}.</p>')
+            body.append(_chart_block("chart-sim-llvm", llvm_data))
+        else:
+            body.append('<p class="sub">No matching successful Slop/LLVM measurements yet.</p>')
 
-    if sim and rcfg.get("simulation_first", False):
+    if kind is None and sim and rcfg.get("simulation_first", False):
         simulation = body[simulation_start:]
         del body[simulation_start:]
-        body[1:1] = simulation
+        body[2:2] = simulation
 
-    if lec:
-        # TWO DIFFERENT OBLIGATIONS, never mixed. `pyrope vs verilog` compares
-        # two source descriptions; `rtl vs netlist` compares behavioural RTL to
-        # a flat sea of mapped cells. Averaging their times or checking their
-        # verdicts against each other would be comparing different questions.
-        keys = sorted(lec, key=lambda k: (k[1], k[2]))
-        body.append("<h2>Equivalence — Pyrope vs Verilog</h2>")
-        data = _chart_data(
-            keys, lec, "lec_lgyosys", ["lec_lhd"],
-            [("prove", "Proof time", "s", lambda r: r.get("lec_result", {}).get("ms"))],
-        )
-        if data:
-            # Only tests where BOTH backends reached the same verdict can be
-            # timed against each other: a solver that gave up is faster than one
-            # that proved something, and plotting that as a win would be a lie.
-            data["groups"] = [
-                g for g, key in zip(data["groups"], keys)
-                if len({
-                    r.get("lec_result", {}).get("verdict")
-                    for r in lec[key].values()
-                    if r.get("lec_result", {}).get("verdict") in ("proven", "refuted")
-                }) == 1
-                and len(lec[key]) == 2
-            ]
-            if data["groups"]:
-                body.append(_chart_block("chart-lec", data))
-        body.append(_lec_section(keys, lec))
-        body.append(_netlist_lec_section(rows))
+    body.append(_language_lec_section(rows))
+    body.append(_netlist_lec_section(rows))
+
+    if kind == "sim" and evaluation.exists():
+        from .verilog_eval import retained_usyn_validation_section
+
+        spec = json.loads(evaluation.read_text())
+        body.append(retained_usyn_validation_section(ledger.load(host), spec, kind="sim"))
 
     body.append(_problems(rows))
-    out.write_text(_page("lhdtrack — QoR report", "\n".join(body)))
+    title = RESULT_KINDS[kind][1] if kind else "QoR report"
+    out.write_text(_page(f"lhdtrack — {title} — {host}", "\n".join(body)))
     return out
 
 
-def _header(ident: dict, rows: list[dict]) -> str:
+def _header(ident: dict, rows: list[dict], title: str = "lhdtrack") -> str:
     versions = ident.get("versions", {})
     chips = [
         f"<span class='chip'>{_e(k)} {_e(v)}</span>"
@@ -446,7 +567,7 @@ def _header(ident: dict, rows: list[dict]) -> str:
     failed = sum(1 for r in rows if r.get("status") == "failed")
     skipped = sum(1 for r in rows if r.get("status") == "skipped")
     return f"""
-<h1>lhdtrack</h1>
+<h1>{_e(title)}</h1>
 <p class="sub"><b>{_e(ident.get('host'))}</b> ({_e(ident.get('host_class'))}) ·
 {_e(ident.get('date'))} · run <code>{_e(ident.get('run_id'))}</code> ·
 {len(rows)} rows, {cached} reused from cache,
@@ -646,7 +767,9 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             # gate tag and keep the failure in the diagnostics section. A true
             # synthesis failure has no QoR/STA payload and remains a blank
             # failed cell.
-            has_measurement = bool(r and r.get("qor") and r.get("sta", {}).get("opensta_ns") is not None)
+            has_measurement = bool(r and (r.get("sta", {}).get("opensta_ns") is not None
+                                         or any(r.get("qor", {}).get(field) is not None
+                                                for field in ("area_um2", "cells", "lhd_area_um2", "lhd_cells"))))
             if not r or (r.get("status") != "ok" and not has_measurement):
                 note = (r or {}).get("status", "-")
                 cells.append(f'<td class="muted g" colspan="6">{_e(note)}</td>')
@@ -661,16 +784,15 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             mem = r.get("peak_rss_kb", {}).get("max", 0) / 1024
             stale = ' <span class="tag">cached</span>' if r.get("cached") else ""
             norm = ' <span class="tag">norm</span>' if q.get("normalized") else ""
-            if q.get("native_state"):
-                norm += ' <span class="tag" title="Native state preserved; whole-design area and timing unavailable">native</span>'
             gate = ' <span class="tag">STA gate</span>' if r.get("status") == "failed" else ""
             if r.get("measured_lec_verified") is False:
                 gate += ' <span class="tag" title="No unbounded proof for this run; excluded from averages">LEC unverified</span>'
-            cells.append(
-                f'<td class="g">{_fmt(delay, 2 if unit != "ns" else 3)}</td>'
-                f"<td>{_fmt(area)}{norm}{stale}{gate}</td><td>{_fmt(ncells)}</td>"
-                f"<td>{_fmt(q.get('logic_depth'), 0)}</td><td>{_fmt(secs, 1)}</td><td>{_fmt(mem, 0)}</td>"
-            )
+            display, scopes = _synth_display_values(r)
+            digits = (2 if unit != "ns" else 3, 2, 0, 0, 1, 0)
+            cells.extend(
+                f'<td{' class="g"' if i == 0 else ""}>{_fmt(value, precision)}'
+                f'{_synth_scope_tag(scope)}{norm + stale + gate if i == 1 else ""}</td>'
+                for i, (value, precision, scope) in enumerate(zip(display, digits, scopes)))
             # Only comparable rows feed the geomean. The Pyrope flow is the one
             # that has to earn its place: an `auto` seed or an unproven pair is
             # shown in the table and left out of the aggregate.
@@ -725,14 +847,66 @@ _SIM_FLOWS = ("sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope")
 _SIM_LABELS = ("verilator", "lhd·verilog", "lhd·pyrope")
 
 
+def _llvm_gain(llvm: dict, slop: dict) -> float | None:
+    if (llvm.get("status") != "ok" or slop.get("status") != "ok"
+            or slop.get("sim", {}).get("backend") != "slop"
+            or llvm.get("sim", {}).get("backend") != "llvm"):
+        return None
+    for field in ("host", "host_class", "run_id"):
+        if llvm.get(field) != slop.get(field):
+            return None
+    if llvm.get("versions", {}).get("lhd") != slop.get("versions", {}).get("lhd"):
+        return None
+    a, b = llvm.get("sim", {}), slop.get("sim", {})
+    if a.get("measurement_jobs") != b.get("measurement_jobs"):
+        return None
+    if (not a.get("cycles") or a.get("cycles") != b.get("cycles")
+            or a.get("checksum") is None or a.get("checksum") != b.get("checksum")):
+        return None
+    measured, base = a.get("exec_ms"), b.get("exec_ms")
+    if not all(isinstance(v, (float, int)) and math.isfinite(v) and v > 0
+               for v in (measured, base)):
+        return None
+    return base / measured
+
+
+def _llvm_chart_data(keys, index) -> dict | None:
+    groups = []
+    for key in keys:
+        gains = {}
+        for language in ("verilog", "pyrope"):
+            source = f"sim_lhd_{language}"
+            gain = _llvm_gain(index[key].get(source + "_llvm", {}),
+                              index[key].get(source, {}))
+            if gain is not None:
+                gains[language] = gain
+        if gains:
+            groups.append({"test": key[1], "config": key[2], "solid": True,
+                           "values": {"exec": gains}})
+    if not groups:
+        return None
+    return {"baseline": "Slop for the same source language",
+            "flows": [{"key": "verilog", "label": "Verilog LLVM / Slop speed", "series": "a"},
+                      {"key": "pyrope", "label": "Pyrope LLVM / Slop speed", "series": "b"}],
+            "metrics": [{"key": "exec", "label": "LLVM simulation speed", "unit": ""}],
+            "sortFlow": "verilog", "sortLabel": "Verilog LLVM / Slop speed",
+            "solidNote": "matched successful checksums; same run and compiler build",
+            "groups": groups}
+
+
 def _sim_table(title, keys, index, base_flow, headline) -> str:
     head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>',
             '<th rowspan="2">cycles</th>']
-    for label in _SIM_LABELS:
+    for flow, label in zip(_SIM_FLOWS, ("Verilator", "LHD Verilog", "LHD Pyrope")):
+        backends = {index[key].get(flow, {}).get("sim", {}).get("backend")
+                    for key in keys if index[key].get(flow, {}).get("status") == "ok"}
+        if backends == {"slop"}:
+            label += " · Slop"
         head.append(f'<th class="g" colspan="4">{_e(label)}</th>')
-    head.append("</tr><tr>")
+    head.append('<th class="g" colspan="2">LLVM speed / Slop</th></tr><tr>')
     for _ in _SIM_FLOWS:
         head.append('<th class="g">setup s</th><th>c++ s</th><th>exec s</th><th>Mcyc/s</th>')
+    head.append('<th class="g">Verilog</th><th>Pyrope</th>')
     head.append("</tr>")
 
     body, ratios = [], defaultdict(list)
@@ -740,8 +914,8 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         _, test, config, _ = key
         flows = index[key]
         base = flows.get(base_flow, {})
-        cells = [f'<td class="l">{_e(test)} {_tags(flows)}</td>'
-                 f'<td class="l muted">{_e(config)}</td>',
+        cells = [f'<td class="l sim-test">{_e(test)} {_tags(flows)}</td>'
+                 f'<td class="l muted sim-config">{_e(config)}</td>',
                  f'<td>{_fmt(base.get("sim", {}).get("cycles"))}</td>']
         for flow in _SIM_FLOWS:
             r = flows.get(flow)
@@ -777,6 +951,24 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
                     gain = _gain(val, b)
                     if gain:
                         ratios[(flow, metric)].append(gain)
+        for language in ("verilog", "pyrope"):
+            source = f"sim_lhd_{language}"
+            llvm, slop = flows.get(source + "_llvm", {}), flows.get(source, {})
+            gain = _llvm_gain(llvm, slop)
+            if gain is not None:
+                ratios[(language, "llvm")].append(gain)
+                label = _ratio([gain])
+                note = (f'Slop {slop["sim"]["exec_ms"] / 1000:.4f}s / '
+                        f'LLVM {llvm["sim"]["exec_ms"] / 1000:.4f}s')
+            else:
+                status = llvm.get("status", "—")
+                color = "bad" if status == "failed" else "muted"
+                label = (f'<span class="tag {color}">{_e(status)}</span>'
+                         if status in ("failed", "skipped") else '—')
+                note = (_problem_note(llvm)
+                        or "No matching successful Slop/LLVM pair in the same run")
+            cells.append(f'<td class="{ "g" if language == "verilog" else ""}" '
+                         f'title="{_e(note)}">{label}</td>')
         body.append("<tr>" + "".join(cells) + "</tr>")
 
     foot = ['<tr><td class="l" colspan="3">geomean vs verilator</td>']
@@ -787,15 +979,25 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         # Mcyc/s is 1/exec by construction; a second ratio for it would just
         # restate the exec column.
         foot.append('<td class="muted">—</td>')
-    foot.append("</tr>")
+    foot.append('<td class="g">—</td><td>—</td></tr>')
+    foot.append('<tr><td class="l" colspan="15">'
+                'LLVM speed / Slop · all matched successful pairs</td>')
+    for language in ("verilog", "pyrope"):
+        gains = ratios[(language, "llvm")]
+        foot.append(f'<td>{_ratio(gains)} <small class="muted">(n={len(gains)})</small></td>')
+    foot.append('</tr>')
 
     heading = f"<h2>{_e(title)}</h2>" if title else ""
     return f"""{heading}
-<div class="scroll"><table><thead>{''.join(head)}</thead>
+<div class="scroll"><table class="sim-table"><colgroup>
+<col style="width:210px"><col style="width:140px"><col style="width:90px">
+<col span="12"><col span="2" style="width:90px"></colgroup><thead>{''.join(head)}</thead>
 <tbody>{''.join(body)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
 <p class="sub muted">Ratios are <b>baseline &divide; measured</b>, so
 <b>higher is always better</b> — 2.00&times; means twice as fast.
-Ratios require equal cycle counts. All three simulators fold the same checksum or the test fails.</p>
+Ratios require equal cycle counts. All simulators fold the recorded checksum or the test fails.
+The two LLVM columns show Slop time ÷ LLVM time for the same source language;
+hover for absolute execution times. Above 1× means LLVM helps.</p>
 """
 
 
@@ -916,6 +1118,29 @@ _VERDICT_CLASS = {
 }
 
 
+def _language_lec_section(rows: list[dict]) -> str:
+    index = defaultdict(dict)
+    for row in rows:
+        if row.get("flow") in _LEC_FLOWS:
+            key = row["suite"], row["test"], row.get("config", "default"), None
+            index[key][row["flow"]] = row
+    if not index:
+        return ""
+    keys = sorted(index, key=lambda key: (key[1], key[2]))
+    paired = []
+    for key in keys:
+        verdicts = [_display_lec_verdict(index[key].get(flow, {}).get("lec_result", {}))
+                    for flow in _LEC_FLOWS]
+        if verdicts[0] in ("proven", "refuted") and verdicts[0] == verdicts[1]:
+            paired.append(key)
+    data = _chart_data(
+        paired, index, "lec_lgyosys", ["lec_lhd"],
+        [("prove", "Proof time", "s", lambda r: r.get("lec_result", {}).get("ms"))],
+    )
+    chart = _chart_block("chart-lec", data) if data else ""
+    return '<h2>Equivalence — Pyrope vs Verilog</h2>' + chart + _lec_section(keys, index)
+
+
 def _lec_section(keys, index) -> str:
     """Equivalence: is `pyrope/` the same circuit as `verilog/`?
 
@@ -1018,9 +1243,16 @@ def _lec_section(keys, index) -> str:
         )
     foot.append("<td>" + _ratio(speedups) + "</td>")
     foot.append('<td class="l muted"></td></tr>')
+    coverage = _coverage_plot([
+        (label, Counter(_coverage_verdict(
+            (index[key].get(flow) or {}).get("lec_result", {}),
+            (index[key].get(flow) or {}).get("status", "not-measured")) for key in keys))
+        for flow, label in zip(_LEC_FLOWS, _LEC_LABELS)
+    ])
     return f"""
 <p class="sub">Both backends prove the same obligation, so the times compare and
 the verdicts check each other. {summary}.{speed}{split_note}</p>
+{coverage}
 <div class="scroll"><table><thead>{head}</thead>
 <tbody>{''.join(rows_html)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
 <p class="sub muted">A verdict is not boolean: <span class="good">proven</span> and
@@ -1264,13 +1496,20 @@ def _chart_block(chart_id: str, data: dict) -> str:
         f'{" class=\'on\'" if i == 0 else ""}>{_e(m["label"])}</button>'
         for i, m in enumerate(data["metrics"])
     )
+    payload = json.dumps(data).replace("<", "\\u003c")
     return (
         f'<div class="chart" id="{_e(chart_id)}">'
         f'<div class="switch">{buttons}</div>'
+        '<div class="switch chart-view"><button type="button" class="on" '
+        'data-view="overview">Overview</button><button type="button" '
+        'data-view="tests">Per test</button></div>'
+        '<label class="caption">Filter tests '
+        '<input type="search" class="chart-search" placeholder="Test or config" '
+        'aria-label="Filter chart by test or configuration"></label>'
         f'<div class="plot"></div>'
         f'<div class="legend"></div>'
         f'<script type="application/json" class="chart-data">'
-        f'{json.dumps(data)}</script></div>'
+        f'{payload}</script></div>'
     )
 
 
@@ -1289,6 +1528,11 @@ cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--m
 background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
 border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
 .caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
+.chart-search{font:inherit;margin:0 0 .6rem .4rem;padding:.25rem .5rem;
+border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.sim-table{table-layout:fixed;min-width:1340px}
+.sim-table td,.sim-table th{padding:.35rem;font-size:12px}
+.sim-table td.sim-test,.sim-table td.sim-config{white-space:normal;overflow-wrap:anywhere}
 """
 
 CHART_JS = r"""
@@ -1318,7 +1562,10 @@ CHART_JS = r"""
 
     // Keep only tests that have a value for THIS metric, then sort by the
     // Pyrope ratio ascending -- worst on the left, best on the right.
-    var groups = data.groups.filter(function (g) { return g.values[metricKey]; });
+    var query = root.querySelector('.chart-search').value.trim().toLowerCase();
+    var groups = data.groups.filter(function (g) {
+      return g.values[metricKey] && (g.test + ' ' + g.config).toLowerCase().indexOf(query) >= 0;
+    });
     groups = groups.slice().sort(function (x, y) {
       function k(g) {
         var v = g.values[metricKey];
@@ -1342,9 +1589,9 @@ CHART_JS = r"""
     var llo = Math.log(lo), lhi = Math.log(hi);
 
     var padL = 54, padR = 16, padT = 20, padB = 56;
-    var minGroup = 74;
     var outer = plot.clientWidth || 900;
-    var W = Math.max(outer, padL + padR + groups.length * minGroup);
+    var overview = root.dataset.view !== 'tests';
+    var W = overview ? outer : Math.max(outer, padL + padR + groups.length * 74);
     var H = 320, plotH = H - padT - padB, plotW = W - padL - padR;
     var gw = plotW / groups.length;
     var bw = Math.min(gw / (flows.length + 0.8), 44);
@@ -1375,8 +1622,9 @@ CHART_JS = r"""
         var bx = x0 + fi * bw;
         var top = Math.min(y(val), y(1)), bot = Math.max(y(val), y(1));
         var rect = el('rect', {
-          x: (bx + 1).toFixed(1), y: top.toFixed(1),
-          width: (bw - 2).toFixed(1), height: Math.max(bot - top, 1.5).toFixed(1),
+          x: (bx + (overview ? 0.2 : 1)).toFixed(1), y: top.toFixed(1),
+          width: Math.max(bw - (overview ? 0.4 : 2), 0.5).toFixed(1),
+          height: Math.max(bot - top, 1.5).toFixed(1),
           fill: COL[f.series] || 'var(--accent)', rx: 2,
           opacity: g.solid ? 0.9 : 0.4, class: 'bar'
         });
@@ -1386,22 +1634,25 @@ CHART_JS = r"""
           tip.style.top = (e.clientY - r.top) + 'px';
           tip.style.opacity = 1;
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
-            val.toFixed(2) + '× ' + (val >= 1 ? 'better' : 'worse') +
-            (g.solid ? '' : '  (not LEC-proven)');
+            val.toFixed(2) + '× baseline / measured' +
+            (g.solid ? '' : '  (' +
+              (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
         });
         rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
         svg.appendChild(rect);
-        svg.appendChild(el('text', {
+        if (!overview) svg.appendChild(el('text', {
           x: (bx + bw / 2).toFixed(1),
           y: (val >= 1 ? top - 5 : bot + 12).toFixed(1),
           'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
         }, val.toFixed(2)));
       });
-      svg.appendChild(el('text', {
+      if (!overview || gi % Math.max(1, Math.ceil(groups.length / 10)) === 0) {
+        svg.appendChild(el('text', {
         x: (gx + gw / 2).toFixed(1), y: (H - padB + 19).toFixed(1),
         'text-anchor': 'middle', 'font-size': 11, fill: 'var(--fg)'
-      }, g.test));
-      if (g.config && g.config !== 'default') {
+        }, overview ? String(gi + 1) : g.test));
+      }
+      if (!overview && g.config && g.config !== 'default') {
         svg.appendChild(el('text', {
           x: (gx + gw / 2).toFixed(1), y: (H - padB + 32).toFixed(1),
           'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
@@ -1412,9 +1663,11 @@ CHART_JS = r"""
 
     var cap = document.createElement('p');
     cap.className = 'caption';
-    cap.innerHTML = '<b>' + metric.label + '</b>' + (metric.unit ? ' (' + metric.unit + ')' : '') +
-      ' relative to <code>' + data.baseline + '</code> — higher is better, ' +
-      'sorted worst → best by the Pyrope result.';
+    cap.textContent = metric.label + (metric.unit ? ' (' + metric.unit + ')' : '') +
+      ' relative to ' + data.baseline + ' — higher is better, ' +
+      'sorted worst → best by ' + (data.sortLabel || data.sortFlow) + '. ' +
+      groups.length + ' of ' + data.groups.length + ' matched tests shown.' +
+      (overview ? ' Horizontal axis: test rank; hover for names and values.' : '');
     plot.appendChild(cap);
   }
 
@@ -1423,7 +1676,10 @@ CHART_JS = r"""
     box.innerHTML = data.flows.map(function (f) {
       return '<span><i style="background:' + (COL[f.series] || 'var(--accent)') + '"></i>' +
         f.label + '</span>';
-    }).join('') + '<span>faded = not LEC-proven or not hand-written Pyrope</span>';
+    }).join('');
+    var note = document.createElement('span');
+    note.textContent = data.solidNote || 'faded = not LEC-proven or not hand-written Pyrope';
+    box.appendChild(note);
   }
 
   document.querySelectorAll('.chart').forEach(function (root) {
@@ -1431,11 +1687,26 @@ CHART_JS = r"""
     var current = data.metrics[0].key;
     legend(root, data);
     draw(root, data, current);
-    root.querySelectorAll('.switch button').forEach(function (b) {
+    root.querySelector('.chart-search').addEventListener('input', function () {
+      draw(root, data, current);
+    });
+    root.querySelectorAll('button[data-metric]').forEach(function (b) {
       b.addEventListener('click', function () {
-        root.querySelectorAll('.switch button').forEach(function (o) { o.classList.remove('on'); });
+        root.querySelectorAll('button[data-metric]').forEach(function (o) {
+          o.classList.remove('on');
+        });
         b.classList.add('on');
         current = b.dataset.metric;
+        draw(root, data, current);
+      });
+    });
+    root.querySelectorAll('button[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.dataset.view = b.dataset.view;
+        root.querySelectorAll('button[data-view]').forEach(function (o) {
+          o.classList.remove('on');
+        });
+        b.classList.add('on');
         draw(root, data, current);
       });
     });
@@ -1891,10 +2162,13 @@ def write_index(root: Path) -> Path:
         return out
 
     body = "".join(
-        f'<tr><td class="l"><a href="report-{slug(h)}.html">{_e(h)}</a></td>'
+        f'<tr><td class="l"><a href="results-syn-{slug(h)}.html">{_e(h)}</a></td>'
         f'<td class="l muted">{_e(e["class"])}</td>'
         f'<td>{len(e["runs"])}</td><td>{e["n"]:,}</td>'
         f'<td class="l muted">{_e(e["last"])}</td>'
+        + ''.join(f'<td class="l"><a href="results-{suffix}-{slug(h)}.html">{label}</a></td>'
+                  for suffix, label in RESULT_KINDS.values())
+        +
         f'<td class="l"><a href="timeseries-{slug(h)}.html">history</a></td></tr>'
         for h, e in sorted(by_host.items())
     )
@@ -1902,12 +2176,13 @@ def write_index(root: Path) -> Path:
         _page(
             "lhdtrack",
             f"""<h1>lhdtrack</h1>
-<p class="sub">Daily QoR regression for LiveHD. One page per machine — wall clock
+<p class="sub">Daily QoR regression for LiveHD. Separate result pages per machine — wall clock
 and peak memory do not travel between hosts, so <code>uname -n</code> is the
 boundary of what may be compared.</p>
 <div class="scroll"><table>
 <thead><tr><th class="l">machine</th><th class="l">platform</th><th>runs</th>
-<th>rows</th><th class="l">last run</th><th class="l"></th></tr></thead>
+<th>rows</th><th class="l">last run</th><th class="l">Synthesis</th>
+<th class="l">Simulation</th><th class="l">LEC</th><th class="l">History</th></tr></thead>
 <tbody>{body}</tbody></table></div>""",
         )
     )
@@ -1928,13 +2203,7 @@ def write_all(root: Path, cfg: dict | None = None, only: str | None = None) -> l
 
     out: list[Path] = []
     for h in hosts:
-        out.append(write_report(root, cfg=cfg, host=h))
-        evaluation = root / DATA_DIR / f"verilog-eval-{slug(h)}.json"
-        if evaluation.exists():
-            auxiliary = json.loads(evaluation.read_text()).get("auxiliary_report")
-            if auxiliary:
-                out.append(write_report(root, out=root / TARGET_DIR / auxiliary,
-                                        cfg=cfg, host=h, prefer_evaluation=False))
+        out.extend(write_results(root, cfg=cfg, host=h))
         out.append(write_timeseries(root, cfg=cfg, host=h))
     out.append(write_index(root))
     return out

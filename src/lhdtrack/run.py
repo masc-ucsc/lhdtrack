@@ -144,6 +144,12 @@ def plan(
     jobs: list[Job] = []
     for test in tests:
         wanted = list(dict.fromkeys([*test.synth_flows, *test.sim_flows, *test.lec_flows]))
+        # Existing manifests declare the language leg. Measure both backends
+        # without duplicating hundreds of otherwise unchanged fixture manifests.
+        for source in ("sim_lhd_verilog", "sim_lhd_pyrope"):
+            llvm = source + "_llvm"
+            if source in wanted and llvm in flows and llvm not in wanted:
+                wanted.append(llvm)
         for name in wanted:
             if only_flows and name not in only_flows:
                 continue

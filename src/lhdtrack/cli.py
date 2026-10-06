@@ -2,14 +2,14 @@
 
     lhdtrack check      lint the corpus
     lhdtrack run        the daily regression
-    lhdtrack report     render site/report.html + site/timeseries.html
+    lhdtrack report     render synthesis, simulation, LEC and history pages in target/
     lhdtrack show       the same numbers in the terminal
     lhdtrack cache      inspect or clear the baseline cache
     lhdtrack new        scaffold a test directory
     lhdtrack import     seed a test's Pyrope, testbench pair, harness and SDC
 
 Designed to be invoked by hand or from cron on a server; it holds no state
-beyond site/ledger.jsonl and var/.
+beyond data/ledger-<host>.jsonl and var/.
 """
 
 from __future__ import annotations
@@ -442,7 +442,7 @@ def main(argv: list[str] | None = None) -> int:
                    help="write each sim_verilator checksum into design.toml as the reference")
     r.set_defaults(fn=cmd_run)
 
-    rp = sub.add_parser("report", help="render the HTML")
+    rp = sub.add_parser("report", help="render synthesis, simulation, LEC and history pages")
     rp.add_argument("--host", help="render another machine's page (default: this one)")
     rp.set_defaults(fn=cmd_report)
     sh = sub.add_parser("show", help="print the last run")

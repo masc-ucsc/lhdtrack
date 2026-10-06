@@ -103,6 +103,21 @@ class EquivalenceGates(TestCase):
 
 
 class Waves(TestCase):
+    def test_legacy_simulation_manifests_plan_both_backends_and_honor_filters(self):
+        from types import SimpleNamespace
+        from lhdtrack.run import plan
+
+        config = SimpleNamespace(id="one")
+        test = SimpleNamespace(synth_flows=[], sim_flows=["sim_lhd_verilog", "sim_lhd_pyrope"],
+                               lec_flows=[], configs=[config])
+        names = ["sim_lhd_verilog", "sim_lhd_pyrope",
+                 "sim_lhd_verilog_llvm", "sim_lhd_pyrope_llvm"]
+        flows = {name: (SimpleNamespace(USES_TECH=False), Path(name + ".py")) for name in names}
+        jobs = plan(Path("."), [test], None, flows, [])
+        self.assertEqual([job.flow for job in jobs], names)
+        jobs = plan(Path("."), [test], None, flows, [], ["sim_lhd_pyrope_llvm"])
+        self.assertEqual([job.flow for job in jobs], ["sim_lhd_pyrope_llvm"])
+
     def test_after_jobs_start_only_when_the_first_wave_finished(self):
         import threading
         import time

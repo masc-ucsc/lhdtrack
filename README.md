@@ -208,14 +208,15 @@ omit the second command.
 ```
 data/ledger-<host>.jsonl     COMMITTED. Append-only. The only source of truth.
 target/index.html            GENERATED. Machines that have reported.
-target/report-<host>.html    GENERATED. One machine's latest run.
+target/results-syn-<host>.html  GENERATED. Synthesis QoR and STA diagnostics.
+target/results-sim-<host>.html  GENERATED. Slop and LLVM simulation comparisons.
+target/results-lec-<host>.html  GENERATED. Equivalence coverage and proof timings.
 target/timeseries-<host>.html  GENERATED. That machine's history.
 target/history-<host>.json   GENERATED. The series behind the chart.
 ```
 
-`target/` is gitignored and rebuilt from `data/` on every run, so nothing in it
-is worth committing or worth resolving a conflict over. Deleting it loses
-nothing.
+`target/` is rebuilt from `data/` on every run. Published HTML snapshots
+contain no unique measurements; deleting a page loses no ledger data.
 
 **One ledger file per machine**, not one shared file. Two machines running cron
 both append; a single `ledger.jsonl` would conflict on every push — two appends
@@ -636,18 +637,46 @@ hog, which is the only thing the number is useful for.
 
 ## The report
 
-`lhdtrack report` renders from `site/ledger.jsonl` alone — the HTML is a pure rendering of
-the ledger and is regenerated on every run, so a measured regression is visible rather than
-silently retried.
+`make report` rebuilds the host pages from `data/ledger-<host>.jsonl` and the
+selected evaluation specifications. Results are separated by domain and host:
 
-- **`site/report.html`** — tool versions, tech, host and date in the header; one synthesis
-  table per suite (rows = tests; column groups `yosys+slang+abc` │ `lhd·verilog` │ `lhd·pyrope`,
-  each with area / delay / time / peak-mem plus ratio-to-baseline, geomean footer); a
-  simulation table in the same shape; the OpenTimer↔OpenSTA correlation column; cached rows
-  visibly dated.
-- **`site/timeseries.html`** — geomean trends per flow, segmented at any host or Liberty
-  change.
-- **`site/history.json`** — the raw series behind the page.
+- **`target/results-syn-<host>.html`** — synthesis QoR, mapper comparisons and
+  synthesis diagnostics. A selected Verilog evaluation retains its recorded
+  baseline and exact-netlist proof gates. Other technologies and Pyrope synthesis
+  remain in the linked `results-syn-<host>-full.html` page.
+- **`target/results-sim-<host>.html`** — Verilator, LHD Verilog Slop and LHD Pyrope
+  Slop retain their setup / C++ compilation / execution / throughput columns.
+  Two extra columns show **LLVM execution speed relative to Slop**, one per
+  source language: Slop execution time divided by LLVM execution time, so above
+  1× means LLVM helps. LLVM setup and compilation do not contribute to these
+  ratios. Pairs require matching cycles, checksums, host, LiveHD version and run;
+  failed or unmatched measurements stay visible without entering the comparison.
+  This backend comparison includes all Pyrope source styles because it compares
+  the same source through two backends. Exact-netlist simulation checks have
+  their own section below the source-simulation results.
+- **`target/results-lec-<host>.html`** — equivalence verdicts, proof timings and
+  coverage plots. Bounded proofs, timeouts, skipped and missing checks remain
+  distinct. Language equivalence and emitted-netlist obligations stay separate.
+- **`target/timeseries-<host>.html`** and **`target/history-<host>.json`** — history
+  and the series behind its charts.
+
+All result pages link to each other and the machine index. Ratio charts offer
+a compact overview, a per-test view, metric switches, hover details and a
+test/config filter; tables remain sortable.
+
+The existing `sim_lhd_verilog` and `sim_lhd_pyrope` flows explicitly select Slop.
+The planner also schedules their `_llvm` counterparts when those language flows
+are declared. `--flow` can select any individual backend. Both backends use the
+same startup policy and cycle counts, with profiling off and one compiler job
+per flow. Execution is measured best of three, separately from setup and host
+compilation; all measurements remain gated against the recorded checksum.
+To refresh the complete simulation matrix without synthesis or LEC reruns:
+
+```sh
+lhdtrack run --no-cache --flow sim_verilator \
+  --flow sim_lhd_verilog --flow sim_lhd_pyrope \
+  --flow sim_lhd_verilog_llvm --flow sim_lhd_pyrope_llvm
+```
 
 `auto` and `idiomatic` Pyrope are aggregated separately everywhere.
 
@@ -863,7 +892,7 @@ is given the selected top explicitly so unused cell models are not elaborated.
 `python3 tools/run_host_refresh.py --jobs 4` refreshes all declared simulator
 flows and Sky130 synthesis on the current host, including fresh Verilator and
 Yosys baselines. It publishes completed, checksum-gated design/config groups
-incrementally to `target/report-<host>-full.html`, linked from the LEC report.
+incrementally to `target/results-syn-<host>-full.html`, linked from the result pages.
 Use `--test add` for a smoke run or `--resume RUN_ID` after interruption; a
 resume requires the same staged toolchain.
 

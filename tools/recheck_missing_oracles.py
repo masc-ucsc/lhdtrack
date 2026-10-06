@@ -130,8 +130,11 @@ def publish(result, spec_path, host):
         active = json.loads(public.read_text()).get("run_id") == row["run_id"]
     except (OSError, json.JSONDecodeError):
         active = False
-    filename = f"report-{host}.html" if active else f"eval-{row['run_id']}.html"
-    write_evaluation(ROOT, spec_path, out=ROOT / "target" / filename)
+    if active:
+        write_evaluation(ROOT, spec_path)
+    else:
+        filename = f"eval-{row['run_id']}.html"
+        write_evaluation(ROOT, spec_path, out=ROOT / "target" / filename)
     print(*key(row), block["verdict"], block["ms"], flush=True)
 
 

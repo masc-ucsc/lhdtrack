@@ -7,11 +7,28 @@ from unittest.mock import patch
 
 from lhdtrack.report.html import (
     _eligible, _gate_snapshot_lec, _lec_section, _netlist_lec_section, _problem_note,
-    write_all, write_report,
+    _synth_display_values, _synth_table,
+    _llvm_gain, _llvm_chart_data, _sim_table, write_all, write_report,
 )
 
 
 class ReportSnapshot(unittest.TestCase):
+    def test_native_logic_metrics_appear_in_full_table_and_zero_totals_take_precedence(self):
+        key = ("memory", "ram", "one", "asap7")
+        row = dict(status="ok", qor=dict(native_state=True, lhd_cells=42,
+                   lhd_area_um2=12.5, abc_max_delay_ns=93.75), sta={},
+                   time_ms=dict(total=1000), peak_rss_kb=dict(max=2048))
+        rendered = _synth_table("Synthesis", [key], {key: {"syn_lhd_verilog_usyn": row}},
+                                "syn_yosys_abc", {"idiomatic"}, "ps")
+        for value in ("12.50", "42", "93.75", ">logic</span>", ">region</span>"):
+            self.assertIn(value, rendered)
+        self.assertNotIn(">native</span>", rendered)
+        row["qor"].update(area_um2=0, cells=0)
+        row["sta"]["opensta_ns"] = 0
+        values, scopes = _synth_display_values(row)
+        self.assertEqual(values[:3], [0, 0, 0])
+        self.assertEqual(scopes[:3], ["", "", ""])
+
     def test_evaluation_regenerates_linked_full_report(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -22,7 +39,7 @@ class ReportSnapshot(unittest.TestCase):
             main = root / "target/report-snapshot-host.html"
             with patch("lhdtrack.report.verilog_eval.write_evaluation", return_value=main):
                 outputs = write_all(root, only="snapshot-host")
-            full = root / "target/report-snapshot-host-full.html"
+            full = root / "target/results-syn-snapshot-host-full.html"
             self.assertIn(full, outputs)
             self.assertIn("No runs recorded", full.read_text())
 
@@ -123,6 +140,35 @@ class ReportSnapshot(unittest.TestCase):
 
 
 class SimulationWorkload(unittest.TestCase):
+    def test_llvm_speed_pairs_each_language_with_its_own_slop_run(self):
+        key = ("comb", "dut", "one", None)
+        def row(backend, ms):
+            return {"status": "ok", "host": "same", "host_class": "same", "run_id": "same",
+                    "versions": {"lhd": "same"},
+                    "sim": {"backend": backend, "exec_ms": ms, "cycles": 100, "checksum": "7"}}
+        verilog, pyrope = row("slop", 100), row("slop", 20)
+        llvm_v, llvm_p = row("llvm", 25), row("llvm", 40)
+        index = {key: {"sim_lhd_verilog": verilog, "sim_lhd_pyrope": pyrope,
+                       "sim_lhd_verilog_llvm": llvm_v, "sim_lhd_pyrope_llvm": llvm_p}}
+        chart = _llvm_chart_data([key], index)
+        self.assertEqual(chart["groups"][0]["values"]["exec"], {"verilog": 4, "pyrope": .5})
+        table = _sim_table(None, [key], index, "sim_verilator", {"idiomatic"})
+        self.assertIn("4.00×", table)
+        self.assertIn("0.50×", table)
+        self.assertIn("Slop 0.1000s / LLVM 0.0250s", table)
+        self.assertIn("LLVM speed / Slop", table)
+        for field, value in (("host", "other"), ("host_class", "other"),
+                             ("run_id", "old"), ("status", "failed"),
+                             ("versions", {"lhd": "old"})):
+            with self.subTest(field=field):
+                self.assertIsNone(_llvm_gain({**llvm_v, field: value}, verilog))
+        for field, value in (("cycles", 99), ("checksum", "8"), ("backend", "slop"),
+                             ("measurement_jobs", 32),
+                             ("exec_ms", 0), ("exec_ms", float("inf"))):
+            with self.subTest(field=field, value=value):
+                changed = {**llvm_v, "sim": {**llvm_v["sim"], field: value}}
+                self.assertIsNone(_llvm_gain(changed, verilog))
+
     def test_retuned_cycles_do_not_compare_to_an_old_short_run(self):
         from lhdtrack.report.html import _chart_data, _eligible, _sim_table
         key = ("comb", "add", "default", None)
@@ -139,6 +185,45 @@ class SimulationWorkload(unittest.TestCase):
         measured["sim"]["cycles"] = 50_000_000
         chart = _chart_data([key], index, "sim_verilator", ["sim_lhd_verilog"], metrics)
         self.assertEqual(chart["groups"][0]["values"]["exec"]["sim_lhd_verilog"], 100)
+
+
+class SplitResults(unittest.TestCase):
+    def test_normal_report_renders_all_domains_without_rewriting_the_ledger(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data").mkdir()
+            common = {"host": "test-host", "host_class": "cpu", "suite": "comb", "test": "dut",
+                      "config": "one", "run_id": "fresh", "date": "2026-10-06", "status": "ok",
+                      "versions": {}, "tech": None}
+            rows = [{**common, "kind": "synth", "flow": "syn_yosys_abc", "tech": "asap7",
+                     "qor": {"area_um2": 1}},
+                    {**common, "kind": "sim", "flow": "sim_verilator",
+                     "sim": {"cycles": 100, "exec_ms": 2}},
+                    {**common, "kind": "lec", "flow": "lec_netlist", "tech": "asap7",
+                     "lec_result": {"verdict": "proven", "ms": 1}}]
+            ledger = root / "data/ledger-test-host.jsonl"
+            original = "".join(json.dumps(row) + "\n" for row in rows)
+            ledger.write_text(original)
+            outputs = write_all(root, only="test-host")
+            for suffix in ("syn", "sim", "lec"):
+                path = root / f"target/results-{suffix}-test-host.html"
+                self.assertIn(path, outputs)
+                self.assertIn(f'aria-current="page" href="results-{suffix}', path.read_text())
+            synth = (root / "target/results-syn-test-host.html").read_text()
+            sim = (root / "target/results-sim-test-host.html").read_text()
+            lec = (root / "target/results-lec-test-host.html").read_text()
+            self.assertIn("Synthesis · asap7", synth)
+            self.assertNotIn("<h2>Simulation", synth)
+            self.assertIn("<h2>Simulation", sim)
+            self.assertNotIn("STA accuracy", sim)
+            # A netlist-only LEC matrix must survive the split without a language LEC row.
+            self.assertIn("Equivalence — sources vs synthesized netlist", lec)
+            self.assertNotIn("<h2>Simulation", lec)
+            self.assertNotIn("STA accuracy", lec)
+            self.assertFalse((root / "target/report-test-host.html").exists())
+            self.assertEqual(ledger.read_text(), original)
+            index = (root / "target/index.html").read_text()
+            self.assertIn('href="results-sim-test-host.html"', index)
 
 
 if __name__ == "__main__":

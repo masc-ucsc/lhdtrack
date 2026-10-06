@@ -23,6 +23,7 @@ from lhdtrack.cache import Cache
 from lhdtrack.cli import load_config
 from lhdtrack.corpus import discover
 from lhdtrack.ledger import Ledger
+from lhdtrack.report.html import write_results
 from lhdtrack.report.verilog_eval import lec_flow, synth_flow, write_evaluation
 from lhdtrack.run import Job, Runner, host_name, load_flows
 from lhdtrack.toolchain import Toolchain
@@ -65,7 +66,7 @@ def main():
     spec_path = run_dir / "evaluation.json"
     public_spec = ROOT / "data" / f"verilog-eval-{host}.json"
     isolated_report = bool(args.test or args.usyn_stage != "default" or args.mapper != "both")
-    out = ROOT / "target" / (f"eval-{run}.html" if isolated_report else f"report-{host}.html")
+    out = ROOT / "target" / (f"eval-{run}.html" if isolated_report else f"results-syn-{host}.html")
     ledger = Ledger(ROOT)
     if args.resume:
         spec = json.loads(spec_path.read_text())
@@ -89,7 +90,7 @@ def main():
             versions=tc.versions, liberty_sha256=lib_hash, time_unit=tc.tech(args.tech).time_unit,
             baselines=[{k: r[k] for k in ("test", "config", "run_id")} for r in baseline],
             slots=[dict(test=t.name, config=c.id) for t in tests for c in t.configs],
-            auxiliary_report=f"report-{host}-full.html",
+            auxiliary_report=f"results-syn-{host}-full.html",
             timing_scope="prepared-verilog-inputs",
             satopt_profiles=([True, False] if args.satopt_profiles == "both" else
                              [args.satopt_profiles == "enabled"]),
@@ -103,7 +104,8 @@ def main():
         os.environ["LHDTRACK_LHD_SET"] = spec.get("lhd_settings", "")
         isolated_report = bool(args.test or spec.get("usyn_stage", "default") != "default"
                                or spec.get("mappers", ["abc", "usyn"]) != ["abc", "usyn"])
-        out = ROOT / "target" / (f"eval-{run}.html" if isolated_report else f"report-{host}.html")
+        name = f"eval-{run}.html" if isolated_report else f"results-syn-{host}.html"
+        out = ROOT / "target" / name
 
     if args.lec_from:
         source = json.loads((ROOT / "var/runs" / args.lec_from / "evaluation.json").read_text())
@@ -150,7 +152,10 @@ def main():
         spec_path.write_text(json.dumps(spec, indent=2) + "\n")
         if not isolated_report:
             public_spec.write_text(spec_path.read_text())
-        write_evaluation(ROOT, spec_path, out=out)
+        if isolated_report:
+            write_evaluation(ROOT, spec_path, out=out)
+        else:
+            write_results(ROOT, cfg=cfg, host=host)
         last_render = time.monotonic()
 
     done = len(completed)

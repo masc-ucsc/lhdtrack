@@ -32,8 +32,9 @@ class SimResult:
 
 
 def parse_result(log: Path, marker: str) -> SimResult:
-    text = log.read_text(errors="replace")
-    m = _RESULT.search(text)
+    text = "\n".join(line for line in log.read_text(errors="replace").splitlines()
+                     if not line.startswith("$ "))
+    m = next((match for match in _RESULT.finditer(text) if match["marker"] == marker), None)
     if not m:
         raise FlowError(
             f"testbench printed no '{marker} cycles=<N> checksum=<N>' line -- "
@@ -43,7 +44,10 @@ def parse_result(log: Path, marker: str) -> SimResult:
     return SimResult(m.group("marker"), int(m.group("cycles")), m.group("sum"))
 
 
-def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
+def run_lhd_sim(
+    ctx: FlowContext, design_input: str, tb: Path, *, validation_only: bool = False,
+    backend: str = "slop",
+) -> dict:
     """The `lhd sim` half of a simulation row: setup / cc / exec.
 
     THE TIME SPLIT MATTERS. `--setup-only` only WRITES the driver sources; the
@@ -57,6 +61,8 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     cc_ms depend on whether the machine happens to have ninja installed.
     """
     lhd = ctx.tool("lhd")
+    if backend not in ("slop", "llvm"):
+        raise ValueError(f"unknown simulation backend: {backend}")
     cycles = ctx.test.sim_cycles
     inputs = [design_input, str(tb)]
 
@@ -68,7 +74,9 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     sim_policy = [
         "--set", "sim.init_zero=true",
         "--set", "sim.unknown_zero=true",
-
+        "--set", f"sim.tune.backend={backend}",
+        "--set", "sim.tune.profile=off",
+        "--set", "sim.jobs=1",
     ]
     ctx.run(
         "setup",
@@ -80,6 +88,15 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
          *sim_policy, "--set", "sim.ninja=false",
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )
+
+    if validation_only:
+        # Correctness needs one complete manifest-length execution. Performance
+        # flows still use their separately timed repeated executions below.
+        result = parse_result(run.log, ctx.test.sim_marker)
+        if result.cycles != cycles:
+            raise FlowError(f"simulation ran {result.cycles} cycles, expected {cycles}")
+        return {"sim": {"backend": backend, "cycles": result.cycles, "checksum": result.checksum,
+                        "validation_only": True}}
 
     drv = ctx.work / "SW" / "sim" / "drv.bin"
     if not drv.exists():
@@ -100,8 +117,11 @@ def run_lhd_sim(ctx: FlowContext, design_input: str, tb: Path) -> dict:
     ctx.stage.time_ms.pop("run", None)
 
     result = parse_result(best.log, ctx.test.sim_marker)
+    if result.cycles != cycles:
+        raise FlowError(f"simulation ran {result.cycles} cycles, expected {cycles}")
     return {
         "sim": {
+            "backend": backend,
             "cycles": cycles,
             "exec_ms": best.ms,
             "exec_samples_ms": samples,

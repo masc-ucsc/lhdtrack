@@ -16,7 +16,9 @@ h2{font-size:1.05rem;margin:2.5rem 0 .5rem;padding-bottom:.35rem;border-bottom:1
 .sub{color:var(--muted);margin:0 0 1.5rem}
 .meta{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.5rem}
 .chip{background:var(--chip);border-radius:999px;padding:.15rem .6rem;font-size:12px;
-white-space:nowrap}
+white-space:normal;overflow-wrap:anywhere;max-width:100%}
+nav a{text-decoration:none;color:var(--accent)}
+nav a[aria-current="page"]{background:var(--accent);color:var(--bg)}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 th,td{padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -49,6 +51,11 @@ cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--m
 background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
 border-radius:5px;white-space:nowrap;transform:translate(-50%,-135%);z-index:5}
 .caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
+.chart-search{font:inherit;margin:0 0 .6rem .4rem;padding:.25rem .5rem;
+border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.sim-table{table-layout:fixed;min-width:1340px}
+.sim-table td,.sim-table th{padding:.35rem;font-size:12px}
+.sim-table td.sim-test,.sim-table td.sim-config{white-space:normal;overflow-wrap:anywhere}
 
 th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none}
 th.sortable::after{content:"↕";position:absolute;right:.15em;top:50%;
@@ -60,7 +67,7 @@ th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--acc
 th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 </style></head>
 <body><div class="wrap"><h1>lhdtrack history</h1><p class='sub'><b>mada4</b> · geomean area, <b>baseline &divide; measured</b> against <code>syn_yosys_abc</code>, so higher is better. One point per run. Only this machine's runs are plotted, and the series BREAKS at any tool-version change — a step caused by different hardware or a different yosys is worse than no chart.</p><div class="scroll"><svg viewBox="0 0 1100 380" role="img" aria-label="geomean area over time"><line x1="55" x2="1080" y1="334.0" y2="334.0" stroke="var(--line)"/><text x="47" y="338.0" text-anchor="end" font-size="11" fill="var(--muted)">0.47×</text><line x1="55" x2="1080" y1="255.5" y2="255.5" stroke="var(--line)"/><text x="47" y="259.5" text-anchor="end" font-size="11" fill="var(--muted)">0.62×</text><line x1="55" x2="1080" y1="177.0" y2="177.0" stroke="var(--line)"/><text x="47" y="181.0" text-anchor="end" font-size="11" fill="var(--muted)">0.77×</text><line x1="55" x2="1080" y1="98.5" y2="98.5" stroke="var(--line)"/><text x="47" y="102.5" text-anchor="end" font-size="11" fill="var(--muted)">0.93×</text><line x1="55" x2="1080" y1="20.0" y2="20.0" stroke="var(--line)"/><text x="47" y="24.0" text-anchor="end" font-size="11" fill="var(--muted)">1.08×</text><line x1="55" x2="1080" y1="60.7" y2="60.7" stroke="var(--muted)" stroke-dasharray="4 3"/><circle cx="55.0" cy="55.9" r="3" fill="#1d4ed8"/><circle cx="108.9" cy="192.4" r="3" fill="#1d4ed8"/><circle cx="162.9" cy="194.9" r="3" fill="#1d4ed8"/><circle cx="216.8" cy="232.8" r="3" fill="#1d4ed8"/><circle cx="270.8" cy="262.9" r="3" fill="#1d4ed8"/><circle cx="324.7" cy="262.9" r="3" fill="#1d4ed8"/><circle cx="378.7" cy="179.0" r="3" fill="#1d4ed8"/><polyline points="55.0,55.9 108.9,192.4 162.9,194.9 216.8,232.8 270.8,262.9 324.7,262.9 378.7,179.0" fill="none" stroke="#1d4ed8" stroke-width="2"/><circle cx="486.6" cy="193.4" r="3" fill="#1d4ed8"/><circle cx="540.5" cy="179.0" r="3" fill="#1d4ed8"/><polyline points="486.6,193.4 540.5,179.0" fill="none" stroke="#1d4ed8" stroke-width="2"/><circle cx="594.5" cy="236.9" r="3" fill="#1d4ed8"/><circle cx="648.4" cy="184.2" r="3" fill="#1d4ed8"/><circle cx="702.4" cy="179.5" r="3" fill="#1d4ed8"/><circle cx="756.3" cy="321.3" r="3" fill="#1d4ed8"/><polyline points="594.5,236.9 648.4,184.2 702.4,179.5 756.3,321.3" fill="none" stroke="#1d4ed8" stroke-width="2"/><circle cx="864.2" cy="49.4" r="3" fill="#1d4ed8"/><circle cx="918.2" cy="124.8" r="3" fill="#1d4ed8"/><circle cx="972.1" cy="50.7" r="3" fill="#1d4ed8"/><circle cx="1026.1" cy="152.7" r="3" fill="#1d4ed8"/><circle cx="1080.0" cy="150.7" r="3" fill="#1d4ed8"/><polyline points="864.2,49.4 918.2,124.8 972.1,50.7 1026.1,152.7 1080.0,150.7" fill="none" stroke="#1d4ed8" stroke-width="2"/><circle cx="108.9" cy="58.3" r="3" fill="#b45309"/><circle cx="162.9" cy="58.3" r="3" fill="#b45309"/><circle cx="216.8" cy="232.8" r="3" fill="#b45309"/><circle cx="270.8" cy="232.8" r="3" fill="#b45309"/><circle cx="324.7" cy="232.8" r="3" fill="#b45309"/><circle cx="378.7" cy="179.0" r="3" fill="#b45309"/><polyline points="108.9,58.3 162.9,58.3 216.8,232.8 270.8,232.8 324.7,232.8 378.7,179.0" fill="none" stroke="#b45309" stroke-width="2"/><circle cx="486.6" cy="309.1" r="3" fill="#b45309"/><circle cx="540.5" cy="187.3" r="3" fill="#b45309"/><polyline points="486.6,309.1 540.5,187.3" fill="none" stroke="#b45309" stroke-width="2"/><circle cx="594.5" cy="243.0" r="3" fill="#b45309"/><circle cx="648.4" cy="184.2" r="3" fill="#b45309"/><circle cx="702.4" cy="190.6" r="3" fill="#b45309"/><polyline points="594.5,243.0 648.4,184.2 702.4,190.6" fill="none" stroke="#b45309" stroke-width="2"/><circle cx="864.2" cy="46.4" r="3" fill="#b45309"/><circle cx="972.1" cy="46.4" r="3" fill="#b45309"/><circle cx="1026.1" cy="109.8" r="3" fill="#b45309"/><circle cx="1080.0" cy="109.8" r="3" fill="#b45309"/><polyline points="972.1,46.4 1026.1,109.8 1080.0,109.8" fill="none" stroke="#b45309" stroke-width="2"/><text x="55.0" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-27</text><text x="162.9" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-27</text><text x="270.8" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-27</text><text x="378.7" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-28</text><text x="486.6" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-28</text><text x="594.5" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-28</text><text x="702.4" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-08-28</text><text x="810.3" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-09-02</text><text x="918.2" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-09-03</text><text x="1026.1" y="352" text-anchor="middle" font-size="11" fill="var(--muted)">2026-09-17</text></svg></div><div class="legend"><span><i style="background:#1d4ed8"></i>syn_lhd_verilog</span><span><i style="background:#b45309"></i>syn_lhd_pyrope</span><span><i style="background:#0a7c3f"></i>syn_lhd_verilog_usyn</span></div>
-<p class="sub muted" style="margin-top:3rem">Generated 2026-10-03 11:38 from <code>data/</code>.
+<p class="sub muted" style="margin-top:3rem">Generated 2026-10-06 08:40 from <code>data/</code>.
 This page is a pure rendering of the ledger — nothing is recorded only in
 <code>target/</code>, which is regenerated on every run.</p>
 </div>
@@ -91,7 +98,10 @@ This page is a pure rendering of the ledger — nothing is recorded only in
 
     // Keep only tests that have a value for THIS metric, then sort by the
     // Pyrope ratio ascending -- worst on the left, best on the right.
-    var groups = data.groups.filter(function (g) { return g.values[metricKey]; });
+    var query = root.querySelector('.chart-search').value.trim().toLowerCase();
+    var groups = data.groups.filter(function (g) {
+      return g.values[metricKey] && (g.test + ' ' + g.config).toLowerCase().indexOf(query) >= 0;
+    });
     groups = groups.slice().sort(function (x, y) {
       function k(g) {
         var v = g.values[metricKey];
@@ -115,9 +125,9 @@ This page is a pure rendering of the ledger — nothing is recorded only in
     var llo = Math.log(lo), lhi = Math.log(hi);
 
     var padL = 54, padR = 16, padT = 20, padB = 56;
-    var minGroup = 74;
     var outer = plot.clientWidth || 900;
-    var W = Math.max(outer, padL + padR + groups.length * minGroup);
+    var overview = root.dataset.view !== 'tests';
+    var W = overview ? outer : Math.max(outer, padL + padR + groups.length * 74);
     var H = 320, plotH = H - padT - padB, plotW = W - padL - padR;
     var gw = plotW / groups.length;
     var bw = Math.min(gw / (flows.length + 0.8), 44);
@@ -148,8 +158,9 @@ This page is a pure rendering of the ledger — nothing is recorded only in
         var bx = x0 + fi * bw;
         var top = Math.min(y(val), y(1)), bot = Math.max(y(val), y(1));
         var rect = el('rect', {
-          x: (bx + 1).toFixed(1), y: top.toFixed(1),
-          width: (bw - 2).toFixed(1), height: Math.max(bot - top, 1.5).toFixed(1),
+          x: (bx + (overview ? 0.2 : 1)).toFixed(1), y: top.toFixed(1),
+          width: Math.max(bw - (overview ? 0.4 : 2), 0.5).toFixed(1),
+          height: Math.max(bot - top, 1.5).toFixed(1),
           fill: COL[f.series] || 'var(--accent)', rx: 2,
           opacity: g.solid ? 0.9 : 0.4, class: 'bar'
         });
@@ -159,22 +170,25 @@ This page is a pure rendering of the ledger — nothing is recorded only in
           tip.style.top = (e.clientY - r.top) + 'px';
           tip.style.opacity = 1;
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
-            val.toFixed(2) + '× ' + (val >= 1 ? 'better' : 'worse') +
-            (g.solid ? '' : '  (not LEC-proven)');
+            val.toFixed(2) + '× baseline / measured' +
+            (g.solid ? '' : '  (' +
+              (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
         });
         rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
         svg.appendChild(rect);
-        svg.appendChild(el('text', {
+        if (!overview) svg.appendChild(el('text', {
           x: (bx + bw / 2).toFixed(1),
           y: (val >= 1 ? top - 5 : bot + 12).toFixed(1),
           'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
         }, val.toFixed(2)));
       });
-      svg.appendChild(el('text', {
+      if (!overview || gi % Math.max(1, Math.ceil(groups.length / 10)) === 0) {
+        svg.appendChild(el('text', {
         x: (gx + gw / 2).toFixed(1), y: (H - padB + 19).toFixed(1),
         'text-anchor': 'middle', 'font-size': 11, fill: 'var(--fg)'
-      }, g.test));
-      if (g.config && g.config !== 'default') {
+        }, overview ? String(gi + 1) : g.test));
+      }
+      if (!overview && g.config && g.config !== 'default') {
         svg.appendChild(el('text', {
           x: (gx + gw / 2).toFixed(1), y: (H - padB + 32).toFixed(1),
           'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
@@ -185,9 +199,11 @@ This page is a pure rendering of the ledger — nothing is recorded only in
 
     var cap = document.createElement('p');
     cap.className = 'caption';
-    cap.innerHTML = '<b>' + metric.label + '</b>' + (metric.unit ? ' (' + metric.unit + ')' : '') +
-      ' relative to <code>' + data.baseline + '</code> — higher is better, ' +
-      'sorted worst → best by the Pyrope result.';
+    cap.textContent = metric.label + (metric.unit ? ' (' + metric.unit + ')' : '') +
+      ' relative to ' + data.baseline + ' — higher is better, ' +
+      'sorted worst → best by ' + (data.sortLabel || data.sortFlow) + '. ' +
+      groups.length + ' of ' + data.groups.length + ' matched tests shown.' +
+      (overview ? ' Horizontal axis: test rank; hover for names and values.' : '');
     plot.appendChild(cap);
   }
 
@@ -196,7 +212,10 @@ This page is a pure rendering of the ledger — nothing is recorded only in
     box.innerHTML = data.flows.map(function (f) {
       return '<span><i style="background:' + (COL[f.series] || 'var(--accent)') + '"></i>' +
         f.label + '</span>';
-    }).join('') + '<span>faded = not LEC-proven or not hand-written Pyrope</span>';
+    }).join('');
+    var note = document.createElement('span');
+    note.textContent = data.solidNote || 'faded = not LEC-proven or not hand-written Pyrope';
+    box.appendChild(note);
   }
 
   document.querySelectorAll('.chart').forEach(function (root) {
@@ -204,11 +223,26 @@ This page is a pure rendering of the ledger — nothing is recorded only in
     var current = data.metrics[0].key;
     legend(root, data);
     draw(root, data, current);
-    root.querySelectorAll('.switch button').forEach(function (b) {
+    root.querySelector('.chart-search').addEventListener('input', function () {
+      draw(root, data, current);
+    });
+    root.querySelectorAll('button[data-metric]').forEach(function (b) {
       b.addEventListener('click', function () {
-        root.querySelectorAll('.switch button').forEach(function (o) { o.classList.remove('on'); });
+        root.querySelectorAll('button[data-metric]').forEach(function (o) {
+          o.classList.remove('on');
+        });
         b.classList.add('on');
         current = b.dataset.metric;
+        draw(root, data, current);
+      });
+    });
+    root.querySelectorAll('button[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.dataset.view = b.dataset.view;
+        root.querySelectorAll('button[data-view]').forEach(function (o) {
+          o.classList.remove('on');
+        });
+        b.classList.add('on');
         draw(root, data, current);
       });
     });

@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
   "host": "satsuma",
-  "run_id": "20261003T031409",
+  "run_id": "20261004T011423",
   "tech": "asap7",
   "versions": {
     "abc": "UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343",
     "cxx": "cxx (Debian 14.2.0-19) 14.2.0 sha256:6b3696e4dcb85e1c",
-    "lhd": "livehd 59b64c714 opt sha256:66289c68a93aa272",
+    "lhd": "livehd d2201112c+dirty opt sha256:2974ed6dd6441ca8",
     "make": "GNU Make 4.4.1 sha256:8a229baf64671988",
     "sta": "3.1.0 sha256:f6cc36b19980821d",
     "verilator": "Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286",
     "yosys": "Yosys 0.64 sha256:f0b765c3a575f1c0",
     "yosys_slang": "yosys-slang sha256:99ad11e3a4df2f47",
     "lgcheck": "sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c",
-    "yosys2": "sha256:8361e4f3f607f3ba"
+    "yosys2": "sha256:468d17c6890e927d"
   },
   "liberty_sha256": "f1474fb23977fd54",
   "time_unit": "ps",
@@ -1782,7 +1782,7 @@
     false
   ],
   "phase": "complete",
-  "jobs": 8,
+  "jobs": 4,
   "lec_jobs": 16,
   "usyn_tmap": "abc",
   "mappers": [
@@ -1791,34 +1791,301 @@
   ],
   "usyn_stage": "default",
   "lhd_settings": "",
-  "synth_host": "satsuma",
-  "reemit_logical_hierarchy": false,
-  "synth_run_id": "20261003T005830",
-  "synth_versions": {
-    "abc": "UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343",
-    "cxx": "cxx (Debian 14.2.0-19) 14.2.0 sha256:6b3696e4dcb85e1c",
-    "lhd": "livehd c89dcef7f opt sha256:7d42f42b47774141",
-    "make": "GNU Make 4.4.1 sha256:8a229baf64671988",
-    "sta": "3.1.0 sha256:f6cc36b19980821d",
-    "verilator": "Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286",
-    "yosys": "Yosys 0.64 sha256:f0b765c3a575f1c0",
-    "yosys_slang": "yosys-slang sha256:99ad11e3a4df2f47",
-    "lgcheck": "sha256:2581b8e9ea60c9e6",
-    "yosys2": "sha256:77c95cc90f15c30b"
-  },
-  "baseline_refresh_run_id": "20261003T005805",
-  "proof_overrides": [
+  "proof_worker_epochs": [
     {
-      "test": "cpu",
-      "config": "rv32_w32_d256",
-      "flow": "lec_netlist_verilog_no_satopt",
-      "run_id": "20261003T035538"
+      "workers": 8,
+      "completed_rows": 72
     },
     {
-      "test": "cpu",
-      "config": "rv32_w32_d256",
-      "flow": "lec_netlist_verilog_usyn_no_satopt",
-      "run_id": "20261003T035538"
+      "workers": 16,
+      "starts_after_total_rows": 462,
+      "started_utc": "2026-10-04T09:22:31.455644+00:00"
     }
-  ]
+  ],
+  "completed": 462,
+  "interrupted_proof_attempts": [
+    {
+      "test": "br_arb_lru",
+      "config": "nr16",
+      "flow": "lec_netlist_verilog_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_lru/nr16/asap7/lec_netlist_verilog_no_satopt"
+    },
+    {
+      "test": "br_arb_lru",
+      "config": "nr16",
+      "flow": "lec_netlist_verilog_usyn_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_lru/nr16/asap7/lec_netlist_verilog_usyn_no_satopt"
+    },
+    {
+      "test": "br_arb_weighted_lru",
+      "config": "maw16_mw4_nr16",
+      "flow": "lec_netlist_verilog_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_weighted_lru/maw16_mw4_nr16/asap7/lec_netlist_verilog_no_satopt"
+    },
+    {
+      "test": "br_arb_weighted_lru",
+      "config": "maw16_mw4_nr16",
+      "flow": "lec_netlist_verilog_usyn_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_weighted_lru/maw16_mw4_nr16/asap7/lec_netlist_verilog_usyn_no_satopt"
+    },
+    {
+      "test": "br_arb_weighted_rr",
+      "config": "maw16_mw4_nr16_upa0",
+      "flow": "lec_netlist_verilog_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_weighted_rr/maw16_mw4_nr16_upa0/asap7/lec_netlist_verilog_no_satopt"
+    },
+    {
+      "test": "br_arb_weighted_rr",
+      "config": "maw16_mw4_nr16_upa0",
+      "flow": "lec_netlist_verilog_usyn_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_arb_weighted_rr/maw16_mw4_nr16_upa0/asap7/lec_netlist_verilog_usyn_no_satopt"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_pop_1r1w",
+      "config": "d32_nss3_rrl1_rpo1_w64",
+      "flow": "lec_netlist_verilog_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_cdc_fifo_ctrl_pop_1r1w/d32_nss3_rrl1_rpo1_w64/asap7/lec_netlist_verilog_no_satopt"
+    },
+    {
+      "test": "br_cdc_fifo_ctrl_pop_1r1w",
+      "config": "d32_nss3_rrl1_rpo1_w64",
+      "flow": "lec_netlist_verilog_usyn_no_satopt",
+      "archive": "/mada/users/renau/projs/lhdtrack/var/runs/20261004T011423/interrupted-proof-work/br_cdc_fifo_ctrl_pop_1r1w/d32_nss3_rrl1_rpo1_w64/asap7/lec_netlist_verilog_usyn_no_satopt"
+    }
+  ],
+  "usyn2_baseline_run": "20261003T210453",
+  "reviewed_source_snapshot": {
+    "archive": "/mada/users/renau/projs/lhdtrack/var/toolchain/eval/2974ed6dd6441ca8-d2201112c-dirty-src-c4ee99255a9574e7/source.diff",
+    "sha256": "c4ee99255a9574e7f891d4655a17b6c70280abdaeb338856f704fc23a2c92936",
+    "binary_sha256": "2974ed6dd6441ca82ae823f515e2a1882941d343beb2b9d837d0c9379cb8df83",
+    "note": "Runtime producer unchanged. This immutable snapshot also includes the final documentation and corrected public-entry test fixture."
+  },
+  "usyn2_final_validation": {
+    "run": "20261004T011423",
+    "phase": "complete",
+    "recorded_rows": 780,
+    "flows": {
+      "lec_netlist_verilog_no_satopt": {
+        "rows": 195,
+        "status": {
+          "ok": 184,
+          "skipped": 11
+        },
+        "lec_verilog_result": {
+          "verdicts": {
+            "proven": 184,
+            "skipped": 11
+          },
+          "bounded_proofs": 1,
+          "unknown_or_refuted": []
+        },
+        "lec_aux_result": {
+          "verdicts": {
+            "proven": 148,
+            "timeout": 36,
+            "skipped": 11
+          },
+          "bounded_proofs": 38,
+          "unknown_or_refuted": [
+            "add_mul_sgn/bw12",
+            "add_mul_uns/bw16",
+            "alpha_blend/bw8",
+            "br_amba_axi2axil/aw32_dw32_iw4_mor4",
+            "br_amba_axi_demux/aw32_aaiw1_amopi4_aaiw1_amopi4__f282983d",
+            "br_amba_axi_shrinker/aw32_iw4_mor4_ndw32_rno1_rwo1_wdw64_wfd2",
+            "br_arb_lru/nr16",
+            "br_arb_weighted_rr/maw16_mw4_nr16_upa0",
+            "br_arb_weighted_lru/maw16_mw4_nr16",
+            "br_credit_sender/mc16_nf4_pcmc4_rpo1_w64",
+            "br_csr_demux/aw16_dw32_hdd0_nd4",
+            "br_fifo_flops/d16_eb0_rpo1_w64",
+            "br_fifo_flops_push_credit/d32_eb1_frads1_rpo1_rpo1_w32",
+            "br_fifo_shared_dynamic_flops/drads1_d32_nf2_nrp2_nwp2_prads1_ae312bd4",
+            "br_fifo_shared_dynamic_flops_push_credit/drads1_d32_nf2_nrp2_nwp2_prads1_75d7152b",
+            "br_fifo_shared_dynamic_flops_push_credit_pop_credit/drads1_d32_nf2_nrp2_nwp2_prads1_645b4917",
+            "br_fifo_shared_pstatic_ctrl/d32_nf2_rrl1_rpo1_sbd2_w32",
+            "br_fifo_shared_pstatic_ctrl_push_credit/d32_nf2_rrl1_rpo1_rpo1_sbd2_w32",
+            "br_fifo_shared_pstatic_flops/d32_nf2_rads1_rpo1_sbd2_w32",
+            "br_fifo_shared_pstatic_flops_push_credit/d32_nf2_rads1_rpo1_rpo1_sbd2_w32",
+            "br_flow_arb_lru/nf16",
+            "br_ram_flops_1r1w_mock/d16_w32",
+            "br_ram_flops_tile/d16_nrp1_nwp1_w32",
+            "br_multi_xfer_distributor_rr/nf16_ns4_sw64",
+            "br_ram_flops/ads1_d64_dt4_epw1_rdds1_rdws1_t_31c8054b",
+            "br_tracker_reorder_buffer_flops/dw32_eiw4_ne16_rpo0",
+            "carry_save_compare/bw20",
+            "carry_save_select/bw24",
+            "dot_product/bw16",
+            "cpu/rv32_w32_d256",
+            "dot_product_sgn/bw10",
+            "fma_sgn/bw12",
+            "fma_share/bw14",
+            "fma_share_sgn/bw16",
+            "fmaa_sgn/bw11",
+            "mul_add_uns/bw18"
+          ]
+        }
+      },
+      "lec_netlist_verilog_usyn_no_satopt": {
+        "rows": 195,
+        "status": {
+          "ok": 190,
+          "skipped": 5
+        },
+        "lec_verilog_result": {
+          "verdicts": {
+            "proven": 189,
+            "skipped": 5,
+            "timeout": 1
+          },
+          "bounded_proofs": 0,
+          "unknown_or_refuted": [
+            "sqr_sgn/bw26"
+          ]
+        },
+        "lec_aux_result": {
+          "verdicts": {
+            "proven": 155,
+            "timeout": 35,
+            "skipped": 5
+          },
+          "bounded_proofs": 43,
+          "unknown_or_refuted": [
+            "add_mul_sgn/bw12",
+            "add_mul_uns/bw16",
+            "alpha_blend/bw8",
+            "br_amba_axi2axil/aw32_dw32_iw4_mor4",
+            "br_amba_axi_demux/aw32_aaiw1_amopi4_aaiw1_amopi4__f282983d",
+            "br_arb_lru/nr16",
+            "br_arb_weighted_rr/maw16_mw4_nr16_upa0",
+            "br_arb_weighted_lru/maw16_mw4_nr16",
+            "br_credit_sender/mc16_nf4_pcmc4_rpo1_w64",
+            "br_csr_demux/aw16_dw32_hdd0_nd4",
+            "br_fifo_flops_push_credit/d32_eb1_frads1_rpo1_rpo1_w32",
+            "br_fifo_shared_dynamic_flops/drads1_d32_nf2_nrp2_nwp2_prads1_ae312bd4",
+            "br_fifo_shared_dynamic_flops_push_credit/drads1_d32_nf2_nrp2_nwp2_prads1_75d7152b",
+            "br_fifo_shared_dynamic_flops_push_credit_pop_credit/drads1_d32_nf2_nrp2_nwp2_prads1_645b4917",
+            "br_fifo_shared_pstatic_ctrl/d32_nf2_rrl1_rpo1_sbd2_w32",
+            "br_fifo_shared_pstatic_ctrl_push_credit/d32_nf2_rrl1_rpo1_rpo1_sbd2_w32",
+            "br_fifo_shared_pstatic_flops_push_credit/d32_nf2_rads1_rpo1_rpo1_sbd2_w32",
+            "br_flow_arb_lru/nf16",
+            "br_multi_xfer_distributor_rr/nf16_ns4_sw64",
+            "carry_save_compare/bw20",
+            "carry_save_select/bw24",
+            "cpu/rv32_w32_d256",
+            "dot_product/bw16",
+            "dot_product_sgn/bw10",
+            "fma/bw32",
+            "fma_share/bw14",
+            "fma_sgn/bw12",
+            "fma_share_sgn/bw16",
+            "fmaa/bw24",
+            "fmaa_sgn/bw11",
+            "mul_add_uns/bw18",
+            "mul_three/bw32",
+            "mul_add_sgn/bw24",
+            "sqr_uns/bw28",
+            "sqr_sgn/bw26"
+          ]
+        }
+      },
+      "syn_lhd_verilog_no_satopt": {
+        "rows": 195,
+        "status": {
+          "ok": 184,
+          "skipped": 5,
+          "failed": 6
+        }
+      },
+      "syn_lhd_verilog_usyn_no_satopt": {
+        "rows": 195,
+        "status": {
+          "ok": 190,
+          "skipped": 5
+        }
+      }
+    },
+    "retained": {
+      "lec_retained_usyn_pyrope": {
+        "rows": 195,
+        "verdicts": {
+          "proven": 188,
+          "skipped": 5,
+          "timeout": 2
+        },
+        "bounded_proofs": 8
+      },
+      "sim_retained_usyn_netlist": {
+        "rows": 4,
+        "verdicts": {
+          "ok": 4
+        }
+      },
+      "sim_retained_usyn_netlist_verilator": {
+        "rows": 195,
+        "verdicts": {
+          "ok": 190,
+          "skipped": 5
+        }
+      }
+    },
+    "gate_ratios": {
+      "headline": {
+        "n": 24,
+        "abc_over_usyn": 1.1996709012004798
+      },
+      "diagnostic_proved": {
+        "n": 180,
+        "abc_over_usyn": 1.2647273354231308
+      },
+      "measured": {
+        "n": 180,
+        "abc_over_usyn": 1.2647273354231308
+      }
+    },
+    "under_0_8": [
+      {
+        "test": "br_flow_arb_rr",
+        "abc": 158,
+        "usyn": 284,
+        "ratio": 0.5563380281690141
+      },
+      {
+        "test": "br_arb_rr",
+        "abc": 151,
+        "usyn": 261,
+        "ratio": 0.578544061302682
+      },
+      {
+        "test": "br_multi_xfer_reg_fwd",
+        "abc": 304,
+        "usyn": 451,
+        "ratio": 0.6740576496674058
+      },
+      {
+        "test": "icmp",
+        "abc": 41,
+        "usyn": 60,
+        "ratio": 0.6833333333333333
+      },
+      {
+        "test": "comparator",
+        "abc": 30,
+        "usyn": 43,
+        "ratio": 0.6976744186046512
+      },
+      {
+        "test": "br_flow_fork",
+        "abc": 71,
+        "usyn": 90,
+        "ratio": 0.7888888888888889
+      },
+      {
+        "test": "br_enc_priority_dynamic",
+        "abc": 98,
+        "usyn": 124,
+        "ratio": 0.7903225806451613
+      }
+    ]
+  }
 }

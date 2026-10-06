@@ -37,6 +37,8 @@ FLOW_TOOLS: dict[str, tuple[str, ...]] = {
     "sim_verilator": ("verilator", "make", "cxx"),
     "sim_lhd_verilog": ("lhd",),
     "sim_lhd_pyrope": ("lhd",),
+    "sim_lhd_verilog_llvm": ("lhd",),
+    "sim_lhd_pyrope_llvm": ("lhd",),
     "lec_lhd": ("lhd",),
     "lec_lgyosys": ("lhd", "yosys"),
     "lec_netlist": ("lhd",),
@@ -93,6 +95,8 @@ def _shared_recipe(flows_dir: Path, flow_name: str) -> list[Path]:
         endpoint = flows_dir / "qor_endpoint.py"
         if endpoint.exists():
             paths.append(endpoint)
+    if flow_name in ("sim_lhd_verilog_llvm", "sim_lhd_pyrope_llvm"):
+        paths.append(flows_dir / f"{flow_name.removesuffix('_llvm')}.py")
     return paths
 
 

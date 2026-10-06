@@ -1,14 +1,130 @@
 """A fresh evaluation must not inherit old LiveHD measurements or proofs."""
 import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from lhdtrack.report.verilog_eval import (
     bounded_yosys_evidence, geomean_ratios, lec_time_geomean, proof_covers_digest,
-    proof_ok, satopt_lec_effect, select_rows, simulation_section, synth_proof,
+    logic_gate_section, metric_values, proof_ok, satopt_lec_effect, select_rows,
+    simulation_section, synth_proof, _synth_row,
     verify_transparent_instance_renaming,
+    mapper_chart_data, write_evaluation,
 )
 
 
 class VerilogEvaluation(unittest.TestCase):
+    def test_split_evaluation_keeps_selected_proofs_and_source_simulation_separate(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data").mkdir()
+            spec = {"host": "test-host", "run_id": "fresh", "tech": "asap7",
+                    "versions": {"lhd": "current"}, "liberty_sha256": "same", "time_unit": "ps",
+                    "slots": [{"test": "dut", "config": "one"},
+                              {"test": "missing", "config": "one"}],
+                    "baselines": [{"test": "dut", "config": "one", "run_id": "base"}],
+                    "satopt_profiles": [False], "auxiliary_report": "report-test-host-full.html"}
+            path = root / "data/verilog-eval-test-host.json"
+            path.write_text(json.dumps(spec))
+            common = {"host": "test-host", "host_class": "cpu", "suite": "comb",
+                      "test": "dut", "config": "one", "tech": "asap7", "run_id": "fresh",
+                      "date": "2026-10-06", "versions": spec["versions"], "status": "ok"}
+            rows = [{**common, "kind": "synth", "run_id": "base", "flow": "syn_yosys_abc",
+                     "qor": {"area_um2": 10}},
+                    {**common, "kind": "synth", "flow": "syn_lhd_verilog_no_satopt",
+                     "qor": {"area_um2": 5, "netlist_sha256": "mapped"}},
+                    {**common, "kind": "lec", "flow": "lec_netlist_verilog_no_satopt",
+                     "lec_verilog_result": {"verdict": "proven", "bounded": True,
+                                            "bound": 6, "netlist_sha256": "mapped", "ms": 10},
+                     "lec_aux_result": {"verdict": "timeout", "ms": 1000}},
+                    {**common, "kind": "sim", "flow": "sim_verilator", "tech": None,
+                     "sim": {"cycles": 100, "exec_ms": 5}}]
+            ledger = root / "data/ledger-test-host.jsonl"
+            original = "".join(json.dumps(row) + "\n" for row in rows)
+            ledger.write_text(original)
+            from lhdtrack.report.html import write_all
+            outputs = write_all(root, only="test-host")
+            synth = (root / "target/results-syn-test-host.html").read_text()
+            lec = (root / "target/results-lec-test-host.html").read_text()
+            sim = (root / "target/results-sim-test-host.html").read_text()
+            self.assertIn('id="chart-eval-syn-false"', synth)
+            self.assertNotIn("Verdict coverage", synth)
+            self.assertNotIn("<h2>Simulation", synth)
+            self.assertIn("2.000×", synth)
+            self.assertIn("Verdict coverage", lec)
+            self.assertIn("bounded(6)", lec)
+            self.assertIn("not-measured 1/2", lec)
+            self.assertNotIn('id="chart-eval-syn', lec)
+            self.assertIn("<h2>Simulation", sim)
+            self.assertNotIn("Verdict coverage", sim)
+            self.assertFalse((root / "target/report-test-host.html").exists())
+            self.assertFalse((root / "target/report-test-host-full.html").exists())
+            self.assertIn(root / "target/results-syn-test-host-full.html", outputs)
+            self.assertEqual(ledger.read_text(), original)
+            # Explicitly named historical snapshots still render their selected evaluation.
+            out = root / "target/eval-snapshot.html"
+            snapshot = write_evaluation(root, path, out=out).read_text()
+            self.assertIn("<h2>Synthesis", snapshot)
+            self.assertIn("Verdict coverage", snapshot)
+            # A direct evaluation call must honor its supplied spec even when
+            # it has not been installed as the public host specification.
+            alternative = root / "alternate-evaluation.json"
+            path.rename(alternative)
+            primary = write_evaluation(root, alternative)
+            self.assertEqual(primary.name, "results-syn-test-host.html")
+            self.assertIn('id="chart-eval-syn-false"', primary.read_text())
+
+    def test_mapper_plot_uses_full_metrics_and_excludes_refuted_pairs(self):
+        spec = {"slots": [{"test": "dut", "config": "one"}], "time_unit": "ps"}
+        rows = {("dut", "one", "syn_yosys_abc"): {"status": "ok", "qor": {"area_um2": 10}},
+                ("dut", "one", "syn_lhd_verilog"): {"status": "ok", "qor": {"area_um2": 5}},
+                ("dut", "one", "syn_lhd_verilog_usyn"):
+                    {"status": "ok", "qor": {"lhd_area_um2": 2}}}
+        data = mapper_chart_data(rows, spec, True)
+        self.assertEqual(data["groups"][0]["values"], {"area": {"syn_lhd_verilog": 2}})
+        self.assertFalse(data["groups"][0]["solid"])
+        rows["dut", "one", "lec_netlist_verilog"] = {"lec_aux_result": {"verdict": "refuted"}}
+        self.assertIsNone(mapper_chart_data(rows, spec, True))
+
+    def test_native_state_displays_partial_metrics_without_changing_full_metrics(self):
+        flow = "syn_lhd_verilog_usyn_no_satopt"
+        row = dict(status="ok", qor=dict(native_state=True, lhd_area_um2=12.5,
+                   lhd_cells=42, abc_max_delay_ns=93.75), sta={},
+                   time_ms=dict(total=1000), peak_rss_kb=dict(max=2048))
+        rows = {("memory", "one", flow): row}
+        rendered = _synth_row(rows, "memory", "one", '<td>memory</td>', False, [])
+        for value in ("12.50", "42", "93.75", ">logic</span>", ">region</span>", "LEC unverified"):
+            self.assertIn(value, rendered)
+        self.assertNotIn("native state</span>", rendered)
+        self.assertEqual(metric_values(row), (None, None, None, None, 1, 2))
+        self.assertNotIn("area_um2", row["qor"])
+        row["status"] = "failed"
+        self.assertIn("12.50", _synth_row(rows, "memory", "one", '<td>memory</td>', False, []))
+        rows["memory", "one", "lec_netlist_verilog_usyn_no_satopt"] = {
+            "lec_verilog_result": dict(verdict="refuted")}
+        rendered = _synth_row(rows, "memory", "one", '<td>memory</td>', False, [])
+        self.assertIn("results excluded", rendered)
+        self.assertNotIn("12.50", rendered)
+
+    def test_gate_all_results_include_timeouts_but_exclude_refutations(self):
+        spec = dict(host="host", tech="asap7", run_id="run", satopt_profiles=[False],
+                    slots=[dict(test="memory", config="one")])
+        base = dict(status="ok", host_class="host", liberty_sha256="lib")
+        rows = {("memory", "one", "syn_lhd_verilog_no_satopt"):
+                dict(base, qor=dict(lhd_cells=10)),
+                ("memory", "one", "syn_lhd_verilog_usyn_no_satopt"):
+                dict(base, qor=dict(lhd_cells=20)),
+                ("memory", "one", "lec_netlist_verilog_usyn_no_satopt"):
+                dict(lec_verilog_result=dict(verdict="timeout"))}
+        rendered = logic_gate_section(rows, spec)
+        self.assertIn("unverified results: 0.500× (n=1)", rendered)
+        self.assertIn("proof coverage incomplete", rendered)
+        rows["memory", "one", "lec_netlist_verilog_usyn_no_satopt"]["lec_verilog_result"]["verdict"] = "refuted"
+        rendered = logic_gate_section(rows, spec)
+        self.assertIn("unverified results: no eligible pairs", rendered)
+        self.assertIn("results excluded", rendered)
+        self.assertNotIn(">20</td>", rendered)
+
     def test_focused_proof_override_keeps_exact_scope_and_never_falls_back(self):
         flow = "lec_netlist_verilog_no_satopt"
         versions = dict(lhd="fixed")
