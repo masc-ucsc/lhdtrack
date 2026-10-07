@@ -22,7 +22,7 @@ NEEDS = ("lhd",)
 USES_TECH = False
 
 
-def run(ctx: FlowContext, *, backend: str = "slop") -> dict:
+def run(ctx: FlowContext, *, backend: str = "slop", direct_compile_timing: bool = False) -> dict:
     if reason := ctx.test.raw.get("sim", {}).get("skip_reason"):
         raise FlowSkip(reason)
     from lib.simgate import run_lhd_sim
@@ -54,4 +54,5 @@ def run(ctx: FlowContext, *, backend: str = "slop") -> dict:
         [ctx.tool("lhd"), "compile", "verilog", "--top", sim_top,
          "--emit-dir", "lg:dut", "--workdir", "tw", "--", *sources],
     )
-    return run_lhd_sim(ctx, design_input="lg:dut", tb=tb, backend=backend)
+    return run_lhd_sim(ctx, design_input="lg:dut", tb=tb, backend=backend,
+                       direct_compile_timing=direct_compile_timing)

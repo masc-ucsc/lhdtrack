@@ -886,7 +886,8 @@ def _sim_cost_ms(row: dict, metric: str) -> float | None:
 def _llvm_gain(llvm: dict, slop: dict, metric: str = "exec") -> float | None:
     if (llvm.get("status") != "ok" or slop.get("status") != "ok"
             or slop.get("sim", {}).get("backend") != "slop"
-            or llvm.get("sim", {}).get("backend") != "llvm"):
+            or llvm.get("sim", {}).get("backend") != "llvm"
+            or not _same_netlist_measurement(llvm, slop)):
         return None
     for field in ("host", "host_class", "run_id"):
         if llvm.get(field) != slop.get(field):
@@ -909,6 +910,22 @@ def _llvm_gain(llvm: dict, slop: dict, metric: str = "exec") -> float | None:
                for v in (measured, base)):
         return None
     return base / measured
+
+
+def _same_netlist_measurement(row: dict, base: dict) -> bool:
+    """Retained-netlist timings must describe the same artifact and run."""
+    a, b = row.get("sim", {}), base.get("sim", {})
+    if not (a.get("source_run") or b.get("source_run")):
+        return True
+    for field in ("source_run", "netlist_sha256", "liberty_sha256", "cycles", "checksum",
+                  "build_jobs", "measurement_jobs", "exec_repetitions"):
+        if a.get(field) is None or a.get(field) != b.get(field):
+            return False
+    return (not a.get("validation_only") and not b.get("validation_only")
+            and bool(row.get("versions", {}).get("lhd"))
+            and bool(row.get("versions", {}).get("cxx"))
+            and all(row.get(field) and row.get(field) == base.get(field)
+                    for field in ("run_id", "host", "host_class", "versions")))
 
 
 def _llvm_chart_data(keys, index) -> dict | None:
@@ -967,19 +984,23 @@ def _llvm_timing_summary(data: dict) -> str:
             'The geomean uses per-test ratios, rather than the ratio of the medians.</p>')
 
 
-def _sim_table(title, keys, index, base_flow, headline) -> str:
+def _sim_table(title, keys, index, base_flow, headline, *,
+               languages=("verilog", "pyrope")) -> str:
+    flows_to_show = ("sim_verilator", *(f"sim_lhd_{lang}" for lang in languages))
+    labels = ("Verilator", *(f"LHD {lang.title()}" for lang in languages))
+    metric_columns = 4 * len(flows_to_show)
     head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>',
             '<th rowspan="2">cycles</th>']
-    for flow, label in zip(_SIM_FLOWS, ("Verilator", "LHD Verilog", "LHD Pyrope")):
+    for flow, label in zip(flows_to_show, labels):
         backends = {index[key].get(flow, {}).get("sim", {}).get("backend")
                     for key in keys if index[key].get(flow, {}).get("status") == "ok"}
         if backends == {"slop"}:
             label += " · Slop"
         head.append(f'<th class="g" colspan="4">{_e(label)}</th>')
-    head.append('<th class="g" colspan="2">LLVM speed / Slop</th></tr><tr>')
-    for _ in _SIM_FLOWS:
+    head.append(f'<th class="g" colspan="{len(languages)}">LLVM speed / Slop</th></tr><tr>')
+    for _ in flows_to_show:
         head.append('<th class="g">setup s</th><th>c++ s</th><th>exec s</th><th>Mcyc/s</th>')
-    head.append('<th class="g">Verilog</th><th>Pyrope</th>')
+    head.extend(f'<th class="g">{_e(lang.title())}</th>' for lang in languages)
     head.append("</tr>")
 
     body, ratios = [], defaultdict(list)
@@ -987,10 +1008,14 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         _, test, config, _ = key
         flows = index[key]
         base = flows.get(base_flow, {})
-        cells = [f'<td class="l sim-test">{_e(test)} {_tags(flows)}</td>'
+        tags = _tags(flows) if "pyrope" in languages else ""
+        original_cycles = base.get("sim", {}).get("original_cycles")
+        cycle_note = (f' title="Original full validation: {_e(original_cycles)} cycles"'
+                      if original_cycles else "")
+        cells = [f'<td class="l sim-test">{_e(test)} {tags}</td>'
                  f'<td class="l muted sim-config">{_e(config)}</td>',
-                 f'<td>{_fmt(base.get("sim", {}).get("cycles"))}</td>']
-        for flow in _SIM_FLOWS:
+                 f'<td{cycle_note}>{_fmt(base.get("sim", {}).get("cycles"))}</td>']
+        for flow in flows_to_show:
             r = flows.get(flow)
             # Checksum disagreement fails the cross-simulator correctness gate,
             # but each simulator did run and its speed is still a measurement.
@@ -1024,7 +1049,7 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
                     gain = _gain(val, b)
                     if gain:
                         ratios[(flow, metric)].append(gain)
-        for language in ("verilog", "pyrope"):
+        for language in languages:
             source = f"sim_lhd_{language}"
             llvm, slop = flows.get(source + "_llvm", {}), flows.get(source, {})
             gain = _llvm_gain(llvm, slop)
@@ -1049,17 +1074,18 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
         body.append("<tr>" + "".join(cells) + "</tr>")
 
     foot = ['<tr><td class="l" colspan="3">geomean vs verilator</td>']
-    for flow in _SIM_FLOWS:
+    for flow in flows_to_show:
         foot.append('<td class="g">' + _ratio(ratios[(flow, "setup")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "cc")]) + "</td>")
         foot.append("<td>" + _ratio(ratios[(flow, "exec")]) + "</td>")
         # Mcyc/s is 1/exec by construction; a second ratio for it would just
         # restate the exec column.
         foot.append('<td class="muted">—</td>')
-    foot.append('<td class="g">—</td><td>—</td></tr>')
-    foot.append('<tr><td class="l" colspan="15">'
+    foot.extend('<td class="g">—</td>' for _ in languages)
+    foot.append("</tr>")
+    foot.append(f'<tr><td class="l" colspan="{3 + metric_columns}">'
                 'LLVM speed / Slop · all matched successful pairs</td>')
-    for language in ("verilog", "pyrope"):
+    for language in languages:
         gains = ratios[(language, "llvm")]
         foot.append(f'<td>{_ratio(gains)} <small class="muted">(n={len(gains)})</small></td>')
     foot.append('</tr>')
@@ -1068,12 +1094,12 @@ def _sim_table(title, keys, index, base_flow, headline) -> str:
     return f"""{heading}
 <div class="scroll"><table class="sim-table"><colgroup>
 <col style="width:210px"><col style="width:140px"><col style="width:90px">
-<col span="12"><col span="2" style="width:90px"></colgroup><thead>{''.join(head)}</thead>
+<col span="{metric_columns}"><col span="{len(languages)}" style="width:90px"></colgroup><thead>{''.join(head)}</thead>
 <tbody>{''.join(body)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
 <p class="sub muted">Ratios are <b>baseline &divide; measured</b>, so
 <b>higher is always better</b> — 2.00&times; means twice as fast.
 Ratios require equal cycle counts. All simulators fold the recorded checksum or the test fails.
-The two LLVM columns show Slop execution time ÷ LLVM execution time for the same source language;
+The LLVM columns show Slop execution time ÷ LLVM execution time for the same source language;
 hover for absolute execution, setup+compile and total times. Above 1× means LLVM helps.</p>
 """
 
@@ -1131,7 +1157,8 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
         return False
     if flow.startswith("sim_"):
         cycles = base.get("sim", {}).get("cycles")
-        if cycles is None or row.get("sim", {}).get("cycles") != cycles:
+        if (cycles is None or row.get("sim", {}).get("cycles") != cycles
+                or not _same_netlist_measurement(row, base)):
             return False
     if flow != pyrope_flow:
         return True
@@ -1532,7 +1559,8 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
                 same_workload = (not flow.startswith("sim_") or
                                  (base.get("sim", {}).get("cycles") is not None and
                                   (r or {}).get("sim", {}).get("cycles") ==
-                                  base.get("sim", {}).get("cycles")))
+                                  base.get("sim", {}).get("cycles")
+                                  and _same_netlist_measurement(r or {}, base)))
                 if r and r.get("status") == "ok" and same_workload:
                     gain = _gain(get(r), get(base))
                     if gain:

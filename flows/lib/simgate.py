@@ -46,7 +46,7 @@ def parse_result(log: Path, marker: str) -> SimResult:
 
 def run_lhd_sim(
     ctx: FlowContext, design_input: str, tb: Path, *, validation_only: bool = False,
-    backend: str = "slop",
+    backend: str = "slop", direct_compile_timing: bool = False,
 ) -> dict:
     """The `lhd sim` half of a simulation row: setup / cc / exec.
 
@@ -54,6 +54,8 @@ def run_lhd_sim(
     kernel objects. `--run-only` completes host compilation/linking, rebuilds
     drv.bin and runs it. The binary is re-run separately to measure simulation
     alone; subtracting its best execution from run-only estimates compile time.
+    With direct_compile_timing, sim.compile_only stops run-only after linking;
+    its measured time is compilation, with no execution subtraction.
     Compare setup + compile across backends because object generation straddles
     those stages differently. Verilog's separate elab stage also belongs in
     the total cost of preparing and executing one simulation.
@@ -65,6 +67,8 @@ def run_lhd_sim(
     lhd = ctx.tool("lhd")
     if backend not in ("slop", "llvm"):
         raise ValueError(f"unknown simulation backend: {backend}")
+    if validation_only and direct_compile_timing:
+        raise ValueError("direct compile timing requires standalone simulation measurements")
     cycles = ctx.test.sim_cycles
     inputs = [design_input, str(tb)]
     build_jobs = ctx.sim_build_jobs
@@ -89,6 +93,7 @@ def run_lhd_sim(
         "run",
         [lhd, "sim", *inputs, "--run-only", "--arg", f"cycles={cycles}",
          *sim_policy, "--set", "sim.ninja=false",
+         *(["--set", "sim.compile_only=true"] if direct_compile_timing else []),
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )
 
@@ -116,7 +121,7 @@ def run_lhd_sim(
     # at zero: a negative value is only reachable if a stall landed in the lhd
     # run and not in the re-run, and a negative compile time is worse than a
     # zero one.
-    cc_ms = max(run.ms - best.ms, 0)
+    cc_ms = run.ms if direct_compile_timing else max(run.ms - best.ms, 0)
     ctx.stage.time_ms["cc"] = cc_ms
     ctx.stage.time_ms.pop("run", None)
 
@@ -127,6 +132,7 @@ def run_lhd_sim(
         "sim": {
             "backend": backend,
             "build_jobs": build_jobs,
+            "compile_timing": "direct" if direct_compile_timing else "execution-subtracted",
             "cycles": cycles,
             "exec_ms": best.ms,
             "exec_samples_ms": samples,

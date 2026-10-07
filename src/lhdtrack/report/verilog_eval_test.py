@@ -7,13 +7,74 @@ from tempfile import TemporaryDirectory
 from lhdtrack.report.verilog_eval import (
     bounded_yosys_evidence, geomean_ratios, lec_time_geomean, proof_covers_digest,
     logic_gate_section, metric_values, proof_ok, satopt_lec_effect, select_rows,
-    simulation_section, synth_proof, _synth_row,
+    simulation_section, synth_proof, _synth_row, retained_usyn_simulation_section,
     verify_transparent_instance_renaming,
     mapper_chart_data, write_evaluation,
 )
 
 
 class VerilogEvaluation(unittest.TestCase):
+    def test_retained_simulation_compares_same_bytes_without_pyrope_columns(self):
+        spec = {"host": "satsuma", "tech": "asap7", "run_id": "synthesis"}
+        common = {"host": "satsuma", "host_class": "cpu", "tech": "asap7", "kind": "sim",
+                  "run_id": "timing", "source_usyn_run": "synthesis", "suite": "comb",
+                  "test": "dut", "config": "one", "status": "ok", "pyrope_status": "auto",
+                  "versions": {"lhd": "frozen", "cxx": "same"},
+                  "time_ms": {"setup": 100, "cc": 200}}
+        simulation = {"source_run": "synthesis", "netlist_sha256": "netlist",
+                      "liberty_sha256": "liberty", "cycles": 100, "checksum": "123",
+                      "build_jobs": 32, "measurement_jobs": 1, "exec_repetitions": 3}
+        rows = [{**common, "flow": "sim_retained_usyn_netlist_" + name,
+                 "sim": {**simulation, "backend": backend, "exec_ms": ms,
+                         "cycles_per_s": 100000 // ms}}
+                for name, backend, ms in (("verilator", "verilator", 40),
+                                          ("lhd_verilog", "slop", 20),
+                                          ("lhd_verilog_llvm", "llvm", 10))]
+        html = retained_usyn_simulation_section(rows, spec)
+        self.assertIn("LHD Verilog", html)
+        self.assertNotIn("Pyrope", html)
+        self.assertNotIn("pyrope:", html)
+        self.assertIn('id="chart-usyn-sim"', html)
+        self.assertIn('id="chart-usyn-sim-llvm"', html)
+        self.assertIn("Setup + compile", html)
+        self.assertIn("2.00×", html)
+        # An unrelated artifact remains visible but must not produce a ratio.
+        wrong = {**rows[1], "sim": {**rows[1]["sim"], "netlist_sha256": "different"}}
+        html = retained_usyn_simulation_section([rows[0], wrong, rows[2]], spec)
+        self.assertNotIn('id="chart-usyn-sim"', html)
+        self.assertNotIn('id="chart-usyn-sim-llvm"', html)
+        # A historical single execution is a correctness check, not a baseline.
+        validation = {**rows[0], "sim": {**rows[0]["sim"], "validation_only": True}}
+        html = retained_usyn_simulation_section([validation, *rows[1:]], spec)
+        self.assertNotIn('id="chart-usyn-sim"', html)
+        self.assertIn("correctness-only", html)
+
+    def test_retained_simulation_does_not_pair_runs_or_hide_latest_failure(self):
+        from lhdtrack.report.html import _same_netlist_measurement
+        row = {"run_id": "new", "host": "satsuma", "host_class": "cpu",
+               "versions": {"lhd": "current", "cxx": "same"}, "sim": {
+                   "source_run": "synthesis", "netlist_sha256": "netlist",
+                   "liberty_sha256": "liberty", "cycles": 100, "checksum": "123",
+                   "build_jobs": 32, "measurement_jobs": 1, "exec_repetitions": 3}}
+        self.assertTrue(_same_netlist_measurement(row, row))
+        for field in ("source_run", "netlist_sha256", "liberty_sha256", "cycles", "checksum",
+                      "build_jobs", "measurement_jobs", "exec_repetitions"):
+            with self.subTest(field=field):
+                self.assertFalse(_same_netlist_measurement(
+                    row, {**row, "sim": {**row["sim"], field: "different"}}))
+        self.assertFalse(_same_netlist_measurement(row, {**row, "run_id": "old"}))
+        unknown = {**row, "versions": {}}
+        self.assertFalse(_same_netlist_measurement(unknown, unknown))
+        spec = {"host": "satsuma", "tech": "asap7", "run_id": "synthesis"}
+        base = {**row, "tech": "asap7", "kind": "sim", "suite": "comb", "test": "dut",
+                "config": "one", "source_usyn_run": "synthesis",
+                "flow": "sim_retained_usyn_netlist_lhd_verilog", "status": "failed",
+                "note": "recorded checksum differs"}
+        old = {**base, "run_id": "earlier", "status": "ok"}
+        html = retained_usyn_simulation_section([base, old], spec)
+        self.assertIn("failed", html)
+        self.assertIn("recorded checksum differs", html)
+
     def test_split_evaluation_keeps_selected_proofs_and_source_simulation_separate(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)

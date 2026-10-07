@@ -661,8 +661,11 @@ selected evaluation specifications. Results are separated by domain and host:
   limits and outer concurrency;
   failed or unmatched measurements stay visible without entering the comparison.
   This backend comparison includes all Pyrope source styles because it compares
-  the same source through two backends. Exact-netlist simulation checks have
-  their own section below the source-simulation results.
+  the same source through two backends. The USYN netlist section uses the same
+  layout with Verilator and LHD Verilog Slop, plus one LLVM/Slop column; it has
+  no Pyrope columns. It measures the retained netlist bytes, with matching
+  artifact and Liberty hashes, and includes setup+compile and total-time plots.
+  Historical correctness-only executions do not enter these timing comparisons.
 - **`target/results-lec-<host>.html`** — equivalence verdicts, proof timings and
   coverage plots. Bounded proofs, timeouts, skipped and missing checks remain
   distinct. Language equivalence and emitted-netlist obligations stay separate.
@@ -672,6 +675,36 @@ selected evaluation specifications. Results are separated by domain and host:
 All result pages link to each other and the machine index. Ratio charts offer
 a compact overview, a per-test view, metric switches, hover details and a
 test/config filter; tables remain sortable.
+
+To measure an existing USYN evaluation without resynthesizing it:
+
+```sh
+python3 tools/run_usyn_sim.py --synth-run RUN_ID --build-jobs 32
+make report
+```
+
+The toolchain manifest must pin the same compiler in `bin.cxx` and
+`env.lhd.CXX`. The runner uses the requested physical-core budget (default 32) for compilation and
+executes one flow at a time, with standalone simulation measurements and the
+recorded-checksum gate. Short cases use the configured repetition count; cases
+whose prior successful Verilator run of the same netlist and cycle count took
+at least 30 seconds use one full execution per simulator. This preserves the
+full cycle count and checksum coverage. `--long-run-seconds 0` disables this
+sampling adjustment. `--test NAME` selects a focused check.
+For a shorter, independent performance profile, add `--timing-seconds 2`.
+Prior exact-netlist Verilator timings select a reduced cycle count, capped at
+its original count. A fresh original-RTL Verilator run supplies the reference
+at that exact length; all three netlist simulators must match it. These rows
+record both cycle counts and the reference run. The manifest and existing
+full-cycle validation rows remain unchanged. Short timing profiles use the
+configured repetition count for every simulator.
+The USYN table includes Liberty-model generation and Verilog elaboration in
+setup for both simulators, so setup + compile covers all preparation.
+LHD's `sim.compile_only=true` times compilation and linking directly, before the
+standalone execution measurements; long gate-level runs do not contaminate the
+compilation estimate through subtraction.
+The simulator toolchain may be newer than the retained synthesis toolchain;
+the source run and netlist hashes identify exactly which circuit was measured.
 
 The existing `sim_lhd_verilog` and `sim_lhd_pyrope` flows explicitly select Slop.
 The planner also schedules their `_llvm` counterparts when those language flows
@@ -684,10 +717,11 @@ times this limit within the host's physical core budget. Build limits enter
 simulation cache keys and are recorded alongside outer concurrency in each row.
 Execution is measured best of three, separately from setup and host
 compilation; all measurements remain gated against the recorded checksum.
-To refresh the complete simulation matrix without synthesis or LEC reruns:
+To refresh the complete simulation matrix with a 32-core compilation budget,
+without overlapping flow measurements or rerunning synthesis and LEC:
 
 ```sh
-lhdtrack run --no-cache -j 8 --sim-build-jobs 8 --flow sim_verilator \
+lhdtrack run --no-cache -j 1 --sim-build-jobs 32 --flow sim_verilator \
   --flow sim_lhd_verilog --flow sim_lhd_pyrope \
   --flow sim_lhd_verilog_llvm --flow sim_lhd_pyrope_llvm
 ```

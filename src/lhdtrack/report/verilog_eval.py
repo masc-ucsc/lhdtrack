@@ -8,7 +8,8 @@ from pathlib import Path
 from ..ledger import Ledger, slug
 from .html import (
     _auxiliary_report_name, _chart_block, _coverage_plot, _coverage_verdict,
-    _display_lec_verdict, _e, _fmt,
+    _display_lec_verdict, _e, _fmt, _chart_data, _llvm_chart_data, _llvm_timing_summary,
+    _sim_cost_ms,
     _language_lec_section, _netlist_lec_section, _page, _results_nav, _sim_table,
     _synth_display_values, _synth_scope_tag,
     _VERDICT_CLASS, RESULT_KINDS,
@@ -290,8 +291,82 @@ def simulation_section(history: list[dict], host: str, report_cfg: dict) -> str:
 
 
 
+def retained_usyn_simulation_section(history, spec):
+    """Time Verilator, Slop and LLVM on identical retained USYN netlists."""
+    source = spec.get("synth_run_id", spec["run_id"])
+    names = {
+        "sim_retained_usyn_netlist_verilator": "sim_verilator",
+        "sim_retained_usyn_netlist_lhd_verilog": "sim_lhd_verilog",
+        "sim_retained_usyn_netlist_lhd_verilog_llvm": "sim_lhd_verilog_llvm",
+    }
+    latest = {}
+    for row in sorted(history, key=lambda r: r.get("run_id", "")):
+        if (row.get("flow") not in names or row.get("host") != spec["host"]
+                or row.get("tech") != spec["tech"]
+                or row.get("source_usyn_run", row.get("sim", {}).get("source_run")) != source):
+            continue
+        latest[row["test"], row.get("config", "default"), row["flow"]] = row
+    title = "<h2>USYN netlist simulation · Verilator and LHD Verilog</h2>"
+    if not latest:
+        return title + "<p>No simulation measurements recorded for these retained netlists.</p>"
+    index = defaultdict(dict)
+    validation = []
+    for row in latest.values():
+        if row.get("sim", {}).get("validation_only"):
+            validation.append(row)
+            continue
+        key = row.get("suite", ""), row["test"], row.get("config", "default"), None
+        index[key][names[row["flow"]]] = {**row, "flow": names[row["flow"]]}
+    counts = Counter(r.get("status", "unknown") for r in latest.values())
+    body = [title, f"<p>Exact retained USYN netlists from {_e(source)}. "
+            "Verilator is the baseline; LHD reads the same Verilog netlist with Slop and LLVM. "
+            "Netlists are hash-checked and are not resynthesized. "
+            "Ratios require the same netlist, Liberty models, cycle count, checksum, toolchain, "
+            "run, repetition count and worker budgets. "
+            f"Recorded outcomes: {_e(dict(counts))}.</p>"]
+    calibrated = {(r["test"], r.get("config", "default")) for r in latest.values()
+                  if r.get("sim", {}).get("timing_profile") == "calibrated"}
+    if calibrated:
+        body.append(f"<p>{len(calibrated)} designs use a separate shorter timing profile, "
+                    "calibrated from historical Verilator speed. Each simulator uses the same "
+                    "cycle count and is checked against a fresh original-RTL Verilator reference "
+                    "at that length. Existing full-cycle validation remains in the ledger.</p>")
+    if index:
+        keys = sorted(index, key=lambda k: (k[1], k[2]))
+        body.append(_sim_table(None, keys, index, "sim_verilator", set(), languages=("verilog",)))
+        data = _chart_data(keys, index, "sim_verilator", ["sim_lhd_verilog"], [
+            ("exec", "Simulation speed", "", lambda r: _sim_cost_ms(r, "exec")),
+            ("prepare", "Setup + compile", "s", lambda r: _sim_cost_ms(r, "prepare")),
+            ("total", "Total incl. one simulation", "s", lambda r: _sim_cost_ms(r, "total")),
+        ])
+        if data:
+            for group in data["groups"]:
+                group["solid"] = True
+            data["solidNote"] = "matched successful exact-netlist checksums"
+            body.append(_chart_block("chart-usyn-sim", data))
+        llvm = _llvm_chart_data(keys, index)
+        if llvm:
+            llvm["flows"] = [f for f in llvm["flows"] if f["key"] == "verilog"]
+            body.append(_llvm_timing_summary(llvm))
+            body.append(_chart_block("chart-usyn-sim-llvm", llvm))
+        body.append("<p class=\"sub\">Setup includes Liberty model generation, Verilog elaboration "
+                    "and simulator code/object generation. Setup + compile is the full preparation "
+                    "cost, including host compilation and linking; total adds one simulation. "
+                    "Compilation is timed separately from simulation, without execution subtraction. "
+                    "Short timing profiles use repeated executions; long full-cycle profiles may use one execution per simulator. "
+                    "Failures and skips remain visible and are excluded from ratios.</p>")
+    if validation:
+        body.append(f"<p>{len(validation)} older correctness-only observations remain in the ledger; "
+                    "they are excluded from performance comparisons.</p>")
+    return "".join(body)
+
+
 def retained_usyn_validation_section(history, spec, kind=None):
     """Only checksum/proof observations tied to this exact synthesis run."""
+    if kind in (None, "sim"):
+        simulation = retained_usyn_simulation_section(history, spec)
+        return simulation + (retained_usyn_validation_section(history, spec, kind="lec")
+                             if kind is None else "")
     source = spec.get("synth_run_id", spec["run_id"])
     latest = {}
     for row in history:
