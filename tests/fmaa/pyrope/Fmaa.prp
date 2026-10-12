@@ -1,5 +1,5 @@
 // 24-bit product plus two 73-bit addends, wrapping to 73 bits.
 // External names and widths match the pinned Verilog and generated harness.
-pub comb Fmaa(a:U24, b:U24, c:U73, d:U73) -> (res:U73) {
+pub comb Fmaa::[synth.multiplier="sn"](a:U24, b:U24, c:U73, d:U73) -> (res:U73) {
   wrap res = (a*b) + c + d
 }

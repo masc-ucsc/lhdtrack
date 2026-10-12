@@ -1,6 +1,6 @@
 // Rotator over 16 one-bit symbols: left by `rotate`, or right when `right` is set.
 // A right rotate by r is a left rotate by (16 - r) mod 16, which is -r in 4 bits.
-pub comb br_shift_rotate(`in`:U16, right:U1, rotate:U4) -> (out:U16) {
+pub comb br_shift_rotate::[synth.color="x"](`in`:U16, right:U1, rotate:U4) -> (out:U16) {
   comptime const N = `in`.[bits]
   mut left:U4 = rotate
   if right != 0 {

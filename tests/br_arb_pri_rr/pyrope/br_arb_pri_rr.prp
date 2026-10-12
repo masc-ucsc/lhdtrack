@@ -1,6 +1,6 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-pub mod br_arb_pri_rr::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U16, request_priority:U16, rst:Reset) -> (grant:U16@[]) {
+pub mod br_arb_pri_rr::[timecheck=false,synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, request_priority:U16, rst:Reset) -> (grant:U16@[]) {
   wire request_unrolled_bits:U48 = nil
   wire request_unrolled:U48 = nil
   wire any_higher_pri_req_bits:U48 = nil

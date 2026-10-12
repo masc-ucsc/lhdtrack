@@ -1,5 +1,5 @@
 // Signed 26-bit square; retain the full 52-bit signed product.
 // External names and widths match the pinned Verilog and generated harness.
-pub comb SqrSgn(X:S26) -> (P:S52) {
+pub comb SqrSgn::[synth.color="x"](X:S26) -> (P:S52) {
   P = X*X
 }

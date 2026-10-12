@@ -2,7 +2,7 @@ const br_arb_pairwise_core_internal = import("br_arb_pairwise_core_internal.br_a
 const br_arb_weight_handler = import("br_arb_weight_handler.br_arb_weight_handler")
 const br_lru_state_internal = import("br_lru_state_internal.br_lru_state_internal")
 
-pub mod br_arb_weighted_lru::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U16, request_weight:U48, rst:Reset) -> (grant:U16@[]) {
+pub mod br_arb_weighted_lru::[timecheck=false,synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, request_weight:U48, rst:Reset) -> (grant:U16@[]) {
   wire priority_matrix_bits:U256 = nil
   wire priority_matrix:U256 = nil
   grant = 0sb?

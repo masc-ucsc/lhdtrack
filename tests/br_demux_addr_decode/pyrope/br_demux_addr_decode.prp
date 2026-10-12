@@ -1,4 +1,4 @@
-pub comb br_demux_addr_decode::[timecheck=false](addr_valid:U1, downstream_addr_base:U64, downstream_addr_in:U64, downstream_addr_size:U64, upstream_addr:U16) -> (downstream_addr_out:U64, select_onehot:U4) {
+pub comb br_demux_addr_decode::[timecheck=false,synth.abc_pre="resyn2"](addr_valid:U1, downstream_addr_base:U64, downstream_addr_in:U64, downstream_addr_size:U64, upstream_addr:U16) -> (downstream_addr_out:U64, select_onehot:U4) {
   wire select_onehot_bits:U4 = nil
   wire select_onehot:U4 = nil
   wire downstream_addr_out_bits:U64 = nil

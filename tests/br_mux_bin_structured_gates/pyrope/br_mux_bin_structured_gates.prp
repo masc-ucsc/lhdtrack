@@ -1,5 +1,5 @@
 const br_gate_mux2 = import("br_gate_mux2.br_gate_mux2")
-pub comb br_mux_bin_structured_gates::[timecheck=false](`in`:U512, select:U4) -> (out:U32, out_valid:U1) {
+pub comb br_mux_bin_structured_gates::[timecheck=false,synth.abc_pre="dc2; &dch -f -C 500"](`in`:U512, select:U4) -> (out:U32, out_valid:U1) {
   mut in_stages__wtmp:U2560 = 0sb?
   wire in_stages:U2560 = nil
   in_stages__wtmp#[0..=511] = 0

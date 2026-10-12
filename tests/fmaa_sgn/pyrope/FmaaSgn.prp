@@ -1,3 +1,3 @@
-pub comb FmaaSgn::[timecheck=false](a:S11, b:S11, c:S34, d:S34) -> (res:S34) {
+pub comb FmaaSgn::[timecheck=false,synth.abc_pre="compress2rs"](a:S11, b:S11, c:S34, d:S34) -> (res:S34) {
   res = (((a*b) - c)#[0..=33]#sext[0..=33] - d)#[0..=33]#sext[0..=33]
 }

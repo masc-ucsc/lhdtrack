@@ -1,5 +1,6 @@
 // Fixed-priority flow mux: the lowest numbered valid lane wins.
 // Ready also reaches idle lanes ahead of that winner, as in the reference.
+// The winner is a one-hot AND-OR select (no chain of priority muxes).
 pub mod br_flow_mux_fixed_stable(clk:Clock, pop_ready:U1, push_data:U256, push_valid:U8, rst:U1) -> (pop_data:U32@[0], pop_valid:U1@[0], push_ready:U8@[0]) {
   comptime const lanes = push_valid.[bits]
   comptime const width = push_data.[bits]/lanes
@@ -10,9 +11,8 @@ pub mod br_flow_mux_fixed_stable(clk:Clock, pop_ready:U1, push_data:U256, push_v
   mut selected:U32 = 0
   for lane in 0..<lanes {
     push_ready#[lane] = U1(ready and not seen)
-    if not seen and push_valid#[lane] != 0 {
-      selected = push_data#[(lane*width)..+width]
-    }
+    const win = not seen and push_valid#[lane] != 0
+    selected = selected | (if win { push_data#[(lane*width)..+width] } else { 0 })
     seen = seen or push_valid#[lane] != 0
   }
   // Unreset payload changes only on an accepted valid beat.

@@ -1,4 +1,4 @@
-pub comb br_arb_pairwise_core_internal<NumRequesters=4>::[timecheck=false](priority_matrix:U16, request:U4) -> (can_grant:U4, grant:U4) {
+pub comb br_arb_pairwise_core_internal<NumRequesters=4>::[timecheck=false,synth.abc_pre="resyn2"](priority_matrix:U16, request:U4) -> (can_grant:U4, grant:U4) {
   mut can_grant__w2 = 15
   can_grant__w2#[0] = 1 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[0..=3] >> 1) & 1) != 0) & 1
   mut can_grant__w3 = can_grant__w2

@@ -11,7 +11,7 @@ const br_shift_rotate_p1 = import("br_shift_rotate_p1.br_shift_rotate_p1")
 const br_shift_rotate_p2 = import("br_shift_rotate_p2.br_shift_rotate_p2")
 const br_shift_rotate_p3 = import("br_shift_rotate_p3.br_shift_rotate_p3")
 
-pub mod br_tracker_linked_list_ctrl::[timecheck=false](clk:Clock, head_ready:U1, next_tail:U28, next_tail_valid:U4, ptr_ram_rd_data:U7, ptr_ram_rd_data_valid:U1, rst:U1) -> (empty:U1@[], head:U7@[], head_valid:U1@[], items:U8@[], ptr_ram_rd_addr:U7@[], ptr_ram_rd_addr_valid:U1@[], ptr_ram_wr_addr:U28@[], ptr_ram_wr_data:U28@[], ptr_ram_wr_valid:U4@[]) {
+pub mod br_tracker_linked_list_ctrl::[timecheck=false,synth.color="x"](clk:Clock, head_ready:U1, next_tail:U28, next_tail_valid:U4, ptr_ram_rd_data:U7, ptr_ram_rd_data_valid:U1, rst:U1) -> (empty:U1@[], head:U7@[], head_valid:U1@[], items:U8@[], ptr_ram_rd_addr:U7@[], ptr_ram_rd_addr_valid:U1@[], ptr_ram_wr_addr:U28@[], ptr_ram_wr_data:U28@[], ptr_ram_wr_valid:U4@[]) {
   reg ll_empty:U4
   reg ll_head_valid:U4
   reg ll_head:[4]U7:[ordering="old"]

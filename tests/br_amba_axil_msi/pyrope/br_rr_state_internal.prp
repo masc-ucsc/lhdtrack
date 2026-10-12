@@ -1,4 +1,4 @@
-pub mod br_rr_state_internal<NumRequesters=4>::[timecheck=false](clk:Clock, grant:U4, rst:U1, update_priority:U1) -> (last_grant:U4@[], priority_mask:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
+pub mod br_rr_state_internal<NumRequesters=4>::[timecheck=false,synth.abc_pre="&synch2 -K 6 -C 500; &dch -C 500"](clk:Clock, grant:U4, rst:U1, update_priority:U1) -> (last_grant:U4@[], priority_mask:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
   reg last_grant:U4
   wire last_grant_init_bits:U4 = nil
   wire last_grant_init:U4 = nil

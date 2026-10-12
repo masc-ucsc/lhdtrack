@@ -1,4 +1,4 @@
-pub mod br_lru_state_internal<NumRequesters=4>::[timecheck=false](clk:Clock, grant:(e3:U1, e2:U1, e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U16@[]) {
+pub mod br_lru_state_internal<NumRequesters=4>::[timecheck=false,synth.abc_pre="resyn2"](clk:Clock, grant:(e3:U1, e2:U1, e1:U1, e0:U1), rst:U1, update_priority:U1) -> (state:U16@[]) {
   reg state_reg___q:U16
   mut state_reg__composite:U16 = 0
   wire state_reg:U16 = nil

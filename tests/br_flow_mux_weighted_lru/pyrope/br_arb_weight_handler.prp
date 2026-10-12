@@ -1,6 +1,6 @@
 const br_counter = import("br_counter.br_counter")
 
-pub mod br_arb_weight_handler<NumRequesters=4, MaxWeight=4, MaxAccumulatedWeight=16>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant:U4, request:U4, request_weight:U12, rst:Reset) -> (request_priority:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
+pub mod br_arb_weight_handler<NumRequesters=4, MaxWeight=4, MaxAccumulatedWeight=16>::[timecheck=false,synth.abc_pre="resyn2"](clk:Clock, enable_priority_update:U1, grant:U4, request:U4, request_weight:U12, rst:Reset) -> (request_priority:(e3:U1, e2:U1, e1:U1, e0:U1)@[]) {
   wire request_priority__bpr:(e3:U1, e2:U1, e1:U1, e0:U1) = nil
   wire accumulated_weight_bits:U20 = nil
   mut _mux_1:U4 = if enable_priority_update != 0 { grant } else { 0 }

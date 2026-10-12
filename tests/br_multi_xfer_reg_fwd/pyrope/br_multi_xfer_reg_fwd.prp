@@ -1,7 +1,7 @@
 const br_shift_left = import("br_shift_left.br_shift_left")
 const br_shift_right = import("br_shift_right.br_shift_right")
 
-pub mod br_multi_xfer_reg_fwd::[timecheck=false](clk:Clock, pop_receivable:U2, push_data:U64, push_sendable:U2, rst:U1) -> (pop_data:U64@[], pop_sendable:U2@[], push_receivable:U2@[]) {
+pub mod br_multi_xfer_reg_fwd::[timecheck=false,synth.abc_pre="resyn2"](clk:Clock, pop_receivable:U2, push_data:U64, push_sendable:U2, rst:U1) -> (pop_data:U64@[], pop_sendable:U2@[], push_receivable:U2@[]) {
   reg pop_sendable:U2:[async=false, initial=0, reset_pin=rst]
   reg pop_data:U64:[async=false, initial=0, reset_pin=rst]
   wire push_data_qual_bits:U64 = nil

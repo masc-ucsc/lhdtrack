@@ -1,4 +1,4 @@
-pub mod br_flow_arb_core<NumFlows=4, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertFinalNotValid=1, EnableCoverPopBackpressure=1, ArbiterAlwaysGrants=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](can_grant:U4, clk:Clock, grant:U4, pop_ready:U1, push_valid:U4, rst:Reset) -> (enable_priority_update:U1@[], pop_valid_unstable:U1@[], push_ready:U4@[], request:U4@[]) {
+pub mod br_flow_arb_core<NumFlows=4, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertFinalNotValid=1, EnableCoverPopBackpressure=1, ArbiterAlwaysGrants=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false,synth.abc_pre="&synch2 -K 6 -C 500; &dch -C 500"](can_grant:U4, clk:Clock, grant:U4, pop_ready:U1, push_valid:U4, rst:Reset) -> (enable_priority_update:U1@[], pop_valid_unstable:U1@[], push_ready:U4@[], request:U4@[]) {
   mut _rep_1:U4 = if (pop_ready & 1) != 0 { 15 } else { 0 }
   const push_ready__w1 = _rep_1 & can_grant
   const pop_valid_unstable__w1 = U1(push_valid != 0)

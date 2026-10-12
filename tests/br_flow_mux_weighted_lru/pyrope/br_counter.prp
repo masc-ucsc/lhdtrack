@@ -1,4 +1,4 @@
-pub mod br_counter<MaxValueWidth=32, MaxChangeWidth=32, MaxValue=16, MaxChange=4, MaxIncrement=4, MaxDecrement=1, EnableWrap=0, EnableReinitAndChange=1, EnableSaturate=1, EnableAssertFinalNotValid=1, EnableCoverZeroChange=0, EnableCoverReinit=0, EnableCoverReinitAndChange=0, EnableCoverReinitNoChange=0, EnableCoverIncrementAndDecrement=1, EnableAssertFinalInitialValue=0>::[timecheck=false](clk:Clock, decr:U3, decr_valid:U1, incr:U3, incr_valid:U1, initial_value:U5, reinit:U1, rst:U1) -> (value:U5@[], value_next:U5@[]) {
+pub mod br_counter<MaxValueWidth=32, MaxChangeWidth=32, MaxValue=16, MaxChange=4, MaxIncrement=4, MaxDecrement=1, EnableWrap=0, EnableReinitAndChange=1, EnableSaturate=1, EnableAssertFinalNotValid=1, EnableCoverZeroChange=0, EnableCoverReinit=0, EnableCoverReinitAndChange=0, EnableCoverReinitNoChange=0, EnableCoverIncrementAndDecrement=1, EnableAssertFinalInitialValue=0>::[timecheck=false,synth.abc_pre="resyn2"](clk:Clock, decr:U3, decr_valid:U1, incr:U3, incr_valid:U1, initial_value:U5, reinit:U1, rst:U1) -> (value:U5@[], value_next:U5@[]) {
   reg value:U5
   mut _mux_2:U3 = if incr_valid != 0 { incr } else { 0 }
   const incr_qual = _mux_2

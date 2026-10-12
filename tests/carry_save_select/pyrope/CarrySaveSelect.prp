@@ -1,4 +1,4 @@
-pub comb CarrySaveSelect::[timecheck=false](a:U24, b:U24, c:U24, d:U24, e:U24, sel:U1) -> (res:U24) {
+pub comb CarrySaveSelect::[timecheck=false,synth.color="CarrySaveSelect",synth.adder="cla"](a:U24, b:U24, c:U24, d:U24, e:U24, sel:U1) -> (res:U24) {
   mut _mux_1:U24 = if sel != 0 { (a*b)#[0..=23] } else { (c*d)#[0..=23] }
   res = (_mux_1 + e)#[0..=23]
 }

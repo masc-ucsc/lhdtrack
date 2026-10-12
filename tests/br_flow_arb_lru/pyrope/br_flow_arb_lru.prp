@@ -1,7 +1,7 @@
 const br_arb_lru_internal_t = import("br_arb_lru_internal.br_arb_lru_internal")
 const br_flow_arb_core_t = import("br_flow_arb_core.br_flow_arb_core")
 
-pub mod br_flow_arb_lru::[timecheck=false](clk:Clock, pop_ready:U1, push_valid:U16, rst:Reset) -> (pop_valid_unstable:U1@[], push_ready:U16@[]) {
+pub mod br_flow_arb_lru::[timecheck=false,synth.color="x"](clk:Clock, pop_ready:U1, push_valid:U16, rst:Reset) -> (pop_valid_unstable:U1@[], push_ready:U16@[]) {
   wire request:U16 = nil
   wire enable_priority_update:U1 = nil
   mut br_arb_lru_internal = br_arb_lru_internal_t::[name=br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)

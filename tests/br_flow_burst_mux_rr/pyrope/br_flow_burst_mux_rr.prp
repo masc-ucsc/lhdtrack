@@ -1,7 +1,7 @@
 const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
 const br_flow_burst_mux_core_t = import("br_flow_burst_mux_core.br_flow_burst_mux_core")
 
-pub mod br_flow_burst_mux_rr::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U128, push_last:U4, push_valid:U4, rst:Reset) -> (pop_data_unstable:U32@[], pop_last_unstable:U1@[], pop_valid_unstable:U1@[], push_ready:U4@[]) {
+pub mod br_flow_burst_mux_rr::[timecheck=false,synth.color="x"](clk:Clock, pop_ready:U1, push_data:U128, push_last:U4, push_valid:U4, rst:Reset) -> (pop_data_unstable:U32@[], pop_last_unstable:U1@[], pop_valid_unstable:U1@[], push_ready:U4@[]) {
   wire request:U4 = nil
   wire enable_priority_update:U1 = nil
   mut br_arb_rr_internal = br_arb_rr_internal_t::[name=br_arb_rr_internal](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)

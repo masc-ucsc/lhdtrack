@@ -1,6 +1,6 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-pub mod br_arb_pri_rr<NumRequesters=16, NumPriorities=2>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), request_priority:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), rst:Reset) -> (grant:U16@[]) {
+pub mod br_arb_pri_rr<NumRequesters=16, NumPriorities=2>::[timecheck=false,synth.abc_pre="resyn2"](clk:Clock, enable_priority_update:U1, request:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), request_priority:(e15:U1, e14:U1, e13:U1, e12:U1, e11:U1, e10:U1, e9:U1, e8:U1, e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1), rst:Reset) -> (grant:U16@[]) {
   wire request_unrolled_bits:U48 = nil
   wire request_unrolled:U48 = nil
   wire any_higher_pri_req_bits:U48 = nil

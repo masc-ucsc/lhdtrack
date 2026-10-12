@@ -5,7 +5,7 @@
 // PARITY_MASKS[k] selects the data bits XORed into check bit k.
 comptime const PARITY_MASKS = (0x00003fff, 0x007fc01f, 0xd883c1e1, 0xb51c4e22, 0x6e64b244, 0x1fc92488, 0xe3b21910)
 
-pub mod br_ecc_secded_encoder(clk:Clock, data:U32, data_valid:U1, rst:Reset) -> (enc_codeword:U39@[0], enc_data:U32@[0], enc_parity:U7@[0], enc_valid:U1@[0]) {
+pub mod br_ecc_secded_encoder::[synth.abc_pre="&synch2 -K 6 -C 500; &dch -C 500"](clk:Clock, data:U32, data_valid:U1, rst:Reset) -> (enc_codeword:U39@[0], enc_data:U32@[0], enc_parity:U7@[0], enc_valid:U1@[0]) {
   comptime const P = enc_parity.[bits]
 
   mut parity:U7 = 0

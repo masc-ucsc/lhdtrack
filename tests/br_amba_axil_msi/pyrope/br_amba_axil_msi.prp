@@ -4,7 +4,7 @@ const br_flow_reg_both_p1 = import("br_flow_reg_both_p1.br_flow_reg_both_p1")
 const br_flow_reg_both_p2 = import("br_flow_reg_both_p2.br_flow_reg_both_p2")
 const br_amba = import("br_amba")
 
-pub mod br_amba_axil_msi::[timecheck=false](clk:Clock, device_id_per_irq:U64, event_id_per_irq:U64, init_awready:U1, init_bresp:U2, init_bvalid:U1, init_wready:U1, irq:U4, msi_dest_addr:U32, msi_dest_idx:U4, msi_enable:U4, rst:U1, throttle_cntr_threshold:U4, throttle_en:U1) -> (error:U1@[], init_awaddr:U32@[], init_awvalid:U1@[], init_bready:U1@[], init_wdata:U32@[], init_wstrb:U4@[], init_wvalid:U1@[]) {
+pub mod br_amba_axil_msi::[timecheck=false,synth.abc_pre="&synch2 -K 6 -C 500; &dch -C 500"](clk:Clock, device_id_per_irq:U64, event_id_per_irq:U64, init_awready:U1, init_bresp:U2, init_bvalid:U1, init_wready:U1, irq:U4, msi_dest_addr:U32, msi_dest_idx:U4, msi_enable:U4, rst:U1, throttle_cntr_threshold:U4, throttle_en:U1) -> (error:U1@[], init_awaddr:U32@[], init_awvalid:U1@[], init_bready:U1@[], init_wdata:U32@[], init_wstrb:U4@[], init_wvalid:U1@[]) {
   reg error:U1:[async=false, initial=0, reset_pin=rst]
   reg irq_d:U4:[async=false, initial=0, reset_pin=rst]
   reg pending_irq:U4:[async=false, initial=0, reset_pin=rst]

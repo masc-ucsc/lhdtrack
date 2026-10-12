@@ -2,7 +2,7 @@
 // The sum can exceed 16 bits for some inputs and is truncated, as in the reference.
 comptime const ONE = 0x100
 
-pub comb AlphaBlend(A:U8, B:U8, C:U8) -> (D:U16) {
+pub comb AlphaBlend::[synth.adder="cla"](A:U8, B:U8, C:U8) -> (D:U16) {
   const one_minus_a = ONE - A // 1..=256, needs 9 bits
   wrap D = A*B + one_minus_a*C
 }

@@ -1,7 +1,7 @@
 const br_arb_rr_t = import("br_arb_rr.br_arb_rr")
 const br_amba = import("br_amba")
 
-pub mod br_amba_axil2apb::[timecheck=false](araddr:U32, arprot:U3, arvalid:U1, awaddr:U32, awprot:U3, awvalid:U1, bready:U1, clk:Clock, prdata:U32, pready:U1, pslverr:U1, rready:U1, rst:U1, wdata:U32, wstrb:U4, wvalid:U1) -> (arready:U1@[], awready:U1@[], bresp:U2@[], bvalid:U1@[], paddr:U32@[], penable:U1@[], pprot:U3@[], psel:U1@[], pstrb:U4@[], pwdata:U32@[], pwrite:U1@[], rdata:U32@[], rresp:U2@[], rvalid:U1@[], wready:U1@[]) {
+pub mod br_amba_axil2apb::[timecheck=false,synth.abc_pre="resyn2"](araddr:U32, arprot:U3, arvalid:U1, awaddr:U32, awprot:U3, awvalid:U1, bready:U1, clk:Clock, prdata:U32, pready:U1, pslverr:U1, rready:U1, rst:U1, wdata:U32, wstrb:U4, wvalid:U1) -> (arready:U1@[], awready:U1@[], bresp:U2@[], bvalid:U1@[], paddr:U32@[], penable:U1@[], pprot:U3@[], psel:U1@[], pstrb:U4@[], pwdata:U32@[], pwrite:U1@[], rdata:U32@[], rresp:U2@[], rvalid:U1@[], wready:U1@[]) {
   mut _rep_12:U4 = 0
   reg rdata:U32
   reg apb_state:U4:[async=false, initial=1, reset_pin=rst]

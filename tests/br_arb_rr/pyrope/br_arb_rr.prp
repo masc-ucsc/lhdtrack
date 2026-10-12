@@ -2,7 +2,7 @@
 // Requester 0 starts with the highest priority. After a grant, the granted index
 // becomes the lowest priority and the next higher index (mod 16) the highest.
 // enable_priority_update gates that rotation; grants are made either way.
-pub mod br_arb_rr(clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
+pub mod br_arb_rr::[synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
   comptime const N = request.[bits]
 
   // One-hot index of the last grant; N-1 initially so that requester 0 leads.

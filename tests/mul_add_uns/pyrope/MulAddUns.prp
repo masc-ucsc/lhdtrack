@@ -1,5 +1,5 @@
 // Unsigned multiply-add at the pinned Verilog widths.
 // External names and widths match the pinned Verilog and generated harness.
-pub comb MulAddUns(A:U36, X:U18, Y:U18) -> (P:U36) {
+pub comb MulAddUns::[synth.multiplier="sn"](A:U36, X:U18, Y:U18) -> (P:U36) {
   wrap P = (X*Y) + A
 }

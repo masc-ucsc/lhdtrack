@@ -1,4 +1,4 @@
-pub comb FmaShare::[timecheck=false](a:U14, b:U14, c:U14, d:U14) -> (res_c:U28, res_d:U28) {
+pub comb FmaShare::[timecheck=false,synth.color="x"](a:U14, b:U14, c:U14, d:U14) -> (res_c:U28, res_d:U28) {
   res_c = ((a*b) + c)#[0..=27]
   res_d = ((a*b) + d)#[0..=27]
 }

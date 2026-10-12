@@ -1,6 +1,6 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-pub mod br_arb_rr_internal<NumRequesters=8>::[timecheck=false](clk:Clock, enable_priority_update:U1, request:U8, rst:Reset) -> (can_grant:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[], grant:U8@[]) {
+pub mod br_arb_rr_internal<NumRequesters=8>::[timecheck=false,synth.abc_pre="compress2rs"](clk:Clock, enable_priority_update:U1, request:U8, rst:Reset) -> (can_grant:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[], grant:U8@[]) {
   wire can_grant__bpr:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1) = nil
   wire request_priority_bits:U64 = nil
   grant = 0sb?

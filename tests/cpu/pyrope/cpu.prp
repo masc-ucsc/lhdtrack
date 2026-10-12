@@ -1,6 +1,6 @@
 const riscv_core = import("riscv_core.riscv_core")
 
-pub mod cpu::[timecheck=false](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
+pub mod cpu::[timecheck=false,synth.color="x"](i_clk:Clock, i_rst:U1) -> (o_out:U32@[]) {
   mut u_core = riscv_core::[name=u_core](i_clk=i_clk, i_rst=i_rst)
   o_out = u_core
 }

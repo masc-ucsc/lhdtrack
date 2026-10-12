@@ -2,7 +2,7 @@ const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_priority_dynamic = import("br_enc_priority_dynamic.br_enc_priority_dynamic")
 const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-pub mod br_arb_multi_rr::[timecheck=false](clk:Clock, enable_priority_update:U1, grant_allowed:U2, request:U16, rst:U1) -> (grant:U16@[], grant_count:U2@[], grant_ordered:U32@[]) {
+pub mod br_arb_multi_rr::[timecheck=false,synth.color="x"](clk:Clock, enable_priority_update:U1, grant_allowed:U2, request:U16, rst:U1) -> (grant:U16@[], grant_count:U2@[], grant_ordered:U32@[]) {
   reg lowest_prio:U16:[async=false, initial=32768, reset_pin=rst]
   wire grant_ordered_bits:U32 = nil
   wire grant_ordered:U32 = nil

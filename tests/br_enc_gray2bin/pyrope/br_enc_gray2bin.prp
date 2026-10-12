@@ -1,5 +1,5 @@
 // Gray code to binary: each binary bit is the XOR of every gray bit at or above it.
-pub comb br_enc_gray2bin(gray:U32) -> (bin:U32) {
+pub comb br_enc_gray2bin::[synth.abc_pre="dc2"](gray:U32) -> (bin:U32) {
   for i in 0..<gray.[bits] {
     bin#[i] = gray#^[i..]
   }

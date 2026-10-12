@@ -1,5 +1,6 @@
 // Fixed-priority flow mux: the lowest numbered valid lane wins.
 // Ready also reaches idle lanes ahead of that winner, as in the reference.
+// The winner is a one-hot AND-OR select (no chain of priority muxes).
 pub comb br_flow_mux_fixed(clk:U1, pop_ready:U1, push_data:U128, push_valid:U4, rst:U1) -> (pop_data_unstable:U32, pop_valid_unstable:U1, push_ready:U4) {
   comptime const lanes = push_valid.[bits]
   comptime const width = push_data.[bits]/lanes
@@ -8,9 +9,8 @@ pub comb br_flow_mux_fixed(clk:U1, pop_ready:U1, push_data:U128, push_valid:U4, 
   mut selected:U32 = 0
   for lane in 0..<lanes {
     push_ready#[lane] = U1(ready and not seen)
-    if not seen and push_valid#[lane] != 0 {
-      selected = push_data#[(lane*width)..+width]
-    }
+    const win = not seen and push_valid#[lane] != 0
+    selected = selected | (if win { push_data#[(lane*width)..+width] } else { 0 })
     seen = seen or push_valid#[lane] != 0
   }
   pop_valid_unstable = U1(seen)

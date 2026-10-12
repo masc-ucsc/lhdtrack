@@ -1,7 +1,7 @@
 const br_counter_incr = import("br_counter_incr.br_counter_incr")
 const br_mux_bin = import("br_mux_bin.br_mux_bin")
 
-pub mod br_flow_serializer::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U64, push_last:U1, push_last_dont_care_count:U3, push_metadata:U8, push_valid:U1, rst:Reset) -> (pop_data:U8@[], pop_last:U1@[], pop_metadata:U8@[], pop_valid:U1@[], push_ready:U1@[]) {
+pub mod br_flow_serializer::[timecheck=false,synth.color="x"](clk:Clock, pop_ready:U1, push_data:U64, push_last:U1, push_last_dont_care_count:U3, push_metadata:U8, push_valid:U1, rst:Reset) -> (pop_data:U8@[], pop_last:U1@[], pop_metadata:U8@[], pop_valid:U1@[], push_ready:U1@[]) {
   wire gen_sr_gt_1_pop_flit_id:U3 = nil
   mut _mux_2:U3 = 0
   _mux_2 = gen_sr_gt_1_pop_flit_id

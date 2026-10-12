@@ -1,6 +1,6 @@
 const br_arb_multi_rr = import("br_arb_multi_rr.br_arb_multi_rr")
 const br_credit_counter_t = import("br_credit_counter.br_credit_counter")
-pub mod br_credit_sender::[timecheck=false](clk:Clock, credit_initial:U5, credit_withhold:U5, pop_credit:U3, pop_receiver_in_reset:U1, push_data:U256, push_valid:U4, rst:U1) -> (credit_available:U5@[], credit_count:U5@[], pop_data:U256@[], pop_sender_in_reset:U1@[], pop_valid:U4@[], push_ready:U4@[]) {
+pub mod br_credit_sender::[timecheck=false,synth.color="x"](clk:Clock, credit_initial:U5, credit_withhold:U5, pop_credit:U3, pop_receiver_in_reset:U1, push_data:U256, push_valid:U4, rst:U1) -> (credit_available:U5@[], credit_count:U5@[], pop_data:U256@[], pop_sender_in_reset:U1@[], pop_valid:U4@[], push_ready:U4@[]) {
   reg pop_sender_in_reset:U1:[async=false, initial=1, reset_pin=rst]
   reg pop_valid:U4:[async=false, initial=0, reset_pin=rst]
   reg pop_data:U256

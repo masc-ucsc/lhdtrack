@@ -1,11 +1,16 @@
 // Two independent selectors address the same sixteen packed input lanes.
+// AND-OR over each decoded select (no 512-bit barrel shifter).
 pub comb br_mux_bin_array(`in`:U512, select:U8) -> (out:U64, out_valid:U2) {
   comptime const lanes = out_valid.[bits]
   comptime const width = out.[bits]/lanes
   comptime const select_bits = select.[bits]/lanes
   for lane in 0..<lanes {
     const index = select#[(lane*select_bits)..+select_bits]
-    out#[(lane*width)..+width] = (`in` >> (index*width))#[0..<width]
+    mut picked:U32 = 0
+    for symbol in 0..<16 {
+      picked = picked | (if index == symbol { `in`#[(symbol*width)..+width] } else { 0 })
+    }
+    out#[(lane*width)..+width] = picked
   }
   out_valid = 3
 }

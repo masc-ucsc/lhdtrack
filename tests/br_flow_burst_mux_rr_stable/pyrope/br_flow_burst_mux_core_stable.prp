@@ -1,7 +1,7 @@
 const br_flow_burst_mux_core_t = import("br_flow_burst_mux_core.br_flow_burst_mux_core")
 const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
 
-pub mod br_flow_burst_mux_core_stable<NumFlows=8, Width=32, RegisterPopReady=0, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, grant_from_arb:U8, pop_ready:U1, push_data:U256, push_last:U8, push_valid:U8, rst:Reset) -> (enable_priority_update:U1@[], pop_data:U32@[], pop_last:U1@[], pop_valid:U1@[], push_ready:U8@[], request:U8@[]) {
+pub mod br_flow_burst_mux_core_stable<NumFlows=8, Width=32, RegisterPopReady=0, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=1, EnableAssertPushDataKnown=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0>::[timecheck=false,synth.abc_pre="compress2rs"](clk:Clock, grant_from_arb:U8, pop_ready:U1, push_data:U256, push_last:U8, push_valid:U8, rst:Reset) -> (enable_priority_update:U1@[], pop_data:U32@[], pop_last:U1@[], pop_valid:U1@[], push_ready:U8@[], request:U8@[]) {
   wire internal_pop_ready:U1 = nil
   wire internal_pop_last_unstable:U1 = nil
   wire internal_pop_data_unstable:U32 = nil

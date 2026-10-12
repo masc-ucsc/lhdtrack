@@ -1,6 +1,13 @@
 // Single-result priority encoder (NumRequesters = 16, LSB highest priority):
 // `out` is the one-hot lowest set bit of `in`. clk and rst are unused (upstream
 // uses them only for assertions) and stay on this external top.
+// Written as a prefix-OR scan: `in & -in` costs a 16-bit negation (an adder chain).
 pub mod br_enc_priority_encoder(clk:Clock, `in`:U16, rst:Reset) -> (out:U16@[0]) {
-  out = `in` & -`in`
+  mut seen:U1 = 0
+  mut lowest:U16 = 0
+  for i in 0..<16 {
+    lowest#[i] = if seen == 1 { 0 } else { `in`#[i] }
+    seen = seen | `in`#[i]
+  }
+  out = lowest
 }

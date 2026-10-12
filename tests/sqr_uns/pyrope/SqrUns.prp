@@ -1,5 +1,5 @@
 // Unsigned 28-bit square; the full product fits in 56 bits.
 // External names and widths match the pinned Verilog and generated harness.
-pub comb SqrUns(X:U28) -> (P:U56) {
+pub comb SqrUns::[synth.color="x"](X:U28) -> (P:U56) {
   P = X*X
 }

@@ -1,3 +1,3 @@
-pub comb MulThreeSgn::[timecheck=false](a:S8, b:S8, c:S8, d:S8) -> (product:S8) {
+pub comb MulThreeSgn::[timecheck=false,synth.color="MulThreeSgn"](a:S8, b:S8, c:S8, d:S8) -> (product:S8) {
   product = ((a*b)#[0..=7]#sext[0..=7]*c)#[0..=7]#sext[0..=7]
 }

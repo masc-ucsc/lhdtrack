@@ -1,6 +1,8 @@
 // Logical shift with a configurable fill bit and a four-bit shift count.
-pub comb br_shift_right(fill:U1, `in`:U16, shift:U4) -> (out:U16, out_valid:U1) {
-  const fill_bits:U16 = if fill != 0 { 0xffff } else { 0 }
-  wrap out = (`in` >> shift) | (fill_bits << (`in`.[bits] - shift))
+// One shifter: the fill enters through a thermometer mask of the shift count.
+pub comb br_shift_right::[synth.color="x"](fill:U1, `in`:U16, shift:U4) -> (out:U16, out_valid:U1) {
+  const high_ones:U16 = 0xffff ^ (U16(0xffff) >> shift)
+  const fill_bits:U16 = if fill != 0 { high_ones } else { 0 }
+  wrap out = (`in` >> shift) | fill_bits
   out_valid = 1
 }

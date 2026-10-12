@@ -1,4 +1,4 @@
 // Unsigned multiplier; the 16-bit product holds every 8x8 result, so nothing is truncated.
-pub comb mul(a:U8, b:U8) -> (result:U16) {
+pub comb mul::[synth.multiplier="csa",synth.abc_pre="dc2"](a:U8, b:U8) -> (result:U16) {
   result = a*b
 }

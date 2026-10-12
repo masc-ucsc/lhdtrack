@@ -1,5 +1,10 @@
 // Select one of sixteen packed lanes; lane zero is least significant.
+// AND-OR over the decoded select: a shift by select*32 would build a 512-bit barrel.
 pub comb br_mux_bin(`in`:U512, select:U4) -> (out:U32, out_valid:U1) {
-  out = (`in` >> (select*out.[bits]))#[0..<out.[bits]]
+  mut picked:U32 = 0
+  for lane in 0..<16 {
+    picked = picked | (if select == lane { `in`#[(lane*32)..+32] } else { 0 })
+  }
+  out = picked
   out_valid = 1
 }
