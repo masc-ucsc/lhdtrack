@@ -14,6 +14,7 @@ the headline geomean excludes them; see corpus.Test.comparable().
 
 from __future__ import annotations
 
+import hashlib
 import json
 
 from lhdtrack.context import FlowContext, FlowError, FlowSkip
@@ -26,7 +27,7 @@ OPTIONAL = ("sta",)
 USES_TECH = True
 
 
-def run(ctx: FlowContext) -> dict:
+def run(ctx: FlowContext, *, settings: list[str] | None = None) -> dict:
     ctx.require_sdc()
     lhd = ctx.tool("lhd")
     if not ctx.test.pyrope_top.exists():
@@ -59,6 +60,7 @@ def run(ctx: FlowContext) -> dict:
         *color_settings(ctx.tech.name),
         *abc_settings(ctx.tech.name),
         "--set", f"abc.delay={ctx.abc_delay_ps()}",
+        *(settings or []),
     ]
     if ctx.test.pyrope_binding == "set":
         sets += [a for k, v in sorted(ctx.chparams().items()) for a in ("--set", f"compile.{k}={v}")]
@@ -113,6 +115,28 @@ def run(ctx: FlowContext) -> dict:
                      # unlike the manual `pass abc` path which writes it at the top.
                      qor_json=ctx.work / "W" / "synth" / "qor.json")}
     out["pyrope_status"] = ctx.test.pyrope_status
+    document = json.loads((ctx.work / "synth.json").read_text())
+    regions = document.get("qor", {}).get("abc", {}).get("regions", [])
+    out["qor"]["timing_breakdown"] = {
+        "schema_version": 1,
+        "phases": document.get("phases", []),
+        "regions": regions,
+    }
+    out["qor"]["arithmetic_trials"] = sum(r.get("ware_trials", 0) for r in regions)
+    out["qor"]["netlist_sha256"] = hashlib.sha256(netlist.read_bytes()).hexdigest()
+    out["qor"]["liberty_sha256"] = ctx.tech.sha256
+    out["qor"]["sdc_sha256"] = hashlib.sha256(ctx.sdc.read_bytes()).hexdigest()
+    out["qor"]["source_sha256"] = {
+        str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in ctx.test.source_files() if p.is_file()
+    }
+    for name, path in {
+        "synth_groups": ctx.work / "W/synth/synth_groups.json",
+        "synth_tune_applied": ctx.work / "W/synth_tune/applied.json",
+        "synth_tune_state": ctx.work / "W/synth_tune/state.json",
+    }.items():
+        if path.exists():
+            out["qor"][name] = json.loads(path.read_text())
     return out
 
 

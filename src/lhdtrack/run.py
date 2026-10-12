@@ -144,6 +144,24 @@ def plan(
     jobs: list[Job] = []
     for test in tests:
         wanted = list(dict.fromkeys([*test.synth_flows, *test.sim_flows, *test.lec_flows]))
+        # SN reads the same monomorphic Verilog as the declared baseline.
+        if ("syn_yosys_abc" in wanted and "syn_abc_sn" in flows
+                and "syn_abc_sn" not in wanted):
+            wanted.append("syn_abc_sn")
+        if "syn_abc_sn" in wanted and "syn_lhd_verilog_abc_sn" in flows:
+            if "syn_lhd_verilog_abc_sn" not in wanted:
+                wanted.append("syn_lhd_verilog_abc_sn")
+            if ("lec_netlist_verilog_abc_sn" in flows
+                    and "lec_netlist_verilog_abc_sn" not in wanted):
+                wanted.append("lec_netlist_verilog_abc_sn")
+        # Opt-in extra synthesis variants (comma separated flow names), e.g.
+        # LHDTRACK_EXTRA_FLOWS=syn_lhd_pyrope_usyn,syn_lhd_verilog_usyn. Each is
+        # planned for the tests that declare its base flow.
+        extra_base = {"syn_lhd_pyrope_usyn": "syn_lhd_pyrope", "syn_lhd_verilog_usyn": "syn_lhd_verilog",
+                      "lec_netlist_pyrope_usyn": "lec_netlist", "lec_netlist_verilog_usyn": "lec_netlist"}
+        for extra in filter(None, os.environ.get("LHDTRACK_EXTRA_FLOWS", "").split(",")):
+            if extra_base.get(extra) in wanted and extra in flows and extra not in wanted:
+                wanted.append(extra)
         # Existing manifests declare the language leg. Measure both backends
         # without duplicating hundreds of otherwise unchanged fixture manifests.
         for source in ("sim_lhd_verilog", "sim_lhd_pyrope"):
@@ -410,6 +428,18 @@ class Runner:
         self, rows: list[Row], expected: dict[tuple[str, str], tuple[int, str]] | None = None
     ) -> list[Row]:
         gates = self.cfg.get("gates", {})
+
+        # An asserting architectural program is useful when whole-design LEC
+        # times out. Passing one program is coverage, not a proof. A failure
+        # against passing original RTL excludes only the exact checked emission.
+        for row in rows:
+            check = row.qor.get("program_check", {})
+            if (check.get("reference_rc") == 0 and check.get("netlist_rc") not in (None, 0)
+                    and check.get("netlist_sha256")
+                    and check["netlist_sha256"] == row.qor.get("netlist_sha256")):
+                row.passed = False
+                row.status = "failed"
+                row.note = "mapped netlist failed the architectural program; original RTL passed"
 
         for row in rows:
             if not row.lec_gate:

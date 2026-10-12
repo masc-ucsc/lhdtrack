@@ -19,13 +19,15 @@ def native_evidence(path: Path) -> dict:
 
     result = {name: report[name] for name in
               ("schema_version", "kind", "algorithm", "scope", "tmap", "output", "totals",
-               "constraints", "arithmetic", "endpoint_search", "elapsed_ms", "peak_bytes", "cache")
+               "constraints", "arithmetic", "endpoint_search", "native_optimization", "mapping_trials",
+               "elapsed_ms", "peak_bytes", "cache")
               if name in report}
     result.update(report_sha256=sha256(data).hexdigest(), definition_regions=len(regions),
                   cost_scope="definition-region native proxy; not mapped cell area",
                   cost_stages={name: totals(name) for name in
                                ("before", "after_pairs", "after_residual", "after")},
-                  work=totals("work"), residual=totals("residual"),
+                  work=totals("work"), residual=totals("residual"), p1=totals("p1"),
+                  cmos_cleanup=totals("cmos_cleanup"), multi_rep=totals("multi_rep"),
                   residual_accepted_regions=sum(bool(r.get("residual", {}).get("accepted"))
                                                 for r in regions),
                   residual_skipped_regions=sum(bool(r.get("residual", {}).get("skipped"))

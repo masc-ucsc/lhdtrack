@@ -21,9 +21,9 @@ def run(ctx):
     return run_mapper(ctx, "abc")
 
 
-def run_mapper(ctx, mapper, *, satopt=True):
+def run_mapper(ctx, mapper, *, satopt=True, synthesis_flow=None):
     ctx.require_sdc()
-    flow = synth_flow(mapper, satopt)
+    flow = synthesis_flow or synth_flow(mapper, satopt)
     artifacts = ctx.work.parent / flow / "synth-artifacts.json"
     if not artifacts.exists():
         raise FlowSkip(f"{mapper} synthesis produced no retained netlist in this run")

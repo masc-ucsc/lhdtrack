@@ -16,6 +16,8 @@ from .html import (
 )
 
 MAPPERS = ("abc", "usyn")
+SN_LHD_FLOW = "syn_lhd_verilog_abc_sn"
+SN_LHD_LEC = "lec_netlist_verilog_abc_sn"
 
 
 def synth_flow(mapper, satopt=True):
@@ -28,6 +30,40 @@ def synth_flows(spec):
 
 def lec_flow(mapper, satopt=True):
     return "lec_netlist_verilog" + ("_usyn" if mapper == "usyn" else "") + ("" if satopt else "_no_satopt")
+
+
+def overlay_sn_proofs(row, history):
+    """A repeat measurement must retain proofs of the exact same source/netlist bytes."""
+    q = row.get("qor", {})
+    if not all(q.get(k) for k in ("netlist_sha256", "liberty_sha256", "source_sha256")):
+        return row
+    blocks = {}
+    for candidate in history:
+        if any(candidate.get(k) != row.get(k)
+               for k in ("host", "tech", "test", "config", "flow")):
+            continue
+        cq = candidate.get("qor", {})
+        if any(cq.get(k) != q[k] for k in
+               ("netlist_sha256", "liberty_sha256", "source_sha256")):
+            continue
+        if candidate.get("versions", {}).get("lhd") != row.get("versions", {}).get("lhd"):
+            continue
+        for field in ("lec_verilog_result", "lec_aux_result"):
+            block = candidate.get(field, {})
+            if (block.get("netlist_sha256") != q["netlist_sha256"]
+                    or block.get("liberty_sha256") != q["liberty_sha256"]):
+                continue
+            # Keep a counterexample even if a later attempt of identical bytes
+            # has no proof or obtains a contradictory positive result.
+            if blocks.get(field, {}).get("verdict") not in ("refuted", "error"):
+                blocks[field] = block
+    if not blocks:
+        return row
+    result = {**row, **blocks}
+    if any(block.get("verdict") in ("refuted", "error") for block in blocks.values()):
+        result["status"] = "failed"
+        result["note"] = row.get("note", "") or "LEC refuted or errored on identical retained bytes"
+    return result
 
 
 def select_rows(history, spec):
@@ -50,7 +86,42 @@ def select_rows(history, spec):
         if keep and key in overrides and row["flow"] not in synth_flows(spec):
             keep = row.get("versions") == spec["versions"]
         if keep:
+            if row["flow"] == "syn_yosys_abc" and spec.get("liberty_sha256"):
+                # Older ledger rows predate per-row Liberty hashes. This
+                # evaluation explicitly pins and verified its retained library.
+                row = {**row, "qor": {**row.get("qor", {}),
+                       "liberty_sha256": spec["liberty_sha256"]}}
             selected[key] = row
+    # SN is an independently measured comparison, overlaid on the retained
+    # evaluation without replacing its named LiveHD synthesis/proof snapshots.
+    # A named SN snapshot can pin slots through abc_sn_baselines; otherwise use
+    # the newest attempt, including failures, for each selected design/config.
+    slots = {(s["test"], s["config"]) for s in spec.get("slots", [])}
+    pinned = {(r["test"], r["config"]): r["run_id"]
+              for r in spec.get("abc_sn_baselines", [])}
+    for row in sorted(history, key=lambda r: r.get("run_id", "")):
+        key = row["test"], row.get("config", "default")
+        if (row.get("host") == spec["host"] and row.get("tech") == spec["tech"]
+                and row["flow"] == "syn_abc_sn" and key in slots
+                and (not pinned or row["run_id"] == pinned.get(key))):
+            selected[(*key, "syn_abc_sn")] = row
+    for key, row in list(selected.items()):
+        if key[2] == "syn_abc_sn":
+            selected[key] = overlay_sn_proofs(row, history)
+    # The fixed Brent-Kung profile has its own identity and proof. Never reuse
+    # default/auto synthesis or its proof as an SN-comparison measurement.
+    for row in history:
+        key = row["test"], row.get("config", "default")
+        if (row.get("host") == spec["host"] and row.get("tech") == spec["tech"]
+                and row["flow"] in (SN_LHD_FLOW, SN_LHD_LEC) and key in slots):
+            selected[(*key, row["flow"])] = row
+    for key in slots:
+        synth = selected.get((*key, SN_LHD_FLOW), {})
+        proof = selected.get((*key, SN_LHD_LEC), {})
+        digest = synth.get("qor", {}).get("netlist_sha256")
+        if digest and proof and not any(proof_covers_digest(proof.get(field, {}), digest)
+                                       for field in ("lec_verilog_result", "lec_aux_result")):
+            selected.pop((*key, SN_LHD_LEC))
     return selected
 
 
@@ -154,9 +225,12 @@ def geomean_ratios(rows, slots, mapper, satopt=True, baseline=None):
     for slot in slots:
         key = slot["test"], slot["config"]
         base = rows.get((*key, baseline or "syn_yosys_abc"), {})
-        measured = rows.get((*key, synth_flow(mapper, satopt)), {})
-        proof = synth_proof(rows, key, mapper, satopt)
+        measured = rows.get((*key, "syn_abc_sn" if mapper == "sn"
+                             else synth_flow(mapper, satopt)), {})
+        proof = synth_proof(rows, key, mapper, satopt) if mapper != "sn" else {}
         if base.get("status") != "ok" or measured.get("status") != "ok":
+            continue
+        if mapper == "sn" and not sn_compatible(measured, base):
             continue
         if any(proof.get(f, {}).get("verdict") == "refuted"
                for f in ("lec_verilog_result", "lec_aux_result")):
@@ -201,15 +275,124 @@ def satopt_lec_effect(rows, slots, mapper):
     return ratio, len(logs), proven
 
 
-def _synth_row(rows, test, config, label, satopt, details):
+def sn_compatible(row, base):
+    """SN ratios require an explicitly matched machine class and Liberty."""
+    return (bool(row.get("host_class")) and row.get("host_class") == base.get("host_class")
+            and bool(row.get("qor", {}).get("liberty_sha256"))
+            and row["qor"]["liberty_sha256"] == base.get("qor", {}).get("liberty_sha256"))
+
+
+def synthesis_time_ms(row):
+    """Frontend and mapping cost, excluding emission and shared QoR collection."""
+    recorded = row.get("qor", {}).get("synthesis_time_ms")
+    if recorded is not None:
+        return recorded
+    times = row.get("time_ms", {})
+    if "synth" in times:
+        return times["synth"]
+    values = [times[k] for k in ("frontend", "compile", "color", "map") if k in times]
+    return sum(values) if values else None
+
+
+def sn_lhd_comparison(rows, spec):
+    """Compare SN only against the explicitly fixed Brent-Kung profile."""
+    samples_by_multiplier = {}
+    for slot in spec["slots"]:
+        key = slot["test"], slot["config"]
+        sn = rows.get((*key, "syn_abc_sn"), {})
+        lhd = rows.get((*key, SN_LHD_FLOW), {})
+        if (sn.get("status") != "ok" or lhd.get("status") != "ok"
+                or not sn_compatible(sn, lhd)):
+            continue
+        proof = rows.get((*key, SN_LHD_LEC), {})
+        if any(evidence.get(f, {}).get("verdict") in ("refuted", "error")
+               for evidence in (proof, sn) for f in ("lec_verilog_result", "lec_aux_result")):
+            continue
+        multiplier = lhd.get("qor", {}).get("synth_policy", {}).get("pass.abc.multiplier", "unspecified")
+        samples = samples_by_multiplier.setdefault(multiplier, [[] for _ in range(3)])
+        sn_values = (synthesis_time_ms(sn), sn.get("sta", {}).get("opensta_ns"),
+                     sn.get("qor", {}).get("cells"))
+        lhd_values = (synthesis_time_ms(lhd), lhd.get("sta", {}).get("opensta_ns"),
+                      lhd.get("qor", {}).get("cells"))
+        for pairs, s, l in zip(samples, sn_values, lhd_values):
+            if all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in (s, l)):
+                pairs.append(math.log(l) - math.log(s))
+    body = []
+    for multiplier, samples in sorted(samples_by_multiplier.items()) or [("unspecified", [[], [], []])]:
+        cells = [f'<td class="l">adder=brent · multiplier={_e(multiplier)} · barrel=log · no trials</td>']
+        for pairs in samples:
+            value = f'{math.exp(math.fsum(pairs) / len(pairs)):.3f}×' if pairs else '—'
+            cells.append(f'<td>{value} <small class="muted">(n={len(pairs)})</small></td>')
+        body.append('<tr>' + ''.join(cells) + '</tr>')
+    return ('<h2>ABC/SN versus LiveHD ABC</h2><p>Paired geomeans are LiveHD ÷ SN; '
+            'higher is better. Synthesis time includes frontend, compilation, coloring and mapping, '
+            'excluding emission and QoR collection. Critical-path period is measured by OpenSTA '
+            'under the same SDC; mapped cells include flops. This comparison uses the dedicated '
+            'LiveHD profile with pass.abc.adder=brent and explicit multiplier/barrel choices, '
+            'with compile SAT disabled and zero arithmetic trials. Existing default/auto '
+            'LiveHD results remain separate. Multiplier lowering and partition boundaries '
+            'are recorded per measurement. Arithmetic profiles are averaged separately. '
+            'Only matching host class and Liberty contribute; SN netlists remain '
+            'largely LEC unverified; refuted results are excluded.</p>'
+            '<div class="scroll"><table><thead><tr><th>LiveHD ABC profile</th>'
+            '<th>Synthesis speedup</th><th>Critical-path speedup</th><th>Cell reduction</th>'
+            '</tr></thead><tbody>' + ''.join(body) + '</tbody></table></div>')
+
+
+def sn_fixed_table(rows, spec):
+    """Show per-design measurements without filling missing fixed results from auto."""
+    body = []
+    for slot in spec["slots"]:
+        key = slot["test"], slot["config"]
+        lhd = rows.get((*key, SN_LHD_FLOW), {})
+        if not lhd:
+            continue
+        sn = rows.get((*key, "syn_abc_sn"), {})
+        proof = rows.get((*key, SN_LHD_LEC), {})
+        verified = 'LEC proven' if proof_ok(lhd, proof) else 'LEC unverified'
+        body.append('<tr><td class="l">' + _e('/'.join(key)) +
+                    f'<br><small class="muted">LHD: {verified}; multiplier=' +
+                    _e(lhd.get("qor", {}).get("synth_policy", {}).get("pass.abc.multiplier", "unspecified")) +
+                    '</small></td>')
+        for row, evidence in ((lhd, proof), (sn, sn)):
+            bad = [evidence.get(f, {}).get("verdict")
+                   for f in ("lec_verilog_result", "lec_aux_result")
+                   if evidence.get(f, {}).get("verdict") in ("refuted", "error")]
+            if row.get("status") != "ok" or bad:
+                status = f'LEC {bad[0]} · results excluded' if bad else row.get("status", "not measured")
+                body.append(f'<td colspan="3">{_e(status)} '
+                            f'{_e(row.get("note", ""))}</td>')
+                continue
+            values = (synthesis_time_ms(row), row.get("sta", {}).get("opensta_ns"),
+                      row.get("qor", {}).get("cells"))
+            for i, value in enumerate(values):
+                body.append(f'<td>{_fmt(value / 1000 if i == 0 and value is not None else value)}</td>')
+        body.append('</tr>')
+    if not body:
+        return '<p>Fixed Brent-Kung comparison has not been measured yet.</p>'
+    return ('<details open><summary>Fixed Brent-Kung versus SN · per design</summary>'
+            '<p>Synthesis seconds exclude external emission and QoR collection. '
+            'Proof coverage is incomplete; known refutations are excluded.</p>'
+            '<div class="scroll"><table><thead><tr><th rowspan="2" class="l">Test / config</th>'
+            '<th colspan="3">LHD ABC · brent · no trials</th><th colspan="3">ABC/SN</th>'
+            '</tr><tr>' + '<th>Synthesis s</th><th>Path ps</th><th>Cells</th>' * 2 +
+            '</tr></thead><tbody>' + ''.join(body) + '</tbody></table></div></details>')
+
+
+def _synth_row(rows, test, config, label, satopt, details, include_sn=False):
     cells = [label]
-    for mapper, flow in ((None, "syn_yosys_abc"), *[(m, synth_flow(m, satopt)) for m in MAPPERS]):
+    comparisons = [(None, "syn_yosys_abc")]
+    if include_sn:
+        comparisons.append((None, "syn_abc_sn"))
+    comparisons.extend((m, synth_flow(m, satopt)) for m in MAPPERS)
+    for mapper, flow in comparisons:
         row = rows.get((test, config, flow), {})
         if not row:
             cells.append('<td class="g muted" colspan="6">—</td>')
             continue
         qor, sta = row.get("qor", {}), row.get("sta", {})
-        proof = synth_proof(rows, (test, config), mapper, satopt) if mapper else {}
+        proof = (row if flow == "syn_abc_sn" else
+                 synth_proof(rows, (test, config), mapper, satopt) if mapper else {})
         refuted = any(proof.get(f, {}).get("verdict") == "refuted"
                       for f in ("lec_verilog_result", "lec_aux_result"))
         has_measurement = (sta.get("opensta_ns") is not None
@@ -225,7 +408,7 @@ def _synth_row(rows, test, config, label, satopt, details):
             note = ''
             if row["status"] != "ok":
                 note += f' <span class="tag">{_e(row["status"])}</span>'
-            if mapper and not proof_ok(row, proof):
+            if (mapper or flow == "syn_abc_sn") and not proof_ok(row, proof):
                 note += ' <span class="tag">LEC unverified</span>'
             date = f' title="measured {_e(row.get("measured", ""))}"'
             values, scopes = _synth_display_values(row)
@@ -334,7 +517,7 @@ def retained_usyn_simulation_section(history, spec):
     if index:
         keys = sorted(index, key=lambda k: (k[1], k[2]))
         body.append(_sim_table(None, keys, index, "sim_verilator", set(), languages=("verilog",)))
-        data = _chart_data(keys, index, "sim_verilator", ["sim_lhd_verilog"], [
+        data = _chart_data(keys, index, "sim_verilator", ["sim_lhd_verilog_llvm"], [
             ("exec", "Simulation speed", "", lambda r: _sim_cost_ms(r, "exec")),
             ("prepare", "Setup + compile", "s", lambda r: _sim_cost_ms(r, "prepare")),
             ("total", "Total incl. one simulation", "s", lambda r: _sim_cost_ms(r, "total")),
@@ -424,6 +607,7 @@ def mapper_chart_data(rows, spec, satopt):
     metrics = [("delay", "Delay", spec["time_unit"]), ("area", "Area", "µm²"),
                ("cells", "Cells", ""), ("depth", "Logic depth", "cells"),
                ("time", "Tool runtime", "s"), ("mem", "Peak memory", "MiB")]
+    include_sn = any(r.get("flow") == "syn_abc_sn" for r in rows.values())
     groups = []
     for slot in spec["slots"]:
         key = slot["test"], slot["config"]
@@ -443,13 +627,22 @@ def mapper_chart_data(rows, spec, satopt):
             for (metric, _, _), b, m in zip(metrics, metric_values(base), metric_values(measured)):
                 if all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in (b, m)):
                     values.setdefault(metric, {})[flow] = b / m
+        if include_sn:
+            sn = rows.get((*key, "syn_abc_sn"), {})
+            if sn.get("status") == "ok" and sn_compatible(sn, base):
+                for (metric, _, _), b, m in zip(metrics, metric_values(base), metric_values(sn)):
+                    if all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0
+                           for v in (b, m)):
+                        values.setdefault(metric, {})["syn_abc_sn"] = b / m
         if values:
             groups.append({"test": key[0], "config": key[1], "solid": verified, "values": values})
     if not groups:
         return None
     return {
         "baseline": "Yosys+Slang+ABC",
-        "flows": [{"key": synth_flow(m, satopt), "label": m.upper(), "series": c}
+        "flows": ([{"key": "syn_abc_sn", "label": "ABC/SN", "series": "d"}]
+                  if include_sn else []) +
+                 [{"key": synth_flow(m, satopt), "label": m.upper(), "series": c}
                   for m, c in zip(MAPPERS, ("a", "c"))],
         "metrics": [{"key": k, "label": label, "unit": unit} for k, label, unit in metrics],
         "sortFlow": synth_flow("usyn", satopt), "sortLabel": "USYN",
@@ -637,6 +830,7 @@ def write_evaluation(
     show_syn, show_lec = kind in (None, "synth"), kind in (None, "lec")
     history = Ledger(root).load(spec["host"])
     rows = select_rows(history, spec)
+    include_sn = any(r["flow"] == "syn_abc_sn" for r in rows.values())
     apply_logged_evidence(root, rows)
     page_label = RESULT_KINDS[kind][1] if kind else "Verilog mapper evaluation"
     body = [_results_nav(spec["host"], kind),
@@ -711,12 +905,13 @@ def write_evaluation(
 
     head = ('<tr><th class="l" rowspan="3">Test / config</th>'
             '<th colspan="6" rowspan="2">yosys+slang+abc (retained)</th>'
+            + ('<th class="g" colspan="6" rowspan="2">abc·sn·verilog</th>' if include_sn else '') +
             '<th class="g" colspan="12">lhd-verilog</th></tr>'
             '<tr><th class="g" colspan="6">abc</th>'
             f'<th class="g" colspan="6">usyn · {_e(spec.get("usyn_tmap", spec.get("usyn_abc", "unknown")))}</th></tr><tr>')
     metrics = (f'delay {_e(spec["time_unit"])}', 'area µm²', 'cells', 'depth',
                'time s', 'mem MiB')
-    head += ''.join('<th>' + m + '</th>' for _ in range(3) for m in metrics) + '</tr>'
+    head += ''.join('<th>' + m + '</th>' for _ in range(3 + include_sn) for m in metrics) + '</tr>'
     profiles = spec.get("satopt_profiles", [True])
     details = []
     synth_rows = {enabled: [] for enabled in profiles}
@@ -725,7 +920,8 @@ def write_evaluation(
         test, config = slot["test"], slot["config"]
         label = f'<td class="l">{_e(test)} <small class="muted">{_e(config)}</small></td>'
         for satopt in profiles if show_syn else []:
-            synth_rows[satopt].append(_synth_row(rows, test, config, label, satopt, details))
+            synth_rows[satopt].append(_synth_row(rows, test, config, label, satopt, details,
+                                                include_sn=include_sn))
 
         for satopt in profiles if show_lec else []:
             cells = [label]
@@ -755,12 +951,38 @@ def write_evaluation(
                     'are not included in these partial metrics. All recorded values are displayed; '
                     'whole-design geomeans use compatible full measurements and show their sample counts. '
                     'Each selected compile SAT profile checks its own exact emitted netlist.</p>')
+        if include_sn:
+            runs = sorted({r["run_id"] for r in rows.values() if r["flow"] == "syn_abc_sn"})
+            sn_counts = Counter(r["status"] for r in rows.values() if r["flow"] == "syn_abc_sn")
+            body.append('<p>ABC/SN reads the same Verilog using slang, then uses LiveHD’s '
+                        'shared ABC executor, default mapping scripts, fanout limit, sizing and '
+                        'area recovery. SN partitions, state legalization and the ABC revision differ. '
+                        'Most SN results have not been netlist-LEC verified; refutations are excluded. '
+                        'Time includes frontend, '
+                        'mapping and the same QoR endpoint used by the other flows. '
+                        f'SN run(s): {_e(", ".join(runs))}. '
+                        f'Coverage: {sn_counts["ok"]} ok, {sn_counts["failed"]} failed, '
+                        f'{sn_counts["skipped"]} skipped. '
+                        'Ratios require matching host class and Liberty hashes.</p>')
+            body.append(sn_lhd_comparison(rows, spec))
+            body.append(sn_fixed_table(rows, spec))
+            if (root / "target" / f"results-syn-outliers-{slug(spec['host'])}.html").exists():
+                body.append(f'<p><a href="results-syn-outliers-{slug(spec["host"])}.html">'
+                            'Full-regression ABC-SN / LHD ABC outliers</a></p>')
+            from .synthesis_timing import timing_section
+
+            body.append(timing_section(history, spec["host"], "brent"))
+            body.append(timing_section(history, spec["host"]))
         for satopt in profiles:
             chart = mapper_chart_data(rows, spec, satopt)
             if chart:
                 body.append(_chart_block(f"chart-eval-syn-{str(satopt).lower()}", chart))
             footer = ['<tfoot><tr><th class="l">Geomean vs Yosys+Slang+ABC</th>',
                       '<td colspan="6">1.000× baseline</td>']
+            if include_sn:
+                for ratio, count in geomean_ratios(rows, spec["slots"], "sn"):
+                    value = f'{ratio:.3f}×' if ratio is not None else '—'
+                    footer.append(f'<td>{value} <small class="muted">(n={count})</small></td>')
             for mapper in MAPPERS:
                 for ratio, count in geomean_ratios(rows, spec["slots"], mapper, satopt):
                     value = f'{ratio:.3f}×' if ratio is not None else '—'

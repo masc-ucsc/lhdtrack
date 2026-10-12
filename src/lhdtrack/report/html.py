@@ -136,6 +136,19 @@ def write_results(root: Path, cfg: dict | None = None, host: str | None = None) 
     host = host or host_name()
     outputs = [write_report(root, cfg=cfg, host=host, kind=kind)
                for kind in RESULT_KINDS]
+    from .synthesis_timing import write_timing
+
+    timing = write_timing(root, host)
+    if timing:
+        outputs.append(timing)
+    from .abc_sn import write_latest_outliers
+
+    outliers = write_latest_outliers(root, host)
+    if outliers:
+        outputs.extend(outliers)
+    from .external_abc_sn import write_external_diagnostics
+
+    outputs.extend(write_external_diagnostics(root, host))
     evaluation = root / DATA_DIR / f"verilog-eval-{slug(host)}.json"
     if evaluation.exists():
         auxiliary = json.loads(evaluation.read_text()).get("auxiliary_report")
@@ -488,7 +501,9 @@ def write_report(
         keys = sorted(sim, key=lambda k: (k[1], k[2]))
         body.append("<h2>Simulation</h2>")
         body.append('<p class="sub">Latest recorded measurements for Verilator, LiveHD Verilog '
-                    'and LiveHD Pyrope. Regenerating this report does not remeasure changed '
+                    'and LiveHD Pyrope. LiveHD columns use the LLVM backend (the default); '
+                    'Slop is the secondary backend, compared in the LLVM-vs-Slop section. '
+                    'Regenerating this report does not remeasure changed '
                     'sources. Verilator execution targets 0.5–2 seconds per test. Execution '
                     'speed is separate from host C++ compilation and '
                     'front-end setup; checksum failures remain failed rows.</p>')
@@ -532,11 +547,11 @@ def write_report(
                     'in the same run. Slop execution time ÷ LLVM execution time: above 1× '
                     'means LLVM is faster. Failed and unmatched runs are excluded; all '
                     'Pyrope source styles are eligible for this backend comparison.</p>'
-                    '<p class="sub">Setup + compile combines code generation, LLVM kernel-object '
-                    'creation, host compilation and linking. Total adds one simulation and '
-                    'the separate Verilog elaboration step. Compile time is estimated as '
-                    'run-only wall time minus the best standalone execution; these are '
-                    'measured cold-flow costs, not isolated compiler timings.</p>')
+                    '<p class="sub">Setup + compile combines Verilog elaboration, code generation, '
+                    'LLVM kernel-object creation, host compilation and linking. Total adds '
+                    'one simulation. Direct compile timing stops after compile and link; '
+                    'legacy rows estimate compile time by subtracting standalone execution '
+                    'from run-only wall time. These are measured cold-flow costs.</p>')
         if llvm_data:
             for language in ("verilog", "pyrope"):
                 gains = [g["values"]["exec"][language] for g in llvm_data["groups"]
@@ -747,9 +762,11 @@ than OpenSTA)</span><span>right = pessimistic</span></p>"""
 
 
 _SYN_FLOWS = (
-    "syn_yosys_abc", "syn_lhd_verilog", "syn_lhd_pyrope", "syn_lhd_verilog_usyn",
+    "syn_yosys_abc", "syn_abc_sn", "syn_lhd_verilog_abc_sn", "syn_lhd_verilog", "syn_lhd_pyrope",
+    "syn_lhd_verilog_usyn",
 )
-_SYN_LABELS = ("yosys+slang+abc", "lhd·verilog·abc", "lhd·pyrope·abc", "lhd·verilog·usyn")
+_SYN_LABELS = ("yosys+slang+abc", "abc·sn·verilog", "lhd·abc·brent (no trials)", "lhd·verilog·abc",
+               "lhd·pyrope·abc", "lhd·verilog·usyn")
 
 
 def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
@@ -803,7 +820,9 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             mem = r.get("peak_rss_kb", {}).get("max", 0) / 1024
             stale = ' <span class="tag">cached</span>' if r.get("cached") else ""
             norm = ' <span class="tag">norm</span>' if q.get("normalized") else ""
-            gate = ' <span class="tag">STA gate</span>' if r.get("status") == "failed" else ""
+            gate_label = "failed" if flow == "syn_abc_sn" else "STA gate"
+            gate = (f' <span class="tag">{gate_label}</span>'
+                    if r.get("status") == "failed" else "")
             if r.get("measured_lec_verified") is False:
                 gate += ' <span class="tag" title="No unbounded proof for this run; excluded from averages">LEC unverified</span>'
             display, scopes = _synth_display_values(r)
@@ -846,6 +865,8 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         "better</b>. Depth counts combinational cell levels (buffers included), with "
         "flop/latch outputs as sources. 2.00&times; means twice as fast, or half the area, or half the "
         "memory. Named snapshots require unbounded netlist LEC from the same run; "
+        "ABC/SN uses LiveHD's shared ABC mapping/sizing executor and default scripts; "
+        "its frontend, partitions, state mapping and ABC revision differ. "
         "Pyrope also requires a language-equivalence proof and hand-written source. "
         "<span class=\'tag\'>norm</span> marks a netlist whose behavioural registers "
                 "yosys mapped, so it could be counted and timed exactly like the others. "
@@ -862,7 +883,9 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
 """
 
 
-_SIM_FLOWS = ("sim_verilator", "sim_lhd_verilog", "sim_lhd_pyrope")
+# LLVM is the default LHD simulation backend; Slop is the secondary backend and
+# appears only in the LLVM-vs-Slop comparison.
+_SIM_FLOWS = ("sim_verilator", "sim_lhd_verilog_llvm", "sim_lhd_pyrope_llvm")
 _SIM_LABELS = ("verilator", "lhd·verilog", "lhd·pyrope")
 
 
@@ -873,9 +896,9 @@ def _sim_cost_ms(row: dict, metric: str) -> float | None:
         values = [execution]
     elif metric in ("prepare", "total"):
         stages = row.get("time_ms", {})
-        values = [stages.get("setup"), stages.get("cc")]
+        values = [stages.get("setup"), stages.get("cc"), stages.get("elab", 0)]
         if metric == "total":
-            values.extend((stages.get("elab", 0), execution))
+            values.append(execution)
     else:
         raise ValueError(f"unknown simulation cost: {metric}")
     if not all(isinstance(v, (float, int)) and math.isfinite(v) and v >= 0 for v in values):
@@ -986,7 +1009,7 @@ def _llvm_timing_summary(data: dict) -> str:
 
 def _sim_table(title, keys, index, base_flow, headline, *,
                languages=("verilog", "pyrope")) -> str:
-    flows_to_show = ("sim_verilator", *(f"sim_lhd_{lang}" for lang in languages))
+    flows_to_show = ("sim_verilator", *(f"sim_lhd_{lang}_llvm" for lang in languages))
     labels = ("Verilator", *(f"LHD {lang.title()}" for lang in languages))
     metric_columns = 4 * len(flows_to_show)
     head = ['<tr><th class="l" rowspan="2">test</th><th class="l" rowspan="2">config</th>',
@@ -994,8 +1017,8 @@ def _sim_table(title, keys, index, base_flow, headline, *,
     for flow, label in zip(flows_to_show, labels):
         backends = {index[key].get(flow, {}).get("sim", {}).get("backend")
                     for key in keys if index[key].get(flow, {}).get("status") == "ok"}
-        if backends == {"slop"}:
-            label += " · Slop"
+        if backends == {"llvm"}:
+            label += " · LLVM"
         head.append(f'<th class="g" colspan="4">{_e(label)}</th>')
     head.append(f'<th class="g" colspan="{len(languages)}">LLVM speed / Slop</th></tr><tr>')
     for _ in flows_to_show:
@@ -1039,7 +1062,7 @@ def _sim_table(title, keys, index, base_flow, headline, *,
                 f'<td>{_fmt(s.get("exec_ms", 0)/1000, 2)}</td>'
                 f"<td>{_fmt(rate, 2)}</td>"
             )
-            if _eligible(r, flow, base, headline, "sim_lhd_pyrope"):
+            if _eligible(r, flow, base, headline, "sim_lhd_pyrope_llvm"):
                 bs, bt = base.get("sim", {}), base.get("time_ms", {})
                 for metric, val, b in (
                     ("setup", t.get("setup"), bt.get("setup")),
@@ -1155,6 +1178,11 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
         return False
     if row.get("status") != "ok" or not base or base.get("status") != "ok":
         return False
+    if flow == "syn_abc_sn":
+        from .verilog_eval import sn_compatible
+
+        if not sn_compatible(row, base):
+            return False
     if flow.startswith("sim_"):
         cycles = base.get("sim", {}).get("cycles")
         if (cycles is None or row.get("sim", {}).get("cycles") != cycles
@@ -1530,11 +1558,14 @@ counterexample. The table keeps all three checks explicit.</p>
 # better" convention the tables use.
 _FLOW_SERIES = {
     "lec_lhd": ("lhd (cvc5)", "b"),
+    "syn_abc_sn": ("abc·sn·verilog", "d"),
     "syn_lhd_verilog": ("lhd·verilog", "a"),
     "syn_lhd_pyrope": ("lhd·pyrope", "b"),
     "syn_lhd_verilog_usyn": ("lhd·verilog·usyn", "c"),
-    "sim_lhd_verilog": ("lhd·verilog", "a"),
-    "sim_lhd_pyrope": ("lhd·pyrope", "b"),
+    "sim_lhd_verilog": ("lhd·verilog·slop", "a"),
+    "sim_lhd_pyrope": ("lhd·pyrope·slop", "b"),
+    "sim_lhd_verilog_llvm": ("lhd·verilog", "a"),
+    "sim_lhd_pyrope_llvm": ("lhd·pyrope", "b"),
 }
 
 
@@ -1561,6 +1592,10 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
                                   (r or {}).get("sim", {}).get("cycles") ==
                                   base.get("sim", {}).get("cycles")
                                   and _same_netlist_measurement(r or {}, base)))
+                if flow == "syn_abc_sn":
+                    from .verilog_eval import sn_compatible
+
+                    same_workload = same_workload and sn_compatible(r or {}, base)
                 if r and r.get("status") == "ok" and same_workload:
                     gain = _gain(get(r), get(base))
                     if gain:
@@ -1644,7 +1679,8 @@ border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--
 CHART_JS = r"""
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
-  var COL = { a: 'var(--series-a)', b: 'var(--series-b)', c: 'var(--series-c)' };
+  var COL = { a: 'var(--series-a)', b: 'var(--series-b)', c: 'var(--series-c)',
+              d: 'var(--warn)' };
   // Only ratios that mean something get a gridline: 0.5x, 1x, 2x are readable
   // landmarks, 1.37x is noise.
   var GRID = [0.1, 0.2, 0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10];

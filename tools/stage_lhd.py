@@ -45,12 +45,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     ap.add_argument("--livehd", type=Path, default=None, help="LiveHD checkout (default: <root>/../livehd)")
+    ap.add_argument("--bazel-bin", type=Path,
+                    help="already-built -c opt bin directory; avoids waiting for a busy Bazel server")
     ap.add_argument("--dry-run", action="store_true", help="print what would be staged, change nothing")
     args = ap.parse_args()
     root: Path = args.root.resolve()
     livehd: Path = (args.livehd or root.parent / "livehd").resolve()
 
-    bin_dir = Path(subprocess.check_output(["bazel", "info", "-c", "opt", "bazel-bin"], cwd=livehd, text=True).strip())
+    bin_dir = (args.bazel_bin.resolve() if args.bazel_bin else Path(subprocess.check_output(
+        ["bazel", "info", "-c", "opt", "bazel-bin"], cwd=livehd, text=True).strip()))
+    if args.bazel_bin and not bin_dir.parent.name.endswith("-opt"):
+        raise ValueError("explicit bazel-bin must be an optimized Bazel output directory")
     source = bin_dir / "lhd" / "lhd"
     runfiles = bin_dir / "lhd" / "lhd.runfiles"
     if not source.is_file() or not runfiles.is_dir():
@@ -61,8 +66,28 @@ def main() -> int:
     revision = git(livehd, "rev-parse", "--short=9", "HEAD")
     full_revision = git(livehd, "rev-parse", "HEAD")
     diff = subprocess.check_output(["git", "diff", "HEAD"], cwd=livehd)
+    # New native optimizer sources may not be staged yet. Archive them too:
+    # binary digest plus tracked-only diff cannot reconstruct a dirty build.
+    untracked = subprocess.check_output(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"], cwd=livehd
+    ).split(b"\0")
+    for entry in untracked:
+        if not entry:
+            continue
+        relative = entry.decode("utf-8", errors="surrogateescape")
+        extra = subprocess.run(
+            ["git", "diff", "--no-index", "--binary", "--", "/dev/null", relative],
+            cwd=livehd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        if extra.returncode not in (0, 1):
+            raise RuntimeError(f"cannot archive untracked source {relative}: {extra.stderr.decode()}")
+        diff += extra.stdout
     dirty = bool(diff.strip())
-    dest = root / "var" / "toolchain" / "eval" / f"{digest}-{revision}{'-dirty' if dirty else ''}"
+    diff_digest = hashlib.sha256(diff).hexdigest()
+    # A test or documentation fix can leave the executable unchanged. Keep a
+    # distinct immutable archive rather than relabeling an existing source.diff.
+    source_suffix = f"-dirty-src-{diff_digest[:16]}" if dirty else ""
+    dest = root / "var" / "toolchain" / "eval" / f"{digest}-{revision}{source_suffix}"
     version = f"livehd {revision}{'+dirty' if dirty else ''} opt sha256:{digest}"
     print(f"stage {source}\n  -> {dest}\n  {version}")
     if args.dry_run:
@@ -104,7 +129,7 @@ def main() -> int:
     tc["versions"]["lgcheck"] = f"sha256:{sha16(lgcheck)} adapter-sha256:{sha16(adapter)}"
     tc["versions"]["yosys2"] = f"sha256:{sha16(yosys2)}"
     tc["livehd_source_revision"] = full_revision
-    tc["livehd_source_diff_sha256"] = hashlib.sha256(diff).hexdigest()
+    tc["livehd_source_diff_sha256"] = diff_digest
     tc["generated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     tc_path.write_text(json.dumps(tc, indent=2) + "\n")
     print(f"toolchain.json -> {version}")

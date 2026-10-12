@@ -226,9 +226,12 @@ def _lhd_qor(path: Path) -> dict:
         total = doc.get("total")
         if doc.get("kind") == "technology-map":
             regions = doc.get("regions", [])
+            # An untimed USYN map reports `"delay": null` (ABC's unit-delay level
+            # count is not a time); only timed regions enter the critical path.
+            timed = [r["delay"] for r in regions if r.get("delay") is not None]
             total = dict(gates=sum(r["gates"] for r in regions),
                          area=sum(r["area"] for r in regions), regions=len(regions),
-                         max_delay=max((r["delay"] for r in regions), default=0))
+                         max_delay=max(timed) if timed else None)
         if not isinstance(total, dict):
             return {"lhd_qor_note": "report has no mapped cell totals"}
     except (OSError, json.JSONDecodeError):
@@ -240,7 +243,8 @@ def _lhd_qor(path: Path) -> dict:
         "satopt_facts": sum(int(r.get("satopt_facts", 0)) for r in doc.get("regions", [])),
         "satopt_regions": sum(bool(r.get("satopt_facts", 0)) for r in doc.get("regions", [])),
         # lhd's ABC-reported critical path, distinct from the OpenTimer pass.
-        "abc_max_delay_ns": round(float(total.get("max_delay", 0.0)), 4),
+        "abc_max_delay_ns": (None if total.get("max_delay") is None
+                             else round(float(total["max_delay"]), 4)),
     }
 
 

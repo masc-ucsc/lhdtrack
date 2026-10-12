@@ -10,6 +10,24 @@ from lhdtrack.toolchain import Toolchain
 
 
 class EquivalenceGates(TestCase):
+    def test_program_failure_gates_only_the_checked_emission(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            tc = Toolchain(root, "test", "", {}, {}, {}, {})
+            runner = Runner(root, tc, Cache(root), "test", {})
+            for reference_rc, netlist_rc, digest, failed in (
+                    (0, 1, "measured", True), (0, 0, "measured", False),
+                    (1, 1, "measured", False), (0, 1, "stale", False)):
+                with self.subTest(reference=reference_rc, netlist=netlist_rc, digest=digest):
+                    row = Row("dut", "default", "test", "asap7", "syn_abc_sn", "synth",
+                              True, False, "2026-10-09")
+                    row.qor = {"netlist_sha256": "measured", "program_check": {
+                        "reference_rc": reference_rc, "netlist_rc": netlist_rc,
+                        "netlist_sha256": digest}}
+                    runner.gate([row])
+                    self.assertEqual(row.status, "failed" if failed else "ok")
+                    self.assertEqual(row.passed, not failed)
+
     def test_timer_disagreement_does_not_gate_synthesis(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)
@@ -117,6 +135,35 @@ class Waves(TestCase):
         self.assertEqual([job.flow for job in jobs], names)
         jobs = plan(Path("."), [test], None, flows, [], ["sim_lhd_pyrope_llvm"])
         self.assertEqual([job.flow for job in jobs], ["sim_lhd_pyrope_llvm"])
+
+    def test_synthesis_manifest_plans_sn_once_and_honors_flow_filter(self):
+        from types import SimpleNamespace
+        from lhdtrack.run import plan
+
+        test = SimpleNamespace(synth_flows=["syn_yosys_abc"], sim_flows=[], lec_flows=[],
+                               configs=[SimpleNamespace(id="one")])
+        names = ["syn_yosys_abc", "syn_abc_sn"]
+        flows = {name: (SimpleNamespace(USES_TECH=True), Path(name + ".py")) for name in names}
+        jobs = plan(Path("."), [test], None, flows, ["asap7"], ["syn_abc_sn"])
+        self.assertEqual([(j.flow, j.tech) for j in jobs], [("syn_abc_sn", "asap7")])
+        test.synth_flows.append("syn_abc_sn")
+        jobs = plan(Path("."), [test], None, flows, ["asap7"])
+        self.assertEqual([j.flow for j in jobs], names)
+
+    def test_sn_comparison_profile_preserves_default_and_deduplicates_jobs(self):
+        from types import SimpleNamespace
+        from lhdtrack.run import plan
+
+        names = ["syn_yosys_abc", "syn_lhd_verilog_no_satopt", "syn_abc_sn",
+                 "syn_lhd_verilog_abc_sn", "lec_netlist_verilog_abc_sn"]
+        flows = {name: (SimpleNamespace(USES_TECH=True), Path(name + ".py")) for name in names}
+        test = SimpleNamespace(synth_flows=names[:4], sim_flows=[], lec_flows=names[4:],
+                               configs=[SimpleNamespace(id="one")])
+        jobs = plan(Path("."), [test], None, flows, ["asap7"])
+        self.assertEqual([job.flow for job in jobs], names)
+        fixed = names[2:]
+        jobs = plan(Path("."), [test], None, flows, ["asap7"], fixed)
+        self.assertEqual([job.flow for job in jobs], fixed)
 
     def test_after_jobs_start_only_when_the_first_wave_finished(self):
         import threading

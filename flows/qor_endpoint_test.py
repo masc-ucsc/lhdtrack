@@ -19,6 +19,15 @@ class MappingReport(TestCase):
             self.assertEqual(result["abc_max_delay_ns"], 100)
             self.assertEqual(result["regions"], 2)
 
+    def test_untimed_native_tmap_reports_no_delay(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "qor.json"
+            path.write_text(json.dumps(dict(kind="technology-map", regions=[
+                dict(gates=3, area=1.5, delay=None), dict(gates=2, area=2.0, delay=None)])))
+            result = _lhd_qor(path)
+            self.assertEqual(result["lhd_area_um2"], 3.5)
+            self.assertIsNone(result["abc_max_delay_ns"])
+
     def test_missing_mapped_totals_do_not_invent_zero_area(self):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "qor.json"

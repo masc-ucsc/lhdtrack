@@ -46,12 +46,27 @@ def mapping_settings(tech: str, mapper: str, delay: str) -> list[str]:
     return ["--set", f"{key}={override if override is not None else delay}", *other]
 
 
+def abc_sn_settings(settings: list[str]) -> list[str]:
+    """Fixed arithmetic only for the named SN comparison; defaults are untouched."""
+    fixed = {"pass.abc.adder": "brent", "pass.abc.multiplier": "sn",
+             "pass.abc.barrel": "log", "pass.abc.region_opts": "{}"}
+    out = []
+    for i in range(0, len(settings), 2):
+        if settings[i + 1].split("=", 1)[0] not in fixed:
+            out.extend(settings[i:i + 2])
+    for key, value in fixed.items():
+        out.extend(["--set", f"{key}={value}"])
+    return out
+
+
 def recorded_settings(commands: list[str]) -> dict[str, str]:
     """Store actual command settings with each measurement; never infer history."""
     selected = {"pass.color.synth_alg", "pass.color.ctrl_cones", "pass.color.forward",
                 "pass.color.stop_arith", "pass.color.stop_mux", "pass.color.max_gate",
                 "pass.abc.area_relax", "pass.abc.area_flow", "pass.abc.satopt",
                 "pass.abc.memory", "pass.satopt"}
+    selected.update({"pass.abc.adder", "pass.abc.multiplier", "pass.abc.barrel",
+                     "pass.abc.region_opts", "pass.abc.ware_max_cells"})
     settings = {"base": "compiler defaults"}
     for command in commands:
         argv = shlex.split(command)
@@ -61,7 +76,11 @@ def recorded_settings(commands: list[str]) -> dict[str, str]:
             key, value = argv[i + 1].split("=", 1)
             if key.startswith("abc."):
                 key = "pass." + key
-            if (key in selected or key.startswith("pass.usyn.")
-                    or key in {"pass.abc.delay", "synth.mapper"}):
+            if (key in selected or key.startswith(("pass.usyn.", "pass.color."))
+                    or key in {"pass.abc.large_ge", "pass.abc.flatten"}
+                    or key in {"pass.abc.delay", "synth.mapper"}
+                    or key.startswith("synth.tune.")
+                    or key in {"synth.adder", "synth.multiplier", "synth.barrel",
+                               "synth.block_size"}):
                 settings[key] = value
     return settings

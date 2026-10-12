@@ -91,6 +91,19 @@ class Toolchain:
     def version(self, name: str) -> str:
         return self._versions.get(name, "missing")
 
+    def write_snapshot(self, root: Path) -> Path:
+        """Archive this loaded registry so later staging cannot alter a regression."""
+        path = root / TOOLCHAIN_REL
+        path.parent.mkdir(parents=True, exist_ok=True)
+        doc = {"schema_version": 1, "host_class": self.host_class,
+               "generated": self.generated, "bin": {k: str(v) for k, v in self._bin.items()},
+               "env": self._env, "versions": self.versions,
+               "tech": {name: {"liberty": [str(p) for p in tech.liberty],
+                               "sha256": tech.sha256, "time_unit": tech.time_unit}
+                        for name, tech in self._tech.items()}}
+        path.write_text(json.dumps(doc, indent=2) + "\n")
+        return path
+
     def env_for(self, executable: str | Path) -> dict[str, str]:
         """Runtime environment belonging to a staged tool executable."""
         path = Path(executable)

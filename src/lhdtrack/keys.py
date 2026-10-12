@@ -32,6 +32,9 @@ from .toolchain import Toolchain
 # -- the exact overhead the cache exists to remove.
 FLOW_TOOLS: dict[str, tuple[str, ...]] = {
     "syn_yosys_abc": ("yosys", "yosys_slang", "abc"),
+    "syn_abc_sn": ("sn", "abc_sn_mapper", "abc_sn"),
+    "syn_lhd_verilog_abc_sn": ("lhd",),
+    "lec_netlist_verilog_abc_sn": ("lhd", "yosys2", "lgcheck"),
     "syn_lhd_verilog": ("lhd",),
     "syn_lhd_pyrope": ("lhd",),
     "sim_verilator": ("verilator", "make", "cxx"),
@@ -97,6 +100,10 @@ def _shared_recipe(flows_dir: Path, flow_name: str) -> list[Path]:
             paths.append(endpoint)
     if flow_name in ("sim_lhd_verilog_llvm", "sim_lhd_pyrope_llvm"):
         paths.append(flows_dir / f"{flow_name.removesuffix('_llvm')}.py")
+    if flow_name == "syn_lhd_verilog_abc_sn":
+        paths.extend(flows_dir / name for name in ("syn_lhd_verilog.py", "syn_lhd_pyrope.py"))
+    if flow_name == "lec_netlist_verilog_abc_sn":
+        paths.extend(flows_dir / name for name in ("lec_netlist_verilog.py", "lec_netlist.py"))
     return paths
 
 

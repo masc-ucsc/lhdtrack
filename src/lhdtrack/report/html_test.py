@@ -140,7 +140,7 @@ class ReportSnapshot(unittest.TestCase):
 
 
 class SimulationWorkload(unittest.TestCase):
-    def test_build_cost_combines_object_generation_and_compile_with_total_elaboration(self):
+    def test_build_cost_includes_elaboration_and_total_adds_one_execution(self):
         from lhdtrack.report.html import _llvm_timing_summary
         key = ("comb", "dut", "one", None)
         base = {"status": "ok", "host": "same", "host_class": "same", "run_id": "same",
@@ -150,30 +150,36 @@ class SimulationWorkload(unittest.TestCase):
                 "time_ms": {"setup": 100, "cc": 900, "elab": 500}}
         llvm = {**base, "sim": {**base["sim"], "backend": "llvm", "exec_ms": 500},
                 "time_ms": {"setup": 1100, "cc": 900, "elab": 500}}
-        # LLVM runs faster but costs twice as much to prepare. The separate
-        # Verilog elaboration is charged to total, not lost or counted twice.
+        # LLVM runs faster but takes longer to prepare. Elaboration belongs
+        # to preparation and must not be counted again when adding execution.
         self.assertEqual(_llvm_gain(llvm, base), 2)
-        self.assertEqual(_llvm_gain(llvm, base, "prepare"), .5)
+        self.assertEqual(_llvm_gain(llvm, base, "prepare"), .6)
         self.assertAlmostEqual(_llvm_gain(llvm, base, "total"), 2500 / 3000)
         chart = _llvm_chart_data([key], {key: {"sim_lhd_verilog": base,
                                              "sim_lhd_verilog_llvm": llvm}})
         costs = chart["groups"][0]["times"]
         self.assertEqual(costs["prepare"]["verilog"],
-                         {"baseline_ms": 1000, "measured_ms": 2000})
+                         {"baseline_ms": 1500, "measured_ms": 2500})
         self.assertEqual(costs["total"]["verilog"],
                          {"baseline_ms": 2500, "measured_ms": 3000})
         summary = _llvm_timing_summary(chart)
-        self.assertIn("0.50×", summary)
+        self.assertIn("0.60×", summary)
         self.assertIn("Slop median s", summary)
         table = _sim_table(None, [key], {key: {"sim_lhd_verilog": base,
                                               "sim_lhd_verilog_llvm": llvm}},
                            "sim_verilator", {"idiomatic"})
-        self.assertIn("setup + compile: Slop 1.0000s / LLVM 2.0000s", table)
+        self.assertIn("setup + compile: Slop 1.5000s / LLVM 2.5000s", table)
         self.assertNotIn("<h2>", table)
         # An old execution-only row cannot acquire an invented build cost.
         missing = {**llvm, "time_ms": {"setup": 1100}}
         self.assertIsNone(_llvm_gain(missing, base, "prepare"))
         self.assertIsNone(_llvm_gain(missing, base, "total"))
+        # USYN preparation already folds elaboration into setup, so rows
+        # without a separate elab stage must retain their recorded cost.
+        from lhdtrack.report.html import _sim_cost_ms
+        folded = {**base, "time_ms": {"setup": 600, "cc": 900}}
+        self.assertEqual(_sim_cost_ms(folded, "prepare"), 1500)
+        self.assertEqual(_sim_cost_ms(folded, "total"), 2500)
         for invalid in (-1, float("inf"), float("nan")):
             bad = {**llvm, "time_ms": {**llvm["time_ms"], "cc": invalid}}
             self.assertIsNone(_llvm_gain(bad, base, "prepare"))

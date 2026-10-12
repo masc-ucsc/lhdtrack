@@ -48,6 +48,67 @@ lhdtrack run --refresh yosys_abc                  # force a baseline re-measure
 lhdtrack run --no-cache                           # ignore the baseline cache entirely
 ```
 
+### ABC's slang/SN frontend on ASAP7
+
+```bash
+python3 tools/stage_abc_sn.py       # build ../abc and ../slang; read ../livehd backend
+make abc-sn RUN_ARGS="--test add"  # smoke test
+make abc-sn RUN_ARGS="--test add --lec -j 1"  # also prove the exact LHD netlist
+make abc-sn                       # all synthesis configurations, ASAP7 only
+python3 tools/check_abc_sn.py --test add --test br_counter  # retained-netlist LEC
+python3 tools/profile_synthesis.py --test add --test br_counter  # sequential step timing
+python3 tools/profile_synthesis.py --ware-cutoff --test add_mop # arithmetic trial ablation
+python3 tools/profile_synthesis.py --brent --test add_mop # fixed-adder sequential timing
+python3 tools/replay_abc.py --test add_mop  # identical-network ABC binary control
+python3 tools/report_abc_sn.py --run <run-id>  # rank full-regression outliers
+python3 tools/check_lhd_abc_sn.py --run <run-id> --test add_mop  # prove retained LHD netlist
+```
+
+The new `abc·sn·verilog` column appears beside Yosys in
+`target/results-syn-<host>.html` and the full synthesis report. SN imports the same
+monomorphic Verilog, defines and include directory. The adapter links LiveHD's
+`abc_flow.cpp` unchanged and extracts its default timing/area scripts, fanout,
+area-recovery and memory limits from the supplied checkout. Register margins use
+LiveHD's Liberty parser. OpenSTA and cell/depth accounting use the shared QoR
+endpoint; Yosys re-emits the SN netlist for OpenSTA without optimization or mapping.
+
+`make abc-sn` also runs the dedicated `syn_lhd_verilog_abc_sn` profile with
+`--set pass.abc.adder=brent`, `pass.abc.multiplier=sn`, `pass.abc.barrel=log`
+and no region arithmetic overrides. These explicit choices disable arithmetic
+trials; the flow checks and records zero trials. The fixed comparison has its own
+time/path/cell table in the synthesis report and never substitutes auto results.
+LiveHD's defaults and existing RCA, carry-skip, CLA, prefix and auto choices remain
+unchanged. Compile SAT stays disabled, matching the existing comparison profile.
+The explicit `sn` multiplier uses Baugh–Wooley signed partial products and
+depth-ordered column compression followed by the selected adder. Historical
+array-multiplier measurements retain their recorded profile and separate averages.
+Use `--lec` to prove the exact emitted LHD netlists.
+
+The staging tool preserves the existing ABC/Yosys baseline and archives binary
+digests, source hashes, revisions and licenses. ABC revisions, frontend lowering,
+state mapping and partition boundaries differ between SN and LiveHD; matching the
+backend script does not remove those differences. Preserved memories and unsupported
+state/reinsertion produce explicit skips. Most SN results are not netlist-LEC verified.
+The optional checker validates retained netlist/source hashes, uses the existing
+independent Yosys equivalence checker, and appends proof updates through `Runner.gate`.
+Refutations remain in the ledger and are excluded from report averages.
+The latest complete paired sweep also generates `target/results-syn-outliers-<host>.html`
+and JSON, with both ends of each metric's ranking, failures/skips and proof coverage.
+Focused reruns do not replace its population. The outlier ratios are SN ÷ LHD,
+so values above one favor LHD. Runs with parallel jobs need sequential confirmation
+for timing extremes; these all-Verilog statistics are separate from the Pyrope headline.
+Each new comparison run archives its loaded registry under
+`var/runs/<run-id>/toolchain-snapshot/var/toolchain/toolchain.json`.
+The retained-netlist checkers and timing profiler accept
+`--toolchain-root var/runs/<run-id>/toolchain-snapshot`, so later staging cannot
+switch the compiler used for those checks or remeasurements.
+No existing baseline recipe changes. Results append to the host ledger.
+The timing profiler records compiler phases, SN parse/elaboration/import timers,
+mapper preparation and actual shared ABC calls in the ledger. `make report`
+rebuilds `target/results-syn-timing-<host>.html` from that evidence. LHD's
+`pass.abc` includes region orchestration and arithmetic trials; it is broader
+than the SN shared executor timer. Parallel region durations overlap.
+
 ### Native USYN on ASAP7
 
 ```bash
@@ -950,3 +1011,108 @@ signature defaults still apply when an argument is absent. Generated Verilator
 drivers retain `--cycles N` as a compatibility alias. Migrating these recipe and
 harness files changes their source hashes, so existing measurements remain in
 the ledger but new runs use new cache entries.
+
+External designs can be measured without adding slots to the small corpus:
+
+```sh
+make abc-sn-external RUN_ARGS="--design-root ../lhdsuite/dino --top PipelinedDualIssueCPU"
+```
+
+The command snapshots the design's `verilog/` tree and plain `filelist.f`, records
+the upstream revision and source hashes, then runs the fixed Brent–Kung/SN
+multiplier profile and ABC/SN sequentially on ASAP7 at 1000 ps. It checks the exact
+mapped netlists with a separate 60-second equivalence budget. Simulation is an
+explicit skip until a checksum harness is imported. Results and proof coverage
+are recorded in the host ledger and rendered to `target/results-syn-dino-<host>.html`;
+`make report` rebuilds the diagnostic from the ledger. These Verilog diagnostics
+stay outside the idiomatic Pyrope headline averages. `--clock`, `--period-ps`,
+`--synth-timeout`, and `--lec-timeout` select other external constraints or budgets.
+
+An existing asserting Verilator program can independently check the retained
+netlists after a run, without adding its build time to synthesis:
+
+```sh
+python3 tools/check_external_program.py --run RUN_ID --design dino \
+  --driver ../lhdsuite/dino/sim/dino_prog_tb_verilator.cpp --cycles 1000
+```
+
+The original RTL and both exact mapped emissions use the same driver and registered
+tools. A failing netlist against passing RTL appends a failed measurement and
+excludes its QoR; a passing program supplies coverage, not a formal proof.
+The Dino SN frontend failure is reduced in
+`tools/abc_sn/fixtures/clocked_temporaries.sv`: direct RHS logic proves, while the
+equivalent automatic-temporary forms are currently refuted. Keep this diagnostic
+outside the ordinary corpus until the frontend handles it correctly.
+
+Compare that same frozen source/toolchain snapshot with one LiveHD core color:
+
+```sh
+python3 tools/profile_external_color.py --source-run RUN_ID --design dino
+python3 tools/check_external_program.py --run FLAT_RUN_ID --source-run RUN_ID \
+  --design dino --flow syn_lhd_verilog_abc_sn_flat \
+  --driver ../lhdsuite/dino/sim/dino_prog_tb_verilator.cpp --cycles 1000
+```
+
+The separate flat flow uses explicit compile, flat color, ABC and OpenTimer steps;
+the fused `synth` command requires its normal partitioned coloring. Arithmetic stays
+inside the core color, with the same fixed arithmetic implementations and full ABC
+recipe. `pass.abc.large_ge=0` prevents the larger region from switching to the default
+fast recipe. Default memory implementations remain separate: for Dino this means one
+register-file helper plus the core logic color and a zero-gate boundary region.
+The ledger records all regions, actual process times, exact emission and proof/program
+coverage. `target/results-syn-dino-colors-<host>.html` compares it with the source run;
+`make report` rebuilds this page without measuring. Regular comparison flows and
+compiler defaults are unchanged. The default formal budget is 20 seconds per checker.
+
+Partition-policy experiments use the frozen external inputs and an isolated staged compiler:
+
+```bash
+python3 tools/profile_partitions.py --source-run RUN_ID --design dino \
+  --variant no-mux-cut --variant no-operator-cuts --variant data-cones
+python3 tools/profile_partitions.py --source-run RUN_ID --design dino \
+  --toolchain-root var/toolchain/partition-eval --variant data-cones --max-gate 30000 \
+  --set pass.color.synth.min_gate=8000 --set pass.color.synth.boundary_wiring=true
+python3 tools/profile_partitions.py --source-run RUN_ID --design dino \
+  --toolchain-root var/toolchain/partition-eval --variant flat
+python3 tools/check_external_program.py --run PARTITION_RUN_ID --source-run RUN_ID \
+  --design dino --flow syn_lhd_verilog_abc_sn_partition \
+  --driver ../lhdsuite/dino/sim/dino_prog_tb_verilator.cpp --cycles 1000
+```
+
+These opt-in experiments keep the fixed arithmetic profile and full ABC recipe. The
+`data-cones` variant disables mux/control/operator cuts and separate arithmetic ware
+modules. `min_gate` is a soft lower bound in predicted AIG nodes, not mapped cells;
+small disconnected or explicitly cut regions remain legal. The experimental
+`boundary_wiring` policy copies constant packing/slices and sign extension into
+consuming regions without merging their logic ownership. Incremental comparison
+bodies include those copies and their actual input interfaces.
+
+`target/results-syn-dino-partitions-<host>.html` records every attempted policy,
+actual mapped region sizes, program coverage, and cell-count changes against a flat
+reference with the same compiler, source bytes, Liberty and constraints. A partition
+candidate with more cells is marked rejected even if it is faster or has more regions.
+The 1,000-cell granularity target is soft. Program coverage is distinct from formal
+proof. These diagnostics do not replace the compiler defaults or enter corpus headline
+averages; the primary toolchain registry remains unchanged.
+
+To locate post-mapping growth, compare retained flattened `mapped-depth.json` files:
+
+```bash
+python3 tools/analyze_synthesis_cones.py --baseline FLAT_JSON --measured PARTITION_JSON \
+  --top PipelinedDualIssueCPU --tech asap7 \
+  --toolchain-root var/runs/PARTITION_RUN_ID/toolchain-snapshot --output var/cones.json
+```
+
+Use runs with matching compiler, source, Liberty and constraints. The traversal stops at
+sequential outputs and compares named register D pins and primary outputs. It reports
+individual bit cones, register-wide unions, source-bit identities and physical cell
+membership across groups. A group union counts shared gates once, but different groups
+overlap; only the disjoint membership accounting can be summed. Cell levels are structural
+depth, not delay. Unmatched endpoints are listed explicitly. Cleanup diagnostics can use
+their own flattened JSON without replacing the original measurement.
+
+To check incremental reuse of an unchanged candidate, add `--warm-cache PARTITION_RUN_ID`
+to `tools/profile_partitions.py` with the same variant and settings. It loads that run's
+frozen compiler and seeds the cache after the benchmark runner prepares its fresh job.
+The original cache remains intact. Warm timings are explicitly labelled, and per-region
+`cache` fields show actual hits; they are separate from cold synthesis comparisons.

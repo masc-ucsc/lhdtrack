@@ -10,10 +10,128 @@ from lhdtrack.report.verilog_eval import (
     simulation_section, synth_proof, _synth_row, retained_usyn_simulation_section,
     verify_transparent_instance_renaming,
     mapper_chart_data, write_evaluation,
+    sn_compatible, sn_lhd_comparison, synthesis_time_ms, SN_LHD_FLOW, SN_LHD_LEC,
+    overlay_sn_proofs,
 )
 
 
 class VerilogEvaluation(unittest.TestCase):
+    def test_fresh_sn_measurement_preserves_counterexample_only_for_identical_bytes(self):
+        common = {"host": "host", "tech": "asap7", "test": "dut", "config": "one",
+                  "flow": "syn_abc_sn", "status": "ok", "versions": {"lhd": "models"},
+                  "qor": {"netlist_sha256": "net", "liberty_sha256": "lib",
+                          "source_sha256": {"dut.sv": "rtl"}}}
+        proof = {**common, "run_id": "old", "lec_aux_result": {
+            "verdict": "refuted", "netlist_sha256": "net", "liberty_sha256": "lib"}}
+        fresh = {**common, "run_id": "fresh"}
+        selected = overlay_sn_proofs(fresh, [proof, fresh])
+        self.assertEqual(selected["status"], "failed")
+        self.assertEqual(fresh["status"], "ok")  # Never rewrite the measurement.
+        for key in ("netlist_sha256", "liberty_sha256", "source_sha256"):
+            different = {**fresh, "qor": {**fresh["qor"], key: "changed"}}
+            self.assertEqual(overlay_sn_proofs(different, [proof])["status"], "ok")
+
+    def test_sn_latest_failure_and_explicit_snapshot_pin(self):
+        spec = {"host": "host", "tech": "asap7", "run_id": "lhd", "baselines": [],
+                "slots": [{"test": "dut", "config": "one"}]}
+        common = {"host": "host", "tech": "asap7", "test": "dut", "config": "one",
+                  "flow": "syn_abc_sn"}
+        history = [{**common, "run_id": "first", "status": "ok"},
+                   {**common, "run_id": "second", "status": "failed"},
+                   {**common, "run_id": "third", "host": "other", "status": "ok"}]
+        key = "dut", "one", "syn_abc_sn"
+        self.assertEqual(select_rows(history, spec)[key]["status"], "failed")
+        spec["abc_sn_baselines"] = [{"test": "dut", "config": "one", "run_id": "first"}]
+        self.assertEqual(select_rows(history, spec)[key]["status"], "ok")
+
+    def test_sn_ratios_require_matching_host_class_and_liberty(self):
+        base = {"status": "ok", "host_class": "cpu", "qor": {"liberty_sha256": "lib",
+                "cells": 100}, "time_ms": {"total": 4000}, "sta": {"opensta_ns": 200}}
+        sn = {**base, "qor": {"liberty_sha256": "lib", "cells": 50},
+              "time_ms": {"total": 2000}, "sta": {"opensta_ns": 100}}
+        key = "dut", "one"
+        slots = [{"test": "dut", "config": "one"}]
+        for incompatible in ({**sn, "host_class": "other"},
+                             {**sn, "qor": {"liberty_sha256": "other", "cells": 50}},
+                             {**sn, "qor": {"cells": 50}}):
+            self.assertFalse(sn_compatible(incompatible, base))
+            ratios = geomean_ratios({(*key, "syn_yosys_abc"): base,
+                                    (*key, "syn_abc_sn"): incompatible}, slots, "sn")
+            self.assertTrue(all(value is None and count == 0 for value, count in ratios))
+        ratios = geomean_ratios({(*key, "syn_yosys_abc"): base,
+                                (*key, "syn_abc_sn"): sn}, slots, "sn")
+        self.assertAlmostEqual(ratios[0][0], 2.0)
+        self.assertEqual(ratios[0][1], 1)
+        self.assertAlmostEqual(ratios[2][0], 2.0)
+        self.assertEqual(ratios[2][1], 1)
+
+    def test_sn_overview_measures_synthesis_and_excludes_refuted_lhd(self):
+        spec = {"slots": [{"test": "dut", "config": "one"}], "satopt_profiles": [False]}
+        common = {"status": "ok", "host_class": "cpu",
+                  "qor": {"liberty_sha256": "lib", "cells": 50},
+                  "sta": {"opensta_ns": 100}}
+        sn = {**common, "time_ms": {"frontend": 100, "map": 900, "emit": 500,
+                                    "opensta": 1000, "total": 2500}}
+        lhd = {**common, "time_ms": {"compile": 200, "color": 200, "map": 1600,
+                                     "emit": 500, "opensta": 1000, "total": 3500}}
+        self.assertEqual(synthesis_time_ms(sn), 1000)
+        self.assertEqual(synthesis_time_ms(lhd), 2000)
+        rows = {("dut", "one", "syn_abc_sn"): sn,
+                ("dut", "one", SN_LHD_FLOW): lhd}
+        rendered = sn_lhd_comparison(rows, spec)
+        self.assertIn("2.000×", rendered)
+        rows["dut", "one", SN_LHD_LEC] = {
+            "lec_verilog_result": {"verdict": "refuted"}}
+        self.assertNotIn("2.000×", sn_lhd_comparison(rows, spec))
+
+    def test_sn_comparison_does_not_substitute_auto_results(self):
+        spec = {"slots": [{"test": "dut", "config": "one"}]}
+        row = {"status": "ok", "host_class": "cpu", "time_ms": {"map": 1000},
+               "qor": {"liberty_sha256": "lib", "cells": 10},
+               "sta": {"opensta_ns": 100}}
+        rows = {("dut", "one", "syn_abc_sn"): row,
+                ("dut", "one", "syn_lhd_verilog_no_satopt"): row}
+        self.assertIn("(n=0)", sn_lhd_comparison(rows, spec))
+        rows["dut", "one", SN_LHD_FLOW] = row
+        self.assertIn("(n=1)", sn_lhd_comparison(rows, spec))
+
+    def test_sn_multiplier_profiles_are_not_averaged_together(self):
+        spec = {"slots": [{"test": name, "config": "one"} for name in ("old", "new")]}
+        rows = {}
+        for name, multiplier, ms in (("old", "array", 2000), ("new", "sn", 500)):
+            row = {"status": "ok", "host_class": "cpu", "time_ms": {"map": ms},
+                   "qor": {"liberty_sha256": "lib", "cells": 10,
+                           "synth_policy": {"pass.abc.multiplier": multiplier}},
+                   "sta": {"opensta_ns": 100}}
+            rows[name, "one", SN_LHD_FLOW] = row
+            rows[name, "one", "syn_abc_sn"] = {**row, "time_ms": {"map": 1000}}
+        rendered = sn_lhd_comparison(rows, spec)
+        self.assertIn("multiplier=array", rendered)
+        self.assertIn("multiplier=sn", rendered)
+        self.assertIn("2.000×", rendered)
+        self.assertIn("0.500×", rendered)
+        self.assertNotIn("(n=2)", rendered)
+
+    def test_fixed_profile_drops_proof_of_different_emission(self):
+        spec = {"host": "host", "tech": "asap7", "run_id": "default", "baselines": [],
+                "slots": [{"test": "dut", "config": "one"}]}
+        common = {"host": "host", "tech": "asap7", "test": "dut", "config": "one",
+                  "run_id": "fixed"}
+        synth = {**common, "flow": SN_LHD_FLOW, "qor": {"netlist_sha256": "new"}}
+        proof = {**common, "flow": SN_LHD_LEC,
+                 "lec_verilog_result": {"netlist_sha256": "old", "verdict": "refuted"}}
+        self.assertNotIn(("dut", "one", SN_LHD_LEC), select_rows([synth, proof], spec))
+        proof["lec_verilog_result"]["netlist_sha256"] = "new"
+        self.assertIn(("dut", "one", SN_LHD_LEC), select_rows([synth, proof], spec))
+
+    def test_sn_refutation_is_visible_and_excluded(self):
+        rows = {("fifo", "one", "syn_abc_sn"): {
+            "status": "failed", "flow": "syn_abc_sn", "qor": {"cells": 50},
+            "lec_aux_result": {"verdict": "refuted", "obligation": "verilog-vs-netlist"},
+        }}
+        rendered = _synth_row(rows, "fifo", "one", "<td>fifo</td>", False, [], include_sn=True)
+        self.assertIn("LEC refuted · results excluded", rendered)
+
     def test_retained_simulation_compares_same_bytes_without_pyrope_columns(self):
         spec = {"host": "satsuma", "tech": "asap7", "run_id": "synthesis"}
         common = {"host": "satsuma", "host_class": "cpu", "tech": "asap7", "kind": "sim",
@@ -39,8 +157,8 @@ class VerilogEvaluation(unittest.TestCase):
         self.assertIn("Setup + compile", html)
         self.assertIn("2.00×", html)
         # An unrelated artifact remains visible but must not produce a ratio.
-        wrong = {**rows[1], "sim": {**rows[1]["sim"], "netlist_sha256": "different"}}
-        html = retained_usyn_simulation_section([rows[0], wrong, rows[2]], spec)
+        wrong = {**rows[2], "sim": {**rows[2]["sim"], "netlist_sha256": "different"}}
+        html = retained_usyn_simulation_section([rows[0], rows[1], wrong], spec)
         self.assertNotIn('id="chart-usyn-sim"', html)
         self.assertNotIn('id="chart-usyn-sim-llvm"', html)
         # A historical single execution is a correctness check, not a baseline.
@@ -68,7 +186,7 @@ class VerilogEvaluation(unittest.TestCase):
         spec = {"host": "satsuma", "tech": "asap7", "run_id": "synthesis"}
         base = {**row, "tech": "asap7", "kind": "sim", "suite": "comb", "test": "dut",
                 "config": "one", "source_usyn_run": "synthesis",
-                "flow": "sim_retained_usyn_netlist_lhd_verilog", "status": "failed",
+                "flow": "sim_retained_usyn_netlist_lhd_verilog_llvm", "status": "failed",
                 "note": "recorded checksum differs"}
         old = {**base, "run_id": "earlier", "status": "ok"}
         html = retained_usyn_simulation_section([base, old], spec)
@@ -99,7 +217,11 @@ class VerilogEvaluation(unittest.TestCase):
                                             "bound": 6, "netlist_sha256": "mapped", "ms": 10},
                      "lec_aux_result": {"verdict": "timeout", "ms": 1000}},
                     {**common, "kind": "sim", "flow": "sim_verilator", "tech": None,
-                     "sim": {"cycles": 100, "exec_ms": 5}}]
+                     "sim": {"cycles": 100, "exec_ms": 5}},
+                    {**common, "kind": "synth", "flow": "syn_abc_sn",
+                     "qor": {"cells": 10, "liberty_sha256": "same"}},
+                    {**common, "kind": "synth", "flow": SN_LHD_FLOW,
+                     "qor": {"cells": 10, "liberty_sha256": "same"}}]
             ledger = root / "data/ledger-test-host.jsonl"
             original = "".join(json.dumps(row) + "\n" for row in rows)
             ledger.write_text(original)
@@ -209,9 +331,9 @@ class VerilogEvaluation(unittest.TestCase):
         base = dict(host="satsuma", kind="sim", suite="comb", test="add", config="one",
                     pyrope_status="idiomatic", lec="proven", status="ok", time_ms={},
                     sim=dict(cycles=10, exec_ms=1, cycles_per_s=10000))
-        rows = [dict(base, run_id="20261002T000000", flow="sim_lhd_verilog"),
+        rows = [dict(base, run_id="20261002T000000", flow="sim_lhd_verilog_llvm"),
                 dict(base, run_id="20261003T000000", flow="sim_verilator"),
-                dict(base, run_id="20261003T000000", flow="sim_lhd_verilog", status="failed"),
+                dict(base, run_id="20261003T000000", flow="sim_lhd_verilog_llvm", status="failed"),
                 dict(base, run_id="20261004T000000", flow="sim_verilator",
                      host="other", test="foreign")]
         html = simulation_section(rows, "satsuma", {})
