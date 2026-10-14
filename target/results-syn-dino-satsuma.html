@@ -1,0 +1,2024 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dino: LHD ABC / SN</title><style>
+:root{--bg:#fff;--fg:#16181d;--muted:#6b7280;--line:#e5e7eb;--head:#f7f8fa;
+--good:#0a7c3f;--bad:#b91c1c;--warn:#a16207;--accent:#1d4ed8;--chip:#eef2ff;--series-a:#b45309;--series-b:#1d4ed8;--series-c:#0a7c3f}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#e6e8ec;--muted:#9aa1ab;
+--line:#262b33;--head:#161a20;--good:#4ade80;--bad:#f87171;--warn:#fbbf24;
+--accent:#93b4ff;--chip:#1b2233;--series-a:#fbbf24;--series-b:#93b4ff;--series-c:#4ade80}}
+*{box-sizing:border-box}
+body{margin:0;padding:2rem 1.5rem 4rem;background:var(--bg);color:var(--fg);
+font:14px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1400px;margin:0 auto}
+h1{font-size:1.5rem;margin:0 0 .25rem}
+h2{font-size:1.05rem;margin:2.5rem 0 .5rem;padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.sub{color:var(--muted);margin:0 0 1.5rem}
+.meta{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.5rem}
+.chip{background:var(--chip);border-radius:999px;padding:.15rem .6rem;font-size:12px;
+white-space:normal;overflow-wrap:anywhere;max-width:100%}
+nav a{text-decoration:none;color:var(--accent)}
+nav a[aria-current="page"]{background:var(--accent);color:var(--bg)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:.4rem .6rem;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:var(--head);font-weight:600;position:sticky;top:0}
+th.g{border-left:2px solid var(--line)}
+td.g{border-left:2px solid var(--line)}
+td.l,th.l{text-align:left}
+tbody tr:hover{background:var(--head)}
+tfoot td{font-weight:600;background:var(--head)}
+.good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.muted{color:var(--muted)}
+.tag{font-size:11px;padding:.05rem .35rem;border-radius:4px;background:var(--chip);
+color:var(--muted)}
+.note{color:var(--muted);font-size:12px;max-width:34rem;white-space:normal;text-align:left}
+svg{display:block;max-width:100%}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0 0;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:.3rem}
+
+.chart{margin:0 0 1.75rem}
+.switch{display:flex;gap:.3rem;flex-wrap:wrap;margin:0 0 .5rem}
+.switch button{font:inherit;font-size:12px;padding:.2rem .7rem;border-radius:999px;
+cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.switch button:hover{border-color:var(--muted)}
+.switch button.on{background:var(--chip);color:var(--fg);border-color:var(--muted)}
+.plot{position:relative;overflow-x:auto}
+.chart svg{display:block}
+.chart .bar{transition:opacity .12s}
+.chart .bar:hover{opacity:1!important;stroke:var(--fg);stroke-width:1}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
+background:var(--fg);color:var(--bg);font-size:12px;padding:.3rem .5rem;
+border-radius:5px;width:max-content;max-width:min(600px,calc(100% - 16px));
+white-space:normal;overflow-wrap:anywhere;transform:translateY(-100%);z-index:5}
+.caption{color:var(--muted);font-size:12px;margin:.4rem 0 0}
+.chart-search{font:inherit;margin:0 0 .6rem .4rem;padding:.25rem .5rem;
+border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg)}
+.sim-table{table-layout:fixed;min-width:1340px}
+.sim-table td,.sim-table th{padding:.35rem;font-size:12px}
+.sim-table td.sim-test,.sim-table td.sim-config{white-space:normal;overflow-wrap:anywhere}
+
+th.sortable{cursor:pointer;user-select:none;-webkit-user-select:none}
+th.sortable::after{content:"↕";position:absolute;right:.15em;top:50%;
+transform:translateY(-50%);font-size:.75em;opacity:.35;pointer-events:none}
+th.sortable:hover{color:var(--accent)}
+th.sortable:hover::after{opacity:.8}
+th.sortable[aria-sort=ascending]::after{content:"↑";opacity:1;color:var(--accent)}
+th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--accent)}
+th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+</style></head>
+<body><div class="wrap"><h1>dino · ASAP7 LHD ABC versus ABC/SN</h1><p>Run 20261009T130317-external-sn. Sequential measurements on satsuma. External Verilog diagnostic; excluded from corpus headline averages. Brent–Kung adder, SN multiplier, logarithmic shifts, no arithmetic trials. Proof time and emission/QoR collection are outside synthesis time.</p><details open><summary>Fixed Brent-Kung versus SN · per design</summary><p>Synthesis seconds exclude external emission and QoR collection. Proof coverage is incomplete; known refutations are excluded.</p><div class="scroll"><table><thead><tr><th rowspan="2" class="l">Test / config</th><th colspan="3">LHD ABC · brent · no trials</th><th colspan="3">ABC/SN</th></tr><tr><th>Synthesis s</th><th>Path ps</th><th>Cells</th><th>Synthesis s</th><th>Path ps</th><th>Cells</th></tr></thead><tbody><tr><td class="l">dino/default<br><small class="muted">LHD: LEC unverified; multiplier=sn</small></td><td>26.65</td><td>1,934.25</td><td>57,926</td><td colspan="3">failed mapped netlist failed the architectural program; original RTL passed</td></tr></tbody></table></div></details><p><a href="results-syn-dino-colors-satsuma.html">Partitioned versus single core color: time, QoR and coverage</a></p><h2>Frontend findings</h2><ul><li>The original RTL and LHD mapped netlist pass the same 1000-cycle CPU program, storing 100 and -102 at cycle 521. Both SN frontend Verilog and the mapped SN netlist fail all three architectural assertions.</li><li>SN imports and structurally validates all 17 modules, including packed structs, signed ALU operators, variable shifts and indexed packed-array muxes. Structural validation does not establish their semantics.</li><li>The SN frontend turns the 97-bit StageReg output into constant zero; StageReg_4 and StageReg_8 also lose their registers. StageReg is formally refuted against its original RTL. Preserving state with sn -p still produces an incorrect next-state function.</li><li>A minimized 8-bit register proves with a direct nonblocking RHS, but is refuted when that RHS reads an automatic local temporary. SN emits q=0 for both the single-temporary and chained-temporary forms.</li><li>Source inspection points to nonblocking_read_values selecting the pre-block environment, which omits newly initialized automatic locals. lower_value then falls back to an undriven zero. This identifies a likely implementation cause; the minimized counterexample establishes the behavior.</li><li>LHD lowers the register file into a 4-read/65-write-port memory; SN uses 32 64-bit word registers. The LHD memory region takes 12535.2 ms, the largest region. Port consolidation is a concrete LHD optimization candidate, not evidence that the currently incorrect SN circuit is superior.</li><li>SN uses binary mux trees for packed-array selections. LiveHD has a mux_tree implementation in the bit blaster, currently disabled in this profile. Testing the two forms on a correctly lowered register file and ALU would isolate an optimization opportunity.</li></ul><p>Both complete mapped-netlist LEC comparisons timed out; the program and isolated stage checks provide the concrete failure evidence.</p><details><summary>Minimal frontend counterexample</summary><pre>module Direct(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);
+  always @(posedge clock)
+    if (reset) q &lt;= 0;
+    else q &lt;= flush ? 0 : valid ? d : q;
+endmodule
+module OneTemp(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);
+  always @(posedge clock)
+    if (reset) q &lt;= 0;
+    else begin
+      automatic logic [7:0] a = valid ? d : q;
+      q &lt;= flush ? 0 : a;
+    end
+endmodule
+module ChainedTemps(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);
+  always @(posedge clock)
+    if (reset) q &lt;= 0;
+    else begin
+      automatic logic [7:0] a = valid ? d : q;
+      automatic logic [7:0] b = flush ? 0 : a;
+      q &lt;= b;
+    end
+endmodule
+</pre></details><h2>syn_lhd_verilog_abc_sn · ok</h2><p></p><p>Architectural program: passed (1000 cycles). A passing program is coverage, not an equivalence proof.</p><table><tr><th>Group</th><th>Step</th><th>Seconds</th></tr><tr><td>LHD phases</td><td>lhd.run_id</td><td>0.0000</td></tr><tr><td>LHD phases</td><td>inou.slang</td><td>0.1760</td></tr><tr><td>LHD phases</td><td>pass.upass</td><td>0.0414</td></tr><tr><td>LHD phases</td><td>lnast.tolg</td><td>0.0140</td></tr><tr><td>LHD phases</td><td>pass.cprop</td><td>0.0224</td></tr><tr><td>LHD phases</td><td>pass.bitwidth</td><td>0.0131</td></tr><tr><td>LHD phases</td><td>pass.legalize</td><td>0.0030</td></tr><tr><td>LHD phases</td><td>pass.enableopt</td><td>0.0111</td></tr><tr><td>LHD phases</td><td>pass.formal</td><td>0.0216</td></tr><tr><td>LHD phases</td><td>pass.legalize.seal</td><td>0.0014</td></tr><tr><td>LHD phases</td><td>lg.save</td><td>0.1653</td></tr><tr><td>LHD phases</td><td>pass.color</td><td>0.0041</td></tr><tr><td>LHD phases</td><td>pass.abc</td><td>26.1725</td></tr><tr><td>LHD phases</td><td>pass.opentimer</td><td>4.1649</td></tr></table><details><summary>Structured evidence and proof coverage</summary><pre>{
+  &quot;cached&quot;: false,
+  &quot;comparable&quot;: false,
+  &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+  &quot;config&quot;: &quot;default&quot;,
+  &quot;cpus&quot;: 128,
+  &quot;date&quot;: &quot;2026-10-09&quot;,
+  &quot;external_provenance&quot;: {
+    &quot;license&quot;: &quot;No license file supplied in this upstream design directory&quot;,
+    &quot;rev&quot;: &quot;4857d88e6f6a44bd3c8d1280db1cc42c47061f99&quot;,
+    &quot;source_sha256&quot;: {
+      &quot;verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+      &quot;verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+      &quot;verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+    },
+    &quot;upstream&quot;: &quot;/mada/users/renau/projs/lhdsuite/dino&quot;
+  },
+  &quot;flow&quot;: &quot;syn_lhd_verilog_abc_sn&quot;,
+  &quot;host&quot;: &quot;satsuma&quot;,
+  &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+  &quot;kind&quot;: &quot;synth&quot;,
+  &quot;large_design_diagnostic&quot;: true,
+  &quot;lec&quot;: &quot;none&quot;,
+  &quot;lec_gate&quot;: true,
+  &quot;measured&quot;: &quot;2026-10-09&quot;,
+  &quot;measurement_jobs&quot;: 1,
+  &quot;passed&quot;: true,
+  &quot;peak_rss_kb&quot;: {
+    &quot;area&quot;: 539656,
+    &quot;emit&quot;: 539656,
+    &quot;map&quot;: 1378472,
+    &quot;max&quot;: 1378472,
+    &quot;normalize&quot;: 585464,
+    &quot;opensta&quot;: 539656
+  },
+  &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+  &quot;pyrope_status&quot;: &quot;none&quot;,
+  &quot;qor&quot;: {
+    &quot;abc_max_delay_ns&quot;: 901.5995,
+    &quot;area_source&quot;: &quot;yosys-stat&quot;,
+    &quot;area_um2&quot;: 5016.016,
+    &quot;arithmetic_trials&quot;: 0,
+    &quot;cells&quot;: 57926,
+    &quot;comb_area_um2&quot;: 3972.963,
+    &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+    &quot;flops&quot;: 3577,
+    &quot;lhd_area_um2&quot;: 4138.927,
+    &quot;lhd_cells&quot;: 56616,
+    &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+    &quot;logic_depth&quot;: 53,
+    &quot;mapper&quot;: &quot;abc&quot;,
+    &quot;netlist_sha256&quot;: &quot;cec4d7cc7c3efd0e1b0912d18aedd8177135d461ab4386d8fce38cec9c6664a3&quot;,
+    &quot;normalized&quot;: false,
+    &quot;program_check&quot;: {
+      &quot;checked_at&quot;: &quot;2026-10-09T13:15:52.197151+00:00&quot;,
+      &quot;cycles&quot;: 1000,
+      &quot;driver&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/program-check/dino_prog_tb_verilator.cpp&quot;,
+      &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+      &quot;implementation&quot;: {
+        &quot;cycles&quot;: 1000,
+        &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/dino-program-check/lhd_mapped/logs/exec.log&quot;,
+        &quot;rc&quot;: 0,
+        &quot;source_sha256&quot;: {
+          &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/lec_netlist_verilog_abc_sn/models.v&quot;: &quot;5c4d70545f52cfe761d609b7fe23d56dd4503074ff6495a781aa2b802565b40a&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/syn_lhd_verilog_abc_sn/emitted-netlist-all.v&quot;: &quot;cec4d7cc7c3efd0e1b0912d18aedd8177135d461ab4386d8fce38cec9c6664a3&quot;
+        },
+        &quot;stage&quot;: &quot;exec&quot;
+      },
+      &quot;netlist_rc&quot;: 0,
+      &quot;netlist_sha256&quot;: &quot;cec4d7cc7c3efd0e1b0912d18aedd8177135d461ab4386d8fce38cec9c6664a3&quot;,
+      &quot;reference&quot;: {
+        &quot;cycles&quot;: 1000,
+        &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/dino-program-check/rtl/logs/exec.log&quot;,
+        &quot;rc&quot;: 0,
+        &quot;source_sha256&quot;: {
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+        },
+        &quot;stage&quot;: &quot;exec&quot;
+      },
+      &quot;reference_rc&quot;: 0,
+      &quot;versions&quot;: {
+        &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+        &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+        &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+        &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+        &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+        &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+        &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+        &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+        &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+        &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+        &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+        &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+        &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+      }
+    },
+    &quot;raw_structural&quot;: true,
+    &quot;regions&quot;: 71,
+    &quot;satopt_facts&quot;: 0,
+    &quot;satopt_regions&quot;: 0,
+    &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+    &quot;seq_area_um2&quot;: 1043.053,
+    &quot;source_sha256&quot;: {
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/constraints/asap7.sdc&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/design.toml&quot;: &quot;dcdf2456c1486109568564deca6abe2ccd072206b157be49964f2c7c848f8bb4&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+    },
+    &quot;synth_policy&quot;: {
+      &quot;base&quot;: &quot;compiler defaults&quot;,
+      &quot;pass.abc.adder&quot;: &quot;brent&quot;,
+      &quot;pass.abc.barrel&quot;: &quot;log&quot;,
+      &quot;pass.abc.delay&quot;: &quot;1000&quot;,
+      &quot;pass.abc.multiplier&quot;: &quot;sn&quot;,
+      &quot;pass.abc.region_opts&quot;: &quot;{}&quot;,
+      &quot;pass.satopt&quot;: &quot;false&quot;,
+      &quot;synth.mapper&quot;: &quot;abc&quot;
+    },
+    &quot;timing_breakdown&quot;: {
+      &quot;parallel&quot;: {
+        &quot;limit&quot;: 8,
+        &quot;memory_limit_bytes&quot;: 405453092864,
+        &quot;memory_waits&quot;: 0,
+        &quot;peak_abc&quot;: 8,
+        &quot;peak_workers&quot;: 8,
+        &quot;requested&quot;: 0
+      },
+      &quot;phases&quot;: [
+        {
+          &quot;ms&quot;: 0.018,
+          &quot;name&quot;: &quot;lhd.run_id&quot;
+        },
+        {
+          &quot;ms&quot;: 176.005,
+          &quot;name&quot;: &quot;inou.slang&quot;
+        },
+        {
+          &quot;ms&quot;: 41.407,
+          &quot;name&quot;: &quot;pass.upass&quot;
+        },
+        {
+          &quot;ms&quot;: 14.021,
+          &quot;name&quot;: &quot;lnast.tolg&quot;
+        },
+        {
+          &quot;ms&quot;: 11.464,
+          &quot;name&quot;: &quot;pass.cprop&quot;
+        },
+        {
+          &quot;ms&quot;: 6.894,
+          &quot;name&quot;: &quot;pass.bitwidth&quot;
+        },
+        {
+          &quot;ms&quot;: 3.008,
+          &quot;name&quot;: &quot;pass.legalize&quot;
+        },
+        {
+          &quot;ms&quot;: 11.097,
+          &quot;name&quot;: &quot;pass.enableopt&quot;
+        },
+        {
+          &quot;ms&quot;: 10.914,
+          &quot;name&quot;: &quot;pass.cprop&quot;
+        },
+        {
+          &quot;ms&quot;: 6.243,
+          &quot;name&quot;: &quot;pass.bitwidth&quot;
+        },
+        {
+          &quot;ms&quot;: 21.617,
+          &quot;name&quot;: &quot;pass.formal&quot;
+        },
+        {
+          &quot;ms&quot;: 1.352,
+          &quot;name&quot;: &quot;pass.legalize.seal&quot;
+        },
+        {
+          &quot;ms&quot;: 24.065,
+          &quot;name&quot;: &quot;lg.save&quot;
+        },
+        {
+          &quot;ms&quot;: 4.127,
+          &quot;name&quot;: &quot;pass.color&quot;
+        },
+        {
+          &quot;ms&quot;: 26172.522,
+          &quot;name&quot;: &quot;pass.abc&quot;
+        },
+        {
+          &quot;ms&quot;: 141.203,
+          &quot;name&quot;: &quot;lg.save&quot;
+        },
+        {
+          &quot;ms&quot;: 4164.895,
+          &quot;name&quot;: &quot;pass.opentimer&quot;
+        }
+      ],
+      &quot;regions&quot;: [
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_741969733ab1664a&quot;,
+          &quot;ms&quot;: 594.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_a88850c52df99cee&quot;,
+          &quot;ms&quot;: 145.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;cgen_memory_4rd_65wr_ee88cacc3614de31_blasted&quot;,
+          &quot;ms&quot;: 12535.2,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_7f5c8cf4eeed35b9&quot;,
+          &quot;ms&quot;: 45.3,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_0b0ef09b910ba7ee&quot;,
+          &quot;ms&quot;: 1088.2,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_9274d6c6ac6cae90&quot;,
+          &quot;ms&quot;: 153.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_289b5ba647dfe49d&quot;,
+          &quot;ms&quot;: 289.6,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_a3ed014141e4d477&quot;,
+          &quot;ms&quot;: 289.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_6fbaec6b775a18e3&quot;,
+          &quot;ms&quot;: 1112.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_lt_d43d0b42f3fdf1d1&quot;,
+          &quot;ms&quot;: 192.7,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_813b4163ff1671ef&quot;,
+          &quot;ms&quot;: 1235.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_4beb788c59c49414&quot;,
+          &quot;ms&quot;: 464.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_shl_0865ae5843663b51&quot;,
+          &quot;ms&quot;: 601.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_lt_c778fe831782de6b&quot;,
+          &quot;ms&quot;: 201.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_e9de70333197a5ba&quot;,
+          &quot;ms&quot;: 509.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_591c8875c2f93635&quot;,
+          &quot;ms&quot;: 237.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_shl_bdc9faaac7c2d54e&quot;,
+          &quot;ms&quot;: 162.5,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sum_7fb1d9fd19d21f11&quot;,
+          &quot;ms&quot;: 230.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_75cee466b1b02fab&quot;,
+          &quot;ms&quot;: 163.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_e29dd7cd5e0726bd&quot;,
+          &quot;ms&quot;: 203.6,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_67e8e2752872511f&quot;,
+          &quot;ms&quot;: 27.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;__ware_sra_c5cc5ee818dd16b0&quot;,
+          &quot;ms&quot;: 754.6,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c0&quot;,
+          &quot;ms&quot;: 484.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c1&quot;,
+          &quot;ms&quot;: 2773.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c2&quot;,
+          &quot;ms&quot;: 644.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c3&quot;,
+          &quot;ms&quot;: 738.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c4&quot;,
+          &quot;ms&quot;: 663.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c5&quot;,
+          &quot;ms&quot;: 733.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c6&quot;,
+          &quot;ms&quot;: 867.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c7&quot;,
+          &quot;ms&quot;: 716.3,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c8&quot;,
+          &quot;ms&quot;: 227.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c9&quot;,
+          &quot;ms&quot;: 180.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c10&quot;,
+          &quot;ms&quot;: 41.2,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c11&quot;,
+          &quot;ms&quot;: 170.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c15&quot;,
+          &quot;ms&quot;: 35.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c18&quot;,
+          &quot;ms&quot;: 37.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c21&quot;,
+          &quot;ms&quot;: 6.5,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c22&quot;,
+          &quot;ms&quot;: 9.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c23&quot;,
+          &quot;ms&quot;: 9.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c24&quot;,
+          &quot;ms&quot;: 12.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c27&quot;,
+          &quot;ms&quot;: 7.7,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c28&quot;,
+          &quot;ms&quot;: 7.7,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c33&quot;,
+          &quot;ms&quot;: 7.3,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c34&quot;,
+          &quot;ms&quot;: 6.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c35&quot;,
+          &quot;ms&quot;: 10.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c36&quot;,
+          &quot;ms&quot;: 7.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c37&quot;,
+          &quot;ms&quot;: 3.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c39&quot;,
+          &quot;ms&quot;: 7.6,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c40&quot;,
+          &quot;ms&quot;: 0.3,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c42&quot;,
+          &quot;ms&quot;: 3.4,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c44&quot;,
+          &quot;ms&quot;: 2.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c45&quot;,
+          &quot;ms&quot;: 6.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c46&quot;,
+          &quot;ms&quot;: 3.6,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c48&quot;,
+          &quot;ms&quot;: 4.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c49&quot;,
+          &quot;ms&quot;: 7.9,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c50&quot;,
+          &quot;ms&quot;: 6.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c51&quot;,
+          &quot;ms&quot;: 3.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c52&quot;,
+          &quot;ms&quot;: 3.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c54&quot;,
+          &quot;ms&quot;: 0.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c55&quot;,
+          &quot;ms&quot;: 0.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c57&quot;,
+          &quot;ms&quot;: 0.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c58&quot;,
+          &quot;ms&quot;: 5.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c59&quot;,
+          &quot;ms&quot;: 6.2,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c60&quot;,
+          &quot;ms&quot;: 0.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c61&quot;,
+          &quot;ms&quot;: 0.1,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c62&quot;,
+          &quot;ms&quot;: 4.8,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c63&quot;,
+          &quot;ms&quot;: 5.0,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c64&quot;,
+          &quot;ms&quot;: 5.5,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c65&quot;,
+          &quot;ms&quot;: 4.3,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;miss&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c68&quot;,
+          &quot;ms&quot;: 5.5,
+          &quot;ware_trials&quot;: 0
+        },
+        {
+          &quot;cache&quot;: &quot;hit&quot;,
+          &quot;module&quot;: &quot;PipelinedDualIssueCPU__c69&quot;,
+          &quot;ms&quot;: 0.3,
+          &quot;ware_trials&quot;: 0
+        }
+      ],
+      &quot;schema_version&quot;: 1,
+      &quot;synthesis_invocation&quot;: {
+        &quot;memory_scope&quot;: &quot;parent_process_peak_rss&quot;,
+        &quot;parent_peak_rss_bytes&quot;: 1411555328,
+        &quot;process_tree_peak_bytes&quot;: null,
+        &quot;scope&quot;: &quot;main_entry_to_result_emission&quot;,
+        &quot;wall_ms&quot;: 30816.698057
+      }
+    }
+  },
+  &quot;run_id&quot;: &quot;20261009T130317-external-sn&quot;,
+  &quot;sta&quot;: {
+    &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+    &quot;opensta_ns&quot;: 1934.2523,
+    &quot;opentimer_note&quot;: &quot;OpenTimer validation not requested&quot;,
+    &quot;sdc_period_ns&quot;: 1000.0,
+    &quot;time_unit&quot;: &quot;ps&quot;,
+    &quot;tns_ns&quot;: -109072.8578,
+    &quot;wns_ns&quot;: -934.2523
+  },
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;suite&quot;: &quot;external-diagnostic&quot;,
+  &quot;tech&quot;: &quot;asap7&quot;,
+  &quot;test&quot;: &quot;dino&quot;,
+  &quot;time_ms&quot;: {
+    &quot;area&quot;: 4468,
+    &quot;color&quot;: 4,
+    &quot;compile&quot;: 469,
+    &quot;emit&quot;: 4509,
+    &quot;map&quot;: 26173,
+    &quot;normalize&quot;: 8117,
+    &quot;opensta&quot;: 2824,
+    &quot;total&quot;: 46564
+  },
+  &quot;toolchain_snapshot&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+  &quot;versions&quot;: {
+    &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+    &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+    &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+    &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+    &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+    &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+    &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+    &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+    &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+    &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+    &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+    &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+    &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+  }
+}</pre></details><h2>syn_abc_sn · failed</h2><p>mapped netlist failed the architectural program; original RTL passed</p><p>Architectural program: failed (1000 cycles). A passing program is coverage, not an equivalence proof.</p><p>Formal coverage: lec_aux_result: timeout</p><table><tr><th>Group</th><th>Step</th><th>Seconds</th></tr><tr><td>SN frontend</td><td>slang_elaborate</td><td>0.0139</td></tr><tr><td>SN frontend</td><td>slang_parse</td><td>0.0365</td></tr><tr><td>SN frontend</td><td>sn_import</td><td>0.0056</td></tr><tr><td>SN frontend</td><td>total</td><td>0.1321</td></tr><tr><td>SN mapper</td><td>&amp;put</td><td>0.0395</td></tr><tr><td>SN mapper</td><td>@blast</td><td>0.0253</td></tr><tr><td>SN mapper</td><td>@check</td><td>0.0041</td></tr><tr><td>SN mapper</td><td>@collapse</td><td>0.0017</td></tr><tr><td>SN mapper</td><td>@lower_mem</td><td>0.0009</td></tr><tr><td>SN mapper</td><td>@map_ff</td><td>0.0712</td></tr><tr><td>SN mapper</td><td>@put</td><td>0.3079</td></tr><tr><td>SN mapper</td><td>@read</td><td>0.0074</td></tr><tr><td>SN mapper</td><td>@read_lib</td><td>0.8860</td></tr><tr><td>SN mapper</td><td>@write</td><td>0.2324</td></tr><tr><td>SN mapper</td><td>initialization</td><td>0.0390</td></tr><tr><td>SN mapper</td><td>policy_setup</td><td>0.3832</td></tr><tr><td>SN mapper</td><td>shared_flow</td><td>37.5925</td></tr><tr><td>SN mapper</td><td>shutdown</td><td>0.0181</td></tr><tr><td>SN mapper</td><td>total</td><td>39.6090</td></tr></table><details><summary>Structured evidence and proof coverage</summary><pre>{
+  &quot;cached&quot;: false,
+  &quot;comparable&quot;: false,
+  &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+  &quot;config&quot;: &quot;default&quot;,
+  &quot;cpus&quot;: 128,
+  &quot;date&quot;: &quot;2026-10-09&quot;,
+  &quot;external_provenance&quot;: {
+    &quot;license&quot;: &quot;No license file supplied in this upstream design directory&quot;,
+    &quot;rev&quot;: &quot;4857d88e6f6a44bd3c8d1280db1cc42c47061f99&quot;,
+    &quot;source_sha256&quot;: {
+      &quot;verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+      &quot;verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+      &quot;verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+    },
+    &quot;upstream&quot;: &quot;/mada/users/renau/projs/lhdsuite/dino&quot;
+  },
+  &quot;flow&quot;: &quot;syn_abc_sn&quot;,
+  &quot;host&quot;: &quot;satsuma&quot;,
+  &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+  &quot;kind&quot;: &quot;synth&quot;,
+  &quot;large_design_diagnostic&quot;: true,
+  &quot;lec&quot;: &quot;none&quot;,
+  &quot;lec_aux_result&quot;: {
+    &quot;bound&quot;: null,
+    &quot;bounded&quot;: false,
+    &quot;declared&quot;: &quot;none&quot;,
+    &quot;invocation&quot;: &quot;direct-lgcheck&quot;,
+    &quot;lgcheck_sha256&quot;: &quot;2581b8e9ea60c9e6386fd2b6006131bb3b0cc4fb023166ede31ec67ffb0127cf&quot;,
+    &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+    &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/sn-lec/logs/lec_lgyosys_verilog_netlist.log&quot;,
+    &quot;models_sha256&quot;: &quot;5c4d70545f52cfe761d609b7fe23d56dd4503074ff6495a781aa2b802565b40a&quot;,
+    &quot;ms&quot;: 71316,
+    &quot;netlist_sha256&quot;: &quot;f0cca4721fa5e188607a215d145dad8378ab2f8610b127c014da61e4021bc56e&quot;,
+    &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+    &quot;reason&quot;: &quot;Independent Yosys exhausted its shared equivalence budget.&quot;,
+    &quot;solver&quot;: &quot;lgyosys&quot;,
+    &quot;source_run&quot;: &quot;20261009T130317-external-sn&quot;,
+    &quot;timeout_s&quot;: 60,
+    &quot;verdict&quot;: &quot;timeout&quot;,
+    &quot;wall_limit_s&quot;: 180
+  },
+  &quot;lec_gate&quot;: true,
+  &quot;measured&quot;: &quot;2026-10-09&quot;,
+  &quot;measurement_jobs&quot;: 1,
+  &quot;note&quot;: &quot;mapped netlist failed the architectural program; original RTL passed&quot;,
+  &quot;passed&quot;: false,
+  &quot;peak_rss_kb&quot;: {
+    &quot;area&quot;: 468668,
+    &quot;emit&quot;: 469560,
+    &quot;frontend&quot;: 22752,
+    &quot;map&quot;: 246512,
+    &quot;max&quot;: 469560,
+    &quot;opensta&quot;: 357512
+  },
+  &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+  &quot;pyrope_status&quot;: &quot;none&quot;,
+  &quot;qor&quot;: {
+    &quot;area_source&quot;: &quot;yosys-stat&quot;,
+    &quot;area_um2&quot;: 4352.772,
+    &quot;cells&quot;: 49088,
+    &quot;comb_area_um2&quot;: 3202.118,
+    &quot;comparison_scope&quot;: &quot;shared LiveHD ABC executor and default scripts; SN frontend, partitions, state mapping and ABC revision differ&quot;,
+    &quot;flops&quot;: 3946,
+    &quot;frontend_analysis&quot;: {
+      &quot;frontend_program&quot;: {
+        &quot;cycles&quot;: 1000,
+        &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/dino-program-check/sn_frontend/logs/exec.log&quot;,
+        &quot;rc&quot;: 1,
+        &quot;source_sha256&quot;: {
+          &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/syn_abc_sn/frontend.v&quot;: &quot;9681e47c5505a6c32c7f179eb6254d6c9579149be9f70c99e829ed0679b5674a&quot;
+        },
+        &quot;stage&quot;: &quot;exec&quot;
+      },
+      &quot;full_design_lec&quot;: &quot;Both complete mapped-netlist LEC comparisons timed out; the program and isolated stage checks provide the concrete failure evidence.&quot;,
+      &quot;observations&quot;: [
+        &quot;The original RTL and LHD mapped netlist pass the same 1000-cycle CPU program, storing 100 and -102 at cycle 521. Both SN frontend Verilog and the mapped SN netlist fail all three architectural assertions.&quot;,
+        &quot;SN imports and structurally validates all 17 modules, including packed structs, signed ALU operators, variable shifts and indexed packed-array muxes. Structural validation does not establish their semantics.&quot;,
+        &quot;The SN frontend turns the 97-bit StageReg output into constant zero; StageReg_4 and StageReg_8 also lose their registers. StageReg is formally refuted against its original RTL. Preserving state with sn -p still produces an incorrect next-state function.&quot;,
+        &quot;A minimized 8-bit register proves with a direct nonblocking RHS, but is refuted when that RHS reads an automatic local temporary. SN emits q=0 for both the single-temporary and chained-temporary forms.&quot;,
+        &quot;Source inspection points to nonblocking_read_values selecting the pre-block environment, which omits newly initialized automatic locals. lower_value then falls back to an undriven zero. This identifies a likely implementation cause; the minimized counterexample establishes the behavior.&quot;,
+        &quot;LHD lowers the register file into a 4-read/65-write-port memory; SN uses 32 64-bit word registers. The LHD memory region takes 12535.2 ms, the largest region. Port consolidation is a concrete LHD optimization candidate, not evidence that the currently incorrect SN circuit is superior.&quot;,
+        &quot;SN uses binary mux trees for packed-array selections. LiveHD has a mux_tree implementation in the bit blaster, currently disabled in this profile. Testing the two forms on a correctly lowered register file and ALU would isolate an optimization opportunity.&quot;
+      ],
+      &quot;preserve_state_formal&quot;: {
+        &quot;bound&quot;: null,
+        &quot;bounded&quot;: false,
+        &quot;compile_satopt&quot;: false,
+        &quot;counterexample&quot;: &quot;first divergence at checked step 2/6: io_data(ref=158456325028528675187087900671 impl=0) @ inputs rst0.clock=0, rst0.io_flush=0, rst0.io_in=0, rst0.io_valid=0, rst0.reset=1, rst1.clock=0, rst1.io_flush=0, rst1.io_in=0, rst1.io_valid=0, rst1.reset=1, s1.clock=0, s1.io_flush=0, s1.io_in=15845632502852&quot;,
+        &quot;declared&quot;: &quot;none&quot;,
+        &quot;ms&quot;: 895,
+        &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+        &quot;phase_ms&quot;: {
+          &quot;inou.slang&quot;: 343.89599999999996,
+          &quot;lhd.run_id&quot;: 0.824,
+          &quot;lnast.tolg&quot;: 2.18,
+          &quot;pass.bitwidth&quot;: 1.988,
+          &quot;pass.cprop&quot;: 2.821,
+          &quot;pass.enableopt&quot;: 1.291,
+          &quot;pass.formal&quot;: 0.758,
+          &quot;pass.lec&quot;: 519.529,
+          &quot;pass.legalize&quot;: 0.040999999999999995,
+          &quot;pass.legalize.seal&quot;: 0.022,
+          &quot;pass.upass&quot;: 5.505
+        },
+        &quot;solver&quot;: &quot;cvc5&quot;,
+        &quot;timeout_s&quot;: 20,
+        &quot;verdict&quot;: &quot;refuted&quot;,
+        &quot;wall_limit_s&quot;: 100
+      },
+      &quot;reproducer&quot;: {
+        &quot;formal&quot;: {
+          &quot;ChainedTemps&quot;: {
+            &quot;bound&quot;: null,
+            &quot;bounded&quot;: false,
+            &quot;compile_satopt&quot;: false,
+            &quot;counterexample&quot;: &quot;first divergence at checked step 2/6: q(ref=255 impl=0) @ inputs rst0.clock=0, rst0.d=0, rst0.flush=0, rst0.reset=1, rst0.valid=0, rst1.clock=0, rst1.d=0, rst1.flush=0, rst1.reset=1, rst1.valid=0, s1.clock=0, s1.d=255, s1.flush=0, s1.reset=0, s1.valid=1, s2.clock=0, s2.d=255, s2.flush=0, s2.reset=0,&quot;,
+            &quot;declared&quot;: &quot;none&quot;,
+            &quot;ms&quot;: 5226,
+            &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+            &quot;phase_ms&quot;: {
+              &quot;inou.slang&quot;: 298.067,
+              &quot;lhd.run_id&quot;: 0.474,
+              &quot;lnast.tolg&quot;: 1.197,
+              &quot;pass.bitwidth&quot;: 1.065,
+              &quot;pass.cprop&quot;: 1.32,
+              &quot;pass.enableopt&quot;: 0.525,
+              &quot;pass.formal&quot;: 3.0519999999999996,
+              &quot;pass.lec&quot;: 4903.207,
+              &quot;pass.legalize&quot;: 0.026,
+              &quot;pass.legalize.seal&quot;: 0.013000000000000001,
+              &quot;pass.upass&quot;: 2.346
+            },
+            &quot;solver&quot;: &quot;cvc5&quot;,
+            &quot;timeout_s&quot;: 20,
+            &quot;verdict&quot;: &quot;refuted&quot;,
+            &quot;wall_limit_s&quot;: 100
+          },
+          &quot;Direct&quot;: {
+            &quot;bound&quot;: 6,
+            &quot;bounded&quot;: true,
+            &quot;compile_satopt&quot;: false,
+            &quot;declared&quot;: &quot;none&quot;,
+            &quot;ms&quot;: 376,
+            &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+            &quot;phase_ms&quot;: {
+              &quot;inou.slang&quot;: 318.493,
+              &quot;lhd.run_id&quot;: 0.922,
+              &quot;lnast.tolg&quot;: 1.521,
+              &quot;pass.bitwidth&quot;: 1.282,
+              &quot;pass.cprop&quot;: 1.8699999999999999,
+              &quot;pass.enableopt&quot;: 0.385,
+              &quot;pass.formal&quot;: 5.218999999999999,
+              &quot;pass.lec&quot;: 30.445,
+              &quot;pass.legalize&quot;: 0.045,
+              &quot;pass.legalize.seal&quot;: 0.03,
+              &quot;pass.upass&quot;: 2.387
+            },
+            &quot;solver&quot;: &quot;cvc5&quot;,
+            &quot;timeout_s&quot;: 20,
+            &quot;verdict&quot;: &quot;proven&quot;,
+            &quot;wall_limit_s&quot;: 100
+          },
+          &quot;OneTemp&quot;: {
+            &quot;bound&quot;: null,
+            &quot;bounded&quot;: false,
+            &quot;compile_satopt&quot;: false,
+            &quot;counterexample&quot;: &quot;first divergence at checked step 2/6: q(ref=255 impl=0) @ inputs rst0.clock=0, rst0.d=0, rst0.flush=0, rst0.reset=1, rst0.valid=0, rst1.clock=0, rst1.d=0, rst1.flush=0, rst1.reset=1, rst1.valid=0, s1.clock=0, s1.d=255, s1.flush=0, s1.reset=0, s1.valid=1, s2.clock=0, s2.d=255, s2.flush=0, s2.reset=0,&quot;,
+            &quot;declared&quot;: &quot;none&quot;,
+            &quot;ms&quot;: 5262,
+            &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+            &quot;phase_ms&quot;: {
+              &quot;inou.slang&quot;: 315.51099999999997,
+              &quot;lhd.run_id&quot;: 0.432,
+              &quot;lnast.tolg&quot;: 1.482,
+              &quot;pass.bitwidth&quot;: 1.102,
+              &quot;pass.cprop&quot;: 1.356,
+              &quot;pass.enableopt&quot;: 0.357,
+              &quot;pass.formal&quot;: 3.019,
+              &quot;pass.lec&quot;: 4919.464,
+              &quot;pass.legalize&quot;: 0.026,
+              &quot;pass.legalize.seal&quot;: 0.013999999999999999,
+              &quot;pass.upass&quot;: 2.068
+            },
+            &quot;solver&quot;: &quot;cvc5&quot;,
+            &quot;timeout_s&quot;: 20,
+            &quot;verdict&quot;: &quot;refuted&quot;,
+            &quot;wall_limit_s&quot;: 100
+          }
+        },
+        &quot;rtl&quot;: &quot;module Direct(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);\n  always @(posedge clock)\n    if (reset) q &lt;= 0;\n    else q &lt;= flush ? 0 : valid ? d : q;\nendmodule\nmodule OneTemp(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);\n  always @(posedge clock)\n    if (reset) q &lt;= 0;\n    else begin\n      automatic logic [7:0] a = valid ? d : q;\n      q &lt;= flush ? 0 : a;\n    end\nendmodule\nmodule ChainedTemps(input clock, reset, valid, flush, input [7:0] d, output logic [7:0] q);\n  always @(posedge clock)\n    if (reset) q &lt;= 0;\n    else begin\n      automatic logic [7:0] a = valid ? d : q;\n      automatic logic [7:0] b = flush ? 0 : a;\n      q &lt;= b;\n    end\nendmodule\n&quot;,
+        &quot;sha256&quot;: &quot;030ab9d8fb2ad6c3dfd8bd06009b37f823ede377dfd56dce876390d1c1c38071&quot;,
+        &quot;source&quot;: &quot;/mada/users/renau/projs/lhdtrack/tools/abc_sn/fixtures/clocked_temporaries.sv&quot;
+      },
+      &quot;stage_formal&quot;: {
+        &quot;bound&quot;: null,
+        &quot;bounded&quot;: false,
+        &quot;compile_satopt&quot;: false,
+        &quot;counterexample&quot;: &quot;first divergence at checked step 2/6: io_data(ref=158456325028528675187087900671 impl=0) @ inputs rst0.clock=0, rst0.io_flush=0, rst0.io_in=0, rst0.io_valid=0, rst0.reset=1, rst1.clock=0, rst1.io_flush=0, rst1.io_in=0, rst1.io_valid=0, rst1.reset=1, s1.clock=0, s1.io_flush=0, s1.io_in=15845632502852&quot;,
+        &quot;declared&quot;: &quot;none&quot;,
+        &quot;ms&quot;: 882,
+        &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+        &quot;phase_ms&quot;: {
+          &quot;inou.slang&quot;: 346.93,
+          &quot;lhd.run_id&quot;: 0.348,
+          &quot;lnast.tolg&quot;: 1.332,
+          &quot;pass.bitwidth&quot;: 0.9780000000000001,
+          &quot;pass.cprop&quot;: 1.5240000000000002,
+          &quot;pass.enableopt&quot;: 0.398,
+          &quot;pass.formal&quot;: 0.661,
+          &quot;pass.lec&quot;: 514.148,
+          &quot;pass.legalize&quot;: 0.038,
+          &quot;pass.legalize.seal&quot;: 0.018000000000000002,
+          &quot;pass.upass&quot;: 2.592
+        },
+        &quot;solver&quot;: &quot;cvc5&quot;,
+        &quot;timeout_s&quot;: 20,
+        &quot;verdict&quot;: &quot;refuted&quot;,
+        &quot;wall_limit_s&quot;: 100
+      }
+    },
+    &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+    &quot;logic_depth&quot;: 38,
+    &quot;mapper&quot;: &quot;abc_sn&quot;,
+    &quot;netlist_sha256&quot;: &quot;f0cca4721fa5e188607a215d145dad8378ab2f8610b127c014da61e4021bc56e&quot;,
+    &quot;normalized&quot;: false,
+    &quot;program_check&quot;: {
+      &quot;checked_at&quot;: &quot;2026-10-09T13:15:52.181133+00:00&quot;,
+      &quot;cycles&quot;: 1000,
+      &quot;driver&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/program-check/dino_prog_tb_verilator.cpp&quot;,
+      &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+      &quot;implementation&quot;: {
+        &quot;cycles&quot;: 1000,
+        &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/dino-program-check/sn_mapped/logs/exec.log&quot;,
+        &quot;rc&quot;: 1,
+        &quot;source_sha256&quot;: {
+          &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/lec_netlist_verilog_abc_sn/models.v&quot;: &quot;5c4d70545f52cfe761d609b7fe23d56dd4503074ff6495a781aa2b802565b40a&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/syn_abc_sn/mapped.v&quot;: &quot;f0cca4721fa5e188607a215d145dad8378ab2f8610b127c014da61e4021bc56e&quot;
+        },
+        &quot;stage&quot;: &quot;exec&quot;
+      },
+      &quot;netlist_rc&quot;: 1,
+      &quot;netlist_sha256&quot;: &quot;f0cca4721fa5e188607a215d145dad8378ab2f8610b127c014da61e4021bc56e&quot;,
+      &quot;reference&quot;: {
+        &quot;cycles&quot;: 1000,
+        &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/dino-program-check/rtl/logs/exec.log&quot;,
+        &quot;rc&quot;: 0,
+        &quot;source_sha256&quot;: {
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+          &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+        },
+        &quot;stage&quot;: &quot;exec&quot;
+      },
+      &quot;reference_rc&quot;: 0,
+      &quot;versions&quot;: {
+        &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+        &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+        &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+        &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+        &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+        &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+        &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+        &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+        &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+        &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+        &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+        &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+        &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+      }
+    },
+    &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+    &quot;seq_area_um2&quot;: 1150.654,
+    &quot;source_sha256&quot;: {
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+    },
+    &quot;synth_policy&quot;: {
+      &quot;area_flow&quot;: &quot;strash; &amp;get -n; &amp;fraig -x -C 500; &amp;put; dc2; strash; &amp;get -n; &amp;dch -f -C 500; &amp;nf -D 1000; &amp;put -o; buffer -N 16; upsize -D 916.138123; dnsize -D 916.138123&quot;,
+      &quot;area_relax&quot;: 200,
+      &quot;budget_ps&quot;: 916.138,
+      &quot;candidate&quot;: &quot;delay&quot;,
+      &quot;command_timing&quot;: [
+        {
+          &quot;command&quot;: &quot;set checkread&quot;,
+          &quot;ms&quot;: 0.007582,
+          &quot;stage&quot;: &quot;initialization&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@read design.sn&quot;,
+          &quot;ms&quot;: 7.39629,
+          &quot;stage&quot;: &quot;@read&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@collapse&quot;,
+          &quot;ms&quot;: 1.6695,
+          &quot;stage&quot;: &quot;@collapse&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@read_lib /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib&quot;,
+          &quot;ms&quot;: 885.997,
+          &quot;stage&quot;: &quot;@read_lib&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@lower_mem -S 1024&quot;,
+          &quot;ms&quot;: 0.882279,
+          &quot;stage&quot;: &quot;@lower_mem&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@map_ff&quot;,
+          &quot;ms&quot;: 71.1908,
+          &quot;stage&quot;: &quot;@map_ff&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@blast -c -f&quot;,
+          &quot;ms&quot;: 25.3364,
+          &quot;stage&quot;: &quot;@blast&quot;
+        },
+        {
+          &quot;command&quot;: &quot;&amp;put&quot;,
+          &quot;ms&quot;: 39.4525,
+          &quot;stage&quot;: &quot;&amp;put&quot;
+        },
+        {
+          &quot;command&quot;: &quot;strash; &amp;get -n; &amp;sweep; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;sopb -R 10 -C 4; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;nf -D 1000; &amp;put -o; buffer -N 16; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 31506.2,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;&amp;undo; &amp;nf -D 1000 -R 56; &amp;put -o; buffer -N 16; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 1954.06,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;strash; &amp;get -n; &amp;fraig -x -C 500; &amp;put; dc2; strash; &amp;get -n; &amp;dch -f -C 500; &amp;nf -D 1000; &amp;put -o; buffer -N 16; upsize -D 916.138123; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 4064.96,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@put -n&quot;,
+          &quot;ms&quot;: 307.85,
+          &quot;stage&quot;: &quot;@put&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@check&quot;,
+          &quot;ms&quot;: 4.06426,
+          &quot;stage&quot;: &quot;@check&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@write -n sn-mapped.v&quot;,
+          &quot;ms&quot;: 232.35,
+          &quot;stage&quot;: &quot;@write&quot;
+        }
+      ],
+      &quot;commands&quot;: [
+        &quot;@read design.sn&quot;,
+        &quot;@collapse&quot;,
+        &quot;@read_lib /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib&quot;,
+        &quot;@lower_mem -S 1024&quot;,
+        &quot;@map_ff&quot;,
+        &quot;@blast -c -f&quot;,
+        &quot;&amp;put&quot;,
+        &quot;@put -n&quot;,
+        &quot;@check&quot;,
+        &quot;@write -n sn-mapped.v&quot;
+      ],
+      &quot;flow&quot;: &quot;strash; &amp;get -n; &amp;sweep; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;sopb -R 10 -C 4; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;nf -D 1000; &amp;put -o; buffer -N 16; dnsize -D 916.138123&quot;,
+      &quot;max_fanout&quot;: 16,
+      &quot;memory_max_bits&quot;: 1024,
+      &quot;reason&quot;: &quot;&quot;,
+      &quot;reg_margin_ps&quot;: 83.8619,
+      &quot;status&quot;: &quot;ok&quot;,
+      &quot;timing_ms&quot;: {
+        &quot;&amp;put&quot;: 39.4527,
+        &quot;@blast&quot;: 25.3366,
+        &quot;@check&quot;: 4.06439,
+        &quot;@collapse&quot;: 1.66994,
+        &quot;@lower_mem&quot;: 0.88282,
+        &quot;@map_ff&quot;: 71.1912,
+        &quot;@put&quot;: 307.85,
+        &quot;@read&quot;: 7.40029,
+        &quot;@read_lib&quot;: 885.997,
+        &quot;@write&quot;: 232.35,
+        &quot;initialization&quot;: 39.0116,
+        &quot;policy_setup&quot;: 383.205,
+        &quot;shared_flow&quot;: 37592.5,
+        &quot;shutdown&quot;: 18.0784,
+        &quot;total&quot;: 39609
+      }
+    },
+    &quot;synthesis_run_id&quot;: &quot;20261009T130317-external-sn&quot;,
+    &quot;synthesis_time_ms&quot;: 39782,
+    &quot;timing_breakdown&quot;: {
+      &quot;abc_commands&quot;: [
+        {
+          &quot;command&quot;: &quot;set checkread&quot;,
+          &quot;ms&quot;: 0.007582,
+          &quot;stage&quot;: &quot;initialization&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@read design.sn&quot;,
+          &quot;ms&quot;: 7.39629,
+          &quot;stage&quot;: &quot;@read&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@collapse&quot;,
+          &quot;ms&quot;: 1.6695,
+          &quot;stage&quot;: &quot;@collapse&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@read_lib /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib&quot;,
+          &quot;ms&quot;: 885.997,
+          &quot;stage&quot;: &quot;@read_lib&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@lower_mem -S 1024&quot;,
+          &quot;ms&quot;: 0.882279,
+          &quot;stage&quot;: &quot;@lower_mem&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@map_ff&quot;,
+          &quot;ms&quot;: 71.1908,
+          &quot;stage&quot;: &quot;@map_ff&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@blast -c -f&quot;,
+          &quot;ms&quot;: 25.3364,
+          &quot;stage&quot;: &quot;@blast&quot;
+        },
+        {
+          &quot;command&quot;: &quot;&amp;put&quot;,
+          &quot;ms&quot;: 39.4525,
+          &quot;stage&quot;: &quot;&amp;put&quot;
+        },
+        {
+          &quot;command&quot;: &quot;strash; &amp;get -n; &amp;sweep; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;sopb -R 10 -C 4; &amp;synch2 -K 6 -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;dch -C 500; &amp;if -m -K 6; &amp;mfs; &amp;save; &amp;load; &amp;st; &amp;nf -D 1000; &amp;put -o; buffer -N 16; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 31506.2,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;&amp;undo; &amp;nf -D 1000 -R 56; &amp;put -o; buffer -N 16; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 1954.06,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;strash; &amp;get -n; &amp;fraig -x -C 500; &amp;put; dc2; strash; &amp;get -n; &amp;dch -f -C 500; &amp;nf -D 1000; &amp;put -o; buffer -N 16; upsize -D 916.138123; dnsize -D 916.138123&quot;,
+          &quot;ms&quot;: 4064.96,
+          &quot;stage&quot;: &quot;shared_flow&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@put -n&quot;,
+          &quot;ms&quot;: 307.85,
+          &quot;stage&quot;: &quot;@put&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@check&quot;,
+          &quot;ms&quot;: 4.06426,
+          &quot;stage&quot;: &quot;@check&quot;
+        },
+        {
+          &quot;command&quot;: &quot;@write -n sn-mapped.v&quot;,
+          &quot;ms&quot;: 232.35,
+          &quot;stage&quot;: &quot;@write&quot;
+        }
+      ],
+      &quot;frontend_ms&quot;: {
+        &quot;slang_elaborate&quot;: 13.8724,
+        &quot;slang_parse&quot;: 36.5286,
+        &quot;sn_import&quot;: 5.59811,
+        &quot;total&quot;: 132.146
+      },
+      &quot;mapper_ms&quot;: {
+        &quot;&amp;put&quot;: 39.4527,
+        &quot;@blast&quot;: 25.3366,
+        &quot;@check&quot;: 4.06439,
+        &quot;@collapse&quot;: 1.66994,
+        &quot;@lower_mem&quot;: 0.88282,
+        &quot;@map_ff&quot;: 71.1912,
+        &quot;@put&quot;: 307.85,
+        &quot;@read&quot;: 7.40029,
+        &quot;@read_lib&quot;: 885.997,
+        &quot;@write&quot;: 232.35,
+        &quot;initialization&quot;: 39.0116,
+        &quot;policy_setup&quot;: 383.205,
+        &quot;shared_flow&quot;: 37592.5,
+        &quot;shutdown&quot;: 18.0784,
+        &quot;total&quot;: 39609
+      },
+      &quot;schema_version&quot;: 1
+    }
+  },
+  &quot;run_id&quot;: &quot;20261009T130317-external-sn&quot;,
+  &quot;sta&quot;: {
+    &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+    &quot;opensta_ns&quot;: 624.6416,
+    &quot;sdc_period_ns&quot;: 1000.0,
+    &quot;time_unit&quot;: &quot;ps&quot;,
+    &quot;tns_ns&quot;: 0.0,
+    &quot;wns_ns&quot;: 375.3584
+  },
+  &quot;status&quot;: &quot;failed&quot;,
+  &quot;suite&quot;: &quot;external-diagnostic&quot;,
+  &quot;tech&quot;: &quot;asap7&quot;,
+  &quot;test&quot;: &quot;dino&quot;,
+  &quot;time_ms&quot;: {
+    &quot;area&quot;: 3869,
+    &quot;emit&quot;: 6010,
+    &quot;frontend&quot;: 144,
+    &quot;map&quot;: 39638,
+    &quot;opensta&quot;: 2536,
+    &quot;total&quot;: 52197
+  },
+  &quot;toolchain_snapshot&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+  &quot;versions&quot;: {
+    &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+    &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+    &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+    &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+    &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+    &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+    &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+    &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+    &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+    &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+    &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+    &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+    &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+  }
+}</pre></details><h2>lec_netlist_verilog_abc_sn · ok</h2><p></p><p>Formal coverage: lec_verilog_result: timeout; lec_aux_result: timeout</p><table><tr><th>Group</th><th>Step</th><th>Seconds</th></tr></table><details><summary>Structured evidence and proof coverage</summary><pre>{
+  &quot;cached&quot;: false,
+  &quot;comparable&quot;: false,
+  &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+  &quot;config&quot;: &quot;default&quot;,
+  &quot;cpus&quot;: 128,
+  &quot;date&quot;: &quot;2026-10-09&quot;,
+  &quot;external_provenance&quot;: {
+    &quot;license&quot;: &quot;No license file supplied in this upstream design directory&quot;,
+    &quot;rev&quot;: &quot;4857d88e6f6a44bd3c8d1280db1cc42c47061f99&quot;,
+    &quot;source_sha256&quot;: {
+      &quot;verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+      &quot;verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+      &quot;verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+    },
+    &quot;upstream&quot;: &quot;/mada/users/renau/projs/lhdsuite/dino&quot;
+  },
+  &quot;flow&quot;: &quot;lec_netlist_verilog_abc_sn&quot;,
+  &quot;host&quot;: &quot;satsuma&quot;,
+  &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+  &quot;kind&quot;: &quot;lec&quot;,
+  &quot;large_design_diagnostic&quot;: true,
+  &quot;lec&quot;: &quot;none&quot;,
+  &quot;lec_aux_result&quot;: {
+    &quot;bound&quot;: null,
+    &quot;bounded&quot;: false,
+    &quot;declared&quot;: &quot;none&quot;,
+    &quot;invocation&quot;: &quot;direct-lgcheck&quot;,
+    &quot;lgcheck_sha256&quot;: &quot;2581b8e9ea60c9e6386fd2b6006131bb3b0cc4fb023166ede31ec67ffb0127cf&quot;,
+    &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+    &quot;log&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/work/20261009T130317-external-sn/dino/default/asap7/lec_netlist_verilog_abc_sn/logs/lec_lgyosys_verilog_netlist.log&quot;,
+    &quot;mapper&quot;: &quot;abc&quot;,
+    &quot;models_sha256&quot;: &quot;5c4d70545f52cfe761d609b7fe23d56dd4503074ff6495a781aa2b802565b40a&quot;,
+    &quot;ms&quot;: 78240,
+    &quot;netlist_sha256&quot;: &quot;cec4d7cc7c3efd0e1b0912d18aedd8177135d461ab4386d8fce38cec9c6664a3&quot;,
+    &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+    &quot;reason&quot;: &quot;Independent Yosys exhausted its shared equivalence budget.&quot;,
+    &quot;solver&quot;: &quot;lgyosys&quot;,
+    &quot;timeout_s&quot;: 60,
+    &quot;timing_scope&quot;: &quot;prepared-verilog-inputs&quot;,
+    &quot;verdict&quot;: &quot;timeout&quot;,
+    &quot;wall_limit_s&quot;: 180
+  },
+  &quot;lec_gate&quot;: true,
+  &quot;lec_verilog_result&quot;: {
+    &quot;bound&quot;: null,
+    &quot;bounded&quot;: false,
+    &quot;compile_satopt&quot;: false,
+    &quot;declared&quot;: &quot;none&quot;,
+    &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+    &quot;mapper&quot;: &quot;abc&quot;,
+    &quot;models_sha256&quot;: &quot;5c4d70545f52cfe761d609b7fe23d56dd4503074ff6495a781aa2b802565b40a&quot;,
+    &quot;ms&quot;: 132903,
+    &quot;netlist_sha256&quot;: &quot;cec4d7cc7c3efd0e1b0912d18aedd8177135d461ab4386d8fce38cec9c6664a3&quot;,
+    &quot;obligation&quot;: &quot;verilog-vs-netlist&quot;,
+    &quot;phase_ms&quot;: {
+      &quot;inou.slang&quot;: 2332.704,
+      &quot;lhd.run_id&quot;: 0.455,
+      &quot;lnast.tolg&quot;: 3632.064,
+      &quot;pass.bitwidth&quot;: 1250.873,
+      &quot;pass.cprop&quot;: 1130.87,
+      &quot;pass.enableopt&quot;: 23.497999999999998,
+      &quot;pass.formal&quot;: 2906.832,
+      &quot;pass.lec&quot;: 117006.135,
+      &quot;pass.legalize&quot;: 835.069,
+      &quot;pass.legalize.seal&quot;: 180.342,
+      &quot;pass.upass&quot;: 3377.837
+    },
+    &quot;solver&quot;: &quot;cvc5&quot;,
+    &quot;timeout_s&quot;: 60,
+    &quot;timing_scope&quot;: &quot;prepared-verilog-inputs&quot;,
+    &quot;verdict&quot;: &quot;timeout&quot;,
+    &quot;wall_limit_s&quot;: 180
+  },
+  &quot;measured&quot;: &quot;2026-10-09&quot;,
+  &quot;measurement_jobs&quot;: 1,
+  &quot;passed&quot;: true,
+  &quot;peak_rss_kb&quot;: {
+    &quot;lec_cvc5_verilog_netlist&quot;: 2108872,
+    &quot;lec_lgyosys_verilog_netlist&quot;: 2392820,
+    &quot;max&quot;: 2392820,
+    &quot;models&quot;: 556492
+  },
+  &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+  &quot;pyrope_status&quot;: &quot;none&quot;,
+  &quot;run_id&quot;: &quot;20261009T130317-external-sn&quot;,
+  &quot;status&quot;: &quot;ok&quot;,
+  &quot;suite&quot;: &quot;external-diagnostic&quot;,
+  &quot;tech&quot;: &quot;asap7&quot;,
+  &quot;test&quot;: &quot;dino&quot;,
+  &quot;time_ms&quot;: {
+    &quot;lec_cvc5_verilog_netlist&quot;: 132903,
+    &quot;lec_lgyosys_verilog_netlist&quot;: 78240,
+    &quot;models&quot;: 1172,
+    &quot;total&quot;: 212315
+  },
+  &quot;toolchain_snapshot&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+  &quot;versions&quot;: {
+    &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+    &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+    &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+    &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+    &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+    &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+    &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+    &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+    &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+    &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+    &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+    &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+    &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+  }
+}</pre></details><h2>sim_verilator · skipped</h2><p>External synthesis diagnostic has no imported checksum harness</p><table><tr><th>Group</th><th>Step</th><th>Seconds</th></tr></table><details><summary>Structured evidence and proof coverage</summary><pre>{
+  &quot;cached&quot;: false,
+  &quot;comparable&quot;: false,
+  &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+  &quot;config&quot;: &quot;default&quot;,
+  &quot;cpus&quot;: 128,
+  &quot;date&quot;: &quot;2026-10-09&quot;,
+  &quot;external_provenance&quot;: {
+    &quot;license&quot;: &quot;No license file supplied in this upstream design directory&quot;,
+    &quot;rev&quot;: &quot;4857d88e6f6a44bd3c8d1280db1cc42c47061f99&quot;,
+    &quot;source_sha256&quot;: {
+      &quot;verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+      &quot;verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+      &quot;verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+      &quot;verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+      &quot;verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+      &quot;verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+      &quot;verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+      &quot;verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+      &quot;verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+      &quot;verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+      &quot;verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+      &quot;verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+      &quot;verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+      &quot;verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+      &quot;verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+      &quot;verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+      &quot;verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+      &quot;verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+      &quot;verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+    },
+    &quot;upstream&quot;: &quot;/mada/users/renau/projs/lhdsuite/dino&quot;
+  },
+  &quot;flow&quot;: &quot;sim_verilator&quot;,
+  &quot;host&quot;: &quot;satsuma&quot;,
+  &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+  &quot;kind&quot;: &quot;sim&quot;,
+  &quot;large_design_diagnostic&quot;: true,
+  &quot;lec&quot;: &quot;none&quot;,
+  &quot;lec_gate&quot;: true,
+  &quot;measured&quot;: &quot;2026-10-09&quot;,
+  &quot;measurement_jobs&quot;: 1,
+  &quot;note&quot;: &quot;External synthesis diagnostic has no imported checksum harness&quot;,
+  &quot;passed&quot;: false,
+  &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+  &quot;pyrope_status&quot;: &quot;none&quot;,
+  &quot;run_id&quot;: &quot;20261009T130317-external-sn&quot;,
+  &quot;status&quot;: &quot;skipped&quot;,
+  &quot;suite&quot;: &quot;external-diagnostic&quot;,
+  &quot;tech&quot;: &quot;asap7&quot;,
+  &quot;test&quot;: &quot;dino&quot;,
+  &quot;toolchain_snapshot&quot;: &quot;/mada/users/renau/projs/lhdtrack/var/runs/20261009T130317-external-sn/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+  &quot;versions&quot;: {
+    &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+    &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+    &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+    &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+    &quot;lgcheck&quot;: &quot;sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c&quot;,
+    &quot;lhd&quot;: &quot;livehd 8bea45dc2+dirty opt sha256:096e8d3ae4933b3b&quot;,
+    &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+    &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+    &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+    &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+    &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+    &quot;yosys2&quot;: &quot;sha256:e514a9f867b3e485&quot;,
+    &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+  }
+}</pre></details>
+<p class="sub muted" style="margin-top:3rem">Generated 2026-10-14 03:02 from <code>data/</code>.
+This page is a pure rendering of the ledger — nothing is recorded only in
+<code>target/</code>, which is regenerated on every run.</p>
+</div>
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var COL = { a: 'var(--series-a)', b: 'var(--series-b)', c: 'var(--series-c)',
+              d: 'var(--warn)' };
+  // Only ratios that mean something get a gridline: 0.5x, 1x, 2x are readable
+  // landmarks, 1.37x is noise.
+  var GRID = [0.1, 0.2, 0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 3, 5, 10];
+
+  function el(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function draw(root, data, metricKey) {
+    var plot = root.querySelector('.plot');
+    plot.innerHTML = '';
+    var tip = document.createElement('div');
+    tip.className = 'tip';
+    plot.appendChild(tip);
+
+    var metric = data.metrics.filter(function (m) { return m.key === metricKey; })[0];
+    var flows = data.flows;
+
+    // Keep only tests that have a value for THIS metric, then sort by the
+    // Pyrope ratio ascending -- worst on the left, best on the right.
+    var query = root.querySelector('.chart-search').value.trim().toLowerCase();
+    var groups = data.groups.filter(function (g) {
+      return g.values[metricKey] && (g.test + ' ' + g.config).toLowerCase().indexOf(query) >= 0;
+    });
+    groups = groups.slice().sort(function (x, y) {
+      function k(g) {
+        var v = g.values[metricKey];
+        if (v[data.sortFlow] != null) return v[data.sortFlow];
+        var all = Object.keys(v).map(function (f) { return v[f]; });
+        return Math.max.apply(null, all);
+      }
+      return k(x) - k(y);
+    });
+    if (!groups.length) { plot.textContent = 'No comparable results for this metric.'; return; }
+
+    var vals = [1];
+    groups.forEach(function (g) {
+      var v = g.values[metricKey];
+      Object.keys(v).forEach(function (f) { vals.push(v[f]); });
+    });
+    var lo = Math.min.apply(null, vals) / 1.35, hi = Math.max.apply(null, vals) * 1.35;
+    // LOG scale about 1.00x. On a linear axis "twice as good" sits a whole unit
+    // above the line while "twice as bad" sits half a unit below it, which makes
+    // every regression look smaller than the equivalent win.
+    var llo = Math.log(lo), lhi = Math.log(hi);
+
+    var padL = 54, padR = 16, padT = 20, padB = 56;
+    var outer = plot.clientWidth || 900;
+    var overview = root.dataset.view !== 'tests';
+    var W = overview ? outer : Math.max(outer, padL + padR + groups.length * 74);
+    var H = 320, plotH = H - padT - padB, plotW = W - padL - padR;
+    var gw = plotW / groups.length;
+    var bw = Math.min(gw / (flows.length + 0.8), 44);
+
+    var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, width: W, height: H,
+                          role: 'img', 'aria-label': metric.label + ' versus baseline per test' });
+    function y(v) { return padT + (lhi - Math.log(v)) / Math.max(lhi - llo, 1e-9) * plotH; }
+
+    GRID.forEach(function (gv) {
+      if (gv < lo || gv > hi) return;
+      var base = Math.abs(gv - 1) < 1e-9;
+      svg.appendChild(el('line', {
+        x1: padL, x2: W - padR, y1: y(gv).toFixed(1), y2: y(gv).toFixed(1),
+        stroke: base ? 'var(--fg)' : 'var(--line)',
+        'stroke-dasharray': base ? '' : '3 3'
+      }));
+      svg.appendChild(el('text', {
+        x: padL - 8, y: (y(gv) + 4).toFixed(1), 'text-anchor': 'end',
+        'font-size': 11, fill: 'var(--muted)'
+      }, gv + '×'));
+    });
+
+    groups.forEach(function (g, gi) {
+      var gx = padL + gi * gw, span = bw * flows.length, x0 = gx + (gw - span) / 2;
+      flows.forEach(function (f, fi) {
+        var val = g.values[metricKey][f.key];
+        if (val == null) return;
+        var bx = x0 + fi * bw;
+        var top = Math.min(y(val), y(1)), bot = Math.max(y(val), y(1));
+        var rect = el('rect', {
+          x: (bx + (overview ? 0.2 : 1)).toFixed(1), y: top.toFixed(1),
+          width: Math.max(bw - (overview ? 0.4 : 2), 0.5).toFixed(1),
+          height: Math.max(bot - top, 1.5).toFixed(1),
+          fill: COL[f.series] || 'var(--accent)', rx: 2,
+          opacity: g.solid ? 0.9 : 0.4, class: 'bar'
+        });
+        rect.addEventListener('mousemove', function (e) {
+          var r = plot.getBoundingClientRect();
+          tip.style.opacity = 1;
+          tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
+            val.toFixed(2) + '× baseline / measured' +
+            (g.solid ? '' : '  (' +
+              (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
+          var times = g.times && g.times[metricKey] && g.times[metricKey][f.key];
+          if (times) {
+            tip.textContent += '  baseline ' + (times.baseline_ms / 1000).toFixed(3) +
+              's / measured ' + (times.measured_ms / 1000).toFixed(3) + 's';
+          }
+          var left = e.clientX - r.left + plot.scrollLeft - tip.offsetWidth / 2;
+          left = Math.max(plot.scrollLeft + 8,
+            Math.min(left, plot.scrollLeft + plot.clientWidth - tip.offsetWidth - 8));
+          tip.style.left = left + 'px';
+          tip.style.top = Math.max(tip.offsetHeight + 8, e.clientY - r.top - 8) + 'px';
+        });
+        rect.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
+        svg.appendChild(rect);
+        if (!overview) svg.appendChild(el('text', {
+          x: (bx + bw / 2).toFixed(1),
+          y: (val >= 1 ? top - 5 : bot + 12).toFixed(1),
+          'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
+        }, val.toFixed(2)));
+      });
+      if (!overview || gi % Math.max(1, Math.ceil(groups.length / 10)) === 0) {
+        svg.appendChild(el('text', {
+        x: (gx + gw / 2).toFixed(1), y: (H - padB + 19).toFixed(1),
+        'text-anchor': 'middle', 'font-size': 11, fill: 'var(--fg)'
+        }, overview ? String(gi + 1) : g.test));
+      }
+      if (!overview && g.config && g.config !== 'default') {
+        svg.appendChild(el('text', {
+          x: (gx + gw / 2).toFixed(1), y: (H - padB + 32).toFixed(1),
+          'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)'
+        }, g.config));
+      }
+    });
+    plot.appendChild(svg);
+
+    var cap = document.createElement('p');
+    cap.className = 'caption';
+    cap.textContent = metric.label + (metric.unit ? ' (' + metric.unit + ')' : '') +
+      ' relative to ' + data.baseline + ' — higher is better, ' +
+      'sorted worst → best by ' + (data.sortLabel || data.sortFlow) + '. ' +
+      groups.length + ' of ' + data.groups.length + ' matched tests shown.' +
+      (overview ? ' Horizontal axis: test rank; hover for names and values.' : '');
+    plot.appendChild(cap);
+  }
+
+  function legend(root, data) {
+    var box = root.querySelector('.legend');
+    box.innerHTML = data.flows.map(function (f) {
+      return '<span><i style="background:' + (COL[f.series] || 'var(--accent)') + '"></i>' +
+        f.label + '</span>';
+    }).join('');
+    var note = document.createElement('span');
+    note.textContent = data.solidNote || 'faded = not LEC-proven or not hand-written Pyrope';
+    box.appendChild(note);
+  }
+
+  document.querySelectorAll('.chart').forEach(function (root) {
+    var data = JSON.parse(root.querySelector('.chart-data').textContent);
+    var current = data.metrics[0].key;
+    legend(root, data);
+    draw(root, data, current);
+    root.querySelector('.chart-search').addEventListener('input', function () {
+      draw(root, data, current);
+    });
+    root.querySelectorAll('button[data-metric]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.querySelectorAll('button[data-metric]').forEach(function (o) {
+          o.classList.remove('on');
+        });
+        b.classList.add('on');
+        current = b.dataset.metric;
+        draw(root, data, current);
+      });
+    });
+    root.querySelectorAll('button[data-view]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.dataset.view = b.dataset.view;
+        root.querySelectorAll('button[data-view]').forEach(function (o) {
+          o.classList.remove('on');
+        });
+        b.classList.add('on');
+        draw(root, data, current);
+      });
+    });
+    var t;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { draw(root, data, current); }, 150);
+    });
+  });
+})();
+</script>
+<script>
+(function () {
+  // Click a column header to sort by it. Every table on this page is a GRID
+  // WITH MERGED CELLS, not a rectangle of <td>s: the synthesis tables carry a
+  // two-row header (a `rowspan="2"` name column, then `colspan="5"` flow
+  // groups over five leaf headers each), and a body row whose flow was skipped
+  // collapses those five columns into one `<td colspan="5">skipped</td>`.
+  // Indexing `row.cells[i]` would therefore read the wrong column for exactly
+  // the rows a reader most wants to see -- an ASAP7 table where two of three
+  // flows skipped is the common case, not the corner one. So the grid is
+  // resolved the way the HTML spec defines it, once per table.
+  //
+  // `getAttribute('colspan')` rather than the `.colSpan` property: identical in
+  // a browser, and it keeps this logic runnable in a headless DOM.
+
+  var MISSING = /^(|-|–|—|n\/a)$/i;
+  // A number, once the presentation is stripped: thousands separators, the
+  // leading + of a signed error, and the trailing unit glyph of a ratio (2.00x)
+  // or a percentage. Anything else is text.
+  var NUMBER = /^\+?(-?\d+(?:\.\d+)?)\s*[×%]?$/;
+
+  // `numeric: true` so w8 sorts before w32 and blk_a2 before blk_a10 -- a
+  // report full of width- and depth-suffixed names is unreadable in codepoint
+  // order. No `sensitivity` override: folding case would make distinct names
+  // compare equal and leave their order to the tiebreaker.
+  var collator = typeof Intl !== 'undefined' && Intl.Collator
+    ? new Intl.Collator(undefined, { numeric: true })
+    : { compare: function (a, b) { return a < b ? -1 : a > b ? 1 : 0; } };
+
+  // Direct children only: `querySelector('tbody')` would reach into a nested
+  // table and start reordering somebody else's rows.
+  function section(table, tag) {
+    var kids = table.children, i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === tag) return kids[i];
+    }
+    return null;
+  }
+
+  function rowsOf(section) {
+    var out = [], kids = section ? section.children : [], i;
+    for (i = 0; i < kids.length; i++) {
+      if (kids[i].tagName && kids[i].tagName.toLowerCase() === 'tr') out.push(kids[i]);
+    }
+    return out;
+  }
+
+  function span(cell, attr) {
+    var v = parseInt(cell.getAttribute(attr), 10);
+    return v > 0 ? v : 1;
+  }
+
+  // The HTML table model: place each cell at the first free slot of its row and
+  // mark every slot its rowspan/colspan covers. grid[r][c] is {cell, w}, where
+  // w is that cell's colspan -- w > 1 means column c is covered by a merge and
+  // has no value of its own.
+  function gridOf(rows) {
+    var occ = [], r, i, c, cs, rs, dr, dc, cells;
+    for (r = 0; r < rows.length; r++) {
+      if (!occ[r]) occ[r] = [];
+      cells = rows[r].children;
+      c = 0;
+      for (i = 0; i < cells.length; i++) {
+        if (!cells[i].tagName) continue;
+        while (occ[r][c]) c++;
+        cs = span(cells[i], 'colspan');
+        rs = span(cells[i], 'rowspan');
+        for (dr = 0; dr < rs; dr++) {
+          if (!occ[r + dr]) occ[r + dr] = [];
+          for (dc = 0; dc < cs; dc++) occ[r + dr][c + dc] = { cell: cells[i], w: cs };
+        }
+        c += cs;
+      }
+    }
+    return occ;
+  }
+
+  // A BADGE IS NOT DATA. `<td>246.49<span class="tag">norm</span></td>` has a
+  // textContent of "246.49 norm", which parses as no number at all -- so the
+  // area column would be typed as text and 246.49 would sort before 60.06.
+  // That is the very column the report is read for, and the tags appear on
+  // exactly the rows worth comparing. Skip them and read the value.
+  function ownText(node) {
+    if (node.nodeType === 3) return node.nodeValue || '';
+    if (node.nodeType !== 1) return '';
+    if (node.classList && node.classList.contains('tag')) return '';
+    var out = '', kids = node.childNodes, i;
+    for (i = 0; i < kids.length; i++) out += ownText(kids[i]);
+    return out;
+  }
+
+  function textOf(entry) {
+    // A merged cell is not this column's value. `skipped` spanning five columns
+    // says nothing about area, so it sorts with the other blanks rather than
+    // landing under "s" among the numbers.
+    if (!entry || entry.w > 1) return null;
+    var t = ownText(entry.cell).replace(/\s+/g, ' ').trim();
+    return MISSING.test(t) ? null : t;
+  }
+
+  function numberOf(t) {
+    if (t === null) return null;
+    var m = NUMBER.exec(t.replace(/,/g, ''));
+    return m ? parseFloat(m[1]) : null;
+  }
+
+  // Can sorting this column change anything? Only if two rows differ there.
+  // A column that is `skipped` in every row -- ten of the seventeen in the
+  // asap7 table -- has one key and no order, and an arrow over it would offer
+  // a click that does nothing. Blank counts as its own key, so a column with
+  // one measurement and five blanks is still worth sorting.
+  function orderable(grid, col) {
+    var first, j, t;
+    for (j = 0; j < grid.length; j++) {
+      t = textOf(grid[j][col]);
+      if (j === 0) first = t;
+      else if (t !== first) return true;
+    }
+    return false;
+  }
+
+  function enhance(table) {
+    var thead = section(table, 'thead');
+    var tbody = section(table, 'tbody');
+    if (!thead || !tbody) return;
+    var headRows = rowsOf(thead);
+    var bodyRows = rowsOf(tbody);
+    if (!headRows.length || bodyRows.length < 2) return;
+
+    // A BODY `rowspan` MAKES THE TABLE UNSORTABLE, so leave it alone rather
+    // than corrupt it. A merged cell belongs to the <tr> it is written in and
+    // covers whatever rows follow it; move that row and the merge lands on
+    // different data. No table this page emits has one -- this is the guard
+    // that keeps that true if one ever appears.
+    for (var b = 0; b < bodyRows.length; b++) {
+      var bc = bodyRows[b].children;
+      for (var k = 0; k < bc.length; k++) {
+        if (bc[k].tagName && span(bc[k], 'rowspan') > 1) return;
+      }
+    }
+
+    // The leaf header of a column is whatever occupies the LAST header row
+    // there -- which is the group's own header for a `colspan` group, and the
+    // `rowspan="2"` cell itself for a name column. One rule, both shapes.
+    var hgrid = gridOf(headRows);
+    var last = hgrid[headRows.length - 1] || [];
+    var bgrid = gridOf(bodyRows);
+    var seen = [], columns = [], c, e;
+    for (c = 0; c < last.length; c++) {
+      e = last[c];
+      if (!e || seen.indexOf(e.cell) >= 0) continue;
+      seen.push(e.cell);
+      if (orderable(bgrid, c)) columns.push({ th: e.cell, col: c });
+    }
+    if (!columns.length) return;
+
+    // `bodyRows` is the order the generator wrote -- grouped by test, or by
+    // signed STA error, or refuted-first. That is a real ordering, so it is
+    // kept as the third click state rather than lost at the first sort.
+    var original = bodyRows.slice();
+    var state = null;   // {col: n, dir: 1|-1}
+
+    function apply(col, dir) {
+      var rows = rowsOf(tbody);
+      var grid = gridOf(rows);
+      var keyed = [], numeric = true, any = false, j, t, n;
+      for (j = 0; j < rows.length; j++) {
+        t = textOf(grid[j][col]);
+        n = numberOf(t);
+        if (t !== null) { any = true; if (n === null) numeric = false; }
+        keyed.push({ row: rows[j], t: t, n: n, i: j });
+      }
+      if (!any) numeric = false;
+      keyed.sort(function (a, b) {
+        // MISSING ALWAYS LAST, in both directions: a blank is the absence of a
+        // value, not a very small one, and burying the rows you can read under
+        // the rows you cannot is the opposite of what a sort is for.
+        if (a.t === null || b.t === null) {
+          if (a.t === null && b.t === null) return a.i - b.i;
+          return a.t === null ? 1 : -1;
+        }
+        var d = numeric ? a.n - b.n : collator.compare(a.t, b.t);
+        return d ? dir * d : a.i - b.i;   // ties keep their previous order
+      });
+      var frag = table.ownerDocument.createDocumentFragment();
+      for (j = 0; j < keyed.length; j++) frag.appendChild(keyed[j].row);
+      tbody.appendChild(frag);
+    }
+
+    function restore() {
+      var frag = table.ownerDocument.createDocumentFragment(), j;
+      for (j = 0; j < original.length; j++) frag.appendChild(original[j]);
+      tbody.appendChild(frag);
+    }
+
+    function paint() {
+      for (var k = 0; k < columns.length; k++) {
+        var th = columns[k].th;
+        if (state && state.col === columns[k].col) {
+          th.setAttribute('aria-sort', state.dir > 0 ? 'ascending' : 'descending');
+        } else {
+          th.removeAttribute('aria-sort');
+        }
+      }
+    }
+
+    columns.forEach(function (entry) {
+      var label = (entry.th.textContent || '').trim();
+      entry.th.classList.add('sortable');
+      entry.th.setAttribute('tabindex', '0');
+      entry.th.setAttribute('title', label ? 'Sort by ' + label : 'Sort by this column');
+      if (!label) entry.th.setAttribute('aria-label', 'sort by this column');
+      function click() {
+        // Three states, so a reader can always get back to the order the page
+        // was written in -- which is the one grouped by test name.
+        if (!state || state.col !== entry.col) state = { col: entry.col, dir: 1 };
+        else if (state.dir > 0) state = { col: entry.col, dir: -1 };
+        else state = null;
+        if (state) apply(state.col, state.dir); else restore();
+        paint();
+      }
+      entry.th.addEventListener('click', click);
+      entry.th.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
+          ev.preventDefault();
+          click();
+        }
+      });
+    });
+  }
+
+  function init() {
+    var tables = document.querySelectorAll('table'), i;
+    for (i = 0; i < tables.length; i++) enhance(tables[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body></html>

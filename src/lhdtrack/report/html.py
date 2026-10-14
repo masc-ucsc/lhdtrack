@@ -1026,12 +1026,20 @@ def _sim_table(title, keys, index, base_flow, headline, *,
     head.extend(f'<th class="g">{_e(lang.title())}</th>' for lang in languages)
     head.append("</tr>")
 
-    body, ratios = [], defaultdict(list)
+    # TWO geomeans, because one cannot be both. `ratios_all` averages every
+    # successful row of every column. `ratios` averages ONLY the tests whose
+    # Pyrope is idiomatic and LEC-proven, and applies that same test set to every
+    # column: a Verilog column over all tests next to a Pyrope column over the
+    # idiomatic subset compares different circuits and reads as a language gap.
+    body, ratios, ratios_all = [], defaultdict(list), defaultdict(list)
     for key in keys:
         _, test, config, _ = key
         flows = index[key]
         base = flows.get(base_flow, {})
         tags = _tags(flows) if "pyrope" in languages else ""
+        matched = ("pyrope" not in languages
+                   or _eligible(flows.get("sim_lhd_pyrope_llvm", {}), "sim_lhd_pyrope_llvm", base,
+                                headline, "sim_lhd_pyrope_llvm"))
         original_cycles = base.get("sim", {}).get("original_cycles")
         cycle_note = (f' title="Original full validation: {_e(original_cycles)} cycles"'
                       if original_cycles else "")
@@ -1062,7 +1070,7 @@ def _sim_table(title, keys, index, base_flow, headline, *,
                 f'<td>{_fmt(s.get("exec_ms", 0)/1000, 2)}</td>'
                 f"<td>{_fmt(rate, 2)}</td>"
             )
-            if _eligible(r, flow, base, headline, "sim_lhd_pyrope_llvm"):
+            if _eligible(r, flow, base, headline, "sim_lhd_pyrope_llvm", any_status=True):
                 bs, bt = base.get("sim", {}), base.get("time_ms", {})
                 for metric, val, b in (
                     ("setup", t.get("setup"), bt.get("setup")),
@@ -1071,7 +1079,9 @@ def _sim_table(title, keys, index, base_flow, headline, *,
                 ):
                     gain = _gain(val, b)
                     if gain:
-                        ratios[(flow, metric)].append(gain)
+                        ratios_all[(flow, metric)].append(gain)
+                        if matched:
+                            ratios[(flow, metric)].append(gain)
         for language in languages:
             source = f"sim_lhd_{language}"
             llvm, slop = flows.get(source + "_llvm", {}), flows.get(source, {})
@@ -1096,16 +1106,23 @@ def _sim_table(title, keys, index, base_flow, headline, *,
                          f'title="{_e(note)}">{label}</td>')
         body.append("<tr>" + "".join(cells) + "</tr>")
 
-    foot = ['<tr><td class="l" colspan="3">geomean vs verilator</td>']
-    for flow in flows_to_show:
-        foot.append('<td class="g">' + _ratio(ratios[(flow, "setup")]) + "</td>")
-        foot.append("<td>" + _ratio(ratios[(flow, "cc")]) + "</td>")
-        foot.append("<td>" + _ratio(ratios[(flow, "exec")]) + "</td>")
-        # Mcyc/s is 1/exec by construction; a second ratio for it would just
-        # restate the exec column.
-        foot.append('<td class="muted">—</td>')
-    foot.extend('<td class="g">—</td>' for _ in languages)
-    foot.append("</tr>")
+    foot = []
+    for label, table in ((f"geomean vs verilator · all tests", ratios_all),
+                         ("geomean vs verilator · idiomatic LEC-proven tests, the same tests in every column"
+                          if "pyrope" in languages else "", ratios)):
+        if not label:
+            continue
+        n = len(table[("sim_verilator", "exec")]) or len(table[(flows_to_show[-1], "exec")])
+        foot.append(f'<tr><td class="l" colspan="3">{label} <small class="muted">(n={n})</small></td>')
+        for flow in flows_to_show:
+            foot.append('<td class="g">' + _ratio(table[(flow, "setup")]) + "</td>")
+            foot.append("<td>" + _ratio(table[(flow, "cc")]) + "</td>")
+            foot.append("<td>" + _ratio(table[(flow, "exec")]) + "</td>")
+            # Mcyc/s is 1/exec by construction; a second ratio for it would just
+            # restate the exec column.
+            foot.append('<td class="muted">—</td>')
+        foot.extend('<td class="g">—</td>' for _ in languages)
+        foot.append("</tr>")
     foot.append(f'<tr><td class="l" colspan="{3 + metric_columns}">'
                 'LLVM speed / Slop · all matched successful pairs</td>')
     for language in languages:
@@ -1162,7 +1179,8 @@ def _gate_snapshot_lec(rows: list[dict], run: str) -> list[dict]:
     return result
 
 
-def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str) -> bool:
+def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str,
+              any_status: bool = False) -> bool:
     """May this row's ratio enter the geomean?
 
     Every flow needs a baseline to be a ratio of. The Pyrope flow additionally
@@ -1188,7 +1206,7 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str)
         if (cycles is None or row.get("sim", {}).get("cycles") != cycles
                 or not _same_netlist_measurement(row, base)):
             return False
-    if flow != pyrope_flow:
+    if flow != pyrope_flow or any_status:
         return True
     return bool(row.get("comparable")) and row.get("pyrope_status", "none") in headline
 
