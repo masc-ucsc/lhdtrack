@@ -14,6 +14,7 @@ comb upper_triangle(size) -> (mask) {
 
 pub mod br_lru_state_internal<NUM_REQUESTERS=2>(grant:Unsigned(bits=NUM_REQUESTERS), rst:U1, update_priority:Bool) -> (state:Unsigned(bits=NUM_REQUESTERS*NUM_REQUESTERS)@[0]) {
   comptime const N = NUM_REQUESTERS
+  cassert(N == 4, "rows are spelled out for 4 requesters")
 
   // After reset every lower-numbered requester beats every higher one. Only
   // the upper-triangle bits are reset and updated; the others are never read.
@@ -22,23 +23,19 @@ pub mod br_lru_state_internal<NUM_REQUESTERS=2>(grant:Unsigned(bits=NUM_REQUESTE
   if rst == 1 {
     wins = wins | STORED
   } elif update_priority {
-    mut next_wins = wins
-    for i in 0..<N {
-      // The granted requester loses to everyone; everyone beats a granted one.
-      next_wins#[(i*N)..+N] = if grant#[i] == 1 { 0 } else { wins#[(i*N)..+N] | grant }
-    }
+    // The granted requester loses to everyone; everyone beats a granted one.
+    const row0:U4 = if grant#[0] == 1 { 0 } else { wins#[0..<N] | grant }
+    const row1:U4 = if grant#[1] == 1 { 0 } else { wins#[N..+N] | grant }
+    const row2:U4 = if grant#[2] == 1 { 0 } else { wins#[(2*N)..+N] | grant }
+    const row3:U4 = if grant#[3] == 1 { 0 } else { wins#[(3*N)..+N] | grant }
+    const next_wins:U16 = (row0, row1, row2, row3)#[..]
     wins = (next_wins & STORED) | (wins & ~STORED)
   }
 
-  mut matrix:Unsigned(bits=N*N) = 0
-  for i in 0..<N {
-    for j in 0..<N {
-      if i < j {
-        matrix#[i*N + j] = wins#[i*N + j]
-      } elif i > j {
-        matrix#[i*N + j] = ~wins#[j*N + i] & 1
-      }
-    }
-  }
-  state = matrix
+  // Below the diagonal, row i is the complement of column i above it.
+  const low0:U4 = 0
+  const low1:U4 = (wins#[1])#[..] ^ 0x1
+  const low2:U4 = (wins#[2], wins#[N + 2])#[..] ^ 0x3
+  const low3:U4 = (wins#[3], wins#[N + 3], wins#[2*N + 3])#[..] ^ 0x7
+  state = (wins & STORED) | (low0, low1, low2, low3)#[..]
 }

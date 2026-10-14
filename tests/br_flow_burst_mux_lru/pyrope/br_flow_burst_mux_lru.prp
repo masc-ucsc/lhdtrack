@@ -18,13 +18,13 @@ pub mod br_flow_burst_mux_lru(clk:Clock, pop_ready:U1, push_data:U128, push_last
   grant = held.grant
   arb_update = held.enable_priority_update_to_arb
 
-  // One-hot mux of the granted flow.
-  mut data:U32 = 0
-  for i in 0..<NUM_FLOWS {
-    if grant#[i] == 1 {
-      data |= push_data#[(i*WIDTH)..+WIDTH]
-    }
-  }
+  // One-hot mux of the granted flow (AND-OR; ORs every granted lane).
+  cassert(NUM_FLOWS == 4)
+  const lane0:U32 = if grant#[0] == 1 { push_data#[0..<WIDTH] } else { 0 }
+  const lane1:U32 = if grant#[1] == 1 { push_data#[WIDTH..+WIDTH] } else { 0 }
+  const lane2:U32 = if grant#[2] == 1 { push_data#[(2*WIDTH)..+WIDTH] } else { 0 }
+  const lane3:U32 = if grant#[3] == 1 { push_data#[(3*WIDTH)..+WIDTH] } else { 0 }
+  const data = (lane0 | lane1) | (lane2 | lane3)
   push_ready = if pop_ready == 1 { grant } else { 0 }
   pop_valid_unstable = U1((push_valid & grant) != 0)
   pop_last_unstable = U1((push_last & grant) != 0)

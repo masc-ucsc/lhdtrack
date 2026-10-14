@@ -4,12 +4,12 @@ const br_flow_burst_mux_core_stable_t = import("br_flow_burst_mux_core_stable.br
 pub mod br_flow_burst_mux_lru_stable::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U256, push_last:U8, push_valid:U8, rst:Reset) -> (pop_data:U32@[], pop_last:U1@[], pop_valid:U1@[], push_ready:U8@[]) {
   wire request:U8 = nil
   wire enable_priority_update:U1 = nil
-  mut br_arb_lru_internal = br_arb_lru_internal_t::[name=br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)
-  mut br_flow_burst_mux_core_stable = br_flow_burst_mux_core_stable_t::[name=br_flow_burst_mux_core_stable](clk=clk, rst=rst, grant_from_arb=br_arb_lru_internal.grant, push_valid=push_valid, push_last=push_last, push_data=push_data, pop_ready=pop_ready)
+  const br_arb_lru_internal = br_arb_lru_internal_t(clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)
+  const br_flow_burst_mux_core_stable = br_flow_burst_mux_core_stable_t(clk=clk, rst=rst, grant_from_arb=br_arb_lru_internal.grant, push_valid=push_valid, push_last=push_last, push_data=push_data, pop_ready=pop_ready)
   request = br_flow_burst_mux_core_stable.request
   enable_priority_update = br_flow_burst_mux_core_stable.enable_priority_update
-  push_ready = br_flow_burst_mux_core_stable.push_ready
-  pop_valid = br_flow_burst_mux_core_stable.pop_valid
-  pop_last = br_flow_burst_mux_core_stable.pop_last
   pop_data = br_flow_burst_mux_core_stable.pop_data
+  pop_last = br_flow_burst_mux_core_stable.pop_last
+  pop_valid = br_flow_burst_mux_core_stable.pop_valid
+  push_ready = br_flow_burst_mux_core_stable.push_ready
 }

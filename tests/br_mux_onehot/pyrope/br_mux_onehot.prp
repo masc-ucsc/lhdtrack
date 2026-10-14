@@ -1,12 +1,23 @@
 // One-hot mux over 16 symbols: ORs together the symbols whose select bit is set.
 // Select is expected to be one-hot (or zero, giving 0); a multi-hot select ORs the lanes.
 pub comb br_mux_onehot(`in`:U512, select:U16) -> (out:U32) {
-  comptime const WIDTH = out.[bits]
-  mut picked:U32 = 0
-  for i in 0..<select.[bits] {
-    if select#[i] != 0 {
-      picked |= `in`#[(i*WIDTH)..+WIDTH]
-    }
-  }
-  out = picked
+  comptime const W = out.[bits]
+  comptime const ONES = (1 << W) - 1
+  const s0:U32 = `in`#[0..+W] & (if select#[0] == 1 { ONES } else { 0 })
+  const s1:U32 = `in`#[32..+W] & (if select#[1] == 1 { ONES } else { 0 })
+  const s2:U32 = `in`#[64..+W] & (if select#[2] == 1 { ONES } else { 0 })
+  const s3:U32 = `in`#[96..+W] & (if select#[3] == 1 { ONES } else { 0 })
+  const s4:U32 = `in`#[128..+W] & (if select#[4] == 1 { ONES } else { 0 })
+  const s5:U32 = `in`#[160..+W] & (if select#[5] == 1 { ONES } else { 0 })
+  const s6:U32 = `in`#[192..+W] & (if select#[6] == 1 { ONES } else { 0 })
+  const s7:U32 = `in`#[224..+W] & (if select#[7] == 1 { ONES } else { 0 })
+  const s8:U32 = `in`#[256..+W] & (if select#[8] == 1 { ONES } else { 0 })
+  const s9:U32 = `in`#[288..+W] & (if select#[9] == 1 { ONES } else { 0 })
+  const s10:U32 = `in`#[320..+W] & (if select#[10] == 1 { ONES } else { 0 })
+  const s11:U32 = `in`#[352..+W] & (if select#[11] == 1 { ONES } else { 0 })
+  const s12:U32 = `in`#[384..+W] & (if select#[12] == 1 { ONES } else { 0 })
+  const s13:U32 = `in`#[416..+W] & (if select#[13] == 1 { ONES } else { 0 })
+  const s14:U32 = `in`#[448..+W] & (if select#[14] == 1 { ONES } else { 0 })
+  const s15:U32 = `in`#[480..+W] & (if select#[15] == 1 { ONES } else { 0 })
+  out = s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | s10 | s11 | s12 | s13 | s14 | s15
 }

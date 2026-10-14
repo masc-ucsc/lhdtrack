@@ -1,67 +1,10 @@
-const br_delay_valid = import("br_delay_valid.br_delay_valid")
-const br_delay_valid_p1 = import("br_delay_valid.br_delay_valid")
+// Read-data pipe of a RAM built from 4 (depth) x 2 (width) tiles, with no
+// pipeline stages. A row is valid when its middle width tile (tile 1) is
+// valid; at most one row is valid, and its data is selected.
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_ram_data_rd_pipe::[timecheck=false](clk:Clock, rst:Reset, tile_data:U128, tile_valid:U8) -> (data:U32@[], valid:U1@[]) {
-  wire tile_valid_q_bits:U8 = nil
-  wire tile_data_q_bits:U128 = nil
-  wire row_valid_bits:U4 = nil
-  wire row_data_bits:U128 = nil
-  wire row_valid_q_bits:U4 = nil
-  wire row_valid_q:U4 = nil
-  wire row_data_q_bits:U128 = nil
-  wire row_data_q:U128 = nil
-  mut gen_d_0_gen_w_0_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=tile_valid#[0..=1] & 1, `in`=tile_data#[0..=31]#[0..=15])
-  tile_valid_q_bits#[0] = gen_d_0_gen_w_0_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[0..<16] = gen_d_0_gen_w_0_br_delay_valid_w.out#[0..<16]
-  mut gen_d_0_gen_w_1_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=(tile_valid#[0..=1] >> 1) & 1, `in`=tile_data#[0..=31]#[16..=31])
-  tile_valid_q_bits#[1] = gen_d_0_gen_w_1_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[16..<32] = gen_d_0_gen_w_1_br_delay_valid_w.out#[0..<16]
-  row_valid_bits#[0] = tile_valid_q_bits#[1] & 1
-  const t81 = (tile_data_q_bits#[31] << 31) | (tile_data_q_bits#[30] << 30) | (tile_data_q_bits#[29] << 29) | (tile_data_q_bits#[28] << 28) | (tile_data_q_bits#[27] << 27) | (tile_data_q_bits#[26] << 26) | (tile_data_q_bits#[25] << 25) | (tile_data_q_bits#[24] << 24) | (tile_data_q_bits#[23] << 23) | (tile_data_q_bits#[22] << 22) | (tile_data_q_bits#[21] << 21) | (tile_data_q_bits#[20] << 20) | (tile_data_q_bits#[19] << 19) | (tile_data_q_bits#[18] << 18) | (tile_data_q_bits#[17] << 17) | (tile_data_q_bits#[16] << 16) | (tile_data_q_bits#[15] << 15) | (tile_data_q_bits#[14] << 14) | (tile_data_q_bits#[13] << 13) | (tile_data_q_bits#[12] << 12) | (tile_data_q_bits#[11] << 11) | (tile_data_q_bits#[10] << 10) | (tile_data_q_bits#[9] << 9) | (tile_data_q_bits#[8] << 8) | (tile_data_q_bits#[7] << 7) | (tile_data_q_bits#[6] << 6) | (tile_data_q_bits#[5] << 5) | (tile_data_q_bits#[4] << 4) | (tile_data_q_bits#[3] << 3) | (tile_data_q_bits#[2] << 2) | (tile_data_q_bits#[1] << 1) | tile_data_q_bits#[0]
-  row_data_bits#[0..<32] = t81#[0..<32]
-  mut gen_d_0_br_delay_valid_d = br_delay_valid_p1<Width=32>(in_valid=row_valid_bits#[0] & 1, `in`=(row_data_bits#[31] << 31) | (row_data_bits#[30] << 30) | (row_data_bits#[29] << 29) | (row_data_bits#[28] << 28) | (row_data_bits#[27] << 27) | (row_data_bits#[26] << 26) | (row_data_bits#[25] << 25) | (row_data_bits#[24] << 24) | (row_data_bits#[23] << 23) | (row_data_bits#[22] << 22) | (row_data_bits#[21] << 21) | (row_data_bits#[20] << 20) | (row_data_bits#[19] << 19) | (row_data_bits#[18] << 18) | (row_data_bits#[17] << 17) | (row_data_bits#[16] << 16) | (row_data_bits#[15] << 15) | (row_data_bits#[14] << 14) | (row_data_bits#[13] << 13) | (row_data_bits#[12] << 12) | (row_data_bits#[11] << 11) | (row_data_bits#[10] << 10) | (row_data_bits#[9] << 9) | (row_data_bits#[8] << 8) | (row_data_bits#[7] << 7) | (row_data_bits#[6] << 6) | (row_data_bits#[5] << 5) | (row_data_bits#[4] << 4) | (row_data_bits#[3] << 3) | (row_data_bits#[2] << 2) | (row_data_bits#[1] << 1) | row_data_bits#[0])
-  row_valid_q_bits#[0] = gen_d_0_br_delay_valid_d.out_valid & 1
-  row_data_q_bits#[0..<32] = gen_d_0_br_delay_valid_d.out#[0..<32]
-  mut gen_d_1_gen_w_0_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=tile_valid#[2..=3] & 1, `in`=tile_data#[32..=63]#[0..=15])
-  tile_valid_q_bits#[2] = gen_d_1_gen_w_0_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[32..<48] = gen_d_1_gen_w_0_br_delay_valid_w.out#[0..<16]
-  mut gen_d_1_gen_w_1_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=(tile_valid#[2..=3] >> 1) & 1, `in`=tile_data#[32..=63]#[16..=31])
-  tile_valid_q_bits#[3] = gen_d_1_gen_w_1_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[48..<64] = gen_d_1_gen_w_1_br_delay_valid_w.out#[0..<16]
-  row_valid_bits#[1] = tile_valid_q_bits#[3] & 1
-  const t292 = (tile_data_q_bits#[63] << 31) | (tile_data_q_bits#[62] << 30) | (tile_data_q_bits#[61] << 29) | (tile_data_q_bits#[60] << 28) | (tile_data_q_bits#[59] << 27) | (tile_data_q_bits#[58] << 26) | (tile_data_q_bits#[57] << 25) | (tile_data_q_bits#[56] << 24) | (tile_data_q_bits#[55] << 23) | (tile_data_q_bits#[54] << 22) | (tile_data_q_bits#[53] << 21) | (tile_data_q_bits#[52] << 20) | (tile_data_q_bits#[51] << 19) | (tile_data_q_bits#[50] << 18) | (tile_data_q_bits#[49] << 17) | (tile_data_q_bits#[48] << 16) | (tile_data_q_bits#[47] << 15) | (tile_data_q_bits#[46] << 14) | (tile_data_q_bits#[45] << 13) | (tile_data_q_bits#[44] << 12) | (tile_data_q_bits#[43] << 11) | (tile_data_q_bits#[42] << 10) | (tile_data_q_bits#[41] << 9) | (tile_data_q_bits#[40] << 8) | (tile_data_q_bits#[39] << 7) | (tile_data_q_bits#[38] << 6) | (tile_data_q_bits#[37] << 5) | (tile_data_q_bits#[36] << 4) | (tile_data_q_bits#[35] << 3) | (tile_data_q_bits#[34] << 2) | (tile_data_q_bits#[33] << 1) | tile_data_q_bits#[32]
-  row_data_bits#[32..<64] = t292#[0..<32]
-  mut gen_d_1_br_delay_valid_d = br_delay_valid_p1<Width=32>(in_valid=row_valid_bits#[1] & 1, `in`=(row_data_bits#[63] << 31) | (row_data_bits#[62] << 30) | (row_data_bits#[61] << 29) | (row_data_bits#[60] << 28) | (row_data_bits#[59] << 27) | (row_data_bits#[58] << 26) | (row_data_bits#[57] << 25) | (row_data_bits#[56] << 24) | (row_data_bits#[55] << 23) | (row_data_bits#[54] << 22) | (row_data_bits#[53] << 21) | (row_data_bits#[52] << 20) | (row_data_bits#[51] << 19) | (row_data_bits#[50] << 18) | (row_data_bits#[49] << 17) | (row_data_bits#[48] << 16) | (row_data_bits#[47] << 15) | (row_data_bits#[46] << 14) | (row_data_bits#[45] << 13) | (row_data_bits#[44] << 12) | (row_data_bits#[43] << 11) | (row_data_bits#[42] << 10) | (row_data_bits#[41] << 9) | (row_data_bits#[40] << 8) | (row_data_bits#[39] << 7) | (row_data_bits#[38] << 6) | (row_data_bits#[37] << 5) | (row_data_bits#[36] << 4) | (row_data_bits#[35] << 3) | (row_data_bits#[34] << 2) | (row_data_bits#[33] << 1) | row_data_bits#[32])
-  row_valid_q_bits#[1] = gen_d_1_br_delay_valid_d.out_valid & 1
-  row_data_q_bits#[32..<64] = gen_d_1_br_delay_valid_d.out#[0..<32]
-  mut gen_d_2_gen_w_0_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=tile_valid#[4..=5] & 1, `in`=tile_data#[64..=95]#[0..=15])
-  tile_valid_q_bits#[4] = gen_d_2_gen_w_0_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[64..<80] = gen_d_2_gen_w_0_br_delay_valid_w.out#[0..<16]
-  mut gen_d_2_gen_w_1_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=(tile_valid#[4..=5] >> 1) & 1, `in`=tile_data#[64..=95]#[16..=31])
-  tile_valid_q_bits#[5] = gen_d_2_gen_w_1_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[80..<96] = gen_d_2_gen_w_1_br_delay_valid_w.out#[0..<16]
-  row_valid_bits#[2] = tile_valid_q_bits#[5] & 1
-  const t503 = (tile_data_q_bits#[95] << 31) | (tile_data_q_bits#[94] << 30) | (tile_data_q_bits#[93] << 29) | (tile_data_q_bits#[92] << 28) | (tile_data_q_bits#[91] << 27) | (tile_data_q_bits#[90] << 26) | (tile_data_q_bits#[89] << 25) | (tile_data_q_bits#[88] << 24) | (tile_data_q_bits#[87] << 23) | (tile_data_q_bits#[86] << 22) | (tile_data_q_bits#[85] << 21) | (tile_data_q_bits#[84] << 20) | (tile_data_q_bits#[83] << 19) | (tile_data_q_bits#[82] << 18) | (tile_data_q_bits#[81] << 17) | (tile_data_q_bits#[80] << 16) | (tile_data_q_bits#[79] << 15) | (tile_data_q_bits#[78] << 14) | (tile_data_q_bits#[77] << 13) | (tile_data_q_bits#[76] << 12) | (tile_data_q_bits#[75] << 11) | (tile_data_q_bits#[74] << 10) | (tile_data_q_bits#[73] << 9) | (tile_data_q_bits#[72] << 8) | (tile_data_q_bits#[71] << 7) | (tile_data_q_bits#[70] << 6) | (tile_data_q_bits#[69] << 5) | (tile_data_q_bits#[68] << 4) | (tile_data_q_bits#[67] << 3) | (tile_data_q_bits#[66] << 2) | (tile_data_q_bits#[65] << 1) | tile_data_q_bits#[64]
-  row_data_bits#[64..<96] = t503#[0..<32]
-  mut gen_d_2_br_delay_valid_d = br_delay_valid_p1<Width=32>(in_valid=row_valid_bits#[2] & 1, `in`=(row_data_bits#[95] << 31) | (row_data_bits#[94] << 30) | (row_data_bits#[93] << 29) | (row_data_bits#[92] << 28) | (row_data_bits#[91] << 27) | (row_data_bits#[90] << 26) | (row_data_bits#[89] << 25) | (row_data_bits#[88] << 24) | (row_data_bits#[87] << 23) | (row_data_bits#[86] << 22) | (row_data_bits#[85] << 21) | (row_data_bits#[84] << 20) | (row_data_bits#[83] << 19) | (row_data_bits#[82] << 18) | (row_data_bits#[81] << 17) | (row_data_bits#[80] << 16) | (row_data_bits#[79] << 15) | (row_data_bits#[78] << 14) | (row_data_bits#[77] << 13) | (row_data_bits#[76] << 12) | (row_data_bits#[75] << 11) | (row_data_bits#[74] << 10) | (row_data_bits#[73] << 9) | (row_data_bits#[72] << 8) | (row_data_bits#[71] << 7) | (row_data_bits#[70] << 6) | (row_data_bits#[69] << 5) | (row_data_bits#[68] << 4) | (row_data_bits#[67] << 3) | (row_data_bits#[66] << 2) | (row_data_bits#[65] << 1) | row_data_bits#[64])
-  row_valid_q_bits#[2] = gen_d_2_br_delay_valid_d.out_valid & 1
-  row_data_q_bits#[64..<96] = gen_d_2_br_delay_valid_d.out#[0..<32]
-  mut gen_d_3_gen_w_0_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=tile_valid#[6..=7] & 1, `in`=tile_data#[96..=127]#[0..=15])
-  tile_valid_q_bits#[6] = gen_d_3_gen_w_0_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[96..<112] = gen_d_3_gen_w_0_br_delay_valid_w.out#[0..<16]
-  mut gen_d_3_gen_w_1_br_delay_valid_w = br_delay_valid<Width=16>(in_valid=(tile_valid#[6..=7] >> 1) & 1, `in`=tile_data#[96..=127]#[16..=31])
-  tile_valid_q_bits#[7] = gen_d_3_gen_w_1_br_delay_valid_w.out_valid & 1
-  tile_data_q_bits#[112..<128] = gen_d_3_gen_w_1_br_delay_valid_w.out#[0..<16]
-  row_valid_bits#[3] = tile_valid_q_bits#[7] & 1
-  const t714 = (tile_data_q_bits#[127] << 31) | (tile_data_q_bits#[126] << 30) | (tile_data_q_bits#[125] << 29) | (tile_data_q_bits#[124] << 28) | (tile_data_q_bits#[123] << 27) | (tile_data_q_bits#[122] << 26) | (tile_data_q_bits#[121] << 25) | (tile_data_q_bits#[120] << 24) | (tile_data_q_bits#[119] << 23) | (tile_data_q_bits#[118] << 22) | (tile_data_q_bits#[117] << 21) | (tile_data_q_bits#[116] << 20) | (tile_data_q_bits#[115] << 19) | (tile_data_q_bits#[114] << 18) | (tile_data_q_bits#[113] << 17) | (tile_data_q_bits#[112] << 16) | (tile_data_q_bits#[111] << 15) | (tile_data_q_bits#[110] << 14) | (tile_data_q_bits#[109] << 13) | (tile_data_q_bits#[108] << 12) | (tile_data_q_bits#[107] << 11) | (tile_data_q_bits#[106] << 10) | (tile_data_q_bits#[105] << 9) | (tile_data_q_bits#[104] << 8) | (tile_data_q_bits#[103] << 7) | (tile_data_q_bits#[102] << 6) | (tile_data_q_bits#[101] << 5) | (tile_data_q_bits#[100] << 4) | (tile_data_q_bits#[99] << 3) | (tile_data_q_bits#[98] << 2) | (tile_data_q_bits#[97] << 1) | tile_data_q_bits#[96]
-  row_data_bits#[96..<128] = t714#[0..<32]
-  mut gen_d_3_br_delay_valid_d = br_delay_valid_p1<Width=32>(in_valid=row_valid_bits#[3] & 1, `in`=(row_data_bits#[127] << 31) | (row_data_bits#[126] << 30) | (row_data_bits#[125] << 29) | (row_data_bits#[124] << 28) | (row_data_bits#[123] << 27) | (row_data_bits#[122] << 26) | (row_data_bits#[121] << 25) | (row_data_bits#[120] << 24) | (row_data_bits#[119] << 23) | (row_data_bits#[118] << 22) | (row_data_bits#[117] << 21) | (row_data_bits#[116] << 20) | (row_data_bits#[115] << 19) | (row_data_bits#[114] << 18) | (row_data_bits#[113] << 17) | (row_data_bits#[112] << 16) | (row_data_bits#[111] << 15) | (row_data_bits#[110] << 14) | (row_data_bits#[109] << 13) | (row_data_bits#[108] << 12) | (row_data_bits#[107] << 11) | (row_data_bits#[106] << 10) | (row_data_bits#[105] << 9) | (row_data_bits#[104] << 8) | (row_data_bits#[103] << 7) | (row_data_bits#[102] << 6) | (row_data_bits#[101] << 5) | (row_data_bits#[100] << 4) | (row_data_bits#[99] << 3) | (row_data_bits#[98] << 2) | (row_data_bits#[97] << 1) | row_data_bits#[96])
-  row_valid_q_bits#[3] = gen_d_3_br_delay_valid_d.out_valid & 1
-  row_data_q_bits#[96..<128] = gen_d_3_br_delay_valid_d.out#[0..<32]
-  mut gen_mux_br_mux_onehot = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=32>(select=row_valid_q, `in`=row_data_q)
-  row_valid_q = row_valid_q_bits
-  row_data_q = row_data_q_bits
-  valid = U1(row_valid_q != 0)
-  data = gen_mux_br_mux_onehot
+pub mod br_ram_data_rd_pipe(clk:Clock, rst:Reset, tile_data:U128, tile_valid:U8) -> (data:U32@[], valid:U1@[]) {
+  const row_valid:U4 = (tile_valid#[1], tile_valid#[3], tile_valid#[5], tile_valid#[7])#[..]
+  valid = U1(row_valid != 0)
+  data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=32>(select=row_valid, `in`=tile_data)
 }

@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_fifo_shared_pop_ctrl_credit.br_fifo_shared_pop_ctrl_credit.
 const dut = import("br_fifo_shared_pop_ctrl_credit.br_fifo_shared_pop_ctrl_credit")
 
-pub mod br_fifo_shared_pop_ctrl_credit_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+pub mod br_fifo_shared_pop_ctrl_credit_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_fifo_shared_pop_ctrl_credit_harness(clk:Clock, rst:U1) -> (checksum:U
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const dut_reset:Bool = rst != 0
+  const dut_reset:Bool = rst
 
   const (head_ready, pop_sender_in_reset, pop_valid, pop_fifo_id, pop_data, pop_empty, credit_available_pop, credit_count_pop, dealloc_valid, dealloc_entry_id, data_ram_rd_addr_valid, data_ram_rd_addr) = dut(clk=clk, rst=U1(dut_reset), pop_receiver_in_reset=rst, head_valid=0, head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], pop_credit=lfsr#[14..=15], credit_initial_pop=lfsr#[16..=21], credit_withhold_pop=lfsr#[22..=27], data_ram_rd_data_valid=0, data_ram_rd_data=lfsr_x#[30..=93])
 
@@ -44,11 +44,6 @@ pub mod br_fifo_shared_pop_ctrl_credit_harness(clk:Clock, rst:U1) -> (checksum:U
   wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ data_ram_rd_addr
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

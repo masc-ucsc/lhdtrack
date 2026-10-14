@@ -1,116 +1,44 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
+// below#[i] = |v#[0..<i] (log-step prefix OR, constant shifts only)
+comb or_below<N>(v:Unsigned(bits=N)) -> (below:Unsigned(bits=N)) {
+  cassert(N <= 16)
+  mut p:Unsigned(bits=N) = v#[0..<(N - 1)] << 1
+  wrap p |= p << 1
+  wrap p |= p << 2
+  wrap p |= p << 4
+  wrap p |= p << 8
+  below = p
+}
+
+// above#[i] = |v#[(i+1)..]
+comb or_above<N>(v:Unsigned(bits=N)) -> (above:Unsigned(bits=N)) {
+  cassert(N <= 16)
+  mut p:Unsigned(bits=N) = v >> 1
+  p |= p >> 1
+  p |= p >> 2
+  p |= p >> 4
+  p |= p >> 8
+  above = p
+}
+
+// Round-robin arbiter: requesters above the last grant go first (lowest index
+// wins), then the wrapped-around ones from index 0.
 pub mod br_arb_rr_internal<NumRequesters=8>::[timecheck=false,synth.abc_pre="compress2rs"](clk:Clock, enable_priority_update:U1, request:U8, rst:Reset) -> (can_grant:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1)@[], grant:U8@[]) {
-  wire can_grant__bpr:(e7:U1, e6:U1, e5:U1, e4:U1, e3:U1, e2:U1, e1:U1, e0:U1) = nil
-  wire request_priority_bits:U64 = nil
-  grant = 0sb?
-  request_priority_bits#[9] = 0
-  request_priority_bits#[18] = 0
-  request_priority_bits#[27] = 0
-  request_priority_bits#[36] = 0
-  request_priority_bits#[45] = 0
-  request_priority_bits#[54] = 0
-  mut `can_grant__bpo.e0` = U1(not (((request_priority_bits#[7] << 7) | (request_priority_bits#[6] << 6) | (request_priority_bits#[5] << 5) | (request_priority_bits#[4] << 4) | (request_priority_bits#[3] << 3) | (request_priority_bits#[2] << 2) | (request_priority_bits#[1] << 1) | request_priority_bits#[0]) != 0))
-  mut _b2i_3 = if not (((request_priority_bits#[15] << 7) | (request_priority_bits#[14] << 6) | (request_priority_bits#[13] << 5) | (request_priority_bits#[12] << 4) | (request_priority_bits#[11] << 3) | (request_priority_bits#[10] << 2) | (request_priority_bits#[9] << 1) | request_priority_bits#[8]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e1` = _b2i_3
-  mut _b2i_4 = if not (((request_priority_bits#[23] << 7) | (request_priority_bits#[22] << 6) | (request_priority_bits#[21] << 5) | (request_priority_bits#[20] << 4) | (request_priority_bits#[19] << 3) | (request_priority_bits#[18] << 2) | (request_priority_bits#[17] << 1) | request_priority_bits#[16]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e2` = _b2i_4
-  mut _b2i_5 = if not (((request_priority_bits#[31] << 7) | (request_priority_bits#[30] << 6) | (request_priority_bits#[29] << 5) | (request_priority_bits#[28] << 4) | (request_priority_bits#[27] << 3) | (request_priority_bits#[26] << 2) | (request_priority_bits#[25] << 1) | request_priority_bits#[24]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e3` = _b2i_5
-  mut _b2i_6 = if not (((request_priority_bits#[39] << 7) | (request_priority_bits#[38] << 6) | (request_priority_bits#[37] << 5) | (request_priority_bits#[36] << 4) | (request_priority_bits#[35] << 3) | (request_priority_bits#[34] << 2) | (request_priority_bits#[33] << 1) | request_priority_bits#[32]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e4` = _b2i_6
-  mut _b2i_7 = if not (((request_priority_bits#[47] << 7) | (request_priority_bits#[46] << 6) | (request_priority_bits#[45] << 5) | (request_priority_bits#[44] << 4) | (request_priority_bits#[43] << 3) | (request_priority_bits#[42] << 2) | (request_priority_bits#[41] << 1) | request_priority_bits#[40]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e5` = _b2i_7
-  mut _b2i_8 = if not (((request_priority_bits#[55] << 7) | (request_priority_bits#[54] << 6) | (request_priority_bits#[53] << 5) | (request_priority_bits#[52] << 4) | (request_priority_bits#[51] << 3) | (request_priority_bits#[50] << 2) | (request_priority_bits#[49] << 1) | request_priority_bits#[48]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e6` = _b2i_8
-  mut _b2i_9 = if not (((request_priority_bits#[63] << 7) | (request_priority_bits#[62] << 6) | (request_priority_bits#[61] << 5) | (request_priority_bits#[60] << 4) | (request_priority_bits#[59] << 3) | (request_priority_bits#[58] << 2) | (request_priority_bits#[57] << 1) | request_priority_bits#[56]) != 0) {
-    1
-  } else {
-    0
-  }
-  mut `can_grant__bpo.e7` = _b2i_9
-  const grant__w1 = request & ((can_grant__bpr.e7 << 7) | (can_grant__bpr.e6 << 6) | (can_grant__bpr.e5 << 5) | (can_grant__bpr.e4 << 4) | (can_grant__bpr.e3 << 3) | (can_grant__bpr.e2 << 2) | (can_grant__bpr.e1 << 1) | can_grant__bpr.e0)
-  mut gen_n_req_rr_state_internal = br_rr_state_internal::[name=gen_n_req_rr_state_internal](clk=clk, rst=rst, update_priority=U1(enable_priority_update != 0 and request != 0), grant=grant__w1)
-  const gen_n_req_priority_mask = (gen_n_req_rr_state_internal.priority_mask.e7 << 7) | (gen_n_req_rr_state_internal.priority_mask.e6 << 6) | (gen_n_req_rr_state_internal.priority_mask.e5 << 5) | (gen_n_req_rr_state_internal.priority_mask.e4 << 4) | (gen_n_req_rr_state_internal.priority_mask.e3 << 3) | (gen_n_req_rr_state_internal.priority_mask.e2 << 2) | (gen_n_req_rr_state_internal.priority_mask.e1 << 1) | gen_n_req_rr_state_internal.priority_mask.e0
-  const gen_n_req_request_high = request & (~gen_n_req_priority_mask#[0..=7])
-  const t86 = gen_n_req_request_high#[1..=7] << 1
-  request_priority_bits#[0..<8] = t86#[0..<8]
-  mut _mux_10:U8 = if ((gen_n_req_priority_mask >> (NumRequesters - 1)) & 1) != 0 { request#[0..=6] }
-    else { gen_n_req_request_high#[0..=6] }
-  request_priority_bits#[56..<64] = _mux_10#[0..<8]
-  mut _mux_11:U1 = if ((gen_n_req_priority_mask >> 1) & 1) != 0 { request & 1 } else { gen_n_req_request_high & 1 }
-  request_priority_bits#[8] = _mux_11 & 1
-  mut _mux_12:U6 = if ((gen_n_req_priority_mask >> 1) & 1) != 0 { gen_n_req_request_high#[2..=7] } else { 0 }
-  request_priority_bits#[10..<16] = _mux_12#[0..<6]
-  mut _mux_13:U2 = if ((gen_n_req_priority_mask >> 2) & 1) != 0 { request#[0..=1] } else { gen_n_req_request_high#[0..=1] }
-  request_priority_bits#[16] = _mux_13 & 1
-  request_priority_bits#[17] = (_mux_13 >> 1) & 1
-  mut _mux_14:U5 = if ((gen_n_req_priority_mask >> 2) & 1) != 0 { gen_n_req_request_high#[3..=7] } else { 0 }
-  request_priority_bits#[19..<24] = _mux_14#[0..<5]
-  mut _mux_15:U3 = if ((gen_n_req_priority_mask >> 3) & 1) != 0 { request#[0..=2] } else { gen_n_req_request_high#[0..=2] }
-  request_priority_bits#[24..<27] = _mux_15#[0..<3]
-  mut _mux_16:U4 = if ((gen_n_req_priority_mask >> 3) & 1) != 0 { gen_n_req_request_high#[4..=7] } else { 0 }
-  request_priority_bits#[28..<32] = _mux_16#[0..<4]
-  mut _mux_17:U4 = if ((gen_n_req_priority_mask >> 4) & 1) != 0 { request#[0..=3] } else { gen_n_req_request_high#[0..=3] }
-  request_priority_bits#[32..<36] = _mux_17#[0..<4]
-  mut _mux_18:U3 = if ((gen_n_req_priority_mask >> 4) & 1) != 0 { gen_n_req_request_high#[5..=7] } else { 0 }
-  request_priority_bits#[37..<40] = _mux_18#[0..<3]
-  mut _mux_19:U5 = if ((gen_n_req_priority_mask >> 5) & 1) != 0 { request#[0..=4] } else { gen_n_req_request_high#[0..=4] }
-  request_priority_bits#[40..<45] = _mux_19#[0..<5]
-  mut _mux_20:U2 = if ((gen_n_req_priority_mask >> 5) & 1) != 0 { gen_n_req_request_high#[6..=7] } else { 0 }
-  request_priority_bits#[46] = _mux_20 & 1
-  request_priority_bits#[47] = (_mux_20 >> 1) & 1
-  mut _mux_21:U6 = if ((gen_n_req_priority_mask >> 6) & 1) != 0 { request#[0..=5] } else { gen_n_req_request_high#[0..=5] }
-  request_priority_bits#[48..<54] = _mux_21#[0..<6]
-  mut _mux_22:U1 = if ((gen_n_req_priority_mask >> 6) & 1) != 0 { (gen_n_req_request_high >> 7) & 1 } else { 0 }
-  request_priority_bits#[55] = _mux_22 & 1
-  const t253 = `can_grant__bpo.e7`
-  can_grant__bpr.e7 = t253
-  can_grant.e7 = t253
-  const t254 = `can_grant__bpo.e6`
-  can_grant__bpr.e6 = t254
-  can_grant.e6 = t254
-  const t255 = `can_grant__bpo.e5`
-  can_grant__bpr.e5 = t255
-  can_grant.e5 = t255
-  const t256 = `can_grant__bpo.e4`
-  can_grant__bpr.e4 = t256
-  can_grant.e4 = t256
-  const t257 = `can_grant__bpo.e3`
-  can_grant__bpr.e3 = t257
-  can_grant.e3 = t257
-  const t258 = `can_grant__bpo.e2`
-  can_grant__bpr.e2 = t258
-  can_grant.e2 = t258
-  const t259 = `can_grant__bpo.e1`
-  can_grant__bpr.e1 = t259
-  can_grant.e1 = t259
-  const t260 = `can_grant__bpo.e0`
-  can_grant__bpr.e0 = t260
-  can_grant.e0 = t260
-  grant = grant__w1
+  wire granted:U8 = nil
+  const gen_n_req_rr_state_internal = br_rr_state_internal(clk=clk, rst=U1(rst), update_priority=U1(enable_priority_update == 1 and request != 0), grant=granted)
+  const pm = gen_n_req_rr_state_internal.priority_mask
+  const mask:U8 = (pm.e0#[0], pm.e1#[0], pm.e2#[0], pm.e3#[0], pm.e4#[0], pm.e5#[0], pm.e6#[0], pm.e7#[0])#[..]
+  const high:U8 = request & ~mask
+
+  // A requester at or below the last grant is blocked by any higher request
+  // and by lower-indexed requests; one above it only by lower-indexed higher
+  // requests. Requester 0 always takes the first rule (the reference
+  // special-cases it; this only matters for an empty mask).
+  const wrapped:U8 = mask | 1
+  const blocked:U8 = (wrapped & (or_below<N=8>(v=request) | or_above<N=8>(v=high))) | (~wrapped & or_below<N=8>(v=high))
+  const cg:U8 = ~blocked
+  granted = request & cg
+  grant = granted
+  can_grant = (e7=cg#[7], e6=cg#[6], e5=cg#[5], e4=cg#[4], e3=cg#[3], e2=cg#[2], e1=cg#[1], e0=cg#[0])
 }

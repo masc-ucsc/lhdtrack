@@ -1,144 +1,28 @@
+// Two-level priority round-robin arbiter, 16 requesters, zero latency.
+// High-priority requests (request_priority == 1) beat low-priority ones; within
+// a level the round-robin order starts just above the last grant.
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
 
-pub mod br_arb_pri_rr::[timecheck=false,synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, request_priority:U16, rst:Reset) -> (grant:U16@[]) {
-  wire request_unrolled_bits:U48 = nil
-  wire request_unrolled:U48 = nil
-  wire any_higher_pri_req_bits:U48 = nil
-  wire any_higher_pri_req:U48 = nil
-  grant = 0sb?
-  request_unrolled_bits#[32..<48] = request#[0..<16]
-  const request_unrolled_flat = request_unrolled
-  any_higher_pri_req_bits#[0] = 0
-  any_higher_pri_req_bits#[1] = request_unrolled_flat & 1
-  mut _b2i_2 = if request_unrolled_flat#[0..=1] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[2] = _b2i_2 & 1
-  mut _b2i_3 = if request_unrolled_flat#[0..=2] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[3] = _b2i_3 & 1
-  mut _b2i_4 = if request_unrolled_flat#[0..=3] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[4] = _b2i_4 & 1
-  mut _b2i_5 = if request_unrolled_flat#[0..=4] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[5] = _b2i_5 & 1
-  mut _b2i_6 = if request_unrolled_flat#[0..=5] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[6] = _b2i_6 & 1
-  mut _b2i_7 = if request_unrolled_flat#[0..=6] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[7] = _b2i_7 & 1
-  mut _b2i_8 = if request_unrolled_flat#[0..=7] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[8] = _b2i_8 & 1
-  mut _b2i_9 = if request_unrolled_flat#[0..=8] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[9] = _b2i_9 & 1
-  mut _b2i_10 = if request_unrolled_flat#[0..=9] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[10] = _b2i_10 & 1
-  mut _b2i_11 = if request_unrolled_flat#[0..=10] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[11] = _b2i_11 & 1
-  mut _b2i_12 = if request_unrolled_flat#[0..=11] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[12] = _b2i_12 & 1
-  mut _b2i_13 = if request_unrolled_flat#[0..=12] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[13] = _b2i_13 & 1
-  mut _b2i_14 = if request_unrolled_flat#[0..=13] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[14] = _b2i_14 & 1
-  mut _b2i_15 = if request_unrolled_flat#[0..=14] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[15] = _b2i_15 & 1
-  mut _b2i_16 = if request_unrolled_flat#[1..=15] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[16] = _b2i_16 & 1
-  mut _b2i_17 = if request_unrolled_flat#[2..=16] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[17] = _b2i_17 & 1
-  mut _b2i_18 = if request_unrolled_flat#[3..=17] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[18] = _b2i_18 & 1
-  mut _b2i_19 = if request_unrolled_flat#[4..=18] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[19] = _b2i_19 & 1
-  mut _b2i_20 = if request_unrolled_flat#[5..=19] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[20] = _b2i_20 & 1
-  mut _b2i_21 = if request_unrolled_flat#[6..=20] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[21] = _b2i_21 & 1
-  mut _b2i_22 = if request_unrolled_flat#[7..=21] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[22] = _b2i_22 & 1
-  mut _b2i_23 = if request_unrolled_flat#[8..=22] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[23] = _b2i_23 & 1
-  mut _b2i_24 = if request_unrolled_flat#[9..=23] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[24] = _b2i_24 & 1
-  mut _b2i_25 = if request_unrolled_flat#[10..=24] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[25] = _b2i_25 & 1
-  mut _b2i_26 = if request_unrolled_flat#[11..=25] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[26] = _b2i_26 & 1
-  mut _b2i_27 = if request_unrolled_flat#[12..=26] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[27] = _b2i_27 & 1
-  mut _b2i_28 = if request_unrolled_flat#[13..=27] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[28] = _b2i_28 & 1
-  mut _b2i_29 = if request_unrolled_flat#[14..=28] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[29] = _b2i_29 & 1
-  mut _b2i_30 = if request_unrolled_flat#[15..=29] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[30] = _b2i_30 & 1
-  mut _b2i_31 = if request_unrolled_flat#[16..=30] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[31] = _b2i_31 & 1
-  mut _b2i_32 = if request_unrolled_flat#[17..=31] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[32] = _b2i_32 & 1
-  mut _b2i_33 = if request_unrolled_flat#[18..=32] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[33] = _b2i_33 & 1
-  mut _b2i_34 = if request_unrolled_flat#[19..=33] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[34] = _b2i_34 & 1
-  mut _b2i_35 = if request_unrolled_flat#[20..=34] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[35] = _b2i_35 & 1
-  mut _b2i_36 = if request_unrolled_flat#[21..=35] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[36] = _b2i_36 & 1
-  mut _b2i_37 = if request_unrolled_flat#[22..=36] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[37] = _b2i_37 & 1
-  mut _b2i_38 = if request_unrolled_flat#[23..=37] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[38] = _b2i_38 & 1
-  mut _b2i_39 = if request_unrolled_flat#[24..=38] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[39] = _b2i_39 & 1
-  mut _b2i_40 = if request_unrolled_flat#[25..=39] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[40] = _b2i_40 & 1
-  mut _b2i_41 = if request_unrolled_flat#[26..=40] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[41] = _b2i_41 & 1
-  mut _b2i_42 = if request_unrolled_flat#[27..=41] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[42] = _b2i_42 & 1
-  mut _b2i_43 = if request_unrolled_flat#[28..=42] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[43] = _b2i_43 & 1
-  mut _b2i_44 = if request_unrolled_flat#[29..=43] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[44] = _b2i_44 & 1
-  mut _b2i_45 = if request_unrolled_flat#[30..=44] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[45] = _b2i_45 & 1
-  mut _b2i_46 = if request_unrolled_flat#[31..=45] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[46] = _b2i_46 & 1
-  mut _b2i_47 = if request_unrolled_flat#[32..=46] != 0 { 1 } else { 0 }
-  any_higher_pri_req_bits#[47] = _b2i_47 & 1
-  const grant_unrolled = request_unrolled & (~any_higher_pri_req)
-  const grant__w4 = ((0 | grant_unrolled#[0..=15]) | grant_unrolled#[16..=31]) | grant_unrolled#[32..=47]
-  mut rr_state_internal = br_rr_state_internal::[name=rr_state_internal](clk=clk, rst=rst, update_priority=U1(enable_priority_update != 0 and request != 0), grant=grant__w4)
-  const priority_mask__w1 = (rr_state_internal.priority_mask.e15 << 15) | (rr_state_internal.priority_mask.e14 << 14) | (rr_state_internal.priority_mask.e13 << 13) | (rr_state_internal.priority_mask.e12 << 12) | (rr_state_internal.priority_mask.e11 << 11) | (rr_state_internal.priority_mask.e10 << 10) | (rr_state_internal.priority_mask.e9 << 9) | (rr_state_internal.priority_mask.e8 << 8) | (rr_state_internal.priority_mask.e7 << 7) | (rr_state_internal.priority_mask.e6 << 6) | (rr_state_internal.priority_mask.e5 << 5) | (rr_state_internal.priority_mask.e4 << 4) | (rr_state_internal.priority_mask.e3 << 3) | (rr_state_internal.priority_mask.e2 << 2) | (rr_state_internal.priority_mask.e1 << 1) | rr_state_internal.priority_mask.e0
-  request_unrolled_bits#[0] = U1((request & 1) != 0 and (request_priority & 1) == 1 and (priority_mask__w1 & 1) == 0) & 1
-  request_unrolled_bits#[16] = U1((request & 1) != 0 and ((priority_mask__w1 & 1) == 0 or ((request_priority & 1) >= 1 and (priority_mask__w1 & 1) != 0))) & 1
-  request_unrolled_bits#[1] = U1(((request >> 1) & 1) != 0 and ((request_priority >> 1) & 1) == 1 and ((priority_mask__w1 >> 1) & 1) == 0) & 1
-  request_unrolled_bits#[17] = U1(((request >> 1) & 1) != 0 and (((priority_mask__w1 >> 1) & 1) == 0 or (((request_priority >> 1) & 1) >= 1 and ((priority_mask__w1 >> 1) & 1) != 0))) & 1
-  request_unrolled_bits#[2] = U1(((request >> 2) & 1) != 0 and ((request_priority >> 2) & 1) == 1 and ((priority_mask__w1 >> 2) & 1) == 0) & 1
-  request_unrolled_bits#[18] = U1(((request >> 2) & 1) != 0 and (((priority_mask__w1 >> 2) & 1) == 0 or (((request_priority >> 2) & 1) >= 1 and ((priority_mask__w1 >> 2) & 1) != 0))) & 1
-  request_unrolled_bits#[3] = U1(((request >> 3) & 1) != 0 and ((request_priority >> 3) & 1) == 1 and ((priority_mask__w1 >> 3) & 1) == 0) & 1
-  request_unrolled_bits#[19] = U1(((request >> 3) & 1) != 0 and (((priority_mask__w1 >> 3) & 1) == 0 or (((request_priority >> 3) & 1) >= 1 and ((priority_mask__w1 >> 3) & 1) != 0))) & 1
-  request_unrolled_bits#[4] = U1(((request >> 4) & 1) != 0 and ((request_priority >> 4) & 1) == 1 and ((priority_mask__w1 >> 4) & 1) == 0) & 1
-  request_unrolled_bits#[20] = U1(((request >> 4) & 1) != 0 and (((priority_mask__w1 >> 4) & 1) == 0 or (((request_priority >> 4) & 1) >= 1 and ((priority_mask__w1 >> 4) & 1) != 0))) & 1
-  request_unrolled_bits#[5] = U1(((request >> 5) & 1) != 0 and ((request_priority >> 5) & 1) == 1 and ((priority_mask__w1 >> 5) & 1) == 0) & 1
-  request_unrolled_bits#[21] = U1(((request >> 5) & 1) != 0 and (((priority_mask__w1 >> 5) & 1) == 0 or (((request_priority >> 5) & 1) >= 1 and ((priority_mask__w1 >> 5) & 1) != 0))) & 1
-  request_unrolled_bits#[6] = U1(((request >> 6) & 1) != 0 and ((request_priority >> 6) & 1) == 1 and ((priority_mask__w1 >> 6) & 1) == 0) & 1
-  request_unrolled_bits#[22] = U1(((request >> 6) & 1) != 0 and (((priority_mask__w1 >> 6) & 1) == 0 or (((request_priority >> 6) & 1) >= 1 and ((priority_mask__w1 >> 6) & 1) != 0))) & 1
-  request_unrolled_bits#[7] = U1(((request >> 7) & 1) != 0 and ((request_priority >> 7) & 1) == 1 and ((priority_mask__w1 >> 7) & 1) == 0) & 1
-  request_unrolled_bits#[23] = U1(((request >> 7) & 1) != 0 and (((priority_mask__w1 >> 7) & 1) == 0 or (((request_priority >> 7) & 1) >= 1 and ((priority_mask__w1 >> 7) & 1) != 0))) & 1
-  request_unrolled_bits#[8] = U1(((request >> 8) & 1) != 0 and ((request_priority >> 8) & 1) == 1 and ((priority_mask__w1 >> 8) & 1) == 0) & 1
-  request_unrolled_bits#[24] = U1(((request >> 8) & 1) != 0 and (((priority_mask__w1 >> 8) & 1) == 0 or (((request_priority >> 8) & 1) >= 1 and ((priority_mask__w1 >> 8) & 1) != 0))) & 1
-  request_unrolled_bits#[9] = U1(((request >> 9) & 1) != 0 and ((request_priority >> 9) & 1) == 1 and ((priority_mask__w1 >> 9) & 1) == 0) & 1
-  request_unrolled_bits#[25] = U1(((request >> 9) & 1) != 0 and (((priority_mask__w1 >> 9) & 1) == 0 or (((request_priority >> 9) & 1) >= 1 and ((priority_mask__w1 >> 9) & 1) != 0))) & 1
-  request_unrolled_bits#[10] = U1(((request >> 10) & 1) != 0 and ((request_priority >> 10) & 1) == 1 and ((priority_mask__w1 >> 10) & 1) == 0) & 1
-  request_unrolled_bits#[26] = U1(((request >> 10) & 1) != 0 and (((priority_mask__w1 >> 10) & 1) == 0 or (((request_priority >> 10) & 1) >= 1 and ((priority_mask__w1 >> 10) & 1) != 0))) & 1
-  request_unrolled_bits#[11] = U1(((request >> 11) & 1) != 0 and ((request_priority >> 11) & 1) == 1 and ((priority_mask__w1 >> 11) & 1) == 0) & 1
-  request_unrolled_bits#[27] = U1(((request >> 11) & 1) != 0 and (((priority_mask__w1 >> 11) & 1) == 0 or (((request_priority >> 11) & 1) >= 1 and ((priority_mask__w1 >> 11) & 1) != 0))) & 1
-  request_unrolled_bits#[12] = U1(((request >> 12) & 1) != 0 and ((request_priority >> 12) & 1) == 1 and ((priority_mask__w1 >> 12) & 1) == 0) & 1
-  request_unrolled_bits#[28] = U1(((request >> 12) & 1) != 0 and (((priority_mask__w1 >> 12) & 1) == 0 or (((request_priority >> 12) & 1) >= 1 and ((priority_mask__w1 >> 12) & 1) != 0))) & 1
-  request_unrolled_bits#[13] = U1(((request >> 13) & 1) != 0 and ((request_priority >> 13) & 1) == 1 and ((priority_mask__w1 >> 13) & 1) == 0) & 1
-  request_unrolled_bits#[29] = U1(((request >> 13) & 1) != 0 and (((priority_mask__w1 >> 13) & 1) == 0 or (((request_priority >> 13) & 1) >= 1 and ((priority_mask__w1 >> 13) & 1) != 0))) & 1
-  request_unrolled_bits#[14] = U1(((request >> 14) & 1) != 0 and ((request_priority >> 14) & 1) == 1 and ((priority_mask__w1 >> 14) & 1) == 0) & 1
-  request_unrolled_bits#[30] = U1(((request >> 14) & 1) != 0 and (((priority_mask__w1 >> 14) & 1) == 0 or (((request_priority >> 14) & 1) >= 1 and ((priority_mask__w1 >> 14) & 1) != 0))) & 1
-  request_unrolled_bits#[15] = U1(((request >> 15) & 1) != 0 and ((request_priority >> 15) & 1) == 1 and ((priority_mask__w1 >> 15) & 1) == 0) & 1
-  request_unrolled_bits#[31] = U1(((request >> 15) & 1) != 0 and (((priority_mask__w1 >> 15) & 1) == 0 or (((request_priority >> 15) & 1) >= 1 and ((priority_mask__w1 >> 15) & 1) != 0))) & 1
-  request_unrolled = request_unrolled_bits
-  any_higher_pri_req = any_higher_pri_req_bits
-  grant = grant__w4
+pub mod br_arb_pri_rr::[synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, request_priority:U16, rst:Reset) -> (grant:U16@[]) {
+  wire winner:U16 = nil
+  const rr_state_internal = br_rr_state_internal::[name=rr_state_internal](update_priority=U1(enable_priority_update == 1 and request != 0), grant=winner)
+  const above = ~rr_state_internal        // indices past the last grant go first
+
+  // Scan order, lowest lane first: high priority above the last grant, then
+  // anything above it or of high priority, then any request.
+  const first:U16 = request & request_priority & above
+  const second:U16 = request & (request_priority | above)
+  const scan:U48 = (first, second, request)#[..]
+
+  // The first set bit of scan wins. Each lane includes the previous one, so a
+  // bit only needs to look 16 positions down (prefix-OR, no adder).
+  mut lower:U48 = 0
+  wrap lower = scan << 1
+  wrap lower |= lower << 1
+  wrap lower |= lower << 2
+  wrap lower |= lower << 4
+  wrap lower |= lower << 8
+  const won:U48 = scan & ~lower
+  winner = won#[0..<16] | won#[16..<32] | won#[32..<48]
+  grant = winner
 }

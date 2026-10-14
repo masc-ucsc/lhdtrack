@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_amba_axil2apb.br_amba_axil2apb.
 const dut = import("br_amba_axil2apb.br_amba_axil2apb")
 
-pub mod br_amba_axil2apb_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_amba_axil2apb_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_amba_axil2apb_harness(rst:U1) -> (checksum:U64@[0]) {
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid, paddr, psel, penable, pprot, pstrb, pwrite, pwdata) = dut(rst=U1(rst != 0), awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr_x#[36..=67], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr_x#[47..=78], pready=lfsr#[15], pslverr=lfsr#[16])
+  const (awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid, paddr, psel, penable, pprot, pstrb, pwrite, pwdata) = dut(rst=U1(rst), awaddr=lfsr#[0..=31], awprot=lfsr#[32..=34], awvalid=lfsr#[35], wdata=lfsr_x#[36..=67], wstrb=lfsr#[4..=7], wvalid=lfsr#[8], bready=lfsr#[9], araddr=lfsr#[10..=41], arprot=lfsr#[42..=44], arvalid=lfsr#[45], rready=lfsr#[46], prdata=lfsr_x#[47..=78], pready=lfsr#[15], pslverr=lfsr#[16])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ awready
@@ -45,11 +45,6 @@ pub mod br_amba_axil2apb_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ pwrite
   wrap acc = ((acc << 1) | acc#[63]) ^ pwdata
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

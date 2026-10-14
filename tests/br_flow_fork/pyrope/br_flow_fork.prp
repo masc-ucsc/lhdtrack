@@ -3,11 +3,26 @@
 // (pop_valid_unstable) only while every OTHER pop is ready, so the flows
 // advance together. All outputs are combinational; clk and rst are unused.
 pub mod br_flow_fork(clk:Clock, pop_ready:U16, push_valid:U1, rst:Reset) -> (pop_valid_unstable:U16@[0], push_ready:U1@[0]) {
-  comptime const N = pop_ready.[bits]
+  comptime const ALL = (1 << pop_ready.[bits]) - 1
 
   push_ready = pop_ready#&[..]
-  for i in 0..<N {
-    const others_ready:Unsigned(bits=N) = pop_ready | (1 << i)
-    pop_valid_unstable#[i] = push_valid & others_ready#&[..]
-  }
+  // Output i is valid when every OTHER output is ready (one term per output, no loop).
+  pop_valid_unstable = (
+    U1(push_valid & U1((pop_ready | 1) == ALL)),
+    U1(push_valid & U1((pop_ready | 2) == ALL)),
+    U1(push_valid & U1((pop_ready | 4) == ALL)),
+    U1(push_valid & U1((pop_ready | 8) == ALL)),
+    U1(push_valid & U1((pop_ready | 16) == ALL)),
+    U1(push_valid & U1((pop_ready | 32) == ALL)),
+    U1(push_valid & U1((pop_ready | 64) == ALL)),
+    U1(push_valid & U1((pop_ready | 128) == ALL)),
+    U1(push_valid & U1((pop_ready | 256) == ALL)),
+    U1(push_valid & U1((pop_ready | 512) == ALL)),
+    U1(push_valid & U1((pop_ready | 1024) == ALL)),
+    U1(push_valid & U1((pop_ready | 2048) == ALL)),
+    U1(push_valid & U1((pop_ready | 4096) == ALL)),
+    U1(push_valid & U1((pop_ready | 8192) == ALL)),
+    U1(push_valid & U1((pop_ready | 16384) == ALL)),
+    U1(push_valid & U1((pop_ready | 32768) == ALL))
+  )#[..]
 }

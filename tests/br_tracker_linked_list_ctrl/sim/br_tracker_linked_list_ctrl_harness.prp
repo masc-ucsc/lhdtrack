@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_tracker_linked_list_ctrl.br_tracker_linked_list_ctrl.
 const dut = import("br_tracker_linked_list_ctrl.br_tracker_linked_list_ctrl")
 
-pub mod br_tracker_linked_list_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+pub mod br_tracker_linked_list_ctrl_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_tracker_linked_list_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const dut_reset:Bool = rst != 0
+  const dut_reset:Bool = rst
 
   const (head_valid, head, empty, items, ptr_ram_wr_valid, ptr_ram_wr_addr, ptr_ram_wr_data, ptr_ram_rd_addr_valid, ptr_ram_rd_addr) = dut(clk=clk, rst=U1(dut_reset), next_tail_valid=0, next_tail=lfsr#[4..=31], head_ready=lfsr#[32], ptr_ram_rd_data_valid=0, ptr_ram_rd_data=lfsr#[34..=40])
 
@@ -37,11 +37,6 @@ pub mod br_tracker_linked_list_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@
   wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_rd_addr_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ ptr_ram_rd_addr
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

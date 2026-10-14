@@ -1,19 +1,17 @@
+// ATB funnel: round-robin merges 2 ATB sources into one destination, with a
+// forward register stage on the output.
 const br_flow_mux_rr_stable_t = import("br_flow_mux_rr_stable.br_flow_mux_rr_stable")
-const br_amba = import("br_amba")
 
 pub mod br_amba_atb_funnel::[timecheck=false](clk:Clock, dst_atready:U1, rst:Reset, src_atbytes:U4, src_atdata:U64, src_atid:U14, src_atuser:U2, src_atvalid:U2) -> (dst_atbytes:U2@[], dst_atdata:U32@[], dst_atid:U7@[], dst_atuser:U1@[], dst_atvalid:U1@[], src_atready:U2@[]) {
-  wire src_packet_bits:U84 = nil
-  wire src_packet:U84 = nil
-  const t11 = (src_atid#[0..=6] << 35) | (src_atdata#[0..=31] << 3) | (src_atbytes#[0..=1] << 1) | (src_atuser & 1)
-  src_packet_bits#[0..<42] = t11#[0..<42]
-  const t100 = (src_atid#[7..=13] << 35) | (src_atdata#[32..=63] << 3) | (src_atbytes#[2..=3] << 1) | ((src_atuser >> 1) & 1)
-  src_packet_bits#[42..<84] = t100#[0..<42]
-  mut br_flow_mux_rr_stable = br_flow_mux_rr_stable_t::[name=br_flow_mux_rr_stable](clk=clk, rst=rst, push_valid=src_atvalid, push_data=src_packet, pop_ready=dst_atready)
-  src_packet = src_packet_bits
+  // Packet lanes from the LSB: atuser:U1, atbytes:U2, atdata:U32, atid:U7.
+  const packet0:U42 = (src_atuser#[0], src_atbytes#[0..<2], src_atdata#[0..<32], src_atid#[0..<7])#[..]
+  const packet1:U42 = (src_atuser#[1], src_atbytes#[2..<4], src_atdata#[32..<64], src_atid#[7..<14])#[..]
+  const br_flow_mux_rr_stable = br_flow_mux_rr_stable_t(push_valid=src_atvalid, push_data=(packet0, packet1)#[..], pop_ready=dst_atready)
   src_atready = br_flow_mux_rr_stable.push_ready
   dst_atvalid = br_flow_mux_rr_stable.pop_valid
-  dst_atid = (br_flow_mux_rr_stable.pop_data >> 35)#[0..=6]
-  dst_atdata = (br_flow_mux_rr_stable.pop_data >> 3)#[0..=31]
-  dst_atbytes = (br_flow_mux_rr_stable.pop_data >> 1)#[0..=1]
-  dst_atuser = br_flow_mux_rr_stable.pop_data & 1
+  const packet = br_flow_mux_rr_stable.pop_data
+  dst_atuser = packet#[0]
+  dst_atbytes = packet#[1..<3]
+  dst_atdata = packet#[3..<35]
+  dst_atid = packet#[35..<42]
 }

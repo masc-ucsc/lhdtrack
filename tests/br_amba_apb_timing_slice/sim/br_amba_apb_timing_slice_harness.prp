@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_amba_apb_timing_slice.br_amba_apb_timing_slice.
 const dut = import("br_amba_apb_timing_slice.br_amba_apb_timing_slice")
 
-pub mod br_amba_apb_timing_slice_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_amba_apb_timing_slice_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_amba_apb_timing_slice_harness(rst:U1) -> (checksum:U64@[0]) {
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (prdata_out, pready_out, pslverr_out, paddr_out, psel_out, penable_out, pprot_out, pstrb_out, pwrite_out, pwdata_out) = dut(rst=U1(rst != 0), paddr_in=lfsr#[0..=31], psel_in=lfsr#[32], penable_in=lfsr#[33], pprot_in=lfsr#[34..=36], pstrb_in=lfsr#[37..=40], pwrite_in=lfsr#[41], pwdata_in=lfsr_x#[42..=73], prdata_in=lfsr#[10..=41], pready_in=lfsr#[42], pslverr_in=lfsr#[43])
+  const (prdata_out, pready_out, pslverr_out, paddr_out, psel_out, penable_out, pprot_out, pstrb_out, pwrite_out, pwdata_out) = dut(rst=U1(rst), paddr_in=lfsr#[0..=31], psel_in=lfsr#[32], penable_in=lfsr#[33], pprot_in=lfsr#[34..=36], pstrb_in=lfsr#[37..=40], pwrite_in=lfsr#[41], pwdata_in=lfsr_x#[42..=73], prdata_in=lfsr#[10..=41], pready_in=lfsr#[42], pslverr_in=lfsr#[43])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ prdata_out
@@ -40,11 +40,6 @@ pub mod br_amba_apb_timing_slice_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ pwrite_out
   wrap acc = ((acc << 1) | acc#[63]) ^ pwdata_out
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

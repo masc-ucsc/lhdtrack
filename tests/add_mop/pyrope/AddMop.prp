@@ -1,10 +1,3 @@
-// Sum four packed lanes modulo the output width; lane zero is least significant.
 pub comb AddMop(A:U256) -> (S:U64) {
-  comptime const width = S.[bits]
-  comptime const depth = A.[bits]/width
-  mut sum:U64 = 0
-  for i in 0..<depth {
-    wrap sum += A#[(i*width)..+width]
-  }
-  S = sum
+  wrap S = A#[0..<64] + A#[64..<128] + A#[128..<192] + A#[192..<256]
 }

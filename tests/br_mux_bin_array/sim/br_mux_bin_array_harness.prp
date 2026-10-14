@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_mux_bin_array.br_mux_bin_array.
 const dut = import("br_mux_bin_array.br_mux_bin_array")
 
-pub mod br_mux_bin_array_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_mux_bin_array_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -39,11 +39,6 @@ pub mod br_mux_bin_array_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ out
   wrap acc = ((acc << 1) | acc#[63]) ^ out_valid
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

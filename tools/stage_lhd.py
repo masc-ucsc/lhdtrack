@@ -48,6 +48,8 @@ def main() -> int:
     ap.add_argument("--bazel-bin", type=Path,
                     help="already-built -c opt bin directory; avoids waiting for a busy Bazel server")
     ap.add_argument("--dry-run", action="store_true", help="print what would be staged, change nothing")
+    ap.add_argument("--exclude-untracked-prefix", action="append", default=[],
+                    help="omit untracked artifacts under this directory from the source archive")
     args = ap.parse_args()
     root: Path = args.root.resolve()
     livehd: Path = (args.livehd or root.parent / "livehd").resolve()
@@ -75,6 +77,9 @@ def main() -> int:
         if not entry:
             continue
         relative = entry.decode("utf-8", errors="surrogateescape")
+        if any(relative.startswith(prefix.rstrip("/") + "/")
+               for prefix in args.exclude_untracked_prefix):
+            continue
         extra = subprocess.run(
             ["git", "diff", "--no-index", "--binary", "--", "/dev/null", relative],
             cwd=livehd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
@@ -130,6 +135,7 @@ def main() -> int:
     tc["versions"]["yosys2"] = f"sha256:{sha16(yosys2)}"
     tc["livehd_source_revision"] = full_revision
     tc["livehd_source_diff_sha256"] = diff_digest
+    tc["livehd_source_untracked_exclusions"] = args.exclude_untracked_prefix
     tc["generated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     tc_path.write_text(json.dumps(tc, indent=2) + "\n")
     print(f"toolchain.json -> {version}")

@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_multi_xfer_reg_fwd.br_multi_xfer_reg_fwd.
 const dut = import("br_multi_xfer_reg_fwd.br_multi_xfer_reg_fwd")
 
-pub mod br_multi_xfer_reg_fwd_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_multi_xfer_reg_fwd_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,18 +26,13 @@ pub mod br_multi_xfer_reg_fwd_harness(rst:U1) -> (checksum:U64@[0]) {
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_receivable, pop_sendable, pop_data) = dut(rst=U1(rst != 0), push_sendable=lfsr#[0..=1], push_data=lfsr_x#[2..=65], pop_receivable=lfsr#[2..=3])
+  const (push_receivable, pop_sendable, pop_data) = dut(rst=U1(rst), push_sendable=lfsr#[0..=1], push_data=lfsr_x#[2..=65], pop_receivable=lfsr#[2..=3])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receivable
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_sendable
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_data
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

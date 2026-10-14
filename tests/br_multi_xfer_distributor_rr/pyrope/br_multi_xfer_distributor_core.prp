@@ -1,111 +1,36 @@
-const br_misc_tieoff_one = import("br_misc_tieoff_one.br_misc_tieoff_one")
+// Multi-transfer distributor datapath: up to 4 symbols per cycle are sent to
+// the flows granted by the arbiter. Symbol k goes to the flow granted k-th, so
+// flow f takes the OR of the symbols whose ordered grant has bit f set.
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_multi_xfer_distributor_core<NumSymbols=4, SymbolWidth=0x40, NumFlows=16, EnableCoverPushBackpressure=1, EnableAssertPushDataStability=1, EnableCoverMorePopReadyThanSendable=1, EnableAssertFinalNotSendable=1, EnableAssertNoPushBackpressure=0>::[timecheck=false](clk:Clock, grant:U16, grant_count:U3, grant_ordered:U64, pop_ready:U16, push_data:U256, push_sendable:U3, rst:Reset) -> (enable_priority_update:U1@[], grant_allowed:U3@[], pop_data:U1024@[], pop_valid:U16@[], push_receivable:U3@[], request:U16@[]) {
-  wire pop_data_bits:U1024 = nil
-  wire pop_data:U1024 = nil
-  wire grant_ordered_transposed_bits:U64 = nil
-  grant_ordered_transposed_bits#[0] = grant_ordered#[0..=15] & 1
-  grant_ordered_transposed_bits#[1] = grant_ordered#[16..=31] & 1
-  grant_ordered_transposed_bits#[2] = grant_ordered#[32..=47] & 1
-  grant_ordered_transposed_bits#[3] = grant_ordered#[48..=63] & 1
-  grant_ordered_transposed_bits#[4] = (grant_ordered#[0..=15] >> 1) & 1
-  grant_ordered_transposed_bits#[5] = (grant_ordered#[16..=31] >> 1) & 1
-  grant_ordered_transposed_bits#[6] = (grant_ordered#[32..=47] >> 1) & 1
-  grant_ordered_transposed_bits#[7] = (grant_ordered#[48..=63] >> 1) & 1
-  grant_ordered_transposed_bits#[8] = (grant_ordered#[0..=15] >> 2) & 1
-  grant_ordered_transposed_bits#[9] = (grant_ordered#[16..=31] >> 2) & 1
-  grant_ordered_transposed_bits#[10] = (grant_ordered#[32..=47] >> 2) & 1
-  grant_ordered_transposed_bits#[11] = (grant_ordered#[48..=63] >> 2) & 1
-  grant_ordered_transposed_bits#[12] = (grant_ordered#[0..=15] >> 3) & 1
-  grant_ordered_transposed_bits#[13] = (grant_ordered#[16..=31] >> 3) & 1
-  grant_ordered_transposed_bits#[14] = (grant_ordered#[32..=47] >> 3) & 1
-  grant_ordered_transposed_bits#[15] = (grant_ordered#[48..=63] >> 3) & 1
-  grant_ordered_transposed_bits#[16] = (grant_ordered#[0..=15] >> 4) & 1
-  grant_ordered_transposed_bits#[17] = (grant_ordered#[16..=31] >> 4) & 1
-  grant_ordered_transposed_bits#[18] = (grant_ordered#[32..=47] >> 4) & 1
-  grant_ordered_transposed_bits#[19] = (grant_ordered#[48..=63] >> 4) & 1
-  grant_ordered_transposed_bits#[20] = (grant_ordered#[0..=15] >> 5) & 1
-  grant_ordered_transposed_bits#[21] = (grant_ordered#[16..=31] >> 5) & 1
-  grant_ordered_transposed_bits#[22] = (grant_ordered#[32..=47] >> 5) & 1
-  grant_ordered_transposed_bits#[23] = (grant_ordered#[48..=63] >> 5) & 1
-  grant_ordered_transposed_bits#[24] = (grant_ordered#[0..=15] >> 6) & 1
-  grant_ordered_transposed_bits#[25] = (grant_ordered#[16..=31] >> 6) & 1
-  grant_ordered_transposed_bits#[26] = (grant_ordered#[32..=47] >> 6) & 1
-  grant_ordered_transposed_bits#[27] = (grant_ordered#[48..=63] >> 6) & 1
-  grant_ordered_transposed_bits#[28] = (grant_ordered#[0..=15] >> 7) & 1
-  grant_ordered_transposed_bits#[29] = (grant_ordered#[16..=31] >> 7) & 1
-  grant_ordered_transposed_bits#[30] = (grant_ordered#[32..=47] >> 7) & 1
-  grant_ordered_transposed_bits#[31] = (grant_ordered#[48..=63] >> 7) & 1
-  grant_ordered_transposed_bits#[32] = (grant_ordered#[0..=15] >> 8) & 1
-  grant_ordered_transposed_bits#[33] = (grant_ordered#[16..=31] >> 8) & 1
-  grant_ordered_transposed_bits#[34] = (grant_ordered#[32..=47] >> 8) & 1
-  grant_ordered_transposed_bits#[35] = (grant_ordered#[48..=63] >> 8) & 1
-  grant_ordered_transposed_bits#[36] = (grant_ordered#[0..=15] >> 9) & 1
-  grant_ordered_transposed_bits#[37] = (grant_ordered#[16..=31] >> 9) & 1
-  grant_ordered_transposed_bits#[38] = (grant_ordered#[32..=47] >> 9) & 1
-  grant_ordered_transposed_bits#[39] = (grant_ordered#[48..=63] >> 9) & 1
-  grant_ordered_transposed_bits#[40] = (grant_ordered#[0..=15] >> 10) & 1
-  grant_ordered_transposed_bits#[41] = (grant_ordered#[16..=31] >> 10) & 1
-  grant_ordered_transposed_bits#[42] = (grant_ordered#[32..=47] >> 10) & 1
-  grant_ordered_transposed_bits#[43] = (grant_ordered#[48..=63] >> 10) & 1
-  grant_ordered_transposed_bits#[44] = (grant_ordered#[0..=15] >> 11) & 1
-  grant_ordered_transposed_bits#[45] = (grant_ordered#[16..=31] >> 11) & 1
-  grant_ordered_transposed_bits#[46] = (grant_ordered#[32..=47] >> 11) & 1
-  grant_ordered_transposed_bits#[47] = (grant_ordered#[48..=63] >> 11) & 1
-  grant_ordered_transposed_bits#[48] = (grant_ordered#[0..=15] >> 12) & 1
-  grant_ordered_transposed_bits#[49] = (grant_ordered#[16..=31] >> 12) & 1
-  grant_ordered_transposed_bits#[50] = (grant_ordered#[32..=47] >> 12) & 1
-  grant_ordered_transposed_bits#[51] = (grant_ordered#[48..=63] >> 12) & 1
-  grant_ordered_transposed_bits#[52] = (grant_ordered#[0..=15] >> 13) & 1
-  grant_ordered_transposed_bits#[53] = (grant_ordered#[16..=31] >> 13) & 1
-  grant_ordered_transposed_bits#[54] = (grant_ordered#[32..=47] >> 13) & 1
-  grant_ordered_transposed_bits#[55] = (grant_ordered#[48..=63] >> 13) & 1
-  grant_ordered_transposed_bits#[56] = (grant_ordered#[0..=15] >> 14) & 1
-  grant_ordered_transposed_bits#[57] = (grant_ordered#[16..=31] >> 14) & 1
-  grant_ordered_transposed_bits#[58] = (grant_ordered#[32..=47] >> 14) & 1
-  grant_ordered_transposed_bits#[59] = (grant_ordered#[48..=63] >> 14) & 1
-  grant_ordered_transposed_bits#[60] = (grant_ordered#[0..=15] >> 15) & 1
-  grant_ordered_transposed_bits#[61] = (grant_ordered#[16..=31] >> 15) & 1
-  grant_ordered_transposed_bits#[62] = (grant_ordered#[32..=47] >> 15) & 1
-  grant_ordered_transposed_bits#[63] = (grant_ordered#[48..=63] >> 15) & 1
-  mut br_misc_tieoff_one_enable_priority_update = br_misc_tieoff_one::[name=br_misc_tieoff_one_enable_priority_update]()
-  mut gen_pop_data_0_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[3] << 3) | (grant_ordered_transposed_bits#[2] << 2) | (grant_ordered_transposed_bits#[1] << 1) | grant_ordered_transposed_bits#[0], `in`=push_data)
-  pop_data_bits#[0..<64] = gen_pop_data_0_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_1_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[7] << 3) | (grant_ordered_transposed_bits#[6] << 2) | (grant_ordered_transposed_bits#[5] << 1) | grant_ordered_transposed_bits#[4], `in`=push_data)
-  pop_data_bits#[64..<128] = gen_pop_data_1_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_2_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[11] << 3) | (grant_ordered_transposed_bits#[10] << 2) | (grant_ordered_transposed_bits#[9] << 1) | grant_ordered_transposed_bits#[8], `in`=push_data)
-  pop_data_bits#[128..<192] = gen_pop_data_2_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_3_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[15] << 3) | (grant_ordered_transposed_bits#[14] << 2) | (grant_ordered_transposed_bits#[13] << 1) | grant_ordered_transposed_bits#[12], `in`=push_data)
-  pop_data_bits#[192..<256] = gen_pop_data_3_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_4_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[19] << 3) | (grant_ordered_transposed_bits#[18] << 2) | (grant_ordered_transposed_bits#[17] << 1) | grant_ordered_transposed_bits#[16], `in`=push_data)
-  pop_data_bits#[256..<320] = gen_pop_data_4_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_5_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[23] << 3) | (grant_ordered_transposed_bits#[22] << 2) | (grant_ordered_transposed_bits#[21] << 1) | grant_ordered_transposed_bits#[20], `in`=push_data)
-  pop_data_bits#[320..<384] = gen_pop_data_5_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_6_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[27] << 3) | (grant_ordered_transposed_bits#[26] << 2) | (grant_ordered_transposed_bits#[25] << 1) | grant_ordered_transposed_bits#[24], `in`=push_data)
-  pop_data_bits#[384..<448] = gen_pop_data_6_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_7_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[31] << 3) | (grant_ordered_transposed_bits#[30] << 2) | (grant_ordered_transposed_bits#[29] << 1) | grant_ordered_transposed_bits#[28], `in`=push_data)
-  pop_data_bits#[448..<512] = gen_pop_data_7_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_8_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[35] << 3) | (grant_ordered_transposed_bits#[34] << 2) | (grant_ordered_transposed_bits#[33] << 1) | grant_ordered_transposed_bits#[32], `in`=push_data)
-  pop_data_bits#[512..<576] = gen_pop_data_8_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_9_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[39] << 3) | (grant_ordered_transposed_bits#[38] << 2) | (grant_ordered_transposed_bits#[37] << 1) | grant_ordered_transposed_bits#[36], `in`=push_data)
-  pop_data_bits#[576..<640] = gen_pop_data_9_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_10_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[43] << 3) | (grant_ordered_transposed_bits#[42] << 2) | (grant_ordered_transposed_bits#[41] << 1) | grant_ordered_transposed_bits#[40], `in`=push_data)
-  pop_data_bits#[640..<704] = gen_pop_data_10_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_11_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[47] << 3) | (grant_ordered_transposed_bits#[46] << 2) | (grant_ordered_transposed_bits#[45] << 1) | grant_ordered_transposed_bits#[44], `in`=push_data)
-  pop_data_bits#[704..<768] = gen_pop_data_11_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_12_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[51] << 3) | (grant_ordered_transposed_bits#[50] << 2) | (grant_ordered_transposed_bits#[49] << 1) | grant_ordered_transposed_bits#[48], `in`=push_data)
-  pop_data_bits#[768..<832] = gen_pop_data_12_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_13_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[55] << 3) | (grant_ordered_transposed_bits#[54] << 2) | (grant_ordered_transposed_bits#[53] << 1) | grant_ordered_transposed_bits#[52], `in`=push_data)
-  pop_data_bits#[832..<896] = gen_pop_data_13_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_14_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[59] << 3) | (grant_ordered_transposed_bits#[58] << 2) | (grant_ordered_transposed_bits#[57] << 1) | grant_ordered_transposed_bits#[56], `in`=push_data)
-  pop_data_bits#[896..<960] = gen_pop_data_14_br_mux_onehot_pop_data#[0..<64]
-  mut gen_pop_data_15_br_mux_onehot_pop_data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=(grant_ordered_transposed_bits#[63] << 3) | (grant_ordered_transposed_bits#[62] << 2) | (grant_ordered_transposed_bits#[61] << 1) | grant_ordered_transposed_bits#[60], `in`=push_data)
-  pop_data_bits#[960..<1024] = gen_pop_data_15_br_mux_onehot_pop_data#[0..<64]
-  pop_data = pop_data_bits
-  push_receivable = grant_count
+// Data for flow F: bit k of its select is ordered grant k's bit F.
+comb flow_data<F=0>(grant_ordered:U64, push_data:U256) -> (data:U64) {
+  const select:U4 = (grant_ordered#[F], grant_ordered#[16 + F], grant_ordered#[32 + F], grant_ordered#[48 + F])#[..]
+  data = br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(select=select, `in`=push_data)
+}
+
+pub mod br_multi_xfer_distributor_core(clk:Clock, grant:U16, grant_count:U3, grant_ordered:U64, pop_ready:U16, push_data:U256, push_sendable:U3, rst:Reset) -> (enable_priority_update:U1@[], grant_allowed:U3@[], pop_data:U1024@[], pop_valid:U16@[], push_receivable:U3@[], request:U16@[]) {
+  const d0  = flow_data<F=0>(grant_ordered=grant_ordered, push_data=push_data)
+  const d1  = flow_data<F=1>(grant_ordered=grant_ordered, push_data=push_data)
+  const d2  = flow_data<F=2>(grant_ordered=grant_ordered, push_data=push_data)
+  const d3  = flow_data<F=3>(grant_ordered=grant_ordered, push_data=push_data)
+  const d4  = flow_data<F=4>(grant_ordered=grant_ordered, push_data=push_data)
+  const d5  = flow_data<F=5>(grant_ordered=grant_ordered, push_data=push_data)
+  const d6  = flow_data<F=6>(grant_ordered=grant_ordered, push_data=push_data)
+  const d7  = flow_data<F=7>(grant_ordered=grant_ordered, push_data=push_data)
+  const d8  = flow_data<F=8>(grant_ordered=grant_ordered, push_data=push_data)
+  const d9  = flow_data<F=9>(grant_ordered=grant_ordered, push_data=push_data)
+  const d10 = flow_data<F=10>(grant_ordered=grant_ordered, push_data=push_data)
+  const d11 = flow_data<F=11>(grant_ordered=grant_ordered, push_data=push_data)
+  const d12 = flow_data<F=12>(grant_ordered=grant_ordered, push_data=push_data)
+  const d13 = flow_data<F=13>(grant_ordered=grant_ordered, push_data=push_data)
+  const d14 = flow_data<F=14>(grant_ordered=grant_ordered, push_data=push_data)
+  const d15 = flow_data<F=15>(grant_ordered=grant_ordered, push_data=push_data)
+  pop_data = (d0, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15)#[..]
+
   pop_valid = grant
+  push_receivable = grant_count
   request = pop_ready
   grant_allowed = push_sendable
-  enable_priority_update = br_misc_tieoff_one_enable_priority_update
+  enable_priority_update = 1
 }

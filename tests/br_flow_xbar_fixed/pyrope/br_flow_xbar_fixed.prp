@@ -1,31 +1,61 @@
-const br_arb_fixed_internal = import("br_arb_fixed_internal.br_arb_fixed_internal")
-const br_flow_xbar_core = import("br_flow_xbar_core.br_flow_xbar_core")
+// One-hot (or zero) select of a 32-bit push flow.
+mod pick(grant:U4, data:U128) -> (out:U32@[0]) {
+  out = (if grant#[0] == 1 { data#[0..<32] } else { 0 })
+      | (if grant#[1] == 1 { data#[32..<64] } else { 0 })
+      | (if grant#[2] == 1 { data#[64..<96] } else { 0 })
+      | (if grant#[3] == 1 { data#[96..<128] } else { 0 })
+}
 
-pub mod br_flow_xbar_fixed::[timecheck=false](clk:Clock, pop_ready:U4, push_data:U128, push_dest_id:U8, push_valid:U4, rst:Reset) -> (pop_data:U128@[], pop_valid:U4@[], push_ready:U4@[]) {
-  wire can_grant_bits:U16 = nil
-  wire can_grant:U16 = nil
-  wire grant_bits:U16 = nil
-  wire grant:U16 = nil
-  mut br_flow_xbar_core_inst = br_flow_xbar_core::[name=br_flow_xbar_core_inst](clk=clk, rst=rst, `push_valid.e3`=(push_valid >> 3) & 1, `push_valid.e2`=(push_valid >> 2) & 1, `push_valid.e1`=(push_valid >> 1) & 1, `push_valid.e0`=push_valid & 1, push_data=push_data, push_dest_id=push_dest_id, `pop_ready.e3`=(pop_ready >> 3) & 1, `pop_ready.e2`=(pop_ready >> 2) & 1, `pop_ready.e1`=(pop_ready >> 1) & 1, `pop_ready.e0`=pop_ready & 1, can_grant=can_grant, grant=grant)
-  mut gen_arbiters_0_br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=gen_arbiters_0_br_arb_fixed_internal_inst](request=br_flow_xbar_core_inst.request#[0..=3])
-  const t48 = (gen_arbiters_0_br_arb_fixed_internal_inst.can_grant.e3 << 3) | (gen_arbiters_0_br_arb_fixed_internal_inst.can_grant.e2 << 2) | (gen_arbiters_0_br_arb_fixed_internal_inst.can_grant.e1 << 1) | gen_arbiters_0_br_arb_fixed_internal_inst.can_grant.e0
-  can_grant_bits#[0..<4] = t48#[0..<4]
-  grant_bits#[0..<4] = gen_arbiters_0_br_arb_fixed_internal_inst.grant#[0..<4]
-  mut gen_arbiters_1_br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=gen_arbiters_1_br_arb_fixed_internal_inst](request=br_flow_xbar_core_inst.request#[4..=7])
-  const t74 = (gen_arbiters_1_br_arb_fixed_internal_inst.can_grant.e3 << 3) | (gen_arbiters_1_br_arb_fixed_internal_inst.can_grant.e2 << 2) | (gen_arbiters_1_br_arb_fixed_internal_inst.can_grant.e1 << 1) | gen_arbiters_1_br_arb_fixed_internal_inst.can_grant.e0
-  can_grant_bits#[4..<8] = t74#[0..<4]
-  grant_bits#[4..<8] = gen_arbiters_1_br_arb_fixed_internal_inst.grant#[0..<4]
-  mut gen_arbiters_2_br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=gen_arbiters_2_br_arb_fixed_internal_inst](request=br_flow_xbar_core_inst.request#[8..=11])
-  const t100 = (gen_arbiters_2_br_arb_fixed_internal_inst.can_grant.e3 << 3) | (gen_arbiters_2_br_arb_fixed_internal_inst.can_grant.e2 << 2) | (gen_arbiters_2_br_arb_fixed_internal_inst.can_grant.e1 << 1) | gen_arbiters_2_br_arb_fixed_internal_inst.can_grant.e0
-  can_grant_bits#[8..<12] = t100#[0..<4]
-  grant_bits#[8..<12] = gen_arbiters_2_br_arb_fixed_internal_inst.grant#[0..<4]
-  mut gen_arbiters_3_br_arb_fixed_internal_inst = br_arb_fixed_internal::[name=gen_arbiters_3_br_arb_fixed_internal_inst](request=br_flow_xbar_core_inst.request#[12..=15])
-  const t126 = (gen_arbiters_3_br_arb_fixed_internal_inst.can_grant.e3 << 3) | (gen_arbiters_3_br_arb_fixed_internal_inst.can_grant.e2 << 2) | (gen_arbiters_3_br_arb_fixed_internal_inst.can_grant.e1 << 1) | gen_arbiters_3_br_arb_fixed_internal_inst.can_grant.e0
-  can_grant_bits#[12..<16] = t126#[0..<4]
-  grant_bits#[12..<16] = gen_arbiters_3_br_arb_fixed_internal_inst.grant#[0..<4]
-  can_grant = can_grant_bits
-  grant = grant_bits
-  push_ready = (br_flow_xbar_core_inst.push_ready.e3 << 3) | (br_flow_xbar_core_inst.push_ready.e2 << 2) | (br_flow_xbar_core_inst.push_ready.e1 << 1) | br_flow_xbar_core_inst.push_ready.e0
-  pop_valid = (br_flow_xbar_core_inst.pop_valid.e3 << 3) | (br_flow_xbar_core_inst.pop_valid.e2 << 2) | (br_flow_xbar_core_inst.pop_valid.e1 << 1) | br_flow_xbar_core_inst.pop_valid.e0
-  pop_data = br_flow_xbar_core_inst.pop_data
+// Push flows (bit i) whose destination is pop flow J.
+comb dest_is<J=0>(dest:U8) -> (hit:U4) {
+  hit = (U1(dest#[0..<2] == J), U1(dest#[2..<4] == J), U1(dest#[4..<6] == J), U1(dest#[6..<8] == J))#[..]
+}
+
+// Fixed-priority arbitration: requester i can be granted when no lower
+// requester is requesting (log-step prefix OR, no adder).
+mod clear_below(request:U4) -> (can_grant:U4@[0]) {
+  wrap const p1:U4 = request | (request << 1)
+  wrap const p2:U4 = p1 | (p1 << 2)
+  wrap const below:U4 = p2 << 1
+  can_grant = ~below
+}
+
+// 4x4 valid/ready crossbar of 32-bit flows with a fixed-priority arbiter per
+// pop flow (lowest push flow wins). Push flow i goes to pop flow
+// push_dest_id[i]. All vectors are packed with flow 0 in the low bits.
+pub mod br_flow_xbar_fixed(clk:Clock, pop_ready:U4, push_data:U128, push_dest_id:U8, push_valid:U4, rst:Reset) -> (pop_data:U128@[], pop_valid:U4@[], push_ready:U4@[]) {
+  const to0 = dest_is<J=0>(dest=push_dest_id)
+  const to1 = dest_is<J=1>(dest=push_dest_id)
+  const to2 = dest_is<J=2>(dest=push_dest_id)
+  const to3 = dest_is<J=3>(dest=push_dest_id)
+
+  // Requests at each pop flow, one bit per push flow.
+  const req0:U4 = push_valid & to0
+  const req1:U4 = push_valid & to1
+  const req2:U4 = push_valid & to2
+  const req3:U4 = push_valid & to3
+  const can_grant0 = clear_below(request=req0)
+  const can_grant1 = clear_below(request=req1)
+  const can_grant2 = clear_below(request=req2)
+  const can_grant3 = clear_below(request=req3)
+
+  pop_valid = (U1(req0 != 0), U1(req1 != 0), U1(req2 != 0), U1(req3 != 0))#[..]
+  const data0 = pick(grant=req0 & can_grant0, data=push_data)
+  const data1 = pick(grant=req1 & can_grant1, data=push_data)
+  const data2 = pick(grant=req2 & can_grant2, data=push_data)
+  const data3 = pick(grant=req3 & can_grant3, data=push_data)
+  pop_data = (data0, data1, data2, data3)#[..]
+
+  // A lane is ready when its pop flow is ready and could grant it; a push
+  // flow is ready when the lane to its destination is.
+  const ready0:U4 = if pop_ready#[0] == 1 { can_grant0 } else { 0 }
+  const ready1:U4 = if pop_ready#[1] == 1 { can_grant1 } else { 0 }
+  const ready2:U4 = if pop_ready#[2] == 1 { can_grant2 } else { 0 }
+  const ready3:U4 = if pop_ready#[3] == 1 { can_grant3 } else { 0 }
+  const lanes = (ready0, ready1, ready2, ready3)
+  const sel0:U4 = lanes[push_dest_id#[0..<2]]
+  const sel1:U4 = lanes[push_dest_id#[2..<4]]
+  const sel2:U4 = lanes[push_dest_id#[4..<6]]
+  const sel3:U4 = lanes[push_dest_id#[6..<8]]
+  push_ready = (sel0#[0], sel1#[1], sel2#[2], sel3#[3])#[..]
 }

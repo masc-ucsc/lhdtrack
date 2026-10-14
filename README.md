@@ -733,6 +733,15 @@ selected evaluation specifications. Results are separated by domain and host:
 - **`target/timeseries-<host>.html`** and **`target/history-<host>.json`** — history
   and the series behind its charts.
 
+LEC measurement recipes explicitly select `formal.effort=proof`: sampling is
+LiveHD's default testing mode, but cannot establish the equivalence gate. The
+configured proof timeout remains a shared wall deadline. A test may set
+`[lec].portfolio = "ind:internal,ind:eager-kissat,bmc:internal,bmc:lazy,bmc:intblast"`
+for its native Pyrope-versus-Verilog measurement; omitted portfolios use LiveHD's
+default. The independent Yosys check and netlist checks keep their own recipes.
+The measured `br_arb_weighted_rr` selection and profile comparisons are retained
+under `repros/cvc5-lec-20261014/`.
+
 All result pages link to each other and the machine index. Ratio charts offer
 a compact overview, a per-test view, metric switches, hover details and a
 test/config filter; tables remain sortable.

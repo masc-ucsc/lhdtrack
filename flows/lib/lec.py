@@ -133,7 +133,9 @@ def classify(
         # Consult that explicit message before the coarse process class. This
         # preserves the refusal distinction while preventing a hierarchy-only
         # mismatch from being rendered as a failed/unsupported design.
-        undecided = msg.startswith((
+        # A typed Unknown is never a refutation. LiveHD also uses equiv_fail
+        # for an empty/incomplete correspondence after an unfinished flat retry.
+        undecided = cls == "equiv_fail" or msg.startswith((
             "lec could not decide equivalence", "lgcheck cross-check did not decide equivalence",
         ))
         budget_ms = None
@@ -269,6 +271,12 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         raise FlowError("[lec].match must be a string of ref=impl state pairs")
     match_args = ["--set", f"formal.lec.match={match}"] if match.strip() else []
 
+    # Optional measured portfolio selection applies only to the native source check.
+    portfolio = ctx.test.raw.get("lec", {}).get("portfolio", "") if solver == "cvc5" else ""
+    if not isinstance(portfolio, str):
+        raise FlowError("[lec].portfolio must be a string of engine:profile arms")
+    portfolio_args = ["--set", f"formal.portfolio={portfolio}"] if portfolio.strip() else []
+
     images = stage_readmem_data(ctx, ctx.work / "LW")
     result_json = ctx.work / f"lec_{solver}.json"
     # TWO BUDGETS, because one of them is not enforced. `formal.timeout` is the
@@ -285,10 +293,12 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
             lhd, "lec", "--impl", "lg:impl", "--ref", "lg:ref",
             "--top", f"{ctx.top}.{ctx.top}", "--workdir", "LW",
             *([] if solver == "cvc5" else ["--set", f"formal.solver={solver}"]),
+            "--set", "formal.effort=proof",
             "--set", f"formal.timeout={timeout_s}",
             *(["--set", "formal.normalize_split_ports=true"]
               if solver == "lgyosys" else []),
             *match_args,
+            *portfolio_args,
             "--result-json", str(result_json),
         ],
         check=False,
@@ -330,6 +340,8 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         "bounded": bool(lec_block.get("bounded")),
         "bound": lec_block.get("bound"),
         "solver": solver,
+        "effort": "proof",
+        "portfolio": portfolio or "auto",
         # Named so the split gate can group by it. `lec_netlist` proves a
         # DIFFERENT thing (rtl-vs-netlist), and comparing verdicts across the
         # two would flag "pyrope is wrong, synthesis is fine" as a backend

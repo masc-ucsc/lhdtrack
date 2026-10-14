@@ -70,6 +70,7 @@ def _check(
          *([] if satopt is None else ["--set", f"pass.satopt={str(satopt).lower()}"]),
          *([] if satopt is None or impl_top != ref_top or not impl_top else
            ["--set", f"compile.slang.top={impl_top}"]),
+         "--set", "formal.effort=proof",
          "--set", f"formal.timeout={ctx.lec_timeout_s}",
          "--result-json", str(result_json)],
         check=False,

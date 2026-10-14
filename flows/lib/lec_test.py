@@ -45,6 +45,20 @@ class IndependentVerdicts(unittest.TestCase):
                     self.assertEqual(block['verdict'], expected)
                     self.assertEqual('resource_limit' in block, expected == 'timeout')
 
+    def test_unknown_correspondence_is_not_a_refutation(self):
+        result = {
+            'status': 'fail', 'lec': {'verdict': 'unknown', 'bounded': False},
+            'error': {'class': 'equiv_fail',
+                      'message': "lec compared NOTHING: correspondence incomplete",
+                      'hint': 'flat retry also inconclusive: checkSat returned unknown'},
+        }
+        self.assertEqual(classify(result, 6, solver='cvc5', elapsed_ms=273336,
+                                  timeout_s=300), 'inconclusive')
+        self.assertEqual(classify(result, 6, solver='cvc5', elapsed_ms=315703,
+                                  timeout_s=300), 'timeout')
+        result['lec']['verdict'] = 'refuted'
+        self.assertEqual(classify(result, 6, solver='cvc5'), 'refuted')
+
     def test_internal_elaboration_error_cannot_be_skipped(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'result.json'

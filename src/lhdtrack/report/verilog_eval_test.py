@@ -222,6 +222,9 @@ class VerilogEvaluation(unittest.TestCase):
                      "qor": {"cells": 10, "liberty_sha256": "same"}},
                     {**common, "kind": "synth", "flow": SN_LHD_FLOW,
                      "qor": {"cells": 10, "liberty_sha256": "same"}}]
+            rows.append({**common, "kind": "lec", "flow": "lec_lhd", "tech": None,
+                         "run_id": "newer", "versions": {"lhd": "current-cvc5-build"},
+                         "lec_result": {"verdict": "proven", "bounded": False, "ms": 2}})
             ledger = root / "data/ledger-test-host.jsonl"
             original = "".join(json.dumps(row) + "\n" for row in rows)
             ledger.write_text(original)
@@ -235,6 +238,9 @@ class VerilogEvaluation(unittest.TestCase):
             self.assertNotIn("<h2>Simulation", synth)
             self.assertIn("2.000×", synth)
             self.assertIn("Verdict coverage", lec)
+            self.assertIn("current-cvc5-build", lec)
+            self.assertLess(lec.index("LEC · latest native results"),
+                            lec.index("Retained Verilog mapping evaluation"))
             self.assertIn("bounded(6)", lec)
             self.assertIn("not-measured 1/2", lec)
             self.assertNotIn('id="chart-eval-syn', lec)

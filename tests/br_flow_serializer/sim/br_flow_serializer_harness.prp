@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_flow_serializer.br_flow_serializer.
 const dut = import("br_flow_serializer.br_flow_serializer")
 
-pub mod br_flow_serializer_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_flow_serializer_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_flow_serializer_harness(rst:U1) -> (checksum:U64@[0]) {
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const (push_ready, pop_valid, pop_data, pop_last, pop_metadata) = dut(rst=rst != 0, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], push_last=lfsr#[1], push_last_dont_care_count=lfsr#[2..=4], push_metadata=lfsr#[5..=12], pop_ready=lfsr#[13])
+  const (push_ready, pop_valid, pop_data, pop_last, pop_metadata) = dut(rst=rst, push_valid=lfsr#[0], push_data=lfsr_x#[1..=64], push_last=lfsr#[1], push_last_dont_care_count=lfsr#[2..=4], push_metadata=lfsr#[5..=12], pop_ready=lfsr#[13])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
@@ -35,11 +35,6 @@ pub mod br_flow_serializer_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_last
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_metadata
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

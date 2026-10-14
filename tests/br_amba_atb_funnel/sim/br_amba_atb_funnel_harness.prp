@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_amba_atb_funnel.br_amba_atb_funnel.
 const dut = import("br_amba_atb_funnel.br_amba_atb_funnel")
 
-pub mod br_amba_atb_funnel_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+pub mod br_amba_atb_funnel_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_amba_atb_funnel_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const dut_reset:Bool = rst != 0
+  const dut_reset:Bool = rst
 
   const (src_atready, dst_atvalid, dst_atid, dst_atdata, dst_atbytes, dst_atuser) = dut(clk=clk, rst=dut_reset, src_atvalid=lfsr#[0..=1], src_atid=lfsr#[2..=15], src_atdata=lfsr_x#[16..=79], src_atbytes=lfsr#[16..=19], src_atuser=lfsr#[20..=21], dst_atready=lfsr#[22])
 
@@ -38,11 +38,6 @@ pub mod br_amba_atb_funnel_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ dst_atbytes
   wrap acc = ((acc << 1) | acc#[63]) ^ dst_atuser
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

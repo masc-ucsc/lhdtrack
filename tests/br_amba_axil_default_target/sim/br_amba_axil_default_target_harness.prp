@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_amba_axil_default_target.br_amba_axil_default_target.
 const dut = import("br_amba_axil_default_target.br_amba_axil_default_target")
 
-pub mod br_amba_axil_default_target_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_amba_axil_default_target_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_amba_axil_default_target_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (target_awready, target_wready, target_bresp, target_bvalid, target_arready, target_rdata, target_rresp, target_rvalid) = dut(rst=rst != 0, target_awvalid=lfsr#[0], target_wvalid=lfsr#[1], target_bready=lfsr#[2], target_arvalid=lfsr#[3], target_rready=lfsr#[4])
+  const (target_awready, target_wready, target_bresp, target_bvalid, target_arready, target_rdata, target_rresp, target_rvalid) = dut(rst=rst, target_awvalid=lfsr#[0], target_wvalid=lfsr#[1], target_bready=lfsr#[2], target_arvalid=lfsr#[3], target_rready=lfsr#[4])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ target_awready
@@ -34,11 +34,6 @@ pub mod br_amba_axil_default_target_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ target_rresp
   wrap acc = ((acc << 1) | acc#[63]) ^ target_rvalid
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

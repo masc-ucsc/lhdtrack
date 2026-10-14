@@ -1,15 +1,15 @@
+// Forward-registered valid/ready stage: accepts a push whenever the output
+// register is empty or being popped.
 pub mod br_flow_reg_fwd<Width=42, EnableCoverPushBackpressure=1, EnableAssertPushValidStability=1, EnableAssertPushDataStability=0, EnableAssertPushDataKnown=1, EnableCoverPopBackpressure=1, EnableAssertFinalNotValid=1, EnableAssertNoPushBackpressure=0, EnableAssertNoPopBackpressure=0>::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U42, push_valid:U1, rst:U1) -> (pop_data:U42@[], pop_valid:U1@[], push_ready:U1@[]) {
-  reg pop_valid:U1:[async=false, initial=0, reset_pin=rst]
-  reg pop_data:U42
-  mut _b2i_1 = if pop_ready != 0 or pop_valid == 0 { 1 } else { 0 }
-  const push_ready__w1 = _b2i_1
-  mut _b2i_2 = if push_valid != 0 or push_ready__w1 == 0 { 1 } else { 0 }
-  if not (rst != 0) {
-    pop_valid = _b2i_2
+  const rst_b = rst == 1
+  reg pop_valid:U1:[reset_pin=rst_b] = 0
+  reg pop_data:U42 = nil
+  const ready = pop_ready == 1 or pop_valid == 0
+  push_ready = U1(ready)
+  if ready {
+    pop_valid = push_valid
+    if push_valid == 1 {
+      pop_data = push_data
+    }
   }
-  mut _b2i_3 = if push_ready__w1 != 0 and push_valid != 0 { 1 } else { 0 }
-  if _b2i_3 != 0 {
-    pop_data = push_data
-  }
-  push_ready = push_ready__w1
 }

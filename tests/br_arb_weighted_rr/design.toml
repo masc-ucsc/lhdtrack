@@ -49,3 +49,8 @@ marker = "LHDTRACK-DONE"
 [lec]
 # lgcheck (yosys) is the baseline; lhd's own solver is measured against it.
 flows = ["lec_lgyosys", "lec_lhd", "lec_netlist"]
+
+# cvc5 1.4.2 cold hierarchical sweep: eager induction improves the median
+# while retaining the existing induction/BMC fallback arms. See
+# repros/cvc5-lec-20261014/portfolios.csv (three repetitions per variant).
+portfolio = "ind:internal,ind:eager-kissat,bmc:internal,bmc:lazy,bmc:intblast"

@@ -1,1 +1,0 @@
-pub comptime const AtbIdWidth:U32 = 7

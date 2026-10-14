@@ -1,93 +1,28 @@
+// APB demux steered by an external one-hot select (4 downstreams). The request
+// is broadcast with psel/penable gated by the select; the selected response
+// returns upstream, or a ready decode error (pslverr) when none is selected.
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub comb br_apb_demux_select_onehot::[timecheck=false](downstream_prdata:U128, downstream_pready:U4, downstream_pslverr:U4, select_onehot:U4, upstream_paddr:U12, upstream_penable:U1, upstream_pprot:U3, upstream_psel:U1, upstream_pstrb:U4, upstream_pwdata:U32, upstream_pwrite:U1) -> (downstream_paddr:U48, downstream_penable:U4, downstream_pprot:U12, downstream_psel:U4, downstream_pstrb:U16, downstream_pwdata:U128, downstream_pwrite:U4, upstream_prdata:U32, upstream_pready:U1, upstream_pslverr:U1) {
-  wire downstream_paddr_bits:U48 = nil
-  wire downstream_paddr:U48 = nil
-  wire downstream_psel_bits:U4 = nil
-  wire downstream_psel:U4 = nil
-  wire downstream_penable_bits:U4 = nil
-  wire downstream_penable:U4 = nil
-  wire downstream_pprot_bits:U12 = nil
-  wire downstream_pprot:U12 = nil
-  wire downstream_pstrb_bits:U16 = nil
-  wire downstream_pstrb:U16 = nil
-  wire downstream_pwrite_bits:U4 = nil
-  wire downstream_pwrite:U4 = nil
-  wire downstream_pwdata_bits:U128 = nil
-  wire downstream_pwdata:U128 = nil
-  wire downstream_prdata_int_bits:U128 = nil
-  wire downstream_pready_int_bits:U4 = nil
-  wire downstream_pslverr_int_bits:U4 = nil
-  wire downstream_resp_bits:U136 = nil
-  wire downstream_resp:U136 = nil
-  mut _rep_1:U4 = if (upstream_psel & 1) != 0 { 15 } else { 0 }
-  const downstream_req_valid_int = select_onehot & _rep_1
-  downstream_paddr_bits#[0..<12] = upstream_paddr#[0..<12]
-  downstream_psel_bits#[0] = downstream_req_valid_int & 1
-  mut _b2i_2 = if (downstream_req_valid_int & 1) != 0 and upstream_penable != 0 { 1 } else { 0 }
-  downstream_penable_bits#[0] = _b2i_2 & 1
-  downstream_pprot_bits#[0..<3] = upstream_pprot#[0..<3]
-  downstream_pstrb_bits#[0..<4] = upstream_pstrb#[0..<4]
-  downstream_pwrite_bits#[0] = upstream_pwrite & 1
-  downstream_pwdata_bits#[0..<32] = upstream_pwdata#[0..<32]
-  downstream_prdata_int_bits#[0..<32] = downstream_prdata#[0..=31]#[0..<32]
-  downstream_pready_int_bits#[0] = downstream_pready & 1
-  downstream_pslverr_int_bits#[0] = downstream_pslverr & 1
-  const t186 = (downstream_pslverr_int_bits#[0] & 1) | ((downstream_pready_int_bits#[0] & 1) << 1) | (((downstream_prdata_int_bits#[31] << 31) | (downstream_prdata_int_bits#[30] << 30) | (downstream_prdata_int_bits#[29] << 29) | (downstream_prdata_int_bits#[28] << 28) | (downstream_prdata_int_bits#[27] << 27) | (downstream_prdata_int_bits#[26] << 26) | (downstream_prdata_int_bits#[25] << 25) | (downstream_prdata_int_bits#[24] << 24) | (downstream_prdata_int_bits#[23] << 23) | (downstream_prdata_int_bits#[22] << 22) | (downstream_prdata_int_bits#[21] << 21) | (downstream_prdata_int_bits#[20] << 20) | (downstream_prdata_int_bits#[19] << 19) | (downstream_prdata_int_bits#[18] << 18) | (downstream_prdata_int_bits#[17] << 17) | (downstream_prdata_int_bits#[16] << 16) | (downstream_prdata_int_bits#[15] << 15) | (downstream_prdata_int_bits#[14] << 14) | (downstream_prdata_int_bits#[13] << 13) | (downstream_prdata_int_bits#[12] << 12) | (downstream_prdata_int_bits#[11] << 11) | (downstream_prdata_int_bits#[10] << 10) | (downstream_prdata_int_bits#[9] << 9) | (downstream_prdata_int_bits#[8] << 8) | (downstream_prdata_int_bits#[7] << 7) | (downstream_prdata_int_bits#[6] << 6) | (downstream_prdata_int_bits#[5] << 5) | (downstream_prdata_int_bits#[4] << 4) | (downstream_prdata_int_bits#[3] << 3) | (downstream_prdata_int_bits#[2] << 2) | (downstream_prdata_int_bits#[1] << 1) | downstream_prdata_int_bits#[0]) << 2)
-  downstream_resp_bits#[0..<34] = t186#[0..<34]
-  downstream_paddr_bits#[12..<24] = upstream_paddr#[0..<12]
-  downstream_psel_bits#[1] = (downstream_req_valid_int >> 1) & 1
-  mut _b2i_3 = if ((downstream_req_valid_int >> 1) & 1) != 0 and upstream_penable != 0 { 1 } else { 0 }
-  downstream_penable_bits#[1] = _b2i_3 & 1
-  downstream_pprot_bits#[3..<6] = upstream_pprot#[0..<3]
-  downstream_pstrb_bits#[4..<8] = upstream_pstrb#[0..<4]
-  downstream_pwrite_bits#[1] = upstream_pwrite & 1
-  downstream_pwdata_bits#[32..<64] = upstream_pwdata#[0..<32]
-  downstream_prdata_int_bits#[32..<64] = downstream_prdata#[32..=63]#[0..<32]
-  downstream_pready_int_bits#[1] = (downstream_pready >> 1) & 1
-  downstream_pslverr_int_bits#[1] = (downstream_pslverr >> 1) & 1
-  const t435 = (downstream_pslverr_int_bits#[1] & 1) | ((downstream_pready_int_bits#[1] & 1) << 1) | (((downstream_prdata_int_bits#[63] << 31) | (downstream_prdata_int_bits#[62] << 30) | (downstream_prdata_int_bits#[61] << 29) | (downstream_prdata_int_bits#[60] << 28) | (downstream_prdata_int_bits#[59] << 27) | (downstream_prdata_int_bits#[58] << 26) | (downstream_prdata_int_bits#[57] << 25) | (downstream_prdata_int_bits#[56] << 24) | (downstream_prdata_int_bits#[55] << 23) | (downstream_prdata_int_bits#[54] << 22) | (downstream_prdata_int_bits#[53] << 21) | (downstream_prdata_int_bits#[52] << 20) | (downstream_prdata_int_bits#[51] << 19) | (downstream_prdata_int_bits#[50] << 18) | (downstream_prdata_int_bits#[49] << 17) | (downstream_prdata_int_bits#[48] << 16) | (downstream_prdata_int_bits#[47] << 15) | (downstream_prdata_int_bits#[46] << 14) | (downstream_prdata_int_bits#[45] << 13) | (downstream_prdata_int_bits#[44] << 12) | (downstream_prdata_int_bits#[43] << 11) | (downstream_prdata_int_bits#[42] << 10) | (downstream_prdata_int_bits#[41] << 9) | (downstream_prdata_int_bits#[40] << 8) | (downstream_prdata_int_bits#[39] << 7) | (downstream_prdata_int_bits#[38] << 6) | (downstream_prdata_int_bits#[37] << 5) | (downstream_prdata_int_bits#[36] << 4) | (downstream_prdata_int_bits#[35] << 3) | (downstream_prdata_int_bits#[34] << 2) | (downstream_prdata_int_bits#[33] << 1) | downstream_prdata_int_bits#[32]) << 2)
-  downstream_resp_bits#[34..<68] = t435#[0..<34]
-  downstream_paddr_bits#[24..<36] = upstream_paddr#[0..<12]
-  downstream_psel_bits#[2] = (downstream_req_valid_int >> 2) & 1
-  mut _b2i_4 = if ((downstream_req_valid_int >> 2) & 1) != 0 and upstream_penable != 0 { 1 } else { 0 }
-  downstream_penable_bits#[2] = _b2i_4 & 1
-  downstream_pprot_bits#[6..<9] = upstream_pprot#[0..<3]
-  downstream_pstrb_bits#[8..<12] = upstream_pstrb#[0..<4]
-  downstream_pwrite_bits#[2] = upstream_pwrite & 1
-  downstream_pwdata_bits#[64..<96] = upstream_pwdata#[0..<32]
-  downstream_prdata_int_bits#[64..<96] = downstream_prdata#[64..=95]#[0..<32]
-  downstream_pready_int_bits#[2] = (downstream_pready >> 2) & 1
-  downstream_pslverr_int_bits#[2] = (downstream_pslverr >> 2) & 1
-  const t684 = (downstream_pslverr_int_bits#[2] & 1) | ((downstream_pready_int_bits#[2] & 1) << 1) | (((downstream_prdata_int_bits#[95] << 31) | (downstream_prdata_int_bits#[94] << 30) | (downstream_prdata_int_bits#[93] << 29) | (downstream_prdata_int_bits#[92] << 28) | (downstream_prdata_int_bits#[91] << 27) | (downstream_prdata_int_bits#[90] << 26) | (downstream_prdata_int_bits#[89] << 25) | (downstream_prdata_int_bits#[88] << 24) | (downstream_prdata_int_bits#[87] << 23) | (downstream_prdata_int_bits#[86] << 22) | (downstream_prdata_int_bits#[85] << 21) | (downstream_prdata_int_bits#[84] << 20) | (downstream_prdata_int_bits#[83] << 19) | (downstream_prdata_int_bits#[82] << 18) | (downstream_prdata_int_bits#[81] << 17) | (downstream_prdata_int_bits#[80] << 16) | (downstream_prdata_int_bits#[79] << 15) | (downstream_prdata_int_bits#[78] << 14) | (downstream_prdata_int_bits#[77] << 13) | (downstream_prdata_int_bits#[76] << 12) | (downstream_prdata_int_bits#[75] << 11) | (downstream_prdata_int_bits#[74] << 10) | (downstream_prdata_int_bits#[73] << 9) | (downstream_prdata_int_bits#[72] << 8) | (downstream_prdata_int_bits#[71] << 7) | (downstream_prdata_int_bits#[70] << 6) | (downstream_prdata_int_bits#[69] << 5) | (downstream_prdata_int_bits#[68] << 4) | (downstream_prdata_int_bits#[67] << 3) | (downstream_prdata_int_bits#[66] << 2) | (downstream_prdata_int_bits#[65] << 1) | downstream_prdata_int_bits#[64]) << 2)
-  downstream_resp_bits#[68..<102] = t684#[0..<34]
-  downstream_paddr_bits#[36..<48] = upstream_paddr#[0..<12]
-  downstream_psel_bits#[3] = (downstream_req_valid_int >> 3) & 1
-  mut _b2i_5 = if ((downstream_req_valid_int >> 3) & 1) != 0 and upstream_penable != 0 { 1 } else { 0 }
-  downstream_penable_bits#[3] = _b2i_5 & 1
-  downstream_pprot_bits#[9..<12] = upstream_pprot#[0..<3]
-  downstream_pstrb_bits#[12..<16] = upstream_pstrb#[0..<4]
-  downstream_pwrite_bits#[3] = upstream_pwrite & 1
-  downstream_pwdata_bits#[96..<128] = upstream_pwdata#[0..<32]
-  downstream_prdata_int_bits#[96..<128] = downstream_prdata#[96..=127]#[0..<32]
-  downstream_pready_int_bits#[3] = (downstream_pready >> 3) & 1
-  downstream_pslverr_int_bits#[3] = (downstream_pslverr >> 3) & 1
-  const t933 = (downstream_pslverr_int_bits#[3] & 1) | ((downstream_pready_int_bits#[3] & 1) << 1) | (((downstream_prdata_int_bits#[127] << 31) | (downstream_prdata_int_bits#[126] << 30) | (downstream_prdata_int_bits#[125] << 29) | (downstream_prdata_int_bits#[124] << 28) | (downstream_prdata_int_bits#[123] << 27) | (downstream_prdata_int_bits#[122] << 26) | (downstream_prdata_int_bits#[121] << 25) | (downstream_prdata_int_bits#[120] << 24) | (downstream_prdata_int_bits#[119] << 23) | (downstream_prdata_int_bits#[118] << 22) | (downstream_prdata_int_bits#[117] << 21) | (downstream_prdata_int_bits#[116] << 20) | (downstream_prdata_int_bits#[115] << 19) | (downstream_prdata_int_bits#[114] << 18) | (downstream_prdata_int_bits#[113] << 17) | (downstream_prdata_int_bits#[112] << 16) | (downstream_prdata_int_bits#[111] << 15) | (downstream_prdata_int_bits#[110] << 14) | (downstream_prdata_int_bits#[109] << 13) | (downstream_prdata_int_bits#[108] << 12) | (downstream_prdata_int_bits#[107] << 11) | (downstream_prdata_int_bits#[106] << 10) | (downstream_prdata_int_bits#[105] << 9) | (downstream_prdata_int_bits#[104] << 8) | (downstream_prdata_int_bits#[103] << 7) | (downstream_prdata_int_bits#[102] << 6) | (downstream_prdata_int_bits#[101] << 5) | (downstream_prdata_int_bits#[100] << 4) | (downstream_prdata_int_bits#[99] << 3) | (downstream_prdata_int_bits#[98] << 2) | (downstream_prdata_int_bits#[97] << 1) | downstream_prdata_int_bits#[96]) << 2)
-  downstream_resp_bits#[102..<136] = t933#[0..<34]
-  mut gen_decode_error_br_mux_onehot_resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=((U1(upstream_psel != 0 and (not (select_onehot != 0))) & 1) << 4) | downstream_req_valid_int, `in`=(3 << 136) | downstream_resp)
-  mut `upstream_resp.rdata` = gen_decode_error_br_mux_onehot_resp#[2..=33]
-  mut `upstream_resp.ready` = (gen_decode_error_br_mux_onehot_resp >> 1) & 1
-  mut `upstream_resp.slverr` = gen_decode_error_br_mux_onehot_resp & 1
-  const upstream_pready__w1 = U1(upstream_psel != 0 and upstream_penable != 0 and `upstream_resp.ready` != 0)
-  downstream_paddr = downstream_paddr_bits
-  downstream_psel = downstream_psel_bits
-  downstream_penable = downstream_penable_bits
-  downstream_pprot = downstream_pprot_bits
-  downstream_pstrb = downstream_pstrb_bits
-  downstream_pwrite = downstream_pwrite_bits
-  downstream_pwdata = downstream_pwdata_bits
-  downstream_resp = downstream_resp_bits
-  upstream_prdata = `upstream_resp.rdata`
-  upstream_pready = upstream_pready__w1
-  upstream_pslverr = U1(upstream_psel != 0 and upstream_penable != 0 and `upstream_resp.slverr` != 0)
+pub comb br_apb_demux_select_onehot(downstream_prdata:U128, downstream_pready:U4, downstream_pslverr:U4, select_onehot:U4, upstream_paddr:U12, upstream_penable:U1, upstream_pprot:U3, upstream_psel:U1, upstream_pstrb:U4, upstream_pwdata:U32, upstream_pwrite:U1) -> (downstream_paddr:U48, downstream_penable:U4, downstream_pprot:U12, downstream_psel:U4, downstream_pstrb:U16, downstream_pwdata:U128, downstream_pwrite:U4, upstream_prdata:U32, upstream_pready:U1, upstream_pslverr:U1) {
+  const req_valid:U4 = if upstream_psel == 1 { select_onehot } else { 0 }
+  downstream_psel = req_valid
+  downstream_penable = if upstream_penable == 1 { req_valid } else { 0 }
+  downstream_pwrite = if upstream_pwrite == 1 { 0xf } else { 0 }
+  downstream_paddr = (upstream_paddr, upstream_paddr, upstream_paddr, upstream_paddr)#[..]
+  downstream_pprot = (upstream_pprot, upstream_pprot, upstream_pprot, upstream_pprot)#[..]
+  downstream_pstrb = (upstream_pstrb, upstream_pstrb, upstream_pstrb, upstream_pstrb)#[..]
+  downstream_pwdata = (upstream_pwdata, upstream_pwdata, upstream_pwdata, upstream_pwdata)#[..]
+
+  // Response lane i packs (pslverr, pready, prdata) from the LSB; lane 4 is the decode error.
+  const resp0:U34 = (downstream_pslverr#[0], downstream_pready#[0], downstream_prdata#[0..<32])#[..]
+  const resp1:U34 = (downstream_pslverr#[1], downstream_pready#[1], downstream_prdata#[32..<64])#[..]
+  const resp2:U34 = (downstream_pslverr#[2], downstream_pready#[2], downstream_prdata#[64..<96])#[..]
+  const resp3:U34 = (downstream_pslverr#[3], downstream_pready#[3], downstream_prdata#[96..<128])#[..]
+  const decerr_resp:U34 = 0ub11
+  const decerr:U1 = U1(upstream_psel == 1 and select_onehot == 0)
+  const resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=(req_valid, decerr)#[..], `in`=(resp0, resp1, resp2, resp3, decerr_resp)#[..])
+  const access = upstream_psel == 1 and upstream_penable == 1
+  upstream_prdata = resp#[2..<34]
+  upstream_pready = U1(access and resp#[1] == 1)
+  upstream_pslverr = U1(access and resp#[0] == 1)
 }

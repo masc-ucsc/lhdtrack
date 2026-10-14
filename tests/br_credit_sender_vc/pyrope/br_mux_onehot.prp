@@ -1,15 +1,7 @@
 // OR all selected packed lanes, including multiple simultaneous selections.
 pub comb br_mux_onehot<NumSymbolsIn=4, SymbolWidth=64>(`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)) {
-  // The one-lane reference passes payload even when its select bit is zero.
-  if NumSymbolsIn == 1 {
-    out = `in`
-  } else {
-    mut data:Unsigned(bits=SymbolWidth) = 0
-    for lane in 0..<NumSymbolsIn {
-      if select#[lane] != 0 {
-        data |= `in`#[(lane*SymbolWidth)..+SymbolWidth]
-      }
-    }
-    out = data
-  }
+  cassert(NumSymbolsIn == 4)
+  comptime const W = SymbolWidth
+  out = (`in`#[0..<W] & select#sext[0..=0]) | (`in`#[W..<(2*W)] & select#sext[1..=1])
+      | (`in`#[(2*W)..<(3*W)] & select#sext[2..=2]) | (`in`#[(3*W)..<(4*W)] & select#sext[3..=3])
 }

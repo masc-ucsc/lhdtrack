@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_fifo_shared_pstatic_ctrl.br_fifo_shared_pstatic_ctrl.
 const dut = import("br_fifo_shared_pstatic_ctrl.br_fifo_shared_pstatic_ctrl")
 
-pub mod br_fifo_shared_pstatic_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+pub mod br_fifo_shared_pstatic_ctrl_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_fifo_shared_pstatic_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const dut_reset:Bool = rst != 0
+  const dut_reset:Bool = rst
 
   const (config_error, push_ready, push_full, pop_valid, pop_data, pop_empty, ram_wr_valid, ram_wr_addr, ram_wr_data, ram_rd_addr_valid, ram_rd_addr) = dut(clk=clk, rst=dut_reset, config_base=lfsr#[0..=9], config_bound=lfsr#[10..=19], push_valid=lfsr#[20], push_data=lfsr#[21..=52], push_fifo_id=lfsr#[53], pop_ready=lfsr#[54..=55], ram_rd_data_valid=lfsr#[56], ram_rd_data=lfsr_x#[57..=88])
 
@@ -43,11 +43,6 @@ pub mod br_fifo_shared_pstatic_ctrl_harness(clk:Clock, rst:U1) -> (checksum:U64@
   wrap acc = ((acc << 1) | acc#[63]) ^ ram_rd_addr_valid
   wrap acc = ((acc << 1) | acc#[63]) ^ ram_rd_addr
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

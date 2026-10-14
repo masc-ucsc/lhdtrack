@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_flow_deserializer.br_flow_deserializer.
 const dut = import("br_flow_deserializer.br_flow_deserializer")
 
-pub mod br_flow_deserializer_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_flow_deserializer_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_flow_deserializer_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (push_ready, pop_valid, pop_data, pop_last, pop_last_dont_care_count, pop_metadata) = dut(rst=U1(rst != 0), push_valid=lfsr#[0], push_data=lfsr#[1..=8], push_last=lfsr#[9], push_metadata=lfsr#[10..=17], pop_ready=lfsr#[18])
+  const (push_ready, pop_valid, pop_data, pop_last, pop_last_dont_care_count, pop_metadata) = dut(rst=U1(rst), push_valid=lfsr#[0], push_data=lfsr#[1..=8], push_last=lfsr#[9], push_metadata=lfsr#[10..=17], pop_ready=lfsr#[18])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_ready
@@ -32,11 +32,6 @@ pub mod br_flow_deserializer_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_last_dont_care_count
   wrap acc = ((acc << 1) | acc#[63]) ^ pop_metadata
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

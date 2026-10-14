@@ -1,26 +1,13 @@
+// Round-robin state for 2 requesters: remembers the last grant (reset makes
+// requester 1 the last winner) and exposes the priority mask derived from it.
 pub mod br_rr_state_internal<NumRequesters=2>::[timecheck=false](clk:Clock, grant:U2, rst:U1, update_priority:U1) -> (last_grant:U2@[], priority_mask:(e1:U1, e0:U1)@[]) {
-  reg last_grant:U2
-  wire `last_grant_init[0]`:U1 = nil
-  wire `last_grant_init[1]`:U1 = nil
-  wire last_grant_init:U2 = nil
-  wire `priority_mask__bpr.e1`:U1 = nil
-  wire `priority_mask__bpr.e0`:U1 = nil
-  mut _b2i_1 = if last_grant != 0 { 1 } else { 0 }
-  mut `priority_mask__bpo.e0` = _b2i_1
-  mut _b2i_2 = if ((last_grant >> 1) & 1) != 0 { 1 } else { 0 }
-  mut `priority_mask__bpo.e1` = _b2i_2
-  `last_grant_init[1]` = 1
-  `last_grant_init[0]` = 0
-  if rst != 0 {
-    last_grant = last_grant_init
-  } elif update_priority != 0 {
+  reg last_grant:U2 = nil
+  if rst == 1 {
+    last_grant = 0ub10
+  } elif update_priority == 1 {
     last_grant = grant
   }
-  last_grant_init = (`last_grant_init[1]` << 1) | `last_grant_init[0]`
-  const t11 = `priority_mask__bpo.e1`
-  `priority_mask__bpr.e1` = t11
-  priority_mask.e1 = t11
-  const t12 = `priority_mask__bpo.e0`
-  `priority_mask__bpr.e0` = t12
-  priority_mask.e0 = t12
+  // Requester i has priority below the last winner: mask bit i = last_grant#[i..] != 0.
+  priority_mask.e0 = U1(last_grant != 0)
+  priority_mask.e1 = last_grant#[1]
 }

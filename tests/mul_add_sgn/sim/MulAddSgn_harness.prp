@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is MulAddSgn.MulAddSgn.
 const dut = import("MulAddSgn.MulAddSgn")
 
-pub mod MulAddSgn_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod MulAddSgn_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -31,11 +31,6 @@ pub mod MulAddSgn_harness(rst:U1) -> (checksum:U64@[0]) {
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ r#[0..=47]
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

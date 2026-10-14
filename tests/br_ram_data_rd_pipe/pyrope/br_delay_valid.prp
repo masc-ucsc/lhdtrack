@@ -1,7 +1,0 @@
-// Zero-stage valid/payload passthrough shared by the pinned width variants.
-pub comb br_delay_valid<Width=32>(`in`:Unsigned(bits=Width), in_valid:U1) -> (out:Unsigned(bits=Width), out_stages:Unsigned(bits=Width), out_valid:U1, out_valid_stages:U1) {
-  out = `in`
-  out_stages = `in`
-  out_valid = in_valid
-  out_valid_stages = in_valid
-}

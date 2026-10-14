@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_fifo_flops_push_credit.br_fifo_flops_push_credit.
 const dut = import("br_fifo_flops_push_credit.br_fifo_flops_push_credit")
 
-pub mod br_fifo_flops_push_credit_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_fifo_flops_push_credit_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_fifo_flops_push_credit_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, credit_count_push, credit_available_push, empty, empty_next, items, items_next) = dut(rst=U1(rst != 0), push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46])
+  const (push_receiver_in_reset, push_credit, pop_valid, pop_data, full, full_next, slots, slots_next, credit_count_push, credit_available_push, empty, empty_next, items, items_next) = dut(rst=U1(rst), push_sender_in_reset=rst, push_credit_stall=lfsr#[0], push_valid=lfsr#[1], push_data=lfsr#[2..=33], pop_ready=lfsr#[34], credit_initial_push=lfsr#[35..=40], credit_withhold_push=lfsr#[41..=46])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ push_receiver_in_reset
@@ -40,11 +40,6 @@ pub mod br_fifo_flops_push_credit_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ items
   wrap acc = ((acc << 1) | acc#[63]) ^ items_next
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

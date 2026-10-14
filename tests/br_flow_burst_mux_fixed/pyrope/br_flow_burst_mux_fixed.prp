@@ -3,11 +3,11 @@ const br_flow_burst_mux_core_t = import("br_flow_burst_mux_core.br_flow_burst_mu
 
 pub mod br_flow_burst_mux_fixed::[timecheck=false](clk:Clock, pop_ready:U1, push_data:U128, push_last:U4, push_valid:U4, rst:Reset) -> (pop_data_unstable:U32@[], pop_last_unstable:U1@[], pop_valid_unstable:U1@[], push_ready:U4@[]) {
   wire request:U4 = nil
-  mut br_arb_fixed_internal = br_arb_fixed_internal_t::[name=br_arb_fixed_internal](request=request)
-  mut br_flow_burst_mux_core = br_flow_burst_mux_core_t::[name=br_flow_burst_mux_core](clk=clk, rst=rst, grant_from_arb=br_arb_fixed_internal.grant, push_valid=push_valid, `push_last.e3`=(push_last >> 3) & 1, `push_last.e2`=(push_last >> 2) & 1, `push_last.e1`=(push_last >> 1) & 1, `push_last.e0`=push_last & 1, push_data=push_data, pop_ready=pop_ready)
+  const br_arb_fixed_internal = br_arb_fixed_internal_t(request=request)
+  const br_flow_burst_mux_core = br_flow_burst_mux_core_t(clk=clk, rst=rst, grant_from_arb=br_arb_fixed_internal.grant, push_valid=push_valid, push_last=(e3=push_last#[3], e2=push_last#[2], e1=push_last#[1], e0=push_last#[0]), push_data=push_data, pop_ready=pop_ready)
   request = br_flow_burst_mux_core.request
-  push_ready = br_flow_burst_mux_core.push_ready
-  pop_valid_unstable = br_flow_burst_mux_core.pop_valid_unstable
-  pop_last_unstable = br_flow_burst_mux_core.pop_last_unstable
   pop_data_unstable = br_flow_burst_mux_core.pop_data_unstable
+  pop_last_unstable = br_flow_burst_mux_core.pop_last_unstable
+  pop_valid_unstable = br_flow_burst_mux_core.pop_valid_unstable
+  push_ready = br_flow_burst_mux_core.push_ready
 }

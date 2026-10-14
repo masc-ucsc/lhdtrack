@@ -10,7 +10,7 @@ from .html import (
     _auxiliary_report_name, _chart_block, _coverage_plot, _coverage_verdict,
     _display_lec_verdict, _e, _fmt, _chart_data, _llvm_chart_data, _llvm_timing_summary,
     _sim_cost_ms,
-    _language_lec_section, _netlist_lec_section, _page, _results_nav, _sim_table,
+    _header, _language_lec_section, _netlist_lec_section, _page, _results_nav, _sim_table,
     _synth_display_values, _synth_scope_tag,
     _VERDICT_CLASS, RESULT_KINDS,
 )
@@ -1051,8 +1051,20 @@ def write_evaluation(
         body.append(retained_usyn_validation_section(history, spec, kind=kind))
     if kind == "lec":
         latest = Ledger(root).latest_rows(spec["host"])
-        body.append(_language_lec_section(latest))
-        body.append(_netlist_lec_section(latest))
+        native = [row for row in latest if row.get("flow") in ("lec_lhd", "lec_netlist")]
+        if native:
+            newest = max(native, key=lambda row: row.get("run_id", ""))
+            fresh = [_header(newest, native, title="LEC · latest native results"),
+                     '<p class="sub">Native source and graph-netlist measurements use the '
+                     'builds recorded in their ledger rows. Independent checker timings '
+                     'retain their recorded measurements. The pinned mapping evaluation '
+                     'below is a separate historical snapshot.</p>',
+                     _language_lec_section(latest), _netlist_lec_section(latest),
+                     '<h2>Retained Verilog mapping evaluation</h2>']
+            body[1:1] = fresh
+        else:
+            body.append(_language_lec_section(latest))
+            body.append(_netlist_lec_section(latest))
     details = list(dict.fromkeys(details))
     if details:
         body.append('<h2>Diagnostics</h2><div class="scroll"><table><tbody>' + ''.join(

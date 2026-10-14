@@ -1,16 +1,42 @@
 // Two independent selectors address the same sixteen packed input lanes.
-// AND-OR over each decoded select (no 512-bit barrel shifter).
+// AND-OR over each decoded select, one term per lane: no barrel shifter and no rolled loop.
 pub comb br_mux_bin_array(`in`:U512, select:U8) -> (out:U64, out_valid:U2) {
-  comptime const lanes = out_valid.[bits]
-  comptime const width = out.[bits]/lanes
-  comptime const select_bits = select.[bits]/lanes
-  for lane in 0..<lanes {
-    const index = select#[(lane*select_bits)..+select_bits]
-    mut picked:U32 = 0
-    for symbol in 0..<16 {
-      picked = picked | (if index == symbol { `in`#[(symbol*width)..+width] } else { 0 })
-    }
-    out#[(lane*width)..+width] = picked
-  }
+  comptime const W = 32
+  comptime const ONES = (1 << W) - 1
+  const a0:U32 = `in`#[0..+W] & (if select#[0..<4] == 0 { ONES } else { 0 })
+  const a1:U32 = `in`#[32..+W] & (if select#[0..<4] == 1 { ONES } else { 0 })
+  const a2:U32 = `in`#[64..+W] & (if select#[0..<4] == 2 { ONES } else { 0 })
+  const a3:U32 = `in`#[96..+W] & (if select#[0..<4] == 3 { ONES } else { 0 })
+  const a4:U32 = `in`#[128..+W] & (if select#[0..<4] == 4 { ONES } else { 0 })
+  const a5:U32 = `in`#[160..+W] & (if select#[0..<4] == 5 { ONES } else { 0 })
+  const a6:U32 = `in`#[192..+W] & (if select#[0..<4] == 6 { ONES } else { 0 })
+  const a7:U32 = `in`#[224..+W] & (if select#[0..<4] == 7 { ONES } else { 0 })
+  const a8:U32 = `in`#[256..+W] & (if select#[0..<4] == 8 { ONES } else { 0 })
+  const a9:U32 = `in`#[288..+W] & (if select#[0..<4] == 9 { ONES } else { 0 })
+  const a10:U32 = `in`#[320..+W] & (if select#[0..<4] == 10 { ONES } else { 0 })
+  const a11:U32 = `in`#[352..+W] & (if select#[0..<4] == 11 { ONES } else { 0 })
+  const a12:U32 = `in`#[384..+W] & (if select#[0..<4] == 12 { ONES } else { 0 })
+  const a13:U32 = `in`#[416..+W] & (if select#[0..<4] == 13 { ONES } else { 0 })
+  const a14:U32 = `in`#[448..+W] & (if select#[0..<4] == 14 { ONES } else { 0 })
+  const a15:U32 = `in`#[480..+W] & (if select#[0..<4] == 15 { ONES } else { 0 })
+  const b0:U32 = `in`#[0..+W] & (if select#[4..<8] == 0 { ONES } else { 0 })
+  const b1:U32 = `in`#[32..+W] & (if select#[4..<8] == 1 { ONES } else { 0 })
+  const b2:U32 = `in`#[64..+W] & (if select#[4..<8] == 2 { ONES } else { 0 })
+  const b3:U32 = `in`#[96..+W] & (if select#[4..<8] == 3 { ONES } else { 0 })
+  const b4:U32 = `in`#[128..+W] & (if select#[4..<8] == 4 { ONES } else { 0 })
+  const b5:U32 = `in`#[160..+W] & (if select#[4..<8] == 5 { ONES } else { 0 })
+  const b6:U32 = `in`#[192..+W] & (if select#[4..<8] == 6 { ONES } else { 0 })
+  const b7:U32 = `in`#[224..+W] & (if select#[4..<8] == 7 { ONES } else { 0 })
+  const b8:U32 = `in`#[256..+W] & (if select#[4..<8] == 8 { ONES } else { 0 })
+  const b9:U32 = `in`#[288..+W] & (if select#[4..<8] == 9 { ONES } else { 0 })
+  const b10:U32 = `in`#[320..+W] & (if select#[4..<8] == 10 { ONES } else { 0 })
+  const b11:U32 = `in`#[352..+W] & (if select#[4..<8] == 11 { ONES } else { 0 })
+  const b12:U32 = `in`#[384..+W] & (if select#[4..<8] == 12 { ONES } else { 0 })
+  const b13:U32 = `in`#[416..+W] & (if select#[4..<8] == 13 { ONES } else { 0 })
+  const b14:U32 = `in`#[448..+W] & (if select#[4..<8] == 14 { ONES } else { 0 })
+  const b15:U32 = `in`#[480..+W] & (if select#[4..<8] == 15 { ONES } else { 0 })
+  const lo:U32 = a0 | a1 | a2 | a3 | a4 | a5 | a6 | a7 | a8 | a9 | a10 | a11 | a12 | a13 | a14 | a15
+  const hi:U32 = b0 | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 | b9 | b10 | b11 | b12 | b13 | b14 | b15
+  out = (lo, hi)#[..]
   out_valid = 3
 }

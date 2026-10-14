@@ -1,124 +1,34 @@
-const br_delay = import("br_delay.br_delay")
-const br_delay_valid = import("br_delay_valid.br_delay_valid")
-const br_delay_valid_p1 = import("br_delay_valid.br_delay_valid")
+// CSR demux steered by an external one-hot select (4 downstreams, no retime
+// stages). The request is broadcast to every downstream with valid gated by
+// the select; the selected response returns upstream, or a decode error one
+// cycle after a request that selected no downstream.
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
 
-pub mod br_csr_demux_select_onehot::[timecheck=false](clk:Clock, downstream_resp_decerr:U4, downstream_resp_rdata:U128, downstream_resp_slverr:U4, downstream_resp_valid:U4, rst:U1, select_onehot:U4, upstream_req_abort:U1, upstream_req_addr:U16, upstream_req_privileged:U1, upstream_req_secure:U1, upstream_req_valid:U1, upstream_req_wdata:U32, upstream_req_write:U1, upstream_req_wstrb:U4) -> (downstream_req_abort:U4@[], downstream_req_addr:U64@[], downstream_req_privileged:U4@[], downstream_req_secure:U4@[], downstream_req_valid:U4@[], downstream_req_wdata:U128@[], downstream_req_write:U4@[], downstream_req_wstrb:U16@[], upstream_resp_decerr:U1@[], upstream_resp_rdata:U32@[], upstream_resp_slverr:U1@[], upstream_resp_valid:U1@[]) {
-  reg decerr_resp_valid:U1:[async=false, initial=0, reset_pin=rst]
-  wire downstream_req_valid_bits:U4 = nil
-  wire downstream_req_valid:U4 = nil
-  wire downstream_req_write_bits:U4 = nil
-  wire downstream_req_write:U4 = nil
-  wire downstream_req_addr_bits:U64 = nil
-  wire downstream_req_addr:U64 = nil
-  wire downstream_req_wdata_bits:U128 = nil
-  wire downstream_req_wdata:U128 = nil
-  wire downstream_req_wstrb_bits:U16 = nil
-  wire downstream_req_wstrb:U16 = nil
-  wire downstream_req_privileged_bits:U4 = nil
-  wire downstream_req_privileged:U4 = nil
-  wire downstream_req_secure_bits:U4 = nil
-  wire downstream_req_secure:U4 = nil
-  wire downstream_req_abort_bits:U4 = nil
-  wire downstream_req_abort:U4 = nil
-  wire downstream_resp_bits:U136 = nil
-  wire downstream_resp_valid_int_bits:U4 = nil
-  wire downstream_resp_valid_int:U4 = nil
-  wire downstream_resp_int_bits:U136 = nil
-  wire downstream_resp_int:U136 = nil
-  mut _rep_1:U4 = if (upstream_req_valid & 1) != 0 { 15 } else { 0 }
-  const downstream_req_valid_int = select_onehot & _rep_1
-  mut _rep_2:U4 = if (upstream_req_write & 1) != 0 { 15 } else { 0 }
-  const downstream_req_write_int = _rep_2
-  const downstream_req_addr_int = upstream_req_addr | (upstream_req_addr << 16) | (upstream_req_addr << 32) | (upstream_req_addr << 48)
-  const downstream_req_wdata_int = upstream_req_wdata | (upstream_req_wdata << 32) | (upstream_req_wdata << 0x40) | (upstream_req_wdata << 0x60)
-  const downstream_req_wstrb_int = upstream_req_wstrb | (upstream_req_wstrb << 4) | (upstream_req_wstrb << 8) | (upstream_req_wstrb << 12)
-  mut _rep_3:U4 = if (upstream_req_privileged & 1) != 0 { 15 } else { 0 }
-  const downstream_req_privileged_int = _rep_3
-  mut _rep_4:U4 = if (upstream_req_secure & 1) != 0 { 15 } else { 0 }
-  const downstream_req_secure_int = _rep_4
-  mut _rep_5:U4 = if (upstream_req_abort & 1) != 0 { 15 } else { 0 }
-  const downstream_req_abort_int = _rep_5
-  mut gen_downstream_req_retime_0_br_delay_valid_req = br_delay_valid<Width=55>(in_valid=downstream_req_valid_int & 1, `in`=((downstream_req_write_int & 1) << 54) | (downstream_req_addr_int#[0..=15] << 38) | (downstream_req_wdata_int#[0..=31] << 6) | (downstream_req_wstrb_int#[0..=3] << 2) | ((downstream_req_privileged_int & 1) << 1) | (downstream_req_secure_int & 1))
-  downstream_req_valid_bits#[0] = gen_downstream_req_retime_0_br_delay_valid_req.out_valid & 1
-  downstream_req_secure_bits#[0] = gen_downstream_req_retime_0_br_delay_valid_req.out & 1
-  downstream_req_privileged_bits#[0] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 1) & 1
-  downstream_req_wstrb_bits#[0..<4] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 2)#[0..=3]#[0..<4]
-  downstream_req_wdata_bits#[0..<32] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 6)#[0..=31]#[0..<32]
-  downstream_req_addr_bits#[0..<16] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 38)#[0..=15]#[0..<16]
-  downstream_req_write_bits#[0] = (gen_downstream_req_retime_0_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_0_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_0_br_delay_req_abort](clk=clk, rst=rst, `in`=downstream_req_abort_int & 1)
-  downstream_req_abort_bits#[0] = gen_downstream_req_retime_0_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_1_br_delay_valid_req = br_delay_valid<Width=55>(in_valid=(downstream_req_valid_int >> 1) & 1, `in`=(((downstream_req_write_int >> 1) & 1) << 54) | (downstream_req_addr_int#[16..=31] << 38) | (downstream_req_wdata_int#[32..=63] << 6) | (downstream_req_wstrb_int#[4..=7] << 2) | (((downstream_req_privileged_int >> 1) & 1) << 1) | ((downstream_req_secure_int >> 1) & 1))
-  downstream_req_valid_bits#[1] = gen_downstream_req_retime_1_br_delay_valid_req.out_valid & 1
-  downstream_req_secure_bits#[1] = gen_downstream_req_retime_1_br_delay_valid_req.out & 1
-  downstream_req_privileged_bits#[1] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 1) & 1
-  downstream_req_wstrb_bits#[4..<8] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 2)#[0..=3]#[0..<4]
-  downstream_req_wdata_bits#[32..<64] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 6)#[0..=31]#[0..<32]
-  downstream_req_addr_bits#[16..<32] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 38)#[0..=15]#[0..<16]
-  downstream_req_write_bits#[1] = (gen_downstream_req_retime_1_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_1_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_1_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int >> 1) & 1)
-  downstream_req_abort_bits#[1] = gen_downstream_req_retime_1_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_2_br_delay_valid_req = br_delay_valid<Width=55>(in_valid=(downstream_req_valid_int >> 2) & 1, `in`=(((downstream_req_write_int >> 2) & 1) << 54) | (downstream_req_addr_int#[32..=47] << 38) | (downstream_req_wdata_int#[64..=95] << 6) | (downstream_req_wstrb_int#[8..=11] << 2) | (((downstream_req_privileged_int >> 2) & 1) << 1) | ((downstream_req_secure_int >> 2) & 1))
-  downstream_req_valid_bits#[2] = gen_downstream_req_retime_2_br_delay_valid_req.out_valid & 1
-  downstream_req_secure_bits#[2] = gen_downstream_req_retime_2_br_delay_valid_req.out & 1
-  downstream_req_privileged_bits#[2] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 1) & 1
-  downstream_req_wstrb_bits#[8..<12] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 2)#[0..=3]#[0..<4]
-  downstream_req_wdata_bits#[64..<96] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 6)#[0..=31]#[0..<32]
-  downstream_req_addr_bits#[32..<48] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 38)#[0..=15]#[0..<16]
-  downstream_req_write_bits#[2] = (gen_downstream_req_retime_2_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_2_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_2_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int >> 2) & 1)
-  downstream_req_abort_bits#[2] = gen_downstream_req_retime_2_br_delay_req_abort.out & 1
-  mut gen_downstream_req_retime_3_br_delay_valid_req = br_delay_valid<Width=55>(in_valid=(downstream_req_valid_int >> 3) & 1, `in`=(((downstream_req_write_int >> 3) & 1) << 54) | (downstream_req_addr_int#[48..=63] << 38) | (downstream_req_wdata_int#[96..=127] << 6) | (downstream_req_wstrb_int#[12..=15] << 2) | (((downstream_req_privileged_int >> 3) & 1) << 1) | ((downstream_req_secure_int >> 3) & 1))
-  downstream_req_valid_bits#[3] = gen_downstream_req_retime_3_br_delay_valid_req.out_valid & 1
-  downstream_req_secure_bits#[3] = gen_downstream_req_retime_3_br_delay_valid_req.out & 1
-  downstream_req_privileged_bits#[3] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 1) & 1
-  downstream_req_wstrb_bits#[12..<16] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 2)#[0..=3]#[0..<4]
-  downstream_req_wdata_bits#[96..<128] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 6)#[0..=31]#[0..<32]
-  downstream_req_addr_bits#[48..<64] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 38)#[0..=15]#[0..<16]
-  downstream_req_write_bits#[3] = (gen_downstream_req_retime_3_br_delay_valid_req.out >> 54) & 1
-  mut gen_downstream_req_retime_3_br_delay_req_abort = br_delay::[name=gen_downstream_req_retime_3_br_delay_req_abort](clk=clk, rst=rst, `in`=(downstream_req_abort_int >> 3) & 1)
-  downstream_req_abort_bits#[3] = gen_downstream_req_retime_3_br_delay_req_abort.out & 1
-  if not (rst != 0) {
-    decerr_resp_valid = U1(upstream_req_valid != 0 and (not (select_onehot != 0)))
-  }
-  const t582 = (downstream_resp_slverr & 1) | ((downstream_resp_decerr & 1) << 1) | (downstream_resp_rdata#[0..=31] << 2)
-  downstream_resp_bits#[0..<34] = t582#[0..<34]
-  mut gen_downstream_resp_retime_0_br_delay_valid_resp = br_delay_valid_p1<Width=34>(in_valid=downstream_resp_valid & 1, `in`=(downstream_resp_bits#[33] << 33) | (downstream_resp_bits#[32] << 32) | (downstream_resp_bits#[31] << 31) | (downstream_resp_bits#[30] << 30) | (downstream_resp_bits#[29] << 29) | (downstream_resp_bits#[28] << 28) | (downstream_resp_bits#[27] << 27) | (downstream_resp_bits#[26] << 26) | (downstream_resp_bits#[25] << 25) | (downstream_resp_bits#[24] << 24) | (downstream_resp_bits#[23] << 23) | (downstream_resp_bits#[22] << 22) | (downstream_resp_bits#[21] << 21) | (downstream_resp_bits#[20] << 20) | (downstream_resp_bits#[19] << 19) | (downstream_resp_bits#[18] << 18) | (downstream_resp_bits#[17] << 17) | (downstream_resp_bits#[16] << 16) | (downstream_resp_bits#[15] << 15) | (downstream_resp_bits#[14] << 14) | (downstream_resp_bits#[13] << 13) | (downstream_resp_bits#[12] << 12) | (downstream_resp_bits#[11] << 11) | (downstream_resp_bits#[10] << 10) | (downstream_resp_bits#[9] << 9) | (downstream_resp_bits#[8] << 8) | (downstream_resp_bits#[7] << 7) | (downstream_resp_bits#[6] << 6) | (downstream_resp_bits#[5] << 5) | (downstream_resp_bits#[4] << 4) | (downstream_resp_bits#[3] << 3) | (downstream_resp_bits#[2] << 2) | (downstream_resp_bits#[1] << 1) | downstream_resp_bits#[0])
-  downstream_resp_valid_int_bits#[0] = gen_downstream_resp_retime_0_br_delay_valid_resp.out_valid & 1
-  downstream_resp_int_bits#[0..<34] = gen_downstream_resp_retime_0_br_delay_valid_resp.out#[0..<34]
-  const t730 = ((downstream_resp_slverr >> 1) & 1) | (((downstream_resp_decerr >> 1) & 1) << 1) | (downstream_resp_rdata#[32..=63] << 2)
-  downstream_resp_bits#[34..<68] = t730#[0..<34]
-  mut gen_downstream_resp_retime_1_br_delay_valid_resp = br_delay_valid_p1<Width=34>(in_valid=(downstream_resp_valid >> 1) & 1, `in`=(downstream_resp_bits#[67] << 33) | (downstream_resp_bits#[66] << 32) | (downstream_resp_bits#[65] << 31) | (downstream_resp_bits#[64] << 30) | (downstream_resp_bits#[63] << 29) | (downstream_resp_bits#[62] << 28) | (downstream_resp_bits#[61] << 27) | (downstream_resp_bits#[60] << 26) | (downstream_resp_bits#[59] << 25) | (downstream_resp_bits#[58] << 24) | (downstream_resp_bits#[57] << 23) | (downstream_resp_bits#[56] << 22) | (downstream_resp_bits#[55] << 21) | (downstream_resp_bits#[54] << 20) | (downstream_resp_bits#[53] << 19) | (downstream_resp_bits#[52] << 18) | (downstream_resp_bits#[51] << 17) | (downstream_resp_bits#[50] << 16) | (downstream_resp_bits#[49] << 15) | (downstream_resp_bits#[48] << 14) | (downstream_resp_bits#[47] << 13) | (downstream_resp_bits#[46] << 12) | (downstream_resp_bits#[45] << 11) | (downstream_resp_bits#[44] << 10) | (downstream_resp_bits#[43] << 9) | (downstream_resp_bits#[42] << 8) | (downstream_resp_bits#[41] << 7) | (downstream_resp_bits#[40] << 6) | (downstream_resp_bits#[39] << 5) | (downstream_resp_bits#[38] << 4) | (downstream_resp_bits#[37] << 3) | (downstream_resp_bits#[36] << 2) | (downstream_resp_bits#[35] << 1) | downstream_resp_bits#[34])
-  downstream_resp_valid_int_bits#[1] = gen_downstream_resp_retime_1_br_delay_valid_resp.out_valid & 1
-  downstream_resp_int_bits#[34..<68] = gen_downstream_resp_retime_1_br_delay_valid_resp.out#[0..<34]
-  const t879 = ((downstream_resp_slverr >> 2) & 1) | (((downstream_resp_decerr >> 2) & 1) << 1) | (downstream_resp_rdata#[64..=95] << 2)
-  downstream_resp_bits#[68..<102] = t879#[0..<34]
-  mut gen_downstream_resp_retime_2_br_delay_valid_resp = br_delay_valid_p1<Width=34>(in_valid=(downstream_resp_valid >> 2) & 1, `in`=(downstream_resp_bits#[101] << 33) | (downstream_resp_bits#[100] << 32) | (downstream_resp_bits#[99] << 31) | (downstream_resp_bits#[98] << 30) | (downstream_resp_bits#[97] << 29) | (downstream_resp_bits#[96] << 28) | (downstream_resp_bits#[95] << 27) | (downstream_resp_bits#[94] << 26) | (downstream_resp_bits#[93] << 25) | (downstream_resp_bits#[92] << 24) | (downstream_resp_bits#[91] << 23) | (downstream_resp_bits#[90] << 22) | (downstream_resp_bits#[89] << 21) | (downstream_resp_bits#[88] << 20) | (downstream_resp_bits#[87] << 19) | (downstream_resp_bits#[86] << 18) | (downstream_resp_bits#[85] << 17) | (downstream_resp_bits#[84] << 16) | (downstream_resp_bits#[83] << 15) | (downstream_resp_bits#[82] << 14) | (downstream_resp_bits#[81] << 13) | (downstream_resp_bits#[80] << 12) | (downstream_resp_bits#[79] << 11) | (downstream_resp_bits#[78] << 10) | (downstream_resp_bits#[77] << 9) | (downstream_resp_bits#[76] << 8) | (downstream_resp_bits#[75] << 7) | (downstream_resp_bits#[74] << 6) | (downstream_resp_bits#[73] << 5) | (downstream_resp_bits#[72] << 4) | (downstream_resp_bits#[71] << 3) | (downstream_resp_bits#[70] << 2) | (downstream_resp_bits#[69] << 1) | downstream_resp_bits#[68])
-  downstream_resp_valid_int_bits#[2] = gen_downstream_resp_retime_2_br_delay_valid_resp.out_valid & 1
-  downstream_resp_int_bits#[68..<102] = gen_downstream_resp_retime_2_br_delay_valid_resp.out#[0..<34]
-  const t1028 = ((downstream_resp_slverr >> 3) & 1) | (((downstream_resp_decerr >> 3) & 1) << 1) | (downstream_resp_rdata#[96..=127] << 2)
-  downstream_resp_bits#[102..<136] = t1028#[0..<34]
-  mut gen_downstream_resp_retime_3_br_delay_valid_resp = br_delay_valid_p1<Width=34>(in_valid=(downstream_resp_valid >> 3) & 1, `in`=(downstream_resp_bits#[135] << 33) | (downstream_resp_bits#[134] << 32) | (downstream_resp_bits#[133] << 31) | (downstream_resp_bits#[132] << 30) | (downstream_resp_bits#[131] << 29) | (downstream_resp_bits#[130] << 28) | (downstream_resp_bits#[129] << 27) | (downstream_resp_bits#[128] << 26) | (downstream_resp_bits#[127] << 25) | (downstream_resp_bits#[126] << 24) | (downstream_resp_bits#[125] << 23) | (downstream_resp_bits#[124] << 22) | (downstream_resp_bits#[123] << 21) | (downstream_resp_bits#[122] << 20) | (downstream_resp_bits#[121] << 19) | (downstream_resp_bits#[120] << 18) | (downstream_resp_bits#[119] << 17) | (downstream_resp_bits#[118] << 16) | (downstream_resp_bits#[117] << 15) | (downstream_resp_bits#[116] << 14) | (downstream_resp_bits#[115] << 13) | (downstream_resp_bits#[114] << 12) | (downstream_resp_bits#[113] << 11) | (downstream_resp_bits#[112] << 10) | (downstream_resp_bits#[111] << 9) | (downstream_resp_bits#[110] << 8) | (downstream_resp_bits#[109] << 7) | (downstream_resp_bits#[108] << 6) | (downstream_resp_bits#[107] << 5) | (downstream_resp_bits#[106] << 4) | (downstream_resp_bits#[105] << 3) | (downstream_resp_bits#[104] << 2) | (downstream_resp_bits#[103] << 1) | downstream_resp_bits#[102])
-  downstream_resp_valid_int_bits#[3] = gen_downstream_resp_retime_3_br_delay_valid_resp.out_valid & 1
-  downstream_resp_int_bits#[102..<136] = gen_downstream_resp_retime_3_br_delay_valid_resp.out#[0..<34]
-  mut br_mux_onehot_resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=((decerr_resp_valid & 1) << 4) | downstream_resp_valid_int, `in`=(2 << 136) | downstream_resp_int)
-  mut `upstream_resp.rdata` = br_mux_onehot_resp#[2..=33]
-  mut `upstream_resp.decerr` = (br_mux_onehot_resp >> 1) & 1
-  mut `upstream_resp.slverr` = br_mux_onehot_resp & 1
-  mut _b2i_7 = if decerr_resp_valid != 0 or downstream_resp_valid_int != 0 { 1 } else { 0 }
-  downstream_req_valid = downstream_req_valid_bits
-  downstream_req_write = downstream_req_write_bits
-  downstream_req_addr = downstream_req_addr_bits
-  downstream_req_wdata = downstream_req_wdata_bits
-  downstream_req_wstrb = downstream_req_wstrb_bits
-  downstream_req_privileged = downstream_req_privileged_bits
-  downstream_req_secure = downstream_req_secure_bits
-  downstream_req_abort = downstream_req_abort_bits
-  downstream_resp_valid_int = downstream_resp_valid_int_bits
-  downstream_resp_int = downstream_resp_int_bits
-  upstream_resp_valid = _b2i_7
-  upstream_resp_rdata = `upstream_resp.rdata`
-  upstream_resp_decerr = `upstream_resp.decerr`
-  upstream_resp_slverr = `upstream_resp.slverr`
+pub mod br_csr_demux_select_onehot(clk:Clock, downstream_resp_decerr:U4, downstream_resp_rdata:U128, downstream_resp_slverr:U4, downstream_resp_valid:U4, rst:U1, select_onehot:U4, upstream_req_abort:U1, upstream_req_addr:U16, upstream_req_privileged:U1, upstream_req_secure:U1, upstream_req_valid:U1, upstream_req_wdata:U32, upstream_req_write:U1, upstream_req_wstrb:U4) -> (downstream_req_abort:U4@[], downstream_req_addr:U64@[], downstream_req_privileged:U4@[], downstream_req_secure:U4@[], downstream_req_valid:U4@[], downstream_req_wdata:U128@[], downstream_req_write:U4@[], downstream_req_wstrb:U16@[], upstream_resp_decerr:U1@[], upstream_resp_rdata:U32@[], upstream_resp_slverr:U1@[], upstream_resp_valid:U1@[]) {
+  // Every downstream sees the request; only the selected one sees it valid.
+  downstream_req_valid = if upstream_req_valid == 1 { select_onehot } else { 0 }
+  downstream_req_write = if upstream_req_write == 1 { 0xf } else { 0 }
+  downstream_req_privileged = if upstream_req_privileged == 1 { 0xf } else { 0 }
+  downstream_req_secure = if upstream_req_secure == 1 { 0xf } else { 0 }
+  downstream_req_abort = if upstream_req_abort == 1 { 0xf } else { 0 }
+  downstream_req_addr = (upstream_req_addr, upstream_req_addr, upstream_req_addr, upstream_req_addr)#[..]
+  downstream_req_wdata = (upstream_req_wdata, upstream_req_wdata, upstream_req_wdata, upstream_req_wdata)#[..]
+  downstream_req_wstrb = (upstream_req_wstrb, upstream_req_wstrb, upstream_req_wstrb, upstream_req_wstrb)#[..]
+
+  reg decerr_resp_valid:U1:[reset_pin=rst] = 0
+  decerr_resp_valid = U1(upstream_req_valid == 1 and select_onehot == 0)
+
+  // Response lane i packs (slverr, decerr, rdata) from the LSB; lane 4 is the decode error.
+  const resp0:U34 = (downstream_resp_slverr#[0], downstream_resp_decerr#[0], downstream_resp_rdata#[0..<32])#[..]
+  const resp1:U34 = (downstream_resp_slverr#[1], downstream_resp_decerr#[1], downstream_resp_rdata#[32..<64])#[..]
+  const resp2:U34 = (downstream_resp_slverr#[2], downstream_resp_decerr#[2], downstream_resp_rdata#[64..<96])#[..]
+  const resp3:U34 = (downstream_resp_slverr#[3], downstream_resp_decerr#[3], downstream_resp_rdata#[96..<128])#[..]
+  const decerr_resp:U34 = 0ub10
+  const resp_select:U5 = (downstream_resp_valid, decerr_resp_valid)#[..]
+  const resp_lanes:U170 = (resp0, resp1, resp2, resp3, decerr_resp)#[..]
+  const resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=resp_select, `in`=resp_lanes)
+  upstream_resp_valid = U1(decerr_resp_valid == 1 or downstream_resp_valid != 0)
+  upstream_resp_slverr = resp#[0]
+  upstream_resp_decerr = resp#[1]
+  upstream_resp_rdata = resp#[2..<34]
 }

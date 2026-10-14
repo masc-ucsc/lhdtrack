@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_fifo_shared_pop_ctrl_ext_arbiter.br_fifo_shared_pop_ctrl_ext_arbiter.
 const dut = import("br_fifo_shared_pop_ctrl_ext_arbiter.br_fifo_shared_pop_ctrl_ext_arbiter")
 
-pub mod br_fifo_shared_pop_ctrl_ext_arbiter_harness(clk:Clock, rst:U1) -> (checksum:U64@[0]) {
+pub mod br_fifo_shared_pop_ctrl_ext_arbiter_harness(clk:Clock, rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -26,7 +26,7 @@ pub mod br_fifo_shared_pop_ctrl_ext_arbiter_harness(clk:Clock, rst:U1) -> (check
   const lfsr_x:U128 = lfsr |
     (((lfsr#[0..=46] << 17) | lfsr#[47..=63]) << 64)
 
-  const dut_reset:Bool = rst != 0
+  const dut_reset:Bool = rst
 
   const (head_ready, bypass_ready, pop_valid, pop_data, pop_empty, dealloc_valid, dealloc_entry_id, data_ram_rd_addr_valid, data_ram_rd_addr, arb_request, arb_enable_priority_update) = dut(clk=clk, rst=U1(dut_reset), head_valid=lfsr#[0..=1], head=lfsr#[2..=11], ram_empty=lfsr#[12..=13], ram_items=lfsr#[14..=25], bypass_valid_unstable=lfsr#[26..=27], bypass_data_unstable=lfsr_x#[28..=91], pop_ready=lfsr#[28..=29], data_ram_rd_data_valid=lfsr#[30..=31], data_ram_rd_data=lfsr_x#[32..=95], arb_grant=lfsr#[32..=35], arb_can_grant=lfsr#[36..=39])
 
@@ -43,11 +43,6 @@ pub mod br_fifo_shared_pop_ctrl_ext_arbiter_harness(clk:Clock, rst:U1) -> (check
   wrap acc = ((acc << 1) | acc#[63]) ^ arb_request
   wrap acc = ((acc << 1) | acc#[63]) ^ arb_enable_priority_update
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }

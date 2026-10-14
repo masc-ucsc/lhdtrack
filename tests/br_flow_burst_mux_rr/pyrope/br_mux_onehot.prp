@@ -1,15 +1,10 @@
-// OR all selected packed lanes, including multiple simultaneous selections.
-pub comb br_mux_onehot<NumSymbolsIn=4, SymbolWidth=33>(`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)) {
-  // The one-lane reference passes payload even when its select bit is zero.
-  if NumSymbolsIn == 1 {
-    out = `in`
-  } else {
-    mut data:Unsigned(bits=SymbolWidth) = 0
-    for lane in 0..<NumSymbolsIn {
-      if select#[lane] != 0 {
-        data |= `in`#[(lane*SymbolWidth)..+SymbolWidth]
-      }
-    }
-    out = data
-  }
+pub mod br_mux_onehot<NumSymbolsIn=4, SymbolWidth=33>::[timecheck=false](`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)@[]) {
+  // OR of every selected lane (several may be selected at once).
+  cassert(NumSymbolsIn == 4)
+  comptime const W = SymbolWidth
+  const lane0:Unsigned(bits=W) = if select#[0] == 1 { `in`#[(0*W)..+W] } else { 0 }
+  const lane1:Unsigned(bits=W) = if select#[1] == 1 { `in`#[(1*W)..+W] } else { 0 }
+  const lane2:Unsigned(bits=W) = if select#[2] == 1 { `in`#[(2*W)..+W] } else { 0 }
+  const lane3:Unsigned(bits=W) = if select#[3] == 1 { `in`#[(3*W)..+W] } else { 0 }
+  out = (lane0 | lane1) | (lane2 | lane3)
 }

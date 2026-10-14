@@ -11,7 +11,7 @@
 // "call to undefined function". The module inside it is br_ram_initializer.br_ram_initializer.
 const dut = import("br_ram_initializer.br_ram_initializer")
 
-pub mod br_ram_initializer_harness(rst:U1) -> (checksum:U64@[0]) {
+pub mod br_ram_initializer_harness(rst:Reset) -> (checksum:U64@[0]) {
   reg lfsr:U64 = 2611923443488327891
   reg sum:U64  = 0
 
@@ -22,7 +22,7 @@ pub mod br_ram_initializer_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap nxt = nxt ^ (nxt >> 7)
   wrap nxt = nxt ^ (nxt << 17)
 
-  const (busy, wr_valid, wr_addr, wr_data) = dut(rst=U1(rst != 0), initial_value=lfsr#[0..=31], start=lfsr#[32])
+  const (busy, wr_valid, wr_addr, wr_data) = dut(rst=U1(rst), initial_value=lfsr#[0..=31], start=lfsr#[32])
 
   mut acc:U64 = sum
   wrap acc = ((acc << 1) | acc#[63]) ^ busy
@@ -30,11 +30,6 @@ pub mod br_ram_initializer_harness(rst:U1) -> (checksum:U64@[0]) {
   wrap acc = ((acc << 1) | acc#[63]) ^ wr_addr
   wrap acc = ((acc << 1) | acc#[63]) ^ wr_data
 
-  if rst != 0 {
-    lfsr = 2611923443488327891
-    sum  = 0
-  } else {
-    lfsr = nxt
-    sum  = acc
-  }
+  lfsr = nxt
+  sum  = acc
 }
