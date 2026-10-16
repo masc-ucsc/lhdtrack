@@ -1,8 +1,26 @@
+const cfg = import("lhdtrack_cfg")
+
+// Grant each requester that beats every other active requester.
+// priority_matrix is packed row-major: bit i*N+j is 1 when i beats j.
 pub comb br_arb_pairwise_core_internal<NumRequesters=2>::[timecheck=false](priority_matrix:U4, request:U2) -> (can_grant:U2, grant:U2) {
-  mut can_grant__w2 = 3
-  can_grant__w2#[0] = 1 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[0..=1] >> 1) & 1) != 0) & 1
-  mut can_grant__w3 = can_grant__w2
-  can_grant__w3#[1] = (can_grant__w2 >> 1) & 1 & U1((request & 1) == 0 or (priority_matrix#[2..=3] & 1) != 0) & 1
-  can_grant = can_grant__w3
-  grant = request & can_grant__w3
+  if cfg.no_loop {
+    mut can_grant__w2 = 3
+    can_grant__w2#[0] = 1 & U1(((request >> 1) & 1) == 0 or ((priority_matrix#[0..=1] >> 1) & 1) != 0) & 1
+    mut can_grant__w3 = can_grant__w2
+    can_grant__w3#[1] = (can_grant__w2 >> 1) & 1 & U1((request & 1) == 0 or (priority_matrix#[2..=3] & 1) != 0) & 1
+    can_grant = can_grant__w3
+    grant = request & can_grant__w3
+  } else {
+    comptime const N   = NumRequesters
+    comptime const ALL = (1 << N) - 1
+
+    mut can:U2 = 0
+    for i in 0..<N {
+      // Every other requester is either idle or loses to i.
+      const unbeaten:U2 = ~request | priority_matrix#[(i*N)..+N] | (1 << i)
+      can#[i]           = U1(unbeaten == ALL)
+    }
+    can_grant = can
+    grant     = request & can
+  }
 }

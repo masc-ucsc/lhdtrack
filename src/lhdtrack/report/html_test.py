@@ -126,7 +126,10 @@ class ReportSnapshot(unittest.TestCase):
         language["lec_result"] = proven
         rows = _gate_snapshot_lec([synth, netlist, language], "fresh")
         self.assertTrue(rows[0]["measured_lec_verified"])
+        # A bounded(n) proof is still a proof.
         netlist["lec_result"] = {"verdict": "proven", "bounded": True, "bound": 6}
+        self.assertTrue(_gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
+        netlist["lec_result"] = {"verdict": "timeout"}
         self.assertFalse(_gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
 
     def test_legacy_note_uses_recorded_unit_without_changing_ledger_row(self):
@@ -230,6 +233,24 @@ class SimulationWorkload(unittest.TestCase):
         measured["sim"]["cycles"] = 50_000_000
         chart = _chart_data([key], index, "sim_verilator", ["sim_lhd_verilog"], metrics)
         self.assertEqual(chart["groups"][0]["values"]["exec"]["sim_lhd_verilog"], 100)
+
+
+class SimulationIndependentOfLec(unittest.TestCase):
+    def test_idiomatic_sim_row_enters_headline_without_a_proof(self):
+        # Owner ruling 2026-10-15: a sim result stands on its checksum matching
+        # Verilator; LEC (proven or not) never gates it. Synthesis still needs it.
+        from lhdtrack.report.html import _eligible
+        base = {"status": "ok", "sim": {"cycles": 100}}
+        sim_row = {"status": "ok", "sim": {"cycles": 100}, "pyrope_status": "idiomatic",
+                   "comparable": False, "lec": "none"}
+        with patch("lhdtrack.report.html._same_netlist_measurement", return_value=True):
+            self.assertTrue(_eligible(sim_row, "sim_lhd_pyrope_llvm", base, {"idiomatic"}, "sim_lhd_pyrope_llvm"))
+            auto = dict(sim_row, pyrope_status="auto")
+            self.assertFalse(_eligible(auto, "sim_lhd_pyrope_llvm", base, {"idiomatic"}, "sim_lhd_pyrope_llvm"))
+            other_cycles = dict(sim_row, sim={"cycles": 99})
+            self.assertFalse(_eligible(other_cycles, "sim_lhd_pyrope_llvm", base, {"idiomatic"}, "sim_lhd_pyrope_llvm"))
+        syn = {"status": "ok", "pyrope_status": "idiomatic", "comparable": False}
+        self.assertFalse(_eligible(syn, "syn_lhd_pyrope", {"status": "ok"}, {"idiomatic"}, "syn_lhd_pyrope"))
 
 
 class SplitResults(unittest.TestCase):

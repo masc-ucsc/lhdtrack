@@ -1,37 +1,80 @@
 const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_priority_dynamic = import("br_enc_priority_dynamic.br_enc_priority_dynamic")
 const br_mux_bin = import("br_mux_bin.br_mux_bin")
+const cfg = import("lhdtrack_cfg")
 
+// Round-robin arbiter granting up to `grant_allowed` (at most MaxGrantPerCycle)
+// requesters per cycle. grant_ordered packs the grants in priority order,
+// grant k at bits [k*N, k*N + N). The last requester granted becomes the
+// lowest priority for the next cycle.
 pub mod br_arb_multi_rr<NumRequesters=16, MaxGrantPerCycle=4, EnableCoverBlockPriorityUpdate=0, EnableCoverMoreRequestThanAllowed=1>::[timecheck=false](clk:Clock, enable_priority_update:U1, grant_allowed:U3, request:U16, rst:U1) -> (grant:U16@[], grant_count:U3@[], grant_ordered:U64@[]) {
   reg lowest_prio:U16:[async=false, initial=32768, reset_pin=rst]
-  wire grant_ordered_bits:U64 = nil
-  wire grant_ordered:U64 = nil
-  wire grant_valid_bits:U4 = nil
-  grant_valid_bits#[0] = U1(grant_allowed > 0) & 1
-  grant_valid_bits#[1] = U1(grant_allowed > 1) & 1
-  grant_valid_bits#[2] = U1(grant_allowed > 2) & 1
-  grant_valid_bits#[3] = U1(grant_allowed > 3) & 1
-  mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
-  const all_grants = u_enc_priority_dynamic
-  mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in`=request)
-  const request_count = br_enc_countones_inst
-  mut _mux_6:U3 = if U1(request_count <= grant_allowed) != 0 { request_count#[0..=2] } else { grant_allowed }
-  const grant_count__w1 = _mux_6
-  mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=2]#[0..=1], `in`=all_grants)
-  if not (rst != 0) {
-    if U1(enable_priority_update != 0 and request != 0 and grant_allowed > 0) != 0 {
-      lowest_prio = br_mux_bin_last_grant.out
+  if cfg.no_loop {
+    wire grant_ordered_bits:U64 = nil
+    wire grant_ordered:U64 = nil
+    wire grant_valid_bits:U4 = nil
+    grant_valid_bits#[0] = U1(grant_allowed > 0) & 1
+    grant_valid_bits#[1] = U1(grant_allowed > 1) & 1
+    grant_valid_bits#[2] = U1(grant_allowed > 2) & 1
+    grant_valid_bits#[3] = U1(grant_allowed > 3) & 1
+    mut u_enc_priority_dynamic = br_enc_priority_dynamic::[name=u_enc_priority_dynamic](clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
+    const all_grants = u_enc_priority_dynamic
+    mut br_enc_countones_inst = br_enc_countones::[name=br_enc_countones_inst](`in`=request)
+    const request_count = br_enc_countones_inst
+    mut _mux_6:U3 = if U1(request_count <= grant_allowed) != 0 { request_count#[0..=2] } else { grant_allowed }
+    const grant_count__w1 = _mux_6
+    mut br_mux_bin_last_grant = br_mux_bin::[name=br_mux_bin_last_grant](select=(grant_count__w1 - 1)#[0..=2]#[0..=1], `in`=all_grants)
+    if not (rst != 0) {
+      if U1(enable_priority_update != 0 and request != 0 and grant_allowed > 0) != 0 {
+        lowest_prio = br_mux_bin_last_grant.out
+      }
     }
+    mut _mux_9:U16 = if (grant_valid_bits#[0] & 1) != 0 { all_grants#[0..=15] } else { 0 }
+    grant_ordered_bits#[0..<16] = _mux_9#[0..<16]
+    mut _mux_10:U16 = if (grant_valid_bits#[1] & 1) != 0 { all_grants#[16..=31] } else { 0 }
+    grant_ordered_bits#[16..<32] = _mux_10#[0..<16]
+    mut _mux_11:U16 = if (grant_valid_bits#[2] & 1) != 0 { all_grants#[32..=47] } else { 0 }
+    grant_ordered_bits#[32..<48] = _mux_11#[0..<16]
+    mut _mux_12:U16 = if (grant_valid_bits#[3] & 1) != 0 { all_grants#[48..=63] } else { 0 }
+    grant_ordered_bits#[48..<64] = _mux_12#[0..<16]
+    grant_ordered = grant_ordered_bits
+    grant = (((0 | ((grant_ordered_bits#[15] << 15) | (grant_ordered_bits#[14] << 14) | (grant_ordered_bits#[13] << 13) | (grant_ordered_bits#[12] << 12) | (grant_ordered_bits#[11] << 11) | (grant_ordered_bits#[10] << 10) | (grant_ordered_bits#[9] << 9) | (grant_ordered_bits#[8] << 8) | (grant_ordered_bits#[7] << 7) | (grant_ordered_bits#[6] << 6) | (grant_ordered_bits#[5] << 5) | (grant_ordered_bits#[4] << 4) | (grant_ordered_bits#[3] << 3) | (grant_ordered_bits#[2] << 2) | (grant_ordered_bits#[1] << 1) | grant_ordered_bits#[0])) | ((grant_ordered_bits#[31] << 15) | (grant_ordered_bits#[30] << 14) | (grant_ordered_bits#[29] << 13) | (grant_ordered_bits#[28] << 12) | (grant_ordered_bits#[27] << 11) | (grant_ordered_bits#[26] << 10) | (grant_ordered_bits#[25] << 9) | (grant_ordered_bits#[24] << 8) | (grant_ordered_bits#[23] << 7) | (grant_ordered_bits#[22] << 6) | (grant_ordered_bits#[21] << 5) | (grant_ordered_bits#[20] << 4) | (grant_ordered_bits#[19] << 3) | (grant_ordered_bits#[18] << 2) | (grant_ordered_bits#[17] << 1) | grant_ordered_bits#[16])) | ((grant_ordered_bits#[47] << 15) | (grant_ordered_bits#[46] << 14) | (grant_ordered_bits#[45] << 13) | (grant_ordered_bits#[44] << 12) | (grant_ordered_bits#[43] << 11) | (grant_ordered_bits#[42] << 10) | (grant_ordered_bits#[41] << 9) | (grant_ordered_bits#[40] << 8) | (grant_ordered_bits#[39] << 7) | (grant_ordered_bits#[38] << 6) | (grant_ordered_bits#[37] << 5) | (grant_ordered_bits#[36] << 4) | (grant_ordered_bits#[35] << 3) | (grant_ordered_bits#[34] << 2) | (grant_ordered_bits#[33] << 1) | grant_ordered_bits#[32])) | ((grant_ordered_bits#[63] << 15) | (grant_ordered_bits#[62] << 14) | (grant_ordered_bits#[61] << 13) | (grant_ordered_bits#[60] << 12) | (grant_ordered_bits#[59] << 11) | (grant_ordered_bits#[58] << 10) | (grant_ordered_bits#[57] << 9) | (grant_ordered_bits#[56] << 8) | (grant_ordered_bits#[55] << 7) | (grant_ordered_bits#[54] << 6) | (grant_ordered_bits#[53] << 5) | (grant_ordered_bits#[52] << 4) | (grant_ordered_bits#[51] << 3) | (grant_ordered_bits#[50] << 2) | (grant_ordered_bits#[49] << 1) | grant_ordered_bits#[48])
+    grant_count = grant_count__w1
+  } else {
+    comptime const N          = NumRequesters
+    comptime const MAX_GRANTS = MaxGrantPerCycle
+
+    const u_enc_priority_dynamic = br_enc_priority_dynamic(clk=clk, rst=rst, `in`=request, lowest_prio=lowest_prio)
+    const all_grants             = u_enc_priority_dynamic
+
+    const request_count = request#+[..]
+    mut count:U3 = 0
+    wrap count = if request_count <= grant_allowed { request_count } else { grant_allowed }
+
+    mut ordered:U64 = 0
+    mut granted:U16 = 0
+    for k in 0..<MAX_GRANTS {
+      if grant_allowed > k {
+        ordered#[(k*N)..+N] = all_grants#[(k*N)..+N]
+        granted            |= all_grants#[(k*N)..+N]
+      }
+    }
+
+    // The last grant of this cycle becomes the lowest priority.
+    mut last:U2 = 0
+    wrap last = count - 1
+    mut last_grant:U16 = 0
+    for k in 0..<MAX_GRANTS {
+      if last == k {
+        last_grant = all_grants#[(k*N)..+N]
+      }
+    }
+    if enable_priority_update == 1 and request != 0 and grant_allowed > 0 {
+      lowest_prio = last_grant
+    }
+
+    grant         = granted
+    grant_ordered = ordered
+    grant_count   = count
   }
-  mut _mux_9:U16 = if (grant_valid_bits#[0] & 1) != 0 { all_grants#[0..=15] } else { 0 }
-  grant_ordered_bits#[0..<16] = _mux_9#[0..<16]
-  mut _mux_10:U16 = if (grant_valid_bits#[1] & 1) != 0 { all_grants#[16..=31] } else { 0 }
-  grant_ordered_bits#[16..<32] = _mux_10#[0..<16]
-  mut _mux_11:U16 = if (grant_valid_bits#[2] & 1) != 0 { all_grants#[32..=47] } else { 0 }
-  grant_ordered_bits#[32..<48] = _mux_11#[0..<16]
-  mut _mux_12:U16 = if (grant_valid_bits#[3] & 1) != 0 { all_grants#[48..=63] } else { 0 }
-  grant_ordered_bits#[48..<64] = _mux_12#[0..<16]
-  grant_ordered = grant_ordered_bits
-  grant = (((0 | ((grant_ordered_bits#[15] << 15) | (grant_ordered_bits#[14] << 14) | (grant_ordered_bits#[13] << 13) | (grant_ordered_bits#[12] << 12) | (grant_ordered_bits#[11] << 11) | (grant_ordered_bits#[10] << 10) | (grant_ordered_bits#[9] << 9) | (grant_ordered_bits#[8] << 8) | (grant_ordered_bits#[7] << 7) | (grant_ordered_bits#[6] << 6) | (grant_ordered_bits#[5] << 5) | (grant_ordered_bits#[4] << 4) | (grant_ordered_bits#[3] << 3) | (grant_ordered_bits#[2] << 2) | (grant_ordered_bits#[1] << 1) | grant_ordered_bits#[0])) | ((grant_ordered_bits#[31] << 15) | (grant_ordered_bits#[30] << 14) | (grant_ordered_bits#[29] << 13) | (grant_ordered_bits#[28] << 12) | (grant_ordered_bits#[27] << 11) | (grant_ordered_bits#[26] << 10) | (grant_ordered_bits#[25] << 9) | (grant_ordered_bits#[24] << 8) | (grant_ordered_bits#[23] << 7) | (grant_ordered_bits#[22] << 6) | (grant_ordered_bits#[21] << 5) | (grant_ordered_bits#[20] << 4) | (grant_ordered_bits#[19] << 3) | (grant_ordered_bits#[18] << 2) | (grant_ordered_bits#[17] << 1) | grant_ordered_bits#[16])) | ((grant_ordered_bits#[47] << 15) | (grant_ordered_bits#[46] << 14) | (grant_ordered_bits#[45] << 13) | (grant_ordered_bits#[44] << 12) | (grant_ordered_bits#[43] << 11) | (grant_ordered_bits#[42] << 10) | (grant_ordered_bits#[41] << 9) | (grant_ordered_bits#[40] << 8) | (grant_ordered_bits#[39] << 7) | (grant_ordered_bits#[38] << 6) | (grant_ordered_bits#[37] << 5) | (grant_ordered_bits#[36] << 4) | (grant_ordered_bits#[35] << 3) | (grant_ordered_bits#[34] << 2) | (grant_ordered_bits#[33] << 1) | grant_ordered_bits#[32])) | ((grant_ordered_bits#[63] << 15) | (grant_ordered_bits#[62] << 14) | (grant_ordered_bits#[61] << 13) | (grant_ordered_bits#[60] << 12) | (grant_ordered_bits#[59] << 11) | (grant_ordered_bits#[58] << 10) | (grant_ordered_bits#[57] << 9) | (grant_ordered_bits#[56] << 8) | (grant_ordered_bits#[55] << 7) | (grant_ordered_bits#[54] << 6) | (grant_ordered_bits#[53] << 5) | (grant_ordered_bits#[52] << 4) | (grant_ordered_bits#[51] << 3) | (grant_ordered_bits#[50] << 2) | (grant_ordered_bits#[49] << 1) | grant_ordered_bits#[48])
-  grant_count = grant_count__w1
 }

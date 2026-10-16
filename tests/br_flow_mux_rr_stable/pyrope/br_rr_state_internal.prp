@@ -1,3 +1,5 @@
+const cfg = import("lhdtrack_cfg")
+
 // above#[i] = |v#[(i+1)..]
 comb or_above<N>(v:Unsigned(bits=N)) -> (above:Unsigned(bits=N)) {
   cassert(N <= 16)
@@ -19,6 +21,13 @@ pub mod br_rr_state_internal<NumRequesters=8>::[timecheck=false,synth.abc_pre="c
   }
 
   // mask#[i] = |last_grant#[i..]
-  const mask:U8 = last_grant | or_above<N=8>(v=last_grant)
+  mut mask:U8 = 0
+  if cfg.no_loop {
+    mask = last_grant | or_above<N=8>(v=last_grant)
+  } else {
+    for i in 0..<NumRequesters {
+      mask#[i] = last_grant#|[i..]
+    }
+  }
   priority_mask = (e7=mask#[7], e6=mask#[6], e5=mask#[5], e4=mask#[4], e3=mask#[3], e2=mask#[2], e1=mask#[1], e0=mask#[0])
 }

@@ -1,24 +1,37 @@
 // Fixed-priority arbiter: the lowest-numbered request wins (bedrock br_arb_fixed, 16 requesters).
 // clk and rst are unused (the reference only uses them for assertions) and stay so the
 // ports line up with verilog/br_arb_fixed.sv.
+const cfg = import("lhdtrack_cfg")
+
 pub mod br_arb_fixed(clk:Clock, request:U16, rst:Reset) -> (grant:U16@[0]) {
-  // Lowest index wins: bit i passes when no lower bit is set (one lane per bit, no loop).
-  grant = (
-    U1(request#[0]),
-    U1(request#[1] & U1(request#[0..<1] == 0)),
-    U1(request#[2] & U1(request#[0..<2] == 0)),
-    U1(request#[3] & U1(request#[0..<3] == 0)),
-    U1(request#[4] & U1(request#[0..<4] == 0)),
-    U1(request#[5] & U1(request#[0..<5] == 0)),
-    U1(request#[6] & U1(request#[0..<6] == 0)),
-    U1(request#[7] & U1(request#[0..<7] == 0)),
-    U1(request#[8] & U1(request#[0..<8] == 0)),
-    U1(request#[9] & U1(request#[0..<9] == 0)),
-    U1(request#[10] & U1(request#[0..<10] == 0)),
-    U1(request#[11] & U1(request#[0..<11] == 0)),
-    U1(request#[12] & U1(request#[0..<12] == 0)),
-    U1(request#[13] & U1(request#[0..<13] == 0)),
-    U1(request#[14] & U1(request#[0..<14] == 0)),
-    U1(request#[15] & U1(request#[0..<15] == 0))
-  )#[..]
+  if cfg.no_loop {
+    // Lowest index wins: bit i passes when no lower bit is set (one lane per bit).
+    grant = (
+      U1(request#[0]),
+      U1(request#[1] & U1(request#[0..<1] == 0)),
+      U1(request#[2] & U1(request#[0..<2] == 0)),
+      U1(request#[3] & U1(request#[0..<3] == 0)),
+      U1(request#[4] & U1(request#[0..<4] == 0)),
+      U1(request#[5] & U1(request#[0..<5] == 0)),
+      U1(request#[6] & U1(request#[0..<6] == 0)),
+      U1(request#[7] & U1(request#[0..<7] == 0)),
+      U1(request#[8] & U1(request#[0..<8] == 0)),
+      U1(request#[9] & U1(request#[0..<9] == 0)),
+      U1(request#[10] & U1(request#[0..<10] == 0)),
+      U1(request#[11] & U1(request#[0..<11] == 0)),
+      U1(request#[12] & U1(request#[0..<12] == 0)),
+      U1(request#[13] & U1(request#[0..<13] == 0)),
+      U1(request#[14] & U1(request#[0..<14] == 0)),
+      U1(request#[15] & U1(request#[0..<15] == 0))
+    )#[..]
+  } else {
+    // Prefix-OR scan: grant[i] = request[i] and no lower request (no negation adder).
+    mut seen:U1 = 0
+    mut winner:U16 = 0
+    for i in 0..<request.[bits] {
+      winner#[i] = if seen == 1 { 0 } else { request#[i] }
+      seen = seen | request#[i]
+    }
+    grant = winner
+  }
 }

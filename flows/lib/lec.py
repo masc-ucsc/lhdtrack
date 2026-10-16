@@ -46,6 +46,45 @@ def check_elaboration_internal_error(result_path: Path) -> None:
 # classify as `timeout` in ten milliseconds -- including ones that had proven
 # their obligation. Keyword-matching a log is guessing; the result object is the
 # tool telling you.
+# `lhd lec` names every undecided run by its CAUSE; those words are recorded as-is.
+# (Older lhd builds, before every verdict carried a modifier.)
+_LHD_CAUSES = ("timeout", "unsupported", "undischarged", "unconfirmed", "unpaired", "unchecked", "incomplete")
+
+# Current lhd (2026-10-14): every verdict carries a modifier
+# (livehd pass/lec/property_types.hpp Outcome). Map each onto the ledger's
+# vocabulary; the exact lhd word is kept in the lec block as `lhd_verdict`.
+#   proven-full / proven-bounded  -> proven   (bounded/bound carried separately)
+#   tested-sampled                -> inconclusive (sampled vectors, not a proof)
+#   timeout-time / timeout-memory -> timeout
+#   refuted-cex                   -> refuted  (a real counterexample)
+#   refuted-unsupported           -> unsupported (no engine can model it)
+#   refuted-interface / -unchecked / -vacuous / -unexplained -> error
+#       (no answer, and a failure: wrong port names, forced options, a check that
+#       compared nothing, or an lhd bug -- never a proof, never a design refute)
+_LHD_OUTCOMES = {
+    "proven-full": "proven",
+    "proven-bounded": "proven",
+    "tested-sampled": "inconclusive",
+    "timeout-time": "timeout",
+    "timeout-memory": "timeout",
+    "refuted-cex": "refuted",
+    "refuted-unsupported": "unsupported",
+    "refuted-interface": "error",
+    "refuted-unchecked": "error",
+    "refuted-vacuous": "error",
+    "refuted-unexplained": "error",
+}
+
+
+def lhd_verdict(result: dict | None, solver: str | None = None) -> str | None:
+    """The exact verdict word lhd reported (new vocabulary), or None."""
+    lec = (result or {}).get("lec") or {}
+    v = lec.get("verdict")
+    if solver == "lgyosys":
+        v = (lec.get("crosscheck") or {}).get("verdict", v)
+    return v if v in _LHD_OUTCOMES else None
+
+
 _CLASS_TO_VERDICT = {
     "equiv_fail": "refuted",
     "timeout": "timeout",
@@ -92,9 +131,21 @@ def classify(
         err = result.get("error") or {}
         message = str(err.get("message", ""))
         if crosscheck:
-            verdict = crosscheck.get("verdict", "unknown")
-            if verdict == "unknown" and crosscheck.get("exit_code") != 2:
-                return "error"
+            verdict = crosscheck.get("verdict", "incomplete")
+            if verdict in _LHD_OUTCOMES:
+                return _LHD_OUTCOMES[verdict]
+            if verdict == "failed" or (verdict == "unknown" and crosscheck.get("exit_code") != 2):
+                return "error"  # lgcheck did not run ("unknown" is an older lhd's spelling)
+            if verdict == "incomplete":
+                # lgcheck ran and could not decide. With the current lhd the
+                # native leg then reports REFUTED-unchecked (an option demanded
+                # a confirmation that did not happen) under error.class
+                # unsupported -- that is NOT a design feature lgyosys cannot
+                # model, so record it like any undecided run: a timeout when
+                # lgcheck used its whole budget, else inconclusive.
+                if timeout_s is not None and elapsed_ms is not None and elapsed_ms >= timeout_s * 2000 * 0.98:
+                    return "timeout"
+                return "inconclusive"
         elif message.startswith("lgcheck cross-check did not decide equivalence"):
             # Older current builds retain the native proof in lec.verdict even
             # when the independent lgcheck comparison gives up.
@@ -108,8 +159,10 @@ def classify(
         elif result.get("status") != "pass" and verdict == "proven":
             # Emission/setup failed before an independent answer was available.
             return "error"
-    if verdict in ("proven", "refuted"):
-        return verdict
+    if verdict in _LHD_OUTCOMES:
+        return _LHD_OUTCOMES[verdict]
+    if verdict in ("proven", "refuted", *_LHD_CAUSES):
+        return verdict  # lhd names the cause itself; none of these is a proof or a refutation
     if verdict == "unknown":
         # UNKNOWN is the solver-level envelope, but a named frontend/encoder
         # refusal is more specific and must survive classification.  The old
@@ -322,7 +375,7 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         solver=solver,
     )
 
-    # A BOUNDED pass is not an unconditional proof. `lhd lec` answers PASS(n) --
+    # A BOUNDED pass is not an unconditional proof. `lhd lec` answers PROVEN-bounded(n) --
     # "equivalent for n cycles from reset, exhaustive over inputs, deeper cycles
     # not checked" -- and that is a real, complete answer to a SCOPED question,
     # so `verdict` stays `proven`. But it is NOT the same claim as an inductive
@@ -337,7 +390,8 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
     block = {
         "verilog_profile": ctx.test.raw.get("lec", {}).get("verilog_profile", "synthesis"),
         "verdict": verdict,
-        "bounded": bool(lec_block.get("bounded")),
+        "lhd_verdict": lhd_verdict(result, solver),
+        "bounded": bool(lec_block.get("bounded")) or lec_block.get("verdict") == "proven-bounded",
         "bound": lec_block.get("bound"),
         "solver": solver,
         "effort": "proof",

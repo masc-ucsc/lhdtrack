@@ -1,12 +1,28 @@
 // One-hot mux: ORs together the lanes whose select bit is set (a multi-hot
-// select ORs the lanes). Unrolled for the 4-lane configuration this design uses.
+// select ORs the lanes).
+const cfg = import("lhdtrack_cfg")
+
 pub comb br_mux_onehot<NumSymbolsIn=4, SymbolWidth=32>(`in`:Unsigned(bits=NumSymbolsIn*SymbolWidth), select:Unsigned(bits=NumSymbolsIn)) -> (out:Unsigned(bits=SymbolWidth)) {
-  cassert(NumSymbolsIn == 4)
   comptime const W = SymbolWidth
   comptime const ONES = (1 << W) - 1
-  const s0:Unsigned(bits=W) = `in`#[0..+W] & (if select#[0] == 1 { ONES } else { 0 })
-  const s1:Unsigned(bits=W) = `in`#[W..+W] & (if select#[1] == 1 { ONES } else { 0 })
-  const s2:Unsigned(bits=W) = `in`#[(2*W)..+W] & (if select#[2] == 1 { ONES } else { 0 })
-  const s3:Unsigned(bits=W) = `in`#[(3*W)..+W] & (if select#[3] == 1 { ONES } else { 0 })
-  out = s0 | s1 | s2 | s3
+  if cfg.no_loop {
+    // Unrolled for the 4-lane configuration this design uses.
+    cassert(NumSymbolsIn == 4)
+    const s0:Unsigned(bits=W) = `in`#[0..+W] & (if select#[0] == 1 { ONES } else { 0 })
+    const s1:Unsigned(bits=W) = `in`#[W..+W] & (if select#[1] == 1 { ONES } else { 0 })
+    const s2:Unsigned(bits=W) = `in`#[(2*W)..+W] & (if select#[2] == 1 { ONES } else { 0 })
+    const s3:Unsigned(bits=W) = `in`#[(3*W)..+W] & (if select#[3] == 1 { ONES } else { 0 })
+    out = s0 | s1 | s2 | s3
+  } else {
+    // The one-lane reference passes payload even when its select bit is zero.
+    if NumSymbolsIn == 1 {
+      out = `in`
+    } else {
+      mut data:Unsigned(bits=W) = 0
+      for lane in 0..<NumSymbolsIn {
+        data |= `in`#[(lane*W)..+W] & (if select#[lane] == 1 { ONES } else { 0 })
+      }
+      out = data
+    }
+  }
 }

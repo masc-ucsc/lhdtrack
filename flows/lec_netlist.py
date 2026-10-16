@@ -25,7 +25,7 @@ same Liberty the netlist was mapped against.
 from __future__ import annotations
 
 from lhdtrack.context import FlowContext, FlowSkip
-from lib.lec import check_elaboration_internal_error, classify, counterexample, stage_readmem_data
+from lib.lec import check_elaboration_internal_error, classify, counterexample, lhd_verdict, stage_readmem_data
 from lib.lhd_synth_policy import abc_settings
 
 NAME = "lec_netlist"
@@ -106,7 +106,8 @@ def _check(
         lec_block = lec_block.get("crosscheck") or lec_block
     block = {
         "verdict": verdict,
-        "bounded": bool(lec_block.get("bounded")),
+        "lhd_verdict": lhd_verdict(result, solver),
+        "bounded": bool(lec_block.get("bounded")) or lec_block.get("verdict") == "proven-bounded",
         "bound": lec_block.get("bound"),
         "solver": solver,
         "obligation": obligation,

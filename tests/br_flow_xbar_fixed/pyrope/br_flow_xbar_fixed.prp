@@ -1,9 +1,20 @@
+const cfg = import("lhdtrack_cfg")
+
 // One-hot (or zero) select of a 32-bit push flow.
 mod pick(grant:U4, data:U128) -> (out:U32@[0]) {
-  out = (if grant#[0] == 1 { data#[0..<32] } else { 0 })
-      | (if grant#[1] == 1 { data#[32..<64] } else { 0 })
-      | (if grant#[2] == 1 { data#[64..<96] } else { 0 })
-      | (if grant#[3] == 1 { data#[96..<128] } else { 0 })
+  if cfg.no_loop {
+    out = (if grant#[0] == 1 { data#[0..<32] } else { 0 })
+        | (if grant#[1] == 1 { data#[32..<64] } else { 0 })
+        | (if grant#[2] == 1 { data#[64..<96] } else { 0 })
+        | (if grant#[3] == 1 { data#[96..<128] } else { 0 })
+  } else {
+    comptime const W = out.[bits]
+    mut acc:U32 = 0
+    for i in 0..<grant.[bits] {
+      acc |= if grant#[i] == 1 { data#[(i*W)..+W] } else { 0 }
+    }
+    out = acc
+  }
 }
 
 // Push flows (bit i) whose destination is pop flow J.

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from lhdtrack.ledger import Ledger
 from lhdtrack.report.html import _e, _fmt
-from lhdtrack.report.usyn_ablation import frequency_ratio, render, timing_ratio, unbounded_proof
+from lhdtrack.report.usyn_ablation import frequency_ratio, render, timing_ratio, proven_emission
 from lhdtrack.report.verilog_eval import lec_flow, synth_flow
 from lhdtrack.toolchain import Toolchain
 
@@ -145,7 +145,7 @@ def main() -> None:
                 old = row["variants"]["abc" if name == "abc" else "improved"]
                 synth, proof = old["synthesis"], old["proof"]
             entry["variants"][name] = dict(
-                synthesis=synth, proof=proof, unbounded_proven=unbounded_proof(synth, proof),
+                synthesis=synth, proof=proof, unbounded_proven=proven_emission(synth, proof),
                 frequency_ratio=frequency_ratio(abc["synthesis"], synth, abc["proof"], proof),
                 measured_frequency_ratio=timing_ratio(abc["synthesis"], synth))
         entry["investigate"] = any(

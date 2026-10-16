@@ -1,24 +1,110 @@
 const br_arb_lru_internal = import("br_arb_lru_internal.br_arb_lru_internal")
 const br_fifo_shared_pop_ctrl_ext_arbiter_t = import("br_fifo_shared_pop_ctrl_ext_arbiter.br_fifo_shared_pop_ctrl_ext_arbiter")
+const br_fifo_shared_read_xbar = import("br_fifo_shared_read_xbar.br_fifo_shared_read_xbar")
+const br_fifo_staging_buffer = import("br_fifo_staging_buffer.br_fifo_staging_buffer")
+const cfg = import("lhdtrack_cfg")
 
+// Pop controller of a shared-RAM multi-FIFO. Each FIFO's staging buffer
+// requests RAM reads for the entry at its head pointer; the read crossbar
+// shares the RAM read ports among the FIFOs, each port arbitrated
+// least-recently-used, and returns the data. A consumed head entry is
+// deallocated in the same cycle. Per-FIFO buses are packed with FIFO 0 in the
+// low bits. RAM read latency 1, 2-entry staging buffers with registered pop
+// outputs, unregistered deallocation, no bypass.
 pub mod br_fifo_shared_pop_ctrl<NumReadPorts=1, NumFifos=2, Depth=32, Width=32, StagingBufferDepth=2, RegisterPopOutputs=1, RegisterDeallocation=0, EnableBypass=0, EnableCoverSameCycleReadIssueAndReturn=1, EnableCoverBypassAndReadDataSameCycle=1, RamReadLatency=1, EnableAssertPushDataKnown=1>::[timecheck=false](bypass_data_unstable:U64, bypass_valid_unstable:U2, clk:Clock, data_ram_rd_data:U32, data_ram_rd_data_valid:U1, head:U10, head_valid:U2, pop_ready:U2, ram_empty:U2, ram_items:U12, rst:Reset) -> (bypass_ready:U2@[], data_ram_rd_addr:U5@[], data_ram_rd_addr_valid:U1@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:U2@[], pop_data:U64@[], pop_empty:U2@[], pop_valid:U2@[]) {
-  mut arb_grant__wtmp:U2 = 0sb?
-  wire arb_grant:U2 = nil
-  mut arb_can_grant__wtmp:U2 = 0sb?
-  wire arb_can_grant:U2 = nil
-  mut br_fifo_shared_pop_ctrl_ext_arbiter = br_fifo_shared_pop_ctrl_ext_arbiter_t::[name=br_fifo_shared_pop_ctrl_ext_arbiter](clk=clk, rst=rst, `head_valid.e1`=(head_valid >> 1) & 1, `head_valid.e0`=head_valid & 1, head=head, `ram_empty.e1`=(ram_empty >> 1) & 1, `ram_empty.e0`=ram_empty & 1, ram_items=ram_items, `bypass_valid_unstable.e1`=(bypass_valid_unstable >> 1) & 1, `bypass_valid_unstable.e0`=bypass_valid_unstable & 1, bypass_data_unstable=bypass_data_unstable, `pop_ready.e1`=(pop_ready >> 1) & 1, `pop_ready.e0`=pop_ready & 1, data_ram_rd_data_valid=data_ram_rd_data_valid, data_ram_rd_data=data_ram_rd_data, arb_grant=arb_grant, arb_can_grant=arb_can_grant)
-  mut gen_read_port_mux_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_read_port_mux_0_br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=br_fifo_shared_pop_ctrl_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_ext_arbiter.arb_request#[0..=1])
-  arb_can_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.can_grant#[0..=1]
-  arb_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.grant#[0..=1]
-  arb_grant = arb_grant__wtmp
-  arb_can_grant = arb_can_grant__wtmp
-  head_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e0
-  bypass_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e0
-  pop_valid = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e0
-  pop_data = br_fifo_shared_pop_ctrl_ext_arbiter.pop_data
-  pop_empty = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e0
-  dealloc_valid = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_valid
-  dealloc_entry_id = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_entry_id
-  data_ram_rd_addr_valid = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr_valid
-  data_ram_rd_addr = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr
+  if cfg.no_loop {
+    mut arb_grant__wtmp:U2 = 0sb?
+    wire arb_grant:U2 = nil
+    mut arb_can_grant__wtmp:U2 = 0sb?
+    wire arb_can_grant:U2 = nil
+    mut br_fifo_shared_pop_ctrl_ext_arbiter = br_fifo_shared_pop_ctrl_ext_arbiter_t::[name=br_fifo_shared_pop_ctrl_ext_arbiter](clk=clk, rst=rst, `head_valid.e1`=(head_valid >> 1) & 1, `head_valid.e0`=head_valid & 1, head=head, `ram_empty.e1`=(ram_empty >> 1) & 1, `ram_empty.e0`=ram_empty & 1, ram_items=ram_items, `bypass_valid_unstable.e1`=(bypass_valid_unstable >> 1) & 1, `bypass_valid_unstable.e0`=bypass_valid_unstable & 1, bypass_data_unstable=bypass_data_unstable, `pop_ready.e1`=(pop_ready >> 1) & 1, `pop_ready.e0`=pop_ready & 1, data_ram_rd_data_valid=data_ram_rd_data_valid, data_ram_rd_data=data_ram_rd_data, arb_grant=arb_grant, arb_can_grant=arb_can_grant)
+    mut gen_read_port_mux_0_br_arb_lru_internal = br_arb_lru_internal::[name=gen_read_port_mux_0_br_arb_lru_internal](clk=clk, rst=rst, enable_priority_update=br_fifo_shared_pop_ctrl_ext_arbiter.arb_enable_priority_update & 1, request=br_fifo_shared_pop_ctrl_ext_arbiter.arb_request#[0..=1])
+    arb_can_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.can_grant#[0..=1]
+    arb_grant__wtmp#[0..=1] = gen_read_port_mux_0_br_arb_lru_internal.grant#[0..=1]
+    arb_grant = arb_grant__wtmp
+    arb_can_grant = arb_can_grant__wtmp
+    head_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.head_ready.e0
+    bypass_ready = (br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.bypass_ready.e0
+    pop_valid = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_valid.e0
+    pop_data = br_fifo_shared_pop_ctrl_ext_arbiter.pop_data
+    pop_empty = (br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e1 << 1) | br_fifo_shared_pop_ctrl_ext_arbiter.pop_empty.e0
+    dealloc_valid = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_valid
+    dealloc_entry_id = br_fifo_shared_pop_ctrl_ext_arbiter.dealloc_entry_id
+    data_ram_rd_addr_valid = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr_valid
+    data_ram_rd_addr = br_fifo_shared_pop_ctrl_ext_arbiter.data_ram_rd_addr
+  } else {
+    comptime const COUNT_WIDTH = ram_items.[bits] / NumFifos
+
+    // Read crossbar results, used by the per-FIFO staging buffers below.
+    wire rd_addr_ready:U2 = nil
+    wire rd_data_valid:U2 = nil
+    wire rd_data:U64      = nil
+    wire arb_grant:U2     = nil
+    wire arb_can_grant:U2 = nil
+
+    mut rd_addr_valid:U2 = 0
+    mut ready:U2         = 0
+    mut valid:U2         = 0
+    mut data:U64         = 0
+    mut empty:U2         = 0
+    for f in 0..<NumFifos {
+      const stg = br_fifo_staging_buffer(
+        clk=clk,
+        rst=rst,
+        total_items=ram_items#[(f*COUNT_WIDTH)..+COUNT_WIDTH],
+        bypass_valid_unstable=bypass_valid_unstable#[f],
+        bypass_data_unstable=bypass_data_unstable#[(f*Width)..+Width],
+        ram_rd_addr_ready=U1(rd_addr_ready#[f] == 1 and head_valid#[f] == 1),
+        ram_rd_data_valid=rd_data_valid#[f],
+        ram_rd_data=rd_data#[(f*Width)..+Width],
+        pop_ready=pop_ready#[f]
+      )
+      // A RAM read needs both a head pointer and a staging-buffer request.
+      rd_addr_valid#[f]        = U1(head_valid#[f] == 1 and stg.ram_rd_addr_valid == 1)
+      ready#[f]                = U1(rd_addr_ready#[f] == 1 and stg.ram_rd_addr_valid == 1)
+      valid#[f]                = stg.pop_valid
+      data#[(f*Width)..+Width] = stg.pop_data
+      empty#[f]                = U1(ram_empty#[f] == 1 and stg.pop_empty == 1)
+    }
+
+    const xbar = br_fifo_shared_read_xbar(
+      clk=clk,
+      rst=rst,
+      push_rd_addr_valid=rd_addr_valid,
+      push_rd_addr=head,
+      pop_rd_data_valid=data_ram_rd_data_valid,
+      pop_rd_data=data_ram_rd_data,
+      arb_can_grant=arb_can_grant,
+      arb_grant=arb_grant
+    )
+    rd_addr_ready = xbar.push_rd_addr_ready
+    rd_data_valid = (xbar.push_rd_data_valid.e0#[0], xbar.push_rd_data_valid.e1#[0])#[..]
+    rd_data       = xbar.push_rd_data
+
+    // One least-recently-used arbiter per read port.
+    mut grant:U2     = 0
+    mut can_grant:U2 = 0
+    for p in 0..<NumReadPorts {
+      const arb = br_arb_lru_internal(
+        clk=clk,
+        rst=rst,
+        enable_priority_update=xbar.arb_enable_priority_update#[p],
+        request=xbar.arb_request#[(p*NumFifos)..+NumFifos]
+      )
+      grant#[(p*NumFifos)..+NumFifos]     = arb.grant
+      can_grant#[(p*NumFifos)..+NumFifos] = arb.can_grant
+    }
+    arb_grant     = grant
+    arb_can_grant = can_grant
+
+    head_ready             = ready
+    bypass_ready           = 0
+    pop_valid              = valid
+    pop_data               = data
+    pop_empty              = empty
+    dealloc_valid          = head_valid & ready
+    dealloc_entry_id       = head
+    data_ram_rd_addr_valid = xbar.pop_rd_addr_valid
+    data_ram_rd_addr       = xbar.pop_rd_addr
+  }
 }

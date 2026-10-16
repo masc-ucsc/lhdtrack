@@ -1,15 +1,37 @@
 const br_arb_rr_internal_t = import("br_arb_rr_internal.br_arb_rr_internal")
 const br_flow_mux_core_stable_t = import("br_flow_mux_core_stable.br_flow_mux_core_stable")
+const br_flow_reg_fwd = import("br_flow_reg_fwd.br_flow_reg_fwd")
+const cfg = import("lhdtrack_cfg")
 
+// 8-flow round-robin valid/ready mux with a registered (stable) pop side.
+// push_data packs flow i in bits [32*i, 32*i+32). The flow granted by the
+// arbiter is forwarded; the priority updates only when the pop side accepts.
 pub mod br_flow_mux_rr_stable::[timecheck=false,synth.abc_pre="compress2rs"](clk:Clock, pop_ready:U1, push_data:U256, push_valid:U8, rst:Reset) -> (pop_data:U32@[], pop_valid:U1@[], push_ready:U8@[]) {
   wire request:U8 = nil
   wire enable_priority_update:U1 = nil
   const br_arb_rr_internal = br_arb_rr_internal_t(clk=clk, rst=rst, enable_priority_update=enable_priority_update, request=request)
   const can_grant:U8 = (br_arb_rr_internal.can_grant.e0, br_arb_rr_internal.can_grant.e1, br_arb_rr_internal.can_grant.e2, br_arb_rr_internal.can_grant.e3, br_arb_rr_internal.can_grant.e4, br_arb_rr_internal.can_grant.e5, br_arb_rr_internal.can_grant.e6, br_arb_rr_internal.can_grant.e7)#[..]
-  const br_flow_mux_core_stable = br_flow_mux_core_stable_t(clk=clk, rst=rst, can_grant=can_grant, grant=br_arb_rr_internal.grant, push_valid=push_valid, push_data=push_data, pop_ready=pop_ready)
-  request = br_flow_mux_core_stable.request
-  enable_priority_update = br_flow_mux_core_stable.enable_priority_update
-  pop_data = br_flow_mux_core_stable.pop_data
-  pop_valid = br_flow_mux_core_stable.pop_valid
-  push_ready = br_flow_mux_core_stable.push_ready
+  if cfg.no_loop {
+    const br_flow_mux_core_stable = br_flow_mux_core_stable_t(clk=clk, rst=rst, can_grant=can_grant, grant=br_arb_rr_internal.grant, push_valid=push_valid, push_data=push_data, pop_ready=pop_ready)
+    request = br_flow_mux_core_stable.request
+    enable_priority_update = br_flow_mux_core_stable.enable_priority_update
+    pop_data = br_flow_mux_core_stable.pop_data
+    pop_valid = br_flow_mux_core_stable.pop_valid
+    push_ready = br_flow_mux_core_stable.push_ready
+  } else {
+    comptime const WIDTH = pop_data.[bits]
+    // One-hot mux of the granted flow's data.
+    mut selected:U32 = 0
+    for i in 0..<push_valid.[bits] {
+      if br_arb_rr_internal.grant#[i] == 1 {
+        selected |= push_data#[(i*WIDTH)..+WIDTH]
+      }
+    }
+    const out_reg = br_flow_reg_fwd(clk=clk, rst=U1(rst), push_valid=U1(push_valid != 0), push_data=selected, pop_ready=pop_ready)
+    request                = push_valid
+    enable_priority_update = out_reg.push_ready
+    push_ready             = if out_reg.push_ready == 1 { can_grant } else { 0 }
+    pop_valid              = out_reg.pop_valid
+    pop_data               = out_reg.pop_data
+  }
 }

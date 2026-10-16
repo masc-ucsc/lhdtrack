@@ -60,7 +60,7 @@ class SimulationBackends(unittest.TestCase):
                     argv = call.args[1]
                     self.assertIn(f"sim.tune.backend={backend}", argv)
                     self.assertIn("sim.tune.profile=off", argv)
-                    self.assertIn("sim.jobs=8", argv)
+                    self.assertIn("lhd.jobs=8", argv)
                     self.assertIn("sim.init_zero=true", argv)
                     self.assertIn("sim.unknown_zero=true", argv)
                 self.assertIn("--init-zero", ctx.run_best.call_args.args[1])

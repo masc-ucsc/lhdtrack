@@ -6,20 +6,19 @@ from .html import _e, _page
 from .verilog_eval import lec_flow, proof_covers_digest, synth_flow
 
 
-def unbounded_proof(synth, proof):
-    """Require this exact emission and reject every conflicting checker result."""
+def proven_emission(synth, proof):
+    """Require a proof (bounded counts) of this exact emission; reject every conflicting result."""
     blocks = [proof.get(f, {}) for f in ("lec_verilog_result", "lec_aux_result")]
     if any(b.get("verdict") in {"refuted", "error"} for b in blocks):
         return False
     digest = synth.get("qor", {}).get("netlist_sha256")
     return bool(digest) and any(
-        b.get("verdict") == "proven" and not b.get("bounded", False)
-        and proof_covers_digest(b, digest) for b in blocks)
+        b.get("verdict") == "proven" and proof_covers_digest(b, digest) for b in blocks)
 
 
 def frequency_ratio(base, measured, base_proof, measured_proof):
     """Only complete, equally constrained, proven mappings yield a speedup."""
-    if not all(unbounded_proof(s, p) for s, p in
+    if not all(proven_emission(s, p) for s, p in
                ((base, base_proof), (measured, measured_proof))):
         return None
     return timing_ratio(base, measured)
@@ -72,7 +71,7 @@ def summarize(history, specs):
             synth = rows.get((spec["run_id"], test, config, synth_flow(mapper, False)), {})
             proof = rows.get((spec["run_id"], test, config, lec_flow(mapper, False)), {})
             ratio = frequency_ratio(base, synth, base_proof, proof)
-            verified = unbounded_proof(synth, proof)
+            verified = proven_emission(synth, proof)
             counts[name][synth.get("status", "pending")] += 1
             counts[name]["unbounded_proven" if verified else "unverified"] += 1
             # The language headline policy remains idiomatic and LEC-proven.

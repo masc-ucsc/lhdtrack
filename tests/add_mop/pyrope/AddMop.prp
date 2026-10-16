@@ -1,3 +1,16 @@
+// Sum four packed lanes modulo the output width; lane zero is least significant.
+const cfg = import("lhdtrack_cfg")
+
 pub comb AddMop(A:U256) -> (S:U64) {
-  wrap S = A#[0..<64] + A#[64..<128] + A#[128..<192] + A#[192..<256]
+  if cfg.no_loop {
+    wrap S = A#[0..<64] + A#[64..<128] + A#[128..<192] + A#[192..<256]
+  } else {
+    comptime const width = S.[bits]
+    comptime const depth = A.[bits]/width
+    mut sum:U64 = 0
+    for i in 0..<depth {
+      wrap sum += A#[(i*width)..+width]
+    }
+    S = sum
+  }
 }

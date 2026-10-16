@@ -3,8 +3,9 @@
 // granted less recently; the requester that loses to nobody else requesting wins.
 // enable_priority_update gates the matrix update; grants are made either way.
 //
-// N x N bit matrices are flat words, bit i*N + j = row i, column j. The logic
-// is whole-matrix operations with comptime masks.
+// N x N bit matrices are flat words, bit i*N + j = row i, column j. The
+// no_loop form is whole-matrix operations with comptime masks.
+const cfg = import("lhdtrack_cfg")
 
 // Reset matrix: for i < j requester i outranks j (bit i*N + j); everything else 0.
 comb upper_triangle<N=16>() -> (m:Unsigned(bits=N*N)) {
@@ -16,6 +17,7 @@ comb upper_triangle<N=16>() -> (m:Unsigned(bits=N*N)) {
   }
 }
 
+// no_loop helpers.
 // Cells (r, c) with bit S of r clear and bit S of c set: the top-right S x S
 // sub-blocks that a transpose step swaps with their bottom-left partner.
 comb swap_mask<N=16, S=8>() -> (m:Unsigned(bits=N*N)) {
@@ -44,35 +46,68 @@ comb transpose(x:U256) -> (y:U256) {
 }
 
 pub mod br_arb_lru(clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
-  comptime const UPPER = upper_triangle<N=16>()
+  comptime const N = request.[bits]
+  comptime const UPPER = upper_triangle<N=N>()
 
   // Only the strict upper triangle is state; the lower triangle is its mirror
   // (outranks(i, j) == not outranks(j, i)) and the diagonal is unused.
-  reg state:U256 = UPPER
-  const upper:U256 = state & UPPER
+  reg state:Unsigned(bits=N*N) = UPPER
 
-  // Column j of every row carries request#[j].
-  const req_cols:U256 = (request, request, request, request, request, request, request, request,
-                         request, request, request, request, request, request, request, request)#[..]
+  if cfg.no_loop {
+    const upper:U256 = state & UPPER
 
-  // loses#[i*16 + j]: requester j is requesting and outranks i.
-  const loses:U256 = req_cols & ((UPPER & ~upper) | transpose(x=upper))
+    // Column j of every row carries request#[j].
+    const req_cols:U256 = (request, request, request, request, request, request, request, request,
+                           request, request, request, request, request, request, request, request)#[..]
 
-  // Row i is clear when i loses to nobody: OR the rows of the transpose.
-  const by_col = transpose(x=loses)
-  const h8:U128 = by_col#[0..<128] | by_col#[128..<256]
-  const h4:U64 = h8#[0..<64] | h8#[64..<128]
-  const h2:U32 = h4#[0..<32] | h4#[32..<64]
-  const blocked:U16 = h2#[0..<16] | h2#[16..<32]
-  grant = request & ~blocked
+    // loses#[i*16 + j]: requester j is requesting and outranks i.
+    const loses:U256 = req_cols & ((UPPER & ~upper) | transpose(x=upper))
 
-  // The granted requester becomes the lowest priority against everyone:
-  // row i clears when i is granted, else column j sets when j is granted.
-  if enable_priority_update == 1 and request != 0 {
-    const g_cols:U256 = (grant, grant, grant, grant, grant, grant, grant, grant,
-                         grant, grant, grant, grant, grant, grant, grant, grant)#[..]
-    const g_rows = transpose(x=g_cols)
-    const change:U256 = UPPER & (g_rows | g_cols)
-    state = (state & ~change) | (change & g_cols & ~g_rows)
+    // Row i is clear when i loses to nobody: OR the rows of the transpose.
+    const by_col = transpose(x=loses)
+    const h8:U128 = by_col#[0..<128] | by_col#[128..<256]
+    const h4:U64 = h8#[0..<64] | h8#[64..<128]
+    const h2:U32 = h4#[0..<32] | h4#[32..<64]
+    const blocked:U16 = h2#[0..<16] | h2#[16..<32]
+    grant = request & ~blocked
+
+    // The granted requester becomes the lowest priority against everyone:
+    // row i clears when i is granted, else column j sets when j is granted.
+    if enable_priority_update == 1 and request != 0 {
+      const g_cols:U256 = (grant, grant, grant, grant, grant, grant, grant, grant,
+                           grant, grant, grant, grant, grant, grant, grant, grant)#[..]
+      const g_rows = transpose(x=g_cols)
+      const change:U256 = UPPER & (g_rows | g_cols)
+      state = (state & ~change) | (change & g_cols & ~g_rows)
+    }
+  } else {
+    // Requester i can be granted when no other requester that outranks it is requesting.
+    mut can_grant:Unsigned(bits=N) = 0
+    for i in 0..<N {
+      mut wins = true
+      for j in 0..<N {
+        if i < j {
+          wins = wins and (request#[j] == 0 or state#[i*N + j] == 1)
+        } elif i > j {
+          wins = wins and (request#[j] == 0 or state#[j*N + i] == 0)
+        }
+      }
+      can_grant#[i] = U1(wins)
+    }
+    grant = request & can_grant
+
+    // The granted requester becomes the lowest priority against everyone:
+    // row i clears when i is granted, else column j sets when j is granted.
+    if enable_priority_update == 1 and request != 0 {
+      for i in 0..<N {
+        for j in (i + 1)..<N {
+          if grant#[i] == 1 {
+            state#[i*N + j] = 0
+          } elif grant#[j] == 1 {
+            state#[i*N + j] = 1
+          }
+        }
+      }
+    }
   }
 }

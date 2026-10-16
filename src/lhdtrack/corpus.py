@@ -17,6 +17,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 TESTS_DIR = "tests"
+# `tests/common/` is not a test: it holds Pyrope shared by the tests (e.g.
+# lhdtrack_cfg.prp, the comptime `no_loop` switch), reached from each test's
+# pyrope/ through a relative symlink so the shared content enters that test's
+# cache key via source_files().
+SHARED_DIR = "common"
 
 # A design.toml is REQUIRED to name these; there is no inference from filenames.
 REQUIRED_FIELDS = ("name", "top", "kind", "suite")
@@ -275,7 +280,7 @@ def discover(root: Path, names: list[str] | None = None) -> list[Test]:
     if not base.is_dir():
         return []
     out = []
-    for path in sorted(p for p in base.iterdir() if p.is_dir()):
+    for path in sorted(p for p in base.iterdir() if p.is_dir() and p.name != SHARED_DIR):
         if names and path.name not in names:
             continue
         out.append(load_test(path))

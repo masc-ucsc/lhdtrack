@@ -1,20 +1,53 @@
 const br_enc_priority_encoder_p1 = import("br_enc_priority_encoder_p1.br_enc_priority_encoder_p1")
+const cfg = import("lhdtrack_cfg")
+
+// Dynamic-priority encoder: requesters above `lowest_prio` come first, then the
+// others from requester 0 up (a round-robin ring cut after `lowest_prio`).
+// Returns up to NumResults one-hot grants in priority order, packed with the
+// highest-priority grant in the low bits.
 pub mod br_enc_priority_dynamic<NumRequesters=2, NumResults=2>::[timecheck=false](clk:Clock, `in`:U2, lowest_prio:U2, rst:Reset) -> (out:U4@[]) {
-  wire out_bits:U4 = nil
-  wire out:U4 = nil
-  wire `priority_mask[0]`:U1 = nil
-  wire `priority_mask[1]`:U1 = nil
-  wire priority_mask:U2 = nil
-  `priority_mask[0]` = U1(lowest_prio != 0) & 1
-  `priority_mask[1]` = U1(((lowest_prio >> 1) & 1) != 0) & 1
-  const in_high_prio = `in` & (~priority_mask)
-  const t20 = ((`in` & priority_mask) << 1) | ((in_high_prio >> 1) & 1)
-  mut br_enc_priority_encoder_inst = br_enc_priority_encoder_p1::[name=br_enc_priority_encoder_inst](clk=clk, rst=rst, `in.e2`=(t20 >> 2) & 1, `in.e1`=(t20 >> 1) & 1, `in.e0`=t20 & 1)
-  const out_internal = br_enc_priority_encoder_inst
-  out_bits#[0] = (out_internal#[0..=2]#[1..=2] | ((out_internal#[0..=2] & 1) << 1)) & 1
-  out_bits#[1] = ((out_internal#[0..=2]#[1..=2] | ((out_internal#[0..=2] & 1) << 1)) >> 1) & 1
-  out_bits#[2] = (out_internal#[3..=5]#[1..=2] | ((out_internal#[3..=5] & 1) << 1)) & 1
-  out_bits#[3] = ((out_internal#[3..=5]#[1..=2] | ((out_internal#[3..=5] & 1) << 1)) >> 1) & 1
-  out = out_bits
-  priority_mask = (`priority_mask[1]` << 1) | `priority_mask[0]`
+  if cfg.no_loop {
+    wire out_bits:U4 = nil
+    wire out:U4 = nil
+    wire `priority_mask[0]`:U1 = nil
+    wire `priority_mask[1]`:U1 = nil
+    wire priority_mask:U2 = nil
+    `priority_mask[0]` = U1(lowest_prio != 0) & 1
+    `priority_mask[1]` = U1(((lowest_prio >> 1) & 1) != 0) & 1
+    const in_high_prio = `in` & (~priority_mask)
+    const t20 = ((`in` & priority_mask) << 1) | ((in_high_prio >> 1) & 1)
+    mut br_enc_priority_encoder_inst = br_enc_priority_encoder_p1::[name=br_enc_priority_encoder_inst](clk=clk, rst=rst, `in.e2`=(t20 >> 2) & 1, `in.e1`=(t20 >> 1) & 1, `in.e0`=t20 & 1)
+    const out_internal = br_enc_priority_encoder_inst
+    out_bits#[0] = (out_internal#[0..=2]#[1..=2] | ((out_internal#[0..=2] & 1) << 1)) & 1
+    out_bits#[1] = ((out_internal#[0..=2]#[1..=2] | ((out_internal#[0..=2] & 1) << 1)) >> 1) & 1
+    out_bits#[2] = (out_internal#[3..=5]#[1..=2] | ((out_internal#[3..=5] & 1) << 1)) & 1
+    out_bits#[3] = ((out_internal#[3..=5]#[1..=2] | ((out_internal#[3..=5] & 1) << 1)) >> 1) & 1
+    out = out_bits
+    priority_mask = (`priority_mask[1]` << 1) | `priority_mask[0]`
+  } else {
+    comptime const N    = NumRequesters
+    comptime const RING = 2*N - 1
+
+    // Requesters at or below the lowest-priority one.
+    mut priority_mask:U2 = 0
+    for i in 0..<N {
+      priority_mask#[i] = lowest_prio#|[i..]
+    }
+    const in_low_prio:U2  = `in` & priority_mask
+    const in_high_prio:U2 = `in` & ~priority_mask
+
+    // Unroll the ring: high-priority requesters 1..N-1 first, then low-priority
+    // 0..N-1. Requester 0 is never above the lowest-priority one.
+    const ring:Unsigned(bits=RING) = (in_low_prio << (N - 1)) | (in_high_prio >> 1)
+    const br_enc_priority_encoder_inst = br_enc_priority_encoder_p1(clk=clk, rst=rst, `in.e2`=ring#[2], `in.e1`=ring#[1], `in.e0`=ring#[0])
+    const grants                       = br_enc_priority_encoder_inst
+
+    // Fold each ring-position grant back onto its requester.
+    mut folded:U4 = 0
+    for k in 0..<NumResults {
+      const row          = grants#[(k*RING)..+RING]
+      folded#[(k*N)..+N] = row#[(N - 1)..] | (row#[0..<(N - 1)] << 1)
+    }
+    out = folded
+  }
 }

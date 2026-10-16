@@ -1,4 +1,5 @@
 const br_rr_state_internal = import("br_rr_state_internal.br_rr_state_internal")
+const cfg = import("lhdtrack_cfg")
 
 // below#[i] = |v#[0..<i] (log-step prefix OR, constant shifts only)
 comb or_below<N>(v:Unsigned(bits=N)) -> (below:Unsigned(bits=N)) {
@@ -35,9 +36,21 @@ pub mod br_arb_rr_internal<NumRequesters=8>::[timecheck=false,synth.abc_pre="com
   // and by lower-indexed requests; one above it only by lower-indexed higher
   // requests. Requester 0 always takes the first rule (the reference
   // special-cases it; this only matters for an empty mask).
-  const wrapped:U8 = mask | 1
-  const blocked:U8 = (wrapped & (or_below<N=8>(v=request) | or_above<N=8>(v=high))) | (~wrapped & or_below<N=8>(v=high))
-  const cg:U8 = ~blocked
+  mut cg:U8 = 0
+  if cfg.no_loop {
+    const wrapped:U8 = mask | 1
+    const blocked:U8 = (wrapped & (or_below<N=8>(v=request) | or_above<N=8>(v=high))) | (~wrapped & or_below<N=8>(v=high))
+    cg = ~blocked
+  } else {
+    comptime const ALL = (1 << NumRequesters) - 1
+    for i in 0..<NumRequesters {
+      comptime const below = (1 << i) - 1
+      comptime const above = ALL & ~((1 << (i + 1)) - 1)
+      // Requesters that come before i in the round-robin order.
+      const ahead = if i == 0 or mask#[i] == 1 { (request & below) | (high & above) } else { high & below }
+      cg#[i]      = U1(ahead == 0)
+    }
+  }
   granted = request & cg
   grant = granted
   can_grant = (e7=cg#[7], e6=cg#[6], e5=cg#[5], e4=cg#[4], e3=cg#[3], e2=cg#[2], e1=cg#[1], e0=cg#[0])

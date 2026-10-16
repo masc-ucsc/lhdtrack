@@ -2,7 +2,9 @@
 // Requester 0 starts with the highest priority. After a grant, the granted index
 // becomes the lowest priority and the next higher index (mod 16) the highest.
 // enable_priority_update gates that rotation; grants are made either way.
+const cfg = import("lhdtrack_cfg")
 
+// no_loop helpers.
 // Bit i of the result is set when any bit of v at or above i is set
 // (log-step prefix-OR, no adder).
 comb or_down(v:U16) -> (r:U16) {
@@ -22,27 +24,50 @@ comb or_up(v:U16) -> (r:U16) {
 }
 
 pub mod br_arb_rr::[synth.color="x"](clk:Clock, enable_priority_update:U1, request:U16, rst:Reset) -> (grant:U16@[]) {
-  // One-hot index of the last grant; bit 15 initially so that requester 0 leads.
-  reg last_grant:U16 = 0x8000
+  comptime const N = request.[bits]
 
-  // Every index at or below the last grant; requests above it outrank the rest.
-  const mask = or_down(v=last_grant)
-  const high:U16 = request & ~mask
+  // One-hot index of the last grant; bit N-1 initially so that requester 0 leads.
+  reg last_grant:Unsigned(bits=N) = 1 << (N - 1)
 
-  // A requester at or below the last grant is blocked by any lower request or
-  // any higher one above the last grant; one above it only by a lower request
-  // above the last grant.
-  mut req_up:U16 = 0
-  wrap req_up = request << 1
-  mut high_up:U16 = 0
-  wrap high_up = high << 1
-  const req_below = or_up(v=req_up)           // bit i: request#[0..<i] != 0
-  const high_above = or_down(v=high >> 1)     // bit i: high#[(i + 1)..] != 0
-  // bit i: high#[0..<i] != 0; requester 0 checks the higher ones instead, as
-  // in the reference (only matters with no last grant).
-  const high_below = or_up(v=high_up) | (high_above & 1)
-  const blocked:U16 = (mask & (req_below | high_above)) | (~mask & high_below)
-  grant = request & ~blocked
+  if cfg.no_loop {
+    // Every index at or below the last grant; requests above it outrank the rest.
+    const mask = or_down(v=last_grant)
+    const high:U16 = request & ~mask
+
+    // A requester at or below the last grant is blocked by any lower request or
+    // any higher one above the last grant; one above it only by a lower request
+    // above the last grant.
+    mut req_up:U16 = 0
+    wrap req_up = request << 1
+    mut high_up:U16 = 0
+    wrap high_up = high << 1
+    const req_below = or_up(v=req_up)           // bit i: request#[0..<i] != 0
+    const high_above = or_down(v=high >> 1)     // bit i: high#[(i + 1)..] != 0
+    // bit i: high#[0..<i] != 0; requester 0 checks the higher ones instead, as
+    // in the reference (only matters with no last grant).
+    const high_below = or_up(v=high_up) | (high_above & 1)
+    const blocked:U16 = (mask & (req_below | high_above)) | (~mask & high_below)
+    grant = request & ~blocked
+  } else {
+    // mask#[i] is set for every index at or below the last grant.
+    mut mask:Unsigned(bits=N) = 0
+    for i in 0..<N {
+      mask#[i] = last_grant#|[i..]
+    }
+
+    // Requests above the last grant outrank all the others.
+    const high = request & ~mask
+
+    // A requester wins if nothing that outranks it is requesting. For index i
+    // that is the requesters below it when the last grant is at or above i, plus
+    // the ones above it that the last grant has already passed over. Requester 0
+    // checks the higher ones instead, as in the reference (only matters with no
+    // last grant).
+    for i in 0..<N {
+      const blocked = if i == 0 { high#[1..] != 0 } elif mask#[i] == 1 { request#[0..<i] != 0 or high#[(i + 1)..] != 0 } else { high#[0..<i] != 0 }
+      grant#[i] = U1(request#[i] == 1 and not blocked)
+    }
+  }
 
   if enable_priority_update == 1 and request != 0 {
     last_grant = grant

@@ -83,7 +83,7 @@ def run_lhd_sim(
         "--set", "sim.unknown_zero=true",
         "--set", f"sim.tune.backend={backend}",
         "--set", "sim.tune.profile=off",
-        "--set", f"sim.jobs={build_jobs}",
+        "--set", f"lhd.jobs={build_jobs}",  # was sim.jobs (renamed)
     ]
     ctx.run(
         "setup",

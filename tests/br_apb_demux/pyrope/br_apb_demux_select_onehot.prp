@@ -2,27 +2,62 @@
 // is broadcast with psel/penable gated by the select; the selected response
 // returns upstream, or a ready decode error (pslverr) when none is selected.
 const br_mux_onehot = import("br_mux_onehot.br_mux_onehot")
+const cfg = import("lhdtrack_cfg")
+
+// Place `copies` copies of `value` side by side, each `width` bits wide.
+comb replicate(value, width, copies) -> (out) {
+  mut packed = 0
+  for i in 0..<copies {
+    packed |= value << (i*width)
+  }
+  out = packed
+}
 
 pub comb br_apb_demux_select_onehot(downstream_prdata:U128, downstream_pready:U4, downstream_pslverr:U4, select_onehot:U4, upstream_paddr:U12, upstream_penable:U1, upstream_pprot:U3, upstream_psel:U1, upstream_pstrb:U4, upstream_pwdata:U32, upstream_pwrite:U1) -> (downstream_paddr:U48, downstream_penable:U4, downstream_pprot:U12, downstream_psel:U4, downstream_pstrb:U16, downstream_pwdata:U128, downstream_pwrite:U4, upstream_prdata:U32, upstream_pready:U1, upstream_pslverr:U1) {
   const req_valid:U4 = if upstream_psel == 1 { select_onehot } else { 0 }
   downstream_psel = req_valid
   downstream_penable = if upstream_penable == 1 { req_valid } else { 0 }
   downstream_pwrite = if upstream_pwrite == 1 { 0xf } else { 0 }
-  downstream_paddr = (upstream_paddr, upstream_paddr, upstream_paddr, upstream_paddr)#[..]
-  downstream_pprot = (upstream_pprot, upstream_pprot, upstream_pprot, upstream_pprot)#[..]
-  downstream_pstrb = (upstream_pstrb, upstream_pstrb, upstream_pstrb, upstream_pstrb)#[..]
-  downstream_pwdata = (upstream_pwdata, upstream_pwdata, upstream_pwdata, upstream_pwdata)#[..]
-
-  // Response lane i packs (pslverr, pready, prdata) from the LSB; lane 4 is the decode error.
-  const resp0:U34 = (downstream_pslverr#[0], downstream_pready#[0], downstream_prdata#[0..<32])#[..]
-  const resp1:U34 = (downstream_pslverr#[1], downstream_pready#[1], downstream_prdata#[32..<64])#[..]
-  const resp2:U34 = (downstream_pslverr#[2], downstream_pready#[2], downstream_prdata#[64..<96])#[..]
-  const resp3:U34 = (downstream_pslverr#[3], downstream_pready#[3], downstream_prdata#[96..<128])#[..]
-  const decerr_resp:U34 = 0ub11
-  const decerr:U1 = U1(upstream_psel == 1 and select_onehot == 0)
-  const resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=(req_valid, decerr)#[..], `in`=(resp0, resp1, resp2, resp3, decerr_resp)#[..])
   const access = upstream_psel == 1 and upstream_penable == 1
-  upstream_prdata = resp#[2..<34]
-  upstream_pready = U1(access and resp#[1] == 1)
-  upstream_pslverr = U1(access and resp#[0] == 1)
+  if cfg.no_loop {
+    downstream_paddr = (upstream_paddr, upstream_paddr, upstream_paddr, upstream_paddr)#[..]
+    downstream_pprot = (upstream_pprot, upstream_pprot, upstream_pprot, upstream_pprot)#[..]
+    downstream_pstrb = (upstream_pstrb, upstream_pstrb, upstream_pstrb, upstream_pstrb)#[..]
+    downstream_pwdata = (upstream_pwdata, upstream_pwdata, upstream_pwdata, upstream_pwdata)#[..]
+
+    // Response lane i packs (pslverr, pready, prdata) from the LSB; lane 4 is the decode error.
+    const resp0:U34 = (downstream_pslverr#[0], downstream_pready#[0], downstream_prdata#[0..<32])#[..]
+    const resp1:U34 = (downstream_pslverr#[1], downstream_pready#[1], downstream_prdata#[32..<64])#[..]
+    const resp2:U34 = (downstream_pslverr#[2], downstream_pready#[2], downstream_prdata#[64..<96])#[..]
+    const resp3:U34 = (downstream_pslverr#[3], downstream_pready#[3], downstream_prdata#[96..<128])#[..]
+    const decerr_resp:U34 = 0ub11
+    const decerr:U1 = U1(upstream_psel == 1 and select_onehot == 0)
+    const resp = br_mux_onehot<NumSymbolsIn=5, SymbolWidth=34>(select=(req_valid, decerr)#[..], `in`=(resp0, resp1, resp2, resp3, decerr_resp)#[..])
+    upstream_prdata = resp#[2..<34]
+    upstream_pready = U1(access and resp#[1] == 1)
+    upstream_pslverr = U1(access and resp#[0] == 1)
+  } else {
+    comptime const NUM_DOWNSTREAMS = select_onehot.[bits]
+    downstream_paddr  = replicate(value=upstream_paddr, width=upstream_paddr.[bits], copies=NUM_DOWNSTREAMS)
+    downstream_pprot  = replicate(value=upstream_pprot, width=upstream_pprot.[bits], copies=NUM_DOWNSTREAMS)
+    downstream_pstrb  = replicate(value=upstream_pstrb, width=upstream_pstrb.[bits], copies=NUM_DOWNSTREAMS)
+    downstream_pwdata = replicate(value=upstream_pwdata, width=upstream_pwdata.[bits], copies=NUM_DOWNSTREAMS)
+
+    // One-hot response mux: OR together the responses of the valid downstreams.
+    mut rdata:U32 = 0
+    mut ready     = false
+    mut slverr    = false
+    for i in 0..<NUM_DOWNSTREAMS {
+      if req_valid#[i] == 1 {
+        rdata |= downstream_prdata#[(i*32)..+32]
+        ready  = ready or downstream_pready#[i] == 1
+        slverr = slverr or downstream_pslverr#[i] == 1
+      }
+    }
+    // A request that selects no downstream completes at once with a decode error.
+    const decode_miss = upstream_psel == 1 and select_onehot == 0
+    upstream_prdata  = rdata
+    upstream_pready  = U1(access and (ready or decode_miss))
+    upstream_pslverr = U1(access and (slverr or decode_miss))
+  }
 }

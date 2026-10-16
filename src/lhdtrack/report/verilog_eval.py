@@ -127,7 +127,7 @@ def select_rows(history, spec):
 
 def bounded_yosys_evidence(block, summary, sat_log, errors):
     """Accept only a completed bounded proof; preserve every counterexample."""
-    if block.get("verdict") not in ("inconclusive", "timeout", "unknown"):
+    if block.get("verdict") not in ("inconclusive", "timeout", "unknown", "incomplete", "unsupported", "undischarged", "unconfirmed", "unpaired"):
         return block
     if ("TIMEOUT: bounded miter exhausted the shared equivalence budget" in summary
             and "model found: FAIL" not in sat_log and "ERROR" not in errors

@@ -2,24 +2,36 @@
 // `out` is the one-hot lowest set bit of `in`. clk and rst are unused (upstream
 // uses them only for assertions) and stay on this external top.
 // Written as a prefix-OR scan: `in & -in` costs a 16-bit negation (an adder chain).
+const cfg = import("lhdtrack_cfg")
+
 pub mod br_enc_priority_encoder(clk:Clock, `in`:U16, rst:Reset) -> (out:U16@[0]) {
-  // Lowest index wins: bit i passes when no lower bit is set (one lane per bit, no loop).
-  out = (
-    U1(`in`#[0]),
-    U1(`in`#[1] & U1(`in`#[0..<1] == 0)),
-    U1(`in`#[2] & U1(`in`#[0..<2] == 0)),
-    U1(`in`#[3] & U1(`in`#[0..<3] == 0)),
-    U1(`in`#[4] & U1(`in`#[0..<4] == 0)),
-    U1(`in`#[5] & U1(`in`#[0..<5] == 0)),
-    U1(`in`#[6] & U1(`in`#[0..<6] == 0)),
-    U1(`in`#[7] & U1(`in`#[0..<7] == 0)),
-    U1(`in`#[8] & U1(`in`#[0..<8] == 0)),
-    U1(`in`#[9] & U1(`in`#[0..<9] == 0)),
-    U1(`in`#[10] & U1(`in`#[0..<10] == 0)),
-    U1(`in`#[11] & U1(`in`#[0..<11] == 0)),
-    U1(`in`#[12] & U1(`in`#[0..<12] == 0)),
-    U1(`in`#[13] & U1(`in`#[0..<13] == 0)),
-    U1(`in`#[14] & U1(`in`#[0..<14] == 0)),
-    U1(`in`#[15] & U1(`in`#[0..<15] == 0))
-  )#[..]
+  if cfg.no_loop {
+    // Lowest index wins: bit i passes when no lower bit is set (one lane per bit).
+    out = (
+      U1(`in`#[0]),
+      U1(`in`#[1] & U1(`in`#[0..<1] == 0)),
+      U1(`in`#[2] & U1(`in`#[0..<2] == 0)),
+      U1(`in`#[3] & U1(`in`#[0..<3] == 0)),
+      U1(`in`#[4] & U1(`in`#[0..<4] == 0)),
+      U1(`in`#[5] & U1(`in`#[0..<5] == 0)),
+      U1(`in`#[6] & U1(`in`#[0..<6] == 0)),
+      U1(`in`#[7] & U1(`in`#[0..<7] == 0)),
+      U1(`in`#[8] & U1(`in`#[0..<8] == 0)),
+      U1(`in`#[9] & U1(`in`#[0..<9] == 0)),
+      U1(`in`#[10] & U1(`in`#[0..<10] == 0)),
+      U1(`in`#[11] & U1(`in`#[0..<11] == 0)),
+      U1(`in`#[12] & U1(`in`#[0..<12] == 0)),
+      U1(`in`#[13] & U1(`in`#[0..<13] == 0)),
+      U1(`in`#[14] & U1(`in`#[0..<14] == 0)),
+      U1(`in`#[15] & U1(`in`#[0..<15] == 0))
+    )#[..]
+  } else {
+    mut seen:U1 = 0
+    mut lowest:U16 = 0
+    for i in 0..<`in`.[bits] {
+      lowest#[i] = if seen == 1 { 0 } else { `in`#[i] }
+      seen = seen | `in`#[i]
+    }
+    out = lowest
+  }
 }

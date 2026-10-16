@@ -3,38 +3,70 @@ const br_enc_bin2onehot = import("br_enc_bin2onehot.br_enc_bin2onehot")
 const br_enc_countones = import("br_enc_countones.br_enc_countones")
 const br_enc_onehot2bin = import("br_enc_onehot2bin.br_enc_onehot2bin")
 const br_enc_priority_encoder = import("br_enc_priority_encoder.br_enc_priority_encoder")
+const cfg = import("lhdtrack_cfg")
 
+// Free-list tracker: hands out the lowest-numbered free entry id and takes
+// entries back on deallocation (single alloc port, single dealloc port,
+// unregistered alloc outputs, no bypass, no preallocated entries).
+// dealloc_count is registered (it lands one cycle after dealloc_valid).
 pub mod br_tracker_freelist::[timecheck=false](alloc_receivable:U1, clk:Clock, dealloc_entry_id:U4, dealloc_valid:U1, rst:U1) -> (alloc_entry_id:U4@[], alloc_sendable:U1@[], dealloc_count:U1@[]) {
   reg unstaged_free_entries:U16:[async=false, initial=65535, reset_pin=rst]
-  mut push_entry_id_valid__wtmp:U1 = 0sb?
-  wire push_entry_id_valid:U1 = nil
-  mut push_entry_id__wtmp:U4 = 0sb?
-  wire push_entry_id:U4 = nil
-  mut dealloc_entry_id_onehot__wtmp:U16 = 0sb?
-  wire dealloc_entry_id_onehot:U16 = nil
-  const priority_encoder_in = unstaged_free_entries
-  mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e15`=(priority_encoder_in >> 15) & 1, `in.e14`=(priority_encoder_in >> 14) & 1, `in.e13`=(priority_encoder_in >> 13) & 1, `in.e12`=(priority_encoder_in >> 12) & 1, `in.e11`=(priority_encoder_in >> 11) & 1, `in.e10`=(priority_encoder_in >> 10) & 1, `in.e9`=(priority_encoder_in >> 9) & 1, `in.e8`=(priority_encoder_in >> 8) & 1, `in.e7`=(priority_encoder_in >> 7) & 1, `in.e6`=(priority_encoder_in >> 6) & 1, `in.e5`=(priority_encoder_in >> 5) & 1, `in.e4`=(priority_encoder_in >> 4) & 1, `in.e3`=(priority_encoder_in >> 3) & 1, `in.e2`=(priority_encoder_in >> 2) & 1, `in.e1`=(priority_encoder_in >> 1) & 1, `in.e0`=priority_encoder_in & 1)
-  const push_entry_id_onehot = br_enc_priority_encoder_free_entries
-  mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot#[0..=15])
-  push_entry_id_valid__wtmp#[0] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out_valid & 1
-  push_entry_id__wtmp#[0..=3] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out#[0..=3]
-  const alloc_sendable__w1 = push_entry_id_valid & 1
-  const alloc_entry_id__w1 = push_entry_id
-  mut _mux_3:U16 = if alloc_receivable != 0 { push_entry_id_onehot#[0..=15] } else { 0 }
-  mut gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id = br_enc_bin2onehot::[name=gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id](clk=clk, rst=rst, `in`=dealloc_entry_id, in_valid=dealloc_valid & 1)
-  dealloc_entry_id_onehot__wtmp#[0..=15] = gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id#[0..=15]
-  mut br_enc_countones_dealloc_count = br_enc_countones::[name=br_enc_countones_dealloc_count](`in`=dealloc_valid)
-  mut br_delay_dealloc_count = br_delay::[name=br_delay_dealloc_count](clk=clk, rst=rst, `in`=br_enc_countones_dealloc_count)
-  const unstaged_free_entries_next = (unstaged_free_entries | (0 | dealloc_entry_id_onehot)) & (~_mux_3#[0..=15])
-  if not (rst != 0) {
-    if U1(((push_entry_id_valid & 1) != 0 and alloc_receivable != 0) or dealloc_valid != 0) != 0 {
-      unstaged_free_entries = unstaged_free_entries_next
+  if cfg.no_loop {
+    mut push_entry_id_valid__wtmp:U1 = 0sb?
+    wire push_entry_id_valid:U1 = nil
+    mut push_entry_id__wtmp:U4 = 0sb?
+    wire push_entry_id:U4 = nil
+    mut dealloc_entry_id_onehot__wtmp:U16 = 0sb?
+    wire dealloc_entry_id_onehot:U16 = nil
+    const priority_encoder_in = unstaged_free_entries
+    mut br_enc_priority_encoder_free_entries = br_enc_priority_encoder::[name=br_enc_priority_encoder_free_entries](clk=clk, rst=rst, `in.e15`=(priority_encoder_in >> 15) & 1, `in.e14`=(priority_encoder_in >> 14) & 1, `in.e13`=(priority_encoder_in >> 13) & 1, `in.e12`=(priority_encoder_in >> 12) & 1, `in.e11`=(priority_encoder_in >> 11) & 1, `in.e10`=(priority_encoder_in >> 10) & 1, `in.e9`=(priority_encoder_in >> 9) & 1, `in.e8`=(priority_encoder_in >> 8) & 1, `in.e7`=(priority_encoder_in >> 7) & 1, `in.e6`=(priority_encoder_in >> 6) & 1, `in.e5`=(priority_encoder_in >> 5) & 1, `in.e4`=(priority_encoder_in >> 4) & 1, `in.e3`=(priority_encoder_in >> 3) & 1, `in.e2`=(priority_encoder_in >> 2) & 1, `in.e1`=(priority_encoder_in >> 1) & 1, `in.e0`=priority_encoder_in & 1)
+    const push_entry_id_onehot = br_enc_priority_encoder_free_entries
+    mut gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id = br_enc_onehot2bin::[name=gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id](clk=clk, rst=rst, `in`=push_entry_id_onehot#[0..=15])
+    push_entry_id_valid__wtmp#[0] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out_valid & 1
+    push_entry_id__wtmp#[0..=3] = gen_push_entry_id_0_br_enc_onehot2bin_push_entry_id.out#[0..=3]
+    const alloc_sendable__w1 = push_entry_id_valid & 1
+    const alloc_entry_id__w1 = push_entry_id
+    mut _mux_3:U16 = if alloc_receivable != 0 { push_entry_id_onehot#[0..=15] } else { 0 }
+    mut gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id = br_enc_bin2onehot::[name=gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id](clk=clk, rst=rst, `in`=dealloc_entry_id, in_valid=dealloc_valid & 1)
+    dealloc_entry_id_onehot__wtmp#[0..=15] = gen_dealloc_entry_id_onehot_0_br_enc_bin2onehot_dealloc_entry_id#[0..=15]
+    mut br_enc_countones_dealloc_count = br_enc_countones::[name=br_enc_countones_dealloc_count](`in`=dealloc_valid)
+    mut br_delay_dealloc_count = br_delay::[name=br_delay_dealloc_count](clk=clk, rst=rst, `in`=br_enc_countones_dealloc_count)
+    const unstaged_free_entries_next = (unstaged_free_entries | (0 | dealloc_entry_id_onehot)) & (~_mux_3#[0..=15])
+    if not (rst != 0) {
+      if U1(((push_entry_id_valid & 1) != 0 and alloc_receivable != 0) or dealloc_valid != 0) != 0 {
+        unstaged_free_entries = unstaged_free_entries_next
+      }
     }
+    push_entry_id_valid = push_entry_id_valid__wtmp
+    push_entry_id = push_entry_id__wtmp
+    dealloc_entry_id_onehot = dealloc_entry_id_onehot__wtmp
+    alloc_sendable = alloc_sendable__w1
+    alloc_entry_id = alloc_entry_id__w1
+    dealloc_count = br_delay_dealloc_count.out
+  } else {
+    comptime const NUM_ENTRIES = 1 << dealloc_entry_id.[bits]
+
+    // Offer the lowest-numbered free entry.
+    const offered:Unsigned(bits=NUM_ENTRIES) = unstaged_free_entries & -unstaged_free_entries
+    mut offered_id:U4 = 0
+    for i in 1..<NUM_ENTRIES {
+      if offered#[i] == 1 {
+        offered_id |= i
+      }
+    }
+    const alloc_fire = unstaged_free_entries != 0 and alloc_receivable == 1
+    alloc_sendable   = U1(unstaged_free_entries != 0)
+    alloc_entry_id   = offered_id
+
+    const allocated:Unsigned(bits=NUM_ENTRIES)   = if alloc_receivable == 1 { offered } else { 0 }
+    const deallocated:Unsigned(bits=NUM_ENTRIES) = if dealloc_valid == 1 { 1 << dealloc_entry_id } else { 0 }
+    if alloc_fire or dealloc_valid == 1 {
+      unstaged_free_entries = (unstaged_free_entries | deallocated) & ~allocated
+    }
+
+    // Deallocations are reported one cycle later, when the entry can be reused.
+    reg dealloc_delayed:U1:[reset_pin=rst] = 0
+    dealloc_delayed = dealloc_valid
+    dealloc_count   = dealloc_delayed
   }
-  push_entry_id_valid = push_entry_id_valid__wtmp
-  push_entry_id = push_entry_id__wtmp
-  dealloc_entry_id_onehot = dealloc_entry_id_onehot__wtmp
-  alloc_sendable = alloc_sendable__w1
-  alloc_entry_id = alloc_entry_id__w1
-  dealloc_count = br_delay_dealloc_count.out
 }

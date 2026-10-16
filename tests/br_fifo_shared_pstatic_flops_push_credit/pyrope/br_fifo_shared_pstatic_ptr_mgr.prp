@@ -1,84 +1,162 @@
 const br_counter_incr = import("br_counter_incr.br_counter_incr")
+const cfg = import("lhdtrack_cfg")
 
+// Head/tail pointer manager of statically partitioned FIFOs sharing one RAM:
+// FIFO f owns the entries config_base[f]..config_bound[f]. Tracks each FIFO's
+// head pointer (wrapping at its bound), its full and empty flags, and the
+// number of items it holds in the RAM. Per-FIFO buses are packed with FIFO 0
+// in the low bits; the tail pointers come from the push controller. Items are
+// reconstructed from the pointers (not registered).
 pub mod br_fifo_shared_pstatic_ptr_mgr<NumFifos=2, Depth=32, EnableAssertFinalNotValid=1, RegisterRamItems=0>::[timecheck=false](advance_tail:(e1:U1, e0:U1), clk:Clock, config_base:U10, config_bound:U10, config_size:U12, head_ready:U2, rst:U1, tail:U10, tail_next:U10) -> (empty:(e1:U1, e0:U1)@[], head:U10@[], head_valid:U2@[], items:U12@[], push_full:(e1:U1, e0:U1)@[]) {
   reg push_full_q:U2:[async=false, initial=0, reset_pin=rst]
   reg empty_q:U2:[async=false, initial=3, reset_pin=rst]
-  wire head_bits:U10 = nil
-  wire head:U10 = nil
-  wire items_bits:U12 = nil
-  wire items:U12 = nil
-  wire `reinit_head[0]`:U1 = nil
-  wire `reinit_head[1]`:U1 = nil
-  wire head_next_bits:U10 = nil
-  mut push_full_next:U2 = 0
-  mut empty_next:U2 = 0
-  push_full.e1 = (push_full_q >> 1) & 1
-  push_full.e0 = push_full_q & 1
-  empty.e1 = (empty_q >> 1) & 1
-  empty.e0 = empty_q & 1
-  push_full_next = 0sb?
-  empty_next = 0sb?
-  const head_valid__w1 = ~empty_q
-  mut _mux_1:U6 = if tail#[0..=4] >= ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) {
-    (tail#[0..=4] - ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]))#[0..=4]
+  if cfg.no_loop {
+    wire head_bits:U10 = nil
+    wire head:U10 = nil
+    wire items_bits:U12 = nil
+    wire items:U12 = nil
+    wire `reinit_head[0]`:U1 = nil
+    wire `reinit_head[1]`:U1 = nil
+    wire head_next_bits:U10 = nil
+    mut push_full_next:U2 = 0
+    mut empty_next:U2 = 0
+    push_full.e1 = (push_full_q >> 1) & 1
+    push_full.e0 = push_full_q & 1
+    empty.e1 = (empty_q >> 1) & 1
+    empty.e0 = empty_q & 1
+    push_full_next = 0sb?
+    empty_next = 0sb?
+    const head_valid__w1 = ~empty_q
+    mut _mux_1:U6 = if tail#[0..=4] >= ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) {
+      (tail#[0..=4] - ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]))#[0..=4]
+    } else {
+      (config_size#[0..=5] - (((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) - tail#[0..=4])#[0..=4])#[0..=5]
+    }
+    mut _mux_2:U6 = if (push_full_q & 1) != 0 { config_size#[0..=5] } else { _mux_1 }
+    items_bits#[0..<6] = _mux_2#[0..<6]
+    mut _mux_3:U6 = if tail#[5..=9] >= ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) {
+      (tail#[5..=9] - ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]))#[0..=4]
+    } else {
+      (config_size#[6..=11] - (((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) - tail#[5..=9])#[0..=4])#[0..=5]
+    }
+    mut _mux_4:U6 = if ((push_full_q >> 1) & 1) != 0 { config_size#[6..=11] } else { _mux_3 }
+    items_bits#[6..<12] = _mux_4#[0..<6]
+    const advance_head = head_ready & head_valid__w1
+    mut _b2i_5 = if (advance_head & 1) != 0 and ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) == config_bound#[0..=4] {
+      1
+    } else {
+      0
+    }
+    `reinit_head[0]` = _b2i_5 & 1
+    mut gen_fifo_pointers_0_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_0_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[0]` & 1, initial_value=config_base#[0..=4], incr_valid=advance_head & 1, incr=1)
+    head_bits#[0..<5] = gen_fifo_pointers_0_br_counter_incr_head.value#[0..<5]
+    head_next_bits#[0..<5] = gen_fifo_pointers_0_br_counter_incr_head.value_next#[0..<5]
+    if (advance_head & 1) == advance_tail.e0 {
+      push_full_next#[0] = push_full_q & 1
+      empty_next#[0] = empty_q & 1
+    } elif (advance_head & 1) != 0 {
+      push_full_next#[0] = 0
+      empty_next#[0] = U1(((head_next_bits#[4] << 4) | (head_next_bits#[3] << 3) | (head_next_bits#[2] << 2) | (head_next_bits#[1] << 1) | head_next_bits#[0]) == tail#[0..=4]) & 1
+    } else {
+      push_full_next#[0] = U1(tail_next#[0..=4] == ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0])) & 1
+      empty_next#[0] = 0
+    }
+    mut _b2i_8 = if ((advance_head >> 1) & 1) != 0 and ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) == config_bound#[5..=9] {
+      1
+    } else {
+      0
+    }
+    `reinit_head[1]` = _b2i_8 & 1
+    mut gen_fifo_pointers_1_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_1_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[1]` & 1, initial_value=config_base#[5..=9], incr_valid=(advance_head >> 1) & 1, incr=1)
+    head_bits#[5..<10] = gen_fifo_pointers_1_br_counter_incr_head.value#[0..<5]
+    head_next_bits#[5..<10] = gen_fifo_pointers_1_br_counter_incr_head.value_next#[0..<5]
+    if ((advance_head >> 1) & 1) == advance_tail.e1 {
+      push_full_next#[1] = (push_full_q >> 1) & 1
+      empty_next#[1] = (empty_q >> 1) & 1
+    } elif ((advance_head >> 1) & 1) != 0 {
+      push_full_next#[1] = 0
+      empty_next#[1] = U1(((head_next_bits#[9] << 4) | (head_next_bits#[8] << 3) | (head_next_bits#[7] << 2) | (head_next_bits#[6] << 1) | head_next_bits#[5]) == tail#[5..=9]) & 1
+    } else {
+      push_full_next#[1] = U1(tail_next#[5..=9] == ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5])) & 1
+      empty_next#[1] = 0
+    }
+    if not (rst != 0) {
+      push_full_q = push_full_next
+    }
+    if not (rst != 0) {
+      empty_q = empty_next
+    }
+    head = head_bits
+    items = items_bits
+    head_valid = head_valid__w1
   } else {
-    (config_size#[0..=5] - (((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) - tail#[0..=4])#[0..=4])#[0..=5]
+    comptime const ADDR_WIDTH  = config_base.[bits] / NumFifos
+    comptime const COUNT_WIDTH = config_size.[bits] / NumFifos
+
+    const adv_tail_bits:U2 = (advance_tail.e0#[0], advance_tail.e1#[0])#[..]
+    // Resets to config_base (a runtime input), so the reset is written out.
+    reg heads:U10 = nil
+
+    mut next_full:U2   = push_full_q
+    mut next_empty:U2  = empty_q
+    mut next_heads:U10 = heads
+    for f in 0..<NumFifos {
+      const h        = heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const t        = tail#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const base     = config_base#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const bound    = config_bound#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const adv_head = head_ready#[f] == 1 and empty_q#[f] == 0
+      const adv_tail = adv_tail_bits#[f] == 1
+
+      // The head walks base..bound and wraps back to base.
+      mut h_next:Unsigned(bits=ADDR_WIDTH) = 0
+      if adv_head and h == bound {
+        h_next = base
+      } else {
+        wrap h_next = h + U1(adv_head)
+      }
+      if adv_head {
+        next_heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH] = h_next
+      }
+
+      // A pop alone can only empty the FIFO; a push alone can only fill it.
+      if adv_head and not adv_tail {
+        next_full#[f]  = 0
+        next_empty#[f] = U1(h_next == t)
+      } elif adv_tail and not adv_head {
+        next_full#[f]  = U1(tail_next#[(f*ADDR_WIDTH)..+ADDR_WIDTH] == h)
+        next_empty#[f] = 0
+      }
+    }
+
+    // Items between head and tail, wrapping within the FIFO's partition. A
+    // separate loop: sharing the pointer loop above makes items look
+    // combinationally dependent on head_ready.
+    mut count:U12 = 0
+    for f in 0..<NumFifos {
+      const h    = heads#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const t    = tail#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      const size = config_size#[(f*COUNT_WIDTH)..+COUNT_WIDTH]
+      mut n:Unsigned(bits=COUNT_WIDTH) = 0
+      if push_full_q#[f] == 1 {
+        n = size
+      } elif t >= h {
+        n = t - h
+      } else {
+        mut gap:Unsigned(bits=ADDR_WIDTH) = 0
+        gap = h - t
+        wrap n = size - gap
+      }
+      count#[(f*COUNT_WIDTH)..+COUNT_WIDTH] = n
+    }
+    push_full_q = next_full
+    empty_q     = next_empty
+    heads       = if rst == 1 { config_base } else { next_heads }
+
+    push_full  = (e1=push_full_q#[1], e0=push_full_q#[0])
+    head_valid = ~empty_q
+    head       = heads
+    empty      = (e1=empty_q#[1], e0=empty_q#[0])
+    items      = count
   }
-  mut _mux_2:U6 = if (push_full_q & 1) != 0 { config_size#[0..=5] } else { _mux_1 }
-  items_bits#[0..<6] = _mux_2#[0..<6]
-  mut _mux_3:U6 = if tail#[5..=9] >= ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) {
-    (tail#[5..=9] - ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]))#[0..=4]
-  } else {
-    (config_size#[6..=11] - (((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) - tail#[5..=9])#[0..=4])#[0..=5]
-  }
-  mut _mux_4:U6 = if ((push_full_q >> 1) & 1) != 0 { config_size#[6..=11] } else { _mux_3 }
-  items_bits#[6..<12] = _mux_4#[0..<6]
-  const advance_head = head_ready & head_valid__w1
-  mut _b2i_5 = if (advance_head & 1) != 0 and ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0]) == config_bound#[0..=4] {
-    1
-  } else {
-    0
-  }
-  `reinit_head[0]` = _b2i_5 & 1
-  mut gen_fifo_pointers_0_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_0_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[0]` & 1, initial_value=config_base#[0..=4], incr_valid=advance_head & 1, incr=1)
-  head_bits#[0..<5] = gen_fifo_pointers_0_br_counter_incr_head.value#[0..<5]
-  head_next_bits#[0..<5] = gen_fifo_pointers_0_br_counter_incr_head.value_next#[0..<5]
-  if (advance_head & 1) == advance_tail.e0 {
-    push_full_next#[0] = push_full_q & 1
-    empty_next#[0] = empty_q & 1
-  } elif (advance_head & 1) != 0 {
-    push_full_next#[0] = 0
-    empty_next#[0] = U1(((head_next_bits#[4] << 4) | (head_next_bits#[3] << 3) | (head_next_bits#[2] << 2) | (head_next_bits#[1] << 1) | head_next_bits#[0]) == tail#[0..=4]) & 1
-  } else {
-    push_full_next#[0] = U1(tail_next#[0..=4] == ((head_bits#[4] << 4) | (head_bits#[3] << 3) | (head_bits#[2] << 2) | (head_bits#[1] << 1) | head_bits#[0])) & 1
-    empty_next#[0] = 0
-  }
-  mut _b2i_8 = if ((advance_head >> 1) & 1) != 0 and ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5]) == config_bound#[5..=9] {
-    1
-  } else {
-    0
-  }
-  `reinit_head[1]` = _b2i_8 & 1
-  mut gen_fifo_pointers_1_br_counter_incr_head = br_counter_incr::[name=gen_fifo_pointers_1_br_counter_incr_head](clk=clk, rst=rst, reinit=`reinit_head[1]` & 1, initial_value=config_base#[5..=9], incr_valid=(advance_head >> 1) & 1, incr=1)
-  head_bits#[5..<10] = gen_fifo_pointers_1_br_counter_incr_head.value#[0..<5]
-  head_next_bits#[5..<10] = gen_fifo_pointers_1_br_counter_incr_head.value_next#[0..<5]
-  if ((advance_head >> 1) & 1) == advance_tail.e1 {
-    push_full_next#[1] = (push_full_q >> 1) & 1
-    empty_next#[1] = (empty_q >> 1) & 1
-  } elif ((advance_head >> 1) & 1) != 0 {
-    push_full_next#[1] = 0
-    empty_next#[1] = U1(((head_next_bits#[9] << 4) | (head_next_bits#[8] << 3) | (head_next_bits#[7] << 2) | (head_next_bits#[6] << 1) | head_next_bits#[5]) == tail#[5..=9]) & 1
-  } else {
-    push_full_next#[1] = U1(tail_next#[5..=9] == ((head_bits#[9] << 4) | (head_bits#[8] << 3) | (head_bits#[7] << 2) | (head_bits#[6] << 1) | head_bits#[5])) & 1
-    empty_next#[1] = 0
-  }
-  if not (rst != 0) {
-    push_full_q = push_full_next
-  }
-  if not (rst != 0) {
-    empty_q = empty_next
-  }
-  head = head_bits
-  items = items_bits
-  head_valid = head_valid__w1
 }

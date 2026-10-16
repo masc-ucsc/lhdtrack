@@ -1,0 +1,53 @@
+// lhdtrack_cfg -- comptime configuration shared by the lhdtrack Pyrope sources.
+//
+// CONVENTION: the `no_loop` switch
+//
+// A source whose rolled `for` loop was once rewritten loop-free (unrolled lanes,
+// whole-word masks, log-step scans) keeps BOTH forms, and `no_loop` picks one:
+//
+//   const cfg = import("lhdtrack_cfg")    // file scope, next to the other imports
+//
+//   pub comb f(...) -> (...) {
+//     comptime const W = ...               // declarations both forms use stay outside
+//     if cfg.no_loop {
+//       ...                                // loop-free form
+//     } else {
+//       ...                                // loop form (the rolled `for`)
+//     }
+//   }
+//
+// Wrap only the statements that differ; ports, registers and shared comptime
+// constants stay outside the `if`. Helper lambdas only the loop-free form calls
+// stay at file scope: uncalled, they are never instantiated, and with an
+// explicit --top lhd does not even lower or emit an uncalled non-pub comb, so
+// the switch leaves no trace in the netlist or the emitted Verilog.
+//
+// Only sources whose loops were removed by an edit carry the switch. The loop
+// form is the idiomatic Pyrope this corpus measures; the loop-free form is the
+// hand-tuned reference, kept so the tests where the loop synthesizes worse
+// remain a benchmark for future LiveHD work. Some loops are not worse, and that
+// is fine. Do not add a loop-free alternative to any other loop.
+//
+// HOW lhd FINDS THIS FILE. `import("x")` resolves only to x.prp in the
+// importing file's own directory (no search path, no ancestor fallback), so
+// every test that imports it carries a RELATIVE symlink:
+//
+//   ln -s ../../common/lhdtrack_cfg.prp tests/<t>/pyrope/lhdtrack_cfg.prp
+//
+// The link also makes the flows see the shared value: the lhdtrack cache key
+// hashes tests/<t>/pyrope/* through the link (corpus.Test.source_files), and
+// sim_lhd_pyrope's copy of pyrope/*.prp follows it. lhd's own incremental
+// compile cache keys the imported file's content as well.
+//
+// ZERO QoR IMPACT. `no_loop` is comptime: upass folds the `if` and drops the
+// dead branch before any hardware exists, like a preprocessor #if. With
+// no_loop=false a converted source emits the same netlist as the pure loop
+// source, with no_loop=true the same as the pure loop-free source. Any
+// difference is a LiveHD bug, not a property of the test.
+//
+// FLIPPING IT. Default false: the corpus measures the loop forms. For a
+// loop-free benchmark run set `no_loop = true` here (or in a private copy of
+// the tree) and run as usual; every converted test re-keys and re-measures.
+// Committing a flipped value changes the measured circuit of every converted
+// test -- call it out like a baseline recipe change.
+pub comptime const no_loop = false

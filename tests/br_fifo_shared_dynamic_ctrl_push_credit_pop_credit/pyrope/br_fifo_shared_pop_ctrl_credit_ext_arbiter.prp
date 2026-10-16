@@ -3,112 +3,194 @@ const br_delay_valid_p1 = import("br_delay_valid_p1.br_delay_valid_p1")
 const br_enc_onehot2bin_p1 = import("br_enc_onehot2bin_p1.br_enc_onehot2bin_p1")
 const br_fifo_shared_read_xbar_t = import("br_fifo_shared_read_xbar.br_fifo_shared_read_xbar")
 const br_flow_join = import("br_flow_join.br_flow_join")
+const cfg = import("lhdtrack_cfg")
+
+// Pop side of the shared dynamic FIFO with credit-based pop flow control and
+// an external read-port arbiter (arb_*, packed [port][fifo]): a FIFO head is
+// read from the data RAM when it has a pop credit, the popped entry is
+// deallocated one cycle later, and the read data goes out tagged with its
+// FIFO id. 2 FIFOs, 2 read ports, data-RAM read latency 1, registered
+// deallocation.
 pub mod br_fifo_shared_pop_ctrl_credit_ext_arbiter<NumReadPorts=2, NumFifos=2, Depth=32, Width=32, PopMaxCredits=4, RegisterDeallocation=1, RamReadLatency=1, ArbiterAlwaysGrants=1>::[timecheck=false](arb_can_grant:U4, arb_grant:U4, clk:Clock, credit_initial_pop:U6, credit_withhold_pop:U6, data_ram_rd_data:U64, data_ram_rd_data_valid:(e1:U1, e0:U1), head:U10, head_valid:(e1:U1, e0:U1), pop_credit:(e1:U1, e0:U1), pop_receiver_in_reset:U1, ram_empty:(e1:U1, e0:U1), rst:U1) -> (arb_enable_priority_update:U2@[], arb_request:U4@[], credit_available_pop:U6@[], credit_count_pop:U6@[], data_ram_rd_addr:U10@[], data_ram_rd_addr_valid:(e1:U1, e0:U1)@[], dealloc_entry_id:U10@[], dealloc_valid:U2@[], head_ready:(e1:U1, e0:U1)@[], pop_data:U64@[], pop_empty:(e1:U1, e0:U1)@[], pop_fifo_id:(e1:U1, e0:U1)@[], pop_sender_in_reset:U1@[], pop_valid:(e1:U1, e0:U1)@[]) {
-  wire head_ready__bpr:(e1:U1, e0:U1) = nil
-  wire data_ram_rd_addr_valid__bpr:(e1:U1, e0:U1) = nil
   wire either_rst
   reg dealloc_valid:U2:[async=false, initial=0, reset_pin=either_rst]
   reg dealloc_entry_id:U10
-  wire pop_data_bits:U64 = nil
-  wire pop_data:U64 = nil
-  wire credit_available_pop_bits:U6 = nil
-  wire credit_available_pop:U6 = nil
-  wire credit_count_pop_bits:U6 = nil
-  wire credit_count_pop:U6 = nil
-  wire `fifo_ram_rd_addr_valid[0]`:U1 = nil
-  wire `fifo_ram_rd_addr_valid[1]`:U1 = nil
-  wire fifo_ram_rd_addr_valid:U2 = nil
-  wire fifo_ram_rd_addr_bits:U10 = nil
-  wire fifo_ram_rd_addr:U10 = nil
-  wire `pop_valid__bpr.e1`:U1 = nil
-  wire `pop_valid__bpr.e0`:U1 = nil
-  wire `pop_fifo_id__bpr.e1`:U1 = nil
-  wire `pop_fifo_id__bpr.e0`:U1 = nil
-  wire `pop_empty__bpr.e1`:U1 = nil
-  wire `pop_empty__bpr.e0`:U1 = nil
-  wire gen_fifo_ram_read_0_ram_rd_req_ready:U1 = nil
-  wire gen_fifo_ram_read_1_ram_rd_req_ready:U1 = nil
-  mut _b2i_1 = if pop_receiver_in_reset != 0 or rst != 0 { 1 } else { 0 }
-  either_rst = _b2i_1
-  mut `pop_empty__bpo.e0` = ram_empty.e0
-  fifo_ram_rd_addr_bits#[0..<5] = head#[0..=4]#[0..<5]
-  mut `pop_empty__bpo.e1` = ram_empty.e1
-  fifo_ram_rd_addr_bits#[5..<10] = head#[5..=9]#[0..<5]
-  mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk=clk, rst=either_rst, `push_rd_addr_valid.e1`=(fifo_ram_rd_addr_valid >> 1) & 1, `push_rd_addr_valid.e0`=fifo_ram_rd_addr_valid & 1, push_rd_addr=fifo_ram_rd_addr, `pop_rd_data_valid.e1`=data_ram_rd_data_valid.e1, `pop_rd_data_valid.e0`=data_ram_rd_data_valid.e0, pop_rd_data=data_ram_rd_data, arb_can_grant=arb_can_grant, arb_grant=arb_grant)
-  const fifo_ram_rd_addr_ready = (br_fifo_shared_read_xbar.push_rd_addr_ready.e1 << 1) | br_fifo_shared_read_xbar.push_rd_addr_ready.e0
-  mut gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin_p1::[name=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst, `in`=arb_grant#[0..=1])
-  mut gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id = br_delay_valid_p1::[name=gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst, in_valid=data_ram_rd_addr_valid__bpr.e0, `in`=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id.out)
-  mut `pop_valid__bpo.e0` = data_ram_rd_data_valid.e0
-  pop_data_bits#[0..<32] = data_ram_rd_data#[0..=31]#[0..<32]
-  mut gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin_p1::[name=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst, `in`=arb_grant#[2..=3])
-  mut gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id = br_delay_valid_p1::[name=gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst, in_valid=data_ram_rd_addr_valid__bpr.e1, `in`=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id.out)
-  mut `pop_valid__bpo.e1` = data_ram_rd_data_valid.e1
-  pop_data_bits#[32..<64] = data_ram_rd_data#[32..=63]#[0..<32]
-  mut gen_fifo_ram_read_0_br_credit_counter = br_credit_counter_p1::[name=gen_fifo_ram_read_0_br_credit_counter](clk=clk, rst=either_rst, incr_valid=pop_credit.e0, incr=1, decr_valid=gen_fifo_ram_read_0_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[0..=2], withhold=credit_withhold_pop#[0..=2])
-  credit_count_pop_bits#[0..<3] = gen_fifo_ram_read_0_br_credit_counter.value#[0..<3]
-  credit_available_pop_bits#[0..<3] = gen_fifo_ram_read_0_br_credit_counter.available#[0..<3]
-  mut gen_fifo_ram_read_0_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_0_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst, push_valid=((head_valid.e0 & 1) << 1) | (gen_fifo_ram_read_0_br_credit_counter.decr_ready & 1), pop_ready=fifo_ram_rd_addr_ready & 1)
-  gen_fifo_ram_read_0_ram_rd_req_ready = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready & 1
-  mut `head_ready__bpo.e0` = (gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
-  `fifo_ram_rd_addr_valid[0]` = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.pop_valid & 1
-  mut gen_fifo_ram_read_1_br_credit_counter = br_credit_counter_p1::[name=gen_fifo_ram_read_1_br_credit_counter](clk=clk, rst=either_rst, incr_valid=pop_credit.e1, incr=1, decr_valid=gen_fifo_ram_read_1_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[3..=5], withhold=credit_withhold_pop#[3..=5])
-  credit_count_pop_bits#[3..<6] = gen_fifo_ram_read_1_br_credit_counter.value#[0..<3]
-  credit_available_pop_bits#[3..<6] = gen_fifo_ram_read_1_br_credit_counter.available#[0..<3]
-  mut gen_fifo_ram_read_1_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_1_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst, push_valid=((head_valid.e1 & 1) << 1) | (gen_fifo_ram_read_1_br_credit_counter.decr_ready & 1), pop_ready=(fifo_ram_rd_addr_ready >> 1) & 1)
-  gen_fifo_ram_read_1_ram_rd_req_ready = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready & 1
-  mut `head_ready__bpo.e1` = (gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
-  `fifo_ram_rd_addr_valid[1]` = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.pop_valid & 1
-  const gen_reg_dealloc_dealloc_valid_next = (((head_valid.e1 << 1) | head_valid.e0) & ((head_ready__bpr.e1 << 1) | head_ready__bpr.e0))#[0..=1]
-  if not (either_rst != 0) {
-    dealloc_valid = gen_reg_dealloc_dealloc_valid_next
+  if cfg.no_loop {
+    wire head_ready__bpr:(e1:U1, e0:U1) = nil
+    wire data_ram_rd_addr_valid__bpr:(e1:U1, e0:U1) = nil
+    wire pop_data_bits:U64 = nil
+    wire pop_data:U64 = nil
+    wire credit_available_pop_bits:U6 = nil
+    wire credit_available_pop:U6 = nil
+    wire credit_count_pop_bits:U6 = nil
+    wire credit_count_pop:U6 = nil
+    wire `fifo_ram_rd_addr_valid[0]`:U1 = nil
+    wire `fifo_ram_rd_addr_valid[1]`:U1 = nil
+    wire fifo_ram_rd_addr_valid:U2 = nil
+    wire fifo_ram_rd_addr_bits:U10 = nil
+    wire fifo_ram_rd_addr:U10 = nil
+    wire `pop_valid__bpr.e1`:U1 = nil
+    wire `pop_valid__bpr.e0`:U1 = nil
+    wire `pop_fifo_id__bpr.e1`:U1 = nil
+    wire `pop_fifo_id__bpr.e0`:U1 = nil
+    wire `pop_empty__bpr.e1`:U1 = nil
+    wire `pop_empty__bpr.e0`:U1 = nil
+    wire gen_fifo_ram_read_0_ram_rd_req_ready:U1 = nil
+    wire gen_fifo_ram_read_1_ram_rd_req_ready:U1 = nil
+    mut _b2i_1 = if pop_receiver_in_reset != 0 or rst != 0 { 1 } else { 0 }
+    either_rst = _b2i_1
+    mut `pop_empty__bpo.e0` = ram_empty.e0
+    fifo_ram_rd_addr_bits#[0..<5] = head#[0..=4]#[0..<5]
+    mut `pop_empty__bpo.e1` = ram_empty.e1
+    fifo_ram_rd_addr_bits#[5..<10] = head#[5..=9]#[0..<5]
+    mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk=clk, rst=either_rst, `push_rd_addr_valid.e1`=(fifo_ram_rd_addr_valid >> 1) & 1, `push_rd_addr_valid.e0`=fifo_ram_rd_addr_valid & 1, push_rd_addr=fifo_ram_rd_addr, `pop_rd_data_valid.e1`=data_ram_rd_data_valid.e1, `pop_rd_data_valid.e0`=data_ram_rd_data_valid.e0, pop_rd_data=data_ram_rd_data, arb_can_grant=arb_can_grant, arb_grant=arb_grant)
+    const fifo_ram_rd_addr_ready = (br_fifo_shared_read_xbar.push_rd_addr_ready.e1 << 1) | br_fifo_shared_read_xbar.push_rd_addr_ready.e0
+    mut gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin_p1::[name=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst, `in`=arb_grant#[0..=1])
+    mut gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id = br_delay_valid_p1::[name=gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst, in_valid=data_ram_rd_addr_valid__bpr.e0, `in`=gen_pop_fifo_id_onehot_0_br_enc_onehot2bin_ram_rd_fifo_id.out)
+    mut `pop_valid__bpo.e0` = data_ram_rd_data_valid.e0
+    pop_data_bits#[0..<32] = data_ram_rd_data#[0..=31]#[0..<32]
+    mut gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id = br_enc_onehot2bin_p1::[name=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id](clk=clk, rst=either_rst, `in`=arb_grant#[2..=3])
+    mut gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id = br_delay_valid_p1::[name=gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id](clk=clk, rst=either_rst, in_valid=data_ram_rd_addr_valid__bpr.e1, `in`=gen_pop_fifo_id_onehot_1_br_enc_onehot2bin_ram_rd_fifo_id.out)
+    mut `pop_valid__bpo.e1` = data_ram_rd_data_valid.e1
+    pop_data_bits#[32..<64] = data_ram_rd_data#[32..=63]#[0..<32]
+    mut gen_fifo_ram_read_0_br_credit_counter = br_credit_counter_p1::[name=gen_fifo_ram_read_0_br_credit_counter](clk=clk, rst=either_rst, incr_valid=pop_credit.e0, incr=1, decr_valid=gen_fifo_ram_read_0_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[0..=2], withhold=credit_withhold_pop#[0..=2])
+    credit_count_pop_bits#[0..<3] = gen_fifo_ram_read_0_br_credit_counter.value#[0..<3]
+    credit_available_pop_bits#[0..<3] = gen_fifo_ram_read_0_br_credit_counter.available#[0..<3]
+    mut gen_fifo_ram_read_0_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_0_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst, push_valid=((head_valid.e0 & 1) << 1) | (gen_fifo_ram_read_0_br_credit_counter.decr_ready & 1), pop_ready=fifo_ram_rd_addr_ready & 1)
+    gen_fifo_ram_read_0_ram_rd_req_ready = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready & 1
+    mut `head_ready__bpo.e0` = (gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
+    `fifo_ram_rd_addr_valid[0]` = gen_fifo_ram_read_0_br_flow_join_ram_rd_addr.pop_valid & 1
+    mut gen_fifo_ram_read_1_br_credit_counter = br_credit_counter_p1::[name=gen_fifo_ram_read_1_br_credit_counter](clk=clk, rst=either_rst, incr_valid=pop_credit.e1, incr=1, decr_valid=gen_fifo_ram_read_1_ram_rd_req_ready, decr=1, initial_value=credit_initial_pop#[3..=5], withhold=credit_withhold_pop#[3..=5])
+    credit_count_pop_bits#[3..<6] = gen_fifo_ram_read_1_br_credit_counter.value#[0..<3]
+    credit_available_pop_bits#[3..<6] = gen_fifo_ram_read_1_br_credit_counter.available#[0..<3]
+    mut gen_fifo_ram_read_1_br_flow_join_ram_rd_addr = br_flow_join::[name=gen_fifo_ram_read_1_br_flow_join_ram_rd_addr](clk=clk, rst=either_rst, push_valid=((head_valid.e1 & 1) << 1) | (gen_fifo_ram_read_1_br_credit_counter.decr_ready & 1), pop_ready=(fifo_ram_rd_addr_ready >> 1) & 1)
+    gen_fifo_ram_read_1_ram_rd_req_ready = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready & 1
+    mut `head_ready__bpo.e1` = (gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.push_ready >> 1) & 1
+    `fifo_ram_rd_addr_valid[1]` = gen_fifo_ram_read_1_br_flow_join_ram_rd_addr.pop_valid & 1
+    const gen_reg_dealloc_dealloc_valid_next = (((head_valid.e1 << 1) | head_valid.e0) & ((head_ready__bpr.e1 << 1) | head_ready__bpr.e0))#[0..=1]
+    if not (either_rst != 0) {
+      dealloc_valid = gen_reg_dealloc_dealloc_valid_next
+    }
+    if either_rst != 0 {
+      dealloc_entry_id#[0..=4] = 0
+    } elif (gen_reg_dealloc_dealloc_valid_next & 1) != 0 {
+      dealloc_entry_id#[0..=4] = head#[0..=4]
+    }
+    if either_rst != 0 {
+      dealloc_entry_id#[5..=9] = 0
+    } elif ((gen_reg_dealloc_dealloc_valid_next >> 1) & 1) != 0 {
+      dealloc_entry_id#[5..=9] = head#[5..=9]
+    }
+    pop_data = pop_data_bits
+    credit_available_pop = credit_available_pop_bits
+    credit_count_pop = credit_count_pop_bits
+    fifo_ram_rd_addr_valid = (`fifo_ram_rd_addr_valid[1]` << 1) | `fifo_ram_rd_addr_valid[0]`
+    fifo_ram_rd_addr = fifo_ram_rd_addr_bits
+    const t282 = `head_ready__bpo.e1`
+    head_ready__bpr.e1 = t282
+    head_ready.e1 = t282
+    const t283 = `head_ready__bpo.e0`
+    head_ready__bpr.e0 = t283
+    head_ready.e0 = t283
+    const t284 = `pop_valid__bpo.e1`
+    `pop_valid__bpr.e1` = t284
+    pop_valid.e1 = t284
+    const t285 = `pop_valid__bpo.e0`
+    `pop_valid__bpr.e0` = t285
+    pop_valid.e0 = t285
+    const t286 = gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out
+    `pop_fifo_id__bpr.e1` = t286
+    pop_fifo_id.e1 = t286
+    const t287 = gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out
+    `pop_fifo_id__bpr.e0` = t287
+    pop_fifo_id.e0 = t287
+    const t288 = `pop_empty__bpo.e1`
+    `pop_empty__bpr.e1` = t288
+    pop_empty.e1 = t288
+    const t289 = `pop_empty__bpo.e0`
+    `pop_empty__bpr.e0` = t289
+    pop_empty.e0 = t289
+    const t290 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e1
+    data_ram_rd_addr_valid__bpr.e1 = t290
+    data_ram_rd_addr_valid.e1 = t290
+    const t291 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e0
+    data_ram_rd_addr_valid__bpr.e0 = t291
+    data_ram_rd_addr_valid.e0 = t291
+    pop_sender_in_reset = rst
+    data_ram_rd_addr = br_fifo_shared_read_xbar.pop_rd_addr
+    arb_request = br_fifo_shared_read_xbar.arb_request
+    arb_enable_priority_update = (br_fifo_shared_read_xbar.arb_enable_priority_update.e1 << 1) | br_fifo_shared_read_xbar.arb_enable_priority_update.e0
+  } else {
+    comptime const ADDR_WIDTH   = head.[bits] / NumFifos
+    comptime const CREDIT_WIDTH = credit_count_pop.[bits] / NumFifos
+
+    either_rst = U1(pop_receiver_in_reset == 1 or rst == 1)
+
+    const head_valid_bits:U2 = (head_valid.e0#[0], head_valid.e1#[0])#[..]
+    const pop_credit_bits:U2 = (pop_credit.e0#[0], pop_credit.e1#[0])#[..]
+
+    // A FIFO requests a data-RAM read when its head is valid and it holds a pop
+    // credit; the crossbar accepts it (driven below).
+    wire rd_ready:U2    = nil
+    mut rd_request:U2   = 0
+    mut ready:U2        = 0
+    mut credit_count:U6 = 0
+    mut credit_avail:U6 = 0
+    for f in 0..<NumFifos {
+      const credits = br_credit_counter_p1(
+        clk=clk,
+        rst=either_rst,
+        incr_valid=pop_credit_bits#[f],
+        incr=1,
+        decr_valid=U1(rd_ready#[f] == 1 and head_valid_bits#[f] == 1),
+        decr=1,
+        initial_value=credit_initial_pop#[(f*CREDIT_WIDTH)..+CREDIT_WIDTH],
+        withhold=credit_withhold_pop#[(f*CREDIT_WIDTH)..+CREDIT_WIDTH]
+      )
+      rd_request#[f] = U1(head_valid_bits#[f] == 1 and credits.decr_ready == 1)
+      ready#[f]      = U1(rd_ready#[f] == 1 and credits.decr_ready == 1)
+      credit_count#[(f*CREDIT_WIDTH)..+CREDIT_WIDTH] = credits.value
+      credit_avail#[(f*CREDIT_WIDTH)..+CREDIT_WIDTH] = credits.available
+    }
+
+    mut br_fifo_shared_read_xbar = br_fifo_shared_read_xbar_t::[name=br_fifo_shared_read_xbar](clk=clk, rst=either_rst, `push_rd_addr_valid.e1`=rd_request#[1], `push_rd_addr_valid.e0`=rd_request#[0], push_rd_addr=head, `pop_rd_data_valid.e1`=data_ram_rd_data_valid.e1, `pop_rd_data_valid.e0`=data_ram_rd_data_valid.e0, pop_rd_data=data_ram_rd_data, arb_can_grant=arb_can_grant, arb_grant=arb_grant)
+    rd_ready = (br_fifo_shared_read_xbar.push_rd_addr_ready.e0#[0], br_fifo_shared_read_xbar.push_rd_addr_ready.e1#[0])#[..]
+    const rd_addr_valid:U2 = (br_fifo_shared_read_xbar.pop_rd_addr_valid.e0#[0], br_fifo_shared_read_xbar.pop_rd_addr_valid.e1#[0])#[..]
+
+    // The FIFO a read port served, delayed to line up with the returning data.
+    mut fifo_ids:U2 = 0
+    for p in 0..<NumReadPorts {
+      const granted = br_enc_onehot2bin_p1(clk=clk, rst=either_rst, `in`=arb_grant#[(p*NumFifos)..+NumFifos])
+      const id      = br_delay_valid_p1(clk=clk, rst=either_rst, in_valid=rd_addr_valid#[p], `in`=granted.out)
+      fifo_ids#[p]  = id.out
+    }
+
+    // Registered deallocation of the popped heads.
+    const popped      = head_valid_bits & ready
+    mut next_entry_id = dealloc_entry_id
+    for f in 0..<NumFifos {
+      if popped#[f] == 1 {
+        next_entry_id#[(f*ADDR_WIDTH)..+ADDR_WIDTH] = head#[(f*ADDR_WIDTH)..+ADDR_WIDTH]
+      }
+    }
+    dealloc_valid = popped
+    if either_rst != 0 {
+      dealloc_entry_id = 0
+    } else {
+      dealloc_entry_id = next_entry_id
+    }
+
+    head_ready                 = (e1=ready#[1], e0=ready#[0])
+    pop_sender_in_reset        = rst
+    pop_valid                  = (e1=data_ram_rd_data_valid.e1, e0=data_ram_rd_data_valid.e0)
+    pop_fifo_id                = (e1=fifo_ids#[1], e0=fifo_ids#[0])
+    pop_data                   = data_ram_rd_data
+    pop_empty                  = (e1=ram_empty.e1, e0=ram_empty.e0)
+    credit_available_pop       = credit_avail
+    credit_count_pop           = credit_count
+    data_ram_rd_addr_valid     = (e1=rd_addr_valid#[1], e0=rd_addr_valid#[0])
+    data_ram_rd_addr           = br_fifo_shared_read_xbar.pop_rd_addr
+    arb_request                = br_fifo_shared_read_xbar.arb_request
+    arb_enable_priority_update = (br_fifo_shared_read_xbar.arb_enable_priority_update.e0#[0], br_fifo_shared_read_xbar.arb_enable_priority_update.e1#[0])#[..]
   }
-  if either_rst != 0 {
-    dealloc_entry_id#[0..=4] = 0
-  } elif (gen_reg_dealloc_dealloc_valid_next & 1) != 0 {
-    dealloc_entry_id#[0..=4] = head#[0..=4]
-  }
-  if either_rst != 0 {
-    dealloc_entry_id#[5..=9] = 0
-  } elif ((gen_reg_dealloc_dealloc_valid_next >> 1) & 1) != 0 {
-    dealloc_entry_id#[5..=9] = head#[5..=9]
-  }
-  pop_data = pop_data_bits
-  credit_available_pop = credit_available_pop_bits
-  credit_count_pop = credit_count_pop_bits
-  fifo_ram_rd_addr_valid = (`fifo_ram_rd_addr_valid[1]` << 1) | `fifo_ram_rd_addr_valid[0]`
-  fifo_ram_rd_addr = fifo_ram_rd_addr_bits
-  const t282 = `head_ready__bpo.e1`
-  head_ready__bpr.e1 = t282
-  head_ready.e1 = t282
-  const t283 = `head_ready__bpo.e0`
-  head_ready__bpr.e0 = t283
-  head_ready.e0 = t283
-  const t284 = `pop_valid__bpo.e1`
-  `pop_valid__bpr.e1` = t284
-  pop_valid.e1 = t284
-  const t285 = `pop_valid__bpo.e0`
-  `pop_valid__bpr.e0` = t285
-  pop_valid.e0 = t285
-  const t286 = gen_pop_fifo_id_onehot_1_br_delay_valid_pop_fifo_id.out
-  `pop_fifo_id__bpr.e1` = t286
-  pop_fifo_id.e1 = t286
-  const t287 = gen_pop_fifo_id_onehot_0_br_delay_valid_pop_fifo_id.out
-  `pop_fifo_id__bpr.e0` = t287
-  pop_fifo_id.e0 = t287
-  const t288 = `pop_empty__bpo.e1`
-  `pop_empty__bpr.e1` = t288
-  pop_empty.e1 = t288
-  const t289 = `pop_empty__bpo.e0`
-  `pop_empty__bpr.e0` = t289
-  pop_empty.e0 = t289
-  const t290 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e1
-  data_ram_rd_addr_valid__bpr.e1 = t290
-  data_ram_rd_addr_valid.e1 = t290
-  const t291 = br_fifo_shared_read_xbar.pop_rd_addr_valid.e0
-  data_ram_rd_addr_valid__bpr.e0 = t291
-  data_ram_rd_addr_valid.e0 = t291
-  pop_sender_in_reset = rst
-  data_ram_rd_addr = br_fifo_shared_read_xbar.pop_rd_addr
-  arb_request = br_fifo_shared_read_xbar.arb_request
-  arb_enable_priority_update = (br_fifo_shared_read_xbar.arb_enable_priority_update.e1 << 1) | br_fifo_shared_read_xbar.arb_enable_priority_update.e0
 }

@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import Mock
 
-from lib.lec import check_elaboration_internal_error, classify, run_lec
+from lib.lec import check_elaboration_internal_error, classify, lhd_verdict, run_lec
 from lec_netlist import _check
 from lhdtrack.context import FlowError
 
@@ -44,6 +44,37 @@ class IndependentVerdicts(unittest.TestCase):
                                    solver='cvc5', obligation='verilog-vs-netlist', label='check')
                     self.assertEqual(block['verdict'], expected)
                     self.assertEqual('resource_limit' in block, expected == 'timeout')
+
+    def test_lhd_timeout_verdict_is_a_timeout_not_unknown_or_a_failure(self):
+        # `lhd lec` reports a reached formal.timeout itself (exit 0): record it as
+        # a timeout -- not an error, not inconclusive, and never a proof.
+        result = {"status": "pass", "lec": {"verdict": "timeout", "bounded": False}}
+        self.assertEqual(classify(result, 0, solver='cvc5'), 'timeout')
+        self.assertEqual(classify(result, 0, solver='cvc5', elapsed_ms=1, timeout_s=300), 'timeout')
+
+    def test_modifier_verdicts_map_onto_the_ledger_vocabulary(self):
+        # Current lhd: every verdict carries a modifier. Only refuted-cex is a
+        # design refutation; the other REFUTED-<why> are failures with no answer.
+        cases = {
+            'proven-full': 'proven', 'proven-bounded': 'proven', 'tested-sampled': 'inconclusive',
+            'timeout-time': 'timeout', 'timeout-memory': 'timeout', 'refuted-cex': 'refuted',
+            'refuted-unsupported': 'unsupported', 'refuted-interface': 'error',
+            'refuted-unchecked': 'error', 'refuted-vacuous': 'error', 'refuted-unexplained': 'error',
+        }
+        for word, ledger in cases.items():
+            rc = 10 if word == 'refuted-cex' else (7 if word.startswith('refuted-') else 0)
+            result = {'status': 'pass' if rc == 0 else 'fail', 'lec': {'verdict': word}}
+            self.assertEqual(classify(result, rc, solver='cvc5', elapsed_ms=1, timeout_s=300), ledger, word)
+            self.assertEqual(lhd_verdict(result), word)
+            xresult = {'status': 'pass', 'lec': {'verdict': 'proven-full', 'crosscheck': {'verdict': word}}}
+            self.assertEqual(classify(xresult, rc, solver='lgyosys'), ledger, word)
+
+    def test_lgcheck_incomplete_is_undecided_not_unsupported(self):
+        result = {'status': 'fail', 'lec': {'verdict': 'refuted-unchecked',
+                  'crosscheck': {'verdict': 'incomplete', 'exit_code': 2}},
+                  'error': {'class': 'unsupported', 'message': 'REFUTED-unchecked: lgcheck could not confirm'}}
+        self.assertEqual(classify(result, 7, solver='lgyosys', elapsed_ms=1000, timeout_s=300), 'inconclusive')
+        self.assertEqual(classify(result, 7, solver='lgyosys', elapsed_ms=600000, timeout_s=300), 'timeout')
 
     def test_unknown_correspondence_is_not_a_refutation(self):
         result = {

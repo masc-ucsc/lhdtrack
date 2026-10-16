@@ -29,17 +29,19 @@ class FrequencyComparison(TestCase):
             altered = deepcopy(measured)
             altered["qor"][field] = "changed"
             self.assertIsNone(frequency_ratio(base, altered, bp, mp))
-        self.assertIsNone(frequency_ratio(base, measured, bp, proof("usyn", bounded=True)))
+        self.assertEqual(frequency_ratio(base, measured, bp, proof("usyn", bounded=True)), 2)  # bounded is a proof
         self.assertIsNone(frequency_ratio(base, measured, bp, proof("different")))
         bad = dict(mp, lec_aux_result=dict(verdict="refuted"))
         self.assertIsNone(frequency_ratio(base, measured, bp, bad))
         measured["sta"]["sdc_period_ns"] = 800
         self.assertIsNone(frequency_ratio(base, measured, bp, mp))
 
-    def test_provisional_timing_never_turns_a_bounded_check_into_a_claim(self):
+    def test_provisional_timing_needs_a_proof_but_a_bounded_one_counts(self):
         base, measured = mapping(200, "abc"), mapping(100, "usyn")
         self.assertEqual(timing_ratio(base, measured), 2)
-        self.assertIsNone(frequency_ratio(base, measured, proof("abc"), proof("usyn", True)))
+        self.assertEqual(frequency_ratio(base, measured, proof("abc"), proof("usyn", True)), 2)
+        self.assertIsNone(frequency_ratio(base, measured, proof("abc"), dict(proof("usyn"), lec_verilog_result={"verdict": "timeout"},
+                                                                         lec_aux_result={"verdict": "timeout"})))
         for invalid in (dict(measured, status="failed"), dict(measured, host="other")):
             self.assertIsNone(timing_ratio(base, invalid))
         measured["sta"]["opensta_ns"] = float("nan")

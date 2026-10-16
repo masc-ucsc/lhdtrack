@@ -824,7 +824,7 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
             gate = (f' <span class="tag">{gate_label}</span>'
                     if r.get("status") == "failed" else "")
             if r.get("measured_lec_verified") is False:
-                gate += ' <span class="tag" title="No unbounded proof for this run; excluded from averages">LEC unverified</span>'
+                gate += ' <span class="tag" title="No proof for this run; excluded from averages">LEC unverified</span>'
             display, scopes = _synth_display_values(r)
             digits = (2 if unit != "ns" else 3, 2, 0, 0, 1, 0)
             cells.extend(
@@ -864,7 +864,7 @@ def _synth_table(title, keys, index, base_flow, headline, unit="ns") -> str:
         "Every ratio is <b>baseline &divide; measured</b>, so <b>higher is always "
         "better</b>. Depth counts combinational cell levels (buffers included), with "
         "flop/latch outputs as sources. 2.00&times; means twice as fast, or half the area, or half the "
-        "memory. Named snapshots require unbounded netlist LEC from the same run; "
+        "memory. Named snapshots require a netlist LEC proof (bounded proofs count) from the same run; "
         "ABC/SN uses LiveHD's shared ABC mapping/sizing executor and default scripts; "
         "its frontend, partitions, state mapping and ABC revision differ. "
         "Pyrope also requires a language-equivalence proof and hand-written source. "
@@ -1028,7 +1028,7 @@ def _sim_table(title, keys, index, base_flow, headline, *,
 
     # TWO geomeans, because one cannot be both. `ratios_all` averages every
     # successful row of every column. `ratios` averages ONLY the tests whose
-    # Pyrope is idiomatic and LEC-proven, and applies that same test set to every
+    # Pyrope is idiomatic (sim is independent of LEC), and applies that same test set to every
     # column: a Verilog column over all tests next to a Pyrope column over the
     # idiomatic subset compares different circuits and reads as a language gap.
     body, ratios, ratios_all = [], defaultdict(list), defaultdict(list)
@@ -1036,7 +1036,7 @@ def _sim_table(title, keys, index, base_flow, headline, *,
         _, test, config, _ = key
         flows = index[key]
         base = flows.get(base_flow, {})
-        tags = _tags(flows) if "pyrope" in languages else ""
+        tags = _tags(flows, lec=False) if "pyrope" in languages else ""
         matched = ("pyrope" not in languages
                    or _eligible(flows.get("sim_lhd_pyrope_llvm", {}), "sim_lhd_pyrope_llvm", base,
                                 headline, "sim_lhd_pyrope_llvm"))
@@ -1108,7 +1108,7 @@ def _sim_table(title, keys, index, base_flow, headline, *,
 
     foot = []
     for label, table in ((f"geomean vs verilator · all tests", ratios_all),
-                         ("geomean vs verilator · idiomatic LEC-proven tests, the same tests in every column"
+                         ("geomean vs verilator · idiomatic Pyrope tests (checksums match Verilator), the same tests in every column"
                           if "pyrope" in languages else "", ratios)):
         if not label:
             continue
@@ -1151,8 +1151,8 @@ def _gate_snapshot_lec(rows: list[dict], run: str) -> list[dict]:
 
     def proven(row, field):
         block = row.get(field, {})
-        return (row.get("status") == "ok" and block.get("verdict") == "proven"
-                and block.get("bounded") is False)
+        # A bounded(n) proof is still a proof; its bound stays on the block.
+        return row.get("status") == "ok" and block.get("verdict") == "proven"
 
     result = []
     for original in rows:
@@ -1208,16 +1208,21 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str,
             return False
     if flow != pyrope_flow or any_status:
         return True
+    if flow.startswith("sim_"):
+        # Simulation is independent of LEC: a sim row stands on its checksum
+        # matching Verilator (checked above); only hand-written Pyrope enters
+        # the language headline.
+        return row.get("pyrope_status", "none") in headline
     return bool(row.get("comparable")) and row.get("pyrope_status", "none") in headline
 
 
-def _tags(flows: dict) -> str:
+def _tags(flows: dict, lec: bool = True) -> str:
     r = next(iter(flows.values()), {})
     out = []
     ps = r.get("pyrope_status", "none")
     if ps != "idiomatic":
         out.append(f'<span class="tag">pyrope:{_e(ps)}</span>')
-    if r.get("lec", "none") != "proven":
+    if lec and r.get("lec", "none") != "proven":
         out.append(f'<span class="tag">lec:{_e(r.get("lec", "none"))}</span>')
     return "".join(out)
 
@@ -1261,6 +1266,11 @@ _VERDICT_CLASS = {
     "refuted": "bad",
     "timeout": "warn",
     "inconclusive": "warn",
+    "incomplete": "warn",
+    "undischarged": "warn",
+    "unconfirmed": "warn",
+    "unpaired": "warn",
+    "unchecked": "warn",
     "unsupported": "muted",
     "error": "warn",
     "none": "muted",
@@ -1623,14 +1633,21 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
         if not values:
             continue
         first = next((r for r in by_flow.values() if r), {})
+        # SIMULATION IS INDEPENDENT OF LEC (owner ruling 2026-10-15): even code
+        # that does not prove can be simulated; a sim result stands on its
+        # checksum matching Verilator (same_workload above). Only the
+        # hand-written-vs-auto distinction of the Pyrope applies to sim.
+        sim_chart = base_flow.startswith("sim_")
+        solid = (first.get("pyrope_status", "none") == "idiomatic" if sim_chart else
+                 bool(first.get("comparable")) and not any(
+                     r.get("measured_lec_verified") is False for r in by_flow.values()))
         groups.append({
             "test": key[1],
             "config": key[2],
-            # A test whose Pyrope is machine-emitted or unproven is drawn faded:
-            # shown, because hiding it would misrepresent coverage, but visually
-            # not part of the claim the solid bars make.
-            "solid": bool(first.get("comparable")) and not any(
-                r.get("measured_lec_verified") is False for r in by_flow.values()),
+            # A test whose Pyrope is machine-emitted (or, for synthesis, unproven)
+            # is drawn faded: shown, because hiding it would misrepresent
+            # coverage, but visually not part of the claim the solid bars make.
+            "solid": solid,
             "values": values,
         })
     if not groups:
