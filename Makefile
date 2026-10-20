@@ -35,7 +35,7 @@ ASAP7    ?= $(HOME)/projs/lambdapdk/lambdapdk/asap7/libs/asap7sc7p5t_rvt/nldm/*R
 RUN_ARGS ?=
 
 .DEFAULT_GOAL := help
-.PHONY: help run usyn abc-sn abc-sn-external check report show seed toolchain toolchain-local \
+.PHONY: help run usyn abc-sn abc-sn-external check report placement placement-report show seed toolchain toolchain-local \
         cache clean-cache clean-work clean distclean lint
 
 help: ## Show this help
@@ -80,6 +80,12 @@ check: ## Lint the corpus (every test has both languages, a testbench, an SDC, a
 
 report: ## Re-render target/ from data/ without re-measuring
 	@$(LHDTRACK) report
+
+placement: ## Run a few ASAP7 corpus cases through synthesis/pre-CTS with perf stat
+	@python3 $(ROOT)/tools/run_placement.py $(RUN_ARGS)
+
+placement-report: ## Render this host's retained synthesis/pre-CTS corpus run
+	@PYTHONPATH=$(ROOT)/src python3 -m lhdtrack.report.prects --root $(ROOT) --host $(HOST)
 
 show: ## Print this machine's last run in the terminal
 	@$(LHDTRACK) show

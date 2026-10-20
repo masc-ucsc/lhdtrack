@@ -1,0 +1,31 @@
+{
+  "run_id": "20261020-placement-corpus2",
+  "host": "llmHDL",
+  "evidence": [
+    {
+      "label": "Current default synthesis/placement CPU profiles",
+      "path": "/home/renau/projs/lhdtrack/var/runs/20261020-placement-corpus2/profiles/default-20261020/summary.json",
+      "description": "Fresh AXI demux runs with cycles:u sampling and perf stat. ABC Liberty parsing accounts for 17.61% of sampled synthesis cycles; Poisson solving remains 10.74% of sampled placement cycles. Sampling overhead is separate from the table."
+    },
+    {
+      "label": "Poisson optimization controls",
+      "path": "/home/renau/projs/lhdsuite/placement-runs/asap7-20261020-poisson/validation.json",
+      "description": "The pushed DREAMPlace ff22aff change preserves reduction order. Earlier frozen lhdsuite controls improved placement wall time from 39.47 to 36.58 s and 27.94 to 24.94 s, with byte-identical DEF/LEF and identical timing, area and HPWL. Those use an earlier compiler and different inputs; they are separate from this corpus run."
+    },
+    {
+      "label": "Poisson kernel perf stat and numerical comparison",
+      "path": "/home/renau/projs/lhdsuite/placement-runs/asap7-20261020-prects/profiles/poisson/results.json",
+      "description": "Three interleaved kernel measurements show about 3x lower time, with exact square and rectangular output-array equality."
+    },
+    {
+      "label": "Shared FakeRAM four-flow integration check",
+      "path": "/home/renau/projs/lhdtrack/var/sram-integration-20261020/validation.json",
+      "description": "A separate 128x256 explicit SRAM fixture passes LiveHD synthesis/placement and HighTide synthesis/OpenROAD pre-CTS with the same generated Liberty and LEF. The three corpus cases above contain no retained SRAM macros under the measured profiles."
+    },
+    {
+      "label": "Original versus converted SRAM timing units",
+      "path": "/home/renau/projs/lhdtrack/var/sram-integration-20261020/unit-validation.json",
+      "description": "On one placed DEF, original ns/pF and normalized ps/fF models give identical setup/hold WNS/TNS and geometry area. FakeRAM remains an estimated black-box model."
+    }
+  ]
+}

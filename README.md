@@ -1125,3 +1125,62 @@ to `tools/profile_partitions.py` with the same variant and settings. It loads th
 frozen compiler and seeds the cache after the benchmark runner prepares its fresh job.
 The original cache remains intact. Warm timings are explicitly labelled, and per-region
 `cache` fields show actual hits; they are separate from cold synthesis comparisons.
+
+## ASAP7 synthesis and pre-CTS placement
+
+`make placement` runs a small, serial corpus comparison and writes
+`target/results-placement-llmhdl.html`. `make placement-report` regenerates it from
+`data/ledger-<host>.jsonl`; `make report` includes it too. Start with
+`make placement RUN_ARGS="--test br_counter --test br_fifo_flops --test br_amba_axi_demux"`.
+The columns are the existing Verilog ABC / compile SAT disabled synthesis profile,
+explicit aegraph synthesis, default LiveHD synthesis plus placement, HighTide/Yosys
+synthesis, and OpenROAD placement through pre-CTS. No CTS or routing is launched.
+
+The provisional `target/results-placement-llhdl.html` is a self-contained offline
+snapshot, also saved under the original `results-placement-llmhdl.html` spelling.
+It embeds raw metrics, perf counters, commands, timing paths and validation evidence,
+plus downloadable DEF/LEF ZIPs. After `make placement-report`, regenerate a portable
+copy with `PYTHONPATH=src python3 -m lhdtrack.report.portable INPUT.html OUTPUT.html`.
+
+Stage an optimized, frozen HighTide tool manifest first. The manifest can be created
+with HighTide's `tools/vslivehd/freeze_tools.py`. Register it using
+`tools/stage_placement.py --tools PATH/tools.json --perf /usr/bin/perf
+--time /usr/bin/time --git /usr/bin/git`, then run `tools/stage_lhd.py` after building
+LiveHD with `-c opt`. Every runtime executable comes from the resulting
+`var/toolchain/toolchain.json`; measurement does not search PATH. The runner snapshots
+the registry, corpus inputs, SDC, flow helpers and tool hashes before measuring.
+
+The report includes common OpenSTA setup/hold timing, area, cell counts, wall time,
+child-inclusive CPU, largest-process RSS, sampled process-group RSS and `perf stat`.
+Netlist and requested DEF/LEF exports are inside the measured command. Independent
+OpenSTA preparation and scoring are outside it. Scoring preparation elaborates wiring
+and hierarchy without optimization, pruning or remapping. Empty RTL modules are
+elaborated as empty modules; physical-only tap/filler cells stay in DEF/ODB and are
+excluded from functional Verilog exports, following ORFS's own LEC export convention.
+Failed attempts remain in the ledger. Each fresh invocation gets a new run identifier.
+
+`tools/profile_placement.py --run RUN --test TEST --out var/PROFILE` replays the frozen
+default synthesis and placement commands in fresh workdirs under `perf record` plus
+`perf stat`. It retains DWARF call graphs and a flat symbol summary. Sampling overhead
+is diagnostic and does not replace the table's original serial measurements.
+
+OpenROAD placement starts at its retained synthesized netlist. Add its synthesis
+column to compare RTL-to-placement costs. HighTide uses 8 threads, 50% core utilization
+and 0.60 density; LiveHD retains its compiler and physical defaults. These are whole-flow
+comparisons. The small run has no headline geomean or claim of language equivalence.
+
+For explicit SRAM instances, add `tests/<name>/placement/srams.json` with HighTide's
+`srams` array (name, width, depth, banks, ports, write_granularity/no_wmask). Initialize
+HighTide's pinned `tools/bsg_fakeram` submodule before staging. The runner generates
+the same SRAM LEFs and Liberty cells for both producers, preserves the generator
+revision, and converts ns/pF timing/energy/capacitance to the ASAP7 ps/fF unit profile
+before merging. It validates upper write-data pin directions against the historical
+FakeRAM LEF bug and uses the actual ASAP7 site-grid snap keys. Views are estimates,
+not characterized SRAMs. Inferred RTL arrays retain the compiler's normal policy;
+the preparation never substitutes a clocked SRAM for an asynchronous read.
+
+`tools/prepare_placement_srams.py --config CONFIG --out var/MODELS` generates the views
+independently. `tools/check_placement_srams.py --out var/SRAM_CHECK` checks one explicit
+128×256 SRAM through both synthesis and pre-CTS flows, and compares original ns/pF
+and converted ps/fF models on the same DEF. Small macro-dominated designs can fail
+ORFS's default 10 µm macro halo/core-fit check; such failures remain explicit.

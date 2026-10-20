@@ -13,7 +13,7 @@ class of error a QoR tracker exists to prevent.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 TOOLCHAIN_REL = Path("var/toolchain/toolchain.json")
@@ -48,6 +48,7 @@ class Toolchain:
     _env: dict[str, dict[str, str]]
     _versions: dict[str, str]
     _tech: dict[str, Tech]
+    physical: dict = field(default_factory=dict)
 
     @classmethod
     def load(cls, root: Path) -> Toolchain:
@@ -65,6 +66,7 @@ class Toolchain:
                 for name, values in doc.get("env", {}).items()
             },
             _versions=dict(doc.get("versions", {})),
+            physical=dict(doc.get("physical", {})),
             _tech={
                 name: Tech(
                     name,
@@ -97,7 +99,7 @@ class Toolchain:
         path.parent.mkdir(parents=True, exist_ok=True)
         doc = {"schema_version": 1, "host_class": self.host_class,
                "generated": self.generated, "bin": {k: str(v) for k, v in self._bin.items()},
-               "env": self._env, "versions": self.versions,
+               "env": self._env, "versions": self.versions, "physical": self.physical,
                "tech": {name: {"liberty": [str(p) for p in tech.liberty],
                                "sha256": tech.sha256, "time_unit": tech.time_unit}
                         for name, tech in self._tech.items()}}

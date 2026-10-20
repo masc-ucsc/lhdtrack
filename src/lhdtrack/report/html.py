@@ -149,6 +149,12 @@ def write_results(root: Path, cfg: dict | None = None, host: str | None = None) 
     from .external_abc_sn import write_external_diagnostics
 
     outputs.extend(write_external_diagnostics(root, host))
+    if any(row.get("placement_run") for row in Ledger(root).load(host)):
+        from .prects import render as render_prects
+
+        placement = root / TARGET_DIR / f"results-placement-{slug(host).lower()}.html"
+        render_prects(root, placement, host=host)
+        outputs.append(placement)
     evaluation = root / DATA_DIR / f"verilog-eval-{slug(host)}.json"
     if evaluation.exists():
         auxiliary = json.loads(evaluation.read_text()).get("auxiliary_report")
