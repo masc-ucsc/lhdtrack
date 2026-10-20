@@ -1132,15 +1132,20 @@ The original cache remains intact. Warm timings are explicitly labelled, and per
 `target/results-placement-llmhdl.html`. `make placement-report` regenerates it from
 `data/ledger-<host>.jsonl`; `make report` includes it too. Start with
 `make placement RUN_ARGS="--test br_counter --test br_fifo_flops --test br_amba_axi_demux"`.
-The columns are the existing Verilog ABC / compile SAT disabled synthesis profile,
-explicit aegraph synthesis, default LiveHD synthesis plus placement, HighTide/Yosys
-synthesis, and OpenROAD placement through pre-CTS. No CTS or routing is launched.
+The four flow groups are aegraph ABC synthesis (compile SAT disabled), aegraph
+LiveHD synthesis plus placement with `synth.place.fp=false` for these small designs,
+HighTide/Yosys synthesis, and OpenROAD placement through pre-CTS. No CTS or routing
+is launched. Each metric has a separate sortable column using the synthesis report's
+shared style. Baseline-versus-aegraph comparisons remain in synthesis/simulation reports.
 
 The provisional `target/results-placement-llhdl.html` is a self-contained offline
 snapshot, also saved under the original `results-placement-llmhdl.html` spelling.
-It embeds raw metrics, perf counters, commands, timing paths and validation evidence,
-plus downloadable DEF/LEF ZIPs. After `make placement-report`, regenerate a portable
-copy with `PYTHONPATH=src python3 -m lhdtrack.report.portable INPUT.html OUTPUT.html`.
+The only artifact links are post-placement PNGs. Measurements, perf counters and
+DEF/LEF files stay in the ledger and retained work tree. After the run, use
+`PYTHONPATH=src python3 tools/render_placement.py --run RUN` to draw cell footprints
+from saved DEF/LEF (requires matplotlib; does not rerun placement). Then run
+`make placement-report` and regenerate the portable copy with
+`PYTHONPATH=src python3 -m lhdtrack.report.portable INPUT.html OUTPUT.html`.
 
 Stage an optimized, frozen HighTide tool manifest first. The manifest can be created
 with HighTide's `tools/vslivehd/freeze_tools.py`. Register it using

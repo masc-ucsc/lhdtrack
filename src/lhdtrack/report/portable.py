@@ -23,6 +23,9 @@ def make_portable(source: Path, output: Path) -> None:
         path = (source.parent / href).resolve()
         if not path.is_file():
             raise FileNotFoundError(f"report artifact missing: {path}")
+        if path.suffix.lower() == '.png':
+            data = base64.b64encode(path.read_bytes()).decode()
+            return f'<a href="data:image/png;base64,{data}">{label}</a>'
         if path.name == 'lefs.json':
             # Keep every view next to DEF under its original relative path.
             buffer = BytesIO()
@@ -55,12 +58,12 @@ def make_portable(source: Path, output: Path) -> None:
         return f'<a href="#{anchor}">{label}</a>'
 
     text = re.sub(r'<a href="([^"]+)">(.*?)</a>', replace, text)
-    note = ('<p><strong>Provisional offline snapshot.</strong> Measurements, perf counters, '
-            'commands, timing reports and validation evidence are embedded below. '
-            'DEF/LEF bundle links download embedded ZIPs; no local var/ tree is required. '
-            'The values remain the original serial measurements.</p>')
+    note = ('<p class="sub"><strong>Provisional offline snapshot.</strong> '
+            'Post-placement PNGs are embedded; no local files are required. '
+            'Values come from the retained serial measurements.</p>')
     text = text.replace('</h1>', '</h1>' + note, 1)
-    text = text.replace('</html>', '<style>pre{white-space:pre-wrap;overflow-wrap:anywhere;'
+    if appendix:
+        text = text.replace('</html>', '<style>pre{white-space:pre-wrap;overflow-wrap:anywhere;'
                         'font:12px ui-monospace,monospace}</style>'
                         '<h2>Embedded review artifacts</h2>' + '\n'.join(appendix) + '</html>')
     output.parent.mkdir(parents=True, exist_ok=True)

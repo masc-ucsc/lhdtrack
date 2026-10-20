@@ -34,6 +34,22 @@ class PortableReport(unittest.TestCase):
                     self.assertIn(lef, archive.namelist())
                 self.assertIn('out.def', archive.namelist())
 
+    def test_png_link_embeds_binary_without_text_appendix(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            png = base64.b64decode(
+                'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a3io'
+                'AAAAASUVORK5CYII=')
+            (root / 'post-place.png').write_bytes(png)
+            page, output = root / 'page.html', root / 'offline.html'
+            page.write_text('<html><h1>Test</h1><a href="post-place.png">PNG</a></html>')
+            make_portable(page, output)
+            text = output.read_text()
+            payload = re.search(r'data:image/png;base64,([^"]+)', text)[1]
+            self.assertEqual(base64.b64decode(payload), png)
+            self.assertNotIn('Embedded review artifacts', text)
+            self.assertNotIn('href="post-place.png"', text)
+
     def test_missing_artifact_cannot_silently_create_an_offline_snapshot(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)

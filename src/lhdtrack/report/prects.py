@@ -8,11 +8,11 @@ import os
 from pathlib import Path
 
 from lhdtrack.ledger import Ledger
+from .html import CSS, SORT_CSS, SORT_JS
 
 FLOWS = (
-    ("syn_lhd_verilog_prects_baseline", "LiveHD ABC synthesis · baseline profile"),
     ("syn_lhd_verilog_prects_aegraph", "LiveHD ABC synthesis · aegraph"),
-    ("place_lhd_verilog", "LiveHD synthesis + placement · default engine"),
+    ("place_lhd_verilog_aegraph", "LiveHD synthesis + placement · aegraph"),
     ("syn_hightide", "HighTide / Yosys synthesis"),
     ("place_openroad_prects", "HighTide / OpenROAD placement · pre-CTS"),
 )
@@ -41,22 +41,19 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
     out = ['<!doctype html><html lang="en"><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width,initial-scale=1">',
            '<title>ASAP7 synthesis and pre-CTS placement · llmHDL</title>',
-           '<style>body{font:15px system-ui;margin:2rem;color:#172536;background:#f9fafc}'
-           'h1{font-size:1.7rem}table{border-collapse:collapse;background:white}th,td{border:1px solid '
-           '#ccd3df;padding:.7rem;text-align:left;vertical-align:top}th{background:#e9eff7}'
-           'small{color:#526171}.scroll{overflow:auto}'
-           '.failed{color:#a21a21}.skipped{color:#936000}'
-           'a{color:#12529d}code{overflow-wrap:anywhere}details{margin:1rem 0}</style>',
+           f'<style>{CSS}{SORT_CSS}.failed{{color:var(--bad)}}'
+           '.skipped{color:var(--warn)}</style>',
+           '<body><div class="wrap">',
            '<h1>ASAP7 synthesis and pre-CTS placement</h1>',
            f'<p>lhdtrack corpus · host {esc(host or (rows[0]["host"] if rows else "unknown"))}'
            f' · run <code>{esc(run or "unmeasured")}</code> · RVT / TT NLDM.</p>',
            '<p>Every column reads the same frozen Verilog, merged Liberty and corpus SDC. '
-           'The LiveHD baseline follows the ABC / compile SAT disabled profile in '
+           'LiveHD follows the ABC / compile SAT disabled profile in '
            'results-syn-satsuma.html: default coloring and arithmetic selection, SDC-derived '
            'mapping delay, native memory preservation. These are fresh measurements on this host; '
-           'no timing or memory numbers are imported from satsuma. Aegraph is an explicit experiment. '
-           'The placement column keeps LiveHD’s default folding engine '
-           'and physical options.</p>',
+           'no timing or memory numbers are imported from satsuma. Both LiveHD columns use '
+           'aegraph folding; placement sets <code>synth.place.fp=false</code> for these small designs. Baseline-versus-aegraph comparisons '
+           'remain in the synthesis/simulation reports.</p>',
            '<p>Netlist and requested DEF/LEF exports are included in wall time, CPU and memory. '
            'LiveHD internal timing is included in its invocation; the older synthesis report '
            'uses compiler stage times. Area here uses common LEF instance geometry. '
@@ -67,16 +64,31 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            '<p>CPU includes waited-for descendants. RSS is the largest individual process peak; '
            'tree RSS is a 100 ms sampled process-group sum and can double-count shared pages. '
            'Measurements are serial and cold. These few cases have no headline geomean.</p>',
-           '<div class="scroll"><table><thead><tr><th>Test / configuration</th>']
-    out.extend(f'<th>{esc(title)}</th>' for _, title in FLOWS)
+           '<p class="muted">Click a metric header to sort ascending, descending, then restore '
+           'the original order. Missing values sort last.</p>',
+           '<div class="scroll"><table><thead><tr>'
+           '<th rowspan="2" class="l">Test / configuration</th>']
+    metrics = (("Wall s", "command_wall_s", 2), ("CPU s", "cpu_s", 2),
+               ("Peak RSS MiB", "max_process_rss_kb", 1),
+               ("Tree RSS MiB", "tree_peak_rss_kb", 1),
+               ("Cells", "logical_cells", 0), ("Macros", "macros", 0),
+               ("Area µm²", "instance_area_um2", 2),
+               ("Setup WNS ps", "setup_wns_ps", 2), ("Setup TNS ps", "setup_tns_ps", 2),
+               ("Hold WNS ps", "hold_wns_ps", 2))
+    width = len(metrics) + 1
+    out.extend(f'<th class="g" colspan="{width}">{esc(title)}</th>' for _, title in FLOWS)
+    out.append('</tr><tr>')
+    for _ in FLOWS:
+        out.append('<th class="g">Status</th>')
+        out.extend(f'<th>{label}</th>' for label, _, _ in metrics)
     out.append('</tr></thead><tbody>')
     for test, config in sorted({(r["test"], r["config"]) for r in rows}):
-        out.append(f'<tr><th>{esc(test)}<br><small>{esc(config)}</small></th>')
+        out.append(f'<tr><td class="l">{esc(test)}<br><small class="muted">{esc(config)}</small></td>')
         inputs = set()
         for flow, _ in FLOWS:
             row = current.get((test, config, flow))
             if row is None:
-                out.append('<td>—</td>')
+                out.append(f'<td colspan="{width}">—</td>')
                 continue
             data = row.get("qor", {}).get("placement_comparison", {})
             work = Path(row["placement_work"])
@@ -88,40 +100,17 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
             if data:
                 inputs.add((data["sdc_sha256"], json.dumps(data["source_sha256"], sort_keys=True)))
             status = row["status"]
-            rss = measurement.get("max_process_rss_kb")
-            tree = measurement.get("tree_peak_rss_kb")
-            cells = score.get("logical_cells")
-            cell = [f'<td class="{esc(status)}"><b>{esc(status)}</b>',
-                    f'Wall {number(measurement.get("command_wall_s"))} s',
-                    f'CPU {number(measurement.get("cpu_s"))} s',
-                    f'Peak RSS {number(rss / 1024 if rss is not None else None, 1)} MiB',
-                    f'Tree RSS {number(tree / 1024 if tree is not None else None, 1)} MiB',
-                    f'Cells {number(cells, 0)}',
-                    f'Macros {number(score.get("macros"), 0)}',
-                    f'Area {number(score.get("instance_area_um2"))} µm²',
-                    f'OpenSTA WNS {number(score.get("setup_wns_ps"))} ps',
-                    f'OpenSTA TNS {number(score.get("setup_tns_ps"))} ps',
-                    f'Hold WNS {number(score.get("hold_wns_ps"))} ps']
-            counters = measurement.get("perf", {})
-            cycles = counters.get("cycles", {}).get("value")
-            instructions = counters.get("instructions", {}).get("value")
-            if cycles and instructions:
-                cell.append(f'IPC {instructions / cycles:.2f} · cycles {cycles / 1e6:.1f} M')
-            if row.get("note"):
-                cell.append(esc(row["note"]))
-            if resource.exists():
-                cell.append(link(resource, "resources") + ' · '
-                            + link(work / "measurement/perf.csv", "perf stat") + ' · '
-                            + link(work / "measurement/run.log", "log"))
-            physical = work / "physical"
-            if (physical / "out.def").exists():
-                cell.append(link(physical / "out.def", "DEF") + ' · '
-                            + link(physical / "lefs.json", "LEFs"))
-            if (work / "score/setup_paths.rpt").exists():
-                cell.append(link(work / "score/setup_paths.rpt", "OpenSTA paths") + ' · '
-                            + link(work / "score/score.json", "QoR"))
-            cell.append(link(work / "row.json", "ledger row"))
-            out.append('<br>'.join(cell) + '</td>')
+            note = f' title="{esc(row["note"], quote=True)}"' if row.get("note") else ""
+            status_cell = f'<td class="g {esc(status)}"{note}>{esc(status)}'
+            image = work / "physical/post-place.png"
+            if flow.startswith("place_") and image.is_file():
+                status_cell += ' · ' + link(image, "PNG")
+            out.append(status_cell + '</td>')
+            for _, key, digits in metrics:
+                value = measurement.get(key) if key in measurement else score.get(key)
+                if key.endswith("rss_kb") and value is not None:
+                    value /= 1024
+                out.append(f'<td>{number(value, digits)}</td>')
         if len(inputs) > 1:
             raise ValueError(f"{test}/{config}: source bytes or SDC differ between columns")
         out.append('</tr>')
@@ -129,7 +118,7 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
     out.append('<p>OpenROAD’s placement column starts from its retained synthesized netlist: '
                'add its synthesis column for RTL-to-placement wall/CPU. LiveHD placement includes '
                'synthesis. HighTide uses 8 threads, 50% core utilization and 0.60 target density; '
-               'LiveHD keeps compiler defaults, including its floorplan/density choices. '
+               'LiveHD disables floorplan planning and otherwise keeps compiler defaults, including density. '
                'These settings make this a whole-flow comparison '
                'rather than an isolated placer test.</p>')
     out.append('<details><summary>Compiler and physical stage times</summary><table>'
@@ -143,21 +132,7 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                    f'<td>{esc(text)}</td></tr>')
     out.append('</table><p>LiveHD timing callbacks are nested in placement; '
                'overlapping compiler phase times must not be summed.</p></details>')
-    if rows:
-        spec = root / 'data' / f'placement-eval-{rows[0]["host"]}.json'
-        if spec.exists():
-            evidence = json.loads(spec.read_text())
-            if evidence.get('run_id') == run:
-                out.append('<details open><summary>Profiling and technology validation</summary>')
-                for item in evidence.get('evidence', []):
-                    out.append('<p>' + esc(item['description']) + ' '
-                               + link(Path(item['path']), item['label']) + '</p>')
-                out.append('</details>')
-    if rows:
-        identity = Path(rows[0]["placement_identity"])
-        out.append('<p>' + link(identity, "Frozen tools, inputs and harness identity") + ' · '
-                   + link(Ledger(root).path_for(rows[0]["host"]), "Append-only ledger") + '</p>')
-    out.append('</html>')
+    out.append(f'</div><script>{SORT_JS}</script></body></html>')
     output.parent.mkdir(parents=True, exist_ok=True)
     temporary = output.with_suffix('.html.tmp')
     temporary.write_text('\n'.join(out) + '\n')

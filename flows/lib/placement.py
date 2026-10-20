@@ -128,7 +128,8 @@ def finish(ctx: FlowContext, raw: Path, measurement: dict, *,
     return {"netlist": netlist, **result}
 
 
-def run_native(ctx: FlowContext, *, place: bool = False, aegraph: bool = False) -> dict:
+def run_native(ctx: FlowContext, *, place: bool = False, aegraph: bool = False,
+               fp_plan: bool | None = None) -> dict:
     cfg = settings(ctx)
     command = [ctx.tool("lhd"), "synth", "--reader", "slang", "--top", ctx.top,
                "--workdir", "W", "--stats", "--result-json", "result.json",
@@ -139,6 +140,8 @@ def run_native(ctx: FlowContext, *, place: bool = False, aegraph: bool = False) 
                *mapping_settings(ctx.tech.name, "abc", ctx.abc_delay_ps())]
     if aegraph:
         command += ["--set", "compile.cprop.engine=aegraph"]
+    if place and fp_plan is not None:
+        command += ["--set", f"synth.place.fp={str(fp_plan).lower()}"]
     if place:
         command += ["--set", "synth.place=true", "--set", "synth.lef=" + ",".join(cfg["lefs"]),
                     "--set", "synth.place.tech_rc=" + cfg["tech_rc"],
@@ -149,6 +152,8 @@ def run_native(ctx: FlowContext, *, place: bool = False, aegraph: bool = False) 
     result = finish(ctx, ctx.work / "netlist.v", measurement,
                     physical_input=ctx.work / "physical/out.def" if place else None, place=place)
     result["qor"]["placement_comparison"]["engine"] = "aegraph" if aegraph else "classic (default)"
+    if place and fp_plan is not None:
+        result["qor"]["placement_comparison"]["fp_plan"] = fp_plan
     result["qor"]["placement_comparison"]["synth_policy"] = {
         "mapper": "abc", "pass.satopt": False,
         "mapping_delay_ps": ctx.abc_delay_ps(), "base": "compiler defaults"}
