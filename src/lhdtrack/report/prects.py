@@ -60,6 +60,7 @@ def native_breakdown(data: dict) -> dict:
         "region_work": io.get("seconds"),
         "restarts": io.get("restarts"), "overflow": stats.get("gp_overflow"),
         "converged": stats.get("gp_converged"),
+        "cells": data.get("score", {}).get("logical_cells"),
         "wns": data.get("score", {}).get("setup_wns_ps"),
         "tns": data.get("score", {}).get("setup_tns_ps"),
     }
@@ -87,6 +88,62 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
             return "yes" if value else "no"
         return "—" if value is None else f"{value:,.{digits}f}"
 
+    # The recipes remain five independent measurements. Pair the two LiveHD
+    # placement invocations within each metric for direct cold/repeat comparison.
+    cold_flow = "place_lhd_verilog_aegraph"
+    modes = (cold_flow, INCREMENTAL_FLOW)
+    groups = tuple((title, modes if flow == cold_flow else (flow,))
+                   for flow, title in FLOWS if flow != INCREMENTAL_FLOW)
+
+    def table_header(groups, labels) -> str:
+        parts = ['<div class="scroll"><table><thead><tr>'
+                 '<th rowspan="3" class="l">Test / configuration</th>']
+        for title, flows in groups:
+            parts.append(f'<th class="g" colspan="{len(labels) * len(flows)}">'
+                         f'{esc(title)}</th>')
+        parts.append('</tr><tr>')
+        for _, flows in groups:
+            for index, label in enumerate(labels):
+                border = ' class="g"' if index == 0 else ''
+                span = 'colspan="2"' if len(flows) == 2 else 'rowspan="2"'
+                parts.append(f'<th{border} {span}>{esc(label)}</th>')
+        parts.append('</tr><tr>')
+        for _, flows in groups:
+            if len(flows) == 2:
+                for index, label in enumerate(labels):
+                    for mode in ("Cold", "Incr"):
+                        border = ' class="g"' if index == 0 and mode == "Cold" else ''
+                        parts.append(f'<th{border} aria-label="{esc(label)} · {mode}">'
+                                     f'{mode}</th>')
+        parts.append('</tr></thead><tbody>')
+        return ''.join(parts)
+
+    def table_row(test, config, groups, labels, values, statuses) -> str:
+        parts = [f'<tr><td class="l">{esc(test)}<br>'
+                 f'<small class="muted">{esc(config)}</small></td>']
+        for _, flows in groups:
+            if not any(flow in values for flow in flows):
+                parts.append(f'<td colspan="{len(labels) * len(flows)}">—</td>')
+                continue
+            for index in range(len(labels)):
+                for mode_index, flow in enumerate(flows):
+                    classes = ['g'] if index == 0 and mode_index == 0 else []
+                    if index == 0 and flow in statuses:
+                        classes.append(statuses[flow])
+                    attr = f' class="{esc(" ".join(classes))}"' if classes else ''
+                    value = values[flow][index] if flow in values else '—'
+                    parts.append(f'<td{attr}>{value}</td>')
+        parts.append('</tr>')
+        return ''.join(parts)
+
+    def status_value(row) -> str:
+        note = f' title="{esc(row["note"], quote=True)}"' if row.get("note") else ''
+        value = f'<span{note}>{esc(row["status"])}</span>'
+        image = Path(row["placement_work"]) / "physical/post-place.png"
+        if row["flow"].startswith("place_") and image.is_file():
+            value += ' · ' + link(image, "PNG")
+        return value
+
     out = ['<!doctype html><html lang="en"><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width,initial-scale=1">',
            '<title>ASAP7 synthesis and pre-CTS placement · llmHDL</title>',
@@ -102,7 +159,7 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            'LiveHD follows the ABC / compile SAT disabled profile in '
            'results-syn-satsuma.html: default coloring and arithmetic selection, SDC-derived '
            'mapping delay, native memory preservation. These are fresh measurements on this host; '
-           'no timing or memory numbers are imported from satsuma. Both LiveHD columns use '
+           'no timing or memory numbers are imported from satsuma. All LiveHD invocations use '
            'aegraph folding; placement sets <code>synth.place.fp=false</code> for these small '
            'designs. Baseline-versus-aegraph comparisons '
            'remain in the synthesis/simulation reports.</p>',
@@ -116,32 +173,24 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            '<p>CPU includes waited-for descendants. Peak memory is the largest individual '
            'process peak RSS. Measurements are serial. The incremental column reuses its cold '
            'placement workdir; the other columns start fresh. '
+           'Each LiveHD placement metric pairs Cold | Incr values side by side. '
            'These few cases have no headline geomean.</p>',
            '<p class="muted">Click a metric header to sort ascending, descending, then restore '
-           'the original order. Missing values sort last.</p>',
-           '<div class="scroll"><table><thead><tr>'
-           '<th rowspan="2" class="l">Test / configuration</th>']
+           'the original order. Missing values sort last.</p>']
     metrics = (("Wall s", "command_wall_s", 2), ("CPU s", "cpu_s", 2),
                ("Peak mem MiB", "max_process_rss_kb", 1),
                ("Cells", "logical_cells", 0), ("Macros", "macros", 0),
                ("Area µm²", "instance_area_um2", 2),
                ("Setup WNS ps", "setup_wns_ps", 2), ("Setup TNS ps", "setup_tns_ps", 2),
                ("Hold WNS ps", "hold_wns_ps", 2))
-    width = len(metrics) + 1
-    out.extend(f'<th class="g" colspan="{width}">{esc(title)}</th>' for _, title in FLOWS)
-    out.append('</tr><tr>')
-    for _ in FLOWS:
-        out.append('<th class="g">Status</th>')
-        out.extend(f'<th>{label}</th>' for label, _, _ in metrics)
-    out.append('</tr></thead><tbody>')
+    labels = ("Status", *(label for label, _, _ in metrics))
+    out.append(table_header(groups, labels))
     for test, config in sorted({(r["test"], r["config"]) for r in rows}):
-        out.append(f'<tr><td class="l">{esc(test)}<br>'
-                   f'<small class="muted">{esc(config)}</small></td>')
+        values, statuses = {}, {}
         inputs = set()
         for flow, _ in FLOWS:
             row = current.get((test, config, flow))
             if row is None:
-                out.append(f'<td colspan="{width}">—</td>')
                 continue
             data = row.get("qor", {}).get("placement_comparison", {})
             work = Path(row["placement_work"])
@@ -152,21 +201,16 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
             score = data.get("score", {})
             if data:
                 inputs.add((data["sdc_sha256"], json.dumps(data["source_sha256"], sort_keys=True)))
-            status = row["status"]
-            note = f' title="{esc(row["note"], quote=True)}"' if row.get("note") else ""
-            status_cell = f'<td class="g {esc(status)}"{note}>{esc(status)}'
-            image = work / "physical/post-place.png"
-            if flow.startswith("place_") and image.is_file():
-                status_cell += ' · ' + link(image, "PNG")
-            out.append(status_cell + '</td>')
+            statuses[flow] = row["status"]
+            values[flow] = [status_value(row)]
             for _, key, digits in metrics:
                 value = measurement.get(key) if key in measurement else score.get(key)
                 if key.endswith("rss_kb") and value is not None:
                     value /= 1024
-                out.append(f'<td>{number(value, digits)}</td>')
+                values[flow].append(number(value, digits))
         if len(inputs) > 1:
             raise ValueError(f"{test}/{config}: source bytes or SDC differ between columns")
-        out.append('</tr>')
+        out.append(table_row(test, config, groups, labels, values, statuses))
     out.append('</tbody></table></div>')
     out.append('<p>OpenROAD’s placement column starts from its retained synthesized netlist: '
                'add its synthesis column for RTL-to-placement wall/CPU. LiveHD placement includes '
@@ -191,11 +235,9 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                    'Region work is the reported per-color ABC check/remap/CEC time within those '
                    'callbacks. These inclusive times must not be summed. Fired counts include '
                    'final feedback that can request another run; accepted and restarts record '
-                   'work applied here.</p>'
-                   '<div class="scroll"><table><thead><tr>'
-                   '<th class="l">Test / configuration</th><th>Invocation</th><th>Status</th>')
+                   'work applied here.</p>')
         breakdown_metrics = (("Wall s", "wall", 2), ("Speedup", "speedup", 2),
-            ("CPU s", "cpu", 2), ("Peak mem MiB", "rss", 1),
+            ("CPU s", "cpu", 2), ("Peak mem MiB", "rss", 1), ("Cells", "cells", 0),
             ("Synthesis s", "synthesis", 3), ("ABC s", "abc", 3),
             ("Resynth pre s", "resynth_pre", 3), ("Resynth stage s", "resynth_stage", 3),
             ("Region work s", "region_work", 3),
@@ -207,25 +249,27 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
             ("Restarts", "restarts", 0), ("GP converged", "converged", 0),
             ("GP overflow", "overflow", 3), ("Setup WNS ps", "wns", 2),
             ("Setup TNS ps", "tns", 2))
-        out.extend(f'<th>{label}</th>' for label, _, _ in breakdown_metrics)
-        out.append('</tr></thead><tbody>')
-        for (test, config, flow), row in native_rows:
-            data = row.get("qor", {}).get("placement_comparison", {})
-            values = native_breakdown(data)
-            cold = current.get((test, config, "place_lhd_verilog_aegraph"), {})
+        breakdown_labels = ("Status", *(label for label, _, _ in breakdown_metrics))
+        native_groups = (("LiveHD placement · aegraph", modes),)
+        out.append(table_header(native_groups, breakdown_labels))
+        for test, config in sorted({key[:2] for key, _ in native_rows}):
+            values, statuses = {}, {}
+            cold = current.get((test, config, cold_flow), {})
             cold_wall = cold.get("qor", {}).get("placement_comparison", {}).get(
                 "measurement", {}).get("command_wall_s")
-            values["speedup"] = cold_wall / values["wall"] if cold_wall and values["wall"] else None
-            mode = "incremental" if flow == INCREMENTAL_FLOW else "cold"
-            image = Path(row["placement_work"]) / "physical/post-place.png"
-            status = esc(row["status"])
-            if image.is_file():
-                status += ' · ' + link(image, "PNG")
-            out.append(f'<tr><td class="l">{esc(test + "/" + config)}</td>'
-                       f'<td>{mode}</td><td>{status}</td>')
-            out.extend(f'<td>{number(values.get(key), digits)}</td>'
-                       for _, key, digits in breakdown_metrics)
-            out.append('</tr>')
+            for flow in modes:
+                row = current.get((test, config, flow))
+                if row is None:
+                    continue
+                data = row.get("qor", {}).get("placement_comparison", {})
+                measured = native_breakdown(data)
+                measured["speedup"] = (cold_wall / measured["wall"]
+                                       if cold_wall and measured["wall"] else None)
+                statuses[flow] = row["status"]
+                values[flow] = [status_value(row)]
+                values[flow].extend(number(measured.get(key), digits)
+                                    for _, key, digits in breakdown_metrics)
+            out.append(table_row(test, config, native_groups, breakdown_labels, values, statuses))
         out.append('</tbody></table></div>')
     out.append('<details><summary>Compiler and physical stage times</summary>'
                '<table class="stage-times">'

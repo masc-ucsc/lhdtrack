@@ -1132,7 +1132,7 @@ The original cache remains intact. Warm timings are explicitly labelled, and per
 `target/results-placement-llmhdl.html`. `make placement-report` regenerates it from
 `data/ledger-<host>.jsonl`; `make report` includes it too. Start with
 `make placement RUN_ARGS="--test br_counter --test br_fifo_flops --test br_amba_axi_demux"`.
-The five flow groups put aegraph ABC synthesis (compile SAT disabled) and
+The five flows put aegraph ABC synthesis (compile SAT disabled) and
 HighTide/Yosys synthesis on the left, followed by cold aegraph LiveHD placement,
 incremental aegraph LiveHD placement, and OpenROAD placement through pre-CTS.
 LiveHD uses `synth.place.fp=false` for these small designs. No CTS or routing
@@ -1140,8 +1140,10 @@ is launched. LiveHD placement is repeated once with unchanged inputs and the sam
 `--workdir` to measure incremental reuse and saved placement IO feedback. The report
 shows synthesis, ABC, pre-placement and in-stage resynthesis times separately,
 including cache hits, resynthesis decisions and wall speedup. OpenROAD is not repeated.
-Each metric has a separate sortable column using the synthesis report's
-shared style. Baseline-versus-aegraph comparisons remain in synthesis/simulation reports.
+LiveHD placement metrics, including cells, use adjacent Cold | Incr subcolumns
+in both the main comparison and resynthesis breakdown. Each value remains sortable
+using the synthesis report's shared style. Baseline-versus-aegraph comparisons remain
+in synthesis/simulation reports.
 
 The provisional `target/results-placement-llhdl.html` is a self-contained offline
 snapshot, also saved under the original `results-placement-llmhdl.html` spelling.
