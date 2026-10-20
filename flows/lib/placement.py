@@ -110,29 +110,49 @@ def finish(ctx: FlowContext, raw: Path, measurement: dict, *,
         if doc.get("status") not in {"ok", "success", "pass"}:
             raise FlowError(f"LiveHD result reports {doc.get('status')}")
         phases = doc.get("phases", [])
+    else:
+        doc = {}
     phase_file = ctx.work / "physical-phases.json"
     if phase_file.exists():
         phases = json.loads(phase_file.read_text())
     files = [p for p in (ctx.work / "physical").rglob("*") if p.is_file()]
     result["qor"]["placement_comparison"] = {
         "artifacts": str(ctx.work), "measurement": measurement, "score": common,
-        "phases": phases, "stage": "place" if place else "synth",
+        "phases": phases, "incremental": doc.get("incremental", {}),
+        "stage": "place" if place else "synth",
         "netlist_sha256": sha(netlist), "sdc_sha256": sha(ctx.sdc),
         "physical_sha256": {str(p.relative_to(ctx.work)): sha(p) for p in files},
         "source_sha256": {str(p.relative_to(ctx.test.root)): sha(p)
                           for p in ctx.test.source_files() if p.is_file()},
         "timing_model": "placement RC / ideal clocks" if place else "zero-wire / ideal clocks",
     }
+    placement_stats = ctx.work / "reports/placement.json"
+    if placement_stats.is_file():
+        placement = json.loads(placement_stats.read_text())
+        result["qor"]["placement_comparison"]["placement_stats"] = {
+            key: placement[key] for key in ("gp_converged", "gp_overflow", "hpwl_um",
+                "initial_hpwl_um", "incremental", "io_resynth", "iterations") if key in placement}
+    io_report = ctx.work / "io_resynth.json"
+    # The workdir can be shared by the repeat run; snapshot feedback into its
+    # own artifacts before the following invocation mutates the reusable state.
+    state = Path(next((measurement["argv"][i + 1] for i, value in
+                      enumerate(measurement["argv"]) if value == "--workdir"), "W"))
+    io_source = state / "synth/place/io_resynth.json"
+    if not io_source.is_absolute():
+        io_source = ctx.work / io_source
+    if io_source.is_file():
+        shutil.copy2(io_source, io_report)
+        result["qor"]["placement_comparison"]["io_resynth"] = json.loads(io_report.read_text())
     result["qor"]["netlist_sha256"] = sha(netlist)
     result["sta"].update(common_opensta=common, time_unit="ps")
     return {"netlist": netlist, **result}
 
 
 def run_native(ctx: FlowContext, *, place: bool = False, aegraph: bool = False,
-               fp_plan: bool | None = None) -> dict:
+               fp_plan: bool | None = None, workdir: Path | None = None) -> dict:
     cfg = settings(ctx)
     command = [ctx.tool("lhd"), "synth", "--reader", "slang", "--top", ctx.top,
-               "--workdir", "W", "--stats", "--result-json", "result.json",
+               "--workdir", str(workdir or "W"), "--stats", "--result-json", "result.json",
                "--emit", "verilog:netlist.v", "--emit-dir", "report:reports",
                "--set", f"synth.liberty={ctx.liberty[0]}",
                "--set", f"synth.sdc={ctx.sdc}", "--set", "synth.mapper=abc",

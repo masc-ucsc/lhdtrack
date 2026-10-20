@@ -10,12 +10,53 @@ from pathlib import Path
 from lhdtrack.ledger import Ledger
 from .html import CSS, SORT_CSS, SORT_JS
 
+INCREMENTAL_FLOW = "place_lhd_verilog_aegraph_incremental"
+
 FLOWS = (
     ("syn_lhd_verilog_prects_aegraph", "LiveHD ABC synthesis · aegraph"),
     ("place_lhd_verilog_aegraph", "LiveHD synthesis + placement · aegraph"),
     ("syn_hightide", "HighTide / Yosys synthesis"),
     ("place_openroad_prects", "HighTide / OpenROAD placement · pre-CTS"),
 )
+
+
+RUN_FLOWS = (*FLOWS[:2], (INCREMENTAL_FLOW, "LiveHD aegraph placement · incremental"),
+             *FLOWS[2:])
+
+
+def native_breakdown(data: dict) -> dict:
+    """Keep nested callback times separate from their enclosing physical stages."""
+    phases = data.get("phases", [])
+    values: dict[str, float] = {}
+    synthesis = 0.0
+    physical_started = False
+    for phase in phases:
+        name, seconds = phase.get("name", ""), phase.get("ms", 0) / 1000
+        values[name] = values.get(name, 0) + seconds
+        if name.startswith(("pass.place", "pass.opentimer")):
+            physical_started = True
+        if not physical_started:
+            synthesis += seconds
+    io = data.get("io_resynth", {})
+    abc = data.get("incremental", {}).get("abc", {})
+    stats = data.get("placement_stats", {})
+    measurement = data.get("measurement", {})
+    rss = measurement.get("max_process_rss_kb")
+    return {
+        "wall": measurement.get("command_wall_s"), "cpu": measurement.get("cpu_s"),
+        "rss": rss / 1024 if rss is not None else None,
+        "synthesis": synthesis if phases else None,
+        "abc": values.get("pass.abc"),
+        "resynth_pre": values.get("pass.place.io_resynth.before"),
+        "resynth_stage": values.get("pass.place.io_resynth"),
+        "place": values.get("pass.place"),
+        "timing_place": values.get("pass.place.timing_driven"),
+        "sta": values.get("pass.opentimer"),
+        "hits": abc.get("hits"), "misses": abc.get("misses"),
+        "fired": io.get("fired"), "accepted": io.get("accepted"),
+        "restarts": io.get("restarts"), "overflow": stats.get("gp_overflow"),
+        "wns": data.get("score", {}).get("setup_wns_ps"),
+    }
 
 
 def render(root: Path, output: Path, *, host: str | None = None, run: str | None = None) -> None:
@@ -46,7 +87,8 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            '<body><div class="wrap">',
            '<h1>ASAP7 synthesis and pre-CTS placement</h1>',
            f'<p>lhdtrack corpus · host {esc(host or (rows[0]["host"] if rows else "unknown"))}'
-           f' · run <code>{esc(run or "unmeasured")}</code> · RVT / TT NLDM.</p>',
+           f' · run <code>{esc(run or "unmeasured")}</code> · RVT / TT NLDM.<br>'
+           f'<small>{esc(rows[0]["versions"].get("lhd", "")) if rows else ""}</small></p>',
            '<p>Every column reads the same frozen Verilog, merged Liberty and corpus SDC. '
            'LiveHD follows the ABC / compile SAT disabled profile in '
            'results-syn-satsuma.html: default coloring and arithmetic selection, SDC-derived '
@@ -63,7 +105,7 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            'uses estimated interconnect RC with ideal clocks. No CTS or routing is run.</p>',
            '<p>CPU includes waited-for descendants. RSS is the largest individual process peak; '
            'tree RSS is a 100 ms sampled process-group sum and can double-count shared pages. '
-           'Measurements are serial and cold. These few cases have no headline geomean.</p>',
+           'The main comparison is serial and cold. These few cases have no headline geomean.</p>',
            '<p class="muted">Click a metric header to sort ascending, descending, then restore '
            'the original order. Missing values sort last.</p>',
            '<div class="scroll"><table><thead><tr>'
@@ -121,6 +163,51 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                'LiveHD disables floorplan planning and otherwise keeps compiler defaults, including density. '
                'These settings make this a whole-flow comparison '
                'rather than an isolated placer test.</p>')
+    native_rows = [(key, row) for key, row in sorted(current.items())
+                   if key[2] in ("place_lhd_verilog_aegraph", INCREMENTAL_FLOW)]
+    if native_rows:
+        out.append('<h2>LiveHD resynthesis and incremental repeat</h2>'
+                   '<p>The repeat changes no RTL or options and reuses the cold run’s exact '
+                   '<code>--workdir</code>; exports and independent timing use separate outputs. '
+                   'CPU, memory, perf stat and export accounting are the same as for the cold run. '
+                   'Speedup is cold wall ÷ measured wall. OpenROAD is not repeated. '
+                   'A missing resynthesis value means this compiler did not record that stage.</p>'
+                   '<p>Synthesis covers recorded compiler phases before the first physical/timing '
+                   'stage; ABC is included in synthesis. Resynth pre runs before placement; '
+                   'resynth stage callbacks are nested within Place / TD place. '
+                   'These inclusive times must not be summed. Fired counts include final feedback '
+                   'that can request another run; accepted and restarts record work applied here.</p>'
+                   '<div class="scroll"><table><thead><tr>'
+                   '<th class="l">Test / configuration</th><th>Invocation</th><th>Status</th>')
+        breakdown_metrics = (("Wall s", "wall", 2), ("Speedup", "speedup", 2),
+            ("CPU s", "cpu", 2), ("Peak RSS MiB", "rss", 1),
+            ("Synthesis s", "synthesis", 3), ("ABC s", "abc", 3),
+            ("Resynth pre s", "resynth_pre", 3), ("Resynth stage s", "resynth_stage", 3),
+            ("Place s", "place", 3), ("TD place s", "timing_place", 3),
+            ("Final STA s", "sta", 3), ("ABC hits", "hits", 0), ("ABC misses", "misses", 0),
+            ("Resynth fired", "fired", 0), ("Accepted", "accepted", 0),
+            ("Restarts", "restarts", 0), ("GP overflow", "overflow", 3),
+            ("Setup WNS ps", "wns", 2))
+        out.extend(f'<th>{label}</th>' for label, _, _ in breakdown_metrics)
+        out.append('</tr></thead><tbody>')
+        for (test, config, flow), row in native_rows:
+            data = row.get("qor", {}).get("placement_comparison", {})
+            values = native_breakdown(data)
+            cold = current.get((test, config, "place_lhd_verilog_aegraph"), {})
+            cold_wall = cold.get("qor", {}).get("placement_comparison", {}).get(
+                "measurement", {}).get("command_wall_s")
+            values["speedup"] = cold_wall / values["wall"] if cold_wall and values["wall"] else None
+            mode = "incremental" if flow == INCREMENTAL_FLOW else "cold"
+            image = Path(row["placement_work"]) / "physical/post-place.png"
+            status = esc(row["status"])
+            if image.is_file():
+                status += ' · ' + link(image, "PNG")
+            out.append(f'<tr><td class="l">{esc(test + "/" + config)}</td>'
+                       f'<td>{mode}</td><td>{status}</td>')
+            out.extend(f'<td>{number(values.get(key), digits)}</td>'
+                       for _, key, digits in breakdown_metrics)
+            out.append('</tr>')
+        out.append('</tbody></table></div>')
     out.append('<details><summary>Compiler and physical stage times</summary><table>'
                '<tr><th>Test / flow</th><th>Recorded stages</th></tr>')
     for (test, config, flow), row in sorted(current.items()):

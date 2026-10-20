@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from .prects import render
+from .prects import native_breakdown, render
 
 
 class PreCtsReport(unittest.TestCase):
@@ -57,3 +57,20 @@ class PreCtsReport(unittest.TestCase):
             render(root, output)
             self.assertIn('a-final', output.read_text())
             self.assertNotIn('z-smoke', output.read_text())
+
+    def test_nested_resynthesis_is_not_counted_as_initial_synthesis(self):
+        values = native_breakdown({"phases": [
+            {"name": "compile.cache", "ms": 20}, {"name": "pass.abc", "ms": 80},
+            {"name": "pass.opentimer.incremental", "ms": 50},
+            {"name": "pass.place.io_resynth.before", "ms": 30},
+            {"name": "pass.place.io_resynth", "ms": 400},
+            {"name": "pass.place", "ms": 1000},
+            {"name": "pass.place.timing_driven", "ms": 500}],
+            "incremental": {"abc": {"hits": 5, "misses": 1}},
+            "io_resynth": {"fired": 2, "accepted": 1, "restarts": 1}})
+        self.assertAlmostEqual(values["synthesis"], .1)
+        self.assertAlmostEqual(values["resynth_stage"], .4)
+        self.assertEqual(values["place"], 1)
+        self.assertEqual(values["accepted"], 1)
+        self.assertEqual(values["hits"], 5)
+        self.assertIsNone(native_breakdown({})["resynth_pre"])

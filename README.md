@@ -1135,7 +1135,11 @@ The original cache remains intact. Warm timings are explicitly labelled, and per
 The four flow groups are aegraph ABC synthesis (compile SAT disabled), aegraph
 LiveHD synthesis plus placement with `synth.place.fp=false` for these small designs,
 HighTide/Yosys synthesis, and OpenROAD placement through pre-CTS. No CTS or routing
-is launched. Each metric has a separate sortable column using the synthesis report's
+is launched. LiveHD placement is repeated once with unchanged inputs and the same
+`--workdir` to measure incremental reuse and saved placement IO feedback. The report
+shows synthesis, ABC, pre-placement and in-stage resynthesis times separately,
+including cache hits, resynthesis decisions and wall speedup. OpenROAD is not repeated.
+Each metric has a separate sortable column using the synthesis report's
 shared style. Baseline-versus-aegraph comparisons remain in synthesis/simulation reports.
 
 The provisional `target/results-placement-llhdl.html` is a self-contained offline

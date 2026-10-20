@@ -20,7 +20,7 @@ from lhdtrack.cache import Cache
 from lhdtrack.cli import load_config
 from lhdtrack.corpus import discover
 from lhdtrack.ledger import Ledger
-from lhdtrack.report.prects import FLOWS, render
+from lhdtrack.report.prects import RUN_FLOWS, render
 from lhdtrack.run import Job, Runner, host_name, load_flows
 from lhdtrack.srams import prepare as prepare_srams
 from lhdtrack.toolchain import Toolchain
@@ -34,7 +34,7 @@ def sha(path: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--test", action="append")
-    parser.add_argument("--flow", action="append", choices=[f for f, _ in FLOWS])
+    parser.add_argument("--flow", action="append", choices=[f for f, _ in RUN_FLOWS])
     parser.add_argument("--run", help="fresh run identifier")
     args = parser.parse_args()
     tc = Toolchain.load(ROOT)
@@ -82,7 +82,7 @@ def main() -> int:
         destination = harness / path.relative_to(ROOT)
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(path, destination)
-    selected = args.flow or [name for name, _ in FLOWS]
+    selected = args.flow or [name for name, _ in RUN_FLOWS]
     for name in selected:
         source = flows[name][1]
         shutil.copy2(source, harness / source.name)
