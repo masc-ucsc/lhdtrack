@@ -1,11 +1,16 @@
 {
-  "run_id": "20261020-placement-corpus2",
+  "run_id": "20261020-placement-resynthesis3",
   "host": "llmHDL",
   "evidence": [
     {
-      "label": "Current default synthesis/placement CPU profiles",
+      "label": "Current cold and retained-workdir validation",
+      "path": "/home/renau/projs/lhdtrack/var/runs/20261020-placement-resynthesis3/validation.json",
+      "description": "15 successful measurements, seven perf stat events per row, identical repeat commands and workdirs, and immutable DEF/LEF exports. Warm timing can regress despite faster runtime; see the comparison."
+    },
+    {
+      "label": "Earlier 08df1fa02 default synthesis/placement CPU profiles",
       "path": "/home/renau/projs/lhdtrack/var/runs/20261020-placement-corpus2/profiles/default-20261020/summary.json",
-      "description": "Fresh AXI demux runs with cycles:u sampling and perf stat. ABC Liberty parsing accounts for 17.61% of sampled synthesis cycles; Poisson solving remains 10.74% of sampled placement cycles. Sampling overhead is separate from the table."
+      "description": "Earlier classic/default-engine profiling, separate from the current aegraph resynthesis run. Fresh AXI demux runs with cycles:u sampling and perf stat. ABC Liberty parsing accounts for 17.61% of sampled synthesis cycles; Poisson solving remains 10.74% of sampled placement cycles. Sampling overhead is separate from the table."
     },
     {
       "label": "Poisson optimization controls",
@@ -27,5 +32,25 @@
       "path": "/home/renau/projs/lhdtrack/var/sram-integration-20261020/unit-validation.json",
       "description": "On one placed DEF, original ns/pF and normalized ps/fF models give identical setup/hold WNS/TNS and geometry area. FakeRAM remains an estimated black-box model."
     }
-  ]
+  ],
+  "previous_run_id": "20261020-placement-corpus2",
+  "tests": [
+    "br_amba_axi_demux",
+    "br_counter",
+    "br_fifo_flops"
+  ],
+  "flows": [
+    "syn_lhd_verilog_prects_aegraph",
+    "syn_hightide",
+    "place_lhd_verilog_aegraph",
+    "place_lhd_verilog_aegraph_incremental",
+    "place_openroad_prects"
+  ],
+  "livehd_revision": "427b1de15",
+  "dreamplace_revision": "a750f3601babf3a580e3174e24d9af9492f24505",
+  "incremental_wall_speedups": {
+    "br_amba_axi_demux": 1.3035919304576022,
+    "br_counter": 1.0737269603248984,
+    "br_fifo_flops": 1.0301835486063902
+  }
 }

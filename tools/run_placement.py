@@ -36,6 +36,7 @@ def main() -> int:
     parser.add_argument("--test", action="append")
     parser.add_argument("--flow", action="append", choices=[f for f, _ in RUN_FLOWS])
     parser.add_argument("--run", help="fresh run identifier")
+    parser.add_argument("--fail-fast", action="store_true", help="stop after recording a failure")
     args = parser.parse_args()
     tc = Toolchain.load(ROOT)
     cfg = load_config(ROOT)
@@ -123,6 +124,8 @@ def main() -> int:
                 failures += row.status == "failed"
                 done += 1
                 print(f"[{done}/{total}] {test.name}/{name}: {row.status} {row.note}", flush=True)
+                if args.fail_fast and row.status == "failed":
+                    return 1
     print(f"complete: {failures} failed measurements; {out}", flush=True)
     return int(bool(failures))
 

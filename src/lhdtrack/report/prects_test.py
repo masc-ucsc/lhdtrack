@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from .prects import native_breakdown, render
+from .prects import INCREMENTAL_FLOW, native_breakdown, render
 
 
 class PreCtsReport(unittest.TestCase):
@@ -31,18 +31,18 @@ class PreCtsReport(unittest.TestCase):
             self.assertNotIn('IPC ', output.read_text())
             self.assertNotIn('baseline profile', output.read_text())
             self.assertNotIn('<a href=', output.read_text())
-            self.assertIn('colspan="11">—</td>', output.read_text())
+            self.assertIn('colspan="10">—</td>', output.read_text())
             self.assertIn('failed', output.read_text())
             self.assertNotIn('OpenSTA WNS 0.00', output.read_text())
 
     def test_cross_host_and_cross_input_rows_are_rejected(self):
-        for mismatch in ('host', 'source'):
+        for mismatch in ('host', 'source', 'incremental_source'):
             with self.subTest(mismatch=mismatch), TemporaryDirectory() as directory:
                 root = Path(directory)
                 a = self.row(root)
                 b = self.row(root, host='two' if mismatch == 'host' else 'one',
-                             source='other' if mismatch == 'source' else 'src')
-                b['flow'] = 'syn_hightide'
+                             source='src' if mismatch == 'host' else 'other')
+                b['flow'] = INCREMENTAL_FLOW if mismatch == 'incremental_source' else 'syn_hightide'
                 self.write(root, [a, b])
                 with self.assertRaises(ValueError):
                     render(root, root / 'out.html')

@@ -14,14 +14,14 @@ INCREMENTAL_FLOW = "place_lhd_verilog_aegraph_incremental"
 
 FLOWS = (
     ("syn_lhd_verilog_prects_aegraph", "LiveHD ABC synthesis · aegraph"),
-    ("place_lhd_verilog_aegraph", "LiveHD synthesis + placement · aegraph"),
     ("syn_hightide", "HighTide / Yosys synthesis"),
+    ("place_lhd_verilog_aegraph", "LiveHD synthesis + placement · aegraph"),
+    (INCREMENTAL_FLOW, "LiveHD synthesis + placement · incremental"),
     ("place_openroad_prects", "HighTide / OpenROAD placement · pre-CTS"),
 )
 
-
-RUN_FLOWS = (*FLOWS[:2], (INCREMENTAL_FLOW, "LiveHD aegraph placement · incremental"),
-             *FLOWS[2:])
+# Keep cold/repeat LiveHD jobs adjacent, independent of the display grouping.
+RUN_FLOWS = (FLOWS[0], FLOWS[2], FLOWS[3], FLOWS[1], FLOWS[4])
 
 
 def native_breakdown(data: dict) -> dict:
@@ -49,13 +49,19 @@ def native_breakdown(data: dict) -> dict:
         "abc": values.get("pass.abc"),
         "resynth_pre": values.get("pass.place.io_resynth.before"),
         "resynth_stage": values.get("pass.place.io_resynth"),
+        "post_synth": values.get("pass.place.post_synth_timing"),
         "place": values.get("pass.place"),
         "timing_place": values.get("pass.place.timing_driven"),
+        "resize": values.get("pass.place.resize"),
+        "repair": values.get("pass.place.repair"),
         "sta": values.get("pass.opentimer"),
         "hits": abc.get("hits"), "misses": abc.get("misses"),
         "fired": io.get("fired"), "accepted": io.get("accepted"),
+        "region_work": io.get("seconds"),
         "restarts": io.get("restarts"), "overflow": stats.get("gp_overflow"),
+        "converged": stats.get("gp_converged"),
         "wns": data.get("score", {}).get("setup_wns_ps"),
+        "tns": data.get("score", {}).get("setup_tns_ps"),
     }
 
 
@@ -77,13 +83,16 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
         return f'<a href="{esc(relative, quote=True)}">{esc(label)}</a>'
 
     def number(value, digits=2) -> str:
+        if isinstance(value, bool):
+            return "yes" if value else "no"
         return "—" if value is None else f"{value:,.{digits}f}"
 
     out = ['<!doctype html><html lang="en"><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width,initial-scale=1">',
            '<title>ASAP7 synthesis and pre-CTS placement · llmHDL</title>',
            f'<style>{CSS}{SORT_CSS}.failed{{color:var(--bad)}}'
-           '.skipped{color:var(--warn)}</style>',
+           '.skipped{color:var(--warn)}.stage-times td{white-space:normal;'
+           'overflow-wrap:anywhere}</style>',
            '<body><div class="wrap">',
            '<h1>ASAP7 synthesis and pre-CTS placement</h1>',
            f'<p>lhdtrack corpus · host {esc(host or (rows[0]["host"] if rows else "unknown"))}'
@@ -94,7 +103,8 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            'results-syn-satsuma.html: default coloring and arithmetic selection, SDC-derived '
            'mapping delay, native memory preservation. These are fresh measurements on this host; '
            'no timing or memory numbers are imported from satsuma. Both LiveHD columns use '
-           'aegraph folding; placement sets <code>synth.place.fp=false</code> for these small designs. Baseline-versus-aegraph comparisons '
+           'aegraph folding; placement sets <code>synth.place.fp=false</code> for these small '
+           'designs. Baseline-versus-aegraph comparisons '
            'remain in the synthesis/simulation reports.</p>',
            '<p>Netlist and requested DEF/LEF exports are included in wall time, CPU and memory. '
            'LiveHD internal timing is included in its invocation; the older synthesis report '
@@ -103,16 +113,16 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
            'Preparation only elaborates wiring and hierarchy; it never optimizes, maps, prunes '
            'dangling cells or lowers native state. Synthesis uses zero-wire timing; placement '
            'uses estimated interconnect RC with ideal clocks. No CTS or routing is run.</p>',
-           '<p>CPU includes waited-for descendants. RSS is the largest individual process peak; '
-           'tree RSS is a 100 ms sampled process-group sum and can double-count shared pages. '
-           'The main comparison is serial and cold. These few cases have no headline geomean.</p>',
+           '<p>CPU includes waited-for descendants. Peak memory is the largest individual '
+           'process peak RSS. Measurements are serial. The incremental column reuses its cold '
+           'placement workdir; the other columns start fresh. '
+           'These few cases have no headline geomean.</p>',
            '<p class="muted">Click a metric header to sort ascending, descending, then restore '
            'the original order. Missing values sort last.</p>',
            '<div class="scroll"><table><thead><tr>'
            '<th rowspan="2" class="l">Test / configuration</th>']
     metrics = (("Wall s", "command_wall_s", 2), ("CPU s", "cpu_s", 2),
-               ("Peak RSS MiB", "max_process_rss_kb", 1),
-               ("Tree RSS MiB", "tree_peak_rss_kb", 1),
+               ("Peak mem MiB", "max_process_rss_kb", 1),
                ("Cells", "logical_cells", 0), ("Macros", "macros", 0),
                ("Area µm²", "instance_area_um2", 2),
                ("Setup WNS ps", "setup_wns_ps", 2), ("Setup TNS ps", "setup_tns_ps", 2),
@@ -125,7 +135,8 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
         out.extend(f'<th>{label}</th>' for label, _, _ in metrics)
     out.append('</tr></thead><tbody>')
     for test, config in sorted({(r["test"], r["config"]) for r in rows}):
-        out.append(f'<tr><td class="l">{esc(test)}<br><small class="muted">{esc(config)}</small></td>')
+        out.append(f'<tr><td class="l">{esc(test)}<br>'
+                   f'<small class="muted">{esc(config)}</small></td>')
         inputs = set()
         for flow, _ in FLOWS:
             row = current.get((test, config, flow))
@@ -160,7 +171,8 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
     out.append('<p>OpenROAD’s placement column starts from its retained synthesized netlist: '
                'add its synthesis column for RTL-to-placement wall/CPU. LiveHD placement includes '
                'synthesis. HighTide uses 8 threads, 50% core utilization and 0.60 target density; '
-               'LiveHD disables floorplan planning and otherwise keeps compiler defaults, including density. '
+               'LiveHD disables floorplan planning and otherwise keeps compiler defaults, '
+               'including density. '
                'These settings make this a whole-flow comparison '
                'rather than an isolated placer test.</p>')
     native_rows = [(key, row) for key, row in sorted(current.items())
@@ -174,20 +186,27 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                    'A missing resynthesis value means this compiler did not record that stage.</p>'
                    '<p>Synthesis covers recorded compiler phases before the first physical/timing '
                    'stage; ABC is included in synthesis. Resynth pre runs before placement; '
-                   'resynth stage callbacks are nested within Place / TD place. '
-                   'These inclusive times must not be summed. Fired counts include final feedback '
-                   'that can request another run; accepted and restarts record work applied here.</p>'
+                   'resynth stage callbacks are nested within physical stages. '
+                   'Place, TD place, resize and repair include their timing callbacks. '
+                   'Region work is the reported per-color ABC check/remap/CEC time within those '
+                   'callbacks. These inclusive times must not be summed. Fired counts include '
+                   'final feedback that can request another run; accepted and restarts record '
+                   'work applied here.</p>'
                    '<div class="scroll"><table><thead><tr>'
                    '<th class="l">Test / configuration</th><th>Invocation</th><th>Status</th>')
         breakdown_metrics = (("Wall s", "wall", 2), ("Speedup", "speedup", 2),
-            ("CPU s", "cpu", 2), ("Peak RSS MiB", "rss", 1),
+            ("CPU s", "cpu", 2), ("Peak mem MiB", "rss", 1),
             ("Synthesis s", "synthesis", 3), ("ABC s", "abc", 3),
             ("Resynth pre s", "resynth_pre", 3), ("Resynth stage s", "resynth_stage", 3),
+            ("Region work s", "region_work", 3),
+            ("Post-synth timing s", "post_synth", 3),
             ("Place s", "place", 3), ("TD place s", "timing_place", 3),
+            ("Resize s", "resize", 3), ("Repair s", "repair", 3),
             ("Final STA s", "sta", 3), ("ABC hits", "hits", 0), ("ABC misses", "misses", 0),
             ("Resynth fired", "fired", 0), ("Accepted", "accepted", 0),
-            ("Restarts", "restarts", 0), ("GP overflow", "overflow", 3),
-            ("Setup WNS ps", "wns", 2))
+            ("Restarts", "restarts", 0), ("GP converged", "converged", 0),
+            ("GP overflow", "overflow", 3), ("Setup WNS ps", "wns", 2),
+            ("Setup TNS ps", "tns", 2))
         out.extend(f'<th>{label}</th>' for label, _, _ in breakdown_metrics)
         out.append('</tr></thead><tbody>')
         for (test, config, flow), row in native_rows:
@@ -208,7 +227,8 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                        for _, key, digits in breakdown_metrics)
             out.append('</tr>')
         out.append('</tbody></table></div>')
-    out.append('<details><summary>Compiler and physical stage times</summary><table>'
+    out.append('<details><summary>Compiler and physical stage times</summary>'
+               '<table class="stage-times">'
                '<tr><th>Test / flow</th><th>Recorded stages</th></tr>')
     for (test, config, flow), row in sorted(current.items()):
         data = row.get("qor", {}).get("placement_comparison", {})
