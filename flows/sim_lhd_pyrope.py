@@ -18,7 +18,7 @@ NEEDS = ("lhd",)
 USES_TECH = False
 
 
-def run(ctx: FlowContext, *, backend: str = "slop") -> dict:
+def run(ctx: FlowContext, *, backend: str = "slop", engine: str | None = None) -> dict:
     if reason := ctx.test.raw.get("sim", {}).get("skip_reason"):
         raise FlowSkip(reason)
     from lib.simgate import run_lhd_sim
@@ -41,6 +41,6 @@ def run(ctx: FlowContext, *, backend: str = "slop") -> dict:
         shutil.copy(harness, tree / harness.name)
 
     entry = tree / (harness.name if harness.exists() else ctx.test.pyrope_top.name)
-    out = run_lhd_sim(ctx, design_input=str(entry), tb=tb, backend=backend)
+    out = run_lhd_sim(ctx, design_input=str(entry), tb=tb, backend=backend, engine=engine)
     out["pyrope_status"] = ctx.test.pyrope_status
     return out

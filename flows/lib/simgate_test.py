@@ -3,7 +3,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock
+import os
+from unittest.mock import Mock, patch
 
 from lhdtrack.context import FlowError
 from lib.simgate import parse_result, run_lhd_sim
@@ -80,6 +81,52 @@ class SimulationBackends(unittest.TestCase):
             with log.open("a") as output:
                 output.write("LHDTRACK-DONE cycles=100 checksum=8\n")
             self.assertEqual(parse_result(log, "LHDTRACK-DONE").checksum, "8")
+
+
+class CpropEngineSelector(unittest.TestCase):
+    """compile.cprop.engine rides BOTH `lhd sim` legs, from an argument or the environment."""
+
+    def _run(self, directory, **kwargs):
+        work = Path(directory)
+        (work / "SW/sim").mkdir(parents=True)
+        (work / "SW/sim/drv.bin").touch()
+        log = work / "exec.log"
+        log.write_text("LHDTRACK-DONE cycles=100 checksum=7\n")
+        ctx = SimpleNamespace(
+            work=work, test=SimpleNamespace(sim_cycles=100, sim_marker="LHDTRACK-DONE"), sim_build_jobs=8,
+            tool=Mock(return_value=Path("/staged/lhd")),
+            run=Mock(return_value=SimpleNamespace(ms=125, log=log)),
+            run_best=Mock(return_value=(SimpleNamespace(ms=25, log=log), [25])),
+            stage=SimpleNamespace(time_ms={"run": 125}),
+        )
+        return ctx, run_lhd_sim(ctx, "dut.prp", work / "tb.prp", backend="llvm", **kwargs)
+
+    def test_default_adds_no_engine_set(self):
+        with patch.dict(os.environ, {}, clear=True), TemporaryDirectory() as directory:
+            ctx, result = self._run(directory)
+            for call in ctx.run.call_args_list:
+                self.assertFalse([a for a in call.args[1] if str(a).startswith("compile.cprop.engine")])
+            self.assertEqual(result["sim"]["cprop_engine"], "classic")
+
+    def test_argument_and_environment_reach_both_legs(self):
+        for env, kwargs, want in (
+            ({}, {"engine": "aegraph"}, "aegraph"),
+            ({"LHDTRACK_CPROP_ENGINE": "aegraph+classic"}, {}, "aegraph+classic"),
+        ):
+            with self.subTest(want=want), patch.dict(os.environ, env, clear=True), TemporaryDirectory() as directory:
+                ctx, result = self._run(directory, **kwargs)
+                for call in ctx.run.call_args_list:
+                    self.assertIn(f"compile.cprop.engine={want}", call.args[1])
+                self.assertEqual(result["sim"]["cprop_engine"], want)
+
+    def test_free_form_sim_sets_and_bad_engine(self):
+        with patch.dict(os.environ, {"LHDTRACK_SIM_SET": "compile.cprop.engine_slots=first"}, clear=True), \
+                TemporaryDirectory() as directory:
+            ctx, _ = self._run(directory)
+            self.assertIn("compile.cprop.engine_slots=first", ctx.run.call_args_list[0].args[1])
+        with patch.dict(os.environ, {}, clear=True), TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                self._run(directory, engine="none")
 
 
 if __name__ == "__main__":

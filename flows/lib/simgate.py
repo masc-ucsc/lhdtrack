@@ -13,6 +13,7 @@ the chart. Functional correctness is the LEC gate's job; this is the tripwire.
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +23,38 @@ from lhdtrack.context import FlowContext, FlowError
 _RESULT = re.compile(
     r"(?P<marker>[A-Z0-9-]*DONE)\s+cycles=(?P<cycles>\d+)\s+checksum=(?P<sum>\d+)"
 )
+
+
+CPROP_ENGINES = ("classic", "aegraph", "aegraph+classic")
+
+
+def compile_sets(engine: str | None = None) -> list[str]:
+    """`--set` flags that ride the COMPILE of the design under simulation.
+
+    `lhd sim` compiles the design with the same compile.* knobs as `lhd compile`,
+    so the constant-propagation engine of a simulation row is one `--set`.
+    Selectors, in priority order:
+
+      engine=...              explicit argument (a flow that IS the A/B variant)
+      LHDTRACK_CPROP_ENGINE   classic | aegraph | aegraph+classic, for every sim flow
+      LHDTRACK_SIM_SET        space separated key=value lhd settings, e.g.
+                              "compile.cprop.engine=aegraph compile.cprop.engine_slots=first"
+
+    Unset = lhd's own defaults (classic), so existing rows are unchanged. The
+    sets ride BOTH `lhd sim` legs (--setup-only and --run-only), as the knobs
+    must match for the second leg to reuse the first leg's objects.
+    """
+    engine = engine or os.environ.get("LHDTRACK_CPROP_ENGINE") or None
+    out: list[str] = []
+    if engine is not None:
+        if engine not in CPROP_ENGINES:
+            raise ValueError(f"cprop engine must be one of {CPROP_ENGINES}, got {engine!r}")
+        out += ["--set", f"compile.cprop.engine={engine}"]
+    for item in os.environ.get("LHDTRACK_SIM_SET", "").split():
+        if "=" not in item:
+            raise ValueError(f"LHDTRACK_SIM_SET entries must be key=value, got {item!r}")
+        out += ["--set", item]
+    return out
 
 
 @dataclass
@@ -46,7 +79,7 @@ def parse_result(log: Path, marker: str) -> SimResult:
 
 def run_lhd_sim(
     ctx: FlowContext, design_input: str, tb: Path, *, validation_only: bool = False,
-    backend: str = "slop", direct_compile_timing: bool = False,
+    backend: str = "slop", direct_compile_timing: bool = False, engine: str | None = None,
 ) -> dict:
     """The `lhd sim` half of a simulation row: setup / cc / exec.
 
@@ -84,6 +117,7 @@ def run_lhd_sim(
         "--set", f"sim.tune.backend={backend}",
         "--set", "sim.tune.profile=off",
         "--set", f"lhd.jobs={build_jobs}",  # was sim.jobs (renamed)
+        *compile_sets(engine),
     ]
     ctx.run(
         "setup",
@@ -104,6 +138,7 @@ def run_lhd_sim(
         if result.cycles != cycles:
             raise FlowError(f"simulation ran {result.cycles} cycles, expected {cycles}")
         return {"sim": {"backend": backend, "build_jobs": build_jobs,
+                        "cprop_engine": engine or os.environ.get("LHDTRACK_CPROP_ENGINE") or "classic",
                         "cycles": result.cycles, "checksum": result.checksum,
                         "validation_only": True}}
 
@@ -131,6 +166,7 @@ def run_lhd_sim(
     return {
         "sim": {
             "backend": backend,
+            "cprop_engine": engine or os.environ.get("LHDTRACK_CPROP_ENGINE") or "classic",
             "build_jobs": build_jobs,
             "compile_timing": "direct" if direct_compile_timing else "execution-subtracted",
             "cycles": cycles,

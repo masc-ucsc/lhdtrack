@@ -155,9 +155,11 @@ def plan(
                     and "lec_netlist_verilog_abc_sn" not in wanted):
                 wanted.append("lec_netlist_verilog_abc_sn")
         # Opt-in extra synthesis variants (comma separated flow names), e.g.
-        # LHDTRACK_EXTRA_FLOWS=syn_lhd_pyrope_usyn,syn_lhd_verilog_usyn. Each is
+        # LHDTRACK_EXTRA_FLOWS=syn_lhd_pyrope_usyn,syn_lhd_verilog_usyn (or the aegraph A/B
+        # twins syn_lhd_pyrope_aegraph,sim_lhd_pyrope_aegraph_llvm). Each is
         # planned for the tests that declare its base flow.
         extra_base = {"syn_lhd_pyrope_usyn": "syn_lhd_pyrope", "syn_lhd_verilog_usyn": "syn_lhd_verilog",
+                      "syn_lhd_pyrope_aegraph": "syn_lhd_pyrope", "sim_lhd_pyrope_aegraph_llvm": "sim_lhd_pyrope",
                       "lec_netlist_pyrope_usyn": "lec_netlist", "lec_netlist_verilog_usyn": "lec_netlist"}
         for extra in filter(None, os.environ.get("LHDTRACK_EXTRA_FLOWS", "").split(",")):
             if extra_base.get(extra) in wanted and extra in flows and extra not in wanted:
