@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "version": "livehd e227aa61c opt sha256:88af6259b45da944",
+  "source_run": "20261020-placement-perf1",
+  "results": {
+    "cold": {
+      "wall_s": 66.14,
+      "cpu_s": 192.72,
+      "peak_rss_kb": 873800,
+      "reused_final_state": false,
+      "io_fired": 19,
+      "io_accepted": 12,
+      "timing": {
+        "wns": -120.800781,
+        "tns": -20793.7763672,
+        "hold_wns": -1.23976755,
+        "max_delay": 510.242
+      },
+      "output_sha256": {
+        "netlist.v": "d7eccf1ce5a3ba304f07ffe04175efd46a7a491dc5065fdb4b8a2010fe63b846",
+        "physical/lef/0_asap7_tech_1x_201209.lef": "7694bf4f8ef2f9745e4579f454788a0cf048e8605320f32d1d83ec540ed4ca41",
+        "physical/lef/1_asap7sc7p5t_28_R_1x_220121a.lef": "4eb73f825720d95eba4da455c7b2e7a28e444e88e9d8595d13492cf5eecfc0d1",
+        "physical/lefs.json": "864f3df135081a9e7798db5bf88e70d69b397052e2915eb0366488e5c241355a",
+        "physical/out.def": "2dd84a1d4f2e3e9c67aac5682fc3c9c8d47e6de68f869306c25735c3fc2a0066"
+      },
+      "perf": {
+        "task-clock": {
+          "value": 192718.39,
+          "unit": "msec"
+        },
+        "cycles": {
+          "value": 824187528002.0,
+          "unit": ""
+        },
+        "instructions": {
+          "value": 1395319272813.0,
+          "unit": ""
+        },
+        "branches": {
+          "value": 303171140461.0,
+          "unit": ""
+        },
+        "branch-misses": {
+          "value": 2434898540.0,
+          "unit": ""
+        },
+        "cache-references": {
+          "value": 13983693724.0,
+          "unit": ""
+        },
+        "cache-misses": {
+          "value": 1514071434.0,
+          "unit": ""
+        }
+      }
+    },
+    "warm": {
+      "wall_s": 1.79,
+      "cpu_s": 1.9,
+      "peak_rss_kb": 278440,
+      "reused_final_state": true,
+      "io_fired": 0,
+      "io_accepted": 0,
+      "timing": {
+        "wns": -120.800781,
+        "tns": -20793.7763672,
+        "hold_wns": -1.23976755,
+        "max_delay": 510.242
+      },
+      "output_sha256": {
+        "netlist.v": "d7eccf1ce5a3ba304f07ffe04175efd46a7a491dc5065fdb4b8a2010fe63b846",
+        "physical/lef/0_asap7_tech_1x_201209.lef": "7694bf4f8ef2f9745e4579f454788a0cf048e8605320f32d1d83ec540ed4ca41",
+        "physical/lef/1_asap7sc7p5t_28_R_1x_220121a.lef": "4eb73f825720d95eba4da455c7b2e7a28e444e88e9d8595d13492cf5eecfc0d1",
+        "physical/lefs.json": "864f3df135081a9e7798db5bf88e70d69b397052e2915eb0366488e5c241355a",
+        "physical/out.def": "2dd84a1d4f2e3e9c67aac5682fc3c9c8d47e6de68f869306c25735c3fc2a0066"
+      },
+      "perf": {
+        "task-clock": {
+          "value": 1901.27,
+          "unit": "msec"
+        },
+        "cycles": {
+          "value": 8186157838.0,
+          "unit": ""
+        },
+        "instructions": {
+          "value": 17694553870.0,
+          "unit": ""
+        },
+        "branches": {
+          "value": 3591564955.0,
+          "unit": ""
+        },
+        "branch-misses": {
+          "value": 67370783.0,
+          "unit": ""
+        },
+        "cache-references": {
+          "value": 423106305.0,
+          "unit": ""
+        },
+        "cache-misses": {
+          "value": 40995307.0,
+          "unit": ""
+        }
+      }
+    },
+    "warm2": {
+      "wall_s": 1.79,
+      "cpu_s": 1.9100000000000001,
+      "peak_rss_kb": 278496,
+      "reused_final_state": true,
+      "io_fired": 0,
+      "io_accepted": 0,
+      "timing": {
+        "wns": -120.800781,
+        "tns": -20793.7763672,
+        "hold_wns": -1.23976755,
+        "max_delay": 510.242
+      },
+      "output_sha256": {
+        "netlist.v": "d7eccf1ce5a3ba304f07ffe04175efd46a7a491dc5065fdb4b8a2010fe63b846",
+        "physical/lef/0_asap7_tech_1x_201209.lef": "7694bf4f8ef2f9745e4579f454788a0cf048e8605320f32d1d83ec540ed4ca41",
+        "physical/lef/1_asap7sc7p5t_28_R_1x_220121a.lef": "4eb73f825720d95eba4da455c7b2e7a28e444e88e9d8595d13492cf5eecfc0d1",
+        "physical/lefs.json": "864f3df135081a9e7798db5bf88e70d69b397052e2915eb0366488e5c241355a",
+        "physical/out.def": "2dd84a1d4f2e3e9c67aac5682fc3c9c8d47e6de68f869306c25735c3fc2a0066"
+      },
+      "perf": {
+        "task-clock": {
+          "value": 1905.49,
+          "unit": "msec"
+        },
+        "cycles": {
+          "value": 8186016256.0,
+          "unit": ""
+        },
+        "instructions": {
+          "value": 17668512559.0,
+          "unit": ""
+        },
+        "branches": {
+          "value": 3572077140.0,
+          "unit": ""
+        },
+        "branch-misses": {
+          "value": 67271877.0,
+          "unit": ""
+        },
+        "cache-references": {
+          "value": 414329120.0,
+          "unit": ""
+        },
+        "cache-misses": {
+          "value": 41120428.0,
+          "unit": ""
+        }
+      }
+    }
+  },
+  "scope": "Completed physical generation replay for an unchanged design/configuration. Includes repaired color instances and inter-color buffers; edited designs fall back to ordinary region reuse and fresh physical optimization.",
+  "validation": "Two independent warm processes retained identical Verilog, DEF/LEF hashes and native setup/hold timing, zero new IO resynthesis, and identical used/measured boundary environments. All seven perf stat counters were captured."
+}

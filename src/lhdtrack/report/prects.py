@@ -228,14 +228,19 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
     native_rows = [(key, row) for key, row in sorted(current.items())
                    if key[2] in ("place_lhd_verilog_aegraph", INCREMENTAL_FLOW)]
     if native_rows:
+        replayed = any(row.get("qor", {}).get("placement_comparison", {}).get(
+            "placement_stats", {}).get("reused_final_state") for _, row in native_rows)
+        reuse_note = (
+            'An unchanged repeat restores the completed repaired netlist, placement/RC '
+            'and final boundary timing together; no new IO resynthesis or repair is needed. '
+            'Place time includes validation and restoration of that saved state. '
+            'GP statistics on replay describe the retained placement. ' if replayed else '')
         out.append('<h2>LiveHD resynthesis and incremental repeat</h2>'
                    '<p>The repeat changes no RTL or options and reuses the cold run’s exact '
                    '<code>--workdir</code>; exports and independent timing use separate outputs. '
                    'CPU, memory, perf stat and export accounting are the same as for the cold run. '
                    'Speedup is cold wall ÷ measured wall. OpenROAD is not repeated. '
-                   'An unchanged repeat restores the completed repaired netlist, placement/RC '
-                   'and final boundary timing together; no new IO resynthesis or repair is needed. '
-                   'Place time includes validation and restoration of that saved state. '
+                   f'{reuse_note}'
                    'A missing resynthesis value means this compiler did not record that stage.</p>'
                    '<p>Synthesis covers recorded compiler phases before the first physical/timing '
                    'stage; ABC is included in synthesis. Resynth pre runs before placement; '
@@ -243,7 +248,7 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                    'Place, TD place, resize and repair include their timing callbacks. '
                    'Region work is the reported per-color ABC check/remap/CEC time within those '
                    'callbacks. These inclusive times must not be summed. Fired counts include '
-                   'final feedback that can request another run; accepted and restarts record '
+                   'diagnostics collected during the invocation; accepted and restarts record '
                    'work applied here.</p>')
         breakdown_metrics = (("Wall s", "wall", 2), ("Speedup", "speedup", 2),
             ("CPU s", "cpu", 2), ("Peak mem MiB", "rss", 1), ("Cells", "cells", 0),
