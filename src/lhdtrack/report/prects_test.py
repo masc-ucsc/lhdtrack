@@ -74,3 +74,17 @@ class PreCtsReport(unittest.TestCase):
         self.assertEqual(values["accepted"], 1)
         self.assertEqual(values["hits"], 5)
         self.assertIsNone(native_breakdown({})["resynth_pre"])
+
+    def test_completed_state_replay_records_no_new_optimization(self):
+        values = native_breakdown({"phases": [
+            {"name": "pass.abc", "ms": 80},
+            {"name": "pass.place.restore", "ms": 200},
+            {"name": "pass.opentimer", "ms": 10}],
+            "placement_stats": {"reused_final_state": True},
+            "io_resynth": {"accepted": 0, "fired": 0, "restarts": 0}})
+        self.assertAlmostEqual(values["synthesis"], .08)
+        self.assertAlmostEqual(values["place"], .2)
+        self.assertAlmostEqual(values["sta"], .01)
+        for key in ("resynth_pre", "resynth_stage", "post_synth", "timing_place",
+                    "resize", "repair"):
+            self.assertEqual(values[key], 0)

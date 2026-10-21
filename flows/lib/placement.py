@@ -131,7 +131,8 @@ def finish(ctx: FlowContext, raw: Path, measurement: dict, *,
         placement = json.loads(placement_stats.read_text())
         result["qor"]["placement_comparison"]["placement_stats"] = {
             key: placement[key] for key in ("gp_converged", "gp_overflow", "hpwl_um",
-                "initial_hpwl_um", "incremental", "io_resynth", "iterations") if key in placement}
+                "initial_hpwl_um", "incremental", "io_resynth", "iterations",
+                "reused_final_state") if key in placement}
     io_report = ctx.work / "io_resynth.json"
     # The workdir can be shared by the repeat run; snapshot feedback into its
     # own artifacts before the following invocation mutates the reusable state.

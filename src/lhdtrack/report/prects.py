@@ -40,6 +40,12 @@ def native_breakdown(data: dict) -> dict:
     io = data.get("io_resynth", {})
     abc = data.get("incremental", {}).get("abc", {})
     stats = data.get("placement_stats", {})
+    if stats.get("reused_final_state"):
+        for name in ("pass.place.io_resynth.before", "pass.place.io_resynth",
+                     "pass.place.post_synth_timing", "pass.place", "pass.place.timing_driven",
+                     "pass.place.resize", "pass.place.repair"):
+            values.setdefault(name, 0.0)
+        values["pass.place"] += values.get("pass.place.restore", 0.0)
     measurement = data.get("measurement", {})
     rss = measurement.get("max_process_rss_kb")
     return {
@@ -227,6 +233,9 @@ def render(root: Path, output: Path, *, host: str | None = None, run: str | None
                    '<code>--workdir</code>; exports and independent timing use separate outputs. '
                    'CPU, memory, perf stat and export accounting are the same as for the cold run. '
                    'Speedup is cold wall ÷ measured wall. OpenROAD is not repeated. '
+                   'An unchanged repeat restores the completed repaired netlist, placement/RC '
+                   'and final boundary timing together; no new IO resynthesis or repair is needed. '
+                   'Place time includes validation and restoration of that saved state. '
                    'A missing resynthesis value means this compiler did not record that stage.</p>'
                    '<p>Synthesis covers recorded compiler phases before the first physical/timing '
                    'stage; ABC is included in synthesis. Resynth pre runs before placement; '
