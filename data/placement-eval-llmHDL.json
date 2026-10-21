@@ -1,11 +1,16 @@
 {
-  "run_id": "20261020-placement-resynthesis3",
+  "run_id": "20261020-placement-perf1",
   "host": "llmHDL",
   "evidence": [
     {
       "label": "Current cold and retained-workdir validation",
-      "path": "/home/renau/projs/lhdtrack/var/runs/20261020-placement-resynthesis3/validation.json",
-      "description": "15 successful measurements, seven perf stat events per row, identical repeat commands and workdirs, and immutable DEF/LEF exports. Warm timing can regress despite faster runtime; see the comparison."
+      "path": "/home/renau/projs/lhdtrack/var/runs/20261020-placement-perf1/validation.json",
+      "description": "15 successful serial measurements, seven perf stat events per row, identical cold/repeat commands and workdirs, and immutable DEF/LEF exports. All six LiveHD placements preserve the previous run's netlist, DEF/LEF and common timing/area/cell-count scores exactly. Cold placement wall time improves 15.9\u201322.3%; incremental wall time improves 17.3\u201325.3%. Warm QoR regressions on two designs remain."
+    },
+    {
+      "label": "Controlled Liberty and RC timing optimization profiles",
+      "path": "/home/renau/projs/lhdtrack/data/placement-profile-20261020.json",
+      "description": "Frozen AXI demux inputs, perf stat plus sampling, before/after compiler builds. Bulk Liberty input/comment processing and prepared RC ramp tail coefficients. Profiled synthesis 5.46\u21924.87 s, cold placement 81.84\u219266.59 s, incremental 62.27\u219251.14 s; netlists and DEF/LEF bytes match exactly. Also includes concurrent upstream merges; sampling overhead is separate from the table."
     },
     {
       "label": "Earlier 08df1fa02 default synthesis/placement CPU profiles",
@@ -33,7 +38,7 @@
       "description": "On one placed DEF, original ns/pF and normalized ps/fF models give identical setup/hold WNS/TNS and geometry area. FakeRAM remains an estimated black-box model."
     }
   ],
-  "previous_run_id": "20261020-placement-corpus2",
+  "previous_run_id": "20261020-placement-resynthesis3",
   "tests": [
     "br_amba_axi_demux",
     "br_counter",
@@ -46,11 +51,84 @@
     "place_lhd_verilog_aegraph_incremental",
     "place_openroad_prects"
   ],
-  "livehd_revision": "427b1de15",
+  "livehd_revision": "56d4fe295",
   "dreamplace_revision": "a750f3601babf3a580e3174e24d9af9492f24505",
   "incremental_wall_speedups": {
-    "br_amba_axi_demux": 1.3035919304576022,
-    "br_counter": 1.0737269603248984,
-    "br_fifo_flops": 1.0301835486063902
-  }
+    "br_amba_axi_demux": 1.3170144462279294,
+    "br_counter": 1.1179916317991632,
+    "br_fifo_flops": 1.0483552631578947
+  },
+  "opentimer_revision": "5c8774c84a52ad2367d1f033db13b8cc8e055ad0",
+  "optimization_comparison": {
+    "br_amba_axi_demux": {
+      "cold": {
+        "wall_before_s": 79.48,
+        "wall_after_s": 65.64,
+        "wall_speedup": 1.21084704448507,
+        "cpu_before_s": 218.29,
+        "cpu_after_s": 192.26000000000002,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      },
+      "incremental": {
+        "wall_before_s": 60.97,
+        "wall_after_s": 49.84,
+        "wall_speedup": 1.223314606741573,
+        "cpu_before_s": 157.07,
+        "cpu_after_s": 137.3,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      }
+    },
+    "br_counter": {
+      "cold": {
+        "wall_before_s": 34.37,
+        "wall_after_s": 26.72,
+        "wall_speedup": 1.286302395209581,
+        "cpu_before_s": 37.4,
+        "cpu_after_s": 29.74,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      },
+      "incremental": {
+        "wall_before_s": 32.01,
+        "wall_after_s": 23.9,
+        "wall_speedup": 1.3393305439330543,
+        "cpu_before_s": 34.93,
+        "cpu_after_s": 26.68,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      }
+    },
+    "br_fifo_flops": {
+      "cold": {
+        "wall_before_s": 75.77,
+        "wall_after_s": 63.74,
+        "wall_speedup": 1.1887354879196737,
+        "cpu_before_s": 181.25,
+        "cpu_after_s": 158.94,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      },
+      "incremental": {
+        "wall_before_s": 73.55,
+        "wall_after_s": 60.8,
+        "wall_speedup": 1.209703947368421,
+        "cpu_before_s": 192.95000000000002,
+        "cpu_after_s": 167.45,
+        "netlist_identical": true,
+        "physical_exports_identical": true,
+        "common_score_identical": true
+      }
+    }
+  },
+  "remaining_issues": [
+    "The incremental repeat worsens native OpenTimer and common OpenSTA WNS/TNS on AXI demux and FIFO; faster runtime does not imply better timing. The compiler reuses synthesis feedback but does not retain the previous placement as a best-QoR checkpoint.",
+    "Default GP iteration/convergence limits remain visible; these measurements do not establish timing or density target attainment."
+  ]
 }
