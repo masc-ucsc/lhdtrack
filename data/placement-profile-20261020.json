@@ -1,0 +1,610 @@
+{
+  "host": "llmHDL",
+  "host_class": "Linux-x86_64-llmHDL",
+  "liberty_sha256": "501a6831c07ed80600c94df0fb889ffd3b15482f00a29174541986c3a1788c5a",
+  "test": "br_amba_axi_demux",
+  "frozen_input_run": "20261020-placement-resynthesis3",
+  "boundary": "Whole LiveHD synthesis/placement invocation with requested netlist and DEF/LEF exports. Independent OpenSTA scoring excluded.",
+  "sampling": "perf stat around perf record cycles:u at 99 Hz with DWARF call stacks; includes sampling overhead. Diagnostic controls, separate from ordinary benchmark rows.",
+  "changes": [
+    "Bulk-read Liberty files and copy non-comment spans (LiveHD 60819a703).",
+    "Prepare constant RC ramp tail coefficients once per crossing; preserve 36 bisection steps (OpenTimer 36cf1a8).",
+    "Also merges concurrent upstream LiveHD changes through 67d242ea4 and OpenTimer inverted-clock capture fix b4c5b27; this comparison measures the combined build."
+  ],
+  "baseline": {
+    "livehd_revision": "427b1de15",
+    "opentimer_revision": "55e71b9374b915c6371d49e6b8d964702c3470eb",
+    "lhd_sha256": "761c8479ecfbc2548e5103d6f6009e1562385e2416144fde5ff617f8a0be9ac5"
+  },
+  "updated": {
+    "livehd_revision": "56d4fe295",
+    "opentimer_revision": "5c8774c84a52ad2367d1f033db13b8cc8e055ad0",
+    "lhd_sha256": "8e831835d44f719cb60ff0b1ac7b3c58259d0728cacdb2f4b576d2d8496b594b",
+    "versions": {
+      "lhd": "livehd 56d4fe295 opt sha256:8e831835d44f719c",
+      "yosys": "sha256:dc720773d3cafc98f9ac3c1dae1e2faa8a1147629d84fe3d8bf10a8de080a8e2",
+      "openroad": "sha256:65ec9f1e8ccddce3ef5e9ec0d67b49353eed4ef9377bf5362dde7b84a45656d4",
+      "make": "sha256:27c9f6d806aee15882b01c2c61848f7aa75caa14bc7b6f608ba422f9e46a7d49",
+      "python": "sha256:52e0a13e60a981d8c4b6478be2ba5176f69da07948a056bf49cf6f077e30cb41",
+      "perf": "sha256:1371ae5cb9fa59632d1d0e34b877d7251df4029810ba67dc56e946545e87b531",
+      "time": "sha256:34ba90f8199989d88f2f02d40ddcee60be27a7f361db9fb7c100578cc8d7bf1e",
+      "git": "sha256:5516c9f362c29376ab9a499a33082f9f611941d8c75930c880e30ad109e39c9a",
+      "lgcheck": "sha256:2581b8e9ea60c9e6 adapter-sha256:f55a8d926dc68c5c",
+      "yosys2": "sha256:65273d427034a09c"
+    }
+  },
+  "profiles": {
+    "synthesis": {
+      "baseline": {
+        "command_wall_s": 5.46,
+        "cpu_s": 8.93,
+        "max_process_rss_kb": 810292,
+        "perf": {
+          "task-clock": {
+            "value": 8896.14,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 38723413047.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 102653043792.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 25907379906.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 232170910.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 1303009182.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 168291245.0,
+            "unit": ""
+          }
+        }
+      },
+      "updated": {
+        "command_wall_s": 4.87,
+        "cpu_s": 8.34,
+        "max_process_rss_kb": 812056,
+        "perf": {
+          "task-clock": {
+            "value": 8308.78,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 36167785414.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 93410595779.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 23851230278.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 236663449.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 1309988895.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 171720754.0,
+            "unit": ""
+          }
+        }
+      },
+      "wall_speedup": 1.1211498973305956,
+      "cpu_speedup": 1.0707434052757794,
+      "baseline_top_symbols": [
+        {
+          "user_cycles_percent": 18.91,
+          "symbol": "Scl_LibertyBuildItem"
+        },
+        {
+          "user_cycles_percent": 11.23,
+          "symbol": "__GI_____strtod_l_internal"
+        },
+        {
+          "user_cycles_percent": 6.29,
+          "symbol": "livehd::liberty::(anonymous namespace)::strip_comments(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 4.51,
+          "symbol": "livehd::liberty::(anonymous namespace)::read_files(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 4.49,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 3.52,
+          "symbol": "str_to_mpn.isra.0"
+        },
+        {
+          "user_cycles_percent": 2.64,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 2.28,
+          "symbol": "__strncmp_avx2"
+        },
+        {
+          "user_cycles_percent": 2.13,
+          "symbol": "__memchr_avx2"
+        },
+        {
+          "user_cycles_percent": 1.92,
+          "symbol": "Scl_LibertyReadFloatVec"
+        },
+        {
+          "user_cycles_percent": 1.67,
+          "symbol": "__mpn_lshift"
+        },
+        {
+          "user_cycles_percent": 1.45,
+          "symbol": "round_and_return"
+        }
+      ],
+      "updated_top_symbols": [
+        {
+          "user_cycles_percent": 18.27,
+          "symbol": "Scl_LibertyBuildItem"
+        },
+        {
+          "user_cycles_percent": 10.97,
+          "symbol": "__GI_____strtod_l_internal"
+        },
+        {
+          "user_cycles_percent": 4.24,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 3.43,
+          "symbol": "__strncmp_avx2"
+        },
+        {
+          "user_cycles_percent": 3.41,
+          "symbol": "__mpn_lshift"
+        },
+        {
+          "user_cycles_percent": 3.18,
+          "symbol": "__strcmp_avx2"
+        },
+        {
+          "user_cycles_percent": 3.03,
+          "symbol": "__memchr_avx2"
+        },
+        {
+          "user_cycles_percent": 2.92,
+          "symbol": "round_and_return"
+        },
+        {
+          "user_cycles_percent": 2.91,
+          "symbol": "str_to_mpn.isra.0"
+        },
+        {
+          "user_cycles_percent": 2.83,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 2.0,
+          "symbol": "__memcmp_avx2_movbe"
+        },
+        {
+          "user_cycles_percent": 1.61,
+          "symbol": "livehd::synth::Region_cache::make_salt(unsigned long, std::basic_string_view<char, std::char_traits<char> >, bool, livehd::synth::Memory_fold, unsigned long"
+        }
+      ],
+      "output_checks": {
+        "netlist.v": {
+          "byte_identical": true,
+          "sha256": "f461139f1327a152dc46f98ab475aa9ec1b3f0cfa9c77086c99985119ef0f7b2"
+        }
+      }
+    },
+    "placement": {
+      "baseline": {
+        "command_wall_s": 81.84,
+        "cpu_s": 221.19,
+        "max_process_rss_kb": 857800,
+        "perf": {
+          "task-clock": {
+            "value": 221161.33,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 950328336905.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 1666420826666.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 357944897294.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 2569914870.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 14888467498.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 1603491494.0,
+            "unit": ""
+          }
+        }
+      },
+      "updated": {
+        "command_wall_s": 66.59,
+        "cpu_s": 193.99,
+        "max_process_rss_kb": 834404,
+        "perf": {
+          "task-clock": {
+            "value": 193962.96,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 827433448815.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 1398501785611.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 304645688799.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 2500279581.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 14293895464.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 1560683481.0,
+            "unit": ""
+          }
+        }
+      },
+      "wall_speedup": 1.2290133653701756,
+      "cpu_speedup": 1.140213413062529,
+      "baseline_top_symbols": [
+        {
+          "user_cycles_percent": 32.54,
+          "symbol": "__expm1_fma"
+        },
+        {
+          "user_cycles_percent": 8.53,
+          "symbol": "ot::rc_ramp_voltage(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 7.62,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 5.69,
+          "symbol": "ot::rc_ramp_crossing(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 5.53,
+          "symbol": "ot::RcDriver::crossing(double, double) const"
+        },
+        {
+          "user_cycles_percent": 3.82,
+          "symbol": "livehd::liberty::(anonymous namespace)::strip_comments(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 2.59,
+          "symbol": "livehd::liberty::(anonymous namespace)::read_files(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 2.32,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 2.3,
+          "symbol": "__ieee754_exp_fma"
+        },
+        {
+          "user_cycles_percent": 1.63,
+          "symbol": "ot::Lut::operator()(float, float) const"
+        },
+        {
+          "user_cycles_percent": 1.55,
+          "symbol": "exp@@GLIBC_2.29"
+        },
+        {
+          "user_cycles_percent": 1.48,
+          "symbol": "DreamPlace::native::PoissonSolver::solve(std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> >&, std::vector<dou"
+        }
+      ],
+      "updated_top_symbols": [
+        {
+          "user_cycles_percent": 32.37,
+          "symbol": "__expm1_fma"
+        },
+        {
+          "user_cycles_percent": 8.6,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 7.04,
+          "symbol": "ot::RcDriver::crossing(double, double) const"
+        },
+        {
+          "user_cycles_percent": 6.32,
+          "symbol": "ot::rc_ramp_crossing(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 6.2,
+          "symbol": "ot::rc_ramp_voltage(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 3.25,
+          "symbol": "__ieee754_exp_fma"
+        },
+        {
+          "user_cycles_percent": 2.65,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 1.93,
+          "symbol": "exp@@GLIBC_2.29"
+        },
+        {
+          "user_cycles_percent": 1.91,
+          "symbol": "ot::Lut::operator()(float, float) const"
+        },
+        {
+          "user_cycles_percent": 1.83,
+          "symbol": "DreamPlace::native::PoissonSolver::solve(std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> >&, std::vector<dou"
+        },
+        {
+          "user_cycles_percent": 1.72,
+          "symbol": "ot::rc_fit_ramp(double, double, double, double)"
+        },
+        {
+          "user_cycles_percent": 1.6,
+          "symbol": "std::optional<ot::RcGateResult> ot::rc_effective_gate<ot::Net::_gate_response(ot::Timing const&, ot::Split, ot::Tran, ot::Tran, float, ot::SlewThresholds co"
+        }
+      ],
+      "output_checks": {
+        "netlist.v": {
+          "byte_identical": true,
+          "sha256": "d7eccf1ce5a3ba304f07ffe04175efd46a7a491dc5065fdb4b8a2010fe63b846"
+        },
+        "physical/lef/0_asap7_tech_1x_201209.lef": {
+          "byte_identical": true,
+          "sha256": "7694bf4f8ef2f9745e4579f454788a0cf048e8605320f32d1d83ec540ed4ca41"
+        },
+        "physical/lef/1_asap7sc7p5t_28_R_1x_220121a.lef": {
+          "byte_identical": true,
+          "sha256": "4eb73f825720d95eba4da455c7b2e7a28e444e88e9d8595d13492cf5eecfc0d1"
+        },
+        "physical/lefs.json": {
+          "byte_identical": true,
+          "sha256": "864f3df135081a9e7798db5bf88e70d69b397052e2915eb0366488e5c241355a"
+        },
+        "physical/out.def": {
+          "byte_identical": true,
+          "sha256": "2dd84a1d4f2e3e9c67aac5682fc3c9c8d47e6de68f869306c25735c3fc2a0066"
+        }
+      }
+    },
+    "incremental": {
+      "baseline": {
+        "command_wall_s": 62.27,
+        "cpu_s": 159.01000000000002,
+        "max_process_rss_kb": 704924,
+        "perf": {
+          "task-clock": {
+            "value": 159002.6,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 682688375791.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 1203823640080.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 256502536690.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 1881222607.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 11297950546.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 1176281301.0,
+            "unit": ""
+          }
+        }
+      },
+      "updated": {
+        "command_wall_s": 51.14,
+        "cpu_s": 139.04000000000002,
+        "max_process_rss_kb": 719532,
+        "perf": {
+          "task-clock": {
+            "value": 139043.31,
+            "unit": "msec"
+          },
+          "cycles": {
+            "value": 593548531612.0,
+            "unit": ""
+          },
+          "instructions": {
+            "value": 998989813091.0,
+            "unit": ""
+          },
+          "branches": {
+            "value": 215768279604.0,
+            "unit": ""
+          },
+          "branch-misses": {
+            "value": 1859005693.0,
+            "unit": ""
+          },
+          "cache-references": {
+            "value": 10976304855.0,
+            "unit": ""
+          },
+          "cache-misses": {
+            "value": 1157045117.0,
+            "unit": ""
+          }
+        }
+      },
+      "wall_speedup": 1.217637856863512,
+      "cpu_speedup": 1.1436277330264673,
+      "baseline_top_symbols": [
+        {
+          "user_cycles_percent": 33.02,
+          "symbol": "__expm1_fma"
+        },
+        {
+          "user_cycles_percent": 8.47,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 7.41,
+          "symbol": "ot::rc_ramp_voltage(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 5.68,
+          "symbol": "ot::RcDriver::crossing(double, double) const"
+        },
+        {
+          "user_cycles_percent": 5.67,
+          "symbol": "ot::rc_ramp_crossing(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 4.17,
+          "symbol": "livehd::liberty::(anonymous namespace)::strip_comments(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 2.85,
+          "symbol": "livehd::liberty::(anonymous namespace)::read_files(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 2.57,
+          "symbol": "__ieee754_exp_fma"
+        },
+        {
+          "user_cycles_percent": 2.42,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 1.83,
+          "symbol": "DreamPlace::native::PoissonSolver::solve(std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> >&, std::vector<dou"
+        },
+        {
+          "user_cycles_percent": 1.68,
+          "symbol": "ot::Lut::operator()(float, float) const"
+        },
+        {
+          "user_cycles_percent": 1.36,
+          "symbol": "ot::rc_fit_ramp(double, double, double, double)"
+        }
+      ],
+      "updated_top_symbols": [
+        {
+          "user_cycles_percent": 31.55,
+          "symbol": "__expm1_fma"
+        },
+        {
+          "user_cycles_percent": 9.43,
+          "symbol": "livehd::liberty::(anonymous namespace)::top_level_only(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)"
+        },
+        {
+          "user_cycles_percent": 7.16,
+          "symbol": "ot::RcDriver::crossing(double, double) const"
+        },
+        {
+          "user_cycles_percent": 6.47,
+          "symbol": "ot::rc_ramp_crossing(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 5.67,
+          "symbol": "ot::rc_ramp_voltage(double, double, double)"
+        },
+        {
+          "user_cycles_percent": 3.83,
+          "symbol": "__ieee754_exp_fma"
+        },
+        {
+          "user_cycles_percent": 2.85,
+          "symbol": "livehd::liberty::(anonymous namespace)::match_brace(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long) ["
+        },
+        {
+          "user_cycles_percent": 2.15,
+          "symbol": "exp@@GLIBC_2.29"
+        },
+        {
+          "user_cycles_percent": 2.11,
+          "symbol": "DreamPlace::native::PoissonSolver::solve(std::vector<double, std::allocator<double> > const&, std::vector<double, std::allocator<double> >&, std::vector<dou"
+        },
+        {
+          "user_cycles_percent": 1.87,
+          "symbol": "ot::Lut::operator()(float, float) const"
+        },
+        {
+          "user_cycles_percent": 1.61,
+          "symbol": "std::optional<ot::RcGateResult> ot::rc_effective_gate<ot::Net::_gate_response(ot::Timing const&, ot::Split, ot::Tran, ot::Tran, float, ot::SlewThresholds co"
+        },
+        {
+          "user_cycles_percent": 1.34,
+          "symbol": "__memmove_avx_unaligned_erms"
+        }
+      ],
+      "output_checks": {
+        "netlist.v": {
+          "byte_identical": true,
+          "sha256": "4f4a8fae584c5435706d76b6e342e17db1e4a7b0163158b0558b130b2b14fde6"
+        },
+        "physical/lef/0_asap7_tech_1x_201209.lef": {
+          "byte_identical": true,
+          "sha256": "7694bf4f8ef2f9745e4579f454788a0cf048e8605320f32d1d83ec540ed4ca41"
+        },
+        "physical/lef/1_asap7sc7p5t_28_R_1x_220121a.lef": {
+          "byte_identical": true,
+          "sha256": "4eb73f825720d95eba4da455c7b2e7a28e444e88e9d8595d13492cf5eecfc0d1"
+        },
+        "physical/lefs.json": {
+          "byte_identical": true,
+          "sha256": "864f3df135081a9e7798db5bf88e70d69b397052e2915eb0366488e5c241355a"
+        },
+        "physical/out.def": {
+          "byte_identical": true,
+          "sha256": "3a98a3056fe4acd28ab0e7a70f1ecc38d41d556a0f54341ee0da34946cb87c64"
+        }
+      }
+    }
+  }
+}
