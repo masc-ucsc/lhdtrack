@@ -7,6 +7,7 @@ the serial corpus measurements. perf stat wraps each perf record command.
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
 from pathlib import Path
@@ -26,22 +27,38 @@ def main() -> int:
     parser.add_argument("--run", required=True)
     parser.add_argument("--test", required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--incremental", action="store_true",
+                        help="profile a repeat sharing the cold placement workdir")
+    parser.add_argument("--toolchain-root", type=Path,
+                        help="use another staged toolchain with the same frozen inputs")
     args = parser.parse_args()
+    lock_path = ROOT / "var/placement.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    lock = lock_path.open("w")
+    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
     run = ROOT / "var/runs" / args.run
-    tc = Toolchain.load(run)
+    tc = Toolchain.load(args.toolchain_root or run)
     identity = json.loads((run / "identity.json").read_text())
     digest = hashlib.sha256(tc.bin("lhd").read_bytes()).hexdigest()
-    if digest != identity["tools"]["lhd"]:
+    if not args.toolchain_root and digest != identity["tools"]["lhd"]:
         raise ValueError("retained compiler changed")
     rows = {r["flow"]: r for r in Ledger(ROOT).load()
             if r.get("placement_run") and r["run_id"] == args.run and r["test"] == args.test}
     results = {}
-    for label, flow in (("synthesis", "syn_lhd_verilog_prects_baseline"),
-                        ("placement", "place_lhd_verilog")):
+    aegraph = "place_lhd_verilog_aegraph" in rows
+    profiles = [("synthesis", "syn_lhd_verilog_prects_aegraph" if aegraph else
+                 "syn_lhd_verilog_prects_baseline"),
+                ("placement", "place_lhd_verilog_aegraph" if aegraph else "place_lhd_verilog")]
+    if args.incremental:
+        profiles.append(("incremental", "place_lhd_verilog_aegraph_incremental"))
+    for label, flow in profiles:
         row = rows[flow]
-        command = row["qor"]["placement_comparison"]["measurement"]["argv"]
+        command = row["qor"]["placement_comparison"]["measurement"]["argv"].copy()
+        command[0] = str(tc.bin("lhd"))
+        if label == "incremental":
+            command[command.index("--workdir") + 1] = str(out / "placement/W")
         directory = out / label
         directory.mkdir()
         perf_data = directory / "perf.data"
@@ -67,6 +84,7 @@ def main() -> int:
                           "symbols": str(directory / "symbols.txt"), "measurement": measurement,
                           "top_symbols": symbols[:12]}
     (out / "summary.json").write_text(json.dumps({"run_id": args.run, "test": args.test,
+        "tool_versions": tc.versions,
         "lhd_sha256": digest, "sampling": "cycles:u, 99 Hz, DWARF; includes profiling overhead",
         "profiles": results}, indent=2) + "\n")
     print(out / "summary.json")
