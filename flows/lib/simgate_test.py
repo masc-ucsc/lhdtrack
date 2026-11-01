@@ -3,11 +3,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
+import json
 import os
 from unittest.mock import Mock, patch
 
 from lhdtrack.context import FlowError
-from lib.simgate import parse_result, run_lhd_sim
+from lib.simgate import cprop_engine_from_log, parse_result, run_lhd_sim, simulation_engine_metadata
 
 
 class SimulationBackends(unittest.TestCase):
@@ -86,16 +87,18 @@ class SimulationBackends(unittest.TestCase):
 class CpropEngineSelector(unittest.TestCase):
     """compile.cprop.engine rides BOTH `lhd sim` legs, from an argument or the environment."""
 
-    def _run(self, directory, **kwargs):
+    def _run(self, directory, recipe=("pass.aegraph cost:sim",), **kwargs):
         work = Path(directory)
         (work / "SW/sim").mkdir(parents=True)
         (work / "SW/sim/drv.bin").touch()
         log = work / "exec.log"
         log.write_text("LHDTRACK-DONE cycles=100 checksum=7\n")
+        setup = work / "setup.log"
+        setup.write_text(json.dumps({"tool": "lhd", "recipe": list(recipe)}) + "\n")
         ctx = SimpleNamespace(
             work=work, test=SimpleNamespace(sim_cycles=100, sim_marker="LHDTRACK-DONE"), sim_build_jobs=8,
             tool=Mock(return_value=Path("/staged/lhd")),
-            run=Mock(return_value=SimpleNamespace(ms=125, log=log)),
+            run=Mock(return_value=SimpleNamespace(ms=125, log=setup)),
             run_best=Mock(return_value=(SimpleNamespace(ms=25, log=log), [25])),
             stage=SimpleNamespace(time_ms={"run": 125}),
         )
@@ -106,7 +109,7 @@ class CpropEngineSelector(unittest.TestCase):
             ctx, result = self._run(directory)
             for call in ctx.run.call_args_list:
                 self.assertFalse([a for a in call.args[1] if str(a).startswith("compile.cprop.engine")])
-            self.assertEqual(result["sim"]["cprop_engine"], "classic")
+            self.assertEqual(result["sim"]["cprop_engine"], "aegraph")
 
     def test_argument_and_environment_reach_both_legs(self):
         for env, kwargs, want in (
@@ -114,10 +117,30 @@ class CpropEngineSelector(unittest.TestCase):
             ({"LHDTRACK_CPROP_ENGINE": "aegraph+classic"}, {}, "aegraph+classic"),
         ):
             with self.subTest(want=want), patch.dict(os.environ, env, clear=True), TemporaryDirectory() as directory:
-                ctx, result = self._run(directory, **kwargs)
+                ctx, result = self._run(directory, recipe=("pass.aegraph", "pass.cprop")
+                                        if want == "aegraph+classic" else ("pass.aegraph",), **kwargs)
                 for call in ctx.run.call_args_list:
                     self.assertIn(f"compile.cprop.engine={want}", call.args[1])
                 self.assertEqual(result["sim"]["cprop_engine"], want)
+
+    def test_observed_engine_tracks_compiler_defaults_and_ignores_echoes(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "setup.log"
+            path.write_text('$ {"tool":"lhd","recipe":["pass.aegraph"]}\n'
+                            '{"tool":"lhd","recipe":["pass.cprop"]}\n')
+            self.assertEqual(cprop_engine_from_log(path), "classic")
+            path.write_text('diagnostic mentioning pass.cprop\n')
+            self.assertIsNone(cprop_engine_from_log(path))
+
+    def test_source_engine_is_not_the_driver_engine(self):
+        with TemporaryDirectory() as directory:
+            work = Path(directory)
+            (work / "logs").mkdir()
+            (work / "logs/elab.log").write_text('{"tool":"lhd","recipe":["pass.cprop"]}\n')
+            setup = work / "setup.log"
+            setup.write_text('{"tool":"lhd","recipe":["pass.aegraph"]}\n')
+            self.assertEqual(simulation_engine_metadata(work, setup, "lg:dut"),
+                             {"cprop_engine": "classic", "driver_cprop_engine": "aegraph"})
 
     def test_free_form_sim_sets_and_bad_engine(self):
         with patch.dict(os.environ, {"LHDTRACK_SIM_SET": "compile.cprop.engine_slots=first"}, clear=True), \

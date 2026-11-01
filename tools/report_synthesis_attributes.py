@@ -76,10 +76,11 @@ def render(host: str, runs: list[str]) -> Path:
                "Map ratio", "Replay matches", "Exact mapped proof")
     compilers = sorted({row["compiler"] for row in tables})
     target.with_suffix(".html").write_text(
-        "<!doctype html><meta charset='utf-8'><title>Synthesis attributes</title>"
+        "<!doctype html><html lang='en'><head><meta charset='utf-8'>"
+        "<title>Synthesis attributes</title>"
         "<style>body{font:15px system-ui;margin:2em}table{border-collapse:collapse}"
         "th,td{padding:.4em;border:1px solid #bbb;text-align:right}th:first-child,"
-        "td:first-child{text-align:left}</style><h1>ASAP7 synthesis attributes</h1>"
+        "td:first-child{text-align:left}</style></head><body><h1>ASAP7 synthesis attributes</h1>"
         f"<p>Host: {esc(host)}. Runs: {esc(', '.join(runs))}.</p>"
         f"<p>Frozen compilers: {esc('; '.join(compilers))}.</p>"
         "<p>Ratios are baseline / measured; higher is better. Each ratio uses the same "
@@ -87,7 +88,7 @@ def render(host: str, runs: list[str]) -> Path:
         "starts no arithmetic trials. Timing uses OpenSTA on the measured netlist. "
         "Source equivalence and mapped-netlist proof are separate obligations.</p>"
         "<table><thead><tr>" + "".join(f"<th>{h}</th>" for h in headers)
-        + "</tr></thead><tbody>" + "".join(cells) + "</tbody></table>\n")
+        + "</tr></thead><tbody>" + "".join(cells) + "</tbody></table></body></html>\n")
     return target.with_suffix(".html")
 
 

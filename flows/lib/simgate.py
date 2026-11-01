@@ -13,6 +13,7 @@ the chart. Functional correctness is the LEC gate's job; this is the tripwire.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -40,7 +41,7 @@ def compile_sets(engine: str | None = None) -> list[str]:
       LHDTRACK_SIM_SET        space separated key=value lhd settings, e.g.
                               "compile.cprop.engine=aegraph compile.cprop.engine_slots=first"
 
-    Unset = lhd's own defaults (classic), so existing rows are unchanged. The
+    Unset uses the compiler's own default, recorded from its result recipe. The
     sets ride BOTH `lhd sim` legs (--setup-only and --run-only), as the knobs
     must match for the second leg to reuse the first leg's objects.
     """
@@ -55,6 +56,40 @@ def compile_sets(engine: str | None = None) -> list[str]:
             raise ValueError(f"LHDTRACK_SIM_SET entries must be key=value, got {item!r}")
         out += ["--set", item]
     return out
+
+
+def cprop_engine_from_log(log: Path) -> str | None:
+    """Read the effective engine from structured tool results, never an argv echo."""
+    if not log.is_file():
+        return None
+    engine = None
+    for line in log.read_text(errors="replace").splitlines():
+        if line.startswith("$ "):
+            continue
+        try:
+            result = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(result, dict) or result.get("tool") != "lhd":
+            continue
+        passes = {step.split()[0] for step in (result.get("recipe") or [])
+                  if isinstance(step, str) and step.split()}
+        actual = []
+        if "pass.aegraph" in passes:
+            actual.append("aegraph")
+        if "pass.cprop" in passes:
+            actual.append("classic")
+        if actual:
+            engine = "+".join(actual)
+    return engine
+
+
+def simulation_engine_metadata(work: Path, setup_log: Path, design_input: str) -> dict:
+    """Keep source compilation separate from compilation of the Pyrope driver."""
+    driver = cprop_engine_from_log(setup_log)
+    source = (cprop_engine_from_log(work / "logs" / "elab.log")
+              if design_input.startswith("lg:") else driver)
+    return {"cprop_engine": source or "unknown", "driver_cprop_engine": driver or "unknown"}
 
 
 @dataclass
@@ -119,7 +154,7 @@ def run_lhd_sim(
         "--set", f"lhd.jobs={build_jobs}",  # was sim.jobs (renamed)
         *compile_sets(engine),
     ]
-    ctx.run(
+    setup = ctx.run(
         "setup",
         [lhd, "sim", *inputs, "--setup-only", *sim_policy, "--workdir", "SW"],
     )
@@ -138,7 +173,7 @@ def run_lhd_sim(
         if result.cycles != cycles:
             raise FlowError(f"simulation ran {result.cycles} cycles, expected {cycles}")
         return {"sim": {"backend": backend, "build_jobs": build_jobs,
-                        "cprop_engine": engine or os.environ.get("LHDTRACK_CPROP_ENGINE") or "classic",
+                        **simulation_engine_metadata(ctx.work, setup.log, design_input),
                         "cycles": result.cycles, "checksum": result.checksum,
                         "validation_only": True}}
 
@@ -166,7 +201,7 @@ def run_lhd_sim(
     return {
         "sim": {
             "backend": backend,
-            "cprop_engine": engine or os.environ.get("LHDTRACK_CPROP_ENGINE") or "classic",
+            **simulation_engine_metadata(ctx.work, setup.log, design_input),
             "build_jobs": build_jobs,
             "compile_timing": "direct" if direct_compile_timing else "execution-subtracted",
             "cycles": cycles,

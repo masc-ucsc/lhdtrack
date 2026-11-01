@@ -135,9 +135,15 @@ pub mod br_fifo_shared_read_xbar<NumFifos=2, NumReadPorts=1, RamReadLatency=1, D
       // Return this port's RAM data to the FIFO it served.
       const returning = served_fifo#[(p*FIFO_ID_WIDTH)..+FIFO_ID_WIDTH]
       for f in 0..<NumFifos {
+        // With one read port the RTL broadcasts the data to every FIFO;
+        // only out_valid is selected. Multiple ports use a valid-gated mux.
+        if NumReadPorts == 1 {
+          rd_data#[(f*Width)..+Width] = pop_rd_data#[(p*Width)..+Width]
+        } elif pop_rd_data_valid#[p] == 1 and returning == f {
+          rd_data#[(f*Width)..+Width] |= pop_rd_data#[(p*Width)..+Width]
+        }
         if pop_rd_data_valid#[p] == 1 and returning == f {
           rd_data_valid#[f]            = 1
-          rd_data#[(f*Width)..+Width] |= pop_rd_data#[(p*Width)..+Width]
         }
       }
     }
