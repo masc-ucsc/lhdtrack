@@ -32,16 +32,12 @@ bazel_dep(name = "protobuf", version = "36.0.bcr.1", repo_name = "com_google_pro
 # pins inside its own MODULE.bazel.
 bazel_dep(name = "livehd", version = "0.2.0")
 
-local_path_override(
+# Local co-development can use --override_module=livehd=../livehd.
+git_override(
     module_name = "livehd",
-    path = "../livehd",
+    commit = "d088d903969cc6b5bea21057b0b3976a22f92913",
+    remote = "https://github.com/masc-ucsc/livehd.git",
 )
-# Once ../livehd is pushed, swap the override above for a pin:
-# git_override(
-#     module_name = "livehd",
-#     commit = "<pushed commit>",
-#     remote = "https://github.com/masc-ucsc/livehd.git",
-# )
 
 # ------------------------------------------------- reference synthesis ------
 # The baseline flow, from the Bazel Central Registry. livehd links yosys and abc
