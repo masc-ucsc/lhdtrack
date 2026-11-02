@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from ..ledger import Ledger
+from ..lec_status import display_verdict
 from .synthesis_timing import lhd_steps
 from .verilog_eval import SN_LHD_FLOW, SN_LHD_LEC, sn_fixed_table
 
@@ -46,7 +47,7 @@ def write_external_run(root: Path, host: str, run: str, name: str) -> Path:
             body.append('<p>Architectural program: ' + ('passed' if passed else 'failed')
                         + f' ({program["cycles"]} cycles). A passing program is coverage, '
                         'not an equivalence proof.</p>')
-        proofs = [f'{field}: {row[field]["verdict"]}' for field in
+        proofs = [f'{field}: {display_verdict(row[field])}' for field in
                   ("lec_verilog_result", "lec_aux_result")
                   if row.get(field, {}).get("verdict")]
         if proofs:
@@ -161,7 +162,7 @@ def write_external_color_run(root: Path, host: str, run: str, name: str) -> Path
                 'Pipeline wall restores internal OpenTimer and process overhead. '
                 'Passing the architectural program supplies coverage, not a formal proof.</p>')
     proof_row = current.get("lec_netlist_verilog_abc_sn_flat", {})
-    proofs = [f'{field}: {proof_row[field]["verdict"]}'
+    proofs = [f'{field}: {display_verdict(proof_row[field])}'
               for field in ("lec_verilog_result", "lec_aux_result")
               if proof_row.get(field, {}).get("verdict")]
     if proofs:

@@ -29,6 +29,7 @@ td.l,th.l{text-align:left}
 tbody tr:hover{background:var(--head)}
 tfoot td{font-weight:600;background:var(--head)}
 .good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.tested{color:var(--accent)}
 .muted{color:var(--muted)}
 .tag{font-size:11px;padding:.05rem .35rem;border-radius:4px;background:var(--chip);
 color:var(--muted)}
@@ -67,7 +68,7 @@ th.sortable[aria-sort=ascending]::after{content:"↑";opacity:1;color:var(--acce
 th.sortable[aria-sort=descending]::after{content:"↓";opacity:1;color:var(--accent)}
 th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 </style></head>
-<body><div class="wrap"><!-- finished-results-snapshot:start --><section id="finished-results-current"><h2>Current finished results · provisional</h2><p>Updated 2026-11-01T21:28:29+00:00. Compiler <code>livehd a4804183e+dirty opt sha256:db17eeb18be9e3a9</code>. Main run <code>20261101T100936</code>: 4,095 entries (3,425 OK, 1 failed, 669 skipped). Additional ASAP7 ABC/USYN run <code>20261101T104333-asap7-usyn-default</code>: 1,170 entries finished.</p><p><b>Tested results enter every statistic equally with Proven.</b> Refuted exact netlists are excluded; missing measurements have no numeric contribution. These measurements precede the newest private correctness fixes. Suite failures and pending reruns remain open; this is not a final all-tests-passed release.</p><p><a href="results-syn-satsuma.html">Synthesis</a> · <a href="results-sim-satsuma.html">Simulation</a> · <a href="results-lec-satsuma.html">LEC</a> · <a href="results-syn-usyn-satsuma.html">ABC versus USYN: summaries and every paired result</a> · <a href="results-current-snapshot-satsuma.json">Measurement snapshot and provenance</a></p></section><section id="abc-usyn-current"><h2>ASAP7 · ABC versus USYN</h2><p>Geometric means are <b>ABC / USYN</b>: above 1 means USYN is better. Both Verilog mapper arms disable compile SAT optimization. Pyrope arms use the compiler default (off). Same compiler, host, Liberty and paired SDC. This is a default-flow comparison, including each mapper’s coloring and search. Recorded concurrent-run timings are rough diagnostics, not serial benchmark estimates. The two frontends each have 189 accepted pairs; per-metric counts exclude missing or nonpositive values. Both automatic and idiomatic cases enter this mapper comparison.</p><div class="scroll"><table><thead><tr><th class="l">Metric · ABC / USYN</th><th class="l">Verilog</th><th class="l">Pyrope</th></tr></thead><tbody><tr><td class="l">Cell area</td><td class="l">1.028× <small>(n=158)</small></td><td class="l">1.022× <small>(n=159)</small></td></tr><tr><td class="l">Cell count</td><td class="l">1.061× <small>(n=158)</small></td><td class="l">1.059× <small>(n=159)</small></td></tr><tr><td class="l">Critical-path delay</td><td class="l">0.960× <small>(n=157)</small></td><td class="l">0.967× <small>(n=158)</small></td></tr><tr><td class="l">Compile + color + mapping</td><td class="l">0.493× <small>(n=189)</small></td><td class="l">0.408× <small>(n=189)</small></td></tr><tr><td class="l">Complete measured flow</td><td class="l">0.722× <small>(n=189)</small></td><td class="l">0.747× <small>(n=189)</small></td></tr></tbody></table></div><p><a href="results-syn-usyn-satsuma.html">Every paired measurement, headline subset and exclusions</a>.</p></section><p class="warn"><b>Retained specialized results:</b> the previous published dataset follows below. Fresh auxiliary measurements are pending the suite fixes; its historical values are not merged into current statistics.</p><!-- finished-results-snapshot:end --><h1>dino · partition policy experiments</h1><p><strong>No partitioned candidate meets the matched flat cell limit for the latest measured compiler. Flat remains the only measured policy within that limit.</strong></p><p>ASAP7, fixed Brent–Kung/SN arithmetic and full ABC recipe. Flat references match compiler, source bytes, Liberty and SDC. More partitions are useful only while mapped cell count stays at or below the matched flat result. 1,000 cells is a soft size goal; predicted AIG nodes and word-level nodes are different units. External diagnostics are excluded from corpus headline averages.</p><table><tr><th>Run / policy</th><th>Max / min predicted AIG</th><th>Status</th><th>Synthesis (s)</th><th>Cells</th><th>Critical path (ps)</th><th>Useful bodies / ≥1k / &lt;1k</th><th>Cell change vs flat</th><th>Program</th></tr><tr><td>20261009T155818-partition-no-mux-cut / no-mux-cut</td><td>30000 / 0</td><td>ok</td><td>25.287</td><td>55582</td><td>1886.32</td><td>32 / 6 / 26</td><td>+32.45% · reject</td><td>unchecked</td></tr><tr><td>20261009T155910-partition-no-operator-cuts / no-operator-cuts</td><td>30000 / 0</td><td>ok</td><td>21.585</td><td>53883</td><td>1803.41</td><td>30 / 9 / 21</td><td>+28.40% · reject</td><td>unchecked</td></tr><tr><td>20261009T155958-partition-data-cones / data-cones</td><td>30000 / 0</td><td>ok</td><td>62.575</td><td>77906</td><td>2075.58</td><td>8 / 7 / 1</td><td>+85.64% · reject</td><td>unchecked</td></tr><tr><td>20261009T160310-partition-data-cones / data-cones</td><td>120000 / 0</td><td>ok</td><td>44.738</td><td>43938</td><td>1178.74</td><td>3 / 3 / 0</td><td>+4.70% · reject</td><td>unchecked</td></tr><tr><td>20261009T161417-partition-data-cones / data-cones</td><td>30000 / 0</td><td>ok</td><td>55.007</td><td>44735</td><td>1739.18</td><td>4 / 3 / 1</td><td>+6.60% · reject</td><td>unchecked</td></tr><tr><td>20261009T161702-partition-data-cones / data-cones</td><td>30000 / 8000</td><td>ok</td><td>53.871</td><td>44459</td><td>1691.46</td><td>3 / 3 / 0</td><td>+5.94% · reject</td><td>passed</td></tr><tr><td>20261009T161950-partition-data-cones / data-cones</td><td>16000 / 8000</td><td>ok</td><td>36.468</td><td>46837</td><td>1824.85</td><td>5 / 5 / 0</td><td>+11.61% · reject</td><td>unchecked</td></tr><tr><td>20261009T162309-partition-flat / flat</td><td>30000 / 0</td><td>ok</td><td>66.184</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T162836-partition-data-cones / data-cones</td><td>30000 / 8000</td><td>ok</td><td>68.802</td><td>42428</td><td>1006.71</td><td>2 / 2 / 0</td><td>no matched flat reference</td><td>unchecked</td></tr><tr><td>20261009T164555-partition-data-cones / data-cones + wiring context</td><td>30000 / 8000</td><td>failed</td><td>0.000 · timing limited</td><td>—</td><td>—</td><td>unrecorded</td><td>no matched flat reference</td><td>unchecked</td></tr><tr><td>20261009T164618-partition-flat / flat + wiring context</td><td>30000 / 8000</td><td>ok</td><td>69.720 · timing limited</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T165525-partition-data-cones / data-cones + wiring context</td><td>30000 / 8000</td><td>ok</td><td>54.407</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T165644-partition-flat / flat + wiring context</td><td>30000 / 8000</td><td>ok</td><td>64.066</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>passed</td></tr><tr><td>20261009T165945-partition-data-cones / data-cones + wiring context</td><td>60000 / 8000</td><td>ok</td><td>27.844</td><td>47313</td><td>1695.34</td><td>5 / 5 / 0</td><td>+12.74% · reject</td><td>unchecked</td></tr><tr><td>20261009T170145-partition-data-cones / data-cones + wiring context</td><td>120000 / 8000</td><td>ok</td><td>45.953</td><td>43992</td><td>1204.95</td><td>3 / 3 / 0</td><td>+4.83% · reject</td><td>unchecked</td></tr><tr><td>20261009T171148-partition-data-cones / data-cones + wiring context + native interfaces</td><td>30000 / 8000</td><td>ok</td><td>56.087</td><td>44106</td><td>1714.68</td><td>3 / 3 / 0</td><td>+5.10% · reject</td><td>unchecked</td></tr><tr><td>20261009T171310-partition-flat / flat + wiring context + native interfaces</td><td>30000 / 8000</td><td>ok</td><td>66.692</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T172048-partition-warm / data-cones repeated cold + wiring context</td><td>30000 / 8000</td><td>ok</td><td>54.469</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>unchecked</td></tr><tr><td>20261009T172820-partition-warm / data-cones warm cache + wiring context</td><td>30000 / 8000</td><td>ok</td><td>15.313</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T173222-partition-data-cones / data-cones warm cache + wiring context</td><td>30000 / 8000</td><td>ok</td><td>15.464</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T180729-partition-data-cones / data-cones + wiring context + complete register cones + forward off</td><td>30000 / 8000</td><td>ok</td><td>64.534</td><td>42038</td><td>999.71</td><td>2 / 2 / 0</td><td>+0.17% · reject</td><td>passed</td></tr></table><p>Useful bodies have nonzero mapped gates; zero-gate boundary scaffolding is excluded. These are backend region sizes before shared normalization; reused bodies carry physical instance counts in the evidence. Program checks provide coverage, not equivalence proofs.</p><h2>Boundary investigation · 20261009T165525-partition-data-cones</h2><p>The two useful colors do not correspond to pipeline stages. Color 1 contains most pipeline registers and an ALU result selector; color 2 contains many ALU operators and forwarding logic. Raw interfaces carry signals in both directions. Generated bit-extraction helper modules hide unused packed-register bits.</p><table><tr><th>Observation</th><th>Cells</th><th>Flops</th><th>Critical path (ps)</th></tr><tr><td>Retained two-color measurement</td><td>43862</td><td>4146</td><td>1713.61</td></tr><tr><td>Wiring helpers inlined + dead-cell cleanup (diagnostic)</td><td>42707</td><td>3577</td><td>1713.61</td></tr><tr><td>Matched flat measurement</td><td>41966</td><td>3577</td><td>988.53</td></tr></table><p>Cleanup changes only the normalized netlist: inline __livehd_abc_input_bits_* wiring helpers, then opt_clean. No ABC remapping. This is a diagnostic, not a replacement synthesis measurement or a formal equivalence claim. Headline counts and acceptance continue to use the original ledger row. Memory cell count is unchanged.</p><p>ABC structural hashing finds 55 repeated cell-output functions in the cleaned partitioned circuit versus 32 in flat; bounded FRAIG finds 187 versus 161. Thus direct repeated outputs account for only 26 additional detected sharing opportunities. This does not bound all missed sharing: SAT has a 500-conflict limit, constants are abstracted as independent inputs, buffers/inverters are excluded, subfunctions inside cells are not counted, and equal functions may need replication for timing. The ALU operator/selector cut directly blocks joint Boolean restructuring and technology mapping; the exact remaining 741-cell attribution is unresolved.</p><h3>Post-mapping cone traversal</h3><p>Backward traversal matches all 3,776 data/output endpoints after helper cleanup. The execution-to-memory unions grow by 251 cells (pipe A) and 226 cells (pipe B), and their maximum cell levels increase from 25 to 36. Source-bit sets are unchanged. Disjoint physical-cell accounting finds 12,004 flat versus 12,555 two-color cells feeding only these two register groups: +551, or 74.4% of the remaining +741 cells. This localizes the mapped footprint, rather than proving an exact optimization cause. Most execution bit cones shrink (161/201 pipe A; 158/202 pipe B) while their union grows. Cells private to one bit increase from 2,095 to 2,372 in A and 2,064 to 2,480 in B, evidence of a less shared mapped structure, not just bigger individual cones. The retained worst timing endpoint pipeB_ex_mem.reg_0[89] has fewer cone cells (3,674 to 3,635) but more levels (25 to 35). The raw measurement has 569 extra register endpoints; cleanup removes them while every matched cone metric stays identical.</p><table><tr><th>Register/output group</th><th>Matched bits</th><th>Flat cone cells</th><th>Two-color cone cells</th><th>Change</th><th>Flat / two-color levels</th><th>Same source bits</th></tr><tr><td>register:pipeA_ex_mem.reg_0</td><td>201</td><td>8699</td><td>8950</td><td>+251</td><td>25 / 36</td><td>yes</td></tr><tr><td>register:pipeB_ex_mem.reg_0</td><td>202</td><td>8675</td><td>8901</td><td>+226</td><td>25 / 36</td><td>yes</td></tr><tr><td>register:pc</td><td>64</td><td>581</td><td>749</td><td>+168</td><td>16 / 15</td><td>yes</td></tr><tr><td>register:pipeB_if_id.reg_0</td><td>97</td><td>505</td><td>603</td><td>+98</td><td>15 / 14</td><td>yes</td></tr><tr><td>register:pipeA_if_id.reg_0</td><td>96</td><td>390</td><td>422</td><td>+32</td><td>9 / 14</td><td>yes</td></tr><tr><td>register:pipeB_id_ex.reg_0</td><td>282</td><td>7045</td><td>7077</td><td>+32</td><td>12 / 14</td><td>yes</td></tr><tr><td>register:pipeA_id_ex_ctrl.reg_0</td><td>14</td><td>113</td><td>131</td><td>+18</td><td>11 / 13</td><td>yes</td></tr><tr><td>register:pipeB_id_ex_ctrl.reg_0</td><td>14</td><td>110</td><td>128</td><td>+18</td><td>11 / 14</td><td>yes</td></tr><tr><td>register:pipeA_id_ex.reg_0</td><td>281</td><td>7048</td><td>7064</td><td>+16</td><td>12 / 14</td><td>yes</td></tr><tr><td>register:pipeB_mem_wb_ctrl.reg_0</td><td>2</td><td>7</td><td>17</td><td>+10</td><td>5 / 7</td><td>no</td></tr><tr><td>register:pipeA_mem_wb_ctrl.reg_0</td><td>2</td><td>8</td><td>17</td><td>+9</td><td>5 / 7</td><td>no</td></tr><tr><td>register:pipeA_mem_wb.reg_0</td><td>133</td><td>147</td><td>149</td><td>+2</td><td>5 / 5</td><td>yes</td></tr><tr><td>register:pipeB_mem_wb.reg_0</td><td>133</td><td>147</td><td>149</td><td>+2</td><td>5 / 5</td><td>yes</td></tr><tr><td>register:pipeA_ex_mem_ctrl.reg_0</td><td>4</td><td>10</td><td>11</td><td>+1</td><td>6 / 7</td><td>yes</td></tr><tr><td>register:pipeB_ex_mem_ctrl.reg_0</td><td>4</td><td>10</td><td>11</td><td>+1</td><td>6 / 7</td><td>yes</td></tr><tr><td>output:io_dmem_memread</td><td>1</td><td>7</td><td>7</td><td>+0</td><td>4 / 4</td><td>yes</td></tr><tr><td>output:io_dmem_memwrite</td><td>1</td><td>8</td><td>8</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_valid</td><td>1</td><td>8</td><td>8</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_writedata</td><td>64</td><td>205</td><td>205</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_imem_valid</td><td>1</td><td>0</td><td>0</td><td>+0</td><td>0 / 0</td><td>yes</td></tr><tr><td>output:io_dmem_address</td><td>64</td><td>205</td><td>204</td><td>-1</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_maskmode</td><td>2</td><td>11</td><td>10</td><td>-1</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_sext</td><td>1</td><td>8</td><td>7</td><td>-1</td><td>5 / 4</td><td>yes</td></tr><tr><td>output:io_imem_address</td><td>64</td><td>31</td><td>18</td><td>-13</td><td>1 / 1</td><td>yes</td></tr><tr><td>register:__lhdmem_h7265676973746572732e72656773_e._mem</td><td>2048</td><td>12002</td><td>11978</td><td>-24</td><td>16 / 17</td><td>yes</td></tr></table><p>Named register data pins and primary outputs; sequential outputs are boundaries. Groups are unions of matched endpoint cones. Cells shared between groups or endpoints appear in each cone, so deltas cannot be summed. Structural source support is connectivity, not Boolean influence. Levels count physical cells and do not estimate delay. Name matching is not an equivalence proof.</p><details><summary>Structured measurements, region sizes and provenance</summary><pre>[
+<body><div class="wrap"><h1>dino · partition policy experiments</h1><p><strong>No partitioned candidate meets the matched flat cell limit for the latest measured compiler. Flat remains the only measured policy within that limit.</strong></p><p>ASAP7, fixed Brent–Kung/SN arithmetic and full ABC recipe. Flat references match compiler, source bytes, Liberty and SDC. More partitions are useful only while mapped cell count stays at or below the matched flat result. 1,000 cells is a soft size goal; predicted AIG nodes and word-level nodes are different units. External diagnostics are excluded from corpus headline averages.</p><table><tr><th>Run / policy</th><th>Max / min predicted AIG</th><th>Status</th><th>Synthesis (s)</th><th>Cells</th><th>Critical path (ps)</th><th>Useful bodies / ≥1k / &lt;1k</th><th>Cell change vs flat</th><th>Program</th></tr><tr><td>20261009T155818-partition-no-mux-cut / no-mux-cut</td><td>30000 / 0</td><td>ok</td><td>25.287</td><td>55582</td><td>1886.32</td><td>32 / 6 / 26</td><td>+32.45% · reject</td><td>unchecked</td></tr><tr><td>20261009T155910-partition-no-operator-cuts / no-operator-cuts</td><td>30000 / 0</td><td>ok</td><td>21.585</td><td>53883</td><td>1803.41</td><td>30 / 9 / 21</td><td>+28.40% · reject</td><td>unchecked</td></tr><tr><td>20261009T155958-partition-data-cones / data-cones</td><td>30000 / 0</td><td>ok</td><td>62.575</td><td>77906</td><td>2075.58</td><td>8 / 7 / 1</td><td>+85.64% · reject</td><td>unchecked</td></tr><tr><td>20261009T160310-partition-data-cones / data-cones</td><td>120000 / 0</td><td>ok</td><td>44.738</td><td>43938</td><td>1178.74</td><td>3 / 3 / 0</td><td>+4.70% · reject</td><td>unchecked</td></tr><tr><td>20261009T161417-partition-data-cones / data-cones</td><td>30000 / 0</td><td>ok</td><td>55.007</td><td>44735</td><td>1739.18</td><td>4 / 3 / 1</td><td>+6.60% · reject</td><td>unchecked</td></tr><tr><td>20261009T161702-partition-data-cones / data-cones</td><td>30000 / 8000</td><td>ok</td><td>53.871</td><td>44459</td><td>1691.46</td><td>3 / 3 / 0</td><td>+5.94% · reject</td><td>passed</td></tr><tr><td>20261009T161950-partition-data-cones / data-cones</td><td>16000 / 8000</td><td>ok</td><td>36.468</td><td>46837</td><td>1824.85</td><td>5 / 5 / 0</td><td>+11.61% · reject</td><td>unchecked</td></tr><tr><td>20261009T162309-partition-flat / flat</td><td>30000 / 0</td><td>ok</td><td>66.184</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T162836-partition-data-cones / data-cones</td><td>30000 / 8000</td><td>ok</td><td>68.802</td><td>42428</td><td>1006.71</td><td>2 / 2 / 0</td><td>no matched flat reference</td><td>unchecked</td></tr><tr><td>20261009T164555-partition-data-cones / data-cones + wiring context</td><td>30000 / 8000</td><td>failed</td><td>0.000 · timing limited</td><td>—</td><td>—</td><td>unrecorded</td><td>no matched flat reference</td><td>unchecked</td></tr><tr><td>20261009T164618-partition-flat / flat + wiring context</td><td>30000 / 8000</td><td>ok</td><td>69.720 · timing limited</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T165525-partition-data-cones / data-cones + wiring context</td><td>30000 / 8000</td><td>ok</td><td>54.407</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T165644-partition-flat / flat + wiring context</td><td>30000 / 8000</td><td>ok</td><td>64.066</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>passed</td></tr><tr><td>20261009T165945-partition-data-cones / data-cones + wiring context</td><td>60000 / 8000</td><td>ok</td><td>27.844</td><td>47313</td><td>1695.34</td><td>5 / 5 / 0</td><td>+12.74% · reject</td><td>unchecked</td></tr><tr><td>20261009T170145-partition-data-cones / data-cones + wiring context</td><td>120000 / 8000</td><td>ok</td><td>45.953</td><td>43992</td><td>1204.95</td><td>3 / 3 / 0</td><td>+4.83% · reject</td><td>unchecked</td></tr><tr><td>20261009T171148-partition-data-cones / data-cones + wiring context + native interfaces</td><td>30000 / 8000</td><td>ok</td><td>56.087</td><td>44106</td><td>1714.68</td><td>3 / 3 / 0</td><td>+5.10% · reject</td><td>unchecked</td></tr><tr><td>20261009T171310-partition-flat / flat + wiring context + native interfaces</td><td>30000 / 8000</td><td>ok</td><td>66.692</td><td>41966</td><td>988.53</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>unchecked</td></tr><tr><td>20261009T172048-partition-warm / data-cones repeated cold + wiring context</td><td>30000 / 8000</td><td>ok</td><td>54.469</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>unchecked</td></tr><tr><td>20261009T172820-partition-warm / data-cones warm cache + wiring context</td><td>30000 / 8000</td><td>ok</td><td>15.313</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T173222-partition-data-cones / data-cones warm cache + wiring context</td><td>30000 / 8000</td><td>ok</td><td>15.464</td><td>43862</td><td>1713.61</td><td>3 / 3 / 0</td><td>+4.52% · reject</td><td>passed</td></tr><tr><td>20261009T180729-partition-data-cones / data-cones + wiring context + complete register cones + forward off</td><td>30000 / 8000</td><td>ok</td><td>64.534</td><td>42038</td><td>999.71</td><td>2 / 2 / 0</td><td>+0.17% · reject</td><td>passed</td></tr><tr><td>20261102T014947-aux-1978328-partition-flat / flat</td><td>30000 / 0</td><td>ok</td><td>70.262</td><td>41664</td><td>1128.28</td><td>2 / 2 / 0</td><td>+0.00% · within cell limit</td><td>passed</td></tr><tr><td>20261102T015120-aux-1978328-partition-no-mux-cut / no-mux-cut</td><td>30000 / 0</td><td>ok</td><td>60.164</td><td>42530</td><td>1141.13</td><td>9 / 2 / 7</td><td>+2.08% · reject</td><td>passed</td></tr><tr><td>20261102T015238-aux-1978328-partition-no-operator-cuts / no-operator-cuts</td><td>30000 / 0</td><td>ok</td><td>59.889</td><td>42530</td><td>1141.13</td><td>9 / 2 / 7</td><td>+2.08% · reject</td><td>passed</td></tr><tr><td>20261102T015356-aux-1978328-partition-data-cones / data-cones</td><td>30000 / 0</td><td>ok</td><td>64.957</td><td>42530</td><td>1141.13</td><td>9 / 2 / 7</td><td>+2.08% · reject</td><td>passed</td></tr></table><p>Useful bodies have nonzero mapped gates; zero-gate boundary scaffolding is excluded. These are backend region sizes before shared normalization; reused bodies carry physical instance counts in the evidence. Program checks provide coverage, not equivalence proofs.</p><h2>Boundary investigation · 20261009T165525-partition-data-cones</h2><p>The two useful colors do not correspond to pipeline stages. Color 1 contains most pipeline registers and an ALU result selector; color 2 contains many ALU operators and forwarding logic. Raw interfaces carry signals in both directions. Generated bit-extraction helper modules hide unused packed-register bits.</p><table><tr><th>Observation</th><th>Cells</th><th>Flops</th><th>Critical path (ps)</th></tr><tr><td>Retained two-color measurement</td><td>43862</td><td>4146</td><td>1713.61</td></tr><tr><td>Wiring helpers inlined + dead-cell cleanup (diagnostic)</td><td>42707</td><td>3577</td><td>1713.61</td></tr><tr><td>Matched flat measurement</td><td>41966</td><td>3577</td><td>988.53</td></tr></table><p>Cleanup changes only the normalized netlist: inline __livehd_abc_input_bits_* wiring helpers, then opt_clean. No ABC remapping. This is a diagnostic, not a replacement synthesis measurement or a formal equivalence claim. Headline counts and acceptance continue to use the original ledger row. Memory cell count is unchanged.</p><p>ABC structural hashing finds 55 repeated cell-output functions in the cleaned partitioned circuit versus 32 in flat; bounded FRAIG finds 187 versus 161. Thus direct repeated outputs account for only 26 additional detected sharing opportunities. This does not bound all missed sharing: SAT has a 500-conflict limit, constants are abstracted as independent inputs, buffers/inverters are excluded, subfunctions inside cells are not counted, and equal functions may need replication for timing. The ALU operator/selector cut directly blocks joint Boolean restructuring and technology mapping; the exact remaining 741-cell attribution is unresolved.</p><h3>Post-mapping cone traversal</h3><p>Backward traversal matches all 3,776 data/output endpoints after helper cleanup. The execution-to-memory unions grow by 251 cells (pipe A) and 226 cells (pipe B), and their maximum cell levels increase from 25 to 36. Source-bit sets are unchanged. Disjoint physical-cell accounting finds 12,004 flat versus 12,555 two-color cells feeding only these two register groups: +551, or 74.4% of the remaining +741 cells. This localizes the mapped footprint, rather than proving an exact optimization cause. Most execution bit cones shrink (161/201 pipe A; 158/202 pipe B) while their union grows. Cells private to one bit increase from 2,095 to 2,372 in A and 2,064 to 2,480 in B, evidence of a less shared mapped structure, not just bigger individual cones. The retained worst timing endpoint pipeB_ex_mem.reg_0[89] has fewer cone cells (3,674 to 3,635) but more levels (25 to 35). The raw measurement has 569 extra register endpoints; cleanup removes them while every matched cone metric stays identical.</p><table><tr><th>Register/output group</th><th>Matched bits</th><th>Flat cone cells</th><th>Two-color cone cells</th><th>Change</th><th>Flat / two-color levels</th><th>Same source bits</th></tr><tr><td>register:pipeA_ex_mem.reg_0</td><td>201</td><td>8699</td><td>8950</td><td>+251</td><td>25 / 36</td><td>yes</td></tr><tr><td>register:pipeB_ex_mem.reg_0</td><td>202</td><td>8675</td><td>8901</td><td>+226</td><td>25 / 36</td><td>yes</td></tr><tr><td>register:pc</td><td>64</td><td>581</td><td>749</td><td>+168</td><td>16 / 15</td><td>yes</td></tr><tr><td>register:pipeB_if_id.reg_0</td><td>97</td><td>505</td><td>603</td><td>+98</td><td>15 / 14</td><td>yes</td></tr><tr><td>register:pipeA_if_id.reg_0</td><td>96</td><td>390</td><td>422</td><td>+32</td><td>9 / 14</td><td>yes</td></tr><tr><td>register:pipeB_id_ex.reg_0</td><td>282</td><td>7045</td><td>7077</td><td>+32</td><td>12 / 14</td><td>yes</td></tr><tr><td>register:pipeA_id_ex_ctrl.reg_0</td><td>14</td><td>113</td><td>131</td><td>+18</td><td>11 / 13</td><td>yes</td></tr><tr><td>register:pipeB_id_ex_ctrl.reg_0</td><td>14</td><td>110</td><td>128</td><td>+18</td><td>11 / 14</td><td>yes</td></tr><tr><td>register:pipeA_id_ex.reg_0</td><td>281</td><td>7048</td><td>7064</td><td>+16</td><td>12 / 14</td><td>yes</td></tr><tr><td>register:pipeB_mem_wb_ctrl.reg_0</td><td>2</td><td>7</td><td>17</td><td>+10</td><td>5 / 7</td><td>no</td></tr><tr><td>register:pipeA_mem_wb_ctrl.reg_0</td><td>2</td><td>8</td><td>17</td><td>+9</td><td>5 / 7</td><td>no</td></tr><tr><td>register:pipeA_mem_wb.reg_0</td><td>133</td><td>147</td><td>149</td><td>+2</td><td>5 / 5</td><td>yes</td></tr><tr><td>register:pipeB_mem_wb.reg_0</td><td>133</td><td>147</td><td>149</td><td>+2</td><td>5 / 5</td><td>yes</td></tr><tr><td>register:pipeA_ex_mem_ctrl.reg_0</td><td>4</td><td>10</td><td>11</td><td>+1</td><td>6 / 7</td><td>yes</td></tr><tr><td>register:pipeB_ex_mem_ctrl.reg_0</td><td>4</td><td>10</td><td>11</td><td>+1</td><td>6 / 7</td><td>yes</td></tr><tr><td>output:io_dmem_memread</td><td>1</td><td>7</td><td>7</td><td>+0</td><td>4 / 4</td><td>yes</td></tr><tr><td>output:io_dmem_memwrite</td><td>1</td><td>8</td><td>8</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_valid</td><td>1</td><td>8</td><td>8</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_writedata</td><td>64</td><td>205</td><td>205</td><td>+0</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_imem_valid</td><td>1</td><td>0</td><td>0</td><td>+0</td><td>0 / 0</td><td>yes</td></tr><tr><td>output:io_dmem_address</td><td>64</td><td>205</td><td>204</td><td>-1</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_maskmode</td><td>2</td><td>11</td><td>10</td><td>-1</td><td>5 / 5</td><td>yes</td></tr><tr><td>output:io_dmem_sext</td><td>1</td><td>8</td><td>7</td><td>-1</td><td>5 / 4</td><td>yes</td></tr><tr><td>output:io_imem_address</td><td>64</td><td>31</td><td>18</td><td>-13</td><td>1 / 1</td><td>yes</td></tr><tr><td>register:__lhdmem_h7265676973746572732e72656773_e._mem</td><td>2048</td><td>12002</td><td>11978</td><td>-24</td><td>16 / 17</td><td>yes</td></tr></table><p>Named register data pins and primary outputs; sequential outputs are boundaries. Groups are unions of matched endpoint cones. Cells shared between groups or endpoints appear in each cone, so deltas cannot be summed. Structural source support is connectivity, not Boolean influence. Levels count physical cells and do not estimate delay. Name matching is not an equivalence proof.</p><details><summary>Structured measurements, region sizes and provenance</summary><pre>[
   {
     &quot;cached&quot;: false,
     &quot;comparable&quot;: false,
@@ -13181,9 +13182,1609 @@ th.sortable:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
       &quot;yosys2&quot;: &quot;sha256:d60dc8ee1efcfa87&quot;,
       &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
     }
+  },
+  {
+    &quot;auxiliary_cohort&quot;: &quot;buffer-v2-original-scope&quot;,
+    &quot;cached&quot;: false,
+    &quot;cohort_parallel_jobs&quot;: 16,
+    &quot;comparable&quot;: false,
+    &quot;config&quot;: &quot;default&quot;,
+    &quot;cpus&quot;: 128,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;flow&quot;: &quot;syn_lhd_verilog_abc_sn_flat&quot;,
+    &quot;host&quot;: &quot;satsuma&quot;,
+    &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+    &quot;kind&quot;: &quot;synth&quot;,
+    &quot;lec&quot;: &quot;none&quot;,
+    &quot;lec_gate&quot;: true,
+    &quot;measured&quot;: &quot;2026-11-01&quot;,
+    &quot;measurement_jobs&quot;: 1,
+    &quot;partition_diagnostic&quot;: true,
+    &quot;partition_settings&quot;: {
+      &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+      &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;
+    },
+    &quot;partition_variant&quot;: &quot;flat&quot;,
+    &quot;passed&quot;: true,
+    &quot;peak_rss_kb&quot;: {
+      &quot;area&quot;: 419088,
+      &quot;color&quot;: 60468,
+      &quot;compile&quot;: 279512,
+      &quot;emit&quot;: 177728,
+      &quot;map&quot;: 305280,
+      &quot;max&quot;: 787208,
+      &quot;normalize&quot;: 441676,
+      &quot;opensta&quot;: 357956,
+      &quot;opentimer&quot;: 787208
+    },
+    &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+    &quot;pyrope_status&quot;: &quot;none&quot;,
+    &quot;qor&quot;: {
+      &quot;abc_max_delay_ns&quot;: 914.2606,
+      &quot;area_source&quot;: &quot;yosys-stat&quot;,
+      &quot;area_um2&quot;: 3867.666,
+      &quot;arithmetic_trials&quot;: 0,
+      &quot;cells&quot;: 41664,
+      &quot;coloring_profile&quot;: &quot;flat-no-arithmetic-boundaries&quot;,
+      &quot;comb_area_um2&quot;: 2824.496,
+      &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+      &quot;flops&quot;: 3577,
+      &quot;lhd_area_um2&quot;: 2861.04,
+      &quot;lhd_cells&quot;: 38754,
+      &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+      &quot;logic_depth&quot;: 35,
+      &quot;mapper&quot;: &quot;abc&quot;,
+      &quot;netlist_sha256&quot;: &quot;36b19eaf0566d1bb91b3ac23c5c3abc9d2e68b6f8ce7b70a62ca4df8b9bd894e&quot;,
+      &quot;normalized&quot;: false,
+      &quot;program_check&quot;: {
+        &quot;checked_at&quot;: &quot;2026-11-02T01:56:09.472861+00:00&quot;,
+        &quot;cycles&quot;: 1000,
+        &quot;driver&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T014947-aux-1978328-partition-flat/program-check/dino_prog_tb_verilator.cpp&quot;,
+        &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+        &quot;implementation&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T014947-aux-1978328-partition-flat/program-check/lhd_mapped/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T014947-aux-1978328-partition-flat/dino/default/asap7/lec_netlist_verilog_abc_sn_flat/models.v&quot;: &quot;f3c32d7617f3207bd894b80a51638fc8dbde05c1810ba65fea0837821f9e407c&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T014947-aux-1978328-partition-flat/dino/default/asap7/syn_lhd_verilog_abc_sn_flat/emitted-netlist-all.v&quot;: &quot;36b19eaf0566d1bb91b3ac23c5c3abc9d2e68b6f8ce7b70a62ca4df8b9bd894e&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;netlist_rc&quot;: 0,
+        &quot;netlist_sha256&quot;: &quot;36b19eaf0566d1bb91b3ac23c5c3abc9d2e68b6f8ce7b70a62ca4df8b9bd894e&quot;,
+        &quot;reference&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T014947-aux-1978328-partition-flat/program-check/rtl/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;reference_rc&quot;: 0,
+        &quot;versions&quot;: {
+          &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+          &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+          &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+          &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+          &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+          &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+          &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+          &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+          &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+          &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+          &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+          &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+          &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+          &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+        }
+      },
+      &quot;raw_structural&quot;: true,
+      &quot;regions&quot;: 3,
+      &quot;satopt_facts&quot;: 0,
+      &quot;satopt_regions&quot;: 0,
+      &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+      &quot;seq_area_um2&quot;: 1043.17,
+      &quot;source_sha256&quot;: {
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/constraints/asap7.sdc&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/design.toml&quot;: &quot;2eb8df8ed6227eedeefe9639741da3f29addbf79e8907ad7b54e82bea9ac5d72&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+      },
+      &quot;synth_policy&quot;: {
+        &quot;base&quot;: &quot;compiler defaults&quot;,
+        &quot;pass.abc.adder&quot;: &quot;brent&quot;,
+        &quot;pass.abc.barrel&quot;: &quot;log&quot;,
+        &quot;pass.abc.delay&quot;: &quot;1000&quot;,
+        &quot;pass.abc.flatten&quot;: &quot;true&quot;,
+        &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+        &quot;pass.abc.multiplier&quot;: &quot;sn&quot;,
+        &quot;pass.abc.region_opts&quot;: &quot;{}&quot;,
+        &quot;pass.color.alg&quot;: &quot;flat&quot;,
+        &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+        &quot;pass.color.ware_arith&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_cmp&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_shift&quot;: &quot;false&quot;,
+        &quot;pass.satopt&quot;: &quot;false&quot;,
+        &quot;synth.mapper&quot;: &quot;abc&quot;
+      },
+      &quot;timing_breakdown&quot;: {
+        &quot;parallel&quot;: {
+          &quot;limit&quot;: 8,
+          &quot;memory_limit_bytes&quot;: 405453092864,
+          &quot;memory_waits&quot;: 0,
+          &quot;peak_abc&quot;: 2,
+          &quot;peak_workers&quot;: 2,
+          &quot;requested&quot;: 0
+        },
+        &quot;phases&quot;: [
+          {
+            &quot;ms&quot;: 0.025,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 217.885,
+            &quot;name&quot;: &quot;inou.slang&quot;
+          },
+          {
+            &quot;ms&quot;: 39.582,
+            &quot;name&quot;: &quot;pass.upass&quot;
+          },
+          {
+            &quot;ms&quot;: 13.898,
+            &quot;name&quot;: &quot;lnast.tolg&quot;
+          },
+          {
+            &quot;ms&quot;: 11.487,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.53,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 2.565,
+            &quot;name&quot;: &quot;pass.specialize&quot;
+          },
+          {
+            &quot;ms&quot;: 3.313,
+            &quot;name&quot;: &quot;pass.legalize&quot;
+          },
+          {
+            &quot;ms&quot;: 10.256,
+            &quot;name&quot;: &quot;pass.enableopt&quot;
+          },
+          {
+            &quot;ms&quot;: 10.943,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.697,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 16.99,
+            &quot;name&quot;: &quot;pass.formal&quot;
+          },
+          {
+            &quot;ms&quot;: 1.335,
+            &quot;name&quot;: &quot;pass.legalize.seal&quot;
+          },
+          {
+            &quot;ms&quot;: 2.653,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 1.569,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 1.273,
+            &quot;name&quot;: &quot;pass.color&quot;
+          },
+          {
+            &quot;ms&quot;: 1.092,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 1.543,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 69882.073,
+            &quot;name&quot;: &quot;pass.abc&quot;
+          },
+          {
+            &quot;ms&quot;: 20.826,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 13.607,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 3149.842,
+            &quot;name&quot;: &quot;pass.opentimer&quot;
+          }
+        ],
+        &quot;process_time_ms&quot;: {
+          &quot;color&quot;: 15,
+          &quot;compile&quot;: 426,
+          &quot;map&quot;: 69938,
+          &quot;opentimer&quot;: 3227
+        },
+        &quot;regions&quot;: [
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 23194,
+            &quot;input_ge&quot;: 26840,
+            &quot;input_nodes&quot;: 753,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 11,
+            &quot;module&quot;: &quot;cgen_memory_4rd_65wr_ee88cacc3614de31_blasted&quot;,
+            &quot;ms&quot;: 12571.9,
+            &quot;pred_aig&quot;: 67686,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 0,
+            &quot;input_ge&quot;: 0,
+            &quot;input_nodes&quot;: 2,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 1,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_55d57743a65745a8&quot;,
+            &quot;ms&quot;: 743.4,
+            &quot;pred_aig&quot;: 0,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 15560,
+            &quot;input_ge&quot;: 216596,
+            &quot;input_nodes&quot;: 1060,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 35,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_8704a9928287a682&quot;,
+            &quot;ms&quot;: 56556.1,
+            &quot;pred_aig&quot;: 146078,
+            &quot;ware_trials&quot;: 0
+          }
+        ],
+        &quot;schema_version&quot;: 1,
+        &quot;synthesis_invocation&quot;: {
+          &quot;scope&quot;: &quot;compile-color-map-opentimer-processes&quot;,
+          &quot;wall_ms&quot;: 73606
+        }
+      }
+    },
+    &quot;run_id&quot;: &quot;20261102T014947-aux-1978328-partition-flat&quot;,
+    &quot;source_run&quot;: &quot;20261102T013718-aux-1961293-external-sn&quot;,
+    &quot;sta&quot;: {
+      &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+      &quot;opensta_ns&quot;: 1128.2817,
+      &quot;opentimer_note&quot;: &quot;OpenTimer validation not requested&quot;,
+      &quot;sdc_period_ns&quot;: 1000.0,
+      &quot;time_unit&quot;: &quot;ps&quot;,
+      &quot;tns_ns&quot;: -13149.5224,
+      &quot;wns_ns&quot;: -128.2817
+    },
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;suite&quot;: &quot;external-diagnostic&quot;,
+    &quot;tech&quot;: &quot;asap7&quot;,
+    &quot;test&quot;: &quot;dino&quot;,
+    &quot;time_ms&quot;: {
+      &quot;area&quot;: 4290,
+      &quot;color&quot;: 1,
+      &quot;compile&quot;: 379,
+      &quot;emit&quot;: 711,
+      &quot;map&quot;: 69882,
+      &quot;normalize&quot;: 6811,
+      &quot;opensta&quot;: 2809,
+      &quot;total&quot;: 84883
+    },
+    &quot;toolchain_snapshot&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T014947-aux-1978328-partition-flat/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+    &quot;versions&quot;: {
+      &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+      &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+      &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+      &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+      &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+      &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+      &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+      &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+      &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+      &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+      &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+      &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+      &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+      &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+    }
+  },
+  {
+    &quot;auxiliary_cohort&quot;: &quot;buffer-v2-original-scope&quot;,
+    &quot;cached&quot;: false,
+    &quot;cohort_parallel_jobs&quot;: 16,
+    &quot;comparable&quot;: false,
+    &quot;config&quot;: &quot;default&quot;,
+    &quot;cpus&quot;: 128,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;flow&quot;: &quot;syn_lhd_verilog_abc_sn_partition&quot;,
+    &quot;host&quot;: &quot;satsuma&quot;,
+    &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+    &quot;kind&quot;: &quot;synth&quot;,
+    &quot;lec&quot;: &quot;none&quot;,
+    &quot;lec_gate&quot;: true,
+    &quot;measured&quot;: &quot;2026-11-01&quot;,
+    &quot;measurement_jobs&quot;: 1,
+    &quot;partition_diagnostic&quot;: true,
+    &quot;partition_settings&quot;: {
+      &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+      &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+      &quot;pass.color.synth.stop_mux&quot;: &quot;false&quot;
+    },
+    &quot;partition_variant&quot;: &quot;no-mux-cut&quot;,
+    &quot;passed&quot;: true,
+    &quot;peak_rss_kb&quot;: {
+      &quot;area&quot;: 417780,
+      &quot;emit&quot;: 357956,
+      &quot;map&quot;: 886340,
+      &quot;max&quot;: 886340,
+      &quot;normalize&quot;: 441164,
+      &quot;opensta&quot;: 357956
+    },
+    &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+    &quot;pyrope_status&quot;: &quot;none&quot;,
+    &quot;qor&quot;: {
+      &quot;abc_max_delay_ns&quot;: 914.8711,
+      &quot;area_source&quot;: &quot;yosys-stat&quot;,
+      &quot;area_um2&quot;: 3932.488,
+      &quot;arithmetic_trials&quot;: 0,
+      &quot;cells&quot;: 42530,
+      &quot;comb_area_um2&quot;: 2888.516,
+      &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+      &quot;flops&quot;: 3580,
+      &quot;lhd_area_um2&quot;: 2883.972,
+      &quot;lhd_cells&quot;: 38950,
+      &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+      &quot;logic_depth&quot;: 35,
+      &quot;mapper&quot;: &quot;abc&quot;,
+      &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+      &quot;normalized&quot;: false,
+      &quot;program_check&quot;: {
+        &quot;checked_at&quot;: &quot;2026-11-02T01:57:00.142497+00:00&quot;,
+        &quot;cycles&quot;: 1000,
+        &quot;driver&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015120-aux-1978328-partition-no-mux-cut/program-check/dino_prog_tb_verilator.cpp&quot;,
+        &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+        &quot;implementation&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015120-aux-1978328-partition-no-mux-cut/program-check/lhd_mapped/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015120-aux-1978328-partition-no-mux-cut/dino/default/asap7/lec_netlist_verilog_abc_sn_partition/models.v&quot;: &quot;f3c32d7617f3207bd894b80a51638fc8dbde05c1810ba65fea0837821f9e407c&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015120-aux-1978328-partition-no-mux-cut/dino/default/asap7/syn_lhd_verilog_abc_sn_partition/emitted-netlist-all.v&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;netlist_rc&quot;: 0,
+        &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+        &quot;reference&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015120-aux-1978328-partition-no-mux-cut/program-check/rtl/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;reference_rc&quot;: 0,
+        &quot;versions&quot;: {
+          &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+          &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+          &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+          &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+          &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+          &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+          &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+          &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+          &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+          &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+          &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+          &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+          &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+          &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+        }
+      },
+      &quot;raw_structural&quot;: true,
+      &quot;regions&quot;: 9,
+      &quot;satopt_facts&quot;: 0,
+      &quot;satopt_regions&quot;: 0,
+      &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+      &quot;seq_area_um2&quot;: 1043.972,
+      &quot;source_sha256&quot;: {
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/constraints/asap7.sdc&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/design.toml&quot;: &quot;2eb8df8ed6227eedeefe9639741da3f29addbf79e8907ad7b54e82bea9ac5d72&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+      },
+      &quot;synth_policy&quot;: {
+        &quot;base&quot;: &quot;compiler defaults&quot;,
+        &quot;pass.abc.adder&quot;: &quot;brent&quot;,
+        &quot;pass.abc.barrel&quot;: &quot;log&quot;,
+        &quot;pass.abc.delay&quot;: &quot;1000&quot;,
+        &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+        &quot;pass.abc.multiplier&quot;: &quot;sn&quot;,
+        &quot;pass.abc.region_opts&quot;: &quot;{}&quot;,
+        &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+        &quot;pass.color.synth.stop_mux&quot;: &quot;false&quot;,
+        &quot;pass.satopt&quot;: &quot;false&quot;,
+        &quot;synth.mapper&quot;: &quot;abc&quot;
+      },
+      &quot;timing_breakdown&quot;: {
+        &quot;parallel&quot;: {
+          &quot;limit&quot;: 8,
+          &quot;memory_limit_bytes&quot;: 405453092864,
+          &quot;memory_waits&quot;: 0,
+          &quot;peak_abc&quot;: 2,
+          &quot;peak_workers&quot;: 2,
+          &quot;requested&quot;: 0
+        },
+        &quot;phases&quot;: [
+          {
+            &quot;ms&quot;: 0.016,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 245.761,
+            &quot;name&quot;: &quot;inou.slang&quot;
+          },
+          {
+            &quot;ms&quot;: 39.403,
+            &quot;name&quot;: &quot;pass.upass&quot;
+          },
+          {
+            &quot;ms&quot;: 13.706,
+            &quot;name&quot;: &quot;lnast.tolg&quot;
+          },
+          {
+            &quot;ms&quot;: 12.31,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.543,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 2.534,
+            &quot;name&quot;: &quot;pass.specialize&quot;
+          },
+          {
+            &quot;ms&quot;: 3.309,
+            &quot;name&quot;: &quot;pass.legalize&quot;
+          },
+          {
+            &quot;ms&quot;: 10.706,
+            &quot;name&quot;: &quot;pass.enableopt&quot;
+          },
+          {
+            &quot;ms&quot;: 11.172,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.679,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 16.775,
+            &quot;name&quot;: &quot;pass.formal&quot;
+          },
+          {
+            &quot;ms&quot;: 1.281,
+            &quot;name&quot;: &quot;pass.legalize.seal&quot;
+          },
+          {
+            &quot;ms&quot;: 2.612,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 147.649,
+            &quot;name&quot;: &quot;pass.color&quot;
+          },
+          {
+            &quot;ms&quot;: 59628.128,
+            &quot;name&quot;: &quot;pass.abc&quot;
+          },
+          {
+            &quot;ms&quot;: 19.291,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 2793.309,
+            &quot;name&quot;: &quot;pass.opentimer&quot;
+          }
+        ],
+        &quot;regions&quot;: [
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 23194,
+            &quot;input_ge&quot;: 26840,
+            &quot;input_nodes&quot;: 753,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 11,
+            &quot;module&quot;: &quot;cgen_memory_4rd_65wr_ee88cacc3614de31_blasted&quot;,
+            &quot;ms&quot;: 12094.5,
+            &quot;pred_aig&quot;: 67686,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 301,
+            &quot;input_ge&quot;: 605,
+            &quot;input_nodes&quot;: 580,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_2&quot;,
+            &quot;ms&quot;: 55.8,
+            &quot;pred_aig&quot;: 2661,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 15,
+            &quot;input_ge&quot;: 30,
+            &quot;input_nodes&quot;: 26,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_4&quot;,
+            &quot;ms&quot;: 11.8,
+            &quot;pred_aig&quot;: 118,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 216,
+            &quot;input_ge&quot;: 462,
+            &quot;input_nodes&quot;: 420,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_6&quot;,
+            &quot;ms&quot;: 41.4,
+            &quot;pred_aig&quot;: 1990,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 5,
+            &quot;input_ge&quot;: 10,
+            &quot;input_nodes&quot;: 10,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_8&quot;,
+            &quot;ms&quot;: 9.3,
+            &quot;pred_aig&quot;: 40,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 142,
+            &quot;input_ge&quot;: 134,
+            &quot;input_nodes&quot;: 272,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 3,
+            &quot;module&quot;: &quot;StageReg_10&quot;,
+            &quot;ms&quot;: 26.3,
+            &quot;pred_aig&quot;: 802,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 3,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 5,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_12&quot;,
+            &quot;ms&quot;: 7.2,
+            &quot;pred_aig&quot;: 16,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 1,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 3,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 1,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_ac11a1925aeb97cf&quot;,
+            &quot;ms&quot;: 466.6,
+            &quot;pred_aig&quot;: 1,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 14391,
+            &quot;input_ge&quot;: 213365,
+            &quot;input_nodes&quot;: 903,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 34,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_f775f6d4a06d3c0a&quot;,
+            &quot;ms&quot;: 46669.9,
+            &quot;pred_aig&quot;: 130425,
+            &quot;ware_trials&quot;: 0
+          }
+        ],
+        &quot;schema_version&quot;: 1,
+        &quot;synthesis_invocation&quot;: {
+          &quot;memory_scope&quot;: &quot;parent_process_peak_rss&quot;,
+          &quot;parent_peak_rss_bytes&quot;: 907612160,
+          &quot;process_tree_peak_bytes&quot;: null,
+          &quot;scope&quot;: &quot;main_entry_to_result_emission&quot;,
+          &quot;wall_ms&quot;: 63109.66997
+        }
+      }
+    },
+    &quot;run_id&quot;: &quot;20261102T015120-aux-1978328-partition-no-mux-cut&quot;,
+    &quot;source_run&quot;: &quot;20261102T013718-aux-1961293-external-sn&quot;,
+    &quot;sta&quot;: {
+      &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+      &quot;opensta_ns&quot;: 1141.1282,
+      &quot;opentimer_note&quot;: &quot;OpenTimer validation not requested&quot;,
+      &quot;sdc_period_ns&quot;: 1000.0,
+      &quot;time_unit&quot;: &quot;ps&quot;,
+      &quot;tns_ns&quot;: -25026.2123,
+      &quot;wns_ns&quot;: -141.1282
+    },
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;suite&quot;: &quot;external-diagnostic&quot;,
+    &quot;tech&quot;: &quot;asap7&quot;,
+    &quot;test&quot;: &quot;dino&quot;,
+    &quot;time_ms&quot;: {
+      &quot;area&quot;: 3983,
+      &quot;color&quot;: 148,
+      &quot;compile&quot;: 388,
+      &quot;emit&quot;: 719,
+      &quot;map&quot;: 59628,
+      &quot;normalize&quot;: 6306,
+      &quot;opensta&quot;: 2593,
+      &quot;total&quot;: 73765
+    },
+    &quot;toolchain_snapshot&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015120-aux-1978328-partition-no-mux-cut/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+    &quot;versions&quot;: {
+      &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+      &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+      &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+      &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+      &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+      &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+      &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+      &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+      &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+      &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+      &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+      &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+      &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+      &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+    }
+  },
+  {
+    &quot;auxiliary_cohort&quot;: &quot;buffer-v2-original-scope&quot;,
+    &quot;cached&quot;: false,
+    &quot;cohort_parallel_jobs&quot;: 16,
+    &quot;comparable&quot;: false,
+    &quot;config&quot;: &quot;default&quot;,
+    &quot;cpus&quot;: 128,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;flow&quot;: &quot;syn_lhd_verilog_abc_sn_partition&quot;,
+    &quot;host&quot;: &quot;satsuma&quot;,
+    &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+    &quot;kind&quot;: &quot;synth&quot;,
+    &quot;lec&quot;: &quot;none&quot;,
+    &quot;lec_gate&quot;: true,
+    &quot;measured&quot;: &quot;2026-11-01&quot;,
+    &quot;measurement_jobs&quot;: 1,
+    &quot;partition_diagnostic&quot;: true,
+    &quot;partition_settings&quot;: {
+      &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+      &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+      &quot;pass.color.synth.stop_arith&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.stop_cmp&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.stop_shift&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_arith&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_cmp&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_shift&quot;: &quot;false&quot;
+    },
+    &quot;partition_variant&quot;: &quot;no-operator-cuts&quot;,
+    &quot;passed&quot;: true,
+    &quot;peak_rss_kb&quot;: {
+      &quot;area&quot;: 419780,
+      &quot;emit&quot;: 357956,
+      &quot;map&quot;: 880128,
+      &quot;max&quot;: 880128,
+      &quot;normalize&quot;: 439908,
+      &quot;opensta&quot;: 357956
+    },
+    &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+    &quot;pyrope_status&quot;: &quot;none&quot;,
+    &quot;qor&quot;: {
+      &quot;abc_max_delay_ns&quot;: 914.8711,
+      &quot;area_source&quot;: &quot;yosys-stat&quot;,
+      &quot;area_um2&quot;: 3932.488,
+      &quot;arithmetic_trials&quot;: 0,
+      &quot;cells&quot;: 42530,
+      &quot;comb_area_um2&quot;: 2888.516,
+      &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+      &quot;flops&quot;: 3580,
+      &quot;lhd_area_um2&quot;: 2883.972,
+      &quot;lhd_cells&quot;: 38950,
+      &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+      &quot;logic_depth&quot;: 35,
+      &quot;mapper&quot;: &quot;abc&quot;,
+      &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+      &quot;normalized&quot;: false,
+      &quot;program_check&quot;: {
+        &quot;checked_at&quot;: &quot;2026-11-02T01:57:49.286818+00:00&quot;,
+        &quot;cycles&quot;: 1000,
+        &quot;driver&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015238-aux-1978328-partition-no-operator-cuts/program-check/dino_prog_tb_verilator.cpp&quot;,
+        &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+        &quot;implementation&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015238-aux-1978328-partition-no-operator-cuts/program-check/lhd_mapped/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015238-aux-1978328-partition-no-operator-cuts/dino/default/asap7/lec_netlist_verilog_abc_sn_partition/models.v&quot;: &quot;f3c32d7617f3207bd894b80a51638fc8dbde05c1810ba65fea0837821f9e407c&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015238-aux-1978328-partition-no-operator-cuts/dino/default/asap7/syn_lhd_verilog_abc_sn_partition/emitted-netlist-all.v&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;netlist_rc&quot;: 0,
+        &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+        &quot;reference&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015238-aux-1978328-partition-no-operator-cuts/program-check/rtl/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;reference_rc&quot;: 0,
+        &quot;versions&quot;: {
+          &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+          &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+          &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+          &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+          &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+          &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+          &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+          &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+          &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+          &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+          &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+          &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+          &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+          &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+        }
+      },
+      &quot;raw_structural&quot;: true,
+      &quot;regions&quot;: 9,
+      &quot;satopt_facts&quot;: 0,
+      &quot;satopt_regions&quot;: 0,
+      &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+      &quot;seq_area_um2&quot;: 1043.972,
+      &quot;source_sha256&quot;: {
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/constraints/asap7.sdc&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/design.toml&quot;: &quot;2eb8df8ed6227eedeefe9639741da3f29addbf79e8907ad7b54e82bea9ac5d72&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+      },
+      &quot;synth_policy&quot;: {
+        &quot;base&quot;: &quot;compiler defaults&quot;,
+        &quot;pass.abc.adder&quot;: &quot;brent&quot;,
+        &quot;pass.abc.barrel&quot;: &quot;log&quot;,
+        &quot;pass.abc.delay&quot;: &quot;1000&quot;,
+        &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+        &quot;pass.abc.multiplier&quot;: &quot;sn&quot;,
+        &quot;pass.abc.region_opts&quot;: &quot;{}&quot;,
+        &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+        &quot;pass.color.synth.stop_arith&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.stop_cmp&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.stop_shift&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_arith&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_cmp&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_shift&quot;: &quot;false&quot;,
+        &quot;pass.satopt&quot;: &quot;false&quot;,
+        &quot;synth.mapper&quot;: &quot;abc&quot;
+      },
+      &quot;timing_breakdown&quot;: {
+        &quot;parallel&quot;: {
+          &quot;limit&quot;: 8,
+          &quot;memory_limit_bytes&quot;: 405453092864,
+          &quot;memory_waits&quot;: 0,
+          &quot;peak_abc&quot;: 2,
+          &quot;peak_workers&quot;: 2,
+          &quot;requested&quot;: 0
+        },
+        &quot;phases&quot;: [
+          {
+            &quot;ms&quot;: 0.025,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 210.242,
+            &quot;name&quot;: &quot;inou.slang&quot;
+          },
+          {
+            &quot;ms&quot;: 39.202,
+            &quot;name&quot;: &quot;pass.upass&quot;
+          },
+          {
+            &quot;ms&quot;: 13.573,
+            &quot;name&quot;: &quot;lnast.tolg&quot;
+          },
+          {
+            &quot;ms&quot;: 10.823,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.461,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 2.501,
+            &quot;name&quot;: &quot;pass.specialize&quot;
+          },
+          {
+            &quot;ms&quot;: 3.271,
+            &quot;name&quot;: &quot;pass.legalize&quot;
+          },
+          {
+            &quot;ms&quot;: 9.887,
+            &quot;name&quot;: &quot;pass.enableopt&quot;
+          },
+          {
+            &quot;ms&quot;: 10.37,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.636,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 16.691,
+            &quot;name&quot;: &quot;pass.formal&quot;
+          },
+          {
+            &quot;ms&quot;: 1.273,
+            &quot;name&quot;: &quot;pass.legalize.seal&quot;
+          },
+          {
+            &quot;ms&quot;: 2.544,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 145.047,
+            &quot;name&quot;: &quot;pass.color&quot;
+          },
+          {
+            &quot;ms&quot;: 59394.743,
+            &quot;name&quot;: &quot;pass.abc&quot;
+          },
+          {
+            &quot;ms&quot;: 19.992,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 2996.176,
+            &quot;name&quot;: &quot;pass.opentimer&quot;
+          }
+        ],
+        &quot;regions&quot;: [
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 23194,
+            &quot;input_ge&quot;: 26840,
+            &quot;input_nodes&quot;: 753,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 11,
+            &quot;module&quot;: &quot;cgen_memory_4rd_65wr_ee88cacc3614de31_blasted&quot;,
+            &quot;ms&quot;: 11947.9,
+            &quot;pred_aig&quot;: 67686,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 301,
+            &quot;input_ge&quot;: 605,
+            &quot;input_nodes&quot;: 580,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_2&quot;,
+            &quot;ms&quot;: 55.3,
+            &quot;pred_aig&quot;: 2661,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 15,
+            &quot;input_ge&quot;: 30,
+            &quot;input_nodes&quot;: 26,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_4&quot;,
+            &quot;ms&quot;: 11.6,
+            &quot;pred_aig&quot;: 118,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 216,
+            &quot;input_ge&quot;: 462,
+            &quot;input_nodes&quot;: 420,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_6&quot;,
+            &quot;ms&quot;: 41.3,
+            &quot;pred_aig&quot;: 1990,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 5,
+            &quot;input_ge&quot;: 10,
+            &quot;input_nodes&quot;: 10,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_8&quot;,
+            &quot;ms&quot;: 9.2,
+            &quot;pred_aig&quot;: 40,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 142,
+            &quot;input_ge&quot;: 134,
+            &quot;input_nodes&quot;: 272,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 3,
+            &quot;module&quot;: &quot;StageReg_10&quot;,
+            &quot;ms&quot;: 26.3,
+            &quot;pred_aig&quot;: 802,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 3,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 5,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_12&quot;,
+            &quot;ms&quot;: 7.2,
+            &quot;pred_aig&quot;: 16,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 1,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 3,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 1,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_ac11a1925aeb97cf&quot;,
+            &quot;ms&quot;: 466.0,
+            &quot;pred_aig&quot;: 1,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 14391,
+            &quot;input_ge&quot;: 213365,
+            &quot;input_nodes&quot;: 903,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 34,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_f775f6d4a06d3c0a&quot;,
+            &quot;ms&quot;: 46612.3,
+            &quot;pred_aig&quot;: 130425,
+            &quot;ware_trials&quot;: 0
+          }
+        ],
+        &quot;schema_version&quot;: 1,
+        &quot;synthesis_invocation&quot;: {
+          &quot;memory_scope&quot;: &quot;parent_process_peak_rss&quot;,
+          &quot;parent_peak_rss_bytes&quot;: 901251072,
+          &quot;process_tree_peak_bytes&quot;: null,
+          &quot;scope&quot;: &quot;main_entry_to_result_emission&quot;,
+          &quot;wall_ms&quot;: 63033.607158
+        }
+      }
+    },
+    &quot;run_id&quot;: &quot;20261102T015238-aux-1978328-partition-no-operator-cuts&quot;,
+    &quot;source_run&quot;: &quot;20261102T013718-aux-1961293-external-sn&quot;,
+    &quot;sta&quot;: {
+      &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+      &quot;opensta_ns&quot;: 1141.1282,
+      &quot;opentimer_note&quot;: &quot;OpenTimer validation not requested&quot;,
+      &quot;sdc_period_ns&quot;: 1000.0,
+      &quot;time_unit&quot;: &quot;ps&quot;,
+      &quot;tns_ns&quot;: -25026.2123,
+      &quot;wns_ns&quot;: -141.1282
+    },
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;suite&quot;: &quot;external-diagnostic&quot;,
+    &quot;tech&quot;: &quot;asap7&quot;,
+    &quot;test&quot;: &quot;dino&quot;,
+    &quot;time_ms&quot;: {
+      &quot;area&quot;: 4168,
+      &quot;color&quot;: 145,
+      &quot;compile&quot;: 349,
+      &quot;emit&quot;: 730,
+      &quot;map&quot;: 59395,
+      &quot;normalize&quot;: 6424,
+      &quot;opensta&quot;: 2611,
+      &quot;total&quot;: 73822
+    },
+    &quot;toolchain_snapshot&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015238-aux-1978328-partition-no-operator-cuts/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+    &quot;versions&quot;: {
+      &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+      &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+      &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+      &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+      &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+      &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+      &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+      &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+      &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+      &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+      &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+      &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+      &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+      &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+    }
+  },
+  {
+    &quot;auxiliary_cohort&quot;: &quot;buffer-v2-original-scope&quot;,
+    &quot;cached&quot;: false,
+    &quot;cohort_parallel_jobs&quot;: 16,
+    &quot;comparable&quot;: false,
+    &quot;config&quot;: &quot;default&quot;,
+    &quot;cpus&quot;: 128,
+    &quot;date&quot;: &quot;2026-11-01&quot;,
+    &quot;flow&quot;: &quot;syn_lhd_verilog_abc_sn_partition&quot;,
+    &quot;host&quot;: &quot;satsuma&quot;,
+    &quot;host_class&quot;: &quot;Linux-x86_64&quot;,
+    &quot;kind&quot;: &quot;synth&quot;,
+    &quot;lec&quot;: &quot;none&quot;,
+    &quot;lec_gate&quot;: true,
+    &quot;measured&quot;: &quot;2026-11-01&quot;,
+    &quot;measurement_jobs&quot;: 1,
+    &quot;partition_diagnostic&quot;: true,
+    &quot;partition_settings&quot;: {
+      &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+      &quot;pass.color.synth.ctrl_cones&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+      &quot;pass.color.synth.stop_arith&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.stop_cmp&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.stop_mux&quot;: &quot;false&quot;,
+      &quot;pass.color.synth.stop_shift&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_arith&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_cmp&quot;: &quot;false&quot;,
+      &quot;pass.color.ware_shift&quot;: &quot;false&quot;
+    },
+    &quot;partition_variant&quot;: &quot;data-cones&quot;,
+    &quot;passed&quot;: true,
+    &quot;peak_rss_kb&quot;: {
+      &quot;area&quot;: 420472,
+      &quot;emit&quot;: 357956,
+      &quot;map&quot;: 879092,
+      &quot;max&quot;: 879092,
+      &quot;normalize&quot;: 436712,
+      &quot;opensta&quot;: 357956
+    },
+    &quot;platform&quot;: &quot;Linux 6.12.107+deb13-amd64 x86_64&quot;,
+    &quot;pyrope_status&quot;: &quot;none&quot;,
+    &quot;qor&quot;: {
+      &quot;abc_max_delay_ns&quot;: 914.8711,
+      &quot;area_source&quot;: &quot;yosys-stat&quot;,
+      &quot;area_um2&quot;: 3932.488,
+      &quot;arithmetic_trials&quot;: 0,
+      &quot;cells&quot;: 42530,
+      &quot;comb_area_um2&quot;: 2888.516,
+      &quot;comparison_profile&quot;: &quot;abc_sn_brent_sn&quot;,
+      &quot;flops&quot;: 3580,
+      &quot;lhd_area_um2&quot;: 2883.972,
+      &quot;lhd_cells&quot;: 38950,
+      &quot;liberty_sha256&quot;: &quot;f1474fb23977fd54&quot;,
+      &quot;logic_depth&quot;: 35,
+      &quot;mapper&quot;: &quot;abc&quot;,
+      &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+      &quot;normalized&quot;: false,
+      &quot;program_check&quot;: {
+        &quot;checked_at&quot;: &quot;2026-11-02T01:58:38.263633+00:00&quot;,
+        &quot;cycles&quot;: 1000,
+        &quot;driver&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015356-aux-1978328-partition-data-cones/program-check/dino_prog_tb_verilator.cpp&quot;,
+        &quot;driver_sha256&quot;: &quot;e1a228a0be7a0fd470e1cbb30aa7239b9847e26ef6694980b0ee8df1e989a7e4&quot;,
+        &quot;implementation&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015356-aux-1978328-partition-data-cones/program-check/lhd_mapped/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015356-aux-1978328-partition-data-cones/dino/default/asap7/lec_netlist_verilog_abc_sn_partition/models.v&quot;: &quot;f3c32d7617f3207bd894b80a51638fc8dbde05c1810ba65fea0837821f9e407c&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/work/20261102T015356-aux-1978328-partition-data-cones/dino/default/asap7/syn_lhd_verilog_abc_sn_partition/emitted-netlist-all.v&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;netlist_rc&quot;: 0,
+        &quot;netlist_sha256&quot;: &quot;b6126460a3e089016e28885faa0d5e8cc28406df0256d9e8abd7c59bbb8973c9&quot;,
+        &quot;reference&quot;: {
+          &quot;cycles&quot;: 1000,
+          &quot;log&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015356-aux-1978328-partition-data-cones/program-check/rtl/logs/exec.log&quot;,
+          &quot;rc&quot;: 0,
+          &quot;source_sha256&quot;: {
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+            &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;
+          },
+          &quot;stage&quot;: &quot;exec&quot;
+        },
+        &quot;reference_rc&quot;: 0,
+        &quot;versions&quot;: {
+          &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+          &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+          &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+          &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+          &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+          &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+          &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+          &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+          &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+          &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+          &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+          &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+          &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+          &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+        }
+      },
+      &quot;raw_structural&quot;: true,
+      &quot;regions&quot;: 9,
+      &quot;satopt_facts&quot;: 0,
+      &quot;satopt_regions&quot;: 0,
+      &quot;sdc_sha256&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+      &quot;seq_area_um2&quot;: 1043.972,
+      &quot;source_sha256&quot;: {
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/constraints/asap7.sdc&quot;: &quot;b7f04cf34d802034cdb2f5f8fcd9bb8054a82987ba43077d2901a0d64241df22&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/design.toml&quot;: &quot;2eb8df8ed6227eedeefe9639741da3f29addbf79e8907ad7b54e82bea9ac5d72&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALU.sv&quot;: &quot;30fc6621ad39b6a469117074c123df4288b0d1d4d531af894575307a4efc6066&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ALUControl.sv&quot;: &quot;35d3fd780a25758ba986ad4871d584e2e7067856b4dbb34eb1f64837faf83de2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/Control.sv&quot;: &quot;7e9fe8195afe0b14a4e1c7f21ee8ff5bc47cfcac7d5b82cde2382ae401be5f04&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueForwardingUnit.sv&quot;: &quot;95ca9c8a4a68a2fcea3f6a50bb251fb544ceb426ce476ae821bf106e821d8044&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueHazardUnit.sv&quot;: &quot;2058779835acb1b6219b79f6f609a0c71bae4bad9089f3f5367807ae65d078ba&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueIssueUnit.sv&quot;: &quot;b9685fcab81b07998747728426c2be676eb1a0bc8d987a25f9a7a4c5ad6c4419&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueNextPC.sv&quot;: &quot;b51ac3e3d140114c26b2c28c65e0824e66357840a870d28f99b8b50b107a382b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/DualIssueRegisterFile.sv&quot;: &quot;8edd492d2304002f0a8cf34c961a86365d839b68df76e4c5b089485041ca322e&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/ImmediateGenerator.sv&quot;: &quot;748964a53222a29b03d7865807fb23d6738b57030f326c7b2f925d4d55135d90&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/PipelinedDualIssueCPU.sv&quot;: &quot;4325500f0a73024662253fb55775b6cf4d39c5459d6b2480b25effbcb7efac47&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/READMDE.md&quot;: &quot;a8aefb596ccec9b2ee3432b76913e1e411ab8416daf75a6ade032c398a190654&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg.sv&quot;: &quot;8cf87a7fb11d24abec01f4459a2ad9c2e7429969ad67bfa0d79512b2dd98c9e1&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_10.sv&quot;: &quot;15df4fc26e501f2c4ef2ecdc6fb1037f3ccc725f53f86eafa07201465c2e5bea&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_12.sv&quot;: &quot;f4415cff966772f19e04e26a2f7f99d8b2fba6c83cb448629e42243dd11dae21&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_2.sv&quot;: &quot;85894dec2bdda7a7bc80d90878767244437f6808486f0c6c98f6fdf034befdc0&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_4.sv&quot;: &quot;f9a128a41f03eff5b24f733449015012e9a2e240371e0c7eebb6a2611b1eec5b&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_6.sv&quot;: &quot;6c3a69303e055dab8a603cabbaf98c8d1a85cc09e68b4c919c2df39025116e39&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/StageReg_8.sv&quot;: &quot;3c0688834d072c36fedcb3fa229ebb31cf3dabd98d4b568e18eff6959e7ef1c2&quot;,
+        &quot;/lscratch/renau/lhdtrack/var/runs/20261102T013718-aux-1961293-external-sn/source/tests/dino/verilog/filelist.f&quot;: &quot;a817ce2c4a621e56811d05929f63a63d9a68c5377d16766e09bd7ce9828726c0&quot;
+      },
+      &quot;synth_policy&quot;: {
+        &quot;base&quot;: &quot;compiler defaults&quot;,
+        &quot;pass.abc.adder&quot;: &quot;brent&quot;,
+        &quot;pass.abc.barrel&quot;: &quot;log&quot;,
+        &quot;pass.abc.delay&quot;: &quot;1000&quot;,
+        &quot;pass.abc.large_ge&quot;: &quot;0&quot;,
+        &quot;pass.abc.multiplier&quot;: &quot;sn&quot;,
+        &quot;pass.abc.region_opts&quot;: &quot;{}&quot;,
+        &quot;pass.color.synth.ctrl_cones&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.max_gate&quot;: &quot;30000&quot;,
+        &quot;pass.color.synth.stop_arith&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.stop_cmp&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.stop_mux&quot;: &quot;false&quot;,
+        &quot;pass.color.synth.stop_shift&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_arith&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_cmp&quot;: &quot;false&quot;,
+        &quot;pass.color.ware_shift&quot;: &quot;false&quot;,
+        &quot;pass.satopt&quot;: &quot;false&quot;,
+        &quot;synth.mapper&quot;: &quot;abc&quot;
+      },
+      &quot;timing_breakdown&quot;: {
+        &quot;parallel&quot;: {
+          &quot;limit&quot;: 8,
+          &quot;memory_limit_bytes&quot;: 405453092864,
+          &quot;memory_waits&quot;: 0,
+          &quot;peak_abc&quot;: 2,
+          &quot;peak_workers&quot;: 2,
+          &quot;requested&quot;: 0
+        },
+        &quot;phases&quot;: [
+          {
+            &quot;ms&quot;: 0.036,
+            &quot;name&quot;: &quot;lhd.run_id&quot;
+          },
+          {
+            &quot;ms&quot;: 232.506,
+            &quot;name&quot;: &quot;inou.slang&quot;
+          },
+          {
+            &quot;ms&quot;: 39.571,
+            &quot;name&quot;: &quot;pass.upass&quot;
+          },
+          {
+            &quot;ms&quot;: 14.012,
+            &quot;name&quot;: &quot;lnast.tolg&quot;
+          },
+          {
+            &quot;ms&quot;: 11.673,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.537,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 2.546,
+            &quot;name&quot;: &quot;pass.specialize&quot;
+          },
+          {
+            &quot;ms&quot;: 3.354,
+            &quot;name&quot;: &quot;pass.legalize&quot;
+          },
+          {
+            &quot;ms&quot;: 10.776,
+            &quot;name&quot;: &quot;pass.enableopt&quot;
+          },
+          {
+            &quot;ms&quot;: 11.061,
+            &quot;name&quot;: &quot;pass.aegraph&quot;
+          },
+          {
+            &quot;ms&quot;: 4.736,
+            &quot;name&quot;: &quot;pass.bitwidth&quot;
+          },
+          {
+            &quot;ms&quot;: 16.801,
+            &quot;name&quot;: &quot;pass.formal&quot;
+          },
+          {
+            &quot;ms&quot;: 1.31,
+            &quot;name&quot;: &quot;pass.legalize.seal&quot;
+          },
+          {
+            &quot;ms&quot;: 2.63,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 148.777,
+            &quot;name&quot;: &quot;pass.color&quot;
+          },
+          {
+            &quot;ms&quot;: 64431.712,
+            &quot;name&quot;: &quot;pass.abc&quot;
+          },
+          {
+            &quot;ms&quot;: 20.548,
+            &quot;name&quot;: &quot;lg.save&quot;
+          },
+          {
+            &quot;ms&quot;: 3256.207,
+            &quot;name&quot;: &quot;pass.opentimer&quot;
+          }
+        ],
+        &quot;regions&quot;: [
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 23194,
+            &quot;input_ge&quot;: 26840,
+            &quot;input_nodes&quot;: 753,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 11,
+            &quot;module&quot;: &quot;cgen_memory_4rd_65wr_ee88cacc3614de31_blasted&quot;,
+            &quot;ms&quot;: 12145.3,
+            &quot;pred_aig&quot;: 67686,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 301,
+            &quot;input_ge&quot;: 605,
+            &quot;input_nodes&quot;: 580,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_2&quot;,
+            &quot;ms&quot;: 56.1,
+            &quot;pred_aig&quot;: 2661,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 15,
+            &quot;input_ge&quot;: 30,
+            &quot;input_nodes&quot;: 26,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_4&quot;,
+            &quot;ms&quot;: 11.8,
+            &quot;pred_aig&quot;: 118,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 216,
+            &quot;input_ge&quot;: 462,
+            &quot;input_nodes&quot;: 420,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 4,
+            &quot;module&quot;: &quot;StageReg_6&quot;,
+            &quot;ms&quot;: 41.5,
+            &quot;pred_aig&quot;: 1990,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 5,
+            &quot;input_ge&quot;: 10,
+            &quot;input_nodes&quot;: 10,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_8&quot;,
+            &quot;ms&quot;: 9.4,
+            &quot;pred_aig&quot;: 40,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 142,
+            &quot;input_ge&quot;: 134,
+            &quot;input_nodes&quot;: 272,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 3,
+            &quot;module&quot;: &quot;StageReg_10&quot;,
+            &quot;ms&quot;: 26.5,
+            &quot;pred_aig&quot;: 802,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 3,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 5,
+            &quot;instances&quot;: 2,
+            &quot;logic_depth&quot;: 2,
+            &quot;module&quot;: &quot;StageReg_12&quot;,
+            &quot;ms&quot;: 7.2,
+            &quot;pred_aig&quot;: 16,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 0,
+            &quot;gates&quot;: 1,
+            &quot;input_ge&quot;: 3,
+            &quot;input_nodes&quot;: 3,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 1,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_ac11a1925aeb97cf&quot;,
+            &quot;ms&quot;: 461.6,
+            &quot;pred_aig&quot;: 1,
+            &quot;ware_trials&quot;: 0
+          },
+          {
+            &quot;cache&quot;: &quot;miss&quot;,
+            &quot;color&quot;: 1,
+            &quot;gates&quot;: 14391,
+            &quot;input_ge&quot;: 213365,
+            &quot;input_nodes&quot;: 903,
+            &quot;instances&quot;: 1,
+            &quot;logic_depth&quot;: 34,
+            &quot;module&quot;: &quot;PipelinedDualIssueCPU__a_f775f6d4a06d3c0a&quot;,
+            &quot;ms&quot;: 51425.2,
+            &quot;pred_aig&quot;: 130425,
+            &quot;ware_trials&quot;: 0
+          }
+        ],
+        &quot;schema_version&quot;: 1,
+        &quot;synthesis_invocation&quot;: {
+          &quot;memory_scope&quot;: &quot;parent_process_peak_rss&quot;,
+          &quot;parent_peak_rss_bytes&quot;: 900190208,
+          &quot;process_tree_peak_bytes&quot;: null,
+          &quot;scope&quot;: &quot;main_entry_to_result_emission&quot;,
+          &quot;wall_ms&quot;: 68367.432149
+        }
+      }
+    },
+    &quot;run_id&quot;: &quot;20261102T015356-aux-1978328-partition-data-cones&quot;,
+    &quot;source_run&quot;: &quot;20261102T013718-aux-1961293-external-sn&quot;,
+    &quot;sta&quot;: {
+      &quot;opensta_metric&quot;: &quot;sdc-minimum-period&quot;,
+      &quot;opensta_ns&quot;: 1141.1282,
+      &quot;opentimer_note&quot;: &quot;OpenTimer validation not requested&quot;,
+      &quot;sdc_period_ns&quot;: 1000.0,
+      &quot;time_unit&quot;: &quot;ps&quot;,
+      &quot;tns_ns&quot;: -25026.2123,
+      &quot;wns_ns&quot;: -141.1282
+    },
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;suite&quot;: &quot;external-diagnostic&quot;,
+    &quot;tech&quot;: &quot;asap7&quot;,
+    &quot;test&quot;: &quot;dino&quot;,
+    &quot;time_ms&quot;: {
+      &quot;area&quot;: 4386,
+      &quot;color&quot;: 149,
+      &quot;compile&quot;: 376,
+      &quot;emit&quot;: 800,
+      &quot;map&quot;: 64432,
+      &quot;normalize&quot;: 6786,
+      &quot;opensta&quot;: 2772,
+      &quot;total&quot;: 79701
+    },
+    &quot;toolchain_snapshot&quot;: &quot;/lscratch/renau/lhdtrack/var/runs/20261102T015356-aux-1978328-partition-data-cones/toolchain-snapshot/var/toolchain/toolchain.json&quot;,
+    &quot;versions&quot;: {
+      &quot;abc&quot;: &quot;UC Berkeley, ABC 1.01 (compiled redacted redacted) sha256:285c7b43edd95343&quot;,
+      &quot;abc_sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:291bdd3c7fd39b30&quot;,
+      &quot;abc_sn_mapper&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:76d5ee06a7160454&quot;,
+      &quot;cxx&quot;: &quot;Debian clang version 19.1.7 (3+b1)&quot;,
+      &quot;lgcheck&quot;: &quot;sha256:9be04f65986b2abc adapter-sha256:f55a8d926dc68c5c&quot;,
+      &quot;lhd&quot;: &quot;livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0&quot;,
+      &quot;make&quot;: &quot;GNU Make 4.4.1 sha256:8a229baf64671988&quot;,
+      &quot;ninja&quot;: &quot;1.13.2.git.kitware.jobserver-pipe-1 sha256:08639e194fffa7f0&quot;,
+      &quot;sn&quot;: &quot;abc-sn shared-backend:05ee61d174f0bd1d sha256:09eb37f3ccc3e45f&quot;,
+      &quot;sta&quot;: &quot;3.1.0 sha256:f6cc36b19980821d&quot;,
+      &quot;verilator&quot;: &quot;Verilator v5.046 rev v5.046 sha256:72e6a7f95102c286&quot;,
+      &quot;yosys&quot;: &quot;Yosys 0.64 sha256:f0b765c3a575f1c0&quot;,
+      &quot;yosys2&quot;: &quot;sha256:3696d1528ef1f185&quot;,
+      &quot;yosys_slang&quot;: &quot;yosys-slang sha256:99ad11e3a4df2f47&quot;
+    }
   }
 ]</pre></details>
-<p class="sub muted" style="margin-top:3rem">Generated 2026-10-15 06:17 from <code>data/</code>.
+<p class="sub muted" style="margin-top:3rem">Generated 2026-11-01 20:03 from <code>data/</code>.
 This page is a pure rendering of the ledger — nothing is recorded only in
 <code>target/</code>, which is regenerated on every run.</p>
 </div>
@@ -13287,7 +14888,7 @@ This page is a pure rendering of the ledger — nothing is recorded only in
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
             val.toFixed(2) + '× baseline / measured' +
             (g.solid ? '' : '  (' +
-              (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
+              (data.solidNote || 'not LEC-checked or not hand-written Pyrope') + ')');
           var times = g.times && g.times[metricKey] && g.times[metricKey][f.key];
           if (times) {
             tip.textContent += '  baseline ' + (times.baseline_ms / 1000).toFixed(3) +
@@ -13339,7 +14940,7 @@ This page is a pure rendering of the ledger — nothing is recorded only in
         f.label + '</span>';
     }).join('');
     var note = document.createElement('span');
-    note.textContent = data.solidNote || 'faded = not LEC-proven or not hand-written Pyrope';
+    note.textContent = data.solidNote || 'faded = not LEC-checked or not hand-written Pyrope';
     box.appendChild(note);
   }
 
@@ -13622,4 +15223,4 @@ This page is a pure rendering of the ledger — nothing is recorded only in
   }
 })();
 </script>
-</body></html>
+<!-- completed-auxiliary-v2:start --><section id="completed-auxiliary-v2"><h2>Completed original auxiliary populations</h2><p>Updated 2026-11-02T02:24:24.939381+00:00. Compiler <code>livehd a4804183e+dirty opt sha256:27e0fb3bc77faed0</code>. All original timing groups (5 default,5 arithmetic-trial cutoff,17 fixed Brent),29 baseline/profile/replay designs,and3 pinned-source pairs finished. Every attribute mode retains its mapped-netlist check; 93 synthesis rows and93 checks are recorded. {&#x27;proven&#x27;: 74, &#x27;skipped&#x27;: 3, &#x27;tested&#x27;: 16}. All6LHD Dino variants passed the original1000-cycle architectural program. The SN emission failed that program and is excluded;3exact failing SN timing emissions are also excluded.</p><p>Original populations, modes, search efforts and program length preserved. Replay CLI corrected and all29cases repeated; earlier failed rows retained. Tested and Proven enter all statistics equally. Exact failed SN emissions excluded. Pre-placement delays are diagnostics; final placement buffering/sizing comparison remains separate. Auxiliary data retains immutable compiler27e0 identity; newer HHDS compiler diagnostics are separate.</p><p><a href="results-aux-completed-satsuma.json">Population audit,run IDs,and raw rows</a></p></section><!-- completed-auxiliary-v2:end --></body></html>

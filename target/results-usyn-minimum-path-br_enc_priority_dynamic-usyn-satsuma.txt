@@ -1,0 +1,109 @@
+OpenSTA 3.1.0 GITDIR-NOT Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865904, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865937, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865970, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866003, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866036, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866069, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866102, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867500, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867533, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867566, timing group from output port.
+LHDTRACK_WNS -355.0958152831741
+LHDTRACK_TNS -3226.7910694700377
+LHDTRACK_PERIOD 400.000000
+Warning 168: full.tcl line 1, unknown field nets.
+Warning 503: full.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Startpoint: lowest_prio[15] (input port clocked by clk)
+Endpoint: out[15] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock clk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              0.0000    0.0000 ^ input external delay
+     9    3.8638    0.0000    0.0000    0.0000 ^ lowest_prio[15] (in)
+                    0.0000    0.0000    0.0000 ^ g1_OR4x2_ASAP7_75t_R/D (OR4x1_ASAP7_75t_R)
+     4    1.8802   19.9935   18.0529   18.0529 ^ g1_OR4x2_ASAP7_75t_R/Y (OR4x1_ASAP7_75t_R)
+                   19.9935    0.0000   18.0529 ^ g2_OR3x2_ASAP7_75t_R/C (OR3x1_ASAP7_75t_R)
+     6    2.5128   25.1569   26.6277   44.6806 ^ g2_OR3x2_ASAP7_75t_R/Y (OR3x1_ASAP7_75t_R)
+                   25.1569    0.0000   44.6806 ^ g3_OR2x6_ASAP7_75t_R/B (OR2x2_ASAP7_75t_R)
+     3    1.2655   10.5766   23.9595   68.6402 ^ g3_OR2x6_ASAP7_75t_R/Y (OR2x2_ASAP7_75t_R)
+                   10.5766    0.0000   68.6402 ^ g4_NOR2x1p5_ASAP7_75t_R/B (NOR2xp33_ASAP7_75t_R)
+     3    1.1918   28.9588   19.2255   87.8656 v g4_NOR2x1p5_ASAP7_75t_R/Y (NOR2xp33_ASAP7_75t_R)
+                   28.9588    0.0000   87.8656 v g5_INVx2_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+     4    1.9294   55.6743   36.6416  124.5072 ^ g5_INVx2_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                   55.6743    0.0000  124.5072 ^ g6_OR3x2_ASAP7_75t_R/C (OR3x1_ASAP7_75t_R)
+     6    2.4835   25.4120   33.4248  157.9320 ^ g6_OR3x2_ASAP7_75t_R/Y (OR3x1_ASAP7_75t_R)
+                   25.4120    0.0000  157.9320 ^ g23_NOR2x1p5_ASAP7_75t_R/B (NOR2xp33_ASAP7_75t_R)
+     2    0.8175   23.0965   20.3116  178.2436 v g23_NOR2x1p5_ASAP7_75t_R/Y (NOR2xp33_ASAP7_75t_R)
+                   23.0965    0.0000  178.2436 v g24_NAND2xp5_ASAP7_75t_R/B (NAND2xp33_ASAP7_75t_R)
+     2    0.9345   31.2146   23.8297  202.0733 ^ g24_NAND2xp5_ASAP7_75t_R/Y (NAND2xp33_ASAP7_75t_R)
+                   31.2146    0.0000  202.0733 ^ g37_NAND3xp33_ASAP7_75t_R/A (NAND3xp33_ASAP7_75t_R)
+     2    1.0036   29.5379   22.1645  224.2379 v g37_NAND3xp33_ASAP7_75t_R/Y (NAND3xp33_ASAP7_75t_R)
+                   29.5379    0.0000  224.2379 v g38_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     2    1.0164   12.2145   27.9477  252.1856 v g38_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   12.2145    0.0000  252.1856 v g39_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     2    1.0164   11.9519   23.8796  276.0652 v g39_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   11.9519    0.0000  276.0652 v g40_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     2    1.0164   12.1161   23.8126  299.8779 v g40_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   12.1161    0.0000  299.8779 v g41_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     3    1.4579   14.7572   25.7126  325.5905 v g41_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   14.7572    0.0000  325.5905 v g42_AOI21xp5_ASAP7_75t_R/B (AOI21xp33_ASAP7_75t_R)
+     2    0.8303   30.3131   20.9437  346.5341 ^ g42_AOI21xp5_ASAP7_75t_R/Y (AOI21xp33_ASAP7_75t_R)
+                   30.3131    0.0000  346.5341 ^ g43_NAND3xp33_ASAP7_75t_R/C (NAND3xp33_ASAP7_75t_R)
+     2    0.8872   25.4008   19.4718  366.0060 v g43_NAND3xp33_ASAP7_75t_R/Y (NAND3xp33_ASAP7_75t_R)
+                   25.4008    0.0000  366.0060 v g44_AOI21xp5_ASAP7_75t_R/B (AOI21xp33_ASAP7_75t_R)
+     2    0.8652   32.6612   24.7036  390.7096 ^ g44_AOI21xp5_ASAP7_75t_R/Y (AOI21xp33_ASAP7_75t_R)
+                   32.6612    0.0000  390.7096 ^ g45_OAI31xp33_ASAP7_75t_R/B (OAI31xp33_ASAP7_75t_R)
+     3    1.3328   36.1254   29.0351  419.7446 v g45_OAI31xp33_ASAP7_75t_R/Y (OAI31xp33_ASAP7_75t_R)
+                   36.1254    0.0000  419.7446 v g48_AOI21xp5_ASAP7_75t_R/B (AOI21xp33_ASAP7_75t_R)
+     2    0.8116   33.8900   27.4098  447.1544 ^ g48_AOI21xp5_ASAP7_75t_R/Y (AOI21xp33_ASAP7_75t_R)
+                   33.8900    0.0000  447.1544 ^ g53_OAI211xp5_ASAP7_75t_R/B (OAI211xp5_ASAP7_75t_R)
+     3    1.1011   39.0351   24.4391  471.5935 v g53_OAI211xp5_ASAP7_75t_R/Y (OAI211xp5_ASAP7_75t_R)
+                   39.0351    0.0000  471.5935 v g61_INVx2_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+     3    1.4068   44.7523   34.3139  505.9074 ^ g61_INVx2_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                   44.7523    0.0000  505.9074 ^ g69_NAND5xp2_ASAP7_75t_R/B (NAND5xp2_ASAP7_75t_R)
+     1    0.2755   36.8172   24.9202  530.8276 v g69_NAND5xp2_ASAP7_75t_R/Y (NAND5xp2_ASAP7_75t_R)
+                   36.8172    0.0000  530.8276 v g70_INVx1_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+     3    1.3612   43.2627   32.8709  563.6986 ^ g70_INVx1_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                   43.2627    0.0000  563.6986 ^ g79_OAI211xp5_ASAP7_75t_R/B (OAI211xp5_ASAP7_75t_R)
+     2    0.9791   34.3518   25.1500  588.8486 v g79_OAI211xp5_ASAP7_75t_R/Y (OAI211xp5_ASAP7_75t_R)
+                   34.3518    0.0000  588.8486 v g83_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     2    0.9791   12.4899   28.8376  617.6862 v g83_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   12.4899    0.0000  617.6862 v g87_AO21x1_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     2    0.9791   11.5875   23.7918  641.4780 v g87_AO21x1_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   11.5875    0.0000  641.4780 v g92_AO21x2_ASAP7_75t_R/B (AO21x1_ASAP7_75t_R)
+     3    1.1011   12.4417   24.0782  665.5562 v g92_AO21x2_ASAP7_75t_R/Y (AO21x1_ASAP7_75t_R)
+                   12.4417    0.0000  665.5562 v g99_INVx2_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+     1    0.4697   16.8269   13.0781  678.6344 ^ g99_INVx2_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                   16.8269    0.0000  678.6344 ^ g100_NAND3x1_ASAP7_75t_R/B (NAND3xp33_ASAP7_75t_R)
+     2    0.8223   29.1248   17.0512  695.6856 v g100_NAND3x1_ASAP7_75t_R/Y (NAND3xp33_ASAP7_75t_R)
+                   29.1248    0.0000  695.6856 v g104_AOI21x1_ASAP7_75t_R/B (AOI21xp33_ASAP7_75t_R)
+     2    0.9973   36.5656   27.4739  723.1595 ^ g104_AOI21x1_ASAP7_75t_R/Y (AOI21xp33_ASAP7_75t_R)
+                   36.5656    0.0000  723.1595 ^ g107_NAND4xp25_ASAP7_75t_R/D (NAND4xp25_ASAP7_75t_R)
+     1    0.4077   25.1857   20.6186  743.7781 v g107_NAND4xp25_ASAP7_75t_R/Y (NAND4xp25_ASAP7_75t_R)
+                   25.1857    0.0000  743.7781 v g108_OAI21xp33_ASAP7_75t_R/B (OAI21xp33_ASAP7_75t_R)
+     1    0.0000   16.2056   11.3177  755.0958 ^ g108_OAI21xp33_ASAP7_75t_R/Y (OAI21xp33_ASAP7_75t_R)
+                   16.2056    0.0000  755.0958 ^ out[15] (out)
+                                      755.0958   data arrival time
+
+                    0.0000  400.0000  400.0000   clock clk (rise edge)
+                              0.0000  400.0000   clock network delay (ideal)
+                              0.0000  400.0000   clock reconvergence pessimism
+                              0.0000  400.0000   output external delay
+                                      400.0000   data required time
+-------------------------------------------------------------------------------------
+                                      400.0000   data required time
+                                     -755.0958   data arrival time
+-------------------------------------------------------------------------------------
+                                     -355.0958   slack (VIOLATED)
+
+

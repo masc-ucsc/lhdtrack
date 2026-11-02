@@ -170,7 +170,7 @@ def write_timing(root: Path, host: str) -> Path | None:
         body.append('</tbody></table></div>')
     replays = { (r["test"], r.get("config", "default")): r for r in
                sorted(history, key=lambda r: r.get("run_id", ""))
-               if r.get("flow") == "profile_abc_replay" and r.get("status") == "ok" }
+               if r.get("flow") == "profile_abc_replay" }
     if replays:
         body.append('<h2>Identical-network ABC replay</h2><p>Both staged ABC executables '
                     'read the same exported BLIF, Liberty and recorded command sequence. '
@@ -181,6 +181,11 @@ def write_timing(root: Path, host: str) -> Path | None:
                     '<th class="l">Test</th><th>Staged baseline ABC</th>'
                     '<th>New ABC</th><th>Baseline / new</th></tr></thead><tbody>')
         for row in replays.values():
+            if row.get("status") != "ok":
+                body.append(f'<tr><td class="l">{_e(row["test"])}</td><td colspan="3">'
+                            f'{_e(row.get("status", "unknown"))} (excluded): '
+                            f'{_e(row.get("note", ""))}</td></tr>')
+                continue
             observation = row["qor"]["abc_replay"]
             a, b = (median(observation["measurements"][k]["time_ms"])
                     for k in ("abc", "abc_sn"))

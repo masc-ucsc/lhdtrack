@@ -10,6 +10,8 @@ class AbcSnOutliersTest(unittest.TestCase):
                 "test": "dut", "config": "one", "flow": flow, "status": "ok",
                 "qor": {"netlist_sha256": flow, "liberty_sha256": "lib", "cells": 10,
                         "sdc_sha256": "sdc", "source_sha256": {"dut.sv": "source"}},
+                "lec_aux_result": {"verdict": "proven", "netlist_sha256": flow,
+                                   "liberty_sha256": "lib"},
                 "sta": {"opensta_ns": 100}, "time_ms": {"map": 1000}, **extra}
 
     def test_ratios_follow_baseline_over_measured_and_ignore_other_runs(self):
@@ -54,6 +56,13 @@ class AbcSnOutliersTest(unittest.TestCase):
                                 "netlist_sha256": FLOWS[1], "liberty_sha256": "lib"}
         self.assertEqual(analyze([lhd, sn], "host", "full")["pairs"][0]["sn"]["proof"],
                          "bounded(6)")
+
+    def test_tested_sn_enters_the_same_statistics_as_proven(self):
+        lhd, sn = self.row(FLOWS[0]), self.row(FLOWS[1])
+        sn["lec_aux_result"]["verdict"] = "timeout"
+        report = analyze([lhd, sn], "host", "full")
+        self.assertEqual(report["pairs"][0]["sn"]["proof"], "tested")
+        self.assertEqual(report["statistics"]["cells"]["n"], 1)
 
 
 if __name__ == "__main__":

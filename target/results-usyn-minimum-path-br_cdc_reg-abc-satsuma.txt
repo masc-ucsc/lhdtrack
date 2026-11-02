@@ -1,0 +1,51 @@
+OpenSTA 3.1.0 GITDIR-NOT Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865904, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865937, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865970, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866003, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866036, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866069, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866102, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867500, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867533, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867566, timing group from output port.
+LHDTRACK_WNS 142.5045087631725
+LHDTRACK_TNS 0.0
+LHDTRACK_PERIOD 400.000000
+Warning 168: full.tcl line 1, unknown field nets.
+Warning 503: full.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Startpoint: pop_rst (input port clocked by clk)
+Endpoint: pop_data[0] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock clk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              0.0000    0.0000 v input external delay
+     3    0.8895    0.0000    0.0000    0.0000 v pop_rst (in)
+                    0.0000    0.0000    0.0000 v __flat___br_cdc_reg__a_ee9071ab975fd6df.g7_NOR2xp33_ASAP7_75t_R/A (NOR2xp33_ASAP7_75t_R)
+    33   16.8328  425.9397  199.6721  199.6721 ^ __flat___br_cdc_reg__a_ee9071ab975fd6df.g7_NOR2xp33_ASAP7_75t_R/Y (NOR2xp33_ASAP7_75t_R)
+                  425.9397    0.0000  199.6721 ^ __flat___br_cdc_reg__a_ee9071ab975fd6df.br_cdc_reg_pop.gen_data_qualification_0_br_gate_and2_inst.g0_AND2x2_ASAP7_75t_R/B (AND2x2_ASAP7_75t_R)
+     1    0.0000   17.9268   57.8234  257.4955 ^ __flat___br_cdc_reg__a_ee9071ab975fd6df.br_cdc_reg_pop.gen_data_qualification_0_br_gate_and2_inst.g0_AND2x2_ASAP7_75t_R/Y (AND2x2_ASAP7_75t_R)
+                   17.9268    0.0000  257.4955 ^ pop_data[0] (out)
+                                      257.4955   data arrival time
+
+                    0.0000  400.0000  400.0000   clock clk (rise edge)
+                              0.0000  400.0000   clock network delay (ideal)
+                              0.0000  400.0000   clock reconvergence pessimism
+                              0.0000  400.0000   output external delay
+                                      400.0000   data required time
+-------------------------------------------------------------------------------------
+                                      400.0000   data required time
+                                     -257.4955   data arrival time
+-------------------------------------------------------------------------------------
+                                      142.5045   slack (MET)
+
+

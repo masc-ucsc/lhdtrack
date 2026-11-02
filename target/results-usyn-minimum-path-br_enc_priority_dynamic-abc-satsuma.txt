@@ -1,0 +1,63 @@
+OpenSTA 3.1.0 GITDIR-NOT Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865904, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865937, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865970, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866003, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866036, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866069, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866102, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867500, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867533, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867566, timing group from output port.
+LHDTRACK_WNS 130.42073029256545
+LHDTRACK_TNS 0.0
+LHDTRACK_PERIOD 400.000000
+Warning 168: full.tcl line 1, unknown field nets.
+Warning 503: full.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Startpoint: in[1] (input port clocked by clk)
+Endpoint: out[5] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock clk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                              0.0000    0.0000 v input external delay
+     1    0.2755    0.0000    0.0000    0.0000 v in[1] (in)
+                    0.0000    0.0000    0.0000 v g5_INVxp33_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+     5    2.3391   64.2274   30.7112   30.7112 ^ g5_INVxp33_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                   64.2274    0.0000   30.7112 ^ g10_O2A1O1Ixp33_ASAP7_75t_R/A2 (O2A1O1Ixp33_ASAP7_75t_R)
+     3    1.1934   33.2658   28.4428   59.1540 v g10_O2A1O1Ixp33_ASAP7_75t_R/Y (O2A1O1Ixp33_ASAP7_75t_R)
+                   33.2658    0.0000   59.1540 v g12_OAI31xp33_ASAP7_75t_R/A3 (OAI31xp33_ASAP7_75t_R)
+     2    0.8549   33.9513   25.4148   84.5688 ^ g12_OAI31xp33_ASAP7_75t_R/Y (OAI31xp33_ASAP7_75t_R)
+                   33.9513    0.0000   84.5688 ^ g15_AOI21xp33_ASAP7_75t_R/A2 (AOI21xp33_ASAP7_75t_R)
+     1    0.3165   15.9742   14.2970   98.8658 v g15_AOI21xp33_ASAP7_75t_R/Y (AOI21xp33_ASAP7_75t_R)
+                   15.9742    0.0000   98.8658 v g16_HB1xp67_ASAP7_75t_R/A (HB1xp67_ASAP7_75t_R)
+    11    5.2831   56.2213   45.8828  144.7486 v g16_HB1xp67_ASAP7_75t_R/Y (HB1xp67_ASAP7_75t_R)
+                   56.2213    0.0000  144.7486 v g41_OR5x1_ASAP7_75t_R/B (OR5x1_ASAP7_75t_R)
+     8    3.7691   37.7586   66.5977  211.3463 v g41_OR5x1_ASAP7_75t_R/Y (OR5x1_ASAP7_75t_R)
+                   37.7586    0.0000  211.3463 v g56_NOR4xp25_ASAP7_75t_R/D (NOR4xp25_ASAP7_75t_R)
+     1    0.5839   40.0611   31.5225  242.8688 ^ g56_NOR4xp25_ASAP7_75t_R/Y (NOR4xp25_ASAP7_75t_R)
+                   40.0611    0.0000  242.8688 ^ g57_OA21x2_ASAP7_75t_R/A2 (OA21x2_ASAP7_75t_R)
+     1    0.0000    6.9207   26.7104  269.5793 ^ g57_OA21x2_ASAP7_75t_R/Y (OA21x2_ASAP7_75t_R)
+                    6.9207    0.0000  269.5793 ^ out[5] (out)
+                                      269.5793   data arrival time
+
+                    0.0000  400.0000  400.0000   clock clk (rise edge)
+                              0.0000  400.0000   clock network delay (ideal)
+                              0.0000  400.0000   clock reconvergence pessimism
+                              0.0000  400.0000   output external delay
+                                      400.0000   data required time
+-------------------------------------------------------------------------------------
+                                      400.0000   data required time
+                                     -269.5793   data arrival time
+-------------------------------------------------------------------------------------
+                                      130.4207   slack (MET)
+
+

@@ -116,6 +116,10 @@ def _check(
         "timeout_s": ctx.lec_timeout_s,
         "wall_limit_s": wall,
     }
+    # Preserve the check's coverage and stop metadata independently of its label.
+    for field in ("vectors", "sampling", "effort", "cause", "cause_detail"):
+        if field in lec_block:
+            block[field] = lec_block[field]
     if images:
         block["input_images"] = images
     if satopt is not None:

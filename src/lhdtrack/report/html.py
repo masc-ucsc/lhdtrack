@@ -8,8 +8,8 @@ the complete selected evaluation.
 Two more rules shape everything below.
 
 AGGREGATE ONLY WHAT IS COMPARABLE. The headline geomean covers rows whose
-Pyrope is hand-written AND LEC-proven. An `auto` seed enters the same LGraph the
-Verilog does, so aggregating it would report a front-end delta as a language
+Pyrope is hand-written AND has a proven or tested LEC result. An `auto` seed
+enters the same LGraph the Verilog does, so aggregating it would report a front-end delta as a language
 result; an unproven pair might be two different circuits.
 
 NEVER PLOT ACROSS A DISCONTINUITY. A series breaks at any host or tool-version
@@ -28,6 +28,9 @@ from statistics import median
 
 from ..corpus import discover
 from ..ledger import DATA_DIR, TARGET_DIR, Ledger, slug
+from ..lec_status import (
+    accepted_for_statistics, comparable_runs, display_verdict, language_comparable,
+)
 from ..run import host_name
 
 CSS = """
@@ -58,6 +61,7 @@ td.l,th.l{text-align:left}
 tbody tr:hover{background:var(--head)}
 tfoot td{font-weight:600;background:var(--head)}
 .good{color:var(--good)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.tested{color:var(--accent)}
 .muted{color:var(--muted)}
 .tag{font-size:11px;padding:.05rem .35rem;border-radius:4px;background:var(--chip);
 color:var(--muted)}
@@ -86,7 +90,7 @@ def _results_nav(host: str, kind: str | None = None) -> str:
 
 def _coverage_plot(groups: list[tuple[str, Counter]]) -> str:
     """Count outcomes independently; bounded proofs keep their own category."""
-    categories = ("proven", "bounded", "refuted", "timeout", "inconclusive",
+    categories = ("proven", "bounded", "refuted", "tested", "inconclusive",
                   "unsupported", "error", "skipped", "not-measured")
     colors = ("var(--good)", "var(--accent)", "var(--bad)", "var(--warn)",
               "var(--series-a)", "var(--muted)", "var(--series-b)",
@@ -209,26 +213,8 @@ def _synth_scope_tag(scope):
 
 
 def _display_lec_verdict(block: dict | None) -> str | None:
-    """Normalize legacy UNKNOWN rows using the current timeout contract.
-
-    Older ledgers labeled every solver UNKNOWN as `timeout`, even when lgcheck
-    returned in a second against a 300-second budget.  New runs classify those
-    as `inconclusive`; apply the same rule while rendering old measurements so
-    a focused corrective rerun need not re-run hundreds of unaffected netlists.
-    Explicit prerequisite timeouts carry a reason and remain timeouts.
-    """
-    block = block or {}
-    verdict = block.get("verdict")
-    if verdict == "proven" and block.get("bounded"):
-        return f"bounded({block.get('bound', '?')})"
-    if verdict != "timeout" or block.get("reason"):
-        return verdict
-    timeout_s = block.get("timeout_s")
-    elapsed_ms = block.get("ms")
-    if timeout_s is None or elapsed_ms is None:
-        return verdict
-    budget_ms = timeout_s * 1000 * (2 if block.get("solver") == "lgyosys" else 1)
-    return "inconclusive" if elapsed_ms < budget_ms * 0.98 else verdict
+    """Show timeouts and sampled runs as Tested, preserving raw coverage fields."""
+    return display_verdict(block)
 
 
 def _gain(measured, base) -> float | None:
@@ -333,7 +319,7 @@ def _satopt_comparison(root: Path, host: str, name: str = "satopt") -> str:
         f'<a href="{_e(doc["baseline_html"])}">{_e(doc["baseline_html"])}</a>. '
         f'Ratios are {_e(doc.get("ratio_label", "pre-SAT / measured"))}; higher is better. Geomeans use matched successful '
         'rows on the same host and unchanged Liberty files. Headline rows require idiomatic '
-        'Pyrope and a proven language-equivalence claim.</p>'
+        'Pyrope and a proven or tested language-equivalence check.</p>'
         '<div class="scroll"><table><thead><tr><th class="l">Tech</th>'
         '<th class="l">Flow</th><th class="l">Population</th><th>Pairs</th>'
         f'{headers}</tr></thead><tbody>{summary}</tbody></table></div>'
@@ -1151,14 +1137,13 @@ hover for absolute execution, setup+compile and total times. Above 1× means LLV
 
 
 def _gate_snapshot_lec(rows: list[dict], run: str) -> list[dict]:
-    """A named measurement earns its proof from the same run, not its manifest."""
+    """A named measurement needs an accepted same-run check, not a manifest claim."""
     proofs = {(r["test"], r.get("config", "default"), r.get("tech"), r["flow"]): r
               for r in rows if r.get("run_id") == run and r.get("kind") == "lec"}
 
-    def proven(row, field):
+    def accepted(row, field):
         block = row.get(field, {})
-        # A bounded(n) proof is still a proof; its bound stays on the block.
-        return row.get("status") == "ok" and block.get("verdict") == "proven"
+        return row.get("status") == "ok" and accepted_for_statistics(block)
 
     result = []
     for original in rows:
@@ -1168,18 +1153,21 @@ def _gate_snapshot_lec(rows: list[dict], run: str) -> list[dict]:
             prefix = (row["test"], row.get("config", "default"))
             netlist = proofs.get((*prefix, row.get("tech"), "lec_netlist"), {})
             field = "lec_result" if flow == "syn_lhd_pyrope" else "lec_verilog_result"
-            verified = proven(netlist, field)
+            verified = accepted(netlist, field)
             if any(netlist.get(f, {}).get("verdict") == "refuted"
                    for f in ("lec_result", "lec_verilog_result", "lec_aux_result")):
                 verified = False
             if flow == "syn_lhd_pyrope":
                 language = [proofs.get((*prefix, None, f), {}) for f in _LEC_FLOWS]
-                language_proven = (any(proven(r, "lec_result") for r in language)
+                language_checked = (any(accepted(r, "lec_result") for r in language)
                                    and not any(r.get("lec_result", {}).get("verdict") == "refuted"
                                                for r in language))
-                verified = verified and language_proven
-                row["comparable"] = bool(row.get("comparable")) and language_proven
-                row["lec"] = "proven" if language_proven else "unverified"
+                verified = verified and language_checked
+                row["comparable"] = row.get("pyrope_status") == "idiomatic" and language_checked
+                definitive = any(r.get("lec_result", {}).get("verdict") == "proven"
+                                 for r in language)
+                row["lec"] = (("proven" if definitive else "tested")
+                              if language_checked else "unverified")
             row["measured_lec_verified"] = verified
         result.append(row)
     return result
@@ -1190,7 +1178,7 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str,
     """May this row's ratio enter the geomean?
 
     Every flow needs a baseline to be a ratio of. The Pyrope flow additionally
-    needs the test to be comparable at all -- hand-written Pyrope, LEC-proven --
+    needs the test to be comparable at all -- hand-written Pyrope, LEC-proven or tested --
     because a machine-emitted seed enters the same LGraph the Verilog does and
     would report a front-end delta as a language result.
     """
@@ -1219,7 +1207,7 @@ def _eligible(row: dict, flow: str, base: dict, headline: set, pyrope_flow: str,
         # matching Verilator (checked above); only hand-written Pyrope enters
         # the language headline.
         return row.get("pyrope_status", "none") in headline
-    return bool(row.get("comparable")) and row.get("pyrope_status", "none") in headline
+    return language_comparable(row) and row.get("pyrope_status", "none") in headline
 
 
 def _tags(flows: dict, lec: bool = True) -> str:
@@ -1228,8 +1216,9 @@ def _tags(flows: dict, lec: bool = True) -> str:
     ps = r.get("pyrope_status", "none")
     if ps != "idiomatic":
         out.append(f'<span class="tag">pyrope:{_e(ps)}</span>')
-    if lec and r.get("lec", "none") != "proven":
-        out.append(f'<span class="tag">lec:{_e(r.get("lec", "none"))}</span>')
+    verdict = display_verdict({"verdict": r.get("lec", "none")})
+    if lec and verdict != "proven":
+        out.append(f'<span class="tag">lec:{_e(verdict)}</span>')
     return "".join(out)
 
 
@@ -1269,6 +1258,7 @@ _LEC_LABELS = ("lgcheck (yosys)", "lhd (cvc5)")
 # would report "this design is wrong" when the honest answer is "no proof".
 _VERDICT_CLASS = {
     "proven": "good",
+    "tested": "tested",
     "refuted": "bad",
     "timeout": "warn",
     "inconclusive": "warn",
@@ -1297,11 +1287,12 @@ def _language_lec_section(rows: list[dict]) -> str:
     for key in keys:
         verdicts = [_display_lec_verdict(index[key].get(flow, {}).get("lec_result", {}))
                     for flow in _LEC_FLOWS]
-        if verdicts[0] in ("proven", "refuted") and verdicts[0] == verdicts[1]:
+        if comparable_runs(*(index[key].get(flow, {}).get("lec_result", {})
+                             for flow in _LEC_FLOWS)):
             paired.append(key)
     data = _chart_data(
         paired, index, "lec_lgyosys", ["lec_lhd"],
-        [("prove", "Proof time", "s", lambda r: r.get("lec_result", {}).get("ms"))],
+        [("prove", "LEC time", "s", lambda r: r.get("lec_result", {}).get("ms"))],
     )
     chart = _chart_block("chart-lec", data) if data else ""
     return '<h2>Equivalence — Pyrope vs Verilog</h2>' + chart + _lec_section(keys, index)
@@ -1347,15 +1338,11 @@ def _lec_section(keys, index) -> str:
                 f'<td class="l g {_VERDICT_CLASS.get(verdict, "muted")}">{_e(verdict)}</td>'
                 f"<td>{_fmt(ms / 1000, 2) if ms is not None else '—'}</td>"
             )
-        # Compare definitive answers with the same scope. A bounded proof is
-        # less work than an unbounded proof, even though both store `proven`.
+        # Compare all accepted checks equally, including Tested and bounded proofs.
         a = (by_flow.get("lec_lgyosys") or {}).get("lec_result", {})
         b = (by_flow.get("lec_lhd") or {}).get("lec_result", {})
         gain = None
-        same_answer = (
-            verdicts["lec_lgyosys"] in ("proven", "refuted")
-            and verdicts["lec_lgyosys"] == verdicts["lec_lhd"]
-        )
+        same_answer = comparable_runs(a, b)
         if a.get("ms") and b.get("ms") and same_answer:
             gain = a["ms"] / b["ms"]
             speedups.append(gain)
@@ -1377,7 +1364,7 @@ def _lec_section(keys, index) -> str:
     geo = _geomean(speedups)
     speed = (
         f" lhd is <b>{geo:.2f}×</b> the speed of lgcheck over the "
-        f"{len(speedups)} test(s) where both reached the same definitive verdict."
+        f"{len(speedups)} comparable LEC run(s), including tested results."
         if geo else ""
     )
     split_note = (
@@ -1421,13 +1408,10 @@ the verdicts check each other. {summary}.{speed}{split_note}</p>
 {coverage}
 <div class="scroll"><table><thead>{head}</thead>
 <tbody>{''.join(rows_html)}</tbody><tfoot>{''.join(foot)}</tfoot></table></div>
-<p class="sub muted">A verdict is not boolean: <span class="good">proven</span> and
-<span class="bad">refuted</span> are answers; <span class="warn">timeout</span>,
-<span class="warn">inconclusive</span>, <span class="muted">unsupported</span> and
-<span class="warn">error</span> are the
-absence of one. Until a test is proven, its QoR numbers above are reported but
-never aggregated — a Pyrope win might be a different circuit. Bounded checks
-and undecided results are excluded from the speedup comparison.</p>
+<p class="sub muted"><span class="good">proven</span> and
+<span class="warn">tested</span> both enter the statistics. Tested includes
+sampling and time-limited checks; the recorded coverage and stop reason retain
+that distinction. Refuted results are excluded from QoR statistics.</p>
 """
 
 
@@ -1499,7 +1483,7 @@ def _netlist_lec_section(rows: list[dict]) -> str:
         for bucket, ms in (("py", py.get("ms")), ("vr", vr_ms), ("vc", vc_ms)):
             if ms:
                 secs[bucket].append(ms / 1000)
-        if vr_ms and vc_ms and vr_verdict in ("proven", "refuted") and vr_verdict == vc_verdict:
+        if vr_ms and vc_ms and comparable_runs(vr, vc):
             engine_pairs.append(vr_ms / vc_ms)
         if vr_verdict == "refuted" and vc_verdict == "proven":
             disagreement = (
@@ -1557,7 +1541,8 @@ def _netlist_lec_section(rows: list[dict]) -> str:
     engine_gain = _geomean(engine_pairs)
     engine_note = (
         f" On the {len(engine_pairs)} row(s) where both Verilog-vs-netlist engines "
-        f"reached the same definitive verdict, cvc5 is <b>{engine_gain:.2f}×</b> the speed of "
+        f"completed comparable checks, including tested results, cvc5 is "
+        f"<b>{engine_gain:.2f}×</b> the speed of "
         "the Yosys-backed one."
         if engine_gain else ""
     )
@@ -1645,7 +1630,7 @@ def _chart_data(keys, index, base_flow, flows, metrics) -> dict | None:
         # hand-written-vs-auto distinction of the Pyrope applies to sim.
         sim_chart = base_flow.startswith("sim_")
         solid = (first.get("pyrope_status", "none") == "idiomatic" if sim_chart else
-                 bool(first.get("comparable")) and not any(
+                 language_comparable(first) and not any(
                      r.get("measured_lec_verified") is False for r in by_flow.values()))
         groups.append({
             "test": key[1],
@@ -1817,7 +1802,7 @@ CHART_JS = r"""
           tip.textContent = g.test + '#' + g.config + '  ' + f.label + '  ' +
             val.toFixed(2) + '× baseline / measured' +
             (g.solid ? '' : '  (' +
-              (data.solidNote || 'not LEC-proven or not hand-written Pyrope') + ')');
+              (data.solidNote || 'not LEC-checked or not hand-written Pyrope') + ')');
           var times = g.times && g.times[metricKey] && g.times[metricKey][f.key];
           if (times) {
             tip.textContent += '  baseline ' + (times.baseline_ms / 1000).toFixed(3) +
@@ -1869,7 +1854,7 @@ CHART_JS = r"""
         f.label + '</span>';
     }).join('');
     var note = document.createElement('span');
-    note.textContent = data.solidNote || 'faded = not LEC-proven or not hand-written Pyrope';
+    note.textContent = data.solidNote || 'faded = not LEC-checked or not hand-written Pyrope';
     box.appendChild(note);
   }
 
@@ -1946,7 +1931,7 @@ def write_timeseries(
             continue
         for flow, r in flows.items():
             area = r.get("qor", {}).get("area_um2")
-            if not area or not (r.get("comparable") or flow != "syn_lhd_pyrope"):
+            if not area or not (language_comparable(r) or flow != "syn_lhd_pyrope"):
                 continue
             # `_gain`, i.e. baseline / measured -- the SAME orientation as every
             # other ratio on the site. A raw area/baseline plots an improvement

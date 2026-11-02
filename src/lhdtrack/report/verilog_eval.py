@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from ..ledger import Ledger, slug
+from ..lec_status import accepted_for_statistics
 from .html import (
     _auxiliary_report_name, _chart_block, _coverage_plot, _coverage_verdict,
     _display_lec_verdict, _e, _fmt, _chart_data, _llvm_chart_data, _llvm_timing_summary,
@@ -194,13 +195,13 @@ def proof_covers_digest(block, digest):
 
 
 def proof_ok(synth, proof):
-    """A proof, including bounded proof, must cover these exact emitted bytes."""
+    """A proven or tested check must cover these exact emitted bytes."""
     digest = synth.get("qor", {}).get("netlist_sha256")
     blocks = [proof.get(f, {}) for f in ("lec_verilog_result", "lec_aux_result")]
     if any(b.get("verdict") in ("refuted", "error") for b in blocks):
         return False
     return bool(digest) and any(
-        b.get("verdict") == "proven"
+        accepted_for_statistics(b)
         and proof_covers_digest(b, digest) for b in blocks
     )
 
@@ -241,7 +242,7 @@ def geomean_ratios(rows, slots, mapper, satopt=True, baseline=None):
     return [(math.exp(math.fsum(v) / len(v)) if v else None, len(v)) for v in logs]
 
 
-def lec_time_geomean(rows, slots, mapper, *, exclude_timeouts=False, satopt=True):
+def lec_time_geomean(rows, slots, mapper, *, satopt=True):
     """Paired Yosys / cvc5 elapsed times for the same mapped netlist."""
     logs = []
     for slot in slots:
@@ -250,8 +251,6 @@ def lec_time_geomean(rows, slots, mapper, *, exclude_timeouts=False, satopt=True
         yosys = row.get("lec_aux_result", {})
         if any(b.get("verdict") == "refuted" for b in (native, yosys)):
             continue
-        if exclude_timeouts and any(b.get("verdict") == "timeout" for b in (native, yosys)):
-            continue
         n, y = native.get("ms"), yosys.get("ms")
         if all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in (n, y)):
             logs.append(math.log(y) - math.log(n))
@@ -259,7 +258,7 @@ def lec_time_geomean(rows, slots, mapper, *, exclude_timeouts=False, satopt=True
 
 
 def satopt_lec_effect(rows, slots, mapper):
-    """Paired cvc5 time with satopt=false / satopt=true on the same netlist, both proven."""
+    """Paired cvc5 time with satopt=false / satopt=true, proven or tested."""
     logs, proven = [], {True: 0, False: 0}
     for slot in slots:
         key = slot["test"], slot["config"]
@@ -267,7 +266,7 @@ def satopt_lec_effect(rows, slots, mapper):
                   for e in (True, False)}
         for e, block in blocks.items():
             proven[e] += block.get("verdict") == "proven"
-        if all(b.get("verdict") == "proven" for b in blocks.values()):
+        if all(accepted_for_statistics(b) for b in blocks.values()):
             off, on = blocks[False].get("ms"), blocks[True].get("ms")
             if all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0 for v in (off, on)):
                 logs.append(math.log(off) - math.log(on))
@@ -349,7 +348,7 @@ def sn_fixed_table(rows, spec):
             continue
         sn = rows.get((*key, "syn_abc_sn"), {})
         proof = rows.get((*key, SN_LHD_LEC), {})
-        verified = 'LEC proven' if proof_ok(lhd, proof) else 'LEC unverified'
+        verified = 'LEC checked' if proof_ok(lhd, proof) else 'LEC unverified'
         body.append('<tr><td class="l">' + _e('/'.join(key)) +
                     f'<br><small class="muted">LHD: {verified}; multiplier=' +
                     _e(lhd.get("qor", {}).get("synth_policy", {}).get("pass.abc.multiplier", "unspecified")) +
@@ -688,7 +687,7 @@ def logic_gate_section(rows, spec, history=()):
                 block = pyrope.get("lec_result", {})
                 digest = measured.get("qor", {}).get("netlist_sha256")
                 if (measured.get("pyrope_status") == "idiomatic"
-                        and pyrope.get("status") == "ok" and block.get("verdict") == "proven"
+                        and pyrope.get("status") == "ok" and accepted_for_statistics(block)
                         and digest and proof_covers_digest(block, digest)):
                     headline.append(math.log(ratio))
             evidence = measured.get("qor", {}).get("usyn_evidence", {})
@@ -698,7 +697,7 @@ def logic_gate_section(rows, spec, history=()):
                 f'{"choices" if t.get("multi_rep") else "incumbent"}: '
                 f'{t.get("physical_logic_gates", "—")} gates'
                 for t in trials)
-            status = "both exact netlists proven" if proven else "proof coverage incomplete"
+            status = "both exact netlists checked" if proven else "check coverage incomplete"
             if refuted:
                 status = "LEC refuted · results excluded"
                 b = m = None
@@ -720,12 +719,13 @@ def logic_gate_section(rows, spec, history=()):
                         'Each comparison uses this host and the identical Liberty hash. '
                         'All measured non-refuted pairs, including timeouts and unverified results: '
                         f'{aggregate(measured_samples)}. '
-                        'Headline, idiomatic Pyrope proved against the exact USYN emission '
+                        'Headline, idiomatic Pyrope checked against the exact USYN emission '
                         'and both '
-                        'Verilog emissions proven: ' f'{aggregate(headline)}. Diagnostic, '
-                        'all source-language statuses with both exact emissions proven: '
+                        'Verilog emissions proven or tested: '
+                        f'{aggregate(headline)}. Diagnostic, '
+                        'all source-language statuses with both exact emissions proven or tested: '
                         f'{aggregate(diagnostic)}. '
-                        'Unproven pairs enter the all-results aggregate; proof-covered aggregates '
+                        'Unchecked pairs enter the all-results aggregate; checked aggregates '
                         'remain separate. Refuted results are excluded.</p>'
                         '<div class="scroll"><table><thead><tr><th class="l">Test / config</th>'
                         '<th>ABC gates</th><th>USYN gates</th><th>ABC / USYN</th>'
@@ -845,7 +845,9 @@ def write_evaluation(
             f'<p>LiveHD: <code>{_e(spec["versions"]["lhd"])}</code><br>'
             f'Liberty hash: <code>{_e(spec["liberty_sha256"])}</code>. '
             'LEC checks the emitted Verilog netlist against the original Verilog source. '
-            'Timeouts and inconclusive answers are coverage outcomes, not refutations.</p>']
+            'Tested results, including timeouts, participate in statistics alongside '
+            'proven results. '
+            'The detailed coverage and stop reason remain recorded.</p>']
     if spec.get("auxiliary_report"):
         auxiliary = _auxiliary_report_name(spec["host"], spec["auxiliary_report"])
         body.append(f'<p><a href="{_e(auxiliary)}">'
@@ -1010,11 +1012,11 @@ def write_evaluation(
                     'Missing and skipped checks remain in the denominator.</p>'
                     + _coverage_plot(groups))
         lec_footer = ['<tfoot>']
-        for exclude_timeouts, label in ((False, "including timeouts"), (True, "excluding timeouts")):
+        for label in ("proven and tested",):
             lec_footer.append(f'<tr><th class="l">Time geomean vs Yosys · {label}</th>')
             for mapper in MAPPERS:
                 ratio, count = lec_time_geomean(rows, spec["slots"], mapper,
-                                                exclude_timeouts=exclude_timeouts, satopt=satopt)
+                                                satopt=satopt)
                 value = f'{ratio:.3f}×' if ratio is not None else '—'
                 baseline = '1.000×' if count else '—'
                 lec_footer.append(
@@ -1037,7 +1039,6 @@ def write_evaluation(
                     '&gt;1 means cvc5 is faster, &lt;1 means slower; Yosys is 1.000×. '
                     'Timeout and unverified runs are included using their recorded elapsed times, '
                     'not estimated completion times; refuted cases are excluded. '
-                    'The second row excludes any pair where either checker timed out. '
                     'Only matched, finite, positive times contribute, with the sample count shown.</p>'
                     '<div class="scroll"><table><thead><tr><th rowspan="3" class="l">Test / config</th>'
                     '<th colspan="8">lhd-verilog</th></tr><tr><th colspan="4">abc</th>'

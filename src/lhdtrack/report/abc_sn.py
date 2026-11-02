@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 
 from ..ledger import Ledger, slug
+from ..lec_status import display_verdict
 from .verilog_eval import SN_LHD_FLOW, SN_LHD_LEC, sn_compatible, synthesis_time_ms
 
 FLOWS = (SN_LHD_FLOW, "syn_abc_sn")
@@ -31,7 +32,9 @@ def proof_verdict(row: dict, history: list[dict]) -> str:
     digest = q.get("netlist_sha256")
     if not digest:
         return "unverified"
-    verdicts = []
+    verdicts = [row[field] for field in ("lec_verilog_result", "lec_aux_result")
+                if row.get(field, {}).get("netlist_sha256") == digest
+                and row[field].get("liberty_sha256") == q.get("liberty_sha256")]
     for candidate in history:
         if any(candidate.get(k) != row.get(k) for k in ("host", "tech", "test", "config")):
             continue
@@ -60,8 +63,8 @@ def proof_verdict(row: dict, history: list[dict]) -> str:
             return "proven"
         bounds = [b["bound"] for b in proven if isinstance(b.get("bound"), int)]
         return f"bounded({max(bounds)})" if bounds else "bounded"
-    for verdict in ("timeout", "inconclusive"):
-        if any(b.get("verdict") == verdict for b in verdicts):
+    for verdict in ("tested", "inconclusive"):
+        if any(display_verdict(b) == verdict for b in verdicts):
             return verdict
     return "unverified"
 
@@ -94,6 +97,9 @@ def analyze(history: list[dict], host: str, run: str) -> dict:
             pair["reason"] = "failed, skipped or missing synthesis"
         elif any(p["proof"] in ("refuted", "error") for p in (pair["lhd"], pair["sn"])):
             pair["reason"] = "netlist proof refuted or errored"
+        elif any(p["proof"] not in {"proven", "tested"} and not p["proof"].startswith("bounded")
+                 for p in (pair["lhd"], pair["sn"])):
+            pair["reason"] = "netlist has no accepted LEC check"
         elif not sn_compatible(measured[1], measured[0]):
             pair["reason"] = "host class or Liberty mismatch"
         elif (measured[0].get("qor", {}).get("sdc_sha256")
@@ -149,7 +155,7 @@ def write_outliers(root: Path, host: str, run: str) -> tuple[Path, Path]:
             'are recorded below for this run, with zero trials. Most pairs are unverified. '
             'Known counterexamples are excluded, including proofs of identical retained bytes '
             'from earlier runs. These all-Verilog statistics are diagnostic, separate from '
-            'the idiomatic, proven Pyrope headline.</p>',
+            'the idiomatic, proven or tested Pyrope headline.</p>',
             '<details><summary>Versions / coverage / paired statistics</summary><pre>' +
             _e(json.dumps({k: report[k] for k in
                            ("versions", "synth_policies", "counts", "proof_counts", "exclusions", "statistics")},

@@ -9,10 +9,26 @@ from lhdtrack.report.html import (
     _eligible, _gate_snapshot_lec, _lec_section, _netlist_lec_section, _problem_note,
     _synth_display_values, _synth_table,
     _llvm_gain, _llvm_chart_data, _sim_table, write_all, write_report,
+    _display_lec_verdict,
 )
 
 
 class ReportSnapshot(unittest.TestCase):
+    def test_timeout_displays_as_tested_without_rewriting_coverage(self):
+        for elapsed in (1, 300000):
+            block = {"verdict": "timeout", "timeout_s": 300, "ms": elapsed,
+                     "sampling": {"vectors": 12}}
+            self.assertEqual(_display_lec_verdict(block), "tested")
+            self.assertEqual(block["verdict"], "timeout")
+            self.assertEqual(block["sampling"]["vectors"], 12)
+        self.assertEqual(_display_lec_verdict({"verdict": "inconclusive",
+                         "lhd_verdict": "tested-sampled"}), "tested")
+
+    def test_tested_metadata_never_overrides_a_refutation_or_error(self):
+        for verdict in ("refuted", "error", "unsupported"):
+            self.assertEqual(_display_lec_verdict({"verdict": verdict,
+                             "lhd_verdict": "tested-sampled"}), verdict)
+
     def test_native_logic_metrics_appear_in_full_table_and_zero_totals_take_precedence(self):
         key = ("memory", "ram", "one", "asap7")
         row = dict(status="ok", qor=dict(native_state=True, lhd_cells=42,
@@ -43,14 +59,16 @@ class ReportSnapshot(unittest.TestCase):
             self.assertIn(full, outputs)
             self.assertIn("No runs recorded", full.read_text())
 
-    def test_lec_speedup_requires_matching_definitive_answers(self):
+    def test_lec_speedup_includes_tested_and_proven_runs(self):
         key = ("rtl", "delay", "default", None)
         for left, right, comparable in (
             ({"verdict": "proven"}, {"verdict": "proven"}, True),
             ({"verdict": "refuted"}, {"verdict": "refuted"}, True),
             ({"verdict": "proven"},
-             {"verdict": "proven", "bounded": True, "bound": 6}, False),
-            ({"verdict": "timeout"}, {"verdict": "timeout"}, False),
+             {"verdict": "proven", "bounded": True, "bound": 6}, True),
+            ({"verdict": "timeout"}, {"verdict": "timeout"}, True),
+            ({"verdict": "proven"}, {"verdict": "tested"}, True),
+            ({"verdict": "inconclusive"}, {"verdict": "tested"}, False),
             ({"verdict": "error"}, {"verdict": "error"}, False),
             ({"verdict": "proven"}, {"verdict": "refuted"}, False),
         ):
@@ -128,9 +146,16 @@ class ReportSnapshot(unittest.TestCase):
         self.assertTrue(rows[0]["measured_lec_verified"])
         # A bounded(n) proof is still a proof.
         netlist["lec_result"] = {"verdict": "proven", "bounded": True, "bound": 6}
-        self.assertTrue(_gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
+        self.assertTrue(
+            _gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
         netlist["lec_result"] = {"verdict": "timeout"}
-        self.assertFalse(_gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
+        self.assertTrue(
+            _gate_snapshot_lec([synth, netlist, language], "fresh")[0]["measured_lec_verified"])
+        language["lec_result"] = {"verdict": "timeout"}
+        fresh = {**synth, "comparable": False, "lec": "none"}
+        row = _gate_snapshot_lec([fresh, netlist, language], "fresh")[0]
+        self.assertEqual(row["lec"], "tested")
+        self.assertTrue(_eligible(row, synth["flow"], base, {"idiomatic"}, synth["flow"]))
 
     def test_legacy_note_uses_recorded_unit_without_changing_ledger_row(self):
         note = "OpenTimer 200ns vs OpenSTA 180ns = 11.1% apart (limit 10.0%)"

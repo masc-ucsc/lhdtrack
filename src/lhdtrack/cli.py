@@ -188,7 +188,7 @@ def cmd_check(args, root: Path, cfg: dict) -> int:
     comparable = sum(1 for t in tests if t.comparable())
     print(
         f"\n{len(tests)} tests, {comparable} enter the headline comparison "
-        f"(idiomatic Pyrope + LEC-proven)"
+        f"(idiomatic Pyrope + LEC-proven or tested)"
     )
     print(
         f"{problems} problem(s) — the corpus is malformed; "

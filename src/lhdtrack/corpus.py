@@ -16,6 +16,8 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .lec_status import accepted_for_statistics
+
 TESTS_DIR = "tests"
 # `tests/common/` is not a test: it holds Pyrope shared by the tests (e.g.
 # lhdtrack_cfg.prp, the comptime `no_loop` switch), reached from each test's
@@ -38,6 +40,7 @@ PYROPE_BINDING = ("monomorphic", "set")
 LEC_STATUS = (
     "none",
     "proven",
+    "tested",
     "refuted",
     "timeout",
     "inconclusive",
@@ -182,12 +185,13 @@ class Test:
     def comparable(self) -> bool:
         """May this test's numbers enter a headline comparison?
 
-        No, until its Pyrope is hand-written AND LEC-proven against the Verilog.
+        No, until its Pyrope is hand-written AND LEC-proven or tested against the Verilog.
         An `auto` seed enters the same LGraph the Verilog does, so it measures
         front ends rather than languages; an unproven pair might simply be two
         different circuits, which makes a QoR win meaningless.
         """
-        return self.pyrope_status == "idiomatic" and self.lec_status == "proven"
+        return (self.pyrope_status == "idiomatic"
+                and accepted_for_statistics({"verdict": self.lec_status}))
 
     def flows_for(self, kind: str) -> list[str]:
         return {"synth": self.synth_flows, "sim": self.sim_flows}.get(kind, self.lec_flows)

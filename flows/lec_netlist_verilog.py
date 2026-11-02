@@ -101,7 +101,7 @@ def independent_check(ctx, netlist, reference, *, models=None):
     argv = [str(check), "--yosys", str(yosys),
             "--implementation", str(dest / "impl.v"),
             "--reference", str(dest / "ref.v"), "--top", ctx.top,
-            "--gold_reader", "slang", "--gate_reader", "slang"]
+            "--gold_reader", "slang", "--gate_reader", "slang", "--normalize_split_ports"]
     label = "lec_lgyosys_verilog_netlist"
     ctx.cmds.append(f"{label}: {shlex.join(argv)}")
     wall = ctx.lec_timeout_s * 2 + 60

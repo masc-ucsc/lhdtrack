@@ -7,8 +7,12 @@ import html
 import json
 from pathlib import Path
 import socket
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from lhdtrack.lec_status import accepted_for_statistics, display_verdict
 
 
 def render(host: str, runs: list[str]) -> Path:
@@ -23,7 +27,7 @@ def render(host: str, runs: list[str]) -> Path:
         elif row.get("flow", "").startswith("lec_pyrope_tune_"):
             proof_key = (row["run_id"], row["test"], row["config"], row["host_class"],
                          row["versions"].get("lhd"), row["flow"].removeprefix("lec_pyrope_tune_"))
-            proofs[proof_key] = row.get("lec_result", {}).get("verdict", row["status"])
+            proofs[proof_key] = row.get("lec_result", {"verdict": row["status"]})
     groups = {}
     for row in rows:
         row.setdefault("qor", {})
@@ -36,17 +40,27 @@ def render(host: str, runs: list[str]) -> Path:
     tables = []
     for key, variants in sorted(groups.items()):
         baseline = variants.get("baseline")
+
+        def exact_proof(variant: str) -> dict | None:
+            return proofs.get((key[0], key[1], key[2], key[3], key[6], variant))
+
+        baseline_accepted = bool(baseline and baseline["status"] == "ok"
+                                 and accepted_for_statistics(exact_proof("baseline")))
         for variant, row in variants.items():
+            proof = exact_proof(variant)
+            accepted = row["status"] == "ok" and accepted_for_statistics(proof)
             qos, sta, times = row["qor"], row["sta"], row["time_ms"]
             cells, delay, elapsed = qos.get("cells"), sta.get("opensta_ns"), times.get("map")
             ratios = []
             for current, source in ((cells, (baseline or {}).get("qor", {}).get("cells")),
                                     (delay, (baseline or {}).get("sta", {}).get("opensta_ns")),
                                     (elapsed, (baseline or {}).get("time_ms", {}).get("map"))):
-                ratios.append(source / current if current and source else None)
+                ratios.append(source / current if accepted and baseline_accepted
+                              and current and source else None)
             replay = variants.get("replay")
             equality = None
-            if variant == "profile" and replay and row["status"] == replay["status"] == "ok":
+            if (variant == "profile" and accepted and replay and replay["status"] == "ok"
+                    and accepted_for_statistics(exact_proof("replay"))):
                 equality = cells == replay["qor"].get("cells") and delay == replay["sta"].get("opensta_ns")
             tables.append({"run": key[0], "test": key[1], "config": key[2], "variant": variant,
                            "status": row["status"], "cells": cells, "critical_path_ps": delay,
@@ -54,7 +68,10 @@ def render(host: str, runs: list[str]) -> Path:
                            "color_ms": times.get("color"), "trials": qos.get("arithmetic_trials"),
                            "baseline_over_measured": dict(zip(("cells", "delay", "map"), ratios)),
                            "profile_replay_qor_equal": equality, "compiler": key[6],
-                           "mapped_proof": proofs.get((key[0], key[1], key[2], key[3], key[6], variant)),
+                           "mapped_proof": display_verdict(proof),
+                           "mapped_proof_raw": (proof or {}).get("verdict"),
+                           "mapped_proof_result": proof,
+                           "accepted_for_statistics": accepted,
                            "liberty_sha256": key[4], "source_sha256": qos.get("source_sha256")})
     target = ROOT / "target" / f"results-syn-attributes-{host}"
     target.parent.mkdir(exist_ok=True)
@@ -86,7 +103,10 @@ def render(host: str, runs: list[str]) -> Path:
         "<p>Ratios are baseline / measured; higher is better. Each ratio uses the same "
         "run, host class, compiler, Liberty and SDC. Profile includes search cost; replay "
         "starts no arithmetic trials. Timing uses OpenSTA on the measured netlist. "
-        "Source equivalence and mapped-netlist proof are separate obligations.</p>"
+        "Source equivalence and mapped-netlist proof are separate obligations. "
+        "Tested and Proven participate equally; refuted/error or missing checks have no "
+        "comparison ratios. Raw check causes remain in the JSON. Delays are before "
+        "placement; final timing requires matched placement buffering and sizing.</p>"
         "<table><thead><tr>" + "".join(f"<th>{h}</th>" for h in headers)
         + "</tr></thead><tbody>" + "".join(cells) + "</tbody></table></body></html>\n")
     return target.with_suffix(".html")

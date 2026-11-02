@@ -3,21 +3,22 @@ from collections import Counter
 import math
 
 from .html import _e, _page
+from ..lec_status import accepted_for_statistics, display_verdict, language_comparable
 from .verilog_eval import lec_flow, proof_covers_digest, synth_flow
 
 
 def proven_emission(synth, proof):
-    """Require a proof (bounded counts) of this exact emission; reject every conflicting result."""
+    """Accept a proven or tested exact emission; reject every conflicting result."""
     blocks = [proof.get(f, {}) for f in ("lec_verilog_result", "lec_aux_result")]
     if any(b.get("verdict") in {"refuted", "error"} for b in blocks):
         return False
     digest = synth.get("qor", {}).get("netlist_sha256")
     return bool(digest) and any(
-        b.get("verdict") == "proven" and proof_covers_digest(b, digest) for b in blocks)
+        accepted_for_statistics(b) and proof_covers_digest(b, digest) for b in blocks)
 
 
 def frequency_ratio(base, measured, base_proof, measured_proof):
-    """Only complete, equally constrained, proven mappings yield a speedup."""
+    """Equally constrained mappings with proven or tested checks yield a speedup."""
     if not all(proven_emission(s, p) for s, p in
                ((base, base_proof), (measured, measured_proof))):
         return None
@@ -73,14 +74,14 @@ def summarize(history, specs):
             ratio = frequency_ratio(base, synth, base_proof, proof)
             verified = proven_emission(synth, proof)
             counts[name][synth.get("status", "pending")] += 1
-            counts[name]["unbounded_proven" if verified else "unverified"] += 1
-            # The language headline policy remains idiomatic and LEC-proven.
-            if ratio is not None and synth.get("comparable"):
+            counts[name]["checked" if verified else "unverified"] += 1
+            # The language headline accepts both proven and tested idiomatic slots.
+            if ratio is not None and language_comparable(synth):
                 samples[name].append(math.log(ratio))
             entry["variants"][name] = dict(
-                synthesis=synth, proof=proof, frequency_ratio=ratio, unbounded_proven=verified)
+                synthesis=synth, proof=proof, frequency_ratio=ratio, checked=verified)
         variants = entry["variants"]
-        if all(v["frequency_ratio"] is not None and v["synthesis"].get("comparable")
+        if all(v["frequency_ratio"] is not None and language_comparable(v["synthesis"])
                for v in variants.values()):
             for name, v in variants.items():
                 common_samples[name].append(math.log(v["frequency_ratio"]))
@@ -88,7 +89,7 @@ def summarize(history, specs):
             before, after = variants["feedback"], variants["improved"]
             ratio = frequency_ratio(before["synthesis"], after["synthesis"],
                                     before["proof"], after["proof"])
-            if ratio is not None and all(v["synthesis"].get("comparable")
+            if ratio is not None and all(language_comparable(v["synthesis"])
                                          for v in (before, after)):
                 iteration_samples.append(math.log(ratio))
         matrix.append(entry)
@@ -108,9 +109,9 @@ def summarize(history, specs):
 def render(summary):
     names = list(summary["runs"])
     body = '<h1>ASAP7 native USYN ablation</h1><p>Exact emitted-netlist LEC; '
-    body += 'frequency ratios are ABC / USYN minimum period. Bounded proofs and '
-    body += 'missing timing stay visible and do not enter frequency comparisons. '
-    body += 'Headline geomeans include only idiomatic, LEC-proven Pyrope slots.</p>'
+    body += 'frequency ratios are ABC / USYN minimum period. Tested and proven checks '
+    body += 'enter the same statistics; missing timing stays visible. '
+    body += 'Headline geomeans use idiomatic Pyrope slots.</p>'
     body += '<table><thead><tr><th>Design/config</th>'
     for name in names:
         body += f'<th>{_e(name)}: period / area / proof / ratio</th>'
@@ -121,8 +122,7 @@ def render(summary):
             variant = row["variants"][name]
             synth, proof = variant["synthesis"], variant["proof"]
             sta, qor = synth.get("sta", {}), synth.get("qor", {})
-            verdicts = '/'.join(str(proof.get(f, {}).get("verdict", "pending"))
-                                + ("(bounded)" if proof.get(f, {}).get("bounded") else "")
+            verdicts = '/'.join(str(display_verdict(proof.get(f, {})) or "pending")
                                 for f in ("lec_verilog_result", "lec_aux_result"))
             ratio = variant["frequency_ratio"]
             text = (f'{sta.get("opensta_ns", "—")} {sta.get("time_unit", "")} / '
@@ -148,5 +148,5 @@ def render(summary):
     if iteration.get("frequency_ratio") is not None:
         body += (f'<p>Improved native frequency / feedback-stage frequency: '
                  f'{iteration["frequency_ratio"]:.3f}× (n={iteration["count"]}, '
-                 'paired proven idiomatic slots).</p>')
+                 'paired checked idiomatic slots).</p>')
     return _page('ASAP7 USYN ablation', body)

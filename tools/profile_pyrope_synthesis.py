@@ -115,7 +115,7 @@ def main() -> int:
                 if mode == "on":
                     settings += ["--set", f"synth.tune.export={tune}"]
                 elif mode == "auto":
-                    settings += ["--set", f"synth.tune.file={tune}"]
+                    settings += [str(tune)]
                 settings += [a for setting in args.settings for a in ("--set", setting)]
                 module = ModuleType(f"syn_lhd_pyrope_tune_{variant}")
                 for key in ("KIND", "NEEDS", "OPTIONAL", "USES_TECH"):

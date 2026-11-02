@@ -43,6 +43,22 @@ class ColorReport(unittest.TestCase):
             self.assertEqual(exported["baseline_run"], "baseline")
             self.assertIn(output, write_external_diagnostics(root, "host"))
 
+    def test_flat_timeout_label_is_tested_with_raw_evidence_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            baseline, flat = self.rows()
+            check = deepcopy(flat)
+            check.update(flow="lec_netlist_verilog_abc_sn_flat",
+                         lec_verilog_result={"verdict": "timeout", "ms": 300000})
+            Ledger(root).append({"host": "host"}, [baseline, flat, check])
+            output = write_external_color_run(root, "host", "flat", "dino")
+            text = output.read_text()
+            self.assertIn("lec_verilog_result: tested", text)
+            self.assertNotIn("lec_verilog_result: timeout", text)
+            raw = json.loads(output.with_suffix(".json").read_text())
+            evidence = next(r for r in raw["flat"] if r["flow"] == check["flow"])
+            self.assertEqual(evidence["lec_verilog_result"]["verdict"], "timeout")
+
     def test_mismatch_rejected_for_library_source_constraints_and_compiler(self):
         for field in ("liberty_sha256", "source_sha256", "sdc_sha256", "compiler"):
             with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:

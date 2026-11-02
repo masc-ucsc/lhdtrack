@@ -1,6 +1,9 @@
 import unittest
+import json
+from pathlib import Path
+import tempfile
 
-from .synthesis_timing import lhd_steps, profile_pairs, timing_section
+from .synthesis_timing import lhd_steps, profile_pairs, timing_section, write_timing
 
 
 class SynthesisTimingTest(unittest.TestCase):
@@ -8,6 +11,24 @@ class SynthesisTimingTest(unittest.TestCase):
         return {"run_id": run, "flow": flow, "test": "add", "config": "bw8",
                 "tech": "asap7", "status": "ok", "synthesis_timing_profile": True,
                 "host_class": "machine", "qor": {"liberty_sha256": "lib"}, **extra}
+
+    def test_failed_latest_replay_does_not_resurrect_old_success(self):
+        history = [self.row("a", "syn_lhd_verilog_no_satopt"),
+                   self.row("a", "syn_abc_sn")]
+        replay = self.row("a", "profile_abc_replay", synthesis_timing_profile=False,
+                          qor={"abc_replay": {"measurements": {
+                              "abc": {"time_ms": [1000]},
+                              "abc_sn": {"time_ms": [500]}}}})
+        history += [replay, {**replay, "run_id": "b", "status": "failed",
+                             "note": "exact SN source refuted"}]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data").mkdir()
+            (root / "data/ledger-host.jsonl").write_text(
+                "".join(json.dumps({**row, "host": "host"}) + "\n" for row in history))
+            rendered = write_timing(root, "host").read_text()
+        self.assertIn("failed (excluded): exact SN source refuted", rendered)
+        self.assertNotIn("2.000×", rendered)
 
     def test_latest_complete_pair_keeps_failures_and_ignores_partial_runs(self):
         lhd, sn = "syn_lhd_verilog_no_satopt", "syn_abc_sn"

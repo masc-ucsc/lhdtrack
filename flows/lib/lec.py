@@ -54,7 +54,7 @@ _LHD_CAUSES = ("timeout", "unsupported", "undischarged", "unconfirmed", "unpaire
 # (livehd pass/lec/property_types.hpp Outcome). Map each onto the ledger's
 # vocabulary; the exact lhd word is kept in the lec block as `lhd_verdict`.
 #   proven-full / proven-bounded  -> proven   (bounded/bound carried separately)
-#   tested-sampled                -> inconclusive (sampled vectors, not a proof)
+#   tested-sampled                -> tested (sampled vectors, not a proof)
 #   timeout-time / timeout-memory -> timeout
 #   refuted-cex                   -> refuted  (a real counterexample)
 #   refuted-unsupported           -> unsupported (no engine can model it)
@@ -64,7 +64,7 @@ _LHD_CAUSES = ("timeout", "unsupported", "undischarged", "unconfirmed", "unpaire
 _LHD_OUTCOMES = {
     "proven-full": "proven",
     "proven-bounded": "proven",
-    "tested-sampled": "inconclusive",
+    "tested-sampled": "tested",
     "timeout-time": "timeout",
     "timeout-memory": "timeout",
     "refuted-cex": "refuted",
@@ -101,7 +101,7 @@ def classify(
     timeout_s: int | None = None,
     solver: str | None = None,
 ) -> str:
-    """proven | refuted | timeout | inconclusive | unsupported | error.
+    """proven | tested | refuted | timeout | inconclusive | unsupported | error.
 
     Three-state on purpose. `proven` and `refuted` are answers; the rest are the
     absence of one. Collapsing a timeout into "fail" would report a design as
@@ -161,7 +161,7 @@ def classify(
             return "error"
     if verdict in _LHD_OUTCOMES:
         return _LHD_OUTCOMES[verdict]
-    if verdict in ("proven", "refuted", *_LHD_CAUSES):
+    if verdict in ("proven", "tested", "refuted", *_LHD_CAUSES):
         return verdict  # lhd names the cause itself; none of these is a proof or a refutation
     if verdict == "unknown":
         # UNKNOWN is the solver-level envelope, but a named frontend/encoder
@@ -407,6 +407,10 @@ def run_lec(ctx: FlowContext, solver: str, timeout_s: int) -> dict:
         "timeout_s": timeout_s,
         "wall_limit_s": wall,
     }
+    # Preserve the check's coverage and stop metadata independently of its label.
+    for field in ("vectors", "sampling", "effort", "cause", "cause_detail"):
+        if field in lec_block:
+            block[field] = lec_block[field]
     if images:
         block["input_images"] = images
     if solver == "lgyosys":

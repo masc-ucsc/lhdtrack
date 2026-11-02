@@ -56,7 +56,7 @@ class IndependentVerdicts(unittest.TestCase):
         # Current lhd: every verdict carries a modifier. Only refuted-cex is a
         # design refutation; the other REFUTED-<why> are failures with no answer.
         cases = {
-            'proven-full': 'proven', 'proven-bounded': 'proven', 'tested-sampled': 'inconclusive',
+            'proven-full': 'proven', 'proven-bounded': 'proven', 'tested-sampled': 'tested',
             'timeout-time': 'timeout', 'timeout-memory': 'timeout', 'refuted-cex': 'refuted',
             'refuted-unsupported': 'unsupported', 'refuted-interface': 'error',
             'refuted-unchecked': 'error', 'refuted-vacuous': 'error', 'refuted-unexplained': 'error',

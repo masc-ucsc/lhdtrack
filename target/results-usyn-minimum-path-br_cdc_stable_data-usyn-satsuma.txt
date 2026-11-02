@@ -1,0 +1,66 @@
+OpenSTA 3.1.0 GITDIR-NOT Copyright (c) 2026, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865904, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865937, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 865970, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866003, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866036, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866069, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 866102, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867500, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867533, timing group from output port.
+Warning 1212: /var/tmp/renau/_bazel_renau/9dfe49b94bcdf1a5ec2219719154e95e/execroot/_main/bazel-out/k8-opt/bin/tech/asap7/asap7sc7p5t_RVT_TT_merged.lib line 867566, timing group from output port.
+LHDTRACK_WNS -366.22657830563486
+LHDTRACK_TNS -11719.250505780316
+LHDTRACK_PERIOD 400.000000
+Warning 168: full.tcl line 1, unknown field nets.
+Warning 503: full.tcl line 1, report_checks -group_count is deprecated. Use -group_path_count instead.
+Startpoint: __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_8f5eb6dee178e883.br_cdc_reg_inst.br_cdc_bit_toggle_pop_to_push_reset_active.br_gate_cdc_sync.in_d[1]
+            (rising edge-triggered flip-flop clocked by clk)
+Endpoint: __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.br_cdc_reg_inst.br_cdc_reg_push.push_reg_data[4]
+          (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout       Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------------
+                    0.0000    0.0000    0.0000   clock clk (rise edge)
+                              0.0000    0.0000   clock network delay (ideal)
+                    0.0000    0.0000    0.0000 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_8f5eb6dee178e883.br_cdc_reg_inst.br_cdc_bit_toggle_pop_to_push_reset_active.br_gate_cdc_sync.in_d[1]/CLK (DFFHQNx1_ASAP7_75t_R)
+     2    0.7294   18.8223   43.7261   43.7261 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_8f5eb6dee178e883.br_cdc_reg_inst.br_cdc_bit_toggle_pop_to_push_reset_active.br_gate_cdc_sync.in_d[1]/QN (DFFHQNx1_ASAP7_75t_R)
+                   18.8223    0.0000   43.7261 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g1_NAND2xp33_ASAP7_75t_R/A (NAND2xp33_ASAP7_75t_R)
+     1    0.4126   19.6504   17.0651   60.7913 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g1_NAND2xp33_ASAP7_75t_R/Y (NAND2xp33_ASAP7_75t_R)
+                   19.6504    0.0000   60.7913 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g2_OAI21xp33_ASAP7_75t_R/B (OAI21xp33_ASAP7_75t_R)
+     2    1.3140   31.1773   21.7838   82.5751 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g2_OAI21xp33_ASAP7_75t_R/Y (OAI21xp33_ASAP7_75t_R)
+                   31.1773    0.0000   82.5751 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g3_XNOR2xp5_ASAP7_75t_R/B (XNOR2xp5_ASAP7_75t_R)
+     1    0.3466   21.2355   18.1370  100.7121 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g3_XNOR2xp5_ASAP7_75t_R/Y (XNOR2xp5_ASAP7_75t_R)
+                   21.2355    0.0000  100.7121 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g4_NAND2xp33_ASAP7_75t_R/B (NAND2xp33_ASAP7_75t_R)
+     2    1.2428   28.1623   20.7855  121.4976 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g4_NAND2xp33_ASAP7_75t_R/Y (NAND2xp33_ASAP7_75t_R)
+                   28.1623    0.0000  121.4976 v __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g5_INVxp33_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+    33   17.0610  445.8261  214.6594  336.1570 ^ __flat___br_cdc_stable_data__a_370289e9964e7d14.__flat___br_cdc_stable_data__a_370289e9964e7d14__a_de43a2f0e1d4578d.g5_INVxp33_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                  445.8261    0.0000  336.1570 ^ __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_e980dbacc7cd297a.g0_INVxp33_ASAP7_75t_R/A (INVxp33_ASAP7_75t_R)
+    32   15.0433  367.4943  306.3475  642.5045 v __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_e980dbacc7cd297a.g0_INVxp33_ASAP7_75t_R/Y (INVxp33_ASAP7_75t_R)
+                  367.4943    0.0000  642.5045 v __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.g2_AND2x2_ASAP7_75t_R/A (AND2x2_ASAP7_75t_R)
+     1    0.5598   18.1275   78.3315  720.8359 v __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.g2_AND2x2_ASAP7_75t_R/Y (AND2x2_ASAP7_75t_R)
+                   18.1275    0.0000  720.8359 v __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.g3_A2O1A1Ixp33_ASAP7_75t_R/B (A2O1A1Ixp33_ASAP7_75t_R)
+     1    0.5588   75.9276   16.8198  737.6557 ^ __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.g3_A2O1A1Ixp33_ASAP7_75t_R/Y (A2O1A1Ixp33_ASAP7_75t_R)
+                   75.9276    0.0000  737.6557 ^ __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.br_cdc_reg_inst.br_cdc_reg_push.push_reg_data[4]/D (DFFHQNx1_ASAP7_75t_R)
+                                      737.6557   data arrival time
+
+                    0.0000  400.0000  400.0000   clock clk (rise edge)
+                              0.0000  400.0000   clock network delay (ideal)
+                              0.0000  400.0000   clock reconvergence pessimism
+                                      400.0000 ^ __flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0.__flat___br_cdc_stable_data__a_4a6f60cdaf8f22d0__a_02271bf396cab555.br_cdc_reg_inst.br_cdc_reg_push.push_reg_data[4]/CLK (DFFHQNx1_ASAP7_75t_R)
+                            -28.5709  371.4291   library setup time
+                                      371.4291   data required time
+-------------------------------------------------------------------------------------
+                                      371.4291   data required time
+                                     -737.6557   data arrival time
+-------------------------------------------------------------------------------------
+                                     -366.2266   slack (VIOLATED)
+
+

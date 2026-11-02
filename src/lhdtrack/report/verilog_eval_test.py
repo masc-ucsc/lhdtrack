@@ -307,7 +307,7 @@ class VerilogEvaluation(unittest.TestCase):
                 dict(lec_verilog_result=dict(verdict="timeout"))}
         rendered = logic_gate_section(rows, spec)
         self.assertIn("unverified results: 0.500× (n=1)", rendered)
-        self.assertIn("proof coverage incomplete", rendered)
+        self.assertIn("check coverage incomplete", rendered)
         rows["memory", "one", "lec_netlist_verilog_usyn_no_satopt"]["lec_verilog_result"]["verdict"] = "refuted"
         rendered = logic_gate_section(rows, spec)
         self.assertIn("unverified results: no eligible pairs", rendered)
@@ -384,7 +384,7 @@ class VerilogEvaluation(unittest.TestCase):
         self.assertAlmostEqual(ratio, 4.0)
         self.assertEqual(count, 1)
 
-    def test_lec_time_geomean_excludes_either_timeout_but_keeps_bounded(self):
+    def test_lec_time_geomean_includes_tested_equally_with_bounded(self):
         slots = [dict(test=t, config="one") for t in ("bounded", "native_timeout", "yosys_timeout")]
         rows = {}
         for t, native, yosys in (("bounded", "proven", "proven"),
@@ -394,11 +394,13 @@ class VerilogEvaluation(unittest.TestCase):
                 "lec_verilog_result": {"ms": 100, "verdict": native, "bounded": True, "bound": 6},
                 "lec_aux_result": {"ms": 400, "verdict": yosys}}
         self.assertEqual(lec_time_geomean(rows, slots, "abc")[1], 3)
-        ratio, count = lec_time_geomean(rows, slots, "abc", exclude_timeouts=True)
+        ratio, count = lec_time_geomean(rows, slots, "abc")
         self.assertAlmostEqual(ratio, 4.0)
-        self.assertEqual(count, 1)
+        self.assertEqual(count, 3)
         del rows["bounded", "one", "lec_netlist_verilog"]
-        self.assertEqual(lec_time_geomean(rows, slots, "abc", exclude_timeouts=True), (None, 0))
+        ratio, count = lec_time_geomean(rows, slots, "abc")
+        self.assertAlmostEqual(ratio, 4.0)
+        self.assertEqual(count, 2)
 
     def test_bounded_oracle_requires_every_success_and_no_refutation(self):
         block = {"verdict": "inconclusive", "ms": 12}
@@ -505,15 +507,15 @@ class VerilogEvaluation(unittest.TestCase):
         self.assertEqual(proof["lec_verilog_result"]["netlist_sha256"], "disabled")
         self.assertEqual(proof["lec_verilog_result"]["verdict"], "refuted")
 
-    def test_satopt_lec_effect_pairs_only_double_proofs(self):
+    def test_satopt_lec_effect_includes_tested_runs(self):
         slots = [dict(test=t, config="one") for t in ("a", "b")]
         rows = {("a", "one", "lec_netlist_verilog"): {"lec_verilog_result": {"verdict": "proven", "ms": 10}},
                 ("a", "one", "lec_netlist_verilog_no_satopt"): {"lec_verilog_result": {"verdict": "proven", "ms": 40}},
                 ("b", "one", "lec_netlist_verilog"): {"lec_verilog_result": {"verdict": "proven", "ms": 10}},
                 ("b", "one", "lec_netlist_verilog_no_satopt"): {"lec_verilog_result": {"verdict": "timeout", "ms": 999}}}
         ratio, count, proven = satopt_lec_effect(rows, slots, "abc")
-        self.assertAlmostEqual(ratio, 4.0)
-        self.assertEqual(count, 1)
+        self.assertAlmostEqual(ratio, (4.0 * 99.9) ** 0.5)
+        self.assertEqual(count, 2)
         self.assertEqual(proven, {True: 2, False: 1})
 
     def test_geomean_retains_unverified_and_excludes_refuted(self):
@@ -538,8 +540,9 @@ class VerilogEvaluation(unittest.TestCase):
         proof = {"lec_verilog_result": proven, "lec_aux_result": {"verdict": "timeout"}}
         self.assertTrue(proof_ok(synth, proof))
         self.assertTrue(proof_ok(synth, {"lec_verilog_result": {**proven, "bounded": True, "bound": 6}}))
-        for update in ({"netlist_sha256": "different"},
-                       {"verdict": "timeout"}):
+        self.assertTrue(proof_ok(synth, {"lec_verilog_result": {**proven, "verdict": "timeout"}}))
+        self.assertTrue(proof_ok(synth, {"lec_verilog_result": {**proven, "verdict": "tested"}}))
+        for update in ({"netlist_sha256": "different"}, {"verdict": "inconclusive"}):
             self.assertFalse(proof_ok(synth, {"lec_verilog_result": {**proven, **update}}))
         self.assertFalse(proof_ok(synth, {
             "lec_verilog_result": proven, "lec_aux_result": {"verdict": "refuted"},

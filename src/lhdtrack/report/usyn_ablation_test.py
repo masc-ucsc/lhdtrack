@@ -1,4 +1,4 @@
-"""Frequency claims require compatible timing and unbounded exact-netlist proof."""
+"""Frequency claims require compatible timing and a checked exact netlist."""
 from copy import deepcopy
 from unittest import TestCase
 
@@ -46,6 +46,32 @@ class FrequencyComparison(TestCase):
             self.assertIsNone(timing_ratio(base, invalid))
         measured["sta"]["opensta_ns"] = float("nan")
         self.assertIsNone(timing_ratio(base, measured))
+
+    def test_tested_and_proven_have_identical_frequency_statistics(self):
+        slots = [dict(test="a", config="one")]
+        specs = {name: dict(host="host", tech="asap7", liberty_sha256="lib",
+                           run_id=name, slots=slots) for name in ("abc", "selection")}
+        history = []
+        for name, suffix, delay in (("abc", "", 200), ("selection", "_usyn", 100)):
+            identity = dict(run_id=name, test="a", config="one")
+            history.append(dict(mapping(delay, name), **identity, pyrope_status="idiomatic",
+                                lec="proven", comparable=True,
+                                flow=f"syn_lhd_verilog{suffix}_no_satopt"))
+            history.append(dict(proof(name), **identity,
+                                flow=f"lec_netlist_verilog{suffix}_no_satopt"))
+        proven = summarize(history, specs)
+        for row in history:
+            if "lec_verilog_result" in row:
+                row["lec_verilog_result"]["verdict"] = "timeout"
+            else:
+                # Legacy rows rejected timeouts through a stored status flag.
+                row.update(lec="timeout", comparable=False)
+        tested = summarize(history, specs)
+        for key in ("headline", "common_headline", "native_iteration", "counts"):
+            self.assertEqual(tested[key], proven[key])
+        bad = deepcopy(history)
+        bad[-1]["lec_aux_result"] = {"verdict": "refuted"}
+        self.assertEqual(summarize(bad, specs)["headline"]["selection"]["count"], 0)
 
     def test_missing_failed_and_skipped_slots_remain_in_matrix(self):
         slots = [dict(test="a", config="one"), dict(test="missing", config="one")]
