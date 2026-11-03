@@ -29,6 +29,24 @@ from .metrics import Measured, Stage, best_of, measure
 from .toolchain import Tech, Toolchain
 
 
+# lhdtrack measures cold runs, never incremental reuse. `lhd.incremental` is
+# lhd's one switch for every persistent reuse tier (compile cache, abc/sta
+# caches, formal verdict cache) and for profile-guided `sim.tune.*` decisions,
+# all of which only act under a user --workdir -- which every flow names. Off,
+# each row is an honest cold run on lhd's built-in defaults. A command that
+# names lhd.incremental itself keeps its own setting.
+LHD_COLD = ("--set", "lhd.incremental=false")
+
+
+def lhd_cold_argv(argv: list[str], lhd: str | None) -> list[str]:
+    """Prefix `lhd` invocations with LHD_COLD (global --set goes before the subcommand)."""
+    if lhd is None or not argv or argv[0] != lhd:
+        return argv
+    if any(a.startswith("lhd.incremental=") for a in argv):
+        return argv
+    return [argv[0], *LHD_COLD, *argv[1:]]
+
+
 class FlowError(RuntimeError):
     """A flow could not produce a measurement. Reported red, never silently dropped."""
 
@@ -73,8 +91,11 @@ class FlowContext:
         that trusts the tool's flag has no bound, and one hard design stalls the
         nightly `make run` forever. Pass this wherever the tool's own limit is
         not evidence that it will return.
+
+        `lhd` commands run cold (LHD_COLD) unless they set lhd.incremental.
         """
-        argv = [str(a) for a in argv]
+        argv = lhd_cold_argv([str(a) for a in argv],
+                             str(self.tc.bin("lhd")) if self.tc.has("lhd") else None)
         self.cmds.append(f"{label}: {' '.join(shlex.quote(a) for a in argv)}")
         m = self.stage.add(
             measure(
