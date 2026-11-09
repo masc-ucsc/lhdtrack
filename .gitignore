@@ -5,6 +5,7 @@
 # nothing here is worth committing or worth resolving a conflict over.
 #/target/
 /obj_dir/
+/repros/
 
 # Bazel
 /bazel-*
