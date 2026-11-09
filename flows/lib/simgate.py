@@ -127,10 +127,6 @@ def run_lhd_sim(
     Compare setup + compile across backends because object generation straddles
     those stages differently. Verilog's separate elab stage also belongs in
     the total cost of preparing and executing one simulation.
-
-    sim.ninja=false PINS the build path. `lhd sim` uses ninja when it finds one
-    on PATH and its own parallel compile otherwise; leaving that to chance makes
-    cc_ms depend on whether the machine happens to have ninja installed.
     """
     lhd = ctx.tool("lhd")
     if backend not in ("slop", "llvm"):
@@ -161,7 +157,7 @@ def run_lhd_sim(
     run = ctx.run(
         "run",
         [lhd, "sim", *inputs, "--run-only", "--arg", f"cycles={cycles}",
-         *sim_policy, "--set", "sim.ninja=false",
+         *sim_policy,
          *(["--set", "sim.compile_only=true"] if direct_compile_timing else []),
          "--diag-fmt", "pretty", "--workdir", "SW"],
     )
